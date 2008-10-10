@@ -26,8 +26,10 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 
 //Java imports
+import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -36,7 +38,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -141,7 +142,7 @@ class PointIterator
      * @param loc			The location of the pixelValue on the 2D-selection.
      */
     private void notifyValue(double pixelValue, int z, int w, int t, 
-    						PlanePoint2D loc)
+    						Point loc)
     {
         PointIteratorObserver obs;
         Iterator i = observers.iterator();
@@ -259,7 +260,10 @@ class PointIterator
     }
     
     /** Removes all iteration observers from the notification list. */
-    void clearNotificationList() { observers.clear(); }
+    void clearNotificationList()
+    { 
+    	observers = new HashSet<PointIteratorObserver>();
+    }
     
     /**
      * Iterates over the pixels contained in <code>roi</code>.
@@ -269,40 +273,39 @@ class PointIterator
      * iterated pixels value. 
      * 
      * @param shape  	The shape to analyse. Mustn't be <code>null</code>.
+     * @param points	The collection of points contained in the shape.
      * @param w 		The selected channel. 
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public void iterate(ROIShape shape, int w) 
+    public void iterate(ROIShape shape, List<Point> points, int w) 
         throws DataSourceException
     {
         if (shape == null) throw new NullPointerException("No shapes.");
         if (w < 0 || w >= sizeC) 
         	throw new NullPointerException("Channel not valid.");
-        ROIFigure selection2D;
-        PlanePoint2D[] points;
         notifyIterationStart();
-        try {  //Iterate in ZWT order and notify observers.
+        try { 
         	int z = shape.getZ();
     		int t = shape.getT();
     		if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
-    			selection2D = shape.getFigure();
-        		points = selection2D.getPoints();
-        		notifyPlaneStart(z, w, t, points.length);
+        		notifyPlaneStart(z, w, t, points.size());
         		Plane2D data = source.getPlane(z, t, w);
                 double value;
                 int length = 0;
                 int x1, x2;
-                
-                for (int i = 0; i < points.length; ++i) {
-                	x1 = (int) points[i].x1;
-                	x2 = (int) points[i].x2;
+                Iterator<Point> i = points.iterator();
+                Point p;
+                while (i.hasNext()) {
+					p = i.next();
+					x1 = p.x;
+                	x2 = p.y;
                 	if (isValidPoint(x1, x2)) {
                 		value = data.getPixelValue(x1, x2);
-                    	notifyValue(value, z, w, t, points[i]);
+                    	notifyValue(value, z, w, t, p);
                     	length++;
                 	}
-                }
+				}
                 notifyPlaneEnd(z, w, t, length);
     		}
     		

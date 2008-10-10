@@ -26,10 +26,16 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -75,14 +81,16 @@ public class MeasurePointFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
-	  /** 
-     * Creates a new instance.
-     * @param text text of the ellipse. 
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
-     * @param width of the figure. 
-     * @param height of the figure. 
-     * */
+	private int 					status;
+	
+	/** 
+	 * Creates a new instance.
+	 * @param text text of the ellipse. 
+	 * @param x    coord of the figure. 
+	 * @param y    coord of the figure. 
+	 * @param width of the figure. 
+	 * @param height of the figure. 
+	 */
 	public MeasurePointFigure(String text, double x, double y, double width, 
 																double height) 
     {
@@ -90,6 +98,7 @@ public class MeasurePointFigure
     	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 	    shape = null;
 		roi = null;
+		status = IDLE;
     }
 
 	  /** 
@@ -333,12 +342,22 @@ public class MeasurePointFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()
 	 */
-	public PlanePoint2D[] getPoints()
+	public List<Point> getPoints()
 	{
+		List<Point> points = new ArrayList<Point>(1);
+		points.add(new Point((int) getX(), (int) getY())); 
+		return points;
+		/*
 		PlanePoint2D[] points = new PlanePoint2D[1];
 		points[0] = new PlanePoint2D(getX(), getY());
 		return points;
+		*/
+		
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

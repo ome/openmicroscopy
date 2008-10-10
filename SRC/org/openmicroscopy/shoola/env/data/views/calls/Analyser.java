@@ -79,6 +79,7 @@ public class Analyser
     	return new BatchCall("Analysing shapes") {
     		            public void doCall() throws Exception
             {
+    		    
             	DataSink sink = PixelsServicesFactory.createDataSink(pixels);
             	//ROI analyser
             	ROIAnalyser analyser = new ROIAnalyser(sink, 

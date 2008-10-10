@@ -27,6 +27,9 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -36,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.WindowConstants;
@@ -61,6 +65,8 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -160,6 +166,73 @@ class MeasurementViewerControl
     }
 
     /**
+     * Sets the status of the currently selected Region of Interest.
+     * 
+     * @param status The value to set.
+     */
+    private void setROIFigureStatus(int status)
+    {
+    	Collection<Figure> selectedFigures = 
+				view.getDrawingView().getSelectedFigures(); 
+    	if (selectedFigures.size() != 1) return;
+    	Iterator<Figure> i = selectedFigures.iterator();
+    	Figure fig;
+    	ROIFigure roiFigure;
+    	while (i.hasNext()) {
+    		fig =  i.next();
+    		if (fig instanceof ROIFigure) {
+    			roiFigure = (ROIFigure) fig;
+    			roiFigure.setStatus(status);
+    			handleFigureChange(roiFigure);
+    		}
+    	}
+    }
+    
+    /**
+     * Handles the selection of new Region of Interest.
+     * 
+     * @param figure The value to handle.
+     */
+    private void handleFigureChange(ROIFigure figure)
+	{
+    	//TODO clean that code
+    	if ((figure instanceof MeasureLineFigure) || 
+				(figure instanceof MeasurePointFigure)) {
+    		figure.calculateMeasurements();
+    		view.refreshResultsTable();
+    		model.setDataChanged();
+    		if (!view.inDataView()) return;
+    		ROIShape shape = figure.getROIShape();
+    		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+    		ROI roi = shape.getROI();
+    		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+    		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+    		while (shapeIterator.hasNext())
+    			shapeList.add(shapeMap.get(shapeIterator.next()));
+    		
+    		if (shapeList.size() != 0)
+    			model.analyseShapeList(shapeList);
+    		return;
+		}
+    	
+		if (figure.getStatus() != ROIFigure.IDLE) return;
+		figure.calculateMeasurements();
+		view.refreshResultsTable();
+		model.setDataChanged();
+		if (!view.inDataView()) return;
+		ROIShape shape = figure.getROIShape();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+		ROI roi = shape.getROI();
+		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		while (shapeIterator.hasNext())
+			shapeList.add(shapeMap.get(shapeIterator.next()));
+		
+		if (shapeList.size() != 0)
+			model.analyseShapeList(shapeList);
+	}
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(MeasurementViewer, MeasurementViewerUI) initialize} 
      * method should be called straigh 
@@ -187,6 +260,8 @@ class MeasurementViewerControl
         createActions();
     }
     
+
+    
     /** 
      * Attaches a window listener to the view to discard the model when 
      * the user closes the window.
@@ -204,6 +279,19 @@ class MeasurementViewerControl
              public void windowOpened(WindowEvent e) { 
             	 view.addWindowFocusListener(this); }
          });
+    	 view.getDrawingView().addMouseListener(new MouseAdapter() {
+    			
+ 			public void mouseReleased(MouseEvent e)
+ 			{
+ 				setROIFigureStatus(ROIFigure.IDLE);
+ 			}
+ 		
+ 			public void mousePressed(MouseEvent e)
+ 			{
+ 				setROIFigureStatus(ROIFigure.MOVING);
+ 			}
+ 		
+ 		});
     }
     
     /** 
@@ -254,7 +342,7 @@ class MeasurementViewerControl
 			ROIShape shape = figure.getROIShape();
 			if (view.inDataView()) 
 			{
-				ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+				List<ROIShape> shapeList = new ArrayList<ROIShape>();
 				ROI roi = shape.getROI();
 				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
@@ -318,21 +406,25 @@ class MeasurementViewerControl
 	{
 		Figure f = e.getFigure();
 		if (!(f instanceof ROIFigure)) return;
+
 		ROIFigure roiFigure = (ROIFigure) f;
+		roiFigure.setStatus(ROIFigure.MOVING);
 		view.addROI(roiFigure);
 		roiFigure.addFigureListener(this);
 		model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = roiFigure.getROIShape();
-		if (view.inDataView())
-		{
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-			ROI roi = shape.getROI();
-			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-			while (shapeIterator.hasNext())
-				shapeList.add(shapeMap.get(shapeIterator.next()));
-			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+		ROI roi = shape.getROI();
+		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		while (shapeIterator.hasNext())
+			shapeList.add(shapeMap.get(shapeIterator.next()));
+		if (shapeList.size() == 0) return;
+		if ((f instanceof MeasureLineFigure) || 
+				(f instanceof MeasurePointFigure)) {
+			roiFigure.setStatus(ROIFigure.IDLE);
+			model.analyseShapeList(shapeList);
 		}
 	}
 	
@@ -361,7 +453,7 @@ class MeasurementViewerControl
 			if (figure == null) return;
 			ROIShape shape = figure.getROIShape();
 			if (shape == null) return;
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			List<ROIShape> shapeList = new ArrayList<ROIShape>();
 			ROI roi = shape.getROI();
 			if (roi == null) return;
 			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
@@ -390,6 +482,7 @@ class MeasurementViewerControl
 		}
 	}
 
+	
 	/**
 	 * Required by the {@link DrawingListener} I/F used to update 
 	 * the measurements of a component and the different dataviews. 
@@ -400,22 +493,7 @@ class MeasurementViewerControl
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) {
 			ROIFigure roiFigure = (ROIFigure) f;
-			roiFigure.calculateMeasurements();
-			view.refreshResultsTable();
-			model.setDataChanged();
-			if (view.inDataView()) {
-				
-				ROIShape shape = roiFigure.getROIShape();
-				ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-				ROI roi = shape.getROI();
-				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-				while (shapeIterator.hasNext())
-					shapeList.add(shapeMap.get(shapeIterator.next()));
-				
-				if (shapeList.size() != 0)
-					model.analyseShapeList(shapeList);
-			}
+			handleFigureChange(roiFigure);
 		}
 	}
 	
@@ -435,9 +513,9 @@ class MeasurementViewerControl
 			ROIFigure fig = (ROIFigure) iterator.next();
 			if (fig instanceof MeasureTextFigure) return;
 			
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			List<ROIShape> shapeList = new ArrayList<ROIShape>();
 			shapeList.add(fig.getROIShape());
-			view.calculateStats(fig.getROIShape().getID(), shapeList);
+			view.calculateStats(shapeList);
 		}
 	}
 	

@@ -26,12 +26,17 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -87,6 +92,8 @@ public class MeasureLineConnectionFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	private int 					status;
+	
 	/**
 	 * Create instance of line connection figure. 
 	 *
@@ -110,6 +117,7 @@ public class MeasureLineConnectionFigure
 	
 		shape = null;
 		roi = null;
+		status = IDLE;
 	}
 
 
@@ -457,19 +465,19 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()
 	 */
-	public PlanePoint2D[] getPoints()
+	public List<Point> getPoints()
 	{
 		Rectangle r = path.getBounds();
-		ArrayList vector = new ArrayList();
+		List<Point> vector = new ArrayList<Point>();
 		int yEnd = r.y+r.height;
 		int x, y;
 		int index = 0;
 		for (y = r.y; y < yEnd; ++y) {
 			x = r.x+index;
-			if (r.contains(x, y)) vector.add(new PlanePoint2D(x, y));
+			if (r.contains(x, y)) vector.add(new Point(x, y));
 			index++;
 		}
-		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+		return vector;
 	}
 
 	/**
@@ -487,6 +495,10 @@ public class MeasureLineConnectionFigure
 	{
 		super.removeAllNodes();
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

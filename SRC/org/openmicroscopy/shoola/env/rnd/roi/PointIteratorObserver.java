@@ -24,11 +24,11 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 
 //Java imports
+import java.awt.Point;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 /** 
  * Monitors a {@link PointIterator} as it proceeds in a point by point
@@ -75,7 +75,7 @@ public interface PointIteratorObserver
      * @param t  			The t coordinate (timepoint) of the plane.
      * @param loc			The location of the pixelValue on the 2D-selection.
      */
-    public void update(double pixelValue, int z, int w, int t, PlanePoint2D loc);
+    public void update(double pixelValue, int z, int w, int t, Point loc);
     
     /**
      * Called just after the 2D selection within a given plane has been 

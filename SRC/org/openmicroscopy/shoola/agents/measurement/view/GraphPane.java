@@ -81,7 +81,8 @@ class GraphPane
 	final static int 						ANALYSING = 0;
 	
 	/** Index to identify tab */
-	public final static int					INDEX = MeasurementViewerUI.GRAPH_INDEX;
+	public final static int					INDEX = 
+										MeasurementViewerUI.GRAPH_INDEX;
 	
 	/** The name of the panel. */
 	private static final String				NAME = "Graph Pane";
@@ -105,40 +106,40 @@ class GraphPane
 	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 	
 	/** Map of the pixel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, double[]>> pixelStats;
+	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
 	
 	/** Map of the coord to a shape. */
-	HashMap<Coord3D, ROIShape> 				shapeMap;
+	private Map<Coord3D, ROIShape> 				shapeMap;
 	
 	/** List of channel Names. */
-	List<String> 							channelName ;
+	private List<String>	channelName ;
 	
 	/** List of channel colours. */
-	List<Color> 							channelColour;
+	private List<Color>		channelColour;
 	
 	/** The current coord of the ROI being depicted in the slider. */
-	Coord3D 								coord;
+	private Coord3D			coord;
 		
 	/** The line profile charts. */
-	LinePlot 								lineProfileChart;
+	private LinePlot		lineProfileChart;
 	
 	/** The histogram chart. */
-	HistogramPlot 							histogramChart;
+	private HistogramPlot	histogramChart;
 	
 	/** The state of the Graph pane. */
-	int 									state= READY;
+	private int				state= READY;
 	
 	/** Reference to the view.*/
-	MeasurementViewerUI 					view;
+	private MeasurementViewerUI 					view;
 	
 	/** Current shape. */
-	ROIShape 								shape;
+	private ROIShape 								shape;
 	
 	/**
-	 * overridded version of {@line TabPaneInterface#getIndex()}
+	 * Overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index of the tab.
 	 */
-	public int getIndex() {return INDEX; }
+	public int getIndex() { return INDEX; }
 		
 	/**
 	 * Returns <code>true</code> if the figure contained in the ROIShape
@@ -202,8 +203,8 @@ class GraphPane
 	{
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
-		zSlider.setPaintTicks(true);
-		zSlider.setPaintLabels(true);
+		zSlider.setPaintTicks(false);
+		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
 		zSlider.addChangeListener(this);
 		zSlider.setShowArrows(true);
@@ -213,8 +214,8 @@ class GraphPane
 
 
 		tSlider = new OneKnobSlider();
-		tSlider.setPaintTicks(true);
-		tSlider.setPaintLabels(true);
+		tSlider.setPaintTicks(false);
+		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
 		tSlider.addChangeListener(this);

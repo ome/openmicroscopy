@@ -26,25 +26,24 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.BezierFigure;
-import org.jhotdraw.geom.BezierPath;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -95,6 +94,8 @@ public class MeasureBezierFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 		
+	private int 					status;
+	
 	/** Create an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
@@ -105,6 +106,7 @@ public class MeasureBezierFigure
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
+		status = IDLE;
 	}
 	
 	/**
@@ -118,6 +120,7 @@ public class MeasureBezierFigure
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
+		status = IDLE;
 	}
 	
 	/**
@@ -131,6 +134,7 @@ public class MeasureBezierFigure
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
+		status = IDLE;
 	}
 	
 	/**
@@ -145,6 +149,7 @@ public class MeasureBezierFigure
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
+		status = IDLE;
 	}
 	
 	  
@@ -311,7 +316,7 @@ public class MeasureBezierFigure
 	 */
 	public int getPointCount()
 	{
-		return this.getPoints().length;
+		return this.getPoints().size();
 	}
 	
 	/**
@@ -323,7 +328,8 @@ public class MeasureBezierFigure
 		if (units.isInMicrons())
 		{
 			Point2D.Double pt1 =  path.getCenter();
-			pt1.setLocation(pt1.getX()*units.getMicronsPixelX(), pt1.getY()*units.getMicronsPixelY());
+			pt1.setLocation(pt1.getX()*units.getMicronsPixelX(), 
+					pt1.getY()*units.getMicronsPixelY());
 			return pt1;
 		}
 		return path.getCenter();
@@ -453,9 +459,9 @@ public class MeasureBezierFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()
 	 */
-	public PlanePoint2D[] getPoints()
+	public List<Point> getPoints()
 	{
-		if(isClosed())
+		if (isClosed())
 			return getAreaPoints();
 		else
 			return getLinePoints();
@@ -465,41 +471,42 @@ public class MeasureBezierFigure
 	 * Get the points(pixels) in the polygon return this as an array.
 	 * @return see above.
 	 */
-	private PlanePoint2D[] getAreaPoints()
+	private List<Point> getAreaPoints()
 	{
 		Rectangle r = path.getBounds();
 		double iX = Math.floor(r.getX());
 		double iY = Math.floor(r.getY());
-		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
+		List<Point> vector = new ArrayList<Point>();
 		path.toPolygonArray();
 		Point2D point = new Point2D.Double(0,0);
-		for(int x = 0 ; x < Math.ceil(r.getWidth()); x++)
+		for (int x = 0 ; x < Math.ceil(r.getWidth()); x++)
 		{
-			for( int y = 0 ; y < Math.ceil(r.getHeight()) ; y++)
+			for ( int y = 0 ; y < Math.ceil(r.getHeight()) ; y++)
 			{
 				point.setLocation(iX+x, iY+y);
-				if(path.contains(point))
-					vector.add(new PlanePoint2D(point.getX(), point.getY()));
+				if (path.contains(point))
+					vector.add(new Point((int) point.getX(), (int)  
+							point.getY()));
 			}
 		}
-		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
+		return vector;
 	}
 	
 	/**
 	 * Get the points(pixels) on the polyline return this as an array.
 	 * @return see above.
 	 */
-	private PlanePoint2D[] getLinePoints()
+	private List<Point> getLinePoints()
 	{
-		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
-		for(int i = 0 ; i < getNodeCount()-1; i++)
+		List<Point> vector = new ArrayList<Point>();
+		for (int i = 0 ; i < getNodeCount()-1; i++)
 		{
 			Point2D pt1 = getPoint(i);
 			Point2D pt2 = getPoint(i+1);
 			Line2D line = new Line2D.Double(pt1, pt2);
 			iterateLine(line, vector);
 		}
-		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
+		return vector;
 	}
 		
 	/**
@@ -507,7 +514,7 @@ public class MeasureBezierFigure
 	 * @param line the line to iterate.
 	 * @param vector the vector to add the point to.
 	 */
-	private void iterateLine(Line2D line, ArrayList<PlanePoint2D> vector)
+	private void iterateLine(Line2D line, List<Point> vector)
 	{
 		Point2D start = line.getP1();
 		Point2D end = line.getP2();
@@ -528,10 +535,14 @@ public class MeasureBezierFigure
 		while(i.hasNext())
 		{
 			Point2D p  = i.next();
-			vector.add(new PlanePoint2D(p.getX(), p.getY()));
+			vector.add(new Point((int) p.getX(), (int) p.getY()));
 		}
 		
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

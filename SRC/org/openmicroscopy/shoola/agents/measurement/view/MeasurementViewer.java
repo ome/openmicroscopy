@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.PixelsData;
 
 /** 
@@ -74,17 +72,14 @@ public interface MeasurementViewer
     /** Flag to denote the <i>Analyse shape</i> state. */
     public static final int     ANALYSE_SHAPE = 4;
     
-    /** Flag to denote the <i>Analyse roi</i> state. */
-    public static final int     ANALYSE_ROI = 5;
-    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 6;
+    public static final int     READY = 5;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 7;
+    public static final int     DISCARDED = 6;
 
     /** Flag to denote the <i>Value adjusting</i> state. */
-    public static final int     VALUE_ADJUSTING = 8;
+    public static final int     VALUE_ADJUSTING = 7;
  
     /**
      * Starts the data loading process when the current state is {@link #NEW} 
@@ -230,26 +225,12 @@ public interface MeasurementViewer
 	public void setStatsShapes(Map result);
 	
 	/**
-	 * Analyses the specifed shape.
-	 * 
-	 * @param shape The shape to analyse. Mustn't be <code>null</code>.
-	 */
-	//public void analyseShape(ROIShape shape);
-
-	/**
 	 * Analyses the specifed list of ROIShapes.
 	 * 
-	 * @param shape The list of ROIShapes to analyse. Mustn't be <code>null</code>.
+	 * @param shape The list of ROIShapes to analyse. 
+	 * 				Mustn't be <code>null</code>.
 	 */
-	public void analyseShapeList(ArrayList<ROIShape> shape);
-
-	
-	/**
-	 * Analyses the specifed ROI.
-	 * 
-	 * @param roi The shape to analyse. Mustn't be <code>null</code>.
-	 */
-	//public void analyseROI(ROI roi);
+	public void analyseShapeList(List<ROIShape> shape);
 
 	/**
 	 * Sets the metadata.

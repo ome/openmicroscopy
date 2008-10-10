@@ -26,13 +26,13 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 
 //Java imports
+import java.awt.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 /** 
  * Stores the results of some basic statistic analysis run on a given 
@@ -59,31 +59,90 @@ public class ROIShapeStats
     //clients b/c these fields are read-only after the computation is done.
     
     /** The minimum value within the 2D-selection. */
-    double  							min = Double.MAX_VALUE;
+    private double				min = Double.MAX_VALUE;
     
     /** The maximum value within the 2D-selection. */
-    double  							max = Double.MIN_VALUE;
+    private double				max = Double.MIN_VALUE;
     
     /** The sum of all values within the 2D-selection. */
-    double  							sum;  
+    private double				sum;  
     
     /** The sum of the squares of all values within the 2D selection. */
-    double  							sumOfSquares;  //Only useful during computation, hence no getter.
+    private double				sumOfSquares;  //Only useful during computation, hence no getter.
     
     /** The mean value within the 2D-selection. */
-    double  							mean;
+    private double				mean;
     
     /** The standard deviation within the 2D-selection. */
-    double  							standardDeviation;
+    private  double				standardDeviation;
     
     /** The number of points contained within the 2D-selection. */
-    int     							pointsCount;
+    private int					pointsCount;
     
     /** 
      * Map whose keys are the point on the plane and the values are 
      * the corresponding pixels value.
      */
-    private Map<PlanePoint2D, Double>	pixelsValue;
+    private Map<Point, Double>	pixelsValue;
+    
+    /**
+     * Sets the minimum value.
+     * 
+     * @param min The value to set.
+     */
+    void setMin(double min) { this.min = min; }
+    
+    /**
+     * Sets the maximum value.
+     * 
+     * @param max The value to set.
+     */
+    void setMax(double max) { this.max = max; }
+    
+    /**
+     * Adds the passed value to the sum.
+     * 
+     * @param value The value to add.
+     */
+    void addToSum(double value) { this.sum += value; }
+    
+    /**
+     * Adds the passed value to the sum of squares.
+     * 
+     * @param value The value to add.
+     */
+    void addToSumOfSquares(double value) { this.sumOfSquares += value*value; }
+    
+    /**
+     * Sets the mean value.
+     * 
+     * @param mean The value to set.
+     */
+    void setMean(double mean) { this.mean = mean; }
+    
+    /**
+     * Sets the number of points counted.
+     * 
+     * @param pointsCount The value to set.
+     */
+    void setPointsCount(int pointsCount) { this.pointsCount = pointsCount; }
+    
+    /**
+     * Returns the sum of squares.
+     * 
+     * @return See above.
+     */
+    double getSumOfSquares() { return sumOfSquares; }
+    
+    /**
+     * Sets the standard deviation.
+     * 
+     * @param standardDeviation The value to set.
+     */
+    void setStandardDeviation(double standardDeviation)
+    {
+    	this.standardDeviation = standardDeviation;
+    }
     
     /**
      * Returns the minimum value within the 2D-selection.
@@ -133,7 +192,7 @@ public class ROIShapeStats
      * 
      * @return See above.
      */
-    public Map<PlanePoint2D, Double> getPixelsValue() { return pixelsValue; }
+    public Map<Point, Double> getPixelsValue() { return pixelsValue; }
     
     /** 
      * Calculates the mean and standard deviation for the current 
@@ -156,9 +215,9 @@ public class ROIShapeStats
 	/**
      * Updates the min, max, and sum values of the current
      * {@link ROIShapeStats}.
-     * @see PointIteratorObserver#update(double, int, int, int, PlanePoint2D)
+     * @see PointIteratorObserver#update(double, int, int, int, Point)
      */
-	public void update(double pixelValue, int z, int w, int t, PlanePoint2D loc)
+	public void update(double pixelValue, int z, int w, int t, Point loc)
 	{
 		min = Math.min(pixelValue,min);
 		max = Math.max(pixelValue,max);
@@ -173,7 +232,7 @@ public class ROIShapeStats
      */
 	public void onStartPlane(int z, int w, int t, int pointsCount)
 	{
-		pixelsValue = new LinkedHashMap<PlanePoint2D, Double>(pointsCount);
+		pixelsValue = new LinkedHashMap<Point, Double>(pointsCount);
 	}
 	
 	/**

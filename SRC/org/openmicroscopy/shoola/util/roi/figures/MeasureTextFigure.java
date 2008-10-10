@@ -24,9 +24,14 @@ package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java importss
+import java.awt.Point;
 import java.awt.Shape;
+import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 import org.jhotdraw.draw.TextFigure;
@@ -64,6 +69,8 @@ public class MeasureTextFigure
 
 	private MeasurementUnits 	units;
 	
+	private int 				status;
+	
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
@@ -84,6 +91,7 @@ public class MeasureTextFigure
     	this.changed();
     	shape = null;
    		roi = null;
+   		status = IDLE;
     }
 
 	/**
@@ -137,7 +145,11 @@ public class MeasureTextFigure
 	 * in our case.
 	 * @see ROIFigure#getPoints()
 	 */
-	public PlanePoint2D[] getPoints() {  return null; }
+	public List<Point> getPoints() {  return null; }
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

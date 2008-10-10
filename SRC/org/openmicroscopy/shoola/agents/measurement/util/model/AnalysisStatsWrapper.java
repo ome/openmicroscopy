@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -73,9 +74,10 @@ public class AnalysisStatsWrapper
 		Map<Integer, Double>   channelMean = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelStdDev = new TreeMap<Integer, Double>();
 		Map<Integer, double[]>	channelData = new TreeMap<Integer, double[]>();
-		Map<Integer, Map<PlanePoint2D, Double>>	channelPixel = new TreeMap<Integer, Map<PlanePoint2D, Double>>();
+		Map<Integer, Map<Point, Double>>	channelPixel = 
+			new TreeMap<Integer, Map<Point, Double>>();
 		Iterator<Double> 	pixelIterator;
-		Map<PlanePoint2D,Double> pixels;
+		Map<Point, Double> pixels;
 		
 		double[] pixelData;
 		int cnt;

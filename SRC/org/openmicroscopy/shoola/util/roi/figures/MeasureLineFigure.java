@@ -26,15 +26,20 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -92,6 +97,8 @@ public class MeasureLineFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	private int 					status;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -129,6 +136,7 @@ public class MeasureLineFigure
 		pointArrayY = new ArrayList<Double>();
 		shape = null;
 		roi = null;
+		status = IDLE;
 	}
 	
 	/**
@@ -448,9 +456,9 @@ public class MeasureLineFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()
 	 */
-	public PlanePoint2D[] getPoints()
+	public List<Point> getPoints()
 	{
-		
+		/*
 		Rectangle r = path.getBounds();
 		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
 		for(int i = 0 ; i < getNodeCount()-1; i++)
@@ -462,6 +470,18 @@ public class MeasureLineFigure
 		}
 		
 		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
+		*/
+		Rectangle r = path.getBounds();
+		List<Point> vector = new ArrayList<Point>();
+		for (int i = 0 ; i < getNodeCount()-1; i++)
+		{
+			Point2D pt1 = getPoint(i);
+			Point2D pt2 = getPoint(i+1);
+			Line2D line = new Line2D.Double(pt1, pt2);
+			iterateLine(line, vector);
+		}
+		
+		return vector;
 	}
 	
 	/**
@@ -469,7 +489,7 @@ public class MeasureLineFigure
 	 * @param line the line to iterate.
 	 * @param vector the vector to add the point to.
 	 */
-	private void iterateLine(Line2D line, ArrayList<PlanePoint2D> vector)
+	private void iterateLine(Line2D line, List<Point> vector)
 	{
 		Point2D start = line.getP1();
 		Point2D end = line.getP2();
@@ -477,7 +497,7 @@ public class MeasureLineFigure
 		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
 		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
 		LinkedHashMap<Point2D, Boolean> map = new LinkedHashMap<Point2D, Boolean>();
-		for(double i = 0 ; i < lengthM ; i+=0.1)
+		for (double i = 0 ; i < lengthM ; i+=0.1)
 		{
 			Point2D pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
 				start.getY()+i*mNorm.getY());
@@ -487,10 +507,10 @@ public class MeasureLineFigure
 				map.put(quantisedPoint, new Boolean(true));
 		}
 		Iterator<Point2D> i = map.keySet().iterator();
-		while(i.hasNext())
+		while (i.hasNext())
 		{
 			Point2D p  = i.next();
-			vector.add(new PlanePoint2D(p.getX(), p.getY()));
+			vector.add(new Point((int) p.getX(), (int) p.getY()));
 		}
 	
 	}
@@ -502,6 +522,10 @@ public class MeasureLineFigure
 	{
 		super.removeAllNodes();
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

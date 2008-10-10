@@ -109,10 +109,7 @@ class ObjectManager
 	}
 	
 	/** Index to identify tab */
-	public final static int		INDEX = MeasurementViewerUI.MANAGER_INDEX;
-
-	/** The minimum width of the columns. */
-	private static int					COLUMNWIDTH = 32; 
+	private final static int		INDEX = MeasurementViewerUI.MANAGER_INDEX;
 
 	/** The name of the panel. */
 	private static final String			NAME = "Manager";
@@ -131,12 +128,6 @@ class ObjectManager
 	 * objects.
 	 */
 	private TreeSelectionListener		treeSelectionListener;
-	
-	/**
-	 * overridden version of {@line TabPaneInterface#getIndex()}
-	 */
-	public int getIndex() {return INDEX; }
-	
 
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -384,13 +375,13 @@ class ObjectManager
 	}
 	
 	/**
-	 * Calculate the stats for the roi in the shapelist with id.
-	 * @param id see above.
-	 * @param shapeList see above.
+	 * Calculates the stats for the roi in the shapelist
+	 * 
+	 * @param shapeList The collection of shapes.
 	 */
-	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
+	void calculateStats(List<ROIShape> shapeList)
 	{
-		view.calculateStats(id, shapeList);
+		view.calculateStats(shapeList);
 	}
 	
 	/**
@@ -400,7 +391,7 @@ class ObjectManager
 	 * @param idList see above. see above.
 	 * @param shapeList see above.
 	 */
-	public void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
 	{
 		view.mergeROI(idList, shapeList);
 		this.rebuildTable();
@@ -455,6 +446,12 @@ class ObjectManager
 	{
 		view.setReadyStatus();
 	}
+	
+	/**
+	 * Returns the index.
+	 * @see TabPaneInterface#getIndex()
+	 */
+	public int getIndex() { return INDEX; }
 	
 }
 	

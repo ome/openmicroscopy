@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 
 //Java imports
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,9 +35,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.model.Pixels;
-
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-
 
 
 /** 
@@ -59,14 +57,14 @@ public class ROIStats
 	/** 
 	 * The dimensions of the pixels set over which the stats will be computed.
 	 */
-    private Pixels    dims;
+    private Pixels    					dims;
     
     /**
      * Maps a {@link #linearize(int, int, int) linearized} <code>(z, w, t)
      * </code> tuple identifying a plane onto the stats calculated for the
      * 2D-selection contained in that plane. 
      */
-    private Map<Integer, ROIShapeStats>                 arrayMap;
+    private Map<Integer, ROIShapeStats>	arrayMap;
 
     /**
      * Transforms 3D coords into linear coords.
@@ -106,10 +104,7 @@ public class ROIStats
         if (dims == null) throw new NullPointerException("No dims.");
         this.dims = dims;
     }
-    
-    //Tempo
-    public int getSize() { return arrayMap.size(); }
-    
+   
     /**
      * Returns the stats, if any, that were calculated against the 2D-selection
      * within the specified plane.
@@ -134,7 +129,7 @@ public class ROIStats
      */
     public void iterationStarted() 
     {
-        arrayMap = new HashMap();
+        arrayMap = new HashMap<Integer, ROIShapeStats>();
     }
 
     /**
@@ -152,17 +147,19 @@ public class ROIStats
     /**
      * Updates the min, max, and sum values of the current {@link ROIShapeStats}
      * entry as needed.
-     * @see PointIteratorObserver#update(double, int, int, int, PlanePoint2D)
+     * @see PointIteratorObserver#update(double, int, int, int, Point)
      */
-    public void update(double pixelValue, int z, int w, int t, PlanePoint2D loc)
+    public void update(double pixelValue, int z, int w, int t, Point loc)
     {
         Integer index = linearize(z, w, t);
-        ROIShapeStats planeStats = (ROIShapeStats) arrayMap.get(index);
+        ROIShapeStats planeStats = arrayMap.get(index);
         //planeStats can't be null, see onStartPlane().
-        if (pixelValue < planeStats.min) planeStats.min = pixelValue;
-        if (planeStats.max < pixelValue) planeStats.max = pixelValue;
-        planeStats.sum += pixelValue;
-        planeStats.sumOfSquares += pixelValue*pixelValue;
+        if (pixelValue < planeStats.getMin()) 
+        	planeStats.setMin(pixelValue);
+        if (planeStats.getMax() < pixelValue) 
+        	planeStats.setMax(pixelValue);
+        planeStats.addToSum(pixelValue);
+        planeStats.addToSumOfSquares(pixelValue);
     }
 
     /** 
@@ -173,16 +170,17 @@ public class ROIStats
     public void onEndPlane(int z, int w, int t, int pointsCount)
     {
         Integer index = linearize(z, w, t);
-        ROIShapeStats ps = (ROIShapeStats) arrayMap.get(index);
+        ROIShapeStats ps = arrayMap.get(index);
         //planeStats can't be null, see onStartPlane().
         if (0 < pointsCount) {
-            ps.mean = ps.sum/pointsCount;
-            ps.pointsCount = pointsCount;
+            ps.setMean(ps.getSum()/pointsCount);
+            ps.setPointsCount(pointsCount);
             if (0 < pointsCount-1) {
                 double sigmaSquare = 
-                 (ps.sumOfSquares - ps.sum*ps.sum/pointsCount)/(pointsCount-1);
+                 (ps.getSumOfSquares() - ps.getSum()*ps.getSum()/pointsCount)
+                 /(pointsCount-1);
                 if (sigmaSquare > 0)
-                    ps.standardDeviation = Math.sqrt(sigmaSquare);
+                    ps.setStandardDeviation(Math.sqrt(sigmaSquare));
             }
                 
         }

@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -89,11 +90,70 @@ public class ROITable
 	/** Reference to the object manager. */
 	private ObjectManager   manager;
     
+
+	/**
+	 * Returns <code>true</code> if all the roishapes in the shapelist 
+	 * have the same id, <code>false</code> otherwise.
+	 *  
+	 * @param shapeList The list to handle.
+	 * @return See above.
+	 */
+	private boolean haveSameID(List<ROIShape> shapeList)
+	{
+		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
+		for (ROIShape shape : shapeList)
+		{
+			if (!shapeMap.containsKey(shape.getID()))
+			{
+				if (shapeMap.size() == 0)
+					shapeMap.put(shape.getID(), shape);
+				else
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Get the id that the roishapes in the shapelist contain, if they
+	 * do not contain the same id return -1;
+	 * 
+	 * @param shapeList The list to handle.
+	 * @return See above.
+	 */
+	private long getSameID(List<ROIShape> shapeList)
+	{
+		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
+		if (shapeList.size() == 0) return -1;
+		for (ROIShape shape : shapeList)
+		{
+			if (!shapeMap.containsKey(shape.getID()))
+			{
+				if (shapeMap.size() == 0)
+					shapeMap.put(shape.getID(), shape);
+				else
+					return -1;
+			}
+		}
+		return shapeList.get(0).getID();
+	}
+	
+	/**
+	 * Creates a popup menu to show different options to act of ROI.
+	 *
+	 */
+	private void createPopupMenu()
+	{
+		popupMenu = new ROIPopupMenu(this);
+	}
+	
 	/**
 	 * The constructor for the ROITable, taking the root node and
 	 * column names as parameters.  
+	 * 
 	 * @param model the table model.
 	 * @param columnNames the column names.
+	 * @param manager Reference to the manager.
 	 */
 	ROITable(ROITableModel model, Vector columnNames, ObjectManager manager)
 	{
@@ -104,23 +164,13 @@ public class ROITable
 		this.columnNames = columnNames;
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		ROIMap = new HashMap<ROI, ROINode>();
-		for( int i = 0 ; i < model.getColumnCount() ; i++)
+		for (int i = 0 ; i < model.getColumnCount() ; i++)
 		{
-			TableColumn column = this.getColumn(i);
-			column.setResizable(true);
+			getColumn(i).setResizable(true);
 		}
 		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITableCellRenderer());
 		createPopupMenu();
-	}
-
-	/**
-	 * Create a popup menu to show different options to act of ROI.
-	 *
-	 */
-	private void createPopupMenu()
-	{
-		popupMenu = new ROIPopupMenu(this);
 	}
 	
 	/** 
@@ -569,65 +619,22 @@ public class ROITable
 	
 	/**
 	 * Are all the roishapes in the shapelist on separate planes. 
-	 * @param shapeList see above.
-	 * @return see above.
+	 * 
+	 * @param shapeList The list to handle.
+	 * @return See above.
 	 */
-	boolean onSeparatePlanes(ArrayList<ROIShape> shapeList)
+	private boolean onSeparatePlanes(List<ROIShape> shapeList)
 	{
-		TreeMap<Coord3D, ROIShape> shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		for(ROIShape shape : shapeList)
+		TreeMap<Coord3D, ROIShape> 
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		for (ROIShape shape : shapeList)
 		{
-			if(shapeMap.containsKey(shape.getCoord3D()))
+			if (shapeMap.containsKey(shape.getCoord3D()))
 				return false;
 			else
 				shapeMap.put(shape.getCoord3D(), shape);
 		}
 		return true;
-	}
-	
-	/**
-	 * Return true if all the roishapes in the shapelist have the same id. 
-	 * @param shapeList see above.
-	 * @return see above.
-	 */
-	boolean haveSameID(ArrayList<ROIShape> shapeList)
-	{
-		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-		for(ROIShape shape : shapeList)
-		{
-			if(!shapeMap.containsKey(shape.getID()))
-			{
-				if(shapeMap.size()==0)
-					shapeMap.put(shape.getID(), shape);
-				else
-					return false;
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Get the id that the roishapes in the shapelist contain, if they
-	 * do not contain the same id return -1;
-	 * @param shapeList see above.
-	 * @return see above.
-	 */
-	long getSameID(ArrayList<ROIShape> shapeList)
-	{
-		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-		if(shapeList.size()==0)
-			return -1;
-		for(ROIShape shape : shapeList)
-		{
-			if(!shapeMap.containsKey(shape.getID()))
-			{
-				if(shapeMap.size()==0)
-					shapeMap.put(shape.getID(), shape);
-				else
-					return -1;
-			}
-		}
-		return shapeList.get(0).getID();
 	}
 	
 	/* (non-Javadoc)
@@ -699,44 +706,14 @@ public class ROITable
 	public void calculateStats()
 	{
 		manager.showReadyMessage();
-		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
-		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
-			manager.calculateStats(getSameID(selectedObjects), selectedObjects );
+		List<ROIShape> selectedObjects = getSelectedROIShapes();
+		if (onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
+			manager.calculateStats(selectedObjects);
 		else
-			manager.showMessage("Calculate: ROIs must be from the same ROI and on separate planes.");
+			manager.showMessage("Calculate: ROIs must be from the same ROI " +
+					"and on separate planes.");
 
 	}
 	
-	/**
-	 * Check the list of to make sure the ROIShapes in the list are from the
-	 * same ROI and if they are then return true;
-	 * @param shapeList see above.
-	 * @return see above.
-	 */
-	boolean shapesInSameROI(ArrayList shapeList)
-	{
-		long id=-1;
-		if(shapeList.size() == 0)
-			return false;
-		boolean first = true;
-		for(Object node : shapeList)
-		{
-			if(node instanceof ROI)
-				return false;
-			else if(node instanceof ROIShape)
-			{
-				ROIShape shape = (ROIShape)node;
-				if(first)
-				{
-					id = shape.getID();
-					first = false;
-				}
-				if(id != shape.getID())
-					return false;
-			}
-		}
-		return true;
-	}
-
 }
 

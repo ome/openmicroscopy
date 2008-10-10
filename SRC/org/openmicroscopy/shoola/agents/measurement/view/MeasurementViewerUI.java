@@ -306,9 +306,9 @@ class MeasurementViewerUI
 			// This method is called whenever the selected tab changes
 			public void stateChanged(ChangeEvent evt)
 			{
-				JTabbedPane pane=(JTabbedPane) evt.getSource();
+				//JTabbedPane pane=(JTabbedPane) evt.getSource();
 				// Get current tab
-				int sel = pane.getSelectedIndex();
+				//int sel = pane.getSelectedIndex();
 				if (inDataView())
 				{
 					controller.analyseSelectedFigures();
@@ -384,19 +384,21 @@ class MeasurementViewerUI
 	/**
 	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
 	 * in the shapeList from those ROI.
+	 * 
 	 * @param idList see above.
 	 * @param shapeList see above.
 	 */
-	public void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	void mergeROI(List<Long> idList, List<ROIShape> shapeList)
 	{
 		try
 		{
 			model.setDataChanged();
 			ROI newROI = model.cloneROI(idList.get(0));
-			for(ROIShape shape : shapeList)
+			for (ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				if(getDrawing().contains(shape.getFigure()))
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
+						shape);
+				if (getDrawing().contains(shape.getFigure()))
 				{
 					shape.getFigure().removeFigureListener(controller);
 					getDrawing().removeDrawingListener(controller);
@@ -404,10 +406,10 @@ class MeasurementViewerUI
 					getDrawing().addDrawingListener(controller);
 				}
 				model.deleteShape(shape.getID(), shape.getCoord3D());
-				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
 					getDrawing().removeDrawingListener(controller);
-					this.getDrawing().add(newShape.getFigure());
+					getDrawing().add(newShape.getFigure());
 					newShape.getFigure().addFigureListener(controller);
 					getDrawing().addDrawingListener(controller);
 				}
@@ -416,12 +418,11 @@ class MeasurementViewerUI
 		}
 		catch (Exception e)
 		{
-			if(e instanceof ROICreationException)
+			if (e instanceof ROICreationException)
 				handleROIException(e, CREATE_MSG);
-			else if(e instanceof NoSuchROIException)
+			else if (e instanceof NoSuchROIException)
 				handleROIException(e, RETRIEVE_MSG);
-			else 
-				handleROIException(e, UNKNOWN_MSG+"Merging ROI");
+			else handleROIException(e, UNKNOWN_MSG+"Merging ROI");
 		}
 		
 	}
@@ -659,11 +660,12 @@ class MeasurementViewerUI
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
 	}
 	
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#showROIAssistant(ROI)
+	/**
+	 * Displays the {@link ROIAssistant} for the passed ROI.
+	 * 
+	 * @param roi The ROI to handle.
 	 */
-	public void showROIAssistant(ROI roi)
+	void showROIAssistant(ROI roi)
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
@@ -1016,20 +1018,7 @@ class MeasurementViewerUI
      * @return See above.
      */
     long getPixelsID() { return model.getPixelsID(); }
-    
-    /**
-	 * Calculate the stats for the roi in the shapelist with id. This method
-	 * will call the graphView.
-	 * 
-	 * @param id see above.
-	 * @param shapeList see above.
-	 */
-	void calculateStats(long id, ArrayList<ROIShape> shapeList)
-	{
-		if (model.getState() != MeasurementViewer.READY) return;
-		model.calculateStats(id, shapeList);
-	}
-
+ 
     /**
 	 * Calculate the stats for the Rois in the shapelist. This method
 	 * will call the graphView.
@@ -1037,7 +1026,7 @@ class MeasurementViewerUI
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	void calculateStats(ArrayList<ROIShape> shapeList)
+	void calculateStats(List<ROIShape> shapeList)
 	{
 		if (model.getState() != MeasurementViewer.READY) return;
 		model.calculateStats(shapeList);
@@ -1102,39 +1091,18 @@ class MeasurementViewerUI
 	 */
 	public void mouseReleased(MouseEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseMotionListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseMotionListener#mouseDragged(MouseEvent)
 	 */
-	public void mouseDragged(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseDragged(MouseEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseMotionListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
-	public void mouseMoved(MouseEvent e)
-	{
-		/*if(model.isPixelDataAvailable())
-		{
-			Map activeChannels = model.getActiveChannels();
-			Iterator channelIterator = activeChannels.keySet().iterator();
-			TreeMap channelPixel = new TreeMap<Integer, Double>();
-			while(channelIterator.hasNext())
-			{
-				Integer index = (Integer)channelIterator.next();
-				channelPixel.put(index, model.getPixelValue(index, e.getX(), e.getY()));
-			}
-			String statusString = "";
-			channelIterator = channelPixel.keySet().iterator();
-			while(channelIterator.hasNext())
-			{
-				Integer index = (Integer)channelIterator.next();
-				statusString = statusString +
-				activeChannels.get(index) + " " + channelPixel.get(index);
-			}
-		}*/
-	}
+	public void mouseMoved(MouseEvent e) {}
     
 }

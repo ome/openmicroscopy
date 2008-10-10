@@ -25,10 +25,12 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 
 //Third-party libraries
+import java.awt.Point;
+import java.util.List;
+
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
@@ -51,6 +53,12 @@ public interface ROIFigure
 	extends Figure
 {
 		
+	/** Identified the <code>IDLE</code> status. */
+	public static final int IDLE = 0;
+	
+	/** Identified the <code>MOVING</code> status. */
+	public static final int MOVING = 1;
+	
 	/** 
 	 * Sets the measurement units of the ROIFigure. 
 	 * 
@@ -102,12 +110,26 @@ public interface ROIFigure
 	public String getType();
 	
 	/** 
-     * Returns an array of {@link PlanePoint2D} contained in the ROIFigure. 
+     * Returns an array of {@link Point} contained in the ROIFigure. 
      * 
      * @return See above.
      */
-    public PlanePoint2D[] getPoints();
-    
+	public List<Point> getPoints();
+
+	/**
+	 * Sets the status of the figure.
+	 * 
+	 * @param status The value to set.
+	 */
+	public void setStatus(int status);
+	
+	/**
+	 * Returns the status of the figure.
+	 * 
+	 * @return See above.
+	 */
+	public int getStatus();
+	
 }
 
 

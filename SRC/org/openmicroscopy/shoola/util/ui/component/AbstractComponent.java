@@ -64,13 +64,13 @@ public abstract class AbstractComponent
 {
 
     /** Change notification registry for change observers. */
-    private Set         changeRegistry;
+    private Set<ChangeListener>	 changeRegistry;
     
     /** Used for all change notifications coming from this publisher. */
-    private ChangeEvent changeEvent;
+    private ChangeEvent 		 changeEvent;
     
     /** Change notification registry for bound properties observers. */
-    private Map         propsRegistry;
+    private Map<Object, Set>     propsRegistry;
     
     /** 
      * Key used to look up observers in the {@link #propsRegistry} that 
@@ -84,9 +84,9 @@ public abstract class AbstractComponent
      */
     protected AbstractComponent() 
     { 
-        changeRegistry = new HashSet();
+        changeRegistry = new HashSet<ChangeListener>();
         changeEvent = new ChangeEvent(this);
-        propsRegistry = new HashMap();
+        propsRegistry = new HashMap<Object, Set>();
         allPropsKey = new Object();
     }
     
@@ -124,8 +124,8 @@ public abstract class AbstractComponent
         
         //Build the union of the all-properties observers and propertyName 
         //observers sets.  This way we avoid repeated notification.
-        Set allPropsListeners = (Set) propsRegistry.get(allPropsKey),
-            propListeners = (Set) propsRegistry.get(propertyName);
+        Set allPropsListeners = propsRegistry.get(allPropsKey),
+            propListeners = propsRegistry.get(propertyName);
         Set<Set>   notificationSet = new HashSet<Set>();
         if (allPropsListeners != null) 
             notificationSet.addAll(allPropsListeners);
@@ -176,7 +176,7 @@ public abstract class AbstractComponent
     public void addPropertyChangeListener(PropertyChangeListener observer)
     {
         if (observer == null) throw new NullPointerException("No observer.");
-        Set allPropsListeners = (Set) propsRegistry.get(allPropsKey);
+        Set allPropsListeners = propsRegistry.get(allPropsKey);
         if (allPropsListeners == null) {
             allPropsListeners = new HashSet();
             propsRegistry.put(allPropsKey, allPropsListeners);
@@ -192,7 +192,7 @@ public abstract class AbstractComponent
     public void removePropertyChangeListener(PropertyChangeListener observer)
     {
         if (observer == null) throw new NullPointerException("No observer.");
-        Set allPropsListeners = (Set) propsRegistry.get(allPropsKey);
+        Set allPropsListeners = propsRegistry.get(allPropsKey);
         if (allPropsListeners != null) allPropsListeners.remove(observer);
     }
 
@@ -207,7 +207,7 @@ public abstract class AbstractComponent
         if (propertyName == null) 
             throw new NullPointerException("No property name.");
         if (observer == null) throw new NullPointerException("No observer.");
-        Set propListeners = (Set) propsRegistry.get(propertyName);
+        Set propListeners = propsRegistry.get(propertyName);
         if (propListeners == null) {
             propListeners = new HashSet();
             propsRegistry.put(propertyName, propListeners);
@@ -226,7 +226,7 @@ public abstract class AbstractComponent
         if (propertyName == null) 
             throw new NullPointerException("No property name.");
         if (observer == null) throw new NullPointerException("No observer.");
-        Set propListeners = (Set) propsRegistry.get(propertyName);
+        Set propListeners = propsRegistry.get(propertyName);
         if (propListeners != null) propListeners.remove(observer);
     }
 

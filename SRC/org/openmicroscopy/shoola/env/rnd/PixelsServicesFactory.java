@@ -47,6 +47,8 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
+
 import pojos.PixelsData;
 
 
@@ -295,7 +297,7 @@ public class PixelsServicesFactory
 			throw new IllegalArgumentException("Not allow to access method.");
 		return singleton.rndSvcProxies.get(pixelsID);
 	}
-
+	
 	/**
 	 * Creates a new data sink for the specified set of pixels.
 	 * 

@@ -25,13 +25,18 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -39,7 +44,6 @@ import java.util.ArrayList;
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -77,6 +81,8 @@ public class MeasureEllipseFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits	units;
 	
+	private int 				status;
+	
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
@@ -99,6 +105,7 @@ public class MeasureEllipseFigure
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 		shape=null;
 		roi=null;
+		status = IDLE;
 	}
 	
 	/** 
@@ -487,23 +494,26 @@ public class MeasureEllipseFigure
 		this.units=units;
 	}
 	
-	
-	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()
 	 */
-	public PlanePoint2D[] getPoints()
+	public List<Point> getPoints()
 	{
 		Rectangle r = this.getTransformedShape().getBounds();
-		ArrayList vector=new ArrayList(r.height*r.width);
-		int xEnd=r.x+r.width, yEnd=r.y+r.height;
+		List<Point> vector = new ArrayList<Point>(r.height*r.width);
+		int xEnd = r.x+r.width, yEnd = r.y+r.height;
 		int x, y;
 		for (y=r.y; y<yEnd; ++y)
 			for (x=r.x; x<xEnd; ++x)
 				if (this.getTransformedShape().contains(x, y)) 
-					vector.add(new PlanePoint2D(x, y));
-		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+					vector.add(new Point(x, y));
+		return vector; 
 	}
 	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; 
+	
+	}
 }

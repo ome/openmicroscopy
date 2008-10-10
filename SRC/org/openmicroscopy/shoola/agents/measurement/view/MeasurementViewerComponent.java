@@ -550,19 +550,20 @@ class MeasurementViewerComponent
 						"state: "+state);
 		}
 		model.setActiveChannels(activeChannels);
-		if (view.inDataView()){
-			Collection<ROIFigure> collection = getSelectedFigures();
-			if (collection.size() != 1) return;
-			ROIFigure figure = collection.iterator().next();
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-			ROI roi = figure.getROI();
-			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-			while(shapeIterator.hasNext())
-				shapeList.add(shapeMap.get(shapeIterator.next()));
-			if(shapeList.size()!=0)
-			analyseShapeList(shapeList);
-		}
+		
+		if (!view.inDataView()) return;
+		Collection<ROIFigure> collection = getSelectedFigures();
+		if (collection.size() != 1) return;
+		
+		ROIFigure figure = collection.iterator().next();
+		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		ROI roi = figure.getROI();
+		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		while (shapeIterator.hasNext())
+			shapeList.add(shapeMap.get(shapeIterator.next()));
+		
+		if (shapeList.size() != 0) analyseShapeList(shapeList);
 	}
 
 	/** 
@@ -580,19 +581,18 @@ class MeasurementViewerComponent
 						"state: "+state);
 		}
 		model.setActiveChannels(channels);
-		if (view.inDataView()) {
-			Collection<ROIFigure> collection = getSelectedFigures();
-			if (collection.size() != 1) return;
-			ROIFigure figure = collection.iterator().next();
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-			ROI roi = figure.getROI();
-			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-			while(shapeIterator.hasNext())
-				shapeList.add(shapeMap.get(shapeIterator.next()));
-			if(shapeList.size()!=0)
-			analyseShapeList(shapeList);
-		}
+		if (!view.inDataView()) return;
+		Collection<ROIFigure> collection = getSelectedFigures();
+		if (collection.size() != 1) return;
+		
+		ROIFigure figure = collection.iterator().next();
+		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		ROI roi = figure.getROI();
+		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		while(shapeIterator.hasNext())
+			shapeList.add(shapeMap.get(shapeIterator.next()));
+		if (shapeList.size()!=0) analyseShapeList(shapeList);
 	}
 
 	/** 
@@ -619,38 +619,12 @@ class MeasurementViewerComponent
 		view.displayAnalysisResults();
 		fireStateChange();
 	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#analyseShape(ROIShape)
+	 * @see MeasurementViewer#analyseShapeList(List)
 	 */
-	/*public void analyseShape(ROIShape shape)
-	{
-		if (shape == null)
-			throw new IllegalArgumentException("No shape specified.");
-		int state = model.getState();
-		switch (model.getState()) {
-			case DISCARDED:
-			case LOADING_DATA:
-			case LOADING_ROI:
-				throw new IllegalStateException("This method cannot be " +
-						"invoked in the DISCARDED, LOADING_DATA or " +
-						"LOADING_ROI state: "+state);
-				
-			case ANALYSE_SHAPE:
-				model.cancel();
-				break;
-		}
-		if (model.getActiveChannels().size() == 0) return;
-		model.fireAnalyzeShape(shape);
-		fireStateChange();
-	}*/
-	
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#analyseShapeList(ArrayList)
-	 */
-	public void analyseShapeList(ArrayList<ROIShape> shapeList)
+	public void analyseShapeList(List<ROIShape> shapeList)
 	{
 		if (shapeList == null)
 			throw new IllegalArgumentException("No shape specified.");
@@ -664,42 +638,13 @@ class MeasurementViewerComponent
 						"LOADING_ROI state: "+state);
 				
 			case ANALYSE_SHAPE:
-				model.cancel();
-				break;
+				return;
 		}
 		if (model.getActiveChannels().size() == 0) return;
 		model.fireAnalyzeShape(shapeList);
 		fireStateChange();
 	}
 
-	
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#analyseROI(ROI)
-	 */
-	public void analyseROI(ROI roi)
-	{
-	/*	if (roi == null)
-			throw new IllegalArgumentException("No shape specified.");
-		int state = model.getState();
-		switch (model.getState()) {
-			case DISCARDED:
-			case LOADING_DATA:
-			case LOADING_ROI:
-				throw new IllegalStateException("This method cannot be " +
-						"invoked in the DISCARDED, LOADING_DATA or " +
-						"LOADING_ROI state: "+state);
-				
-			case ANALYSE_SHAPE:
-				model.cancel();
-				break;
-		}
-		if (model.getActiveChannels().size() == 0) return;
-		model.fireAnalyzeROI(roi);
-		fireStateChange();*/
-	}
-
-	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#setChannelMetadata(List)

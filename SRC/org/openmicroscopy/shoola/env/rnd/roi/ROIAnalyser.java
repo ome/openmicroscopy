@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 
 //Java imports
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -151,12 +152,13 @@ public class ROIAnalyser
         	checkPlane(shape.getZ(), shape.getT());
         	stats = new HashMap<Integer, ROIShapeStats>(n);
         	j = channels.iterator();
+        	List<Point> points = shape.getFigure().getPoints();
         	while (j.hasNext()) {
 				w = (Integer) j.next();
 				checkChannel(w.intValue());
 				computer =  new ROIShapeStats();
 				runner.register(computer);
-				runner.iterate(shape, w.intValue());
+				runner.iterate(shape, points, w.intValue());
 				runner.remove(computer);
 				stats.put(w, computer);
 			}

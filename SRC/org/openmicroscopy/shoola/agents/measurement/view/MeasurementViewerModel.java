@@ -779,63 +779,19 @@ class MeasurementViewerModel
 		this.activeChannels = activeChannels;
 		setPixelDataAvailable(false);
 	}
-	
-	/**
-	 * Fires an asynchronous call to analyse the passed shape.
-	 *  
-	 * @param shape The shape to analyse. Mustn't be <code>null</code>.
-	 */
-	void fireAnalyzeShape(ROIShape shape)
-	{
-		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
-			return;
-		List l = new ArrayList(1);
-		l.add(shape);
-		state = MeasurementViewer.ANALYSE_SHAPE;
-		List channels = new ArrayList(activeChannels.size());
-		channels.addAll(activeChannels.keySet());
-		
-		currentLoader = new Analyser(component, pixels, channels, l);
-		currentLoader.load();
-	}
 		
 	/**
 	 * Fires an asynchronous call to analyse the passed shapes.
 	 *  
 	 * @param shapeList The shapelist to analyse. Mustn't be <code>null</code>.
 	 */
-	void fireAnalyzeShape(ArrayList<ROIShape> shapeList)
+	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
-		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
-			return;
 		state = MeasurementViewer.ANALYSE_SHAPE;
 		List channels = new ArrayList(activeChannels.size());
 		channels.addAll(activeChannels.keySet());
-		
+		if (currentLoader != null) currentLoader.cancel();
 		currentLoader = new Analyser(component, pixels, channels, shapeList);
-		currentLoader.load();
-	}
-	
-	
-	/**
-	 * Fires an asynchronous call to analyse the passed roi.
-	 *  
-	 * @param roi The roi to analyse. Mustn't be <code>null</code>.
-	 */
-	void fireAnalyzeROI(ROI roi)
-	{
-		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
-			return;
-		List<ROIShape> l = new ArrayList<ROIShape>(roi.getShapes().size());
-		Iterator<ROIShape> shapeIterator = roi.getShapes().values().iterator();
-		while(shapeIterator.hasNext())
-			l.add(shapeIterator.next());
-		
-		state = MeasurementViewer.ANALYSE_SHAPE;
-		List channels = new ArrayList(activeChannels.size());
-		channels.addAll(activeChannels.keySet());
-		
-		currentLoader = new Analyser(component, pixels, channels, l);
 		currentLoader.load();
 	}
 	
@@ -984,36 +940,29 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Calculate the stats for the roi in the shapelist with id.
-	 * @param id see above.
+	 * Calculate the stats for the roi in the shapelist
+	 * 
 	 * @param shapeList see above.
 	 */
-	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
-	{
-		component.analyseShapeList(shapeList);
-	}
-	
-	/**
-	 * Calculate the stats for the roi in the shapelist with id.
-	 * @param id see above.
-	 * @param shapeList see above.
-	 */
-	public void calculateStats(ArrayList<ROIShape> shapeList)
+	void calculateStats(List<ROIShape> shapeList)
 	{
 		component.analyseShapeList(shapeList);
 	}
 
-	public ROI cloneROI(long id) throws ROICreationException, NoSuchROIException
+	ROI cloneROI(long id) 
+		throws ROICreationException, NoSuchROIException
 	{
 		return roiComponent.cloneROI(id);
 	}
 	
-	public void deleteShape(long id, Coord3D coord) throws NoSuchROIException
+	void deleteShape(long id, Coord3D coord) 
+		throws NoSuchROIException
 	{
 		roiComponent.deleteShape(id, coord);
 	}
 	
-	public void addShape(long id, Coord3D coord, ROIShape shape) throws ROICreationException, NoSuchROIException
+	void addShape(long id, Coord3D coord, ROIShape shape) 
+		throws ROICreationException, NoSuchROIException
 	{
 		roiComponent.addShape(id, coord, shape);
 	}
