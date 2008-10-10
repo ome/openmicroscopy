@@ -50,7 +50,8 @@
 	<classpathentry kind="lib" path="target/libs/grib.jar"/>
 	<classpathentry kind="lib" path="target/libs/ij.jar"/>
 	<classpathentry kind="lib" path="target/libs/netcdf.jar"/>
-	<classpathentry kind="lib" path="target/libs/poi.jar"/>
 	<classpathentry kind="lib" path="target/libs/slf4j-jdk14.jar"/>
+	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
+	<classpathentry kind="lib" path="target/libs/poi.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
