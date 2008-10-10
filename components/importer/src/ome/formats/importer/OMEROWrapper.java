@@ -36,12 +36,12 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         try
         {
-//            iReader = new ImageReader(
- //                   new ClassList("importer_readers.txt", 
-  //                          IFormatReader.class, OMEROWrapper.class));
-           iReader = null; 
+            iReader = new ImageReader(
+                    new ClassList("importer_readers.txt", 
+                            IFormatReader.class, OMEROWrapper.class));
+            
             filler = new ChannelFiller(iReader);
-        } catch (Exception e)
+        } catch (IOException e)
         {
             throw new RuntimeException("Unable to load readers.txt.");
         }
