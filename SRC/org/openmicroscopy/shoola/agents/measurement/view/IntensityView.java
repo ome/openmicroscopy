@@ -30,6 +30,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -258,6 +260,14 @@ class IntensityView
 	 */
 	public int getIndex() {return INDEX; }
 	
+	/**
+	 * The slider has changed value and the mouse button released. 
+	 */
+	private void handleSliderReleased()
+	{
+		stateChanged(null);
+	}
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -289,7 +299,13 @@ class IntensityView
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		zSlider.addChangeListener(this);
+		zSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");
@@ -300,7 +316,13 @@ class IntensityView
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addChangeListener(this);
+		tSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);	
 		tSlider.setEndLabel("T");

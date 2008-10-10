@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,8 +39,6 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
@@ -72,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
  */
 class GraphPane
 	extends JPanel 
-	implements TabPaneInterface, ChangeListener
+	implements TabPaneInterface
 {
 	/** Ready state. */
 	final static int 						READY = 1;
@@ -198,6 +198,27 @@ class GraphPane
 		return value;
 	}
 	
+	/**
+	 * The slider has changed value and the mouse button released. 
+	 */
+	private void handleSliderReleased()
+	{
+		if(zSlider == null || tSlider == null )
+			return;
+		if(coord==null)
+			return;
+		if(state==ANALYSING)
+			return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
+		if(coord.equals(thisCoord))
+			return;
+		state = ANALYSING;
+		this.buildGraphsAndDisplay();
+		state=READY;
+		if(shape!=null)
+			view.selectFigure(shape.getFigure());
+	}
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -206,7 +227,13 @@ class GraphPane
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		zSlider.addChangeListener(this);
+		zSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");		
@@ -218,7 +245,13 @@ class GraphPane
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addChangeListener(this);
+		tSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);
 		tSlider.setEndLabel("T");
@@ -474,27 +507,6 @@ class GraphPane
 		plot.setXAxisName("Intensity");
 		plot.setYAxisName("Frequency");
 		return plot;
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		if(zSlider == null || tSlider == null )
-			return;
-		if(coord==null)
-			return;
-		if(state==ANALYSING)
-			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		if(coord.equals(thisCoord))
-			return;
-		state = ANALYSING;
-		this.buildGraphsAndDisplay();
-		state=READY;
-		if(shape!=null)
-			view.selectFigure(shape.getFigure());
 	}
 	
 }
