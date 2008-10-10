@@ -64,6 +64,8 @@ public class MeasureTextFigure
 
 	private MeasurementUnits 	units;
 	
+	private int 				status;
+	
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
@@ -84,6 +86,7 @@ public class MeasureTextFigure
     	this.changed();
     	shape = null;
    		roi = null;
+   		status = IDLE;
     }
 
 	/**
@@ -138,6 +141,10 @@ public class MeasureTextFigure
 	 * @see ROIFigure#getPoints()
 	 */
 	public PlanePoint2D[] getPoints() {  return null; }
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

@@ -649,7 +649,7 @@ class MeasurementViewerComponent
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#analyseShapeList(ArrayList)
 	 */
-	public void analyseShapeList(ArrayList<ROIShape> shapeList)
+	public void analyseShapeList(List<ROIShape> shapeList)
 	{
 		if (shapeList == null)
 			throw new IllegalArgumentException("No shape specified.");
@@ -663,8 +663,9 @@ class MeasurementViewerComponent
 						"LOADING_ROI state: "+state);
 				
 			case ANALYSE_SHAPE:
-				model.cancel();
-				break;
+				//model.cancel();
+				//break;
+				return;
 		}
 		if (model.getActiveChannels().size() == 0) return;
 		model.fireAnalyzeShape(shapeList);

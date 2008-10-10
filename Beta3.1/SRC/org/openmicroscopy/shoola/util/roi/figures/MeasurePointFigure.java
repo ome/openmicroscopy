@@ -75,6 +75,8 @@ public class MeasurePointFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	private int 					status;
+	
 	  /** 
      * Creates a new instance.
      * @param text text of the ellipse. 
@@ -339,6 +341,10 @@ public class MeasurePointFigure
 		points[0] = new PlanePoint2D(getX(), getY());
 		return points;
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

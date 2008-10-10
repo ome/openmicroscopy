@@ -87,6 +87,8 @@ public class MeasureLineConnectionFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	private int 					status;
+	
 	/**
 	 * Create instance of line connection figure. 
 	 *
@@ -487,6 +489,10 @@ public class MeasureLineConnectionFigure
 	{
 		super.removeAllNodes();
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

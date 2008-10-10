@@ -95,6 +95,8 @@ public class MeasureBezierFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 		
+	private int 					status;
+	
 	/** Create an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
@@ -532,6 +534,10 @@ public class MeasureBezierFigure
 		}
 		
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

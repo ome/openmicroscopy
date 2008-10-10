@@ -269,25 +269,22 @@ class PointIterator
      * iterated pixels value. 
      * 
      * @param shape  	The shape to analyse. Mustn't be <code>null</code>.
+     * @param points	The points contained within the Region of Interest.
      * @param w 		The selected channel. 
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public void iterate(ROIShape shape, int w) 
+    public void iterate(ROIShape shape,  PlanePoint2D[] points, int w) 
         throws DataSourceException
     {
         if (shape == null) throw new NullPointerException("No shapes.");
         if (w < 0 || w >= sizeC) 
         	throw new NullPointerException("Channel not valid.");
-        ROIFigure selection2D;
-        PlanePoint2D[] points;
         notifyIterationStart();
         try {  //Iterate in ZWT order and notify observers.
         	int z = shape.getZ();
     		int t = shape.getT();
     		if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
-    			selection2D = shape.getFigure();
-        		points = selection2D.getPoints();
         		notifyPlaneStart(z, w, t, points.length);
         		Plane2D data = source.getPlane(z, t, w);
                 double value;

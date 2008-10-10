@@ -34,6 +34,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
@@ -151,12 +152,13 @@ public class ROIAnalyser
         	checkPlane(shape.getZ(), shape.getT());
         	stats = new HashMap<Integer, ROIShapeStats>(n);
         	j = channels.iterator();
+        	PlanePoint2D[] points = shape.getFigure().getPoints();
         	while (j.hasNext()) {
 				w = (Integer) j.next();
 				checkChannel(w.intValue());
 				computer =  new ROIShapeStats();
 				runner.register(computer);
-				runner.iterate(shape, w.intValue());
+				runner.iterate(shape, points, w.intValue());
 				runner.remove(computer);
 				stats.put(w, computer);
 			}

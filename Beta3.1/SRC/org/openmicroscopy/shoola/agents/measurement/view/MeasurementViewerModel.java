@@ -809,10 +809,8 @@ class MeasurementViewerModel
 	 *  
 	 * @param shapeList The shapelist to analyse. Mustn't be <code>null</code>.
 	 */
-	void fireAnalyzeShape(ArrayList<ROIShape> shapeList)
+	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
-		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
-			return;
 		state = MeasurementViewer.ANALYSE_SHAPE;
 		List channels = new ArrayList(activeChannels.size());
 		channels.addAll(activeChannels.keySet());

@@ -78,6 +78,8 @@ public class MeasureRectangleFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	   
+	private int 					status;
+	
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
@@ -373,6 +375,11 @@ public class MeasureRectangleFigure
 				if (rectangle.contains(x, y)) vector.add(new PlanePoint2D(x, y));
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
+	
 	
 }
 

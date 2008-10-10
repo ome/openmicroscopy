@@ -92,6 +92,8 @@ public class MeasureLineFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	private int 					status;
+	
 	/**
 	 * Returns the point i in pixels or microns depending on the units used.
 	 * 
@@ -502,6 +504,10 @@ public class MeasureLineFigure
 	{
 		super.removeAllNodes();
 	}
+	
+	public void setStatus(int status) { this.status = status; }
+	
+	public int getStatus() { return status; }
 	
 }
 

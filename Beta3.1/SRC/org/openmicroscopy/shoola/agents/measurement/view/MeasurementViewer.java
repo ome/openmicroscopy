@@ -240,7 +240,7 @@ public interface MeasurementViewer
 	 * 
 	 * @param shape The list of ROIShapes to analyse. Mustn't be <code>null</code>.
 	 */
-	public void analyseShapeList(ArrayList<ROIShape> shape);
+	public void analyseShapeList(List<ROIShape> shape);
 
 	
 	/**

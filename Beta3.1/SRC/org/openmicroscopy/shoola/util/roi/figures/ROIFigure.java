@@ -51,6 +51,12 @@ public interface ROIFigure
 	extends Figure
 {
 		
+	/** Identified the <code>IDLE</code> status. */
+	public static final int IDLE = 0;
+	
+	/** Identified the <code>MOVING</code> status. */
+	public static final int MOVING = 1;
+	
 	/** 
 	 * Sets the measurement units of the ROIFigure. 
 	 * 
@@ -108,6 +114,20 @@ public interface ROIFigure
      */
     public PlanePoint2D[] getPoints();
     
+	/**
+	 * Sets the status of the figure.
+	 * 
+	 * @param status The value to set.
+	 */
+	public void setStatus(int status);
+	
+	/**
+	 * Returns the status of the figure.
+	 * 
+	 * @return See above.
+	 */
+	public int getStatus();
+	
 }
 
 
