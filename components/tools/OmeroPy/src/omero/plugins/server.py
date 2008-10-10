@@ -37,8 +37,6 @@ class ServerControl(BaseControl):
         xargs = self._prop(data, "blitz.xargs")
         if len(xargs) == 0:
             xargs = "-Xmx400M"
-        # Appending the to the end of xargs since required
-        xargs = xargs + " -Djava.awt.headless=true"
 
         debug = self._prop(data, "blitz.debug")
         if debug == "true":

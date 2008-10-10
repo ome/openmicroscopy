@@ -37,7 +37,7 @@ def run(args,\
     if isinstance(java,str):
         java = [java]
     if isinstance(xargs,str):
-        xargs = [xargs]
+        xargs = shlex.split(xargs)
 
     # Add our logging configuration early
     # so that it can be overwritten by xargs
@@ -57,6 +57,9 @@ def run(args,\
     else:
         if debug:
             java += ["-Xdebug",debug_string]
+
+    # Do any mandatory configuration very late
+    java += [ "-Djava.awt.headless=true" ]
 
     # Add the actual arguments now
     java += args
