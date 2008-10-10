@@ -64,6 +64,9 @@ def run(args,\
     # Add the actual arguments now
     java += args
 
+    # Do any mandatory configuration very late
+    java += [ " -Djava.awt.headless=true " ]
+
     if use_exec:
         env = os.environ
         os.execvpe(java[0], java, env)
