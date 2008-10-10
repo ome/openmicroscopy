@@ -30,10 +30,10 @@ module omero {
     const int GLACIER2PORT = 4063;
 
     /*
-     * Default Ice.MessageSizeMax (4096kb). Not strictly necessary, but helps to
+     * Default Ice.MessageSizeMax (8192kb). Not strictly necessary, but helps to
      * curb memory issues.
      */
-    const int MESSAGESIZEMAX = 4096;
+    const int MESSAGESIZEMAX = 8192;
 
     /*
      * Default connection string for connecting to Glacier2
