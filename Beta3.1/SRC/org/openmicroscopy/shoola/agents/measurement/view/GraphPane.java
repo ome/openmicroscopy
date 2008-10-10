@@ -202,8 +202,8 @@ class GraphPane
 	{
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
-		zSlider.setPaintTicks(true);
-		zSlider.setPaintLabels(true);
+		zSlider.setPaintTicks(false);
+		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
 		zSlider.addChangeListener(this);
 		zSlider.setShowArrows(true);
@@ -213,8 +213,8 @@ class GraphPane
 
 
 		tSlider = new OneKnobSlider();
-		tSlider.setPaintTicks(true);
-		tSlider.setPaintLabels(true);
+		tSlider.setPaintTicks(false);
+		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
 		tSlider.addChangeListener(this);
