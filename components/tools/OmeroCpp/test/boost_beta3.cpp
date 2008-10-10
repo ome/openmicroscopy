@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     ServiceFactoryPrx sf = (*client).getSession();
 
     PixelsIPtr pix = new PixelsI();
-    PixelsTypeIPtr pt = new PixelsTypeI();
+    PixelsTypePtr pt = new PixelsTypeI();
     PixelsDimensionsIPtr pd = new PixelsDimensionsI();
     PhotometricInterpretationIPtr pi = new PhotometricInterpretationI();
     ImageIPtr i = new ImageI();
@@ -29,29 +29,27 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     StatsInfoIPtr si = new StatsInfoI();
     PlaneInfoIPtr pl = new PlaneInfoI();
 
-    mode->value = new omero::RString("Wide-field");
-    pi->value = new omero::RString("RGB");
-    pt->value = new omero::RString("int8");
-    d0->value = new omero::RString("XYZTC");
+    mode->setValue( new omero::RString("Wide-field") );
+    pi->setValue( new omero::RString("RGB") );
+    pt->setValue( new omero::RString("int8") );
+    d0->setValue( new omero::RString("XYZTC") );
 
-    pd->sizeX = new omero::CFloat(1.0);
-    pd->sizeY = new omero::CFloat(1.0);
-    pd->sizeZ = new omero::CFloat(1.0);
-    lc->photometricInterpretation = pi;
+    pd->setSizeX( new omero::CFloat(1.0) );
+    pd->setSizeY( new omero::CFloat(1.0) );
+    pd->setSizeZ( new omero::CFloat(1.0) );
+    lc->setPhotometricInterpretation( pi );
 
-    pix->sizeX = new omero::CInt(1);
-    pix->sizeY = new omero::CInt(1);
-    pix->sizeZ = new omero::CInt(1);
-    pix->sizeT = new omero::CInt(1);
-    pix->sizeC = new omero::CInt(1);
-    pix->sha1 = new omero::RString("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // for "pixels"
-    pix->pixelsType = pt;
-    pix->dimensionOrder = d0;
-    pix->pixelsDimensions = pd;
+    pix->setSizeX( new omero::CInt(1) );
+    pix->setSizeY( new omero::CInt(1) );
+    pix->setSizeZ( new omero::CInt(1) );
+    pix->setSizeT( new omero::CInt(1) );
+    pix->setSizeC( new omero::CInt(1) );
+    pix->setSha1 (new omero::RString("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356") ); // for "pixels"
+    pix->setPixelsType( pt );
+    pix->setDimensionOrder( d0 );
+    pix->setPixelsDimensions( pd );
 
-    PixelsChannelsSeq channels;
-    channels.push_back(c);
-    pix->channels = channels;
+    pix->addChannel( c );
 
     // At this point trying to save throws a ValidationException
     try {
@@ -63,10 +61,9 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
 
     ImagePixelsSeq pixels;
     pixels.push_back(pix);
-    i->pixels = pixels;
-    i->name = new omero::RString("test1");
+    i->setPixels( pixels );
+    i->setName( new omero::RString("test1") );
 
     sf->getUpdateService()->saveObject(i);
 
 }
-

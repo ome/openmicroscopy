@@ -32,7 +32,7 @@ class TestCounts(lib.ITest):
         where img.id = %s
         """ % (img.id.val), None
         )
-        self.assert_(img.annotationLinksCountPerOwner[usr] > 0)
+        self.assert_(img..getAnnotationLinksCountPerOwner()[usr] > 0)
 
 if __name__ == '__main__':
     unittest.main()

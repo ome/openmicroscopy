@@ -9,7 +9,7 @@
 #include <boost_fixture.h>
 #include <omero/sys/ParametersI.h>
 
-using namespace omero::sys
+using namespace omero::sys;
 using namespace std;
 
 BOOST_AUTO_TEST_CASE( AddId )

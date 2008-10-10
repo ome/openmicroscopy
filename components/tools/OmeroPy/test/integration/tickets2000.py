@@ -188,9 +188,9 @@ class TestTicket2000(lib.ITest):
                         self.assert_(dil.child.id.val == im2.id.val)
                         
             elif c.id.val == pr2.id.val and isinstance(c, ProjectI):
-                self.assert_(len(c.datasetLinks) == 1)
+                self.assert_( c.sizeOfDatasetLinks() == 1 )
             elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
-                self.assert_(len(c.imageLinks) == 1)
+                self.assert_( c.sizeOfImageLinks() == 1 )
 
     def test1071_1(self):
         admin = self.root.sf.getAdminService()

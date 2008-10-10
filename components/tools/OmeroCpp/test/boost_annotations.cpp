@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( tagAnnotation )
 	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
 	AnnotationPtr a = link->getChild();
 	tag = TagAnnotationIPtr::dynamicCast(a);
-	BOOST_CHECK_EQUAL( "my-first-tag", tag->textValue->val );
+	BOOST_CHECK_EQUAL( "my-first-tag", tag->getTextValue()->val );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;
@@ -151,21 +151,21 @@ BOOST_AUTO_TEST_CASE( annotationImmutability )
 	i->setName(new omero::RString("tagged-image"));
 	i->linkAnnotation(tag);
 	i = ImageIPtr::dynamicCast( u->saveAndReturnObject(i) );
-	tag = TagAnnotationIPtr::dynamicCast( i->beginAnnotationLinks()[0]->child );
+	tag = TagAnnotationIPtr::dynamicCast( i->copyAnnotationLinks()[0]->getChild() );
 
-	tag->textValue = new omero::RString("modified-tag");
+	tag->setTextValue( new omero::RString("modified-tag") );
 	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
+	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->val) );
 
-	BOOST_CHECK_MESSAGE( tag->textValue->val == "immutable-tag", tag->textValue->val );
+	BOOST_CHECK_MESSAGE( tag->getTextValue()->val == "immutable-tag", tag->getTextValue()->val );
 
 	// See #878
         // Annotation.ns is currently modifiable.
-	tag->ns = new omero::RString("modified-name");
+	tag->setNs( new omero::RString("modified-name") );
 	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
+	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->val) );
 
-	BOOST_CHECK_MESSAGE( tag->ns->val == "modified-name", tag->ns );
+	BOOST_CHECK_MESSAGE( tag->getNs()->val == "modified-name", tag->getNs() );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;

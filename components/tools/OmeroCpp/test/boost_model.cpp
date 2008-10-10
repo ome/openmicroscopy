@@ -30,60 +30,58 @@ BOOST_AUTO_TEST_CASE( Toggle )
 {
   Fixture f;
   PixelsIPtr pix = new PixelsI();
-  BOOST_CHECK( pix->settingsLoaded );
-  pix->toggleCollectionsLoaded( false );
-  BOOST_CHECK( !(pix->settingsLoaded) );
-  pix->toggleCollectionsLoaded( true );
-  BOOST_CHECK( pix->settingsLoaded );
+  BOOST_CHECK( pix->sizeOfSettings() >= 0 );
+  pix->unloadCollections();
+  BOOST_CHECK( pix->sizeOfSettings() < 0 );
 }
 
 BOOST_AUTO_TEST_CASE( SimpleCtor )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->loaded );
-  BOOST_CHECK( img->pixelsLoaded );
+  BOOST_CHECK( img->isLoaded() );
+  BOOST_CHECK( img->sizeOfPixels() >= 0 );
 }
 
 BOOST_AUTO_TEST_CASE( UnloadedCtor )
 {
   Fixture f;
   ImageIPtr img = new ImageI(new omero::CLong(1),false);
-  BOOST_CHECK( !(img->loaded) );
-  BOOST_CHECK( !(img->datasetLinksLoaded) );
+  BOOST_CHECK( !(img->isLoaded()) );
+  BOOST_CHECK( img->sizeOfDatasetLinks() < 0 );
 }
 
 BOOST_AUTO_TEST_CASE( UnloadCheckPtr )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->loaded );
+  BOOST_CHECK( img->isLoaded() );
   // operator bool() is overloaded
-  BOOST_CHECK( img->details ); // details are auto instantiated
-  BOOST_CHECK( ! img->name ); // no other single-valued field is
+  BOOST_CHECK( img->getDetails() ); // details are auto instantiated
+  BOOST_CHECK( ! img->getName() ); // no other single-valued field is
   img->unload();
-  BOOST_CHECK( !img->loaded );
-  BOOST_CHECK( !img->details );
+  BOOST_CHECK( !img->isLoaded() );
+  BOOST_CHECK( !img->getDetails() );
 }
 
 BOOST_AUTO_TEST_CASE( UnloadField )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->details );
+  BOOST_CHECK( img->getDetails() );
   img->unloadDetails();
-  BOOST_CHECK( ! img->details );
+  BOOST_CHECK( ! img->getDetails() );
 }
 
 BOOST_AUTO_TEST_CASE( Sequences )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->annotationLinksLoaded );
-  img->annotationLinks.push_back((ImageAnnotationLinkPtr)0);
+  BOOST_CHECK( img->sizeOfAnnotationLinks() );
+  img->unloadAnnotationLinks();
   img->unload();
-  BOOST_CHECK( !img->annotationLinksLoaded );
-  img->annotationLinks.push_back((ImageAnnotationLinkPtr)0);
+  BOOST_CHECK( img->sizeOfAnnotationLinks() < 0 );
+  img->linkAnnotation( new TagAnnotationI() );
   BOOST_ERROR("should not reach this point");
 }
 
@@ -92,9 +90,9 @@ BOOST_AUTO_TEST_CASE( Accessors )
   Fixture f;
   RStringPtr name = new CString("name");
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( !img->name );
-  img->name = name;
-  BOOST_CHECK( img->name );
+  BOOST_CHECK( !img->getName() );
+  img->setName( name );
+  BOOST_CHECK( img->getName() );
   RStringPtr str = img->getName();
   BOOST_CHECK( str->val == "name" );
   BOOST_CHECK( str == name );
@@ -104,7 +102,7 @@ BOOST_AUTO_TEST_CASE( Accessors )
   BOOST_CHECK( img->getName() );
 
   img->unload();
-  BOOST_CHECK( !img->name );
+  BOOST_CHECK( !img->getName() );
   
 }
 
@@ -121,11 +119,10 @@ BOOST_AUTO_TEST_CASE( Iterators )
 
   DatasetIPtr d = new DatasetI();
   ImageIPtr image = new ImageI();
-  image->loaded = true;
   image->linkDataset(d);
   ImageDatasetLinksSeq::iterator it= image->beginDatasetLinks();
   int count = 0;
-  for (;it != image->endDatasetLinks(); ++it) {    
+  for (;it != image->endDatasetLinks(); ++it) {
     count++;
   }
   BOOST_CHECK( count == 1 );
@@ -135,11 +132,11 @@ BOOST_AUTO_TEST_CASE( ClearSet )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->pixelsLoaded );
+  BOOST_CHECK( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
   BOOST_CHECK( 1==img->sizeOfPixels() );
   img->clearPixels();
-  BOOST_CHECK( img->pixelsLoaded );
+  BOOST_CHECK( img->sizeOfPixels() >= 0 );
   BOOST_CHECK( 0==img->sizeOfPixels() );
 }
 
@@ -147,11 +144,11 @@ BOOST_AUTO_TEST_CASE( UnloadSet )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->pixelsLoaded );
+  BOOST_CHECK( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
   BOOST_CHECK( 1==img->sizeOfPixels() );
   img->unloadPixels();
-  BOOST_CHECK( ! img->pixelsLoaded );
+  BOOST_CHECK( img->sizeOfPixels() < 0 );
   // Can't check size BOOST_CHECK( 0==img->sizeOfPixels() );
 }
 
@@ -160,7 +157,7 @@ BOOST_AUTO_TEST_CASE( RemoveFromSet )
   Fixture f;
   PixelsIPtr pix = new PixelsI();
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->pixelsLoaded );
+  BOOST_CHECK( img->sizeOfPixels() >= 0 );
 
   img->addPixels( pix );
   BOOST_CHECK( 1==img->sizeOfPixels() );
@@ -177,10 +174,10 @@ BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
 
-  map->id = new omero::CLong(1);
+  map->setId( new omero::CLong(1) );
   map->link(group,user);
-  user->addGroupExperimenterMap( map, false );
-  group->addGroupExperimenterMap( map, false );
+  user->addGroupExperimenterMap2( map, false );
+  group->addGroupExperimenterMap2( map, false );
 
   typedef ExperimenterGroupExperimenterMapSeq::iterator egm_it; 
   egm_it beg = user->beginGroupExperimenterMap();
@@ -207,8 +204,8 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   // TODOuser->linkExperimenterGroup(group);
   GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
-  map->parent = group;
-  map->child  = user;
+  map->setParent( group );
+  map->setChild( user );
 }
 
 BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
@@ -236,7 +233,7 @@ BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
   i = new ImageI();
   dil = new DatasetImageLinkI();
   dil->link(d,i);
-  d->addDatasetImageLink(dil, false);
+  d->addDatasetImageLink2(dil, false);
   BOOST_CHECK( d->sizeOfImageLinks() == 1 );
   BOOST_CHECK( i->sizeOfDatasetLinks() == 0 );
 

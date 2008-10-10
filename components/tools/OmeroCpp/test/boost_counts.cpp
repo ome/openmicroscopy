@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( Counts )
 	long usr = admin->getEventContext()->userId;
 
 	ImageIPtr img = new ImageI();
-        img->name = new omero::RString("name");
+        img->setName( new omero::RString("name") );
 	TagAnnotationIPtr tag = new TagAnnotationI();
 	img->linkAnnotation( tag );
 	img = ImageIPtr::dynamicCast( update->saveAndReturnObject( img ) );
@@ -35,10 +35,10 @@ BOOST_AUTO_TEST_CASE( Counts )
         q << "select img from Image img ";
         q << "join fetch img.annotationLinksCountPerOwner ";
         q << "where img.id = ";
-        q << img->id->val;
+        q << img->getId()->val;
 	img = ImageIPtr::dynamicCast( query->findByQuery(q.str(), 0) );
 
-	BOOST_CHECK( img->annotationLinksCountPerOwner[usr] > 0 );
+	BOOST_CHECK( img->getAnnotationLinksCountPerOwner()[usr] > 0 );
 
     } catch (const omero::ApiUsageException& aue) {
         cout << aue.message <<endl;

@@ -28,5 +28,13 @@ class TestIPojos(lib.ITest):
         i.setName(omero.RString("name"))
         i = ipojo.createDataObject(i,None)
 
+    def testCreateAfterBlitzPort(self):
+        ipojo = self.client.sf.getPojosService()
+        i = ImageI()
+        i.setName(omero.RString("name"))
+        i = ipojo.createDataObject(i,None)
+        o = i.getDetails().owner
+        self.assertEquals( -1, o.sizeOfGroupExperimenterMap() )
+
 if __name__ == '__main__':
     unittest.main()

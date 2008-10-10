@@ -27,13 +27,13 @@ BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
   sf->getAdminService()->createUser(e, "default");
 
   omero::sys::PrincipalPtr p = new omero::sys::Principal();
-  p->name = e->omeName->val;
+  p->name = e->getOmeName()->val;
   p->group = "default";
   p->eventType = "Test";
   omero::model::SessionPtr session = sess->createSessionWithTimeout(p, 10000L);
 
   omero::client user(argc, argv);
-  user.createSession(e->omeName->val,session->uuid->val);
+  user.createSession(e->getOmeName()->val,session->getUuid()->val);
   omero::api::ServiceFactoryPrx sf2 = (*root).getSession();
   sf2->closeOnDestroy();
   sf2->getQueryService()->get("Experimenter",0L);

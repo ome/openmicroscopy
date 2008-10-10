@@ -31,7 +31,7 @@ namespace omero {
 	std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
 	if ( gcInterval.length() == 0 ) {
 	    stringstream ssgcInt;
-	    ssgcInt << omero::constsnts::GCINTERVAL;
+	    ssgcInt << omero::constants::GCINTERVAL;
 	    id.properties->setProperty("Ice.GC.Interval", ssgcInt.str());
 	}
 

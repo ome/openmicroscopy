@@ -91,9 +91,9 @@ public:
     }
     ExperimenterIPtr newUser() {
 	ExperimenterIPtr e = new ExperimenterI();
-	e->omeName = new omero::RString(uuid());
-	e->firstName = new omero::RString("name");
-	e->lastName = new omero::RString("name");
+	e->setOmeName( new omero::RString(uuid()) );
+	e->setFirstName( new omero::RString("name") );
+	e->setLastName( new omero::RString("name") );
 	long id = admin()->createUser(e, "default");
 	return ExperimenterIPtr::dynamicCast(query()->get("Experimenter",id));
     }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
 	string uuid = f.uuid();
 	ImageIPtr i = new ImageI();
-        i->name = new omero::RString(uuid);
+        i->setName( new omero::RString(uuid) );
 
         IObjectPtr obj =  f.update()->saveAndReturnObject(i);
         root.update()->indexObject(obj);
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
         // Add id filter
         omero::sys::LongList ids;
-        ids.push_back(obj->id->val);
+        ids.push_back(obj->getId()->val);
         search->onlyIds(ids);
         search->byFullText(uuid);
         assertResults(1, search);
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     d->setOwner(new ExperimenterI(new omero::RLong(oldUser), false));
 
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f2(e->omeName->val);
+    SearchFixture f2(e->getOmeName()->val);
     grp = new TagAnnotationI();
     groupStr = f2.uuid();;
     grp->setTextValue(new omero::RString(groupStr));
@@ -363,11 +363,11 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
 
     SearchFixture root("root");
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f2(e->omeName->val);
+    SearchFixture f2(e->getOmeName()->val);
     tag = new TagAnnotationI();
     tagStr = f2.uuid();;
     tag->setTextValue(new omero::RString(tagStr));
-    tag->linkAnnotation(new TagAnnotationI(grp->id, false));
+    tag->linkAnnotation(new TagAnnotationI(grp->getId(), false));
     tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
     // All queries finished?
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
 
     // Properly uses the id
     FileAnnotationIPtr ex2 = new FileAnnotationI();
-    ex2->setFile(new OriginalFileI(file2->id, false));
+    ex2->setFile(new OriginalFileI(file2->getId(), false));
     byAnnotatedWith(search, ex2);
     assertResults(1, search);
 
@@ -618,9 +618,9 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
     ImageIPtr i1 = new ImageI();
-    i1->name = new omero::RString("i1");
+    i1->setName( new omero::RString("i1") );
     ImageIPtr i2 = new ImageI();
-    i2->name = new omero::RString("i2");
+    i2->setName( new omero::RString("i2") );
 
     SearchFixture f;
     string uuid = f.uuid();;
@@ -671,7 +671,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     SearchFixture root("root");
     string uuid = f.uuid();;
     ImageIPtr i1 = new ImageI();
-    i1->name = new omero::RString(uuid);
+    i1->setName( new omero::RString(uuid) );
     ImageIPtr i2 = new ImageI();
     i2->setName(new omero::RString(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
@@ -737,13 +737,13 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
 
     SearchFixture root("root");
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f(e->omeName->val);
+    SearchFixture f(e->getOmeName()->val);
     DetailsIPtr user = new DetailsI();
     user->setOwner(e);
 
     string name = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->name = new omero::RString(name);
+    i->setName( new omero::RString(name) );
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(new omero::RString(name));
     i->linkAnnotation(tag);
@@ -847,7 +847,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     
     SearchFixture root("root");
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f(e->omeName->val);
+    SearchFixture f(e->getOmeName()->val);
     ExperimenterGroupIPtr g = new ExperimenterGroupI
 	(new omero::RLong(f.admin()->getEventContext()->groupId), false);
     
@@ -856,7 +856,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     
     string name = f.uuid();
     ImageIPtr i = new ImageI();
-    i->name = new omero::RString(name);
+    i->setName( new omero::RString(name) );
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(new omero::RString(name));
     i->linkAnnotation(tag);
@@ -1420,8 +1420,8 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     t = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(t));
 
     ImageAnnotationLinkIPtr link = new ImageAnnotationLinkI();
-    link->child = t;
-    link->parent = i;
+    link->setChild( t );
+    link->setParent( i );
     f.update()->saveObject(link);
 
     root.update()->indexObject(i);
@@ -1443,11 +1443,11 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
     
     string name = f.uuid();;
     ImageIPtr onlyTag = new ImageI();
-    onlyTag->name = new omero::RString(name);
+    onlyTag->setName( new omero::RString(name) );
     ImageIPtr onlyBool = new ImageI();
-    onlyBool->name = new omero::RString(name);
+    onlyBool->setName( new omero::RString(name) );
     ImageIPtr both = new ImageI();
-    both->name = new omero::RString(name);
+    both->setName( new omero::RString(name) );
 
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(new omero::RString("tag"));
@@ -1496,9 +1496,9 @@ BOOST_AUTO_TEST_CASE( testMergedBatches ) {
     string uuid1 = f.uuid();
     string uuid2 = f.uuid();
     ImageIPtr i1 = new ImageI();
-    i1->name = new omero::RString(uuid1);
+    i1->setName( new omero::RString(uuid1) );
     ImageIPtr i2 = new ImageI();
-    i2->name = new omero::RString(uuid2);
+    i2->setName( new omero::RString(uuid2) );
     i1 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i1) );
     i2 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i2) );
     root.update()->indexObject(i1);
@@ -1720,44 +1720,44 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     // full text
     search->byFullText(uuid);
     ImageIPtr t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(-1, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(-1, t->sizeOfAnnotationLinks());
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(-1, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(-1, t->sizeOfAnnotationLinks());
 
     // Fetch only a given type
     search->fetchAnnotations(stringSet("TagAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(1, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // fetch only a given type different from annotated-with type
     search->fetchAnnotations(stringSet("DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(1, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // fetch two types
     search->fetchAnnotations(stringSet("TagAnnotation", "DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(2, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(2, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // Fetch all
     search->fetchAnnotations(stringSet("Annotation"));
@@ -1765,11 +1765,11 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     byAnnotatedWith(search, tag);
     assertResults(0, search);
     // TODO t = ImageIPtr::dynamicCast( search->results().get(0) );
-    // TODO BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
+    // TODO BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImageIPtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // resave and see if there is data loss
     search->fetchAnnotations(stringSet("TagAnnotation"));
@@ -1780,11 +1780,11 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     f.update()->saveObject(t);
     ParametersPtr params = new Parameters();
     params->map = ParamMap();
-    params->map["id"] = t->id;
+    params->map["id"] = t->getId();
     t = ImageIPtr::dynamicCast(f.query()->findByQuery
 	("select t from Image t join fetch t.annotationLinks where t.id = :id",
 	 params));
-    BOOST_CHECK_EQUAL(4, t->annotationLinks.size());
+    BOOST_CHECK_EQUAL(4, t->sizeOfAnnotationLinks());
 }
 
 // bugs
