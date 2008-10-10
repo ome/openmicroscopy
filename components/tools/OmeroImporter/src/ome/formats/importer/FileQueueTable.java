@@ -38,9 +38,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
-import ome.model.containers.Dataset;
+import omero.RLong;
+import omero.model.DatasetI;
 
 public class FileQueueTable 
     extends JPanel
@@ -48,7 +50,7 @@ public class FileQueueTable
 {   
     public QueueTableModel table = new QueueTableModel();
     public ETable queue = new ETable(table);
-
+    
     private static final long serialVersionUID = -4239932269937114120L;
 
 
@@ -329,9 +331,9 @@ public class FileQueueTable
                 boolean archive = (Boolean) table.getValueAt(i, 5);
                 File file = new File(table.getValueAt(i, 4).toString());
                 Long projectID = (Long) table.getValueAt(i, 6);
-                Dataset dataset = (Dataset) table.getValueAt(i, 3);
+                Long datasetID = (Long) table.getValueAt(i,3);
                 String imageName = table.getValueAt(i, 0).toString();
-                fads[i] = new ImportContainer(file, projectID, dataset, imageName, archive);            }
+                fads[i] = new ImportContainer(file, projectID, datasetID, imageName, archive);            }
             catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
@@ -642,5 +644,4 @@ public class FileQueueTable
     {
         return statusCellRenderer;
     }
-
 }

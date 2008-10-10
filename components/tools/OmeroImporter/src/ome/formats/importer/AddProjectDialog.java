@@ -18,10 +18,10 @@ import javax.swing.UIManager;
 
 import layout.TableLayout;
 
-import ome.api.IUpdate;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.GuiCommonElements;
-import ome.model.containers.Project;
+import omero.model.Project;
+import omero.model.ProjectI;
 
 
 public class AddProjectDialog extends JDialog implements ActionListener
@@ -47,7 +47,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
     String                  projectName;
     String                  projectDescription;
     
-    Project                 project;
+    Project                project;
     
     OMEROMetadataStore      store;
     
@@ -124,7 +124,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
             if (projectName.trim().length() > 0)
             {
                 project = store.addProject(projectName, projectDescription);
-                userPrefs.putLong("savedProject", project.getId());
+                userPrefs.putLong("savedProject", project.getId().val);
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");

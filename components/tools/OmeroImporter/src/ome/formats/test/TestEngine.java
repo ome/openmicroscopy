@@ -9,11 +9,11 @@ import java.util.List;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Pixels;
-import ome.model.enums.DimensionOrder;
-import ome.model.enums.PixelsType;
+import omero.model.Dataset;
+import omero.model.Project;
+import omero.model.Pixels;
+import omero.model.DimensionOrder;
+import omero.model.PixelsType;
 
 public class TestEngine
 {   
@@ -107,22 +107,22 @@ public class TestEngine
                         // For each image, get or set important data
                         for (int series = 0; series < seriesCount; series++)
                         {
-                            Long pixId = pixList.get(series).getId();
+                            Long pixId = pixList.get(series).getId().val;
 
                             // Get Sha1
-                            String sha1 = store.getSHA1(pixId);
+                            String sha1 = store.getPixels(series).getSha1().val;
 
                             // Get image dimensions
-                            Integer sizeX = store.getPixels(series).getSizeX();
-                            Integer sizeY = store.getPixels(series).getSizeY();
-                            Integer sizeZ = store.getPixels(series).getSizeZ();
-                            Integer sizeC = store.getPixels(series).getSizeC();
-                            Integer sizeT = store.getPixels(series).getSizeT();
+                            Integer sizeX = store.getPixels(series).getSizeX().val;
+                            Integer sizeY = store.getPixels(series).getSizeY().val;
+                            Integer sizeZ = store.getPixels(series).getSizeZ().val;
+                            Integer sizeC = store.getPixels(series).getSizeC().val;
+                            Integer sizeT = store.getPixels(series).getSizeT().val;
                             PixelsType pixelType = store.getPixels(series).getPixelsType();
                             DimensionOrder dimOrder = store.getPixels(series).getDimensionOrder();
-                            Float pixelSizeX = store.getPixels(series).getPixelsDimensions().getSizeX();
-                            Float pixelSizeY = store.getPixels(series).getPixelsDimensions().getSizeY();
-                            Float pixelSizeZ = store.getPixels(series).getPixelsDimensions().getSizeZ();
+                            Float pixelSizeX = store.getPixels(series).getPixelsDimensions().getSizeX().val;
+                            Float pixelSizeY = store.getPixels(series).getPixelsDimensions().getSizeY().val;
+                            Float pixelSizeZ = store.getPixels(series).getPixelsDimensions().getSizeZ().val;
 
                             // Compare
                             testValue(fileList[j], "s" + series + "_SHA1", sha1);
@@ -141,11 +141,11 @@ public class TestEngine
                             
                             for (int channel = 0; channel < sizeC; channel++)
                             {
-                                Double globalMin = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMin();
-                                Double globalMax = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMax();
+                                Double globalMin = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMin().val;
+                                Double globalMax = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMax().val;
                                 
-                                Integer emWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getEmissionWave();
-                                Integer exWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getExcitationWave();                                
+                                Integer emWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getEmissionWave().val;
+                                Integer exWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getExcitationWave().val;                                
                                 
                                 testValue(fileList[j], "s" + series + "_c" + channel + "_globalMin", globalMin);
                                 testValue(fileList[j], "s" + series + "_c" + channel + "_globalMax", globalMax);

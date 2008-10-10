@@ -23,6 +23,8 @@ import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStore;
+import omero.model.Dataset;
+import omero.model.DatasetI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -171,7 +173,8 @@ public class ImportHandler
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
                 
-                library.setDataset(importContainer[j].getDataset());
+                Dataset dataset = store.getDataset(importContainer[j].getDatasetId());
+                library.setDataset(store.getDataset(importContainer[j].getDatasetId()));
                 
                 try
                 {

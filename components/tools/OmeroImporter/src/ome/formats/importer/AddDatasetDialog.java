@@ -41,11 +41,15 @@ import javax.swing.UIManager;
 
 import layout.TableLayout;
 
-import ome.api.IUpdate;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.GuiCommonElements;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import omero.RBool;
+import omero.RLong;
+import omero.RString;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.Project;
+import omero.model.ProjectI;
 
 
 public class AddDatasetDialog extends JDialog implements ActionListener
@@ -151,7 +155,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             if (datasetName.trim().length() > 0)
             {
                 dataset = store.addDataset(datasetName, datasetDescription, project);
-                userPrefs.putLong("savedDataset", dataset.getId());
+                userPrefs.putLong("savedDataset", dataset.getId().val);
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");
@@ -165,22 +169,23 @@ public class AddDatasetDialog extends JDialog implements ActionListener
     }
 
     @Deprecated 
-    private Dataset addDataset(String name, String description)
+    private DatasetI addDataset(String name, String description)
     {
-        dataset = new Dataset();
+        dataset = new DatasetI();
         if (name.length() != 0)
-            dataset.setName(name);
+            dataset.setName(new RString(name));
         if (description.length() != 0)
-            dataset.setDescription(description);
-        Project p = new Project(project.getId(), false);
+            dataset.setDescription(new RString(description));
+        ProjectI p = new ProjectI(project.getId().val, false);
         dataset.linkProject(p);
         
-        Dataset storedDataset = null;
+        DatasetI storedDataset = null;
         
         if (store != null)
         {
-            IUpdate iUpdate = store.getIUpdate();
-            storedDataset = iUpdate.saveAndReturnObject(dataset);
+            // FIXME: IUpdate changes.
+            //IUpdate iUpdate = store.getIUpdate();
+            //storedDataset = iUpdate.saveAndReturnObject(dataset);
             return storedDataset;
         } else {
             return null;

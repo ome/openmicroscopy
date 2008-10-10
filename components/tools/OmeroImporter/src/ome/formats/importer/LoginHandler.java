@@ -28,24 +28,18 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
-import javax.ejb.EJBAccessException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.IniFileLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
-
-//import ome.api.IPojos;
-//import ome.model.core.Pixels;
-//import ome.system.ServiceFactory;
 
 /**
  * ImageExporter is master file format exporter for all supported formats and
@@ -94,8 +88,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private HistoryTable historyTable = null;
     
     private GuiCommonElements   gui;
-        
-    IniFileLoader ini = IniFileLoader.getIniFileLoader();
 
     LoginHandler(Main viewer, boolean modal, boolean center)
     {
@@ -202,7 +194,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         username = lc.getUserName();
                         password = lc.getPassword();
                         server = lc.getHostName();
-                        port = ini.getServerPort();
+                        port = "1099";
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
@@ -334,12 +326,11 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             store = new OMEROMetadataStore(username, password, server, port);
             store.getProjects();
             
-        } catch (EJBAccessException e)
+        } catch (Exception e)
         {
+            log.error("Login failure.", e);
             return false;
         }
-
-        //System.err.println(store.toString());
         return true;
     }
 

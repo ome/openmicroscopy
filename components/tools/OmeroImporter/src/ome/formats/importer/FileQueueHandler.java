@@ -33,7 +33,8 @@ import javax.swing.UIManager;
 
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
-import ome.model.containers.Dataset;
+import omero.model.Dataset;
+import omero.model.DatasetI;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -108,7 +109,7 @@ public class FileQueueHandler
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
             file = fileChooser.getSelectedFile();
-            store = viewer.loginHandler.getMetadataStore();                    
+            store = viewer.loginHandler.getMetadataStore();
 
             if (store != null)
             {
@@ -118,9 +119,9 @@ public class FileQueueHandler
                     return;
                 
                 addFileToQueue(file, dialog.dataset,
-                        dialog.dataset.getName(), dialog.project.getName(), 
+                        dialog.dataset.getName().val, dialog.project.getName().val, 
                         dialog.useFullPath, dialog.numOfDirectories, 
-                        dialog.archiveImage.isSelected(), dialog.project.getId());
+                        dialog.archiveImage.isSelected(), dialog.project.getId().val);
             } else { 
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
@@ -172,12 +173,12 @@ public class FileQueueHandler
                 {
                     if (f.isFile()) 
                         addFileToQueue(f, dialog.dataset, 
-                                dialog.dataset.getName(), 
-                                dialog.project.getName(),
+                                dialog.dataset.getName().val, 
+                                dialog.project.getName().val,
                                 dialog.useFullPath, 
                                 dialog.numOfDirectories,
                                 dialog.archiveImage.isSelected(),
-                                dialog.project.getId());
+                                dialog.project.getId().val);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -338,7 +339,7 @@ public class FileQueueHandler
         row.add(imageName);
         row.add(project + "/" + dName);
         row.add("added");
-        row.add(dataset);
+        row.add(dataset.getId().val);
         row.add(file);
         row.add(archiveImage);
         row.add(projectID);
@@ -477,7 +478,7 @@ public class FileQueueHandler
                 file = new File((String) historyTable.table.getValueAt(r, 4));
                 
                 try {
-                    datasetName = store.getDataset(datasetID).getName();
+                    datasetName = store.getDataset(datasetID).getName().val;
                 } catch (Exception e)
                 {
                     //System.err.println("failed getDatasetName:" + datasetID);
@@ -487,7 +488,7 @@ public class FileQueueHandler
 
                 
                 try {
-                    projectName = store.getProject(projectID).getName();
+                    projectName = store.getProject(projectID).getName().val;
                 } catch (Exception e)
                 {
                     //System.err.println("failed getProjectName:" + projectID);
@@ -501,7 +502,8 @@ public class FileQueueHandler
                 row.add(fileName);
                 row.add(projectName + "/" + datasetName);
                 row.add("added");
-                row.add(d);
+                // FIXME: Blitz types are not serializable.
+                row.add(d.getId().val);
                 row.add(file);
                 row.add(false);
                 row.add(projectID);

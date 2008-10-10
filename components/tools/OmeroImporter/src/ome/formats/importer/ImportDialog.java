@@ -18,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -40,8 +39,12 @@ import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.util.GuiCommonElements.WholeNumberField;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import omero.RLong;
+import omero.RString;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.Project;
+import omero.model.ProjectI;
 
 import layout.TableLayout;
 
@@ -94,7 +97,7 @@ public class ImportDialog extends JDialog implements ActionListener
     public  float pixelSizeX, pixelSizeY, pixelSizeZ;
     public  int redChannel, greenChannel, blueChannel;
     
-    public  Project newProject;
+    public  ProjectI newProject;
     
     public  DatasetItem[] datasetItems = null;
     public  ProjectItem[] projectItems = null;
@@ -342,11 +345,9 @@ public class ImportDialog extends JDialog implements ActionListener
         if (savedProject != 0 && projectItems != null) {
             for (int i = 0; i < projectItems.length; i++)
             {
+                RLong pId = projectItems[i].getProject().getId();
 
-
-                Long pId = projectItems[i].getProject().getId();
-
-                if (pId != null && pId.equals(savedProject))
+                if (pId != null && pId.val == savedProject)
                 {
                     pbox.setSelectedIndex(i);
 
@@ -365,12 +366,12 @@ public class ImportDialog extends JDialog implements ActionListener
                     } else {
                         for (int k = 0; k < datasetItems.length; k++ )
                         {
-                            Long dId = datasetItems[k].getDataset().getId();
+                            RLong dId = datasetItems[k].getDataset().getId();
                             dbox.setEnabled(true);
                             addDatasetBtn.setEnabled(true);
                             importBtn.setEnabled(true);
                             dbox.addItem(datasetItems[k]);
-                            if (dId != null && dId.equals(savedDataset))
+                            if (dId != null && dId.val == savedDataset)
                             {
                                 dbox.setSelectedIndex(k);
                             }                        
@@ -391,8 +392,8 @@ public class ImportDialog extends JDialog implements ActionListener
             savedProject = userPrefs.getLong("savedProject", 0);
             for (int k = 0; k < projectItems.length; k++ )
             {
-                Long pId = projectItems[k].getProject().getId();                
-                if (pId != null && pId.equals(savedProject))
+                RLong pId = projectItems[k].getProject().getId();                
+                if (pId != null && pId.val == savedProject)
                 {
                     pbox.insertItemAt(projectItems[k], k);
                     pbox.setSelectedIndex(k);
@@ -412,12 +413,12 @@ public class ImportDialog extends JDialog implements ActionListener
         dbox.removeAllItems();
         for (int k = 0; k < datasetItems.length; k++ )
         {
-            Long dId = datasetItems[k].getDataset().getId();
+            RLong dId = datasetItems[k].getDataset().getId();
             dbox.setEnabled(true);
             addDatasetBtn.setEnabled(true);
             importBtn.setEnabled(true);
             dbox.insertItemAt(datasetItems[k], k);
-            if (dId != null && dId.equals(savedDataset))
+            if (dId != null && dId.val == savedDataset)
             {
                 dbox.setSelectedIndex(k);
             }                        
@@ -460,8 +461,8 @@ public class ImportDialog extends JDialog implements ActionListener
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
             userPrefs.putLong("savedProject", 
-                    ((ProjectItem) pbox.getSelectedItem()).getProject().getId());
-            userPrefs.putLong("savedDataset", dataset.getId());
+                    ((ProjectItem) pbox.getSelectedItem()).getProject().getId().val);
+            userPrefs.putLong("savedDataset", dataset.getId().val);
             if (fullPathButton.isSelected() == true)
                 userPrefs.putBoolean("savedFileNaming", true);
             else 
@@ -551,11 +552,11 @@ class DatasetItem
     public String toString()
     {
         if (dataset == null) return "";
-        return dataset.getName();
+        return dataset.getName().val;
     }
 
     public Long getId() {
-        return dataset.getId();
+        return dataset.getId().val;
     }
 
     public static DatasetItem[] createDatasetItems(List<Dataset> datasets)
@@ -570,8 +571,8 @@ class DatasetItem
 
     public static DatasetItem[] createEmptyDataset()
     {
-        Dataset d = new Dataset();
-        d.setName("--- Empty Set ---");
+        DatasetI d = new DatasetI();
+        d.setName(new RString("--- Empty Set ---"));
         DatasetItem[] items = new DatasetItem[1];
         items[0] = new DatasetItem(d);
         return items;
@@ -595,19 +596,19 @@ class ProjectItem
     @Override
     public String toString()
     {
-        return project.getName();
+        return project.getName().val;
     }
 
     public Long getId()
     {
-        return project.getId();
+        return project.getId().val;
     }
 
     public static ProjectItem[] createProjectItems(List<Project> projects)
     {
         ProjectItem[] items = new ProjectItem[projects.size() + 1];
-        Project p = new Project();
-        p.setName("--- Select Project ---");
+        ProjectI p = new ProjectI();
+        p.setName(new RString("--- Select Project ---"));
         items[0] = new ProjectItem(p);
 
         for (int i = 1; i < (projects.size() + 1); i++)
