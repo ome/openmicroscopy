@@ -15,8 +15,8 @@
 	<classpathentry kind="lib" path="target/libs/client.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bio-formats"/>
-	<classpathentry kind="lib" path="target/libs/ini4j-0.3.2.jar"/>
-	<classpathentry kind="lib" path="target/libs/java-getopt-1.0.13.jar"/>
 	<classpathentry kind="lib" path="target/libs/jbossall-client.jar"/>
+	<classpathentry kind="lib" path="target/libs/ini4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/java-getopt.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
