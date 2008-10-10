@@ -41,7 +41,7 @@ Copyright notice added to all files:
 [$hdr]  *   See ../../README.h for information on these types.
 [$ice]  *   See ../../README.ice for information on these types.
 [$ALL]  *
-[$ALL]  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+[$ALL]  *   Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
 [$ALL]  *   Use is subject to license terms supplied in LICENSE.txt
 [$ALL]  *
 [$ALL]  */
@@ -185,40 +185,6 @@ INTERNAL METHODS:
 [$pyc]           "in order to update this collection.\n")
 [$pyc]
 
-DESTRUCTOR BLOCK:
-=====================================================================================================
-
-[$hdr]       virtual ~${PojoI}();
-[$cpp]     ${PojoI}::~${PojoI}() {}
-
-[$hdr]     public:
-
-
-DEFAULT CONSTRUCTOR BLOCK:
-=====================================================================================================
-
-
-[$hdr]       ${PojoI}();
-[$jav]       public ${PojoI}() {
-[$cpp]       ${PojoI}::${PojoI}() : ${Pojo}() {
-[$cpp]           loaded = true;
-[$cpp]           toggleCollectionsLoaded(true);
-[$cpp]           details = new omero::model::DetailsI();
-[$jav]           loaded = true;
-[$jav]           toggleCollectionsLoaded(true);
-[$jav]           details = new omero.model.DetailsI();
-[$jav]       }
-[$cpp]       }
-
-Python combines the two constructors. See below for a comparison.
-[$pyc]       def __init__(self,id = None, loaded = True):
-[$pyc]           super(${Pojo}I, self).__init__()
-[$pyc]           self.id = id
-[$pyc]           self._loaded = loaded
-[$pyc]           if self._loaded:
-[$pyc]              self._details = _omero_model.DetailsI()
-[$pyc]              self._toggleCollectionsLoaded(True)
-[$pyc]
 
 TOGGLE AND CREATE COLLECTIONS:
 =====================================================================================================
@@ -236,7 +202,6 @@ TOGGLE AND CREATE COLLECTIONS:
 [$pyc]           self._toggleCollectionsLoaded( False )
 
 [$jav]       protected void toggleCollectionsLoaded(boolean load) {
-[$hdr]    protected:
 [$hdr]       virtual void toggleCollectionsLoaded(bool load);
 [$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
 [$pyc]       def _toggleCollectionsLoaded(self,load):
@@ -290,6 +255,42 @@ since all collections are lists in ice.
 [$pyc]           pass
 [$pyc]
 
+
+DESTRUCTOR BLOCK:
+=====================================================================================================
+
+[$hdr]       virtual ~${PojoI}();
+[$cpp]     ${PojoI}::~${PojoI}() {}
+
+[$hdr]     public:
+
+
+DEFAULT CONSTRUCTOR BLOCK:
+=====================================================================================================
+
+
+[$hdr]       ${PojoI}();
+[$jav]       public ${PojoI}() {
+[$cpp]       ${PojoI}::${PojoI}() : ${Pojo}() {
+[$cpp]           loaded = true;
+[$cpp]           toggleCollectionsLoaded(true);
+[$cpp]           details = new omero::model::DetailsI();
+[$jav]           loaded = true;
+[$jav]           toggleCollectionsLoaded(true);
+[$jav]           details = new omero.model.DetailsI();
+[$jav]       }
+[$cpp]       }
+
+Python combines the two constructors. See below for a comparison.
+[$pyc]       def __init__(self,id = None, loaded = True):
+[$pyc]           super(${Pojo}I, self).__init__()
+[$pyc]           self.id = isinstance(id, omero.RLong) and id or ( id == None and None or omero.RLong(id) )
+[$pyc]           self._loaded = loaded
+[$pyc]           if self._loaded:
+[$pyc]              self._details = _omero_model.DetailsI()
+[$pyc]              self._toggleCollectionsLoaded(True)
+[$pyc]
+
 ICE CLASS BLOCK:
 =====================================================================================================
 
@@ -310,16 +311,32 @@ UNLOADED CONSTRUCTOR BLOCK:
 
 [$hdr]       ${PojoI}(omero::RLongPtr idPtr, bool isLoaded = false);
 [$cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) : ${Pojo}() {
-[$cpp]      id = idPtr;
-[$cpp]      loaded = isLoaded;
-[$cpp]      if (loaded) details = new omero::model::DetailsI(); 
-[$cpp]      toggleCollectionsLoaded(isLoaded);
+[$cpp]        id = idPtr;
+[$cpp]        loaded = isLoaded;
+[$cpp]        if (loaded) details = new omero::model::DetailsI(); 
+[$cpp]        toggleCollectionsLoaded(isLoaded);
 [$cpp]    }
+
+[$hdr]       ${PojoI}(Ice::Long id, bool isLoaded = false);
+[$cpp]    ${PojoI}::${PojoI}(Ice::Long _id, bool isLoaded) : ${Pojo}() {
+[$cpp]        id = new omero::RLong(_id);
+[$cpp]        loaded = isLoaded;
+[$cpp]        if (loaded) details = new omero::model::DetailsI(); 
+[$cpp]        toggleCollectionsLoaded(isLoaded);
+[$cpp]    }
+
+
 [$jav]    public ${PojoI}(long id, boolean loaded) {
-[$jav]      this.id = new omero.RLong(id);
-[$jav]      this.loaded = loaded; 
-[$jav]      if (loaded) details = new omero.model.DetailsI();
+[$jav]        this( new omero.RLong(id), loaded );
 [$jav]    }
+
+[$jav]    public ${PojoI}(omero.RLong id, boolean loaded) {
+[$jav]        this.id = id;
+[$jav]        this.loaded = loaded; 
+[$jav]        if (loaded) details = new omero.model.DetailsI();
+[$jav]        toggleCollectionsLoaded(loaded);
+[$jav]    }
+
 See single Python constructor above.
 
 LOADNESS BLOCK:
@@ -422,13 +439,13 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$pyc]             copy = ${PojoI}()
 
 [$jav]             copy.id = id;
-[$cpp]             copy->id = id;
+[$cpp]             copy->setId( id );
 [$pyc]             copy._id = self._id;
 
 #if( ! $type.immutable )
 
 [$jav]             copy.version = version;
-[$cpp]             copy->version = version;
+[$cpp]             copy->setVersion( version );
 [$pyc]             copy._version = self._version;
 
 #end## ! immutable
@@ -436,10 +453,10 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 #if($property.name  == "details")
 
 [$jav]             copy.details = null; // Unloading for the moment.
-[$cpp]             copy->details = omero::model::DetailsPtr(); // Unloading for the moment.
+[$cpp]             // FIXME copy->details = omero::model::DetailsPtr(); // Unloading for the moment.
 [$pyc]             copy._details = None  # Unloading for the moment.
 
-[$cpp]             throw omero::ClientError(__FILE__, __LINE__, "NYI")
+[$cpp]             throw omero::ClientError(__FILE__, __LINE__, "NYI");
 [$cpp]         }
 [$pyc]             raise omero.ClientError("NYI")
 
@@ -514,7 +531,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 
 [$cpp]       omero::model::IObjectPtr ${PojoI}::proxy($CPP_CURRENT) {
 [$cpp]           if ( ! id )  throw new omero::ClientError(__FILE__, __LINE__, "Proxies require an id");
-[$cpp]           return new ${PojoI}( id.val, false );
+[$cpp]           return new ${PojoI}( id->val, false );
 [$cpp]       }
 [$cpp]
 [$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT) {
@@ -1532,29 +1549,29 @@ Linked Lists
 ==============================
 
 [$Ice]       ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List();
-[$jav]    public List<${property.shortTarget}> linked${property.shortTarget}List($JAV_CURRENT) throws omero.UnloadedEntityException {
-[$jav]        errorIfUnloaded();
-[$jav]        if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
-[$jav]        List<${property.shortTarget}> linked = new ArrayList<${property.shortTarget}>();
-[$jav]        for (${property.shortType} link : ${fieldName}) {
-[$jav]            linked.add( link.$other );
+[$jav]        public List<${property.shortTarget}> linked${property.shortTarget}List($JAV_CURRENT) throws omero.UnloadedEntityException {
+[$jav]            errorIfUnloaded();
+[$jav]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$jav]            List<${property.shortTarget}> linked = new ArrayList<${property.shortTarget}>();
+[$jav]            for (${property.shortType} link : ${fieldName}) {
+[$jav]                linked.add( link.$other );
+[$jav]            }
+[$jav]            return linked;
 [$jav]        }
-[$jav]        return linked;
-[$jav]    }
 
-[$hdr]    virtual ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List($HDR_CURRENT);
-[$cpp]    virtual ${Pojo}Linked${property.shortTarget}Seq ${PojoI}::linked${property.shortTarget}List($CPP_CURRENT) {
-[$cpp]        errorIfUnloaded();
-[$cpp]        if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
-[$cpp]        ${Pojo}Linked${property.shortTargeT}Seq linked();
-[$cpp]        ${seqName}::iterator beg = ${fieldName}.begin();
-[$cpp]        while (beg != ${fieldName}.end()) {
-[$cpp]            ${property.shortType} link = *beg;
-[$cpp]            linked.add( link.$other );
-[$cpp]            beg++;
+[$hdr]        virtual ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List($HDR_CURRENT);
+[$cpp]        ${Pojo}Linked${property.shortTarget}Seq ${PojoI}::linked${property.shortTarget}List($CPP_CURRENT) {
+[$cpp]            errorIfUnloaded();
+[$cpp]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$cpp]            ${Pojo}Linked${property.shortTarget}Seq linked;
+[$cpp]            ${seqName}::iterator beg = ${fieldName}.begin();
+[$cpp]            while (beg != ${fieldName}.end()) {
+[$cpp]                ${property.shortType}Ptr link = *beg;
+[$cpp]                linked.push_back( link->$other );
+[$cpp]                beg++;
+[$cpp]            }
+[$cpp]            return linked;
 [$cpp]        }
-[$cpp]        return linked;
-[$cpp]    }
 
 [$pyc]       def linked${property.shortTarget}List(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
