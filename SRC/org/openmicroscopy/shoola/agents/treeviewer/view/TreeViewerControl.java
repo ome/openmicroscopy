@@ -283,8 +283,6 @@ class TreeViewerControl
 				new BrowserSelectionAction(model, Browser.PROJECT_EXPLORER));
 		actionsMap.put(TAGS_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.TAGS_EXPLORER));
-		actionsMap.put(CATEGORY_EXPLORER, 
-				new BrowserSelectionAction(model, Browser.CATEGORY_EXPLORER));
 		actionsMap.put(IMAGES_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.IMAGES_EXPLORER));
 		actionsMap.put(FIND,  new FinderAction(model));

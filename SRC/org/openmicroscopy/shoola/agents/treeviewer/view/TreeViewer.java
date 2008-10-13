@@ -754,7 +754,7 @@ public interface TreeViewer
 	 * Browses the images acquired during the passed time interval.
 	 * 
 	 * @param node The node holding the time information.
-	 * @param set Tne 
+	 * @param set  The elements to add.
 	 */
 	public void browseTimeInterval(TreeImageTimeSet node, Set set);
 

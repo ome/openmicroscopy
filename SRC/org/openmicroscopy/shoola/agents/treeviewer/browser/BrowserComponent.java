@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -1258,6 +1259,8 @@ class BrowserComponent
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
 			model.browsePlate(node);
+		} else if (uo instanceof ImageData) {
+			model.viewImage(node);
 		}
 		fireStateChange();
 	}

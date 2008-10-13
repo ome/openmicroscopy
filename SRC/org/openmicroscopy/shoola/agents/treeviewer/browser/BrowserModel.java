@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import javax.swing.JTree;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
@@ -51,8 +53,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -675,4 +680,37 @@ class BrowserModel
 		if (foundNode != null) selectedNodes.remove(foundNode);
 	}
 
+	/**
+	 * Views the passed image.
+	 * 
+	 * @param node The node to handle
+	 */
+	void viewImage(TreeImageDisplay node)
+	{ 
+		if (node == null) return;
+		ImageData image = (ImageData) node.getUserObject();
+		TreeImageDisplay pNode = node.getParentDisplay();
+		DataObject pObject = null;
+		DataObject gpObject = null;
+		if (pNode != null) {
+			Object p = pNode.getUserObject();
+			if (p instanceof DataObject)
+				pObject = (DataObject) p;
+			TreeImageDisplay gpNode = pNode.getParentDisplay();
+			if (gpNode != null) {
+				p = gpNode.getUserObject();
+				if (p instanceof DataObject) {
+					if (!((p instanceof ExperimenterData) ||
+							(p instanceof GroupData)))
+						gpObject = (DataObject) p;
+				}
+					
+			}
+		}
+		Rectangle r = parent.getUI().getBounds();
+		ViewImage evt = new ViewImage(image, r);
+    	evt.setContext(pObject, gpObject);
+		TreeViewerAgent.getRegistry().getEventBus().post(evt);
+	}
+	
 }

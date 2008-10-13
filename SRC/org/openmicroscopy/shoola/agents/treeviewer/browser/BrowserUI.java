@@ -255,9 +255,7 @@ class BrowserUI
                 if (d == null) return;
                 Object o = d.getUserObject();
                 if (o instanceof ImageData) {
-                	Rectangle r = model.getParentModel().getUI().getBounds();
-        			TreeViewerAgent.getRegistry().getEventBus().post(
-        					new ViewImage((ImageData) o, r));
+                	model.viewImage(d);
                 }
             }
         }
