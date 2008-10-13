@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,8 +49,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
-
 import pojos.PixelsData;
 
 
@@ -72,12 +72,21 @@ import pojos.PixelsData;
 public class PixelsServicesFactory
 {
 
+	/** The percentage of memory used for caching. */
+	private static final double		RATIO = 0.10;
+	
+	/** Values used to determine the size of a cache. */
+	private static final int		FACTOR = 1024*1024;
+	
 	/** The sole instance. */
 	private static PixelsServicesFactory 	singleton;
 
 	/** Reference to the container registry. */
 	private static Registry                 registry;
 
+	/** The maximum amount of memory in bytes used for caching. */
+	private static int						maxSize;
+	
 	/**
 	 * Converts the {@link RenderingDef} into a {@link RndProxyDef}.
 	 * 
@@ -148,6 +157,13 @@ public class PixelsServicesFactory
 		if (singleton == null)  {
 			registry = c.getRegistry();
 			singleton = new PixelsServicesFactory();
+			//Retrieve the maximum heap size.
+			MemoryUsage usage = 
+				ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+			String message = "Heap memory usage: max "+usage.getMax();
+			registry.getLogger().info(singleton, message);
+			//percentage of memory used for caching.
+			maxSize = (int) (RATIO*usage.getMax())/FACTOR; 
 		}
 		return singleton;
 	}
@@ -233,7 +249,6 @@ public class PixelsServicesFactory
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(new Long(pixelsID));
 		if (proxy != null) {
-			proxy.shutDown();
 			proxy.resetRenderingEngine(re, convert(def));
 		}
 			
@@ -258,6 +273,7 @@ public class PixelsServicesFactory
 		if (proxy != null) {
 			proxy.shutDown();
 			singleton.rndSvcProxies.remove(new Long(pixelsID));
+			getCacheSize();
 		}
 	}
 	
@@ -311,7 +327,11 @@ public class PixelsServicesFactory
 		if (singleton.pixelsSource != null && 
 				singleton.pixelsSource.isSame(pixels.getId()))
 			return singleton.pixelsSource;
-		singleton.pixelsSource = DataSink.makeNew(pixels, registry);
+		int size = getCacheSize();
+		boolean cacheInMemory = true;
+		if (size <= 0) cacheInMemory = false;
+		singleton.pixelsSource = DataSink.makeNew(pixels, registry, 
+												cacheInMemory);
 		return singleton.pixelsSource;
 	}
 
@@ -328,8 +348,13 @@ public class PixelsServicesFactory
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
 		if (singleton.pixelsSource != null && 
-				singleton.pixelsSource.isSame(pixelsID))
-			singleton.pixelsSource.eraseCache();
+				singleton.pixelsSource.isSame(pixelsID)) {
+			int size = getCacheSize();
+			boolean cacheInMemory = true;
+			if (size <= 0) cacheInMemory = false;
+			singleton.pixelsSource.clearCache();
+			singleton.pixelsSource.setCacheInMemory(cacheInMemory);
+		}
 	}
 	
 	/**
@@ -341,9 +366,14 @@ public class PixelsServicesFactory
 	 * @param pixelsID  The id of the pixels set.
 	 * @param pDef      The plane to render.
 	 * @return See above.
+	 * 
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static BufferedImage render(Registry context, Long pixelsID, 
 			PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
@@ -352,12 +382,7 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
-		try {
-			return proxy.renderPlane(pDef);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		return null;
+		return proxy.renderPlane(pDef);
 	}
 
 	/**
@@ -427,7 +452,7 @@ public class PixelsServicesFactory
 	{
 		rndSvcProxies = new HashMap<Long, RenderingControl>();
 	}
-
+	
 	/**
 	 * Makes a new {@link RenderingControl}.
 	 * 
@@ -445,14 +470,57 @@ public class PixelsServicesFactory
 							List metadata, int compression, RenderingDef def)
 	{
 		if (singleton == null) throw new NullPointerException();
-		Long id = pixels.getId().val;//re.getPixels().getId();
+		Long id = pixels.getId().val;
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
 		RndProxyDef proxyDef = convert(def);
 		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
-										compression, proxyDef);
+										compression, proxyDef, getCacheSize());
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;
+	}
+	
+	/**
+	 * Returns the size of the cache.
+	 * 
+	 * @return See above.
+	 */
+	private static int getCacheSize()
+	{
+		MemoryUsage usage = 
+			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		//percentage of memory used for caching.
+		maxSize = (int) (RATIO*(usage.getMax()-usage.getUsed()))/FACTOR; 
+		int m = singleton.rndSvcProxies.size();
+		int n = 0;
+		int sizeCache = 0;
+		RenderingControlProxy proxy;
+		if (singleton.pixelsSource != null) n = 1;
+		if (n == 0 && m == 0) return maxSize*FACTOR;
+		else if (n == 0 && m > 0) {
+			sizeCache = (maxSize/(m+1))*FACTOR;
+			//reset all the image caches.
+			Iterator i = singleton.rndSvcProxies.keySet().iterator();
+			while (i.hasNext()) {
+				proxy = (RenderingControlProxy)
+							singleton.rndSvcProxies.get(i.next());
+				proxy.setCacheSize(sizeCache);
+			}
+			return sizeCache;
+		} else if (m == 0 && n > 0) {
+			sizeCache = (maxSize/(n+1))*FACTOR;
+			return sizeCache;
+		}
+		sizeCache = (maxSize/(m+n+1))*FACTOR;
+		//reset all the image caches.
+		Iterator i = singleton.rndSvcProxies.keySet().iterator();
+		while (i.hasNext()) {
+			proxy = (RenderingControlProxy)
+						singleton.rndSvcProxies.get(i.next());
+			proxy.setCacheSize(sizeCache);
+		}
+		
+		return sizeCache;
 	}
 
 }

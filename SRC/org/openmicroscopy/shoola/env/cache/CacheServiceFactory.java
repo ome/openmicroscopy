@@ -110,9 +110,11 @@ public class CacheServiceFactory
 			public void addElement(int cacheID, Object key, Object element) {}
 			public int createCache() { return -1; }
 			public int createCache(int type) { return -1; }
+			public int createCache(int type, int size) { return -1; }
 			public Object getElement(int cacheID, Object key) { return null; }
 			public void removeCache(int cacheID) {}
 			public void clearCache(int cacheID) {}
+			public void setCacheSize(int cacheID, int size) {}
 		};
 	}
 	

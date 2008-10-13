@@ -35,6 +35,7 @@ import java.awt.Rectangle;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -68,6 +69,15 @@ public class ViewImage
     /** The id of the user who set the rendering settings. */
     private long		selectedUserID;
     
+    /** The parent of the image or <code>null</code> if no context specified. */
+    private DataObject	parent;
+    
+    /** 
+     * The grandparent of the image or <code>null</code> if no 
+     * context specified. 
+     */
+    private DataObject	grandParent;
+    
     /**
      * Creates a new instance.
      * 
@@ -82,6 +92,36 @@ public class ViewImage
         requesterBounds = bounds;
         selectedUserID = -1;
     }
+    
+    /**
+     * Sets the context of the node.
+     * 
+     * @param parent		The parent of the image or <code>null</code> 
+     * 						if no context specified.
+     * @param grandParent   The grandparent of the image or <code>null</code> 
+     * 						if no context specified.
+     */
+    public void setContext(DataObject parent, DataObject grandParent)
+    {
+    	this.parent = parent;
+    	this.grandParent = grandParent;
+    }
+    
+    /**
+     * Returns the parent of the image or <code>null</code> 
+     * if no context specified.
+     * 
+     * @return See above.
+     */
+    public DataObject getParent() { return parent; }
+    
+    /**
+     * Returns the grandparent of the image or <code>null</code> 
+     * if no context specified.
+     * 
+     * @return See above.
+     */
+    public DataObject getGrandParent() { return grandParent; }
     
     /**
      * Sets the rendering settings set by the selected user.

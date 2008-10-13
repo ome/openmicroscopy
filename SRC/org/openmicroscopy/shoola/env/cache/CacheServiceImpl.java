@@ -50,7 +50,7 @@ import net.sf.ehcache.Element;
 class CacheServiceImpl
 	implements CacheService
 {
-
+	
 	/** Reference to the manager. */
 	private CacheManager manager;
 	
@@ -86,17 +86,21 @@ class CacheServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link CacheService}.
-	 * @see CacheService#createCache(int)
+	 * @see CacheService#createCache(int, int)
 	 */
-	public int createCache(int type) 
+	public int createCache(int type, int size) 
 	{
 		Cache cache;
+		if (size < 0) size = 0;
 		switch (type) {
 			case PERSISTENCE_ON_DISK:
+				//TODO: implement.
 				return -1;
-			case IN_MEMORY_ONLY:
+			case IN_MEMORY:
 				cacheID++;
-				cache = new Cache(""+cacheID, 10000, false, false, 300, 600);
+				//name, maximum number of elements, overflow to disk, eternal
+				//time to Idle, time to live
+				cache = new Cache(""+cacheID, size, true, false, 300, 600);
 				manager.addCache(cache);
 				break;
 			case DEFAULT:
@@ -107,6 +111,16 @@ class CacheServiceImpl
 				return -1;
 		}
 		return cacheID;
+		
+	}
+	
+	/** 
+	 * Implemented as specified by {@link CacheService}.
+	 * @see CacheService#createCache(int)
+	 */
+	public int createCache(int type) 
+	{
+		return createCache(type, CACHE_SIZE);
 	}
 
 	/** 
@@ -127,6 +141,9 @@ class CacheServiceImpl
 	{
 		Cache cache = manager.getCache(""+cacheID);
 		if (cache == null) return;
+		if (cache.getSize() >= 
+			cache.getCacheConfiguration().getMaxElementsInMemory())
+			cache.flush();
 		cache.put(new Element(key, element));
 	}
 	
@@ -154,4 +171,17 @@ class CacheServiceImpl
 		cache.removeAll();
 	}
 
+	/** 
+	 * Implemented as specified by {@link CacheService}.
+	 * @see CacheService#setCacheSize(int, int)
+	 */
+	public void setCacheSize(int cacheID, int size)
+	{
+		Cache cache = manager.getCache(""+cacheID);
+		if (cache == null) return;
+		cache.flush();
+		cache.getCacheConfiguration().setMaxElementsInMemory(size);
+		
+	}
+	
 }

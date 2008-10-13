@@ -51,7 +51,10 @@ public interface CacheService
 	public static final int PERSISTENCE_ON_DISK = 1;
 	
 	/** Indicates to cache data in memory only. */
-	public static final int IN_MEMORY_ONLY = 2;
+	public static final int IN_MEMORY = 2;
+	
+	/** The default size of a cache. */
+	public static final int CACHE_SIZE = 10;
 	
 	/**
 	 * Creates a default cache.
@@ -61,6 +64,17 @@ public interface CacheService
 	 * 									creating the cache.
 	 */
 	public int createCache();
+	
+	/**
+	 * Creates a cache of a given type.
+	 * 
+	 * @param type The type of cache to create.
+	 * @param size The size of the cache.
+	 * @return See above.
+	 * @throws CacheServiceException 	Thrown if an error occured while 
+	 * 									creating the cache.
+	 */
+	public int createCache(int type, int size);
 	
 	/**
 	 * Creates a cache of a given type.
@@ -107,5 +121,14 @@ public interface CacheService
 	 * @param cacheID The id of the cache to clear.
 	 */
 	public void clearCache(int cacheID);
+	
+	/**
+	 * Resets the size (number of items in memory) of the cache, 
+	 * when a new cache is created or deleted.
+	 * 
+	 * @param cacheID	The id of the cache.
+	 * @param size		The size of the cache.
+	 */
+	public void setCacheSize(int cacheID, int size);
 	
 }

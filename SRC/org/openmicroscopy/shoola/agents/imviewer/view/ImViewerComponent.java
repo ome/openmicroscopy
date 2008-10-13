@@ -81,6 +81,8 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -2585,4 +2587,18 @@ class ImViewerComponent
 		projection = null;
 	}
 
+	/**
+	 * Sets the context of the node.
+	 * 
+	 * @param parent		The parent of the image or <code>null</code> 
+	 * 						if no context specified.
+	 * @param grandParent   The grandparent of the image or <code>null</code> 
+	 * 						if no context specified.
+	 */
+	public void setContext(DataObject parent, DataObject grandParent)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setContext(parent, grandParent);
+	}
+    
 }

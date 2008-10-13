@@ -83,18 +83,21 @@ public class DataSink
 	 * Factory method to create a new <code>DataSink</code> to handle
 	 * access to the metadata associated with the specified pixels set.
 	 * 
-	 * @param source	The pixels set. Mustn't be <code>null</code>.
-	 * @param context	The container's registry.  Mustn't be <code>null</code>.
-	 * @param size		The size of the cache.
+	 * @param source		The pixels set. Mustn't be <code>null</code>.
+	 * @param context		The container's registry. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param cacheInMemory	Pass <code>true</code> if the data can be cached 
+	 * 						in memory, <code>false</code> .
 	 * @return See above.
 	 */
-	public static DataSink makeNew(PixelsData source, Registry context)
+	public static DataSink makeNew(PixelsData source, Registry context, 
+			boolean cacheInMemory)
 	{
 		if (source == null)
 			throw new NullPointerException("No pixels.");
 		if (context == null) 
 			throw new NullPointerException("No registry.");
-		return new DataSink(source, context);
+		return new DataSink(source, context, cacheInMemory);
 	}
 	
 	/** The data source. */
@@ -108,30 +111,28 @@ public class DataSink
 
 	/** Strategy used to transform the raw data. */
 	private BytesConverter	strategy;
-
-	/** Cache the raw data. */
-	//private PixelsCache		cache;
-
+	
 	/** The id of the cache. */
 	private int				cacheID;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param source	The pixels set.
-	 * @param context	The container's registry.
+	 * @param source		The pixels set.
+	 * @param context		The container's registry.
+	 * @param cacheInMemory	Pass <code>true</code> if the data can be cached 
+	 * 						in memory, <code>false</code> .
 	 */
-	private DataSink(PixelsData source, Registry context)
+	private DataSink(PixelsData source, Registry context, boolean cacheInMemory)
 	{
 		this.source = source;
 		this.context = context;
 		String type = source.getPixelType();
 		bytesPerPixels = getBytesPerPixels(type);
-		cacheID = context.getCacheService().createCache();
-		/*
-		cache = CachingService.createPixelsCache(source.getId(), 
-				source.getSizeX()*source.getSizeY()*bytesPerPixels);
-				*/
+		int size = 1;
+		if (!cacheInMemory) size = 0;
+		cacheID = context.getCacheService().createCache(
+				CacheService.IN_MEMORY, size);
 		strategy = BytesConverter.getConverter(type);
 	}
 	
@@ -194,7 +195,7 @@ public class DataSink
 		//Retrieve data
 		Integer planeIndex = linearize(z, w, t);
 		CacheService cache = context.getCacheService();
-		Plane2D plane = (Plane2D) cache.getElement(cacheID, planeIndex);//cache.extract(planeIndex);
+		Plane2D plane = (Plane2D) cache.getElement(cacheID, planeIndex);
 		if (plane != null) return plane;
 		byte[] data = null; 
 		try {
@@ -241,9 +242,23 @@ public class DataSink
 	}
 	
 	/** Erases the cache. */
-	public void eraseCache()
+	public void clearCache()
 	{
-		context.getCacheService().removeCache(cacheID);
+		context.getCacheService().clearCache(cacheID);
 	}
+	
+	/**
+	 * Sets the size either to 1 or 0 depending on the passed value.
+	 * 
+	 * @param cacheInMemory Passed <code>true</code> to set the size to 1,
+	 * 						<code>false</code> to set to 0.
+	 */
+	public void setCacheInMemory(boolean cacheInMemory)
+	{
+		clearCache();
+		if (cacheInMemory) context.getCacheService().setCacheSize(cacheID, 1);
+		else context.getCacheService().setCacheSize(cacheID, 0);
+	}
+	
 	
 }

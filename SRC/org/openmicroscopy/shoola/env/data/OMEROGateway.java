@@ -47,18 +47,22 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.system.UpgradeCheck;
+import omero.AuthenticationException;
+import omero.DataAccessException;
+import omero.ExpiredCredentialException;
 import omero.InternalException;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
 import omero.RTime;
 import omero.RType;
+import omero.SecurityViolation;
 import omero.ServerError;
+import omero.SessionException;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
@@ -222,10 +226,6 @@ class OMEROGateway
 	/** The compression level. */
 	private float					compression;
 	
-	//Blitz stuff
-	/** Tell us to configure ice. */
-	private Properties 				iceConfig;
-
 	/** The port to connect. */
 	private int						port;
 	
@@ -254,12 +254,23 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Throwable cause = t.getCause();
-		if (cause instanceof ServerError) {
-			
-			
-			String s = "Cannot access data for security reasons \n"; 
+		if (cause instanceof DataAccessException) {
+			String s = "Cannot access data. \n"; 
 			throw new DSAccessException(s+message, t);
+		} else if (cause instanceof SecurityViolation) {
+			String s = "For security reasons, cannot access data. \n"; 
+			throw new DSAccessException(s+message, t);
+		} else if (cause instanceof SessionException) {
+			String s = "Session is not valid. \n"; 
+			throw new DSOutOfServiceException(s+message, t);
+		} else if (cause instanceof AuthenticationException) {
+			String s = "Cannot initialize the session. \n"; 
+			throw new DSOutOfServiceException(s+message, t);
+		} else if (cause instanceof ExpiredCredentialException) {
+			String s = "Cannot initialize the session. \n"; 
+			throw new DSOutOfServiceException(s+message, t);
 		}
+		throw new DSAccessException("Cannot access data. \n"+message, t);
 	}
 	
 	/**
@@ -838,29 +849,11 @@ class OMEROGateway
 		
 		return false;
 	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param iceConfig 	The Ice configuration.
-	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
-	 * 						link is detected to get the Login Service and try 
-	 *                  	reestablishing a valid link to <i>OMEDS</i>.
-	 *                  	Mustn't be <code>null</code>.
-	 */
-	OMEROGateway(Properties iceConfig, DataServicesFactory dsFactory)
-	{
-		if (dsFactory == null) 
-			throw new IllegalArgumentException("No Data service factory.");
-		this.dsFactory = dsFactory;
-		this.iceConfig = iceConfig;
-		thumbRetrieval = 0;
-	}
 
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param iceConfig 	The Ice configuration.
+	 * @param port			The port used to connect.
 	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
 	 * 						link is detected to get the Login Service and try 
 	 *                  	reestablishing a valid link to <i>OMEDS</i>.
@@ -1026,20 +1019,6 @@ class OMEROGateway
 	{
 		try {
 			compression = compressionLevel;
-			
-			//Put value of hostname
-			/*
-			Set keys = iceConfig.keySet();
-			Iterator i = keys.iterator();
-			String key, value;
-			while (i.hasNext()) {
-				key = (String) i.next();
-				value = iceConfig.getProperty(key);
-				value = value.replaceAll(LookupNames.ICE_HOSTNAME, hostName);
-				iceConfig.put(key, value);
-			}
-			blitzClient = new client(iceConfig);
-			*/
 			this.hostName = hostName;
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);

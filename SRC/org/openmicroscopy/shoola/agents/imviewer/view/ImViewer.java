@@ -45,6 +45,8 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -899,5 +901,15 @@ public interface ImViewer
 	 * @param image 	The projected image.
 	 */
 	public void setProjectedRenderingSettings(Boolean result, ImageData image);
+	
+	/**
+     * Sets the context of the node.
+     * 
+     * @param parent		The parent of the image or <code>null</code> 
+     * 						if no context specified.
+     * @param grandParent   The grandparent of the image or <code>null</code> 
+     * 						if no context specified.
+     */
+    public void setContext(DataObject parent, DataObject grandParent);
 	
 }

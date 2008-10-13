@@ -68,6 +68,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -227,6 +229,15 @@ class ImViewerModel
 	 */
 	private boolean						initMagnificationFactor;
 	
+    /** The parent of the image or <code>null</code> if no context specified. */
+    private DataObject					parent;
+    
+    /** 
+     * The grandparent of the image or <code>null</code> if no 
+     * context specified. 
+     */
+    private DataObject					grandParent;
+    
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -1430,4 +1441,35 @@ class ImViewerModel
 		l.load();
 	}
 	
+	/**
+	 * Sets the context of the node.
+	 * 
+	 * @param parent		The parent of the image or <code>null</code> 
+	 * 						if no context specified.
+	 * @param grandParent   The grandparent of the image or <code>null</code> 
+	 * 						if no context specified.
+	 */
+	void setContext(DataObject parent, DataObject grandParent)
+	{
+		this.parent = parent;
+		this.grandParent = grandParent;
+	}
+	
+	/**
+     * Returns the parent of the image or <code>null</code> 
+     * if no context specified.
+     * 
+     * @return See above.
+     */
+    DataObject getParent() { return parent; }
+    
+    /**
+     * Returns the grandparent of the image or <code>null</code> 
+     * if no context specified.
+     * 
+     * @return See above.
+     */
+    DataObject getGrandParent() { return grandParent; }
+    
+    
 }

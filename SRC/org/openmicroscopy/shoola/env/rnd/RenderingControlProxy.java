@@ -116,6 +116,9 @@ class RenderingControlProxy
     /** Helper reference to the registry. */
     private Registry				context;
     
+    /** The size of the cache. */
+    private int						cacheSize;
+    
     /**
      * Helper method to handle exceptions thrown by the connection library.
      * Methods in this class are required to fill in a meaningful context
@@ -194,7 +197,6 @@ class RenderingControlProxy
     /** Clears the cache. */
     private void invalidateCache()
     {
-        //if (xyCache != null) xyCache.clear();
     	if (cacheID >= 0){
     		 context.getCacheService().clearCache(cacheID);
     	}
@@ -234,7 +236,7 @@ class RenderingControlProxy
     	*/
     	if (pDef.slice == omero.romio.XY.value) 
     		cacheID = context.getCacheService().createCache(
-    							CacheService.IN_MEMORY_ONLY);
+    							CacheService.IN_MEMORY);
     }
   
     /**
@@ -525,9 +527,11 @@ class RenderingControlProxy
 	 * 						pass the compression used.
 	 * @param rndDef		Local copy of the rendering settings used to 
 	 * 						speed-up the client.
+	 * @param cacheSize		The desired size of the cache.
      */
     RenderingControlProxy(Registry context, RenderingEnginePrx re, Pixels pixels,
-    					List m, int compression, RndProxyDef rndDef)
+    					List m, int compression, RndProxyDef rndDef, 
+    					int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -535,6 +539,7 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        this.cacheSize = cacheSize;
         this.context = context;
         servant = re;
         pixs = pixels;//servant.getPixels();
@@ -587,6 +592,9 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (servant == null) return;
+    	try {
+			this.servant.close();
+		} catch (Exception e) {} //digest exception if already close.
     	DataServicesFactory.isSessionAlive(context);
     	invalidateCache();
     	this.servant = servant;
@@ -677,6 +685,16 @@ class RenderingControlProxy
 		} catch (Exception e) {} 
     }
     
+	/**
+	 * Resets the size of the cache.
+	 * 
+	 * @param size The size of the cache.
+	 */
+	void setCacheSize(int size)
+	{
+		context.getCacheService().setCacheSize(cacheID, size);
+	}
+	
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#setModel(String)
