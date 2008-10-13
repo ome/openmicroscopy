@@ -119,6 +119,9 @@ class RenderingControlProxy
     /** The size of the cache. */
     private int						cacheSize;
     
+    /** The size of the image. */
+    private int						imageSize;
+    
     /**
      * Helper method to handle exceptions thrown by the connection library.
      * Methods in this class are required to fill in a meaningful context
@@ -197,9 +200,8 @@ class RenderingControlProxy
     /** Clears the cache. */
     private void invalidateCache()
     {
-    	if (cacheID >= 0){
+    	if (cacheID >= 0)
     		 context.getCacheService().clearCache(cacheID);
-    	}
     }
     
     /** Clears the cache and releases memory. */
@@ -234,9 +236,11 @@ class RenderingControlProxy
             				getPixelsDimensionsZ(), getPixelsDimensionsT());
     	}
     	*/
-    	if (pDef.slice == omero.romio.XY.value) 
+    	if (pDef.slice == omero.romio.XY.value) {
     		cacheID = context.getCacheService().createCache(
-    							CacheService.IN_MEMORY);
+					CacheService.IN_MEMORY, cacheSize/imageSize);
+    	}
+    		
     }
   
     /**
@@ -395,6 +399,7 @@ class RenderingControlProxy
 				return ImageIO.read(new ByteArrayInputStream((byte[]) array));
 			
 			byte[] values = servant.renderCompressed(pDef);
+			imageSize = values.length;
 			initializeCache(pDef);
 			cache(pDef, values);
 			JPEGImageDecoder decoder = 
@@ -440,6 +445,7 @@ class RenderingControlProxy
                     sizeX2 = pixs.getSizeY().val;
                     break;
             }
+            imageSize = 3*buf.length;
             initializeCache(pDef);
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
             cache(pDef, img);
@@ -550,7 +556,7 @@ class RenderingControlProxy
         	families = servant.getAvailableFamilies(); 
             models = servant.getAvailableModels();
             cacheID = -1;
-            
+            imageSize = 1;
             this.compression = compression;
             if (rndDef == null) {
             	this.rndDef = new RndProxyDef();
@@ -688,11 +694,12 @@ class RenderingControlProxy
 	/**
 	 * Resets the size of the cache.
 	 * 
-	 * @param size The size of the cache.
+	 * @param size The size, in bytes, of the cache.
 	 */
 	void setCacheSize(int size)
 	{
-		context.getCacheService().setCacheSize(cacheID, size);
+		if (imageSize == 0) imageSize = 1;
+		context.getCacheService().setCacheSize(cacheID, size/imageSize);
 	}
 	
     /** 
@@ -1459,9 +1466,8 @@ class RenderingControlProxy
 	public List<Integer> getActiveChannels()
 	{
 		List<Integer> active = new ArrayList<Integer>();
-		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			if (isActive(i)) active.add(new Integer(i));
-		}
 		return active;
 	}
 	

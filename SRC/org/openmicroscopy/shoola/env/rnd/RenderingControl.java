@@ -32,11 +32,9 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Pixels;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
-
 import pojos.PixelsData;
 
 
