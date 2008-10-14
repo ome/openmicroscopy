@@ -255,7 +255,7 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
                 omero.RList list = new omero.RList();
                 list.val = new ArrayList<omero.RType>();
                 for (Map<String, Object> item : rv) {
-                    if (item == null || item.keySet().size() > 0) {
+                    if (item == null || item.keySet().size() == 0) {
                         throw new IllegalArgumentException(value.toString());
                     }
                     omero.RMap map = new omero.RMap();
