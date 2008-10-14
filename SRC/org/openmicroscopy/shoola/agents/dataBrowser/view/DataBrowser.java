@@ -455,4 +455,7 @@ public interface DataBrowser
 	 */
 	public void viewField(int field);
 	
+	/** Saves the displayed thumbnails as a single image. */
+	public void saveThumbnails();
+	
 }

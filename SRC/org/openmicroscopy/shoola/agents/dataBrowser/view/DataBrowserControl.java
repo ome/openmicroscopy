@@ -40,6 +40,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -101,6 +102,9 @@ class DataBrowserControl
 	
 	/** Identifies the <code>Refresh action</code>. */
 	static final Integer    REFRESH = new Integer(9);
+	
+	/** Identifies the <code>Save As</code> action. */
+	static final Integer    SAVE_AS = new Integer(10);
 
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
@@ -136,6 +140,7 @@ class DataBrowserControl
     	actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
     			new ManageRndSettingsAction(model, 
     					ManageRndSettingsAction.SET_ORIGINAL));
+    	actionsMap.put(SAVE_AS, new SaveAction(model));
     }
     
 	/** 

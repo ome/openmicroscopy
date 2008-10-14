@@ -744,5 +744,14 @@ class DataBrowserComponent
 		view.repaint();
 		model.loadData(false, null); 
 	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#saveThumbnails()
+	 */
+	public void saveThumbnails()
+	{
+		
+	}
 	
 }

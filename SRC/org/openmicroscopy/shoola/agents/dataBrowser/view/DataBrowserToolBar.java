@@ -143,6 +143,9 @@ class DataBrowserToolBar
 	/** Button to refresh the display. */
 	private JButton				refreshButton;
 	
+	/** Button to refresh the display. */
+	private JButton				saveButton;
+	
 	/** Menu displaying the annotated options. */
 	private JPopupMenu			slideViewMenu;
 	
@@ -399,6 +402,10 @@ class DataBrowserToolBar
 		itemsPerRow.setToolTipText(ITEMS_PER_ROW_TEXT);
 		itemsPerRow.addActionListener(this);
 		itemsPerRow.setActionCommand(""+ITEMS_PER_ROW);
+		
+		saveButton = new JButton(
+				controller.getAction(DataBrowserControl.SAVE_AS));
+		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 	}
 	
 	/**
@@ -436,9 +443,8 @@ class DataBrowserToolBar
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(slideShowView);
-		//bar.add(managementButton);
 		bar.add(refreshButton);
-		
+		bar.add(saveButton);
 		return bar;
 	}
 	
