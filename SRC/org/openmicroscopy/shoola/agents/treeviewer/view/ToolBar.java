@@ -80,7 +80,10 @@ class ToolBar
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        JButton b = new JButton(controller.getAction(TreeViewerControl.VIEW));
+        JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        b = new JButton(controller.getAction(TreeViewerControl.VIEW));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));

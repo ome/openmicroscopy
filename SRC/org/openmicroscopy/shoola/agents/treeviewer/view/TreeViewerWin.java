@@ -262,6 +262,11 @@ class TreeViewerWin
         item.setText(a.getActionName());
         //menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        a = controller.getAction(TreeViewerControl.BROWSE);
+        item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menuItems.add(item);
+        menu.add(item);
         a = controller.getAction(TreeViewerControl.VIEW);
         item = new JMenuItem(a);
         item.setText(a.getActionName());
@@ -294,18 +299,6 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.PASTE_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)));
-        /*
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.FIND)));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CLEAR)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CLASSIFY)));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.DECLASSIFY)));
-                */
         return menu;
     }
 

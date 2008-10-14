@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,23 +23,24 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
- * Reloads the experimenter data.
+ * Views the selected image(s).
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,17 +50,17 @@ import pojos.ExperimenterData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta3
  */
-public class RefreshExperimenterData
+public class ViewImageAction 
 	extends TreeViewerAction
 {
 
 	/** Name of the action. */
-    private static final String NAME = "Refresh User";
-    
+    private static final String NAME = "View Image";
+
     /** Description of the action. */
-    private static final String DESCRIPTION = "Reload the user's data.";
+    private static final String DESCRIPTION = "View the selected image";
     
     /**
      * Sets the action enabled depending on the browser's type and 
@@ -69,43 +70,40 @@ public class RefreshExperimenterData
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) {
+        if (selectedDisplay == null || 
+        		selectedDisplay.getParentDisplay() == null ||
+        		selectedDisplay instanceof TreeImageTimeSet) {
             setEnabled(false);
             return;
         }
-        Browser b = model.getSelectedBrowser();
-        
-        if (b != null && b.getSelectedDisplays().length > 1) {
-        	setEnabled(false);
-        	return;
-        }
+
         Object ho = selectedDisplay.getUserObject();
-        setEnabled(ho instanceof ExperimenterData);
+        setEnabled(ho instanceof ImageData);
     }
     
 	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-	 */
-	public RefreshExperimenterData(TreeViewer model)
-	{
-		super(model);
-		putValue(Action.NAME, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+    public ViewImageAction(TreeViewer model)
+    {
+        super(model);
+        name = NAME;
+        IconManager icons = IconManager.getInstance();
+        putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.REFRESH)); 
-	}
-	
-	/**
-     * Reloads the experimenter's data.
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.VIEWER)); 
+    }
+    
+    /**
+     * Creates a  {@link ViewCmd} command to execute the action. 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-        Browser b = model.getSelectedBrowser();
-        if (b != null) b.refreshExperimenterData();
+       ViewCmd cmd = new ViewCmd(model);
+       cmd.execute();
     }
-	
+    
 }

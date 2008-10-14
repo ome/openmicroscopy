@@ -82,9 +82,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
@@ -118,8 +118,8 @@ class TreeViewerControl
  	implements ChangeListener, PropertyChangeListener
 {
 
-	/** Identifies the <code>View action</code> in the Edit menu. */
-	static final Integer	VIEW = new Integer(1);
+	/** Identifies the <code>Browse action</code> in the Edit menu. */
+	static final Integer	BROWSE = new Integer(1);
 
 	/** Identifies the <code>Create object action</code> in the File menu. */
 	static final Integer	CREATE_OBJECT = new Integer(3);
@@ -251,6 +251,9 @@ class TreeViewerControl
 	/** Identifies the <code>Create project</code> in the File menu. */
 	static final Integer    CREATE_TOP_SCREEN = new Integer(40);
 	
+	/** Identifies the <code>View action</code> in the Edit menu. */
+	static final Integer	VIEW = new Integer(41);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -272,7 +275,7 @@ class TreeViewerControl
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
-		actionsMap.put(VIEW, new ViewAction(model));
+		actionsMap.put(BROWSE, new BrowseContainerAction(model));
 		actionsMap.put(CREATE_OBJECT, new CreateAction(model));
 		actionsMap.put(COPY_OBJECT, new CopyAction(model));
 		actionsMap.put(DELETE_OBJECT, new DeleteAction(model));
@@ -324,6 +327,7 @@ class TreeViewerControl
 		actionsMap.put(CREATE_TOP_SCREEN, 
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.SCREEN));
+		actionsMap.put(VIEW, new ViewImageAction(model));
 	}
 
 	/** 
@@ -413,20 +417,6 @@ class TreeViewerControl
 			public void menuKeyTyped(MenuKeyEvent e) {}
 
 		});
-	}
-
-	/**
-	 * Resets the selected node. 
-	 * 
-	 * @param d The node to reset.
-	 */
-	private void resetSelectedDisplay(TreeImageDisplay d)
-	{
-		Browser b = model.getSelectedBrowser();
-		if (b != null) {
-			//b.setSelectedDisplay(null);
-			b.setSelectedDisplay(d);
-		}
 	}
 	
 	/**

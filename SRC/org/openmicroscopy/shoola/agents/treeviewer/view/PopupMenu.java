@@ -78,17 +78,8 @@ class PopupMenu
 	/** Button to delete the selected elements. */
 	private JMenuItem           deleteElement;
 
-	/** Button to classify the selected elements. */
-	private JMenuItem          	classifyElement;
-
-	/** Button to classify the selected elements. */
-	private JMenuItem          	declassifyElement;
-
 	/** Button to browse the categories the image belongs to. */
 	private JMenuItem			browseClassificationElement;
-
-	/** Button to classify the images contained in the selected element. */
-	private JMenuItem          	classifyChildrenElement;
 
 	/** Button to annotate the images contained in the selected element. */
 	private JMenuItem          	annotateChildrenElement;
@@ -151,7 +142,7 @@ class PopupMenu
 		TreeViewerAction a;
 		switch (index) {
 		case TreeViewer.FULL_POP_UP_MENU:
-			a = controller.getAction(TreeViewerControl.VIEW);
+			a = controller.getAction(TreeViewerControl.BROWSE);
 			view = new JMenuItem(a);
 			initMenuItem(view, a.getActionName());
 			a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
@@ -172,18 +163,11 @@ class PopupMenu
 			a = controller.getAction(TreeViewerControl.ADD_OBJECT);
 			existingElement = new JMenuItem(a);
 			initMenuItem(existingElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.CLASSIFY);
-			classifyElement = new JMenuItem(a);
-			initMenuItem(classifyElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.DECLASSIFY);
-			declassifyElement = new JMenuItem(a);
-			initMenuItem(declassifyElement, a.getActionName());
+			
 			a = controller.getAction(TreeViewerControl.ANNOTATE_CHILDREN);
 			annotateChildrenElement = new JMenuItem(a);
 			initMenuItem(annotateChildrenElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.CLASSIFY_CHILDREN);
-			classifyChildrenElement = new JMenuItem(a);
-			initMenuItem(classifyChildrenElement, a.getActionName());
+			
 			a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
 			removeExperimenterElement = new JMenuItem(a);
 			initMenuItem(removeExperimenterElement, a.getActionName());
@@ -254,9 +238,6 @@ class PopupMenu
 				add(createManagementMenu());
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(browseClassificationElement);
-				//add(classifyElement);
-				//add(declassifyElement);
-				//add(classifyChildrenElement);
 				//add(new JSeparator(JSeparator.HORIZONTAL));
 				//add(annotateChildrenElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));

@@ -79,6 +79,10 @@ public class ImViewerFactory
 	/** The name associated to the component. */
 	private static final String NAME = "Viewer: ";
 	
+	/** The name of the windows menu. */
+	private static final String MENU_NAME = "Image Viewer";
+	
+	
 	/** The sole instance. */
 	private static final ImViewerFactory  singleton = new ImViewerFactory();
 
@@ -305,7 +309,7 @@ public class ImViewerFactory
 	{
 		viewers = new HashSet<ImViewer>();
 		isAttached = false;
-		windowMenu = new JMenu("Viewers");
+		windowMenu = new JMenu(MENU_NAME);
 	}
 
 	/**

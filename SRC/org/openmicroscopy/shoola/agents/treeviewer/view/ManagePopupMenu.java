@@ -56,7 +56,7 @@ class ManagePopupMenu
 {
 
     /** Reference to the control. */
-    private TreeViewerControl controller;
+    private TreeViewerControl 	controller;
     
     /** Button to add element to the specified container. */
     private JMenuItem           newElement;

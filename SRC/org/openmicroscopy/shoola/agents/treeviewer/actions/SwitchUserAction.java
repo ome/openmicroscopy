@@ -53,7 +53,7 @@ public class SwitchUserAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Switch user";
+	private static final String NAME = "Switch User...";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Select another " +

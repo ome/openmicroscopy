@@ -58,11 +58,11 @@ public class RemoveExperimenterNode
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Remove Experimenter";
+	private static final String NAME = "Remove User";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Remove the data of the" +
-			"selected user from the display";
+			"selected user from the display.";
 	
 	/**
      * Sets the action enabled depending on the browser's type and 

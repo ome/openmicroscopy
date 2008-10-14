@@ -69,6 +69,9 @@ public class TreeViewerFactory
 	/** The name associated to the component. */
 	private static final String NAME = "Data Manager";
 	
+	/** The name of the windows menu. */
+	private static final String MENU_NAME = "Data Manager";
+	
 	/** The sole instance. */
 	private static final TreeViewerFactory  singleton = new TreeViewerFactory();
 
@@ -144,6 +147,12 @@ public class TreeViewerFactory
 		}
 	}
 
+	/**
+	 * Saves the data before closing the application.
+	 * 
+	 * @param evt
+	 * @param agent
+	 */
 	public static void saveOnClose(SaveEventRequest evt, Object agent)
 	{
 		//if (!(evt instanceof SaveData)) return;
@@ -222,7 +231,7 @@ public class TreeViewerFactory
 		//viewer = null;
 		viewers = new HashSet<TreeViewer>();
 		isAttached = false;
-		windowMenu = new JMenu("DataManagers");
+		windowMenu = new JMenu(MENU_NAME);
 	}
 
 	/**

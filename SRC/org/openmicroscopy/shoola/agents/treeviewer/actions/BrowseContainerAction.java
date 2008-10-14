@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.List;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -48,7 +47,7 @@ import pojos.PlateData;
 import pojos.ScreenData;
 
 /** 
- * Views or browses the selected node depending on the hierarchy object type.
+ * Browses the selected node depending on the hierarchy object type.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,21 +57,15 @@ import pojos.ScreenData;
  * </small>
  * @since OME2.2
  */
-public class ViewAction
+public class BrowseContainerAction
     extends TreeViewerAction
 {
 
-    /** Name of the action when the <code>DataObject</code> is an Image. */
-    private static final String VIEW = "View";
-    
     /** Name of the action when the <code>DataObject</code> isn't an Image. */
-    private static final String BROWSE = "Browse";
+    private static final String NAME = "Browse";
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Browse the selected nodes";
-    
-    /** Description of the action when the selected node is an image. */
-    private static final String DESCRIPTION_IMAGE = "View the selected image";
     
     /** Convenience reference to the icon manager. */
     private static IconManager	icons;
@@ -91,7 +84,7 @@ public class ViewAction
             return;
         }
         if (selectedDisplay.getParentDisplay() == null) { //root
-            name = BROWSE;
+            name = NAME;
             setEnabled(false);
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
             return;
@@ -99,7 +92,7 @@ public class ViewAction
         Object ho = selectedDisplay.getUserObject();
         Browser browser = model.getSelectedBrowser();
         if (selectedDisplay instanceof TreeImageTimeSet) {
-        	name = BROWSE;
+        	name = NAME;
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
             if (browser.getSelectedDisplays().length > 1) {
             	setEnabled(false);
@@ -117,29 +110,22 @@ public class ViewAction
             return;
         }
         if (ho == null || !(ho instanceof DataObject) ||
-        	ho instanceof ExperimenterData) setEnabled(false);
+        	ho instanceof ExperimenterData || ho instanceof ImageData) 
+        	setEnabled(false);
         else {
             if (browser != null) {
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);
                     //for this version
                     setEnabled(false);
-                    name = BROWSE;
+                    name = NAME;
                     putValue(Action.SMALL_ICON, 
                     			icons.getIcon(IconManager.BROWSER)); 
                     return;
                 }
             }
-            if ((ho instanceof ImageData)) {
-            	name = VIEW;  
-            	description = DESCRIPTION_IMAGE;
-            	putValue(Action.SHORT_DESCRIPTION, 
-                        UIUtilities.formatToolTipText(description));
-            	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.VIEWER)); 
-            } else {
-            	name = BROWSE;
-            	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
-            }
+            name = NAME;
+        	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
             
             if (selectedDisplay instanceof TreeImageSet) {
             	setEnabled(
@@ -157,10 +143,10 @@ public class ViewAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public ViewAction(TreeViewer model)
+    public BrowseContainerAction(TreeViewer model)
     {
         super(model);
-        name = BROWSE;
+        name = NAME;
         icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
