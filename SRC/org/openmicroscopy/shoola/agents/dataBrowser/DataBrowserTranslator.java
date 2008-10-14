@@ -192,47 +192,6 @@ public class DataBrowserTranslator
         }
         return node;
     }
-
-    /**
-     * Transforms the images contained in the passed container.
-     * 
-     * @param uo		The data object to handle. Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return Collection of {@link ImageNode} or <code>null</code>.
-     */
-    private static Set transformImagesFrom(DataObject uo, long userID,
-                                        long groupID)
-    {
-    	if (uo == null) 
-            throw new IllegalArgumentException("No Object.");
-    	Set images = null;
-    	Set children;
-    	Iterator i, j;
-    	DatasetData d;
-    	if (uo instanceof DatasetData) {
-    		d = (DatasetData) uo;
-    		images = transformImages(d.getImages(), userID, groupID);
-    	} else if (uo instanceof ProjectData) {
-    		ProjectData pj = (ProjectData) uo;
-    		children = pj.getDatasets();
-    		if (children != null) {
-    			i = children.iterator();
-    			images = new HashSet();
-    			while (i.hasNext()) {
-					d = (DatasetData) i.next();
-					images.addAll(transformImages(d.getImages(), 
-								userID, groupID));
-				}
-    		}
-    	} else if (uo instanceof ImageData) {
-    		images = new HashSet(1); 
-    		if (isReadable(uo, userID, groupID))
-                images.add(linkImageTo((ImageData) uo, null));
-    	} 
-    	return images;
-    }
     
     /**
      * Transforms a Projects/Datasets/Images hierarchy into a visualisation

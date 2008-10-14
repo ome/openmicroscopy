@@ -51,12 +51,6 @@ class ZoomWindow
 	/** The UI which displays the zoomed image. */
 	private ZoomWindowUI 	zoomWindowUI;
 	
-	/** Controller which manipulates the lens and zoomWindow images. */
-	private LensController	lensController;
-	
-	/** Parent component of the lens and ZoomWindow. */
-	private LensComponent   lensComponent;
-	
 	/**
 	 * Constructor of the zoomWindow. This creates an instance of the 
 	 * ZoomWindowUI(JDialog).
@@ -67,7 +61,6 @@ class ZoomWindow
 	 */
 	ZoomWindow(JFrame parent, LensComponent lensComponent)
 	{
-		this.lensComponent = lensComponent;
 		zoomWindowUI = new ZoomWindowUI(parent, lensComponent);
 	}
 	
@@ -81,21 +74,7 @@ class ZoomWindow
 	{
 		if (lensComponent == null)
 			throw new IllegalArgumentException("No parent.");
-		this.lensComponent = lensComponent;
 		zoomWindowUI = new ZoomWindowUI(null, lensComponent);
-	}
-	
-	/**
-	 * Adds controller to the zoomWindow.
-	 * 
-	 * @param lensController 	Reference to the control. 
-	 * 							Mustn't be <code>null</code>.
-	 */
-	void addController(LensController lensController)
-	{
-		if (lensController == null)
-			throw new IllegalArgumentException("No control.");
-		this.lensController = lensController;
 	}
 
 	/**

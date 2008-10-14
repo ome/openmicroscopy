@@ -40,9 +40,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import layout.TableLayout;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 
@@ -213,6 +213,12 @@ public class NotificationDialog
 		getContentPane().add(contentPanel);
 	}
 	
+	/**
+	 * Initialises the UI.
+	 * 
+	 * @param message		The message to display.
+	 * @param messageIcon   The icon laid out next to the message.
+	 */
 	private void initiliaze(String message, Icon messageIcon)
 	{
 		createComponents();
@@ -221,6 +227,7 @@ public class NotificationDialog
 		setModal(true);
 		buildGUI(message, messageIcon);
 	}
+	
 	/**
 	 * Creates a new dialog.
 	 * You have to call {@link #setVisible(boolean)} to actually display it

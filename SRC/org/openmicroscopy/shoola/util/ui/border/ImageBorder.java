@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.border;
 
 // Java Imports
-
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -38,7 +37,6 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /**
@@ -64,27 +62,36 @@ public class ImageBorder
 	extends AbstractBorder 
 {
     
-	/**
-	 * The Images for the top of the border.
-	 */
-    private Image 		top_center, top_left, top_right;
+	/** The Image displayed in the centre of the top border. */
+    private Image	top_center;
     
-    /**
-     * The Images for the left and right sides of the border.
-     */
-    private Image 		left_center, right_center;
+    /** The Image displayed on the left of the top border. */
+    private Image	top_left;
     
-    /**
-     * The Images for the bottom of the border.
-     */
-    private Image 		bottom_center, bottom_left, bottom_right;
+    /** The Image displayed on the left of the top border. */
+    private Image	top_right;
+    
+    /** The image used for the left side of the border. */
+    private Image	left_center;
+    
+    /** The image used for the rigth side of the border. */
+    private Image	right_center;
+    
+	/** The Image displayed in the centre of the bottom border. */
+    private Image	bottom_center;
+    
+    /** The Image displayed on the left of the bottom border. */
+    private Image	bottom_left;
+    
+    /** The Image displayed on the right of the bottom border. */
+    private Image	bottom_right;
     
     /**
      * The border Insets. Can be manually set using {@link #setInsets(Insets)}
      * Otherwise, {@link Border#getBorderInsets(Component)} will return 
      * Insets calculated from the size of the side Images. 
      */
-    private Insets 		insets;
+    private Insets	insets;
     
     /**
      * Creates an instance. 
@@ -102,6 +109,30 @@ public class ImageBorder
         Image left_center, Image right_center,
         Image bottom_left, Image bottom_center, Image bottom_right) 
     {
+    	if (top_left == null)
+    		throw new IllegalArgumentException("The top left image " +
+    				"cannot be null.");
+    	if (top_center == null)
+    		throw new IllegalArgumentException("The top center image " +
+    				"cannot be null.");
+    	if (top_right == null)
+    		throw new IllegalArgumentException("The top right image " +
+    				"cannot be null.");
+    	if (left_center == null)
+    		throw new IllegalArgumentException("The left  center image " +
+    				"cannot be null.");
+    	if (right_center == null)
+    		throw new IllegalArgumentException("The right  center image " +
+    				"cannot be null.");
+    	if (bottom_left == null)
+    		throw new IllegalArgumentException("The bottom left image " +
+    				"cannot be null.");
+    	if (bottom_center == null)
+    		throw new IllegalArgumentException("The bottom center image " +
+    				"cannot be null.");
+    	if (bottom_right == null)
+    		throw new IllegalArgumentException("The bottom right image " +
+    				"cannot be null.");
         this.top_left = top_left;
         this.top_center = top_center;
         this.top_right = top_right;
@@ -116,6 +147,8 @@ public class ImageBorder
      * Sets the border Insets. (Optional)
      * Otherwise, {@link Border#getBorderInsets(Component)} will return 
      * Insets calculated from the size of the side Images. 
+     * 
+     * @param insets The value to set.
      */
     public void setInsets(Insets insets) 
     {
@@ -126,16 +159,15 @@ public class ImageBorder
      * Returns Insets calculated from the thickness of the side Images. 
      * Unless the insets have been manually set using {@link #setInsets(Insets)}
      * 
+     * @see See above.
      * @see Border#getBorderInsets(Component)
      */
     public Insets getBorderInsets(Component c) 
     {
-        if(insets != null) {
-            return insets;
-        } else {
-            return new Insets(top_center.getHeight(null),left_center.getWidth(null),
+        if (insets != null) return insets;
+        return 
+        new Insets(top_center.getHeight(null), left_center.getWidth(null),
                 bottom_center.getHeight(null), right_center.getWidth(null));
-        }
     }
     
     /**
@@ -143,10 +175,10 @@ public class ImageBorder
      * 
      * @see AbstractBorder#paintBorder(Component, Graphics, int, int, int, int)
      */
-    public void paintBorder(Component c, Graphics g, int x, 
-    		int y, int width, int height) 
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, 
+    		int height) 
     {
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         
         int tlw = top_left.getWidth(null);
         int tlh = top_left.getHeight(null);
@@ -167,35 +199,35 @@ public class ImageBorder
         int brw = bottom_right.getWidth(null);
         int brh = bottom_right.getHeight(null);
         
-        fillTexture(g2,top_left, 	x, 		y, 		tlw,		tlh);
-        fillTexture(g2,top_center,	x+tlw, 	y,		width-tlw-trw, tch);
-        fillTexture(g2,top_right,	x+width-trw,  y,	trw,	trh);
+        fillTexture(g2, top_left, x, y, tlw, tlh);
+        fillTexture(g2, top_center, x+tlw, y, width-tlw-trw, tch);
+        fillTexture(g2, top_right, x+width-trw, y, trw, trh);
         
-        fillTexture(g2,left_center,   x,	y+tlh,	lcw,	height-tlh-blh);
-        fillTexture(g2,right_center,  x+width-rcw, y+trh, rcw, height-trh-brh);
+        fillTexture(g2, left_center, x,	y+tlh, lcw, height-tlh-blh);
+        fillTexture(g2, right_center, x+width-rcw, y+trh, rcw, height-trh-brh);
         
-        fillTexture(g2,bottom_left,   x,	y+height-blh, 	blw,   	blh);
-        fillTexture(g2,bottom_center, x+blw, y+height-bch, 	width-blw-brw, bch);
-        fillTexture(g2,bottom_right,  x+width-brw,  y+height-brh, brw,	brh);
+        fillTexture(g2, bottom_left, x, y+height-blh, blw, blh);
+        fillTexture(g2, bottom_center, x+blw, y+height-bch, width-blw-brw, bch);
+        fillTexture(g2, bottom_right, x+width-brw, y+height-brh, brw, brh);
     }
     
     /**
      * A helper method to fill a portion of a {@link Graphics2D} object with
      * a specified Image.
      * 
-     * @param g2		The Graphics2D object to fill
-     * @param img		The image to paint into the Graphics2D object
-     * @param x			The x coordinate of the area to paint
-     * @param y			The y coordinate of the area to paint
-     * @param w			The width of the area to paint
-     * @param h			The height of the area to paint
+     * @param g2  The Graphics2D object to fill
+     * @param img The image to paint into the Graphics2D object
+     * @param x   The x coordinate of the area to paint
+     * @param y   The y coordinate of the area to paint
+     * @param w   The width of the area to paint
+     * @param h The height of the area to paint
      */
-    public static void fillTexture(Graphics2D g2, Image img, 
-    		int x, int y, int w, int h) 
+    public static void fillTexture(Graphics2D g2, Image img, int x, int y, 
+    							int w, int h) 
     {
         BufferedImage buff = Factory.createImage(img);
-        Rectangle anchor = new Rectangle(x,y,
-            img.getWidth(null),img.getHeight(null));
+        Rectangle anchor = new Rectangle(x, y, img.getWidth(null),
+        					img.getHeight(null));
         TexturePaint paint = new TexturePaint(buff,anchor);
         g2.setPaint(paint);
         g2.fillRect(x,y,w,h);

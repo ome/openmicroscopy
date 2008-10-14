@@ -179,7 +179,6 @@ public class LensComponent
 		lensModel.setImageZoomFactor(ZoomAction.ZOOMx1+1);
 		lens.addController(lensController);
 		lens.setLensColour(lensModel.getLensPreferredColour());
-		zoomWindow.addController(lensController);
 		menu = new LensMenu(this);
 		lens.setPopupMenu(menu.getPopupMenu());
 		zoomWindow.setMenu(menu.getMenubar());
