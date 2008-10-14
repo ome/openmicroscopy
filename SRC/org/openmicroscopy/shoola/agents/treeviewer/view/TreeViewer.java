@@ -141,14 +141,14 @@ public interface TreeViewer
 	/** Identifies the <code>Manager</code> menu. */
 	public static final int         MANAGER_MENU = 0;
 
-	/** Identifies the <code>Classifier</code> menu. */
-	public static final int         CLASSIFIER_MENU = 1;
-
 	/** Identifies the <code>Full popUp menu</code> menu. */
-	public static final int         FULL_POP_UP_MENU = 2;
+	public static final int         FULL_POP_UP_MENU = 1;
 
 	/** Identifies the <code>Partial popUp menu</code> menu. */
-	public static final int         PARTIAL_POP_UP_MENU = 3;
+	public static final int         PARTIAL_POP_UP_MENU = 2;
+	
+	/** Identifies the <code>Create popUp menu</code> menu. */
+	public static final int         CREATE_MENU = 3;
 
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;

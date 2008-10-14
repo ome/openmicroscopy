@@ -56,7 +56,7 @@ public class SaveAction
 {
     
     /** The name of the action. */
-    private static final String NAME = "Save As";
+    private static final String NAME = "Save As...";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Save the image as TIFF, " +

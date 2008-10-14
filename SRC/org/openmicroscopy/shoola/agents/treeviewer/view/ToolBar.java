@@ -43,6 +43,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -89,28 +90,18 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        //UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(new JToggleButton(
-        //		controller.getAction(TreeViewerControl.ROLL_OVER)));
         bar.add(new JSeparator(JSeparator.VERTICAL));
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
-        b = new JButton(controller.getAction(
-                TreeViewerControl.CREATE_TOP_PROJECT));
+        a = controller.getAction(TreeViewerControl.NEW_OBJECT);
+        b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
+        b.addMouseListener((NewObjectAction) a);
         bar.add(b);
-        b = new JButton(controller.getAction(
-                TreeViewerControl.CREATE_TOP_SCREEN));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(b);
-        
-        b = new JButton(controller.getAction(
-                TreeViewerControl.CREATE_TOP_DATASET));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(b);
+      
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
@@ -188,19 +179,19 @@ class ToolBar
     }
     
     /**
-     * Brings up the <code>ClassifyPopupMenu</code> on top of the specified 
+     * Brings up the <code>ManagePopupMenu</code>on top of the specified
      * component at the specified location.
      * 
      * @param c The component that requested the popup menu.
      * @param p The point at which to display the menu, relative to the
      *            <code>component</code>'s coordinates.
      */
-    void showClassifyMenu(Component c, Point p)
+    void showCreateMenu(Component c, Point p)
     {
         if (c == null) throw new IllegalArgumentException("No component.");
         if (p == null) throw new IllegalArgumentException("No point.");
-        ClassifyPopupMenu classifyPopupMenu = new ClassifyPopupMenu(controller);
-        classifyPopupMenu.show(c, p.x, p.y);
+        PopupMenu menu = new PopupMenu(controller, TreeViewer.CREATE_MENU);
+        menu.show(c, p.x, p.y);
     }
     
 }

@@ -1003,7 +1003,7 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		switch (menuID) {
 			case MANAGER_MENU:
-			case CLASSIFIER_MENU:  
+			case CREATE_MENU:  
 				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");

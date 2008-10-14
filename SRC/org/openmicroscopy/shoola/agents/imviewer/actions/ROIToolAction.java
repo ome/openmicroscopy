@@ -54,7 +54,7 @@ public class ROIToolAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Measurement";
+    private static final String NAME = "Measurement...";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the Measurement tool.";

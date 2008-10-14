@@ -55,7 +55,7 @@ public class LensAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Lens";
+    private static final String NAME = "Lens...";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Show or hide the lens.";

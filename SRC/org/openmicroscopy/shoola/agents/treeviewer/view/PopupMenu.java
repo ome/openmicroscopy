@@ -114,6 +114,19 @@ class PopupMenu
 	/** Button to quit the application. */
 	private JMenuItem			quitElement;
 	
+	/** Button to create a new project. */
+	private JMenuItem			createProject;
+	
+	/** Button to create a new dataset. */
+	private JMenuItem			createDataset;
+	
+	/** Button to create a new tag. */
+	private JMenuItem			createTag;
+	
+	/** Button to create a new screen. */
+	private JMenuItem			createScreen;
+	
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -141,71 +154,86 @@ class PopupMenu
 	{
 		TreeViewerAction a;
 		switch (index) {
-		case TreeViewer.FULL_POP_UP_MENU:
-			a = controller.getAction(TreeViewerControl.BROWSE);
-			view = new JMenuItem(a);
-			initMenuItem(view, a.getActionName());
-			a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
-			newElement = new JMenuItem(a);
-			initMenuItem(newElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.CUT_OBJECT);
-			cutElement = new JMenuItem(a); 
-			initMenuItem(cutElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.COPY_OBJECT);
-			copyElement = new JMenuItem(a); 
-			initMenuItem(copyElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.PASTE_OBJECT);
-			pasteElement = new JMenuItem(a); 
-			initMenuItem(pasteElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.DELETE_OBJECT);
-			deleteElement = new JMenuItem(a); 
-			initMenuItem(deleteElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.ADD_OBJECT);
-			existingElement = new JMenuItem(a);
-			initMenuItem(existingElement, a.getActionName());
-			
-			a = controller.getAction(TreeViewerControl.ANNOTATE_CHILDREN);
-			annotateChildrenElement = new JMenuItem(a);
-			initMenuItem(annotateChildrenElement, a.getActionName());
-			
-			a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
-			removeExperimenterElement = new JMenuItem(a);
-			initMenuItem(removeExperimenterElement, a.getActionName());
-			a = controller.getAction(
-					TreeViewerControl.REFRESH_EXPERIMENTER);
-			refreshExperimenterElement = new JMenuItem(a);
-			initMenuItem(refreshExperimenterElement, null);
-			a = controller.getAction(TreeViewerControl.BROWSE_CATEGORIES);
-			browseClassificationElement = new JMenuItem(a);
-			initMenuItem(browseClassificationElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.PASTE_RND_SETTINGS);
-			pasteRndElement = new JMenuItem(a);
-			initMenuItem(pasteRndElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.COPY_RND_SETTINGS);
-			copyRndElement = new JMenuItem(a);
-			initMenuItem(copyRndElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.RESET_RND_SETTINGS);
-			resetRndElement = new JMenuItem(a);
-			initMenuItem(resetRndElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
-			setRndElement = new JMenuItem(a);
-			initMenuItem(setRndElement, a.getActionName());
-			break;
-		case TreeViewer.PARTIAL_POP_UP_MENU:
-			a = controller.getAction(TreeViewerControl.REFRESH_TREE);
-			refreshTreeElement = new JMenuItem(a);
-			initMenuItem(refreshTreeElement, a.getActionName());
-			a = controller.getAction(
-					TreeViewerControl.CREATE_TOP_PROJECT);
-			createTopElement = new JMenuItem(a);
-			initMenuItem(createTopElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.SWITCH_USER);
-			switchUserElement = new JMenuItem(a);
-			initMenuItem(switchUserElement, a.getActionName());
-			a = controller.getAction(TreeViewerControl.EXIT);
-			quitElement = new JMenuItem(a);
-			initMenuItem(quitElement, a.getActionName());
-			break;
+			case TreeViewer.FULL_POP_UP_MENU:
+				a = controller.getAction(TreeViewerControl.BROWSE);
+				view = new JMenuItem(a);
+				initMenuItem(view, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
+				newElement = new JMenuItem(a);
+				initMenuItem(newElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CUT_OBJECT);
+				cutElement = new JMenuItem(a); 
+				initMenuItem(cutElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.COPY_OBJECT);
+				copyElement = new JMenuItem(a); 
+				initMenuItem(copyElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.PASTE_OBJECT);
+				pasteElement = new JMenuItem(a); 
+				initMenuItem(pasteElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.DELETE_OBJECT);
+				deleteElement = new JMenuItem(a); 
+				initMenuItem(deleteElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.ADD_OBJECT);
+				existingElement = new JMenuItem(a);
+				initMenuItem(existingElement, a.getActionName());
+				
+				a = controller.getAction(TreeViewerControl.ANNOTATE_CHILDREN);
+				annotateChildrenElement = new JMenuItem(a);
+				initMenuItem(annotateChildrenElement, a.getActionName());
+				
+				a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
+				removeExperimenterElement = new JMenuItem(a);
+				initMenuItem(removeExperimenterElement, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.REFRESH_EXPERIMENTER);
+				refreshExperimenterElement = new JMenuItem(a);
+				initMenuItem(refreshExperimenterElement, null);
+				a = controller.getAction(TreeViewerControl.BROWSE_CATEGORIES);
+				browseClassificationElement = new JMenuItem(a);
+				initMenuItem(browseClassificationElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.PASTE_RND_SETTINGS);
+				pasteRndElement = new JMenuItem(a);
+				initMenuItem(pasteRndElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.COPY_RND_SETTINGS);
+				copyRndElement = new JMenuItem(a);
+				initMenuItem(copyRndElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.RESET_RND_SETTINGS);
+				resetRndElement = new JMenuItem(a);
+				initMenuItem(resetRndElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
+				setRndElement = new JMenuItem(a);
+				initMenuItem(setRndElement, a.getActionName());
+				break;
+			case TreeViewer.PARTIAL_POP_UP_MENU:
+				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
+				refreshTreeElement = new JMenuItem(a);
+				initMenuItem(refreshTreeElement, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_PROJECT);
+				createTopElement = new JMenuItem(a);
+				initMenuItem(createTopElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.SWITCH_USER);
+				switchUserElement = new JMenuItem(a);
+				initMenuItem(switchUserElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.EXIT);
+				quitElement = new JMenuItem(a);
+				initMenuItem(quitElement, a.getActionName());
+				break;
+			case TreeViewer.CREATE_MENU:
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
+				createProject = new JMenuItem(a);
+				initMenuItem(createProject, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_DATASET);
+				createDataset = new JMenuItem(a);
+				initMenuItem(createDataset, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
+				createTag = new JMenuItem(a);
+				initMenuItem(createTag, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
+				createScreen = new JMenuItem(a);
+				initMenuItem(createScreen, a.getActionName());
+				break;
 		}
 	}
 
@@ -255,6 +283,13 @@ class PopupMenu
 				add(switchUserElement);
 				add(quitElement);
 				break;
+			case TreeViewer.CREATE_MENU:
+				add(createProject);
+				add(createDataset);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(createScreen);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(createTag);
 		}
 	}
 

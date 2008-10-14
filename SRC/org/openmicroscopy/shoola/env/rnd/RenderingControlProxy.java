@@ -97,10 +97,7 @@ class RenderingControlProxy
     
     /** Reference to service to render pixels set. */
     private RenderingEnginePrx      servant;
-    
-    /** The cache containing XY images. */
-    //private XYCache                 xyCache;
-    
+
     /** The id of the cache associated to this rpoxy. */
     private int						cacheID;
     

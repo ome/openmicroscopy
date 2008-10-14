@@ -86,7 +86,8 @@ class DataBrowserToolBar
 {
 
 	/** The text of the menu. */
-	private static final String	ITEMS_PER_ROW_TEXT = "Images per row";
+	private static final String	ITEMS_PER_ROW_TEXT = "Set the number of " +
+			"images per row.";
 	
 	/** The text of the menu. */
 	private static final String	FILTER_BY = "Filter by: ";
@@ -94,20 +95,17 @@ class DataBrowserToolBar
 	/** ID to bring up the add thumbnail view to the node.. */
 	private static final int	ROLL_OVER = 10;
 	
-	/** ID to bring up the add thumbnail view to the node.. */
-	private static final int	MOUSE_OVER = 11;
-	
 	/** ID to bring up the metadata browser. */
-	private static final int	NEW_OBJECT = 12;
+	private static final int	NEW_OBJECT = 11;
 	
 	/** ID to bring a slide show view with the displayed images. */
-	private static final int	SLIDE_SHOW_IMAGES = 13;
+	private static final int	SLIDE_SHOW_IMAGES = 12;
 	
 	/** ID to bring a slide show view with the selected images. */
-	private static final int	SLIDE_SHOW_SELECTION = 14 ;
+	private static final int	SLIDE_SHOW_SELECTION = 13 ;
 	
 	/** ID to bring up the metadata browser. */
-	private static final int	ITEMS_PER_ROW = 15;
+	private static final int	ITEMS_PER_ROW = 14;
 
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
@@ -154,8 +152,14 @@ class DataBrowserToolBar
 	/** The item used to select the roll over mode. */
 	private JCheckBoxMenuItem 	rollOverItem;
 	
-	/** The item used to select the mouse over mode. */
-	private JCheckBoxMenuItem 	mouseOverItem;
+	/** 
+	 * Button to display a magnified thumbnail if selected when 
+	 * the user mouses over a node.
+	 */
+	private JToggleButton 		rollOverButton;
+	
+	/** Button to create a dataset. */
+	private JButton				createDatasetButton;
 	
 	/** TextField hosting the number of items per row. */
 	private JTextField			itemsPerRow;
@@ -203,12 +207,6 @@ class DataBrowserToolBar
 		rollOverItem.addActionListener(this);
 		rollOverItem.setActionCommand(""+ROLL_OVER);
 		manageMenu.add(rollOverItem);
-		mouseOverItem = new JCheckBoxMenuItem();
-		mouseOverItem.setIcon(icons.getIcon(IconManager.ROLL_OVER));
-		mouseOverItem.setText("Mouse over and Magnify");
-		mouseOverItem.addActionListener(this);
-		mouseOverItem.setActionCommand(""+MOUSE_OVER);
-		//manageMenu.add(mouseOverItem);
 		return manageMenu;
 	}
 	
@@ -225,7 +223,7 @@ class DataBrowserToolBar
 		item.addActionListener(this);
 		item.setActionCommand(""+SLIDE_SHOW_SELECTION);
 		slideViewMenu.add(item);
-		item = new JMenuItem("View Available Images");
+		item = new JMenuItem("View Displayed Images");
 		item.addActionListener(this);
 		item.setActionCommand(""+SLIDE_SHOW_IMAGES);
 		slideViewMenu.add(item);
@@ -381,6 +379,26 @@ class DataBrowserToolBar
 		refreshButton = new JButton(controller.getAction(
 								DataBrowserControl.REFRESH));
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+		
+		//
+		rollOverButton = new JToggleButton();
+		rollOverButton.setIcon(icons.getIcon(IconManager.ROLL_OVER));
+		rollOverButton.setToolTipText("Turn on/off the magnification " +
+				"of a thumbnail while mousing over it.");
+		rollOverButton.addActionListener(this);
+		rollOverButton.setActionCommand(""+ROLL_OVER);
+		
+		createDatasetButton = new JButton();
+		createDatasetButton.setToolTipText("Create a new dataset containing " +
+				"the displayed images.");
+		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
+		createDatasetButton.addActionListener(this);
+		createDatasetButton.setActionCommand(""+NEW_OBJECT);
+		
+		itemsPerRow = new JTextField(3);
+		itemsPerRow.setToolTipText(ITEMS_PER_ROW_TEXT);
+		itemsPerRow.addActionListener(this);
+		itemsPerRow.setActionCommand(""+ITEMS_PER_ROW);
 	}
 	
 	/**
@@ -404,9 +422,23 @@ class DataBrowserToolBar
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
+		bar.add(rollOverButton);
+		bar.add(createDatasetButton);
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		panel.add(itemsPerRow);
+		panel.setToolTipText(itemsPerRow.getToolTipText());
+		bar.add(panel);
+		//bar.add(slideShowView);
+		//bar.add(managementButton);
+		//bar.add(refreshButton);
+		bar.add(Box.createHorizontalStrut(2));
+		bar.add(new JSeparator(JSeparator.VERTICAL));
+		bar.add(Box.createHorizontalStrut(2));
 		bar.add(slideShowView);
-		bar.add(managementButton);
+		//bar.add(managementButton);
 		bar.add(refreshButton);
+		
 		return bar;
 	}
 	
@@ -453,7 +485,7 @@ class DataBrowserToolBar
             		"of images per row.");
 		} else {
 			view.setItemsPerRow(row);
-			manageMenu.setVisible(false);
+			//manageMenu.setVisible(false);
 		}
 	}
 	
@@ -631,7 +663,8 @@ class DataBrowserToolBar
 				view.setSelectedView(index);
 				break;
 			case ROLL_OVER:
-				view.setRollOver(rollOverItem.isSelected());
+				//view.setRollOver(rollOverItem.isSelected());
+				view.setRollOver(rollOverButton.isSelected());
 				break;
 			case NEW_OBJECT:
 				Registry reg = DataBrowserAgent.getRegistry();

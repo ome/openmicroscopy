@@ -53,6 +53,7 @@ import javax.swing.JViewport;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
@@ -155,11 +156,6 @@ class TreeViewerWin
                                             Browser.PROJECT_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        //browser = (Browser) browsers.get(new Integer(
-        //                                    Browser.CATEGORY_EXPLORER));
-        //browser = (Browser) browsers.get(new Integer(Browser.SCREENS_EXPLORER));
-        //if (browser.isDisplayed())
-        //    tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         browser = (Browser) browsers.get(new Integer(Browser.TAGS_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
@@ -192,6 +188,36 @@ class TreeViewerWin
 		for (int i = 0; i < existingMenus.length; i++) 
 			bar.add(existingMenus[i]);
         return bar;
+    }
+    
+    /**
+     * Creates the <code>New</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createNewMenu()
+    {
+    	JMenu menu = new JMenu(NewObjectAction.NAME);
+    	TreeViewerAction a = controller.getAction(
+    			TreeViewerControl.CREATE_TOP_PROJECT);
+    	JMenuItem item = new JMenuItem(a);
+    	menu.add(item);
+    	item.setText(a.getActionName());
+
+    	a = controller.getAction(TreeViewerControl.CREATE_TOP_DATASET);
+    	item = new JMenuItem(a);
+    	item.setText(a.getActionName());
+    	menu.add(item);
+    	a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
+    	item = new JMenuItem(a);
+    	item.setText(a.getActionName());
+    	menu.add(item);
+    	
+    	a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
+    	item = new JMenuItem(a);
+    	item.setText(a.getActionName());
+    	menu.add(item);
+    	return menu;
     }
     
     /**
@@ -239,25 +265,10 @@ class TreeViewerWin
     {
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(createNewMenu());
         TreeViewerAction a = controller.getAction(
-                            TreeViewerControl.CREATE_TOP_PROJECT);
+        		TreeViewerControl.SWITCH_USER);
         JMenuItem item = new JMenuItem(a);
-        item.setText(a.getActionName());
-        menuItems.add(item);
-        menu.add(item);
-        //Screen
-        a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
-        item = new JMenuItem(a);
-        //menu.add(item);
-        item.setText(a.getActionName());
-        a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
-        item = new JMenuItem(a);
-        menu.add(item);
-        item.setText(a.getActionName());
-        //menuItems.add(item);
-        //createRootMenu();
-        a = controller.getAction(TreeViewerControl.SWITCH_USER);
-        item = new JMenuItem(a);
         menu.add(item);
         item.setText(a.getActionName());
         //menu.add(createRootMenu());
@@ -548,8 +559,8 @@ class TreeViewerWin
             case TreeViewer.MANAGER_MENU:
                 toolBar.showManagementMenu(c, p);
                 break;
-            case TreeViewer.CLASSIFIER_MENU:
-                toolBar.showClassifyMenu(c, p);
+            case TreeViewer.CREATE_MENU:
+                toolBar.showCreateMenu(c, p);
         }  
     }
     

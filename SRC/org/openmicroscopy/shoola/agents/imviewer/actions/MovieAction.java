@@ -56,7 +56,7 @@ public class MovieAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Movie";
+    private static final String NAME = "Movie...";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the movie player.";

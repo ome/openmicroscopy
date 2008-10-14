@@ -574,6 +574,7 @@ class ImViewerUI
 		item.setText(action.getName());
 		menu.add(item);
 		//Color model
+		 menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		colorModelGroup = new ButtonGroup();
 		action = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
 		item = new JCheckBoxMenuItem();

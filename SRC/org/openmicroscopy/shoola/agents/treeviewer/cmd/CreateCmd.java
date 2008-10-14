@@ -31,12 +31,11 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  *  Displays the editor to create a new <code>DataObject</code>.
@@ -59,17 +58,11 @@ public class CreateCmd
     /** Indicates to create a <code>Dataset</code>. */
     public static final int DATASET = 1;
     
-    /** Indicates to create a <code>CategoryGroup</code>. */
-    public static final int CATEGORY_GROUP = 2;
-    
-    /** Indicates to create a <code>Category</code>. */
-    public static final int CATEGORY = 3;
-    
     /** Indicates to create a <code>Tag</code>. */
-    public static final int TAG = 4;
+    public static final int TAG = 2;
     
     /** Indicates to create a <code>Screen</code>. */
-    public static final int SCREEN = 5;
+    public static final int SCREEN = 3;
     
     /** Reference to the model. */
     private TreeViewer  model;
@@ -95,9 +88,8 @@ public class CreateCmd
         switch (type) {
             case PROJECT: return new ProjectData();
             case DATASET: return new DatasetData(); 
-            case CATEGORY_GROUP: return new CategoryGroupData(); 
-            case CATEGORY: return new CategoryData(); 
             case SCREEN: return new ScreenData(); 
+            case TAG:  return new TagAnnotationData("");
             default:
                 throw new IllegalArgumentException("Type not supported");
         }

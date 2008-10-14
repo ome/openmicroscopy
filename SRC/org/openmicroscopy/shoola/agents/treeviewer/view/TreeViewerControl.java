@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
@@ -254,6 +255,9 @@ class TreeViewerControl
 	/** Identifies the <code>View action</code> in the Edit menu. */
 	static final Integer	VIEW = new Integer(41);
 	
+	/** Identifies the <code>Create project</code> in the File menu. */
+	static final Integer    NEW_OBJECT = new Integer(42);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -328,6 +332,7 @@ class TreeViewerControl
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.SCREEN));
 		actionsMap.put(VIEW, new ViewImageAction(model));
+		actionsMap.put(NEW_OBJECT, new NewObjectAction(model));
 	}
 
 	/** 
