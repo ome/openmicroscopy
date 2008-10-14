@@ -72,6 +72,7 @@ import javax.swing.filechooser.FileFilter;
 //import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -989,9 +990,28 @@ class AttachmentsUI
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
 		Iterator i = addedFiles.iterator();
 		File f;
+		List<File> notSupported = new ArrayList<File>();
+		FileAnnotationData data = null;
 		while (i.hasNext()) {
 			f = (File) i.next();
-			toAdd.add(new FileAnnotationData(f));
+			try {
+				data = new FileAnnotationData(f);
+			} catch (Exception e) {
+				notSupported.add(f);
+				data = null;
+			}
+			if (data != null) toAdd.add(data);
+		}
+		if (notSupported.size() > 0) {
+			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			Iterator<File> k = notSupported.iterator();
+			String s = "";
+			while (k.hasNext()) {
+				s += (k.next()).getName();
+				s += " ";
+			}
+			un.notifyInfo("Attach", 
+					"The following files cannot be attached: \n"+s);
 		}
 		if (addedFileAnnotations.size() > 0)
 			toAdd.addAll(addedFileAnnotations);
