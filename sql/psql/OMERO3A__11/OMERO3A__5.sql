@@ -1202,28 +1202,27 @@ BEGIN;
         tbl  VARCHAR; -- Table name
         col1 VARCHAR; -- Name of first column
         col2 VARCHAR; -- Name of second column
-        dup1 VARCHAR; -- Value of first column as string
-        dup2 VARCHAR; -- Value of second column as string
+        rec  RECORD;  -- Record value from dynamic sql
     BEGIN
 
         tbl := quote_ident(tblraw);
         col1:= quote_ident(col1raw);
         col2:= quote_ident(col2raw);
         sql :=
-      ''   SELECT lhs.''||col1||'', lhs.''||col2||
+      ''   SELECT lhs.''||col1||'' as dup1, lhs.''||col2||''  as dup2 ''||
       ''     FROM ''||tbl||'' lhs, ''||tbl||''  rhs '' ||
       ''    WHERE lhs.id < rhs.id                   '' ||
       ''      AND lhs.''||col1||'' = rhs.''||col1||
       ''      AND lhs.''||col2||'' = rhs.''||col2||
       '' GROUP BY lhs.''||col1||'',  lhs.''||col2||'';'';
 
-        FOR dup1, dup2 IN EXECUTE sql LOOP
+        FOR rec IN EXECUTE sql LOOP
         -----------------------------
         sql:=
       ''   SELECT id ''||
       ''     FROM ''||tbl||
-      ''    WHERE ''||col1||'' = ''||dup1||
-      ''      AND ''||col2||'' = ''||dup2||
+      ''    WHERE ''||col1||'' = ''||rec.dup1||
+      ''      AND ''||col2||'' = ''||rec.dup2||
       '' ORDER BY id DESC '' ||
       ''    LIMIT 1;'';
 
@@ -1232,13 +1231,14 @@ BEGIN;
         sql:=
       ''   DELETE ''||
       ''     FROM ''||tbl||
-      ''    WHERE ''||col1||'' = ''||dup1||
-      ''      AND ''||col2||'' = ''||dup2||
+      ''    WHERE ''||col1||'' = ''||rec.dup1||
+      ''      AND ''||col2||'' = ''||rec.dup2||
       ''      AND ''||keep||'' != id;'';
 
         EXECUTE sql;
 
         END LOOP;
+        RETURN;
      END;' LANGUAGE plpgsql;
 
   SELECT OMERO3A_11_fix_index('pixels','image','image_index');
