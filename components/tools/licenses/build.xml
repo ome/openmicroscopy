@@ -66,9 +66,9 @@
 
     <target name="tools-init">
         <mkdir dir="${basedir}/generated/omero"/>
-        <!--exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
             <arg value="slice"/>
-        </exec-->
+        </exec>
     </target>
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target" unless="skip.compile">
