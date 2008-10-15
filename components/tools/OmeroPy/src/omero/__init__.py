@@ -37,8 +37,8 @@ class client(object):
 
     """
 
-    def __init__(self, args = pysys.argv, id = Ice.InitializationData(), \
-                     host = None, port = None, pmap = {}):
+    def __init__(self, args = None, id = None, \
+                     host = None, port = None, pmap = None):
         """
         Constructor which takes one sys.argv-style list, one initialization
         data, one host string, one port integer, and one properties map, in
@@ -120,7 +120,6 @@ class client(object):
             return original
 
         # Now try to find corrections.
-        cancel = False
         for i in range(0, len(types)):
             found = None
             for j in range(0, len(types)):
@@ -128,16 +127,10 @@ class client(object):
                     if not found:
                         found = original[j]
                     else:
-                        print "Warning: found two arguments of same type. No correction taken: " + str(types[i])
-                        cancel = True
-                        break
+                        raise omero.ClientError("Found two arguments of same type: " + str(types[i]))
             if found:
                 repaired[i] = found
-        if not cancel:
-            print "Repairing constructor arguments"
-            return repaired
-        else:
-            return original
+        return repaired
 
     def _initData(self, id):
         """
@@ -172,7 +165,7 @@ class client(object):
         # Default Router, set a default and then replace
         router = id.properties.getProperty("Ice.Default.Router")
         if not router or len(router) == 0:
-            router = omero.constants.DEFAULTROUTER
+            router = str(omero.constants.DEFAULTROUTER)
         host = id.properties.getPropertyWithDefault("omero.host", """<"omero.host" not set>""")
         router = router.replace("@omero.port@", str(port))
         router = router.replace("@omero.host@", str(host))
