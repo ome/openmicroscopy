@@ -26,9 +26,10 @@ class client(object):
     and OmeroCpp's omero::client.
 
     Typical usage includes:
-    client = omero.client()            # Uses --Ice.Config argument or ICE_CONFIG variable
-    client = omero.client(host)        # Defines "omero.host"
-    client = omero.client(host, port)  # Defines "omero.host" and "omero.port"
+
+        client = omero.client()                          # Uses --Ice.Config argument or ICE_CONFIG variable
+        client = omero.client(host = host)               # Defines "omero.host"
+        client = omero.client(host = host, port = port)  # Defines "omero.host" and "omero.port"
 
     For more information, see:
 
@@ -37,8 +38,18 @@ class client(object):
     """
 
     def __init__(self, args = pysys.argv, id = Ice.InitializationData(), \
-                     host = None, port = None, map = {}):
+                     host = None, port = None, pmap = {}):
         """
+        Constructor which takes one sys.argv-style list, one initialization
+        data, one host string, one port integer, and one properties map, in
+        that order. *However*, to simplify use, we reassign values based on
+        their type with a warning printed. A cleaner approach is to use named
+        parameters.
+
+          c1 = omero.client(None, None, "host", myPort)   # Correct
+          c2 = omero.client(host = "host", port = myPort) # Correct
+          c3 = omero.client("host", myPort)               # Works with warning
+
         Both "Ice" and "omero" prefixed properties will be parsed.
 
         Defines the state variables:
@@ -53,10 +64,15 @@ class client(object):
           Equivalent to all OmeroJava and OmeroCpp constructors
         """
 
+        # Setting all protected values to prevent AttributeError
         self.__previous = None
         self.__ic = None
         self.__sf = None
         self.__lock = threading.RLock()
+
+        # Reassigning based on argument type
+
+        args, id, host, port, pmap = self._repair(args, id, host, port, pmap)
 
         # Equiv to multiple constructors. #######################
         if id == None:
@@ -66,7 +82,10 @@ class client(object):
             id.properties = Ice.createProperties()
 
         # Copying args since we don't really want them edited
-        args = not args and [] or list(args)
+        if not args:
+            args = []
+        else:
+            args = list(args)
         id.properties.parseIceCommandLineOptions(args);
         id.properties.parseCommandLineOptions("omero", args);
         if host:
@@ -74,11 +93,51 @@ class client(object):
         if not port:
             port = omero.constants.GLACIER2PORT
         id.properties.setProperty("omero.port", str(port))
-        if map:
-            for k,v in map.items():
+        if pmap:
+            for k,v in pmap.items():
                 id.properties.setProperty(str(k), str(v))
 
         self._initData(id)
+
+    def _repair(self, args, id, host, port, pmap):
+        """
+        Takes the 5 arguments passed to the __init__ method
+        and attempts to re-order them based on their types.
+        This allows for simplified usage without parameter
+        names.
+        """
+        types = [list, Ice.InitializationData, str, int, dict]
+        original = [args, id, host, port, pmap]
+        repaired = [None, None, None, None, None]
+
+        # Check all to see if valid
+        valid = True
+        for i in range(0, len(types)):
+            if None != original[i] and not isinstance(original[i], types[i]):
+                valid = False
+                break
+        if valid:
+            return original
+
+        # Now try to find corrections.
+        cancel = False
+        for i in range(0, len(types)):
+            found = None
+            for j in range(0, len(types)):
+                if isinstance(original[j], types[i]):
+                    if not found:
+                        found = original[j]
+                    else:
+                        print "Warning: found two arguments of same type. No correction taken: " + str(types[i])
+                        cancel = True
+                        break
+            if found:
+                repaired[i] = found
+        if not cancel:
+            print "Repairing constructor arguments"
+            return repaired
+        else:
+            return original
 
     def _initData(self, id):
         """
@@ -522,8 +581,8 @@ class ObjectFactory(Ice.ObjectFactory):
     Responsible for instantiating objects during deserialization.
     """
 
-    def __init__(self, map = util.FactoryMap.map()):
-        self.__m = map
+    def __init__(self, pmap = util.FactoryMap.map()):
+        self.__m = pmap
 
     def registerObjectFactory(self, ic):
         for key in self.__m:
