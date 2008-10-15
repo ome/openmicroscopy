@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( UnloadCheckPtr )
   BOOST_CHECK( ! img->getName() ); // no other single-valued field is
   img->unload();
   BOOST_CHECK( !img->isLoaded() );
-  BOOST_CHECK( !img->getDetails() );
+  BOOST_CHECK_THROW( img->getDetails(), omero::UnloadedEntityException );
 }
 
 BOOST_AUTO_TEST_CASE( UnloadField )

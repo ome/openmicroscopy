@@ -5,6 +5,7 @@
     <dirname property="up-one"        file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target/"/>
+    <property name="env.J"            value="1"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="../common.xml"/>
@@ -18,7 +19,10 @@
     </target>
 
     <target name="tools-build" depends="tools-init" description="Use scons to build the libraries" unless="env.NOMAKE">
-        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true"/>
+        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+		<arg value="-j"/>
+		<arg value="${env.J}"/>
+	</exec>
     </target>
 
     <target name="tools-dist" depends="tools-build" description="Copies files into tools/target" unless="env.NOMAKE">

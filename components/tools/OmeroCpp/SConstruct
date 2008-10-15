@@ -15,13 +15,27 @@ from blitz_tools import *
 # ant tools-init to have been run
 #
 
+boost_check = """
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/included/unit_test.hpp>
+"""
+def CheckBoost(context):
+    context.Message('Checking for boost_unit_test...')
+    result = context.TryLink(boost_check, '.cpp')
+    context.Result(result)
+    return result
+
 env = OmeroEnvironment(CPPPATH=["src","target"])
 if not env.GetOption('clean'):
-    conf = Configure(env)
+    conf = Configure(env, custom_tests = {'CheckBoost':CheckBoost})
     if not conf.CheckCXXHeader("Ice/Ice.h"):
         print 'Ice/Ice.h not found'
         env.Exit(1)
+    has_boost = conf.CheckBoost()
     conf.Finish()
+else:
+    has_boost = False
 
 #
 # Build the library
@@ -41,19 +55,19 @@ env.Alias('install', install)
 #
 # Build tests
 #
+if has_boost:
+    tenv = env.Clone()
+    tenv["CPPPATH"].append("test")
+    tenv["ENV"]["BOOST_TEST_DYN_LINK"] = "1"
 
-tenv = env.Clone()
-tenv["CPPPATH"].append("test")
-tenv["ENV"]["BOOST_TEST_DYN_LINK"] = "1"
+    main = tenv.Object("test/boost_main.cpp")
+    fixture = tenv.Object("test/boost_fixture.cpp")
 
-main = tenv.Object("test/boost_main.cpp")
-fixture = tenv.Object("test/boost_fixture.cpp")
+    def define_test(dir):
+        test =  tenv.Program("test/%s.exe" % dir,
+            [main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
+            LIBS=["Ice","Glacier2","IceUtil","omero_client","boost_unit_test_framework-mt"]) # -d
+        return test
 
-def define_test(dir):
-    test =  tenv.Program("test/%s.exe" % dir,
-        [main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
-        LIBS=["Ice","Glacier2","IceUtil","omero_client","boost_unit_test_framework-mt-d"])
-    return test
-
-unit = define_test("unit")
-integration = define_test("integration")
+    unit = define_test("unit")
+    integration = define_test("integration")

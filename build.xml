@@ -73,10 +73,10 @@ build-* targets.
 
         <sequential>
         <mkdir dir="${target.dir}"/>
-        <mkdir dir="${target.dir}/lib/python2.5/site-packages"/>
+        <mkdir dir="${target.dir}/lib/python/site-packages"/>
         <untar compression="gzip" src="${lib.dir}/repository/@{tarball}" dest="${target.dir}"/>
-        <exec executable="python2.5" dir="${target.dir}/@{dir}" failonerror="true">
-            <env key="PYTHONPATH" value="${env.PYTHONPATH}:${target.dir}/lib/python2.5/site-packages"/>
+        <exec executable="python" dir="${target.dir}/@{dir}" failonerror="true">
+            <env key="PYTHONPATH" value="${env.PYTHONPATH}:${target.dir}/lib/python/site-packages"/>
             <arg value="setup.py"/>
             <arg value="install"/>
             <arg value="--prefix=${target.dir}"/>
