@@ -106,6 +106,7 @@ const omero::client* Fixture::login(const std::string& username, const std::stri
         return client;
     } catch (const Glacier2::CannotCreateSessionException& ccse) {
         BOOST_FAIL("Threw CannotCreateSessionException:" + ccse.reason);
+        return 0; // Can't reach here
     }
 }
 

@@ -551,11 +551,12 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]       }
 [$cpp]
 [$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT) {
+[$cpp]           errorIfUnloaded();
 [$cpp]           return details;
 [$cpp]       }
 [$cpp]
 [$cpp]       void ${PojoI}::unloadDetails($CPP_CURRENT) {
-[$cpp]           details = new omero::model::Details();
+[$cpp]           details = omero::model::DetailsPtr();
 [$cpp]       }
 [$cpp]
 [$cpp]       omero::RLongPtr ${PojoI}::getId($CPP_CURRENT) {

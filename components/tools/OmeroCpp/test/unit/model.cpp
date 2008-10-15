@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( UnloadedCtor )
   Fixture f;
   ImageIPtr img = new ImageI(new omero::CLong(1),false);
   BOOST_CHECK( !(img->isLoaded()) );
-  BOOST_CHECK( img->sizeOfDatasetLinks() < 0 );
+  BOOST_CHECK_THROW( img->sizeOfDatasetLinks(), omero::UnloadedEntityException );
 }
 
 BOOST_AUTO_TEST_CASE( UnloadCheckPtr )
@@ -85,12 +85,10 @@ BOOST_AUTO_TEST_CASE( Sequences )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->sizeOfAnnotationLinks() );
+  BOOST_CHECK( img->sizeOfAnnotationLinks() == 0 );
   img->unloadAnnotationLinks();
   img->unload();
-  BOOST_CHECK( img->sizeOfAnnotationLinks() < 0 );
-  img->linkAnnotation( new TagAnnotationI() );
-  BOOST_ERROR("should not reach this point");
+  BOOST_CHECK_THROW( img->sizeOfAnnotationLinks(), omero::UnloadedEntityException );
 }
 
 BOOST_AUTO_TEST_CASE( Accessors )
@@ -110,7 +108,7 @@ BOOST_AUTO_TEST_CASE( Accessors )
   BOOST_CHECK( img->getName() );
 
   img->unload();
-  BOOST_CHECK( !img->getName() );
+  BOOST_CHECK_THROW( img->getName(), omero::UnloadedEntityException );
   
 }
 

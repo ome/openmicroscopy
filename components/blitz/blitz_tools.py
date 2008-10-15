@@ -115,14 +115,28 @@ class OmeroEnvironment(SConsEnvironment):
         SConsEnvironment.__init__(self, **kwargs)
         self.Decider('MD5-timestamp')
         self["ENV"] = os.environ
-        self.Append(CPPPATH=blitz_generated)
-        self.Append(LIBPATH=omerocpp_dir)
+        # Print statements
+        if not os.environ.has_key("VERBOSE"):
+            self.Replace(CXXCOMSTR  = "Compiling $TARGET")
+            self.Replace(LINKCOMSTR = "Linking   $TARGET")
+            self.Replace(SHCXXCOMSTR  = "Compiling $TARGET")
+            self.Replace(SHLINKCOMSTR = "Linking   $TARGET")
+        # CXXFLAGS
+        self.Append(CPPFLAGS="-D_REENTRANT")
+        if os.environ.has_key("CXXFLAGS"):
+            self.Append(CPPFLAGS=self.Split(os.environ["CXXFLAGS"]))
+        else:
+            self.Append(CPPFLAGS=self.Split("-O0 -g -Wall"))
+        # CPPPATH
+        self.AppendUnique(CPPPATH=blitz_generated)
         if os.environ.has_key("CPPPATH"):
-            self.Append(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
-        if os.environ.has_key("LIBPATH"):
-            self.Append(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
+            self.AppendUnique(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
         if os.path.exists("/opt/local/include"):
-            self.Append(CPPPATH=["/opt/local/include"])
+            self.AppendUnique(CPPPATH=["/opt/local/include"])
+        # LIBPATH
+        self.AppendUnique(LIBPATH=omerocpp_dir)
+        if os.environ.has_key("LIBPATH"):
+            self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
         if os.path.exists("/opt/local/lib"):
-            self.Append(LIBPATH=["/opt/local/lib"])
+            self.AppendUnique(LIBPATH=["/opt/local/lib"])
 

@@ -113,7 +113,7 @@ public:
  */
 #define assertResults(count, search) _assertResults(__LINE__, count, search, true) 
 #define assertAtLeastResults(count, search) _assertResults(__LINE__, count, search, false) 
-void _assertResults(int line, int count, SearchPrx search, bool exact) {
+void _assertResults(int line, unsigned int count, SearchPrx search, bool exact) {
     stringstream out;
     out << "line " << line << ":";
     if (count  > 0) {
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 	 */
         IObjectList list;
         list = f.query()->findAllByFullText("Image",uuid,0);
-	BOOST_CHECK_EQUAL( 1, list.size() );
+	BOOST_CHECK_EQUAL( (unsigned int) 1, list.size() );
 	
     } catch (const omero::ApiUsageException& aue) {
         cout << aue.message <<endl;
@@ -1483,11 +1483,11 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
 
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->byFullText(name);
-    BOOST_CHECK_EQUAL(2, search->results().size());
+    BOOST_CHECK_EQUAL( (unsigned int) 2, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation"));
     search->byFullText(name);
-    BOOST_CHECK_EQUAL(2, search->results().size());
+    BOOST_CHECK_EQUAL( (unsigned int) 2, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
     search->byFullText(name);

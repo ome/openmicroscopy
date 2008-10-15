@@ -155,8 +155,8 @@ namespace omero {
     client::~client(){
 	try {
 	    closeSession();
-	} catch (...) {
-	    std::cout << "Ignoring error in ~client"<< std::endl;
+	} catch (const std::exception& ex) {
+            std::cout << ex.what() << std::endl;
 	}
   }
 
@@ -215,7 +215,7 @@ namespace omero {
 
 
     omero::api::ServiceFactoryPrx client::joinSession(const std::string& _sessionUuid) {
-	createSession(_sessionUuid, _sessionUuid);
+	return createSession(_sessionUuid, _sessionUuid);
     }
 
 
@@ -333,6 +333,11 @@ namespace omero {
 	} catch (const Ice::ConnectionLostException& cle) {
 	    // ok. Exception will always be thrown.
 	    exit();
+        } catch (const omero::ClientError& ce) {
+            // This is called by getRouter() if a router is not configured.
+            // If there isn't one, then we can't be connected. That's alright.
+            // Most likely called during ~client
+            exit();
 	} catch (...) {
 	    exit();
 	    throw;
@@ -377,10 +382,10 @@ namespace omero {
 	env()->setOutput(sess(), key, value);
     }
     vector<string> client::getInputKeys() {
-	env()->getInputKeys(sess());
+	return env()->getInputKeys(sess());
     }
     vector<string> client::getOutputKeys() {
-	env()->getOutputKeys(sess());
+	return env()->getOutputKeys(sess());
     }
     omero::api::ISessionPrx client::env() {
 	return sf->getSessionService();

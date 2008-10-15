@@ -20,6 +20,7 @@ namespace omero {
 
         ParametersIPtr ParametersI::addId(Ice::Long id, const Ice::Current& current) {
             map["id"] = new omero::RLong(id);
+            return this;
         }
 
     }

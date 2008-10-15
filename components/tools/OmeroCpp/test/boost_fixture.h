@@ -61,9 +61,4 @@ struct Fixture
 BOOST_AUTO_TEST_CASE( name )                  \
 { Fixture f;
 
-#define END_FIXTURE_TEST()                    \
-//catch (...) {                               \
-//  std::cout << "error" << endl;             \
-}
-
 #endif // OMERO_BOOST_FIXTURE_H

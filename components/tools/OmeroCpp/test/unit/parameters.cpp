@@ -15,8 +15,6 @@ using namespace std;
 BOOST_AUTO_TEST_CASE( AddId )
 {
     ParametersIPtr p = new ParametersI();
-    cout << " created " << endl;
     p->addId(1L);
-    cout << " added " << endl;
 }
 
