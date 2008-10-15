@@ -260,8 +260,8 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
                     }
                     omero.RMap map = new omero.RMap();
                     map.val = new HashMap<String, RType>();
-                    String key = item.keySet().iterator().next();
-                    omero.RType val = mapper.toRType(item.get(key));
+                    String key = (String) item.get("dn");
+                    omero.RType val = mapper.toRType(item.get("experimenter_id"));
                     map.val.put(key, val);
                     list.val.add(map);
                 }
