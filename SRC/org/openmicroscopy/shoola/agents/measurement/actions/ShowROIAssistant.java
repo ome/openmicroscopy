@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up the ROI assistant.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,7 +52,7 @@ public class ShowROIAssistant
 {
 
 	/** The name of the action. */
-	private static final String NAME = "ROI Assistant";
+	private static final String NAME = "ROI Assistant...";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Show the ROI Assistant.";

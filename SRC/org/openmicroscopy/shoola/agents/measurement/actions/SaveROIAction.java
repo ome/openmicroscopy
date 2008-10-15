@@ -52,7 +52,7 @@ public class SaveROIAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Save";
+	private static final String NAME = "Save...";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Save the ROI.";
