@@ -24,7 +24,7 @@ build-* targets.
     <import file="${basedir}/deprecated.xml"/>
     <import file="${import.dir}/global.xml"/>
 
-    <target name="init" depends="check-ivy,check-scons"/>
+    <target name="init" depends="check-ivy,check-scons,check-ice"/>
 
     <target name="check-ivy" unless="ivy.done">
 
@@ -116,7 +116,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-all" description="Build everything and copy to dist" depends="init,check-ice">
+    <target name="build-all" description="Build everything and copy to dist" depends="init">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
@@ -151,7 +151,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="check-ice">
+    <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
