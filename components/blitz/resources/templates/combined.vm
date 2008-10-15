@@ -1717,6 +1717,7 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]           pass # Currently unused
 [$pyc]
 [$pyc]       def __getattr__(self, name):
+[$pyc]           import __builtin__
 [$pyc]           """
 [$pyc]           Reroutes all access to object.field through object.getField() or object.isField()
 [$pyc]           """
@@ -1724,13 +1725,16 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]           capitalized = name[0].capitalize() + name[1:]
 [$pyc]           getter = "get" + capitalized
 [$pyc]           questn = "is" + capitalized
-[$pyc]           if hasattr(self, field):
+[$pyc]           try:
+[$pyc]               self.__dict__[field]
 [$pyc]               if hasattr(self, getter):
 [$pyc]                   method = getattr(self, getter)
 [$pyc]                   return method()
 [$pyc]               elif hasattr(self, questn):
 [$pyc]                   method = getattr(self, questn)
 [$pyc]                   return method()
+[$pyc]           except:
+[$pyc]               pass
 [$pyc]           raise AttributeError("'%s' object has no attribute '%s' or '%s'" % (self.__class__.__name__, getter, questn))
 [$pyc]
 [$pyc]       def __setattr__(self, name, value):
