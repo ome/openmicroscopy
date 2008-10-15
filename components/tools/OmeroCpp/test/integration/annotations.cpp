@@ -7,6 +7,12 @@
  */
 #include <IceUtil/UUID.h>
 #include <boost_fixture.h>
+#include <omero/model/TagAnnotationI.h>
+#include <omero/model/ImageAnnotationLinkI.h>
+#include <omero/model/ImageI.h>
+#include <omero/model/FormatI.h>
+#include <omero/model/OriginalFileI.h>
+#include <omero/model/FileAnnotationI.h>
 
 #include <stdio.h>
 #include <fstream>

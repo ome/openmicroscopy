@@ -101,63 +101,7 @@
 		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
 	</target>
 
-
-	<target name="slice-init" depends="prepare">
-		<fileset dir="${basedir}" id="slice.generated">
-			<include name="resources/${ice.pat}"/>
-			<include name="target/generated/resources/${ice.pat}"/>
-		</fileset>
-		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
-		<is-done name="slice2java" srcdir="${basedir}" includes="${ice.pat}" />
-		<condition property="skip.ice.or.no.slice2java">
-		    <or>
-			<isset property="slice2java.not.required"/>
-			<isset property="skip.ice"/>
-		    </or>
-		</condition>
-		<condition property="test.skip">
-		    <and>
-		    <isset property="uses.ice"/>
-		    <isset property="skip.ice"/>
-		    </and>
-		</condition>
-		<condition property="skip.compile">
-		    <and>
-		    <isset property="uses.ice"/>
-		    <isset property="skip.ice"/>
-		    </and>
-		</condition>
-	</target>
-
-	<macrodef name="slice-macro">
-	   <attribute name="lang"/>
-	   <attribute name="files"/>
-	   <attribute name="suffix" default=""/>
-	   <attribute name="ice.slice" default="${ice.home}/slice"/>
-	   <attribute name="output" default="${src.dest}/@{exec}/@{suffix}"/>
-	   <sequential>
-		 <mkdir dir="@{output}"/>
-		 <exec executable="slice2@{lang}" 
-		    failonerror="true" failifexecutionfails="true">
-		        <arg value="--tie"/>
-		 	<arg value="--output-dir"/>
-			<arg value="@{output}"/>
-			<arg value="-I${resrc.dest}"/>
-			<arg value="-I${resrc.dir}"/>
-			<arg value="-I${blitz.comp}/resources"/>
-			<arg value="-I${blitz.comp}/target/generated/resources"/>
-			<arg value="-I@{ice.slice}"/>
-			<arg line="@{files}"/>
-		 </exec>
-	   	<done name="slice2@{lang}"/>
-	   </sequential>
-	</macrodef>
-
-	<target name="slice" depends="slice-init" if="slice2java-exists" unless="skip.ice.or.no.slice2java">
-		<slice-macro lang="java" files="${slice.files}" output="${src.dest}"/>
-	</target>
-
-	<target name="generate" depends="prepare,slice">
+	<target name="generate" depends="prepare">
                 <pathconvert property="omero.path" refid="omero.classpath"/>
                 <echo file="${resrc.dest}/Classpath.sh">
                   export CLASSPATH=${omero.path}

@@ -23,7 +23,6 @@
     <dirname property="up-one"        file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target"/>
-    <property name="uses.ice"         value="true"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="../python.xml"/>
@@ -31,28 +30,13 @@
 
     <target name="tools-init" unless="env.NOPYTHON">
         <get-source todir="${copy.dir}">
-            <fileset dir="../../blitz/src" includes="**/*.py"/>
-            <fileset dir="../../blitz/target/generated/src" includes="**/*.py">
+            <fileset dir="../../blitz/generated" includes="**/*.py">
                 <present present="srconly" targetdir="src"/>
             </fileset>
         </get-source>
         <copy todir="${copy.dir}">
             <fileset dir="src" includes="**/*.py"/>
         </copy>
-        <slice_py todir="${copy.dir}" prefix="omero_">
-            <fileset dir="${copy.dir}/omero" includes="*.ice">
-                <depend targetdir="${copy.dir}">
-                    <mapper type="regexp" from="^(.*?)[.]ice$$" to="omero_\1_ice.py"/>
-                </depend>
-            </fileset>
-        </slice_py>
-        <slice_py todir="${copy.dir}" prefix="omero_model_">
-            <fileset dir="${copy.dir}/omero/model/" includes="*.ice">
-                <depend targetdir="${copy.dir}">
-                    <mapper type="regexp" from="^(.*?)[.]ice$$" to="omero_model_\1_ice.py"/>
-                </depend>
-            </fileset>
-        </slice_py>
     </target>
 
     <!-- Copied prefs.class for testing the prefs plugin. -->

@@ -18,7 +18,11 @@
 //
 
 \#include <omero/ObjectFactoryRegistrar.h>
-\#include <string>
+#foreach($type in $types)
+#if(!$type.abstract)
+\#include <omero/model/${type.shortname}I.h>
+#end
+#end
 
 namespace omero {
 

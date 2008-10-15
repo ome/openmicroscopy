@@ -22,7 +22,6 @@
 	</description>
 
 	<property name="main.class" value="ome.services.licenses.tasks.Run"/>
-	<property name="uses.ice" value="true"/>
 	<dirname property="up-two" file="${basedir}"/>
 	<dirname property="up-one" file="${up-two}"/>
 	<property name="import.dir"       value="${up-one}/antlib/resources"/>
@@ -31,7 +30,6 @@
 	<import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
-    <import file="../make.xml"/>
     <import file="../python.xml"/>
 
 	<!-- The hard-wiring allows a specific Store implementation to
@@ -50,6 +48,7 @@
 			<exclude name="**/LicenseWiring.java"/>
 			<src path="${src.dest}"/>
 			<src path="${src.dir}"/>
+			<src path="generated"/>
 		</myjavac>
 		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseBean.java"/></copy>
 		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseSessionListener.java"/></copy>
@@ -66,19 +65,17 @@
 	</target>
 
     <target name="tools-init">
-        <get-source todir="${target.dir}">
-            <fileset dir="." excludes="**/*">
-                <present present="srconly" targetdir="src"/>
-            </fileset>
-        </get-source>
+        <mkdir dir="${basedir}/generated/omero"/>
+        <exec executable="../../../target/bin/scons" dir="." failonerror="true">
+            <arg value="slice"/>
+        </exec>
     </target>
 
-    <target name="tools-build" depends="tools-init,install,make-build" description="Creates all artifacts for tools/target" unless="skip.compile">
-        <mkdir dir="${basedir}/src/slice_generated"/>
-        <slice_py todir="${basedir}/target" include="../../blitz/resources" prefix="omero_">
-            <fileset dir="${basedir}/resources/omero" includes="*.ice"/>
-        </slice_py>
+    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target" unless="skip.compile">
         <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
+        <exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
+            <arg value="lib"/>
+        </exec>
     </target>
 
     <!-- Additional functionality for the lifecycle.package target.
@@ -89,20 +86,31 @@
     <target name="tools-dist" depends="deps-resolve,tools-build,python-install" description="Copied artifacts to tools/target" unless="skip.compile">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
-        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" 
-            resolver="tools-resolver" pubrevision="${omero.version}" 
+        <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
+            resolver="tools-resolver" pubrevision="${omero.version}"
             publishivy="false" overwrite="true"/>
         <copy todir="../target/include">
             <fileset dir="${resrc.dir}" includes="**/*.ice,**/*.h"/>
-            <fileset dir="src/slice_generated" includes="**/*.h"/>
-            <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
+            <fileset dir="generated" includes="**/*.h"/>
+            <fileset dir="src" includes="**/*.h"/>
         </copy>
-        <antcall target="make-install" inheritAll="true" inheritRefs="true"/>
+        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+            <arg value="install"/>
+        </exec>
+        <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
+        <copy todir="../target/include">
+            <fileset dir="src"       includes="**/*.h"/>
+            <fileset dir="target"    includes="**/*.h"/>
+            <fileset dir="generated" includes="**/*.h"/>
+        </copy>
     </target>
 
-    <target name="tools-clean" depends="clean,make-clean,python-clean">
+    <target name="tools-clean" depends="clean,python-clean">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+            <arg value="-c"/>
+        </exec>
 	<delete dir="${basedir}/target"/>
-        <delete dir="${basedir}/src/slice_generated"/>
+        <delete dir="${basedir}/generated"/>
     </target>
 
 </project>

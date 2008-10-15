@@ -6,6 +6,7 @@ slice_generated*
 *.lo
 *.loT
 *.o
+*.os
 Makefile
 aclocal.m4
 autom4te.cache

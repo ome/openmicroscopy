@@ -1,5 +1,6 @@
 .DS_Store
 .gdb_history
+.sconsign.dblite
 /etc/local.properties
 /dist
 /components/*/target

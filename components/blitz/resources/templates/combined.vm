@@ -67,7 +67,7 @@ DECLARATION BLOCK:
 [$hdr] #define ${POJOI}_H
 
 [$ice] \#include <omero/fwd.ice>
-[$ice] \#include <omero/IObject.ice>
+[$ice] \#include <omero/model/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
 [$ice] \#include <omero/System.ice>
 #if( $type.superclass )
@@ -78,11 +78,23 @@ DECLARATION BLOCK:
 \$secondpassclassimports\$importModify
 #end
 [$hdr] \#include <omero/ClientErrors.h>
-[$hdr] \#include <omero/IObject.h>
+[$hdr] \#include <omero/model/IObject.h>
 [$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/model/${Pojo}.h>
-[$hdr] \#include <omero/ModelI.h>
 [$hdr] \#include <omero/templates.h>
+
+#foreach( $property in $type.propertyClosure )
+#if($property.type.startsWith("ome"))
+#if($property.isLink)
+[$cpp] \#include <omero/model/${property.shortType}I.h> // Impl. since instantiated
+#if($property.shortTarget)
+[$cpp] \#include <omero/model/${property.shortTarget}.h>
+#end
+#else
+[$cpp] \#include <omero/model/${property.shortType}.h>
+#end##link
+#end##ome
+#end##foreach
 
 [$ice] module omero {
 [$ice]   module model {
@@ -189,18 +201,6 @@ INTERNAL METHODS:
 TOGGLE AND CREATE COLLECTIONS:
 =====================================================================================================
 
-[$Ice]       void unloadCollections();
-[$jav]       public void unloadCollections($JAV_CURRENT) {
-[$jav]           toggleCollectionsLoaded(false);
-[$jav]       }
-
-[$hdr]       virtual void unloadCollections($HDR_CURRENT);
-[$cpp]       void ${PojoI}::unloadCollections($CPP_CURRENT) {
-[$cpp]           toggleCollectionsLoaded(false);
-[$cpp]       }
-[$pyc]       def unloadCollections(self, $PYC_CURRENT):
-[$pyc]           self._toggleCollectionsLoaded( False )
-
 [$jav]       protected void toggleCollectionsLoaded(boolean load) {
 [$hdr]       virtual void toggleCollectionsLoaded(bool load);
 [$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
@@ -223,7 +223,7 @@ since all collections are lists in ice.
 
 [$ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
 #if( $property.isLink )
-[$ice]     ["java:type:java.util.ArrayList"] sequence<${property.shortTarget}> ${Pojo}Linked${property.shortTarget}Seq;
+[$ice]     ["java:type:java.util.ArrayList"] sequence<omero::model::${property.shortTarget}> ${Pojo}Linked${property.shortTarget}Seq;
 #end
 
 [$jav]           if (load) {
@@ -375,6 +375,17 @@ LOADNESS BLOCK:
 [$cpp]           return loaded;
 [$jav]    }
 [$cpp]    }
+
+[$jav]       public void unloadCollections($JAV_CURRENT) {
+[$jav]           toggleCollectionsLoaded(false);
+[$jav]       }
+
+[$hdr]       virtual void unloadCollections($HDR_CURRENT);
+[$cpp]       void ${PojoI}::unloadCollections($CPP_CURRENT) {
+[$cpp]           toggleCollectionsLoaded(false);
+[$cpp]       }
+[$pyc]       def unloadCollections(self, $PYC_CURRENT):
+[$pyc]           self._toggleCollectionsLoaded( False )
 
 INTERFACE METHODS:
 =====================================================================================================
@@ -1387,7 +1398,7 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]       ${property.shortType}Ptr ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
-[$cpp]           ${property.shortType}IPtr link = new ${property.shortType}I();
+[$cpp]           ${property.shortType}Ptr link = new ${property.shortType}I();
 [$cpp]           link->link( ${order} );
 [$cpp]           $ADD2METHOD( link, true );
 [$cpp]           return link;

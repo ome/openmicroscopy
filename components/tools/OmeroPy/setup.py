@@ -36,7 +36,7 @@ try:
 finally:
     finput.close()
 
-setup(name="OmeroPy",
+setup(name="omero_client",
       version=map["omero.version"],
       description="Python bindings to the OMERO.blitz server",
       long_description="""\

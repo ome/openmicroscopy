@@ -24,7 +24,9 @@ build-* targets.
     <import file="${basedir}/deprecated.xml"/>
     <import file="${import.dir}/global.xml"/>
 
-    <target name="ivy-init" unless="ivy.done">
+    <target name="init" depends="check-ivy,check-scons"/>
+
+    <target name="check-ivy" unless="ivy.done">
 
         <!-- Prevent future invocations and PermGen errors-->
         <property name="ivy.done" value="done"/>
@@ -53,7 +55,7 @@ build-* targets.
         <property name="test.skip" value="true"/>
     </target>
 
-    <target name="clean" description="Calls 'clean' on all components" depends="ivy-init">
+    <target name="clean" description="Calls 'clean' on all components" depends="init">
         <iterate buildpathref="all.buildpath"   target="clean"/>
         <iterate buildpathref="tools.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
@@ -61,9 +63,38 @@ build-* targets.
         <delete includeemptydirs="true">
             <fileset dir="${lib.dir}/repository/omero" includes="**/*"/>
         </delete>
+        <delete dir="${target.dir}"/>
     </target>
 
-    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy-init">
+    <macrodef name="setup-py-install">
+
+        <attribute name="tarball"/>
+        <attribute name="dir"/>
+
+        <sequential>
+        <mkdir dir="${target.dir}"/>
+        <mkdir dir="${target.dir}/lib/python2.5/site-packages"/>
+        <untar compression="gzip" src="${lib.dir}/repository/@{tarball}" dest="${target.dir}"/>
+        <exec executable="python2.5" dir="${target.dir}/@{dir}" failonerror="true">
+            <env key="PYTHONPATH" value="${env.PYTHONPATH}:${target.dir}/lib/python2.5/site-packages"/>
+            <arg value="setup.py"/>
+            <arg value="install"/>
+            <arg value="--prefix=${target.dir}"/>
+         </exec>
+         </sequential>
+    </macrodef>
+
+    <target name="check-scons" description="Checks for scons and sets executable or installs">
+        <available property="scons.exe" value="scons" filepath="${env.PATH}" file="scons" />
+        <available property="scons.exe" value="${target.dir}/bin/scons" filepath="${target.dir}/bin" file="scons" />
+        <antcall target="build-scons" inheritAll="true" inheritRefs="true"/>
+    </target>
+
+    <target name="build-scons" description="Installs the scons build tool" unless="scons.exe">
+        <setup-py-install dir="scons-1.0.1" tarball="scons-1.0.1.tar.gz"/>
+    </target>
+
+    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="init">
         <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="app.buildpath" target="dist"/>
@@ -76,14 +107,14 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-all" description="Build everything and copy to dist" depends="ivy-init">
+    <target name="build-all" description="Build everything and copy to dist" depends="init">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="ivy-init">
+    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <!-- Must also build python since it provides our command lines -->
@@ -91,7 +122,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-ear" description="Build ear and copy to dist" depends="ivy-init">
+    <target name="build-ear" description="Build ear and copy to dist" depends="init">
         <iterate buildpathref="appserver.buildpath" target="dist"/>
         <!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
         <iterate buildpathref="blitzserver.buildpath" target="install"/>
@@ -128,11 +159,15 @@ build-* targets.
         <!-- Currently has no logic, since build-blitz requires all of this -->
     </target>
 
-    <target name="build-schema" description="Build new DB schema and copy to sql/" depends="ivy-init">
+    <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
         <iterate buildpathref="model.buildpath" target="clean"/>
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
+    </target>
+
+    <target name="build-model" depends="check-scons" description="Generate model code for all language bindings">
+        <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
     </target>
 
     <!--
@@ -158,12 +193,12 @@ build-* targets.
         </tar>
     </target>
 
-    <target name="deploy" description="Copy the dist/${product.name}.ear to $JBOSS_HOME/server/default/deploy" depends="ivy-init">
+    <target name="deploy" description="Copy the dist/${product.name}.ear to $JBOSS_HOME/server/default/deploy" depends="init">
         <iterate buildpathref="app.buildpath" target="deploy"/>
     </target>
 
     <!-- Internal target -->
-    <target name="prepare-dist" depends="ivy-init">
+    <target name="prepare-dist" depends="init">
             <mkdir dir="${dist.dir}/bin"/>
             <copy todir="${dist.dir}/etc" overwrite="true">
                 <fileset dir="${omero.home}/etc">
@@ -198,7 +233,7 @@ build-* targets.
 
     </target>
 
-    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="ivy-init">
+    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="init">
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel"/>
@@ -211,7 +246,7 @@ build-* targets.
         <iterate buildpathref="licenses.buildpath" target="prepare"/>
     </target>
 
-    <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="ivy-init">
+    <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
@@ -331,7 +366,7 @@ build-* targets.
 
     </target>
 
-    <target name="ivy-hudson" depends="ivy-init">
+    <target name="ivy-hudson" depends="check-ivy">
         <ivy:resolve settingsRef="ivy.toplevel"
             file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
         <ivy:publish settingsRef="ivy.toplevel"

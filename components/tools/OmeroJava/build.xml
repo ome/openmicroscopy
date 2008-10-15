@@ -19,11 +19,9 @@
     OmeroJava interface to OmeroBlitz, provides user-friendly gateway.
     </description>
 
-    <property name="uses.ice" value="true"/>
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
-    <property name="uses.ice"         value="true"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/dependencies.xml"/>
@@ -35,7 +33,7 @@
         <echo>no-op</echo>
     </target>
 
-    <target name="compile" depends="generate" unless="skip.ice">
+    <target name="compile" depends="generate">
         <!-- These first tasks are "pseudo-compiles" copying in
         resources from other builds and jars to be packaged into
         the super jar -->
@@ -88,11 +86,11 @@
         </jar>
     </target>
 
-    <target name="tools-init" unless="skip.ice"/>
+    <target name="tools-init"/>
 
-    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target" unless="skip.ice"/>
+    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target" unless="skip.ice">
+    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target">
         <mkdir dir="${target.dir}/lib/omerojava"/>
         <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
             resolver="tools-resolver" pubrevision="${omero.version}"

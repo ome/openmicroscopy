@@ -39,10 +39,6 @@ loci.resolver=omero-resolver
 ############################################
 # libraries
 ############################################
-# comment out no.ice to attempt the 
-# blitz/ build
-ice.home=/opt/Ice-3.2.0
-no.ice=true
 
 # Used in server/build.xml and blitz/build.xml 
 # to specify the functionality that will be compiled 

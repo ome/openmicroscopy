@@ -10,6 +10,15 @@
 #include <boost_fixture.h>
 #include <time.h>
 #include <omero/Collections.h>
+#include <omero/model/ImageI.h>
+#include <omero/model/ImageAnnotationLinkI.h>
+#include <omero/model/BooleanAnnotationI.h>
+#include <omero/model/DoubleAnnotationI.h>
+#include <omero/model/FileAnnotationI.h>
+#include <omero/model/LongAnnotationI.h>
+#include <omero/model/OriginalFileI.h>
+#include <omero/model/TagAnnotationI.h>
+#include <omero/model/TextAnnotationI.h>
 
 using namespace std;
 using namespace omero;

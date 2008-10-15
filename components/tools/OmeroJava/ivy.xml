@@ -16,7 +16,7 @@
 -->
   <info
       organisation="omero-tools"
-      module="OmeroJava"
+      module="omero_client"
       status="integration"/>
   <configurations>
     <conf name="build"/>
@@ -24,7 +24,7 @@
     <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="OmeroJava" type="jar"/>
+    <artifact name="omero_client" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->

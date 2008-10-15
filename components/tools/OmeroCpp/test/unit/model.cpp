@@ -7,6 +7,14 @@
  */
 
 #include <boost_fixture.h>
+#include <omero/model/ProjectI.h>
+#include <omero/model/ProjectDatasetLinkI.h>
+#include <omero/model/DatasetI.h>
+#include <omero/model/DatasetImageLinkI.h>
+#include <omero/model/ImageI.h>
+#include <omero/model/PixelsI.h>
+#include <omero/model/TagAnnotationI.h>
+#include <omero/model/GroupExperimenterMapI.h>
 
 using namespace omero::model;
 using namespace omero;

@@ -72,7 +72,7 @@
    <constructor-arg value="ome.services.sessions.SessionManager" type="java.lang.Class"/>
   </bean>
 
-  <bean id="executorMock" class="ome.icy.fixtures.ExecutorMockFactory"/>
+  <bean id="executorMock" class="ome.services.blitz.test.fixtures.ExecutorMockFactory"/>
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 

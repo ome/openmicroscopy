@@ -8,6 +8,7 @@
 #include <Ice/Initialize.h>
 #include <omero/client.h>
 #include <omero/model/ExperimenterI.h>
+#include <omero/model/SessionI.h>
 #include <boost_fixture.h>
 
 BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )

@@ -9,7 +9,6 @@
 #ifndef OMERO_OBJECTFACTORYREGISTRAR_H
 #define OMERO_OBJECTFACTORYREGISTRAR_H
 
-#include <omero/ModelI.h>
 #include <string>
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
@@ -29,7 +28,7 @@ namespace omero {
   class ObjectFactory : public Ice::ObjectFactory {
 
   public:
-    
+
     ObjectFactory();
     virtual ~ObjectFactory();
     virtual Ice::ObjectPtr create(const std::string& type);

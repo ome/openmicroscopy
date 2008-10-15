@@ -6,6 +6,17 @@
  *
  */
 #include <boost_fixture.h>
+#include <omero/model/AcquisitionModeI.h>
+#include <omero/model/ChannelI.h>
+#include <omero/model/DimensionOrderI.h>
+#include <omero/model/ImageI.h>
+#include <omero/model/LogicalChannelI.h>
+#include <omero/model/PhotometricInterpretationI.h>
+#include <omero/model/PixelsI.h>
+#include <omero/model/PixelsDimensionsI.h>
+#include <omero/model/PixelsTypeI.h>
+#include <omero/model/PlaneInfoI.h>
+#include <omero/model/StatsInfoI.h>
 
 using namespace omero::api;
 using namespace omero::model;
@@ -59,9 +70,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
         // ok
     }
 
-    ImagePixelsSeq pixels;
-    pixels.push_back(pix);
-    i->setPixels( pixels );
+    i->addPixels( pix );
     i->setName( new omero::RString("test1") );
 
     sf->getUpdateService()->saveObject(i);

@@ -5,7 +5,6 @@
     <property name="env.ICE_CONFIG" value="${basedir}/../../blitz/target/generated/resources/local.properties"/>
 
     <defineVariables/>
-    <condition property="env.NOPYTHON"><isset property="skip.ice"/></condition>
 
     <macrodef name="setup_py">
         <element name="args" implicit="true"/>
@@ -13,25 +12,6 @@
             <exec executable="${basedir}/setup.py" failonerror="true">
                 <args/>
             </exec>
-        </sequential>
-    </macrodef>
-
-    <macrodef name="slice_py">
-        <attribute name="prefix"/>
-        <attribute name="todir"/>
-        <attribute name="include" default="@{todir}"/>
-        <element name="files" implicit="true"/>
-        <sequential>
-            <apply executable="slice2py" failonerror="true"><!-- parallel="true" -->
-                <arg value="--no-package"/>
-                <arg value="--output-dir"/>
-                <arg value="@{todir}"/>
-                <arg value="--prefix"/>
-                <arg value="@{prefix}"/>
-                <arg value="-I@{include}"/>
-                <arg value="-I${ice.home}/slice"/>
-                <files/>
-            </apply>
         </sequential>
     </macrodef>
 
@@ -65,7 +45,7 @@
 
     <target name="python-install" unless="env.NOPYTHON">
         <copy todir="../target">
-            <fileset dir="${basedir}/build" includes="**/*"/>
+            <fileset dir="${basedir}/build" includes="**/*" excludes="bdist*"/>
         </copy>
         <copy todir="../target/client">
             <fileset dir="${basedir}/dist" includes="**/*"/>

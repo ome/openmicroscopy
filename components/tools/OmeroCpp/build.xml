@@ -5,64 +5,35 @@
     <dirname property="up-one"        file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target/"/>
-    <property name="uses.ice"         value="true"/>
 
     <import file="${import.dir}/global.xml"/>
-    <import file="../make.xml"/>
     <import file="../common.xml"/>
 
     <target name="tools-init" unless="env.NOMAKE">
         <get-source todir="${copy.dir}">
-            <fileset dir="../../blitz/resources" includes="**/*.h"/>
-            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h">
-                <present present="srconly" targetdir="src"/>
-            </fileset>
-            <fileset dir="../../blitz/src" includes="**/*.h,**/*.cpp"/>
-            <fileset dir="../../blitz/target/generated/src" includes="**/*.h,**/*.cpp">
+            <fileset dir="../../blitz/generated" includes="**/*.h,**/*.cpp">
                 <present present="srconly" targetdir="src"/>
             </fileset>
         </get-source>
-        <!--
-            For ease of use, we concatenate all of our header files
-            into a single header file.
-        -->
-        <concat destfile="${copy.dir}/omero/ModelI.h">
-            <header>
-
-/* All *I.h files concatenated by blitz/build.xml */
-#ifndef OMERO_MODELI_H
-#define OMERO_MODELI_H
-#include &lt;omero/fwd.h&gt;
-#include &lt;omero/Model.h&gt;
-#include &lt;omero/IObject.h&gt;
-#include &lt;omero/ClientErrors.h&gt;
-#include &lt;Ice/Ice.h&gt;
-#include &lt;string&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-
-            </header>
-            <fileset dir="${copy.dir}" includes="**/omero/model/*I.h"/>
-            <footer>
-
-#endif // OMERO_MODELI_H
-
-</footer>
-        </concat>
     </target>
 
-    <target name="tools-build" depends="tools-init,make-build" description="Uses autogen.sh and make to build artifacts" unless="env.NOMAKE"/>
-
-    <target name="tools-dist" depends="tools-build,make-install" description="Copies files into tools/target" unless="env.NOMAKE">
-        <copy file="${copy.dir}/omero/ModelI.h" todir="../target/include/omero"/>
-        <!-- Here we have to copy ModelI.h out of ${copy.dir} and into include, since
-        ${copy.dir} is already in the dist. Later we may want to test copying them all
-        back, but that depends on how get-source works -->
+    <target name="tools-build" depends="tools-init" description="Use scons to build the libraries" unless="env.NOMAKE">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true"/>
     </target>
 
-   <target name="tools-clean" depends="make-clean">
+    <target name="tools-dist" depends="tools-build" description="Copies files into tools/target" unless="env.NOMAKE">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+            <arg value="install"/>
+        </exec>
+        <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
+        <copy todir="../target/include">
+            <fileset dir="src"    includes="**/*.h"/>
+            <fileset dir="target" includes="**/*.h"/>
+        </copy>
+    </target>
+
+   <target name="tools-clean">
         <delete dir="${copy.dir}"/>
-	<delete dir="${basedir}/target"/>
     </target>
 
 </project>

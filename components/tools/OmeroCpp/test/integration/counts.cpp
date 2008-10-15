@@ -6,6 +6,8 @@
  *
  */
 #include <boost_fixture.h>
+#include <omero/model/ImageI.h>
+#include <omero/model/TagAnnotationI.h>
 
 using namespace std;
 using namespace omero::api;

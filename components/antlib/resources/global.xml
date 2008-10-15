@@ -75,7 +75,6 @@
                         <property name="multi.generate.skip" value="${generate.skip}"/>
                         <property name="multi.checks.skip" value="${checks.skip}"/>
                         <property name="multi.emma.enabled" value="${emma.enabled}"/>
-                        <property name="multi.no.ice" value="${no.ice}"/>
                         <!-- Defaults set in dependencies.xml -->
                         <property name="ivy.buildlist.ivyfilepath" value="${ivy.buildlist.ivyfilepath}"/>
                         <property name="ivy.dep.file" value="${ivy.dep.file}"/>
@@ -103,27 +102,6 @@
                 <condition property="checks.skip">
                         <equals arg1="${multi.checks.skip}" arg2="true"/>
                 </condition>
-                <condition property="no.ice">
-                        <equals arg1="${multi.no.ice}" arg2="true"/>
-                </condition>
-                <available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
-                <available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
-                <condition property="skip.ice">
-                   <or><not><isset property="uses.ice"/></not>
-                   <equals arg1="${no.ice}" arg2="true" trim="true"/></or>
-                </condition>
-                <fail message="${msg.macro.missing_fail} slice2java">
-                  <condition><and>
-                    <not><isset property="skip.ice"/></not>
-                    <not><isset property="slice2java-exists"/></not>
-                  </and></condition>
-                </fail>
-                <fail message="${msg.prepare.bad.ice.home}">
-                  <condition><and>
-                    <not><isset property="skip.ice"/></not>
-                    <not><available file="${ice.home}" type="dir"/></not>
-                  </and></condition>
-                </fail>
             </sequential>
         </macrodef>
 

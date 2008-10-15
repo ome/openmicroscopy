@@ -1,0 +1,64 @@
+#
+#   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
+
+import sys, os
+blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pardir, "blitz") )
+sys.path.append( blitz )
+from blitz_tools import *
+
+env = Environment( ENV = os.environ )
+env.Repository(["generated","resources"])
+
+#
+# Directories for our use
+#
+blitz_resources = os.path.abspath( os.path.join( os.path.curdir, os.path.pardir, os.path.pardir, "blitz", "resources") )
+blitz_generated = os.path.abspath( os.path.join( os.path.curdir, os.path.pardir, os.path.pardir, "blitz", "generated") )
+tools_include = os.path.abspath( os.path.join( os.path.curdir, os.path.pardir, "target", "include" ) )
+tools_library = os.path.abspath( os.path.join( os.path.curdir, os.path.pardir, "target", "lib" ) )
+
+#
+# Defining licenses version of DEPMAP.
+#
+env["DEPMAP"] = {
+    "omero/LicensesAPI.java" : "omero/licenses/ILicense.java",
+}
+
+#
+# Redefining the common method
+#
+orig_common = common
+def common(dir = generated):
+    orig = orig_common(dir)
+    return "-I%s -I%s" % (blitz_resources, blitz_generated)  + orig
+import blitz_tools
+blitz_tools.common = common
+
+#
+# Call slice2java, slice2cpp, and slice2py
+#
+
+actions = []
+for m in methods:
+    for w in where:
+        for d in directories:
+            action = m(env, w, d)
+            actions.extend( action )
+
+env.Alias("slice", actions)
+
+#
+# Build library
+#
+lib = env.SharedLibrary("omero_licenses",
+    env.Glob("generated/**/*.cpp"),
+    CPPPATH=["generated",tools_include,"/opt/local/include"],
+    LIBS=["omero_client","Ice","Glacier2","IceUtil"],
+    LIBPATH=[tools_library, "/opt/local/lib"])
+
+env.Alias("lib", lib)
+
+install = env.Install('../target/lib', lib)
+env.Alias('install', install)

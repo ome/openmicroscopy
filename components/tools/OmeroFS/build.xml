@@ -19,7 +19,6 @@
     Python code for the FS server.
     </description>
 
-    <property name="uses.ice" value="true"/>
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>

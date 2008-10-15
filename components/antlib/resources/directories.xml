@@ -57,6 +57,9 @@
 	<path id="app.buildpath">
 	  <pathelement location="${app.comp}/build.xml"/>
 	</path>
+	<path id="blitz.buildpath">
+	  <pathelement location="${blitz.comp}/build.xml"/>
+	</path>
 	<path id="dsl.buildpath">
 	  <pathelement location="${dsl.comp}/build.xml"/>
 	</path>

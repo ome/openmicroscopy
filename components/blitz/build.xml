@@ -9,12 +9,9 @@
     <!-- Class that will be called via "java -jar" on this artifact -->
     <property name="main.class" value="ome.services.blitz.Entry"/>
 
-    <!-- Local properties -->
-    <property name="uses.ice" value="true"/>
-
-    <!-- TODO Be sure to remove the warning messages and macros -->
-
-	<target name="generate" depends="prepare,icegen,lifecycle.generate"/>
+        <target name="clean" depends="lifecycle.clean">
+            <delete dir="${basedir}/generated"/>
+        </target>
 
 	<target name="compile" depends="generate" unless="skip.compile">
 		<hard-wire file="ome/services/blitz/fire/SessionManagerI.java"
@@ -28,6 +25,7 @@
 		<myjavac>
 		    <src path="${src.dir}"/>
 		    <src path="${src.dest}"/>
+		    <src path="${basedir}/generated"/>
 		</myjavac>
                 <move file="${file.fake.sessionmanager}" tofile="${file.real.sessionmanager}"/>
 		<myjavac>
@@ -38,36 +36,24 @@
                 <delete file="${file.fake.sessionmanager}"/><!-- Just in case -->
 	</target>
 
+        <target name="generate" depends="lifecycle.generate,icegen"/>
+
 	<target name="install" depends="lifecycle.install">
 		<standalone conf="server"/>
 		<useServices dir="${target.dir}/standalone"/>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =
-          generate slice   
+          generate model
          = = = = = = = = = = = = = = = = = -->
-	
-	<target name="icegen-init" depends="prepare">
-		<is-done name="icegen1"  srcdir="${common.comp}/${generated.rel}/resources" includes="${hbm.pat}"/>
-		<is-done name="icegen2" srcdir="${resrc.dir}" includes="**/*.vm"/>
-		<condition property="icegen.not.required">
-			<or>
-				<isset property="skip.ice"/>
-				<and>
-					<isset property="icegen1.not.required"/>
-					<isset property="icegen2.not.required"/>
-				</and>
-			</or>
-		</condition>
-	</target>
 
         <macrodef name="split-combined">
             <attribute name="all" default="all"/>
             <attribute name="prefix"/>
             <element name="mappers" implicit="true"/>
             <sequential>
-            <copy todir="${basedir}">
-                <fileset dir="${basedir}" includes="**/*.combined"/>
+            <copy todir="${basedir}/generated">
+                <fileset dir="${basedir}/generated" includes="**/*.combined"/>
                 <filterchain>
                     <linecontainsregexp>
                         <regexp pattern="^\[@{all}\]|^\[@{prefix}\]"/>
@@ -82,55 +68,63 @@
             </sequential>
         </macrodef>
 
-	<target name="icegen" depends="icegen-init" unless="icegen.not.required">
+	<target name="icegen">
+            <property name="gen.dir" value="${basedir}/generated"/>
+            <mkdir dir="${gen.dir}/omero/api"/>
+            <mkdir dir="${gen.dir}/omero/model"/>
+            <antcall target="_icegen" inheritAll="true" inheritRefs="true"/>
+            <!-- Now it's time to run scons to do the actual slice2* calls -->
+            <exec executable="${omero.home}/target/bin/scons" dir="${basedir}" failonerror="true"/>
+        </target>
 
+        <target name="_icegen" depends="prepare">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
-		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${resrc.dest}/{class-name}I.combined">
+		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${gen.dir}/{class-name}I.combined">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/ice_includes.vm" filepattern="${resrc.dest}/omero/fwd.ice">
+		<dsl template="${resrc.dir}/templates/ice_includes.vm" filepattern="${gen.dir}/omero/fwd.ice">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-                <fixcrlf srcDir="${resrc.dest}/omero/" includes="fwd.ice"/>
-		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${src.dest}/omero/util/IceMap.java">
+                <fixcrlf srcDir="${gen.dir}/omero/" includes="fwd.ice"/>
+		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${src.dest}/omero/util/ObjectFactoryRegistrar.java">
+		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ObjectFactoryRegistrar.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${src.dest}/omero/ObjectFactoryRegistrar.cpp">
+		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.cpp">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${resrc.dest}/omero/util/FactoryMap.combined">
+		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${gen.dir}/omero/util/FactoryMap.combined">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 
 		<!--
 		    This section takes the output of the combined.vm template and splits it into
 		    the various sections. All of these files represent the Ice model and our
-		    specializations of it 
+		    specializations of it
 		-->
 		<split-combined prefix="hdr">
 			<!-- resources/*I.combined => ../../src/cpp/generated/*I.h -->
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/omero/model/\1I.h"/>
+			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1I.h"/>
 		</split-combined>
 		<split-combined prefix="cpp">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.cpp"/>
+			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1I.cpp"/>
 		</split-combined>
 		<split-combined prefix="jav">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
+			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1I.java"/>
 		</split-combined>
 		<split-combined prefix="pyc">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero_model_\1I.py"/>
+			<regexpmapper from="(.*?)I[.]combined" to="omero_model_\1I.py"/>
 		</split-combined>
 		<split-combined prefix="ice">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/omero/model/\1.ice"/>
+			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1.ice"/>
 		</split-combined>
 		<!--
 		    This does the same fore the factorymap.vm template.
 		-->
 		<split-combined prefix="pyc">
-			<regexpmapper from="target/generated/resources/omero/util/FactoryMap.combined" to="target/generated/src/omero/util/FactoryMap.py"/>
+			<regexpmapper from="omero/util/FactoryMap.combined" to="omero/util/FactoryMap.py"/>
 		</split-combined>
 
 		<!--
@@ -138,25 +132,25 @@
 		    src/ or resources/ it is possible to override code generation.
 		-->
 		<delete>
-			<fileset dir="${src.dest}" includes="**/*.java">
+			<fileset dir="${gen.dir}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
 			</fileset>
-			<fileset dir="${resrc.dest}" includes="**/*.ice">
+			<fileset dir="${gen.dir}" includes="**/*.ice">
 				<present present="both" targetdir="${resrc.dir}"/>
 			</fileset>
-			<fileset dir="${resrc.dest}" includes="**/*.ice">
+			<fileset dir="${gen.dir}" includes="**/*.ice">
 				<present present="both" targetdir="${resrc.dir}"/>
 			</fileset>
-			<fileset dir="${resrc.dest}" includes="**/*.h">
+			<fileset dir="${gen.dir}" includes="**/*.h">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
-			<fileset dir="${src.dest}" includes="**/*.cpp">
+			<fileset dir="${gen.dir}" includes="**/*.cpp">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
-		</delete>
 
-		<done name="icegen1"/>
-		<done name="icegen2"/>
+                        <!-- Deleting all *.combined files to cleanup -->
+			<fileset dir="${gen.dir}" includes="**/*.combined"/>
+		</delete>
 	</target>
 
 	<target name="dist" depends="package,install" unless="skip.compile"><!-- install for standalone -->
