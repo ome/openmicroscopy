@@ -14,7 +14,7 @@
   <dependencies defaultconfmapping="build,test,client->default">
     <!-- Internal -->
     <dependency org="omero" name="importer" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
-    <dependency org="omero-tools" name="OmeroJava" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
+    <dependency org="omero-tools" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="unknown"/>
     <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>
