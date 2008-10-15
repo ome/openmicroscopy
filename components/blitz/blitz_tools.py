@@ -6,13 +6,24 @@
 #
 
 import os, glob
+from SCons.Script.SConscript import *
+from SCons.SConf import *
 
 #
-# Directories to be used during code generation
+# Global Directories
 #
+dir = os.path.abspath( os.path.dirname( __file__ ) )
+top = os.path.abspath( os.path.join( dir, os.path.pardir, os.path.pardir ) )
+slice_directory = os.path.abspath( os.path.join( top, "target", "Ice", "slice" ) )
+blitz_resources = os.path.abspath( os.path.join( top, "components", "blitz", "resources") )
+blitz_generated = os.path.abspath( os.path.join( top, "components", "blitz", "generated") )
+tools_include = os.path.abspath( os.path.join( top, "components", "tools", "target", "include" ) )
+tools_library = os.path.abspath( os.path.join( top, "components", "tools", "target", "lib" ) )
+omerocpp_dir = os.path.abspath( os.path.join( top, "components", "tools", "OmeroCpp") )
+# Relative
 resources = os.path.abspath("resources")
 generated = os.path.abspath("generated")
-ice_slice = os.path.abspath("/opt/local/share/ice/slice") # FIXME
+
 
 def jdep(DEPMAP, target):
     """
@@ -33,7 +44,7 @@ def common(dir = generated):
     """
     Necessary since output for C++ does not include directories.
     """
-    return "-I%s -I%s -I%s --output-dir=%s %%s" % ( generated, resources, ice_slice, dir )
+    return "-I%s -I%s -I%s --output-dir=%s %%s" % ( generated, resources, slice_directory, dir )
 
 def names(dir, ice):
     basename = os.path.basename(ice)[:-4]
@@ -94,4 +105,24 @@ directories = ["omero", "omero/model", "omero/api"]
 where = [generated, resources]
 
 
+class OmeroEnvironment(SConsEnvironment):
+    """
+    Wrapper class around a scons environment for properly setting up the
+    build environment
+    """
+
+    def __init__(self, **kwargs):
+        SConsEnvironment.__init__(self, **kwargs)
+        self.Decider('MD5-timestamp')
+        self["ENV"] = os.environ
+        self.Append(CPPPATH=blitz_generated)
+        self.Append(LIBPATH=omerocpp_dir)
+        if os.environ.has_key("CPPPATH"):
+            self.Append(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
+        if os.environ.has_key("LIBPATH"):
+            self.Append(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
+        if os.path.exists("/opt/local/include"):
+            self.Append(CPPPATH=["/opt/local/include"])
+        if os.path.exists("/opt/local/lib"):
+            self.Append(LIBPATH=["/opt/local/lib"])
 

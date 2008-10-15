@@ -85,13 +85,22 @@ build-* targets.
     </macrodef>
 
     <target name="check-scons" description="Checks for scons and sets executable or installs">
-        <available property="scons.exe" value="scons" filepath="${env.PATH}" file="scons" />
         <available property="scons.exe" value="${target.dir}/bin/scons" filepath="${target.dir}/bin" file="scons" />
         <antcall target="build-scons" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <target name="build-scons" description="Installs the scons build tool" unless="scons.exe">
         <setup-py-install dir="scons-1.0.1" tarball="scons-1.0.1.tar.gz"/>
+    </target>
+
+    <target name="check-ice" description="Checks for scons and sets executable or installs">
+        <available property="slice.dir" value="true" filepath="${target.dir}" file="Ice" />
+        <antcall target="build-ice" inheritAll="true" inheritRefs="true"/>
+    </target>
+
+    <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
+        <mkdir dir="${target.dir}/Ice"/>
+        <untar compression="gzip" src="${lib.dir}/repository/ice-includes-3.3.0.tar.gz" dest="target/Ice"/>
     </target>
 
     <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="init">
@@ -107,7 +116,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-all" description="Build everything and copy to dist" depends="init">
+    <target name="build-all" description="Build everything and copy to dist" depends="init,check-ice">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
@@ -142,7 +151,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib">
+    <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="check-ice">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -150,7 +159,7 @@ build-* targets.
 
     <target name="build-java" description="Build OmeroJava bindings and copy to dist/client">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
-        <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
+        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 

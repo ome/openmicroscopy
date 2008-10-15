@@ -1,6 +1,7 @@
 .DS_Store
 .gdb_history
 .sconsign.dblite
+.sconf_temp
 /etc/local.properties
 /dist
 /components/*/target
@@ -18,12 +19,17 @@
 !/lib/repository/omero/omejava
 !/lib/repository/omero/postgresql
 target
+config.log
+*.dylib
+*.exe
 *.lo
 *.o
+*.os
 *.Plo
 *.pyc
 *.orig
 *.rej
+*.so
 *~
 *generated*
 test-output

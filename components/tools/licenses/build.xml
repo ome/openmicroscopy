@@ -66,7 +66,7 @@
 
     <target name="tools-init">
         <mkdir dir="${basedir}/generated/omero"/>
-        <exec executable="../../../target/bin/scons" dir="." failonerror="true">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
             <arg value="slice"/>
         </exec>
     </target>
