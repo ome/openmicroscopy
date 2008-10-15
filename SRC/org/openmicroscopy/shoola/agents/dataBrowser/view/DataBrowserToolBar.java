@@ -335,7 +335,7 @@ class DataBrowserToolBar
 		group.add(columnsView);
 		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
-		slideShowView.setToolTipText("Show slideshow");
+		slideShowView.setToolTipText("Show slideshow.");
 		UIUtilities.unifiedButtonLookAndFeel(slideShowView);
 		slideShowView.addMouseListener(new MouseAdapter() {
 			

@@ -260,7 +260,7 @@ public class QuickSearch
 		IconManager icons = IconManager.getInstance();
 		//check when to create it
 		menuButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
-		menuButton.setToolTipText("Display the filtering options");
+		menuButton.setToolTipText("Display the filtering options.");
 		UIUtilities.setTextAreaDefault(menuButton);
 		menuButton.setBorder(null);
 		menuButton.addMouseListener(new MouseAdapter() {
@@ -283,7 +283,7 @@ public class QuickSearch
 		UIUtilities.setTextAreaDefault(searchButton);
 		searchButton.setBorder(null);
 		initComponents();
-		searchArea.setToolTipText(selectedNode.getDescription());
+		searchArea.setToolTipText(selectedNode.getDescription()+".");
 	}
 	
 	/** 
