@@ -225,18 +225,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
-    public IDeletePrx getDeleteService(Ice.Current current) throws ServerError {
-        return IDeletePrxHelper.uncheckedCast(getByName(DELETESERVICE.value,
-                current));
-    }
-
-    public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
-        Ice.ObjectPrx prx = getByName(SCRIPTSERVICE.value, current);
-        return IScriptPrxHelper.uncheckedCast(prx);
-    }
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
         return IConfigPrxHelper.uncheckedCast(getByName(CONFIGSERVICE.value,
+                current));
+    }
+
+    public IDeletePrx getDeleteService(Ice.Current current) throws ServerError {
+        return IDeletePrxHelper.uncheckedCast(getByName(DELETESERVICE.value,
                 current));
     }
 
@@ -264,6 +260,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public IQueryPrx getQueryService(Ice.Current current) throws ServerError {
         return IQueryPrxHelper.uncheckedCast(getByName(QUERYSERVICE.value,
                 current));
+    }
+
+    public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
+        Ice.ObjectPrx prx = getByName(SCRIPTSERVICE.value, current);
+        return IScriptPrxHelper.uncheckedCast(prx);
     }
 
     public ISessionPrx getSessionService(Current current) throws ServerError {

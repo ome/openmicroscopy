@@ -86,6 +86,15 @@
         </bean>
     </constructor-arg>
   </bean>
+  
+  <bean id="omero.api.ILdap" class="omero.api._ILdapTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.LdapI">
+            <constructor-arg ref="managed-ome.api.ILdap"/>
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
 
   <bean id="omero.api.IPixels" class="omero.api._IPixelsTie" singleton="false">
     <constructor-arg>
