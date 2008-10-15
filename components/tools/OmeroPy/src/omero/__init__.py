@@ -100,9 +100,9 @@ class client(object):
             id.properties.setProperty("Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
 
         # Endpoints set to tcp if not present
-        endpoints = id.properties.getProperty("omero.client.Endpoints")
+        endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints")
         if not endpoints or len(endpoints) == 0:
-            id.properties.setProperty("omero.client.Endpoints", "tcp")
+            id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp")
 
         # Port, setting to default if not present
         port = id.properties.getProperty("omero.port")
@@ -141,7 +141,7 @@ class client(object):
 
             # Register the default client callback
             cb = CallbackI()
-            oa = self.__ic.createObjectAdapter("omero.client")
+            oa = self.__ic.createObjectAdapter("omero.ClientCallback")
             oa.add(cb, self.__ic.stringToIdentity("ClientCallback"))
             oa.activate()
         finally:

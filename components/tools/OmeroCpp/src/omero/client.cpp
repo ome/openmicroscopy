@@ -44,9 +44,9 @@ namespace omero {
 	}
 
 	// Endpoints set to tcp if not present
-	std::string endpoints = id.properties->getProperty("omero.client.Endpoints");
+	std::string endpoints = id.properties->getProperty("omero.ClientCallback.Endpoints");
 	if ( endpoints.length() == 0 ) {
-	    id.properties->setProperty("omero.client.Endpoints", "tcp");
+	    id.properties->setProperty("omero.ClientCallback.Endpoints", "tcp");
 	}
 
 	// Por, setting to default if not present
@@ -103,7 +103,7 @@ namespace omero {
 
 	// Register the default client callback.
 	CallbackIPtr cb = new CallbackI();
-	Ice::ObjectAdapterPtr oa = ic->createObjectAdapter("omero.client");
+	Ice::ObjectAdapterPtr oa = ic->createObjectAdapter("omero.ClientCallback");
 	oa->add(cb, ic->stringToIdentity("ClientCallback"));
 	oa->activate();
 

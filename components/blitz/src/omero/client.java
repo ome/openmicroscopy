@@ -222,9 +222,9 @@ public class client {
         }
 
         // Endpoints set to tcp if not present
-        String endpoints = id.properties.getProperty("omero.client.Endpoints");
+        String endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints");
         if (endpoints == null || endpoints.length() == 0) {
-            id.properties.setProperty("omero.client.Endpoints", "tcp");
+            id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp");
         }
 
         // Port, setting to default if not present
@@ -272,7 +272,7 @@ public class client {
 
             // Register the default client callback.
             CallbackI cb = new CallbackI();
-            Ice.ObjectAdapter oa = __ic.createObjectAdapter("omero.client");
+            Ice.ObjectAdapter oa = __ic.createObjectAdapter("omero.ClientCallback");
             oa.add(cb, Ice.Util.stringToIdentity("ClientCallback"));
             oa.activate();
 
