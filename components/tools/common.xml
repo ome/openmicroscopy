@@ -27,6 +27,7 @@
             <fileset dir="../../blitz/target/generated/resources" includes="**/*.ice"/>
             <filesets/>
         </copy>
+        <fixcrlf srcDir="@{todir}" includes="**/*.ice"/>
         </sequential>
     </macrodef>
 </project>
