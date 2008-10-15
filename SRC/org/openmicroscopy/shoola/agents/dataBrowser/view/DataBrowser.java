@@ -458,4 +458,11 @@ public interface DataBrowser
 	/** Saves the displayed thumbnails as a single image. */
 	public void saveThumbnails();
 	
+	/**
+	 * Returns <code>true</code> if the model is of type
+	 * <code>Dataset</code>, <code>Images</code>, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isImagesModel();
 }

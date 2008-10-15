@@ -475,6 +475,23 @@ abstract class DataBrowserModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the model is of type
+	 * <code>Dataset</code>, <code>Images</code>, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImagesModel()
+	{
+		switch (getType()) {
+			case DATASETS:
+			case IMAGES:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	/**
 	 * Returns the collection of existing tags.
 	 * 
 	 * @return See above.

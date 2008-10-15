@@ -56,6 +56,17 @@ public class SaveAction
     private static final String DESCRIPTION = "Save the thumbnails " +
     		"displayed as a single image.";
     
+    /** 
+     * Enables the action when the state is {@link DataBrowser#READY}.
+     * @see DataBrowserAction#onStateChange()
+     */
+    protected void onStateChange()
+    {
+    	if (model.getState() == DataBrowser.READY) 
+    		setEnabled(model.isImagesModel());
+    	else setEnabled(false);
+    }
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -64,7 +75,6 @@ public class SaveAction
 	public SaveAction(DataBrowser model)
 	{
 		super(model);
-		setEnabled(true);
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();

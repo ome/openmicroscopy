@@ -256,11 +256,12 @@ class DataBrowserControl
 	 */
 	Action getAction(Integer id) { return actionsMap.get(id); }
 	
-	void viewField(int selectedIndex)
-	{
-		model.viewField(selectedIndex);
-		
-	}
+	/**
+	 * Views the selected well sample field while browsing a plate.
+	 * 
+	 * @param field The index of the field.
+	 */
+	void viewField(int field) { model.viewField(field); }
 	
 	/**
 	 * Loads data, filters nodes or sets the selected node.

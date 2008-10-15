@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -170,7 +171,9 @@ class DataBrowserComponent
 	 */
 	public void setThumbnail(long imageID, BufferedImage thumb, int maxEntries)
 	{
+		int previousState = model.getState();
 		model.setThumbnail(imageID, thumb, maxEntries);
+		if (previousState != model.getState()) fireStateChange();
 	}
 
 	/**
@@ -684,15 +687,6 @@ class DataBrowserComponent
 		model.fireFilteringByAnnotated(TagAnnotationData.class, tagged, 
 				                browser.getOriginal());
 		fireStateChange();
-		/*
-		AnnotatedNodesVisitor visitor = new AnnotatedNodesVisitor(annotated);
-		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		List<ImageDisplay> nodes = visitor.getFoundNodes();
-		browser.setFilterNodes(nodes);
-		view.layoutUI();
-		view.setNumberOfImages(nodes.size());
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		*/
 	}
 
 	/**
@@ -711,16 +705,6 @@ class DataBrowserComponent
 		model.fireFilteringByAnnotated(TextualAnnotationData.class, commented, 
                 browser.getOriginal());
 		fireStateChange();
-		/*
-		AnnotatedNodesVisitor visitor = new AnnotatedNodesVisitor(annotated);
-		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		List<ImageDisplay> nodes = visitor.getFoundNodes();
-		browser.setFilterNodes(nodes);
-		view.layoutUI();
-		view.setNumberOfImages(nodes.size());
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		*/
-		
 	}
 	
 	/**
@@ -751,7 +735,21 @@ class DataBrowserComponent
 	 */
 	public void saveThumbnails()
 	{
+		if (!isImagesModel()) return;
+		Browser browser = model.getBrowser();
 		
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		Iterator<ImageNode> i;
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#isImagesModel()
+	 */
+	public boolean isImagesModel()
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.isImagesModel();
 	}
 	
 }
