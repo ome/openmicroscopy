@@ -55,7 +55,7 @@
           <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
           <property name="Ice.ThreadPool.Server.Size" value="2"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
-          <property name="Ice.MessageSizeMax" value="4096"/>
+          <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
         </properties>
       </server>
     </server-template>
@@ -104,7 +104,7 @@
            <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
            <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
            <property name="Glacier2.Client.ForwardContext" value="1"/>
-           <property name="Ice.MessageSizeMax" value="4096"/>
+           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64MB -->
          </properties>
        </server>
      </server-template>
