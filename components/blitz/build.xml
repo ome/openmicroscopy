@@ -74,7 +74,9 @@
             <mkdir dir="${gen.dir}/omero/model"/>
             <antcall target="_icegen" inheritAll="true" inheritRefs="true"/>
             <!-- Now it's time to run scons to do the actual slice2* calls -->
-            <exec executable="${omero.home}/target/bin/scons" dir="${basedir}" failonerror="true"/>
+            <scons_py>
+                <arg value="-Q"/>
+            </scons_py>
         </target>
 
         <target name="_icegen" depends="prepare">

@@ -85,12 +85,12 @@ build-* targets.
     </macrodef>
 
     <target name="check-scons" description="Checks for scons and sets executable or installs">
-        <available property="scons.exe" value="${target.dir}/bin/scons" filepath="${target.dir}/bin" file="scons" />
+        <available property="scons.py" value="${target.dir}/scons/scons.py" filepath="${target.dir}/scons" file="scons.py" />
         <antcall target="build-scons" inheritAll="true" inheritRefs="true"/>
     </target>
 
-    <target name="build-scons" description="Installs the scons build tool" unless="scons.exe">
-        <setup-py-install dir="scons-1.0.1" tarball="scons-1.0.1.tar.gz"/>
+    <target name="build-scons" description="Installs the scons build tool" unless="scons.py">
+        <untar compression="gzip" src="${lib.dir}/repository/scons-local-1.1.0.tar.gz" dest="target/scons"/>
     </target>
 
     <target name="check-ice" description="Checks for slice/include files and unpacks">

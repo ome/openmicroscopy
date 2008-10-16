@@ -34,6 +34,18 @@
 		</sequential>
 	</macrodef>
 
+        <macrodef name="scons_py">
+            <attribute name="dir" default="${basedir}"/>
+            <attribute name="failonerror" default="true"/>
+            <element name="args" implicit="yes"/>
+            <sequential>
+                <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
+                    <arg value="${omero.home}/target/scons/scons.py"/>
+                    <args/>
+                </exec>
+            </sequential>
+        </macrodef>
+
     <!-- = = = = = = = = = = = = = = = = =
           checks if a build step is needed    
          = = = = = = = = = = = = = = = = = -->

@@ -66,16 +66,16 @@
 
     <target name="tools-init">
         <mkdir dir="${basedir}/generated/omero"/>
-        <exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
+        <scons_py>
             <arg value="slice"/>
-        </exec>
+        </scons_py>
     </target>
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target" unless="skip.compile">
         <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
-        <exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
+        <scons_py>
             <arg value="lib"/>
-        </exec>
+        </scons_py>
     </target>
 
     <!-- Additional functionality for the lifecycle.package target.
@@ -94,7 +94,7 @@
             <fileset dir="generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h"/>
         </copy>
-        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+        <scons_py>
             <arg value="install"/>
         </exec>
         <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
@@ -106,9 +106,9 @@
     </target>
 
     <target name="tools-clean" depends="clean,python-clean">
-        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+        <scons_py>
             <arg value="-c"/>
-        </exec>
+        </scons_py>
 	<delete dir="${basedir}/target"/>
         <delete dir="${basedir}/generated"/>
     </target>
