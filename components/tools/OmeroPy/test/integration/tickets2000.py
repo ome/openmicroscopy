@@ -449,5 +449,49 @@ class TestTicket2000(lib.ITest):
         sql2_stop = time.time()
         print "SQL2: %s objects in %s seconds\n" % (str(len(l)), str(sql2_stop - sql2_start))
 
+    def test1109(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+        
+        # create data
+        #group1
+        new_gr = ExperimenterGroupI()
+        new_gr.name = omero.RString("group1_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = omero.RString("user_%s" % uuid)
+        new_exp.firstName = omero.RString("New")
+        new_exp.lastName = omero.RString("Test")
+        new_exp.email = omero.RString("newtest@emaildomain.com")
+
+        listOfGroups = list()
+        defaultGroup = admin.lookupGroup("default")
+        listOfGroups.append(admin.getGroup(gid))
+        listOfGroups.append(admin.lookupGroup("user"))
+
+        eid = admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
+        
+        #test
+        exp = admin.getExperimenter(eid)
+        #print "exp: ", exp.id.val, " his default group is: ", admin.getDefaultGroup(exp.id.val).id.val
+        
+        gr1 = admin.getGroup(2)
+        indefault = admin.containedExperimenters(gr1.id.val)
+        # print "members of group %s %i" % (gr1.name.val, gr1.id.val)
+        for m in indefault:
+            if m.id.val == exp.id.val:
+                self.assert_(m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
+                # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
+
+        gr2 = admin.getGroup(gid)
+        ing1 = admin.containedExperimenters(gr2.id.val)
+        # print "members of group %s %i" % (gr2.name.val, gr2.id.val)
+        for m in ing1:
+            if m.id.val == exp.id.val:
+                self.assert_(m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
+                # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
+        
 if __name__ == '__main__':
     unittest.main()
