@@ -36,7 +36,7 @@ namespace omero {
     void registerObjectFactory(const Ice::CommunicatorPtr ic);
 
   protected:
-    void conditionalAdd(const std::string& name, Ice::CommunicatorPtr ic, const Ice::ObjectFactoryPtr of);
+    void conditionalAdd(const std::string& name, const Ice::CommunicatorPtr& ic, const Ice::ObjectFactoryPtr& of);
 
   };
 
