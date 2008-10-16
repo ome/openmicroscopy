@@ -82,15 +82,79 @@ class ImageServiceImpl
 	}
 
 	/* (non-Javadoc)
+	 * @see omerojava.service.ImageService#closeRenderingService(long)
+	 */
+	public void closeRenderingService(long pixelsId) throws omero.ServerError
+	{
+		renderingService.closeGateway(pixelsId);
+	}
+
+	/* (non-Javadoc)
+	 * @see omerojava.service.ImageService#closeRawPixelsService(long)
+	 */
+	public void closeRawPixelsService(long pixelsId) throws omero.ServerError
+	{
+		pixelsStore.closeGateway(pixelsId);
+	}
+
+	/* (non-Javadoc)
+	 * @see omerojava.service.ImageService#closeThumbnailService(long)
+	 */
+	public void closeThumbnailService(long pixelsId) throws omero.ServerError
+	{
+		thumbnailService.closeGateway(pixelsId);
+	}
+
+	/* (non-Javadoc)
 	 * @see blitzgateway.service.ImageService#getRawPlane(long, int, int, int)
 	 */
-	public double[][] getPlane(long pixelsId, int z, int c, int t) 
+	public double[][] getPlaneAsDouble(long pixelsId, int z, int c, int t) 
 		throws omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
-		return convertRawPlane(pixels, z, c, t);
+		return convertRawPlaneAsDouble(pixels, z, c, t);
 	}
 	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getRawPlane(long, int, int, int)
+	 */
+	public long[][] getPlaneAsLong(long pixelsId, int z, int c, int t) 
+		throws omero.ServerError
+	{
+		Pixels pixels = getPixels(pixelsId);
+		return convertRawPlaneAsLong(pixels, z, c, t);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getRawPlane(long, int, int, int)
+	 */
+	public int[][] getPlaneAsInt(long pixelsId, int z, int c, int t) 
+		throws omero.ServerError
+	{
+		Pixels pixels = getPixels(pixelsId);
+		return convertRawPlaneAsInt(pixels, z, c, t);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getRawPlane(long, int, int, int)
+	 */
+	public short[][] getPlaneAsShort(long pixelsId, int z, int c, int t) 
+		throws omero.ServerError
+	{
+		Pixels pixels = getPixels(pixelsId);
+		return convertRawPlaneAsShort(pixels, z, c, t);
+	}
+	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getRawPlane(long, int, int, int)
+	 */
+	public byte[][] getPlaneAsByte(long pixelsId, int z, int c, int t) 
+		throws omero.ServerError
+	{
+		Pixels pixels = getPixels(pixelsId);
+		return convertRawPlaneAsByte(pixels, z, c, t);
+	}
+
 	
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.ImageService#getRawPlane(long, int, int, int)
@@ -114,12 +178,88 @@ class ImageServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	private double[][] convertRawPlane(Pixels pixels, int z, int c, int t) 
+	private double[][] convertRawPlaneAsDouble(Pixels pixels, int z, int c, int t) 
 		throws omero.ServerError 
 	{
 		DataSink sink = DataSink.makeNew(pixels, this);
 		Plane2D plane = sink.getPlane(z, t, c);
-		return plane.getPixelsArray();
+		return plane.getPixelsArrayAsDouble();
+	}
+
+	/**
+	 * Convert the rawPlane to doubles depending on the endianess and type of
+	 * values in the rawplane.
+	 * @param pixels The pixels data of the plane.
+	 * @param z The z section.
+	 * @param c The channel.
+	 * @param t The time point.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	private long[][] convertRawPlaneAsLong(Pixels pixels, int z, int c, int t) 
+		throws omero.ServerError 
+	{
+		DataSink sink = DataSink.makeNew(pixels, this);
+		Plane2D plane = sink.getPlane(z, t, c);
+		return plane.getPixelsArrayAsLong();
+	}
+	
+	/**
+	 * Convert the rawPlane to doubles depending on the endianess and type of
+	 * values in the rawplane.
+	 * @param pixels The pixels data of the plane.
+	 * @param z The z section.
+	 * @param c The channel.
+	 * @param t The time point.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	private int[][] convertRawPlaneAsInt(Pixels pixels, int z, int c, int t) 
+		throws omero.ServerError 
+	{
+		DataSink sink = DataSink.makeNew(pixels, this);
+		Plane2D plane = sink.getPlane(z, t, c);
+		return plane.getPixelsArrayAsInt();
+	}
+
+	/**
+	 * Convert the rawPlane to doubles depending on the endianess and type of
+	 * values in the rawplane.
+	 * @param pixels The pixels data of the plane.
+	 * @param z The z section.
+	 * @param c The channel.
+	 * @param t The time point.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	private short[][] convertRawPlaneAsShort(Pixels pixels, int z, int c, int t) 
+		throws omero.ServerError 
+	{
+		DataSink sink = DataSink.makeNew(pixels, this);
+		Plane2D plane = sink.getPlane(z, t, c);
+		return plane.getPixelsArrayAsShort();
+	}
+	
+	/**
+	 * Convert the rawPlane to doubles depending on the endianess and type of
+	 * values in the rawplane.
+	 * @param pixels The pixels data of the plane.
+	 * @param z The z section.
+	 * @param c The channel.
+	 * @param t The time point.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	private byte[][] convertRawPlaneAsByte(Pixels pixels, int z, int c, int t) 
+		throws omero.ServerError 
+	{
+		DataSink sink = DataSink.makeNew(pixels, this);
+		Plane2D plane = sink.getPlane(z, t, c);
+		return plane.getPixelsArrayAsByte();
 	}
 
 	
@@ -341,7 +481,7 @@ class ImageServiceImpl
 	{
 	
 		Pixels pixels = getPixels(pixelsId);
-		double[][] serverPlane = getPlane(pixelsId, z, c, t);
+		double[][] serverPlane = getPlaneAsDouble(pixelsId, z, c, t);
 		byte[] clientBytes = convertClientToServer(pixels, serverPlane);
 		return DataSink.mapServerToClient(clientBytes, pixels.getSizeX().val, 
 			pixels.getSizeY().val, pixels.getPixelsType().getValue().val);
@@ -553,7 +693,7 @@ class ImageServiceImpl
 		Pixels pixels = getPixels(pixelsId);
 		double[][][] stack = new double[pixels.getSizeZ().val][pixels.getSizeX().val][pixels.getSizeY().val];
 		for(int z = 0 ; z < pixels.getSizeZ().val ; z++)
-			stack[z] = getPlane(pixelsId, z, c, t);
+			stack[z] = getPlaneAsDouble(pixelsId, z, c, t);
 		return stack;
 	}
 

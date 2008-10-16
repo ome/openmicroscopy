@@ -230,6 +230,6 @@ public class DataSink
 		int bpp = getBytesPerPixels(pixelType);
 		BytesConverter thisStrategy = BytesConverter.getConverter(pixelType);
 		thisPlane = new Plane2D(array, x, y, bpp, thisStrategy);
-		return thisPlane.getPixelsArray();
+		return thisPlane.getPixelsArrayAsDouble();
 	}
 }

@@ -61,6 +61,15 @@ class FileServiceImpl implements FileService {
         iQuery = query;
     }
 
+
+	/* (non-Javadoc)
+	 * @see omerojava.service.FileService#closeRawFileService(long)
+	 */
+	public void closeRawFileService(long fileId) throws omero.ServerError
+	{
+		rawFileStore.closeGateway(fileId);
+	}
+
     /*
      * (non-Javadoc)
      * 

@@ -51,6 +51,27 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public void keepAlive() throws ServerError;
+	
+	/** 
+	 * Close the gateway for the pixels id.
+	 * @param pixelsId the pixels id of the gateway to close.
+	 * @throws ServerError
+	 */
+	public void closeRenderingService(long pixelsId) throws ServerError; 
+
+	/** 
+	 * Close the rawPixelsService for the pixels id.
+	 * @param pixelsId the pixels id of the gateway to close.
+	 * @throws ServerError
+	 */
+	public void closeRawPixelsService(long pixelsId) throws ServerError; 
+
+	/** 
+	 * Close the thumbnailservice for the pixels id.
+	 * @param pixelsId the pixels id of the gateway to close.
+	 * @throws ServerError
+	 */
+	public void closeThumbnailService(long pixelsId) throws ServerError; 
 
 	/**
 	 * Get the raw plane from the server with id pixelsId, and channels, c, timepoint
@@ -91,7 +112,67 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public double[][] getPlane(long pixelsId, int z, int c, int t) 
+	public double[][] getPlaneAsDouble(long pixelsId, int z, int c, int t) 
+	throws ServerError;
+	
+	/**
+	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
+	 * t, and z-section z. This is the plane converted to doubles.
+	 * 
+	 * @param pixelsId see above.
+	 * @param z see above.
+	 * @param c see above.
+	 * @param t see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public long[][] getPlaneAsLong(long pixelsId, int z, int c, int t) 
+	throws ServerError;
+	
+	/**
+	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
+	 * t, and z-section z. This is the plane converted to doubles.
+	 * 
+	 * @param pixelsId see above.
+	 * @param z see above.
+	 * @param c see above.
+	 * @param t see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public int[][] getPlaneAsInt(long pixelsId, int z, int c, int t) 
+	throws ServerError;
+	
+	/**
+	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
+	 * t, and z-section z. This is the plane converted to doubles.
+	 * 
+	 * @param pixelsId see above.
+	 * @param z see above.
+	 * @param c see above.
+	 * @param t see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public short[][] getPlaneAsShort(long pixelsId, int z, int c, int t) 
+	throws ServerError;
+	
+	/**
+	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
+	 * t, and z-section z. This is the plane converted to doubles.
+	 * 
+	 * @param pixelsId see above.
+	 * @param z see above.
+	 * @param c see above.
+	 * @param t see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public byte[][] getPlaneAsByte(long pixelsId, int z, int c, int t) 
 	throws ServerError;
 	
 	/**

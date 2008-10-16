@@ -48,6 +48,14 @@ public interface ThumbnailService
 	public void keepAlive() throws omero.ServerError;
 
 	/**
+	 * Close the gateway for pixels = pixelsId
+	 * @param pixelsId see above.
+	 * @return true if the gateway was closed.
+	 * @throws omero.ServerError
+	 */
+	public boolean closeGateway(long pixelsId) throws omero.ServerError;
+
+	/**
 	 * Set the rendering def from the default to another.
 	 * @param pixelsId for pixelsId 
 	 * @param renderingDefId see above.

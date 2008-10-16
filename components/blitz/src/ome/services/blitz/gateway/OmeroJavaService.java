@@ -273,13 +273,80 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	 * @throws omero.ServerError 
 	 * @throws DSOutOfServiceException 
 	 */
-	public double[][] getPlane(long pixelsId, int z, int c, int t, Ice.Current current) 
+	public double[][] getPlaneAsDouble(long pixelsId, int z, int c, int t, Ice.Current current) 
 		throws omero.ServerError
 	{
-		return imageService.getPlane(pixelsId, z, c, t);
+		return imageService.getPlaneAsDouble(pixelsId, z, c, t);
+	}
+
+	/**
+	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
+	 * representing the plane, it returns doubles but will not lose data.
+	 * @param pixelsId id of the pixels to retrieve.
+	 * @param c the channel of the pixels to retrieve.
+	 * @param t the time point to retrieve.
+	 * @param z the z section to retrieve.
+	 * @return The raw plane in 2-d array of doubles. 
+	 * @throws omero.ServerError 
+	 * @throws DSOutOfServiceException 
+	 */
+	public byte[][] getPlaneAsByte(long pixelsId, int z, int c, int t, Ice.Current current) 
+		throws omero.ServerError
+	{
+		return imageService.getPlaneAsByte(pixelsId, z, c, t);
+	}
+
+	/**
+	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
+	 * representing the plane, it returns doubles but will not lose data.
+	 * @param pixelsId id of the pixels to retrieve.
+	 * @param c the channel of the pixels to retrieve.
+	 * @param t the time point to retrieve.
+	 * @param z the z section to retrieve.
+	 * @return The raw plane in 2-d array of doubles. 
+	 * @throws omero.ServerError 
+	 * @throws DSOutOfServiceException 
+	 */
+	public short[][] getPlaneAsShort(long pixelsId, int z, int c, int t, Ice.Current current) 
+		throws omero.ServerError
+	{
+		return imageService.getPlaneAsShort(pixelsId, z, c, t);
+	}
+
+	/**
+	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
+	 * representing the plane, it returns doubles but will not lose data.
+	 * @param pixelsId id of the pixels to retrieve.
+	 * @param c the channel of the pixels to retrieve.
+	 * @param t the time point to retrieve.
+	 * @param z the z section to retrieve.
+	 * @return The raw plane in 2-d array of doubles. 
+	 * @throws omero.ServerError 
+	 * @throws DSOutOfServiceException 
+	 */
+	public int[][] getPlaneAsInt(long pixelsId, int z, int c, int t, Ice.Current current) 
+		throws omero.ServerError
+	{
+		return imageService.getPlaneAsInt(pixelsId, z, c, t);
 	}
 	
-	
+	/**
+	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
+	 * representing the plane, it returns doubles but will not lose data.
+	 * @param pixelsId id of the pixels to retrieve.
+	 * @param c the channel of the pixels to retrieve.
+	 * @param t the time point to retrieve.
+	 * @param z the z section to retrieve.
+	 * @return The raw plane in 2-d array of doubles. 
+	 * @throws omero.ServerError 
+	 * @throws DSOutOfServiceException 
+	 */
+	public long[][] getPlaneAsLong(long pixelsId, int z, int c, int t, Ice.Current current) 
+		throws omero.ServerError
+	{
+		return imageService.getPlaneAsLong(pixelsId, z, c, t);
+	}
+
 	/**
 	 * Get the pixels information for an image, this method will also 
 	 * attach the logical channels, channels, and other metadata in the pixels.
@@ -819,13 +886,80 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	public double[][] getPlaneFromImage(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
+	public double[][] getPlaneFromImageAsDouble(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlane(firstPixels.getId().val, z, c, t, current);
+		return getPlaneAsDouble(firstPixels.getId().val, z, c, t, current);
+	}
+	/**
+	 * Get the plane from the image with imageId.
+	 * @param imageId see above.
+	 * @param z zSection of the plane.
+	 * @param c channel of the plane.
+	 * @param t timepoint of the plane.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	public long[][] getPlaneFromImageAsLong(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
+	{
+		List<Pixels> pixels = getPixelsFromImage(imageId, current);
+		Pixels firstPixels = pixels.get(0);
+		return getPlaneAsLong(firstPixels.getId().val, z, c, t, current);
 	}
 	
+	/**
+	 * Get the plane from the image with imageId.
+	 * @param imageId see above.
+	 * @param z zSection of the plane.
+	 * @param c channel of the plane.
+	 * @param t timepoint of the plane.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	public int[][] getPlaneFromImageAsInteger(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
+	{
+		List<Pixels> pixels = getPixelsFromImage(imageId, current);
+		Pixels firstPixels = pixels.get(0);
+		return getPlaneAsInt(firstPixels.getId().val, z, c, t, current);
+	}
+	
+	/**
+	 * Get the plane from the image with imageId.
+	 * @param imageId see above.
+	 * @param z zSection of the plane.
+	 * @param c channel of the plane.
+	 * @param t timepoint of the plane.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	public short[][] getPlaneFromImageAsShort(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
+	{
+		List<Pixels> pixels = getPixelsFromImage(imageId, current);
+		Pixels firstPixels = pixels.get(0);
+		return getPlaneAsShort(firstPixels.getId().val, z, c, t, current);
+	}
+
+	/**
+	 * Get the plane from the image with imageId.
+	 * @param imageId see above.
+	 * @param z zSection of the plane.
+	 * @param c channel of the plane.
+	 * @param t timepoint of the plane.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws omero.ServerError
+	 */
+	public byte[][] getPlaneFromImageAsByte(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
+	{
+		List<Pixels> pixels = getPixelsFromImage(imageId, current);
+		Pixels firstPixels = pixels.get(0);
+		return getPlaneAsByte(firstPixels.getId().val, z, c, t, current);
+	}
+
 	/**
 	 * This is a helper method and makes no calls to the server. It 
 	 * gets a list of all the dataset in a project if the project has already
@@ -1029,6 +1163,52 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 			return datasets.get(0);
 		return null;
 	}
+	
+	
+	/**
+	 * Close the renderingService for which is accessing pixels with id.
+	 * @param pixelsId see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void closeRenderingService(long pixelsId, Ice.Current current) throws omero.ServerError
+	{
+		imageService.closeRenderingService(pixelsId);
+	}
+
+	/**
+	 * Close the PixelsStoreService for which is accessing pixels with id.
+	 * @param pixelsId see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void closePixelsStoreService(long pixelsId, Ice.Current current) throws omero.ServerError
+	{
+		imageService.closeRawPixelsService(pixelsId);
+	}
+
+	/**
+	 * Close the fileService for which is accessing original file with id.
+	 * @param originalFile see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void closeRawFileService(long originalFile, Ice.Current current) throws omero.ServerError
+	{
+		fileService.closeRawFileService(originalFile);
+	}
+	
+	/**
+	 * Close the ThumbnailService for which is accessing pixels  with id.
+	 * @param pixelsId see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void closeThumbnailService(long pixelsId, Ice.Current current) throws omero.ServerError
+	{
+		imageService.closeThumbnailService(pixelsId);
+	}
+	
 	
 	// StatefulServiceInterface
 	// =========================================================================
