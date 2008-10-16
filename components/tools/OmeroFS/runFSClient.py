@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-    OMERO.fs Example Client module
+    OMERO.fs Example runFSClient
 
     
 """
@@ -10,6 +10,7 @@ import FSClient
 
 #: Example path.
 pathToWatch = '/Users/cblackburn/tmp/'
+
 #: Example whitelist of extensions.
 whitelist = ['.jpg']
 

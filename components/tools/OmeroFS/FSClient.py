@@ -122,13 +122,17 @@ class Client(Ice.Application):
 
         print 'Directory of ' + self.pathToWatch + '(Not yet subscribed)'
         dir = self.mServer.getDirectory(self.pathToWatch, '*')
-        print dir
+        for fname in dir:
+            print fname
+        print
     
         self.id = self.mServer.createMonitor(self.eventType, self.pathToWatch, self.whitelist, self.blacklist, self.pathMode, mClientProxy);
 
         print 'Directory of ' + self.pathToWatch + '(Subscribed)'
         dir = self.mServer.getMonitorDirectory(self.id, '', '*')
-        print dir
+        for fname in dir:
+            print fname
+        print
       
         mClient.setId(self.id)
         mClient.setServerProxy(self.mServer)

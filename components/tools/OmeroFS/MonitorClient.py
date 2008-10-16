@@ -55,6 +55,30 @@ class MonitorClientI(monitors.MonitorClient):
                 print "%s Event: New file %s" % (fileInfo.type, fileInfo.fileId)
                 fileStats = self.serverProxy.getStats(fileInfo.fileId)
                 print str(fileStats)
+                print
+                print "SHA1 is %s" % self.serverProxy.getSHA1(fileInfo.fileId)
+                print
+                print 'Directory following file event'
+                dir = self.serverProxy.getMonitorDirectory(self.id, '', '*')
+                for fname in dir:
+                    print fname
+                print
+                print 'Copying file to local system...'
+                size = 1024*1024/2 # Needs to be less that 1MB to avoid Ice MemoryLimitException
+                localName = 'test.'+self.serverProxy.getBaseName(fileInfo.fileId)
+                file = open(localName,'wb')
+                offset = 0
+                data = self.serverProxy.readBlock(fileInfo.fileId, offset, size, None)
+                while len(data) != 0:
+                    file.write(data)
+                    file.flush()
+                    offset += len(data)
+                    data = self.serverProxy.readBlock(fileInfo.fileId, offset, size, None)
+                file.close()
+                print '... %s written' % localName
+                
+                
+                
 
                 
     def setServerProxy(self, serverProxy):
