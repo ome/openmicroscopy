@@ -9,7 +9,7 @@
 #ifndef OMERO_RTYPES_ICE
 #define OMERO_RTYPES_ICE
 
-#include <omero/fwd.ice>
+#include <omero/ModelF.ice>
 
 /*
  * Simple type definitions used for remoting purposes.
@@ -166,4 +166,3 @@ module omero {
 };
 
 #endif // OMERO_RTYPES_ICE
-

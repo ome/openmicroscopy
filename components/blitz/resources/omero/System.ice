@@ -9,7 +9,6 @@
 #ifndef OMERO_SYSTEM_ICE
 #define OMERO_SYSTEM_ICE
 
-#include <omero/fwd.ice>
 #include <omero/Collections.ice>
 
 /*

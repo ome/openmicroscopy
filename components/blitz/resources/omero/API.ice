@@ -9,7 +9,7 @@
 #ifndef OMERO_API_ICE
 #define OMERO_API_ICE
 
-#include <omero/fwd.ice>
+#include <omero/ModelF.ice>
 #include <omero/Collections.ice>
 #include <omero/Constants.ice>
 #include <omero/ROMIO.ice>

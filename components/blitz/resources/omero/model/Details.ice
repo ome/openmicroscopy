@@ -9,7 +9,6 @@
 #ifndef CLASS_DETAILS
 #define CLASS_DETAILS
 
-#include <omero/fwd.ice>
 #include <omero/model/IObject.ice>
 
 module omero { 

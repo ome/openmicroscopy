@@ -84,9 +84,6 @@
 		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${gen.dir}/{class-name}I.combined">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/ice_includes.vm" filepattern="${gen.dir}/omero/fwd.ice">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
-		</dsl>
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>

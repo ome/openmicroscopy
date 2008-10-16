@@ -9,7 +9,6 @@
 #ifndef OMERO_COLLECTIONS_ICE
 #define OMERO_COLLECTIONS_ICE
 
-#include <omero/fwd.ice>
 #include <omero/RTypes.ice>
 #include <Ice/BuiltinSequences.ice>
 

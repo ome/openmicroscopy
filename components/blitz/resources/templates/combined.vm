@@ -66,16 +66,12 @@ DECLARATION BLOCK:
 [$hdr] #ifndef ${POJOI}_H
 [$hdr] #define ${POJOI}_H
 
-[$ice] \#include <omero/fwd.ice>
 [$ice] \#include <omero/model/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
 [$ice] \#include <omero/System.ice>
 #if( $type.superclass )
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
-#set( $include = '\#include' )
-#set( $importModify = '.replaceAll("^","[ice]").replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <omero/model/$1.ice>") ' )
-\$secondpassclassimports\$importModify
 #end
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
@@ -83,21 +79,25 @@ DECLARATION BLOCK:
 [$hdr] \#include <omero/model/${Pojo}.h>
 [$hdr] \#include <omero/templates.h>
 
+[$ice] module omero {
+[$ice]   module model {
+
 #foreach( $property in $type.propertyClosure )
 #if($property.type.startsWith("ome"))
 #if($property.isLink)
+[$ice]     class ${property.shortType};
 [$cpp] \#include <omero/model/${property.shortType}I.h> // Impl. since instantiated
 #if($property.shortTarget)
+[$ice]     class ${property.shortTarget};
 [$cpp] \#include <omero/model/${property.shortTarget}.h>
 #end
 #else
+[$ice]     class ${property.shortType};
 [$cpp] \#include <omero/model/${property.shortType}.h>
 #end##link
 #end##ome
 #end##foreach
 
-[$ice] module omero {
-[$ice]   module model {
 
 [$jav] package omero.model;
 [$jav] import  java.util.*;
