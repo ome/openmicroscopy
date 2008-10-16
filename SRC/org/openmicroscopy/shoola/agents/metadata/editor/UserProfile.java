@@ -117,6 +117,7 @@ class UserProfile
     /** The user's details. */
     private Map						details;
     
+    /** The groups the user is a member of. */
     private GroupData[] 			groupData;
     
     /** Modifies the existing password. */

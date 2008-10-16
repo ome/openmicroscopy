@@ -27,13 +27,11 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -41,7 +39,6 @@ import org.jfree.data.general.DefaultPieDataset;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
  * Builds a graph with the used and free space.
@@ -60,15 +57,6 @@ class UserDiskSpace
 	extends JPanel
 {
 
-	/** The title of the chart. */
-	static final String TITLE = "Disk Space";
-
-	/** Reference to the model. */
-	//private EditorModel model;
-	
-	/** The collapse version of this component. */
-	private JPanel		collapseComponent;
-	
 	/** Reference to the view. */
 	private UserUI		view;
 	
@@ -81,25 +69,9 @@ class UserDiskSpace
 	{
 		this.view = view;
 		setLayout(new BorderLayout());
-		setBorder(new TitledLineBorder(TITLE, getBackground()));
 		setPreferredSize(new Dimension(300, 200));
 	}
-	
-	/**
-	 * Returns the {@link #collapseComponent}. Creates it if not.
-	 * 
-	 * @return See above.
-	 */
-	protected JPanel getCollapseComponent()
-	{
-		if (collapseComponent != null)
-			return collapseComponent;
-		collapseComponent = new JPanel();
-		collapseComponent.setBorder(new TitledLineBorder(TITLE, 
-						collapseComponent.getBackground()));
-		return collapseComponent;
-	}
-	
+
 	/** Builds and lays out the GUI. */
 	void buildGUI()
 	{
@@ -111,18 +83,14 @@ class UserDiskSpace
 			long used = (Long) list.get(1);
 			dataset.setValue("Free "+UIUtilities.formatFileSize(free), free);
 			dataset.setValue("Used "+UIUtilities.formatFileSize(used), used);
-			JFreeChart freeChart = ChartFactory.createPieChart(TITLE, dataset, 
-															false, true, false);
+			JFreeChart freeChart = ChartFactory.createPieChart("", 
+					dataset, false, true, false);
 			add(new ChartPanel(freeChart), BorderLayout.CENTER);
 		} else {
-			JLabel label = new JLabel("Loading...");
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-			p.add(label);
-			JProgressBar bar =  new JProgressBar();
-			bar.setIndeterminate(true);
-			p.add(UIUtilities.buildComponentPanelRight(bar));
-			add(p, BorderLayout.NORTH);
+			JXBusyLabel busyLabel = new JXBusyLabel();
+			busyLabel.setEnabled(true);
+			busyLabel.setBusy(true);
+			add(busyLabel, BorderLayout.NORTH);
 		}
 		revalidate();
 		repaint();

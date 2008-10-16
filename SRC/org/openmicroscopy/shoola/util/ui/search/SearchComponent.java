@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,11 +36,11 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 
 //Third-party libraries
 import layout.TableLayout;
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -157,8 +156,8 @@ public class SearchComponent
 	/** Button to close the dialog. */
 	private JButton					searchButton;
 	
-	/** Progress bar visible while searching. */
-	private JProgressBar			progressBar;
+	/** Component indicating the progress of the search. */
+	private JXBusyLabel				busyLabel;
 	
 	/** Displays the search message. */
 	private JLabel					progressLabel;
@@ -178,26 +177,6 @@ public class SearchComponent
 	/** The UI component hosting the result if any. */
 	private JComponent				resultPane;
 	
-	/** Sets the window properties. */
-	private void setProperties()
-	{
-		/*
-		setModal(true);
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter()
-        {
-        	public void windowOpened(WindowEvent e) {
-        		uiDelegate.setFocusOnSearch();
-        	} 
-        	
-        	public void windowClosing(WindowEvent e) {
-        		cancel();
-        	}
-        });
-        */
-		
-	}
-	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -211,9 +190,8 @@ public class SearchComponent
 		searchButton.setToolTipText("Search");
 		searchButton.setActionCommand(""+SEARCH);
 		searchButton.addActionListener(this);
-		progressBar = new JProgressBar();
-		progressBar.setIndeterminate(true);
-		progressBar.setVisible(false);
+		busyLabel = new JXBusyLabel();
+		busyLabel.setEnabled(false);
 		progressLabel = new JLabel("");
 		progressLabel.setEnabled(false);
 	}
@@ -243,7 +221,7 @@ public class SearchComponent
 		JPanel bar = new JPanel();
 		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
 		bar.add(progressLabel);
-		bar.add(UIUtilities.buildComponentPanelRight(progressBar));
+		bar.add(UIUtilities.buildComponentPanelCenter(busyLabel));
 		return bar;
 	}
 	
@@ -316,7 +294,6 @@ public class SearchComponent
 	{
 		searchContext = context;
 		setDefaultContext();
-		setProperties();
 		initComponents();
 		buildGUI(showControl);
 	}
@@ -412,9 +389,8 @@ public class SearchComponent
 	public void setSearchEnabled(String text, boolean b)
 	{
 		searchButton.setEnabled(!b);
-		progressBar.setVisible(b);
-		if (b) setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		else setCursor(Cursor.getDefaultCursor());
+		busyLabel.setEnabled(b);
+		busyLabel.setBusy(b);
 		progressLabel.setText(text);
 	}
 	

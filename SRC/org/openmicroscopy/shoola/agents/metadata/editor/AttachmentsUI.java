@@ -223,9 +223,6 @@ class AttachmentsUI
 	/** Keeps tracks of the comparator. */
 	private Map<Integer, Comparator>			comparators;
 	
-	/** The border displaying the title. */
-	private TitledLineBorder 					border;
-	
 	/**
 	 * Creates the order by menu.
 	 * 
@@ -799,9 +796,6 @@ class AttachmentsUI
 		super(model);
 		title = TITLE;
 		initComponents();
-		border = new TitledLineBorder(title, getBackground());
-		UIUtilities.setBoldTitledBorder(title, this);
-		getCollapseComponent().setBorder(border);
 		add(layoutContent());
 	}
 	
@@ -1063,8 +1057,6 @@ class AttachmentsUI
 			int n = model.getAttachmentsCount()-removedFiles.size();
 			title += LEFT+n+RIGHT;
 		}
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

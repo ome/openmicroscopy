@@ -30,8 +30,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,13 +42,11 @@ import javax.swing.JScrollPane;
 
 //Third-party libraries
 import layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -138,26 +135,29 @@ public class EditorUI
 	private JComponent					topLeftPane;
 	
 	/** The component hosting the {@link #viewedByUI}. */
-	private TreeComponent 				viewByTree;
+	private JXTaskPane 					viewByTaskPane;
 	
 	/** The component hosting the {@link #infoUI}. */
-	private TreeComponent 				infoTree;
+	private JXTaskPane 					infoTaskPane;
 
 	/** The component hosting the {@link #textualAnnotationsUI}. */
-	private TreeComponent 				commentsTree;
+	private JXTaskPane 					commentsTaskPane;
 	
 	/** The component hosting the {@link #tagUI}. */
-	private TreeComponent 				tagsTree;
+	private JXTaskPane 					tagsTaskPane;
 	
 	/** The component hosting the {@link #propertiesUI}. */
-	private TreeComponent 				propertiesTree;
+	private JXTaskPane 					propertiesTaskPane;
 	
 	/** The component hosting the {@link #browser}. */
-	private TreeComponent 				browserTree;
+	private JXTaskPane 					browserTaskPane;
 	
-	/** The component hosting . */
-	private TreeComponent 				tree;
+	/** The component hosting the {@link #linksUI}. */
+	private JXTaskPane 					linksTaskPane;
 	
+	/** The component hosting the {@link #attachmentsUI}. */
+	private JXTaskPane 					attachmentsTaskPane;
+
 	/** The tool bar with various controls. */
 	private ToolBar						toolBarTop;
 	
@@ -167,7 +167,7 @@ public class EditorUI
 	/** The left hand side component. */
 	private JPanel 						leftPane;
 
-	 /** The UI component hosting the {@link #viewByTree}. */
+	 /** The UI component hosting the {@link #viewByTaskPane}. */
 	private JPanel 						viewTreePanel;
 	
 	/** Collection of annotations UI components. */
@@ -199,8 +199,8 @@ public class EditorUI
     /** One of the layout constants defined by {@link Editor}. */
     private int							layout;
     
-    /** Collection of trees. */
-    private List<TreeComponent>			trees;
+    /** Collection of task Panes. */
+    private List<JXTaskPane>			taskPanes;
     
 	/**
 	 * Loads or cancels any on-going thumbnails loading.
@@ -233,22 +233,25 @@ public class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
-		trees = new ArrayList<TreeComponent>();
-		tree = new TreeComponent();
-		trees.add(tree);
+		taskPanes = new ArrayList<JXTaskPane>();
 		if (model.getBrowser() != null) {
-			browserTree = new TreeComponent();
-			browserTree.addPropertyChangeListener(new PropertyChangeListener()
+			browserTaskPane = new JXTaskPane();
+			browserTaskPane.setTitle(Browser.TITLE);
+			browserTaskPane.setCollapsed(true);
+			browserTaskPane.addPropertyChangeListener(controller);
+			/*
+			browserTaskPane.addPropertyChangeListener(new PropertyChangeListener()
 			{
 			
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
-					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) 
+					if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) 
 						loadParents((Boolean) evt.getNewValue());
 				}
 			
 			});
-			trees.add(browserTree);
+			*/
+			taskPanes.add(browserTaskPane);
 		}
 		emptyPane = new JPanel();
 		emptyPane.setBackground(UIUtilities.BACKGROUND);
@@ -267,50 +270,42 @@ public class EditorUI
 		textualAnnotationsUI = new TextualAnnotationsUI(model);
 		viewedByUI = new ViewedByUI(model);
 		topLeftPane = null;
-		commentsTree = new TreeComponent();
-		trees.add(commentsTree);
-		commentsTree.insertNode(textualAnnotationsUI, 
-								textualAnnotationsUI.getCollapseComponent(),
-								false);
-		tagsTree = new TreeComponent();
-		trees.add(tagsTree);
-		tagsTree.insertNode(tagsUI, tagsUI.getCollapseComponent(), false);
+		//comments
+		commentsTaskPane = UIUtilities.buildTaskPane(textualAnnotationsUI, 
+				textualAnnotationsUI.getComponentTitle(), true);
+		taskPanes.add(commentsTaskPane);
 		
-		viewByTree = new TreeComponent();
-		viewByTree.setVisible(false);
-		viewByTree.insertNode(viewedByUI, viewedByUI.getCollapseComponent(),
-								false);
-		viewByTree.addPropertyChangeListener(new PropertyChangeListener()
-			{
-			
-				public void propertyChange(PropertyChangeEvent evt) {
-					String name = evt.getPropertyName();
-					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-						loadThumbnails((Boolean) evt.getNewValue());
-					}
-				}
-			
-			});
-		trees.add(viewByTree);
-		infoTree = new TreeComponent();
-		infoTree.setVisible(false);
-		infoTree.insertNode(infoUI, infoUI.getCollapseComponent(), false);
-		infoTree.addPropertyChangeListener(new PropertyChangeListener()
-			{
-			
-				public void propertyChange(PropertyChangeEvent evt) {
-					String name = evt.getPropertyName();
-					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-						controller.showImageInfo();
-					}
-				}
-			
-			});
-		trees.add(infoTree);
-		propertiesTree = new TreeComponent();
-		trees.add(propertiesTree);
-		propertiesTree.insertNode(propertiesUI, 
-				propertiesUI.getCollapseComponent());
+		//tags
+		tagsTaskPane = UIUtilities.buildTaskPane(tagsUI, 
+					tagsUI.getComponentTitle(), true);
+		taskPanes.add(tagsTaskPane);
+		
+		
+
+		viewByTaskPane = UIUtilities.buildTaskPane(viewedByUI, 
+				viewedByUI.getComponentTitle(), true);
+		viewByTaskPane.setVisible(false);
+		viewByTaskPane.addPropertyChangeListener(controller);
+		taskPanes.add(viewByTaskPane);
+		
+		infoTaskPane = UIUtilities.buildTaskPane(infoUI, 
+							infoUI.getComponentTitle(), true);
+		infoTaskPane.setVisible(false);
+		infoTaskPane.addPropertyChangeListener(controller);
+		taskPanes.add(infoTaskPane);
+		
+		propertiesTaskPane = UIUtilities.buildTaskPane(propertiesUI, 
+				propertiesUI.getComponentTitle(), false);
+		taskPanes.add(propertiesTaskPane);
+		
+		linksTaskPane = UIUtilities.buildTaskPane(linksUI, 
+				linksUI.getComponentTitle(), true);
+		taskPanes.add(linksTaskPane);
+		
+		attachmentsTaskPane = UIUtilities.buildTaskPane(attachmentsUI, 
+				attachmentsUI.getComponentTitle(), true);
+		taskPanes.add(attachmentsTaskPane);
+		
 		
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
@@ -329,10 +324,6 @@ public class EditorUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
-		tree.insertNode(attachmentsUI, attachmentsUI.getCollapseComponent(), 
-				        false);
-		
 		viewTreePanel = new JPanel();
 		viewTreePanel.setLayout(new BoxLayout(viewTreePanel, BoxLayout.X_AXIS));
 		double[][] tl = {{TableLayout.FILL}, //columns
@@ -348,30 +339,28 @@ public class EditorUI
 		leftPane.setLayout(new TableLayout(leftSize));
 		//if (!model.isMultiSelection()) {
 		leftPane.add(rateUI, "0, 1");
-		leftPane.add(viewByTree, "0, 2");
-		leftPane.add(infoTree, "0, 3");
-		leftPane.add(propertiesTree, "0, 4");
+		leftPane.add(viewByTaskPane, "0, 2");
+		leftPane.add(infoTaskPane, "0, 3");
+		leftPane.add(propertiesTaskPane, "0, 4");
 		//}
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				 TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
+				 TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				 TableLayout.PREFERRED}}; //rows
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
-		rightPane.add(commentsTree, "0, 0");
-		rightPane.add(tagsTree, "0, 1");
-		rightPane.add(tree, "0, 2");
+		rightPane.add(commentsTaskPane, "0, 0");
+		rightPane.add(tagsTaskPane, "0, 1");
+		rightPane.add(linksTaskPane, "0, 2");
+		rightPane.add(attachmentsTaskPane, "0, 3");
 		Browser browser = model.getBrowser();
 		if (browser != null) {
 			JComponent comp = browser.getUI();
 			comp.setPreferredSize(MAX_SIZE);
-			JPanel collapseComponent = new JPanel();
+			browserTaskPane.add(comp, null, 0);
 			
-			collapseComponent.setBorder(new TitledLineBorder(Browser.TITLE, 
-							collapseComponent.getBackground()));
-			comp.setBorder(collapseComponent.getBorder());
-			browserTree.insertNode(comp, collapseComponent, false);
-			rightPane.add(browserTree, "0, 3");
+			rightPane.add(browserTaskPane, "0, 4");
 		}
 		content = new JPanel();
 		
@@ -394,7 +383,6 @@ public class EditorUI
 		}
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		mainPane.getViewport().add(content);
-		//add(mainPane, BorderLayout.CENTER);
 		add(emptyPane, BorderLayout.CENTER);
 	}
 	
@@ -448,36 +436,37 @@ public class EditorUI
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
         	Object refObject = model.getRefObject();
-        	commentsTree.setTreeEnabled(true);
-        	tagsTree.setTreeEnabled(true);
-        	browserTree.setTreeEnabled(true);
+        	commentsTaskPane.setEnabled(false);
+        	//commentsTaskPane.setTreeEnabled(true);
+        	//tagsTaskPane.setTreeEnabled(true);
+        	//browserTaskPane.setTreeEnabled(true);
         	if (refObject instanceof ImageData) {
         		boolean count =  model.getViewedByCount() > 0;
-        		viewByTree.setTreeEnabled(count);
+        		//viewByTaskPane.setTreeEnabled(count);
         		if (count) {
         			if (viewedByUI.isExpanded())
             			loadThumbnails(true);
         		} else {
-        			viewByTree.collapseNodes();
+        			viewByTaskPane.setCollapsed(true);
         			viewedByUI.setExpanded(false);
         		}
         		if (infoUI.isExpanded())
         			controller.showImageInfo();
         	} else if (refObject instanceof TagAnnotationData) {
-        		commentsTree.collapseNodes();
+        		commentsTaskPane.setCollapsed(true);
         		propertiesUI.setObjectDescription();
-        		commentsTree.setTreeEnabled(false);
-        		browserTree.collapseNodes();
-        		browserTree.setTreeEnabled(false);
+        		//commentsTaskPane.setTreeEnabled(false);
+        		browserTaskPane.setCollapsed(true);
+        		//browserTaskPane.setTreeEnabled(false);
         		if (model.hasTagsAsChildren()) {
-        			tagsTree.collapseNodes();
-        			tagsTree.setTreeEnabled(false);
+        			tagsTaskPane.setCollapsed(true);
+        			//tagsTaskPane.setTreeEnabled(false);
         		}
         	} else if ((refObject instanceof ProjectData) || 
         			(refObject instanceof DatasetData)) {
-        		tagsTree.collapseNodes();
-    			tagsTree.setTreeEnabled(false);
-        	}
+        		tagsTaskPane.setCollapsed(true);
+    			//tagsTaskPane.setTreeEnabled(false);
+        	} 
         	toolBarTop.setDecorator();
     	}
     	revalidate();
@@ -627,20 +616,20 @@ public class EditorUI
 		
 		TableLayout leftLayout = (TableLayout) leftPane.getLayout();
 		TableLayout rightLayout = (TableLayout) rightPane.getLayout();
-		if (browserTree != null) {
+		if (browserTaskPane != null) {
 			Object refObject = model.getRefObject();
 			if (refObject instanceof DataObject) {
-				browserTree.setVisible(!(refObject instanceof ProjectData));
-			} else browserTree.setVisible(false);
+				browserTaskPane.setVisible(!(refObject instanceof ProjectData));
+			} else browserTaskPane.setVisible(false);
 		}
 		if (model.isMultiSelection()) {
 			leftLayout.setRow(2, 0);
 			leftLayout.setRow(3, 0);
 			leftLayout.setRow(4, 0);
-			propertiesTree.collapseNodes();
-			if (browserTree != null) {
+			propertiesTaskPane.setCollapsed(true);
+			if (browserTaskPane != null) {
 				rightLayout.setRow(3, 0);
-				browserTree.collapseNodes();
+				browserTaskPane.setCollapsed(true);
 			}
 		} else {
 			leftLayout.setRow(4, TableLayout.PREFERRED);
@@ -648,16 +637,16 @@ public class EditorUI
 			if (object instanceof ImageData) {
 				leftLayout.setRow(2, TableLayout.FILL);
 				leftLayout.setRow(3, TableLayout.PREFERRED);
-	    		viewByTree.setVisible(true);
-	    		infoTree.setVisible(true);
+	    		viewByTaskPane.setVisible(true);
+	    		infoTaskPane.setVisible(true);
 	    	} else {
 	    		leftLayout.setRow(2, 0);
 				leftLayout.setRow(3, 0);
-	    		viewByTree.collapseNodes();
-	    		viewByTree.setVisible(false);
+	    		viewByTaskPane.setCollapsed(true);
+	    		viewByTaskPane.setVisible(false);
 	    		viewedByUI.setExpanded(false);
-	    		infoTree.setVisible(false);
-	    		infoTree.collapseNodes();
+	    		infoTaskPane.setVisible(false);
+	    		infoTaskPane.setCollapsed(true);
 	    		infoUI.setExpanded(false);
 	    	}
 			if (object instanceof TagAnnotationData) 
@@ -675,8 +664,7 @@ public class EditorUI
 		tagsUI.clearDisplay();
 		propertiesUI.clearDisplay();
 		infoUI.clearDisplay();
-		
-    	
+
     	linksUI.buildUI();
     	textualAnnotationsUI.buildUI();
     	tagsUI.buildUI();
@@ -729,25 +717,6 @@ public class EditorUI
     { 
     	Object refObject = model.getRefObject();
     	if (refObject instanceof ImageData) {
-    		/*
-    		PixelsData data = ((ImageData) refObject).getDefaultPixels();
-    		Map<String, String> details = EditorUtil.transformPixelsData(data);
-    		List waves = model.getChannelData();
-            if (waves == null) return;
-            String s = "";
-            Iterator k = waves.iterator();
-            int j = 0;
-            while (k.hasNext()) {
-                s += ((ChannelMetadata) k.next()).getEmissionWavelength();
-                if (j != waves.size()-1) s +=", ";
-                j++;
-            }
-            details.put(EditorUtil.WAVELENGTHS, s);
-    		JFrame f = 
-    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-    		PixelsInfoDialog dialog = new PixelsInfoDialog(f, details);
-    		UIUtilities.centerAndShow(dialog);
-    		*/
     		infoUI.setChannelData(model.getChannelData());
     	}
     }
@@ -849,14 +818,30 @@ public class EditorUI
 	/** Collapses all nodes. */
 	void collapseAllNodes()
 	{
-		Iterator<TreeComponent> i = trees.iterator();
-		TreeComponent comp;
+		Iterator<JXTaskPane> i = taskPanes.iterator();
+		JXTaskPane comp;
 		while (i.hasNext()) {
 			comp = i.next();
-			comp.collapseNodes();
+			comp.setCollapsed(true);
 		}
 		revalidate();
     	repaint();
+	}
+
+	/**
+	 * Handles the expansion or collapsing of the passed component.
+	 * 
+	 * @param source The component to handle.
+	 */
+	void handleTaskPaneCollapsed(JXTaskPane source)
+	{
+		if (source == null) return;
+		if (source.equals(infoTaskPane) && !infoTaskPane.isCollapsed()) 
+			controller.showImageInfo();
+		else if (source.equals(viewByTaskPane)) 
+			loadThumbnails(!viewByTaskPane.isCollapsed());
+		else if  (source.equals(browserTaskPane)) 
+			loadParents(!browserTaskPane.isCollapsed());
 	}
 
 }

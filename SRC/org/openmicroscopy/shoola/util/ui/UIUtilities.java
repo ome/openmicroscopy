@@ -74,6 +74,7 @@ import javax.swing.text.StyledDocument;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
@@ -94,6 +95,12 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  */
 public class UIUtilities
 {
+	
+	/**
+	 * This property should be exposed but is NOT.
+	 */
+	public static final String				COLLAPSED_PROPERTY_JXTASKPANE = 
+											"collapsed";
 	
 	/** 
      * The highlight color to use for the inner border surrounding the
@@ -1202,6 +1209,26 @@ public class UIUtilities
 		}
 		if (!v.equals("")) l.add(v);
 		return l;
+	}
+	
+
+	/**
+	 * Builds the task pane and inserts a component.
+	 * 
+	 * @param comp		The component to add.
+	 * @param title		The title of the task pane.
+	 * @param collapse  Pass <code>true</code> to collapse the task pane, 
+	 * 					<code>false</code> otherwise.
+	 * @return See above.
+	 */
+	public static JXTaskPane buildTaskPane(JComponent comp, String title, 
+								boolean collapse)
+	{
+		JXTaskPane pane = new JXTaskPane();
+		pane.add(comp, null, 0);
+		pane.setTitle(title);
+		pane.setCollapsed(collapse);
+		return pane;
 	}
 	
 }

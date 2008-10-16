@@ -78,22 +78,7 @@ abstract class AnnotationUI
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
 	}
-	
-	/**
-	 * Returns the {@link #collapseComponent}. Creates it if not.
-	 * 
-	 * @return See above.
-	 */
-	protected JPanel getCollapseComponent()
-	{
-		if (collapseComponent != null)
-			return collapseComponent;
-		collapseComponent = new JPanel();
-		collapseComponent.setBorder(new TitledLineBorder(title, 
-						collapseComponent.getBackground()));
-		return collapseComponent;
-	}
-	
+
 	/** Builds and lays out the UI. */
 	protected abstract void buildUI();
 	

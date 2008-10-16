@@ -160,9 +160,6 @@ class TagsUI
 	
     /** The edited tag component. */
     private TagComponent			editedTag;
-    
-	/** The border displaying the title. */
-	private TitledLineBorder		border;
 
     /** Loads the tags and adds code completion. */
     private void handleTagInsert()
@@ -707,9 +704,6 @@ class TagsUI
 		super(model);
 		title = TITLE;
 		initComponents();
-		border = new TitledLineBorder(title, getBackground());
-		UIUtilities.setBoldTitledBorder(title, this);
-		getCollapseComponent().setBorder(border);
 		buildUI();
 	}
 	
@@ -973,8 +967,6 @@ class TagsUI
 			int n = model.getTagsCount();
 			title = TITLE+LEFT+n+RIGHT;
 		}
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

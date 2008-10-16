@@ -29,11 +29,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
+
+
 //Third-party libraries
 import layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 
@@ -55,8 +58,9 @@ class UserUI
 	implements PropertyChangeListener
 {
 
-	/** The title associated to that component. */
-	private static final String TITLE = "Profile";
+	/** The title of the chart. */
+	static final String TITLE = "Disk Space";
+
 	
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;
@@ -65,7 +69,7 @@ class UserUI
 	private UserDiskSpace 	diskSpace;
 	
 	/** The tree hosting the {@link #UserDiskSpace}. */
-	private TreeComponent	diskTree;
+	private JXTaskPane		diskTask;
 	
 	/** The disk space. */
 	private List			space;
@@ -81,15 +85,17 @@ class UserUI
 		profile.addPropertyChangeListener(control);
 		diskSpace = new UserDiskSpace(this);
 		
-		diskTree = new TreeComponent();
-		diskTree.insertNode(diskSpace, diskSpace.getCollapseComponent(), false);
-		diskTree.addPropertyChangeListener(TreeComponent.EXPANDED_PROPERTY, 
-											this);
+		diskTask = new JXTaskPane();
+		diskTask.add(diskSpace, null, 0);
+		diskTask.setTitle(TITLE);
+		diskTask.setCollapsed(true);
+		diskTask.addPropertyChangeListener(
+				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 		double[][] size = {{TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(profile, "0, 0");
-		add(diskTree, "0, 1");
+		add(diskTask, "0, 1");
 	}
 	
 	/**
@@ -163,7 +169,7 @@ class UserUI
 	{ 
 		diskSpace.removeAll();
 		profile.removeAll();
-		diskTree.collapseNodes();
+		diskTask.setCollapsed(true);
 		removeAll();
 		diskSpace.revalidate();
 		profile.revalidate();
@@ -187,7 +193,7 @@ class UserUI
 	 * Returns the title associated to this component.
 	 * @see AnnotationUI#getComponentTitle()
 	 */
-	protected String getComponentTitle() { return TITLE; }
+	protected String getComponentTitle() { return ""; }
 
 	/**
 	 * Returns <code>true</code> if user's info has been modified, 
@@ -208,17 +214,11 @@ class UserUI
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
-		String name = evt.getPropertyName();
-		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-			boolean b = (Boolean) evt.getNewValue();
-			if (model.getRefObject() instanceof ExperimenterData) {
-				if (space == null) {
-					if (b) model.loadDiskSpace();
-					else model.cancelDiskSpaceLoading();
-				}
-			}
-			diskSpace.buildGUI();
-		}
+		if (!(model.getRefObject() instanceof ExperimenterData)) return;
+		if (diskTask.isCollapsed())
+			model.cancelDiskSpaceLoading();
+		else model.loadDiskSpace();
+		//diskSpace.buildGUI();
 	}
 
 }

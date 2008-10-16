@@ -42,21 +42,19 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.border.Border;
 
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
 import pojos.ImageData;
 import pojos.RatingAnnotationData;
@@ -293,12 +291,13 @@ class ViewedByUI
 	private JPanel buildLoadingPane()
 	{
 		JPanel p = new JPanel();
-		JProgressBar progressBar = new JProgressBar();
-	    progressBar.setIndeterminate(true);
+		JXBusyLabel label = new JXBusyLabel();
+		label.setEnabled(true);
+		label.setBusy(true);
 	    p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         //p.setBorder(BorderFactory.createEtchedBorder());
         p.add(new JLabel("Loading..."));
-        p.add(UIUtilities.buildComponentPanelRight(progressBar));
+        p.add(UIUtilities.buildComponentPanelRight(label));
 		return p;
 	}
 	
@@ -350,9 +349,6 @@ class ViewedByUI
 	protected void buildUI()
 	{
 		title = TITLE+LEFT+model.getViewedByCount()+RIGHT;
-		Border border = new TitledLineBorder(title, getBackground());
-		setBorder(border);
-		getCollapseComponent().setBorder(border);
 		removeAll();
 		if (model.getRefObject() instanceof ImageData) {
 			if (model.isThumbnailsLoaded()) {

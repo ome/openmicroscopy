@@ -40,7 +40,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -52,6 +51,7 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
@@ -118,13 +117,13 @@ class DomainPane
     
     /** Identifies the <code>Family</code> selection. */
     private static final int    	FAMILY = 0;
-    
-    /** Title of the advanced options. */
-    private static final String		ADVANCED_OPTIONS = "Advanced"; 
-    
+   
     /** Dimension of the box between the channel buttons. */
     private static final Dimension 	VBOX = new Dimension(1, 10);
        
+    /** Title of the advanced options. */
+    private static final String		ADVANCED_OPTIONS = "Advanced"; 
+    
     /** Box to select the family used in the mapping process. */
     private JComboBox       			familyBox;
 
@@ -158,13 +157,15 @@ class DomainPane
     /** The UI component hosting the interval selections. */
     private GraphicsPane    			graphicsPane;
       
-    /** the tree hosting the various options. */
-    private TreeComponent				tree;
+    /** The component hosting the various options. */
+    private JXTaskPane					taskPane;
     
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-    	tree = new TreeComponent();
+    	taskPane = new JXTaskPane();
+    	taskPane.setTitle(ADVANCED_OPTIONS);
+    	taskPane.setCollapsed(true);
         graphicsPane = new GraphicsPane(model, controller);
         familyBox = new JComboBox(model.getFamilies().toArray());
         String family = model.getFamily();
@@ -373,57 +374,20 @@ class DomainPane
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	/*
-    	double size[][] =
-        {{TableLayout.FILL},  // Columns
-         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-        	TableLayout.PREFERRED}}; // Rows
-    	setLayout(new TableLayout(size));
-    	add(buildChannelGraphicsPanel(), "0, 0");
-    	add(new JSeparator(), "0, 1");
-    	add(buildControlsPane(), "0, 2");
-    	add(new JSeparator(), "0, 3");
-    	add(buildPane(), "0, 4");
-    	*/
-    	
-        
-       
-        JPanel p = UIUtilities.buildCollapsePanel(ADVANCED_OPTIONS);
+        JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(buildControlsPane());
     	p.add(new JSeparator());
     	p.add(buildPane());
-    	addToTree(p, UIUtilities.buildCollapsePanel(ADVANCED_OPTIONS));
+    	taskPane.add(p, 0);
     	
     	JPanel content = new JPanel();
     	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
     	content.add(buildChannelGraphicsPanel());
     	
-    	content.add(tree);
+    	content.add(taskPane);
     	setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(content);
-    	/*
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildChannelGraphicsPanel());
-        JPanel p = new JPanel();
-        p.setLayout(new BorderLayout());
-        p.add(advancedOptionsButton, BorderLayout.EAST);
-        //add(UIUtilities.buildComponentPanelRight(advancedOptionsButton));
-        advancedPanel = new JPanel();
-        advancedPanel.setLayout(new BoxLayout(advancedPanel, 
-        								BoxLayout.Y_AXIS));
-        advancedPanel.add(new JSeparator());
-        advancedPanel.add(buildControlsPane());
-        advancedPanel.add(new JSeparator());
-        p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(buildPane());
-        //p.add(Box.createHorizontalStrut(200));
-        advancedPanel.add(p);
-        add(advancedPanel);
-        //if (isAdvancedSettingsShowing) add(advancedPanel);
-         *
-         */
     }
     
     /**
@@ -636,17 +600,6 @@ class DomainPane
         resetGamma(k);
         gammaSlider.setEnabled(b);
         graphicsPane.onCurveChange(); 
-    }
-	
-    /**
-     * Inserts a new node to the {@link #tree}.
-     * 
-     * @param elapse	The elapse component to add to the node.
-     * @param collapse	The collapse component to add to the node.
-     */
-    void addToTree(JComponent elapse, JComponent collapse)
-    {
-    	tree.insertNode(elapse, collapse, false);
     }
     
     /**

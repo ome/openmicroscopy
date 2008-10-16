@@ -28,11 +28,12 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -99,6 +100,8 @@ class EditorControl
 			view.saveData();
 		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name)) {
 			view.clearData();
+		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
+			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());
 		}
 	}
 	

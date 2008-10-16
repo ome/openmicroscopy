@@ -135,9 +135,6 @@ class TextualAnnotationsUI
 	/** The menu bar. */
 	private JToolBar 			displayBar;
 	
-	/** The border displaying the title. */
-	private TitledLineBorder	border;
-	
 	/**
 	 * Returns <code>true</code> if the data object has been 
 	 * previously annotated, <code>false</code> otherwise.
@@ -368,9 +365,6 @@ class TextualAnnotationsUI
 		super(model);
 		title = TITLE;
 		initComponents();
-		border = new TitledLineBorder(title, getBackground());
-		UIUtilities.setBoldTitledBorder(title, this);
-		getCollapseComponent().setBorder(border);
 		add(buildAreaPane());
 	}
 	
@@ -522,8 +516,6 @@ class TextualAnnotationsUI
 			else n = model.getTextualAnnotationCount()-toRemove.size();
 			title = TITLE+LEFT+n+RIGHT;
 		}
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

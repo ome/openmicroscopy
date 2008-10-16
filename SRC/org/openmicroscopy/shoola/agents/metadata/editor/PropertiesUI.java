@@ -374,9 +374,6 @@ class PropertiesUI
        super(model);
        title = TITLE;
        initComponents();
-       UIUtilities.setBoldTitledBorder(getComponentTitle(), this);
-       TitledLineBorder border = new TitledLineBorder(title, getBackground());
-       getCollapseComponent().setBorder(border);
        buildGUI();
     }   
 

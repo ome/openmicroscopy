@@ -32,8 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,7 +63,6 @@ import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -85,7 +82,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class SearchPanel
 	extends JPanel
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener
 {
 
 	/** The title of the Advanced search UI component. */
@@ -268,10 +265,7 @@ class SearchPanel
 	
 	/** The possible file formats. */
 	private JComboBox				formats;
-	
-	/** The tree hosting the advanced search component. */
-	//private TreeComponent			searchTree;
-	
+
 	/** Flag indicating that the search is in the advanced mode. */
 	private boolean					advancedSearch;
 	
@@ -296,8 +290,6 @@ class SearchPanel
 		otherOwners = new LinkedHashMap<Long, String>();
 		otherOwnersPanel = new JPanel();
 		advancedSearch = false;
-		//searchTree = new TreeComponent();
-		//searchTree.addPropertyChangeListener(this);
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
@@ -378,7 +370,7 @@ class SearchPanel
 		//areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
 		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
 		helpBasicButton = new JButton(icons.getIcon(IconManager.HELP));
-		helpBasicButton.setToolTipText("Advanced search Tips.");
+		helpBasicButton.setToolTipText("Search Tips.");
 		UIUtilities.unifiedButtonLookAndFeel(helpBasicButton);
 		helpBasicButton.addActionListener(model);
 		helpBasicButton.setActionCommand(""+SearchComponent.HELP);
@@ -652,7 +644,7 @@ class SearchPanel
 			}
 		}
 
-		UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
+		//UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
 		return p;
 	}
 	
@@ -894,7 +886,7 @@ class SearchPanel
 	private JPanel buildUsers()
 	{	
 		JPanel usersPanel= new JPanel();
-		UIUtilities.setBoldTitledBorder(USER_TITLE, usersPanel);
+		//UIUtilities.setBoldTitledBorder(USER_TITLE, usersPanel);
 		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
 		JPanel content = new JPanel();
 		content.setLayout(new GridBagLayout());
@@ -963,56 +955,32 @@ class SearchPanel
         c.gridy++;
 		p.add(buildTimeRange(), c);
 		
-		JPanel panel = UIUtilities.buildComponentPanel(p);
-		UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
-		return panel;
+		//JPanel panel = UIUtilities.buildComponentPanel(p);
+		//UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
+		return UIUtilities.buildComponentPanel(p);
 	}
 
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		TreeComponent tree = new TreeComponent();
-		//tree.insertNode(buildSearchFor(), 
-		//					UIUtilities.buildCollapsePanel(SEARCH_TITLE));
 		buildType();
-		//tree.insertNode(buildType(), 
-		//		UIUtilities.buildCollapsePanel(TYPE_TITLE));
-		tree.insertNode(buildScope(), 
-				UIUtilities.buildCollapsePanel(SCOPE_TITLE));
-		tree.insertNode(buildUsers(), 
-							UIUtilities.buildCollapsePanel(USER_TITLE), false);
-		tree.insertNode(buildDate(), UIUtilities.buildCollapsePanel(DATE_TITLE),
-						false);
-		tree.addPropertyChangeListener(this);
-		//content.add(tree);
 		setBorder(null);
-		//setLayout(new FlowLayout(FlowLayout.LEFT));
 		double[][] size = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; //rows
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
+			TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		setLayout(new TableLayout(size));
 		add(buildSearchFor(), "0, 0");
 		add(new JSeparator(JSeparator.HORIZONTAL), "0, 1");
-		add(tree, "0, 2");
+		
+		add(UIUtilities.buildTaskPane(buildScope(), SCOPE_TITLE, false), 
+							"0, 2");
+		add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
+		add(UIUtilities.buildTaskPane(buildDate(), DATE_TITLE, true), "0, 4");
+
 		setDateIndex();
 	}
-	
-	/** 
-	 * Greys out the {@link #fullTextArea} if the advanced search is 
-	 * expanded, activates it otherwise.
-	 */
-	private void handleAdvancedSearch()
-	{
-		advancedSearch = !advancedSearch;
-		if (advancedSearch) {
-			fullTextArea.setEnabled(false);
-			atLeastTermsArea.requestFocus();
-		} else {
-			fullTextArea.setEnabled(true);
-			fullTextArea.requestFocus();
-		}
-	}
-	
+
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -1131,7 +1099,7 @@ class SearchPanel
 			if (text != null && text.trim().length() > 0) {
 				List<String> l = SearchUtil.splitTerms(text);
 				if (l.size() > 0) 
-					return (String[]) l.toArray(new String[] {});
+					return l.toArray(new String[] {});
 			}
 		}
 		text = atLeastTermsArea.getText();
@@ -1143,7 +1111,7 @@ class SearchPanel
 			l.addAll(SearchUtil.splitTerms(text.trim()));
 			*/
 		if (l.size() > 0)
-			return (String[]) l.toArray(new String[] {});
+			return l.toArray(new String[] {});
 		return null;
 	}
 	
@@ -1155,9 +1123,9 @@ class SearchPanel
 	String[] getMust()
 	{
 		String text = allTermsArea.getText();
-		List l = SearchUtil.splitTerms(text);
+		List<String> l = SearchUtil.splitTerms(text);
 		if (l.size() > 0) 
-			return (String[]) l.toArray(new String[] {});
+			return l.toArray(new String[] {});
 			
 		return null;
 	}
@@ -1170,9 +1138,9 @@ class SearchPanel
 	String[] getNone()
 	{
 		String text = withoutTermsArea.getText();
-		List l = SearchUtil.splitTerms(text);
+		List<String> l = SearchUtil.splitTerms(text);
 		if (l.size() > 0) 
-			return (String[]) l.toArray(new String[] {});
+			return l.toArray(new String[] {});
 		return null;
 	}
 	
@@ -1324,18 +1292,6 @@ class SearchPanel
 		buildSearchFor();
 		revalidate();
 		repaint();
-	}
-	
-	/**
-	 * Reacts to property fired by a {@link TreeComponentNode}.
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-			model.notifyNodeExpanded();
-		} 
 	}
 
 	/**

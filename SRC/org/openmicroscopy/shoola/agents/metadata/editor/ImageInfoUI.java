@@ -128,9 +128,6 @@ public class ImageInfoUI
 		super(model);
 		initComponents();
 		title = TITLE;
-		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		UIUtilities.setBoldTitledBorder(title, this);
-		getCollapseComponent().setBorder(border);
 	}
 	
 	/**
