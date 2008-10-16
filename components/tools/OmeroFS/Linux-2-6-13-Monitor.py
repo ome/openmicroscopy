@@ -68,13 +68,13 @@ class Monitor(threading.Thread):
         self.pathString = pathString
         if pathString == None:
             self.pathString = pathModule.path.getcwd()
-        pathsToMonitor = [self.pathString]
+        pathsToMonitor = self.pathString
 
         wm = pyinotify.WatchManager()
         pr = ProcessEvent(id=monitorId, func=self.callback)
         self.notifier = pyinotify.Notifier(wm, pr)
         
-        if self.eventType == 'Create':
+        if str(eventType) == 'Create':
             wm.add_watch(pathsToMonitor, pyinotify.IN_CLOSE_WRITE)
 
     def callback(self, id, eventPath):
