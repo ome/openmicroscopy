@@ -53,6 +53,7 @@
 
    <target name="tools-clean" depends="python-clean">
         <delete dir="${copy.dir}"/>
+        <delete dir="${basedir}/build"/>
     </target>
 
 </project>

@@ -73,9 +73,9 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target" unless="skip.compile">
         <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
-        <!--exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="." failonerror="true">
             <arg value="lib"/>
-        </exec-->
+        </exec>
     </target>
 
     <!-- Additional functionality for the lifecycle.package target.
@@ -94,9 +94,9 @@
             <fileset dir="generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h"/>
         </copy>
-        <!--exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
+        <exec executable="${basedir}/../../../target/bin/scons" dir="${basedir}" failonerror="true">
             <arg value="install"/>
-        </exec-->
+        </exec>
         <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
         <copy todir="../target/include">
             <fileset dir="src"       includes="**/*.h"/>

@@ -93,7 +93,7 @@ build-* targets.
         <setup-py-install dir="scons-1.0.1" tarball="scons-1.0.1.tar.gz"/>
     </target>
 
-    <target name="check-ice" description="Checks for scons and sets executable or installs">
+    <target name="check-ice" description="Checks for slice/include files and unpacks">
         <available property="slice.dir" value="true" filepath="${target.dir}" file="Ice" />
         <antcall target="build-ice" inheritAll="true" inheritRefs="true"/>
     </target>
