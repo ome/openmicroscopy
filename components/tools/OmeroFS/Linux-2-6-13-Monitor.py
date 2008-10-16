@@ -71,7 +71,7 @@ class Monitor(threading.Thread):
         pathsToMonitor = [self.pathString]
 
         wm = pyinotify.WatchManager()
-        pr = ProcessEvent(id=idString, func=callback)
+        pr = ProcessEvent(id=monitorId, func=self.callback)
         self.notifier = pyinotify.Notifier(wm, pr)
         
         if self.eventType == 'Create':
@@ -141,8 +141,8 @@ class Monitor(threading.Thread):
 class ProcessEvent(pyinotify.ProcessEvent):
 
     def my_init(self, **kwargs):
-    	self.callback = kwargs['func'] 
-	    self.id = kwargs['id']
+        self.callback = kwargs['func'] 
+        self.id = kwargs['id']
 
     def process_IN_CLOSE_WRITE(self, event):
         # We have explicitely registered for this kind of event.
