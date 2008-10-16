@@ -1,4 +1,4 @@
-omerofs.MonitorServer=fsEventHappened:tcp -p 10001
+omerofs.MonitorServer=FSServer:tcp -p 10001
 omerofs.MonitorClient.Endpoints=tcp
 
 #

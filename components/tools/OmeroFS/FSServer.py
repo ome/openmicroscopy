@@ -10,7 +10,7 @@
 
 import sys
 import Ice
-import Monitor 
+import MonitorServer 
 
 import logging
 from logger import log
@@ -20,6 +20,12 @@ class Server(Ice.Application):
         A fairly vanilla ICE server application.
         
     """
+    def __init__(self, adapterName, identity):
+        """
+        
+        """
+        self.adapterName = adapterName
+        self.identity = identity
         
     def interruptCallback(self, sig): 
         """
@@ -60,9 +66,9 @@ class Server(Ice.Application):
         Ice.Application.callbackOnInterrupt()
 
         # Create a MonitorServer, its adapter and activate it.
-        mServer = Monitor.MonitorServerImpl()
-        adapter = self.communicator().createObjectAdapter("omerofs.MonitorServer")
-        adapter.add(mServer, self.communicator().stringToIdentity("macFSServer"))
+        mServer = MonitorServer.MonitorServerI()
+        adapter = self.communicator().createObjectAdapter(self.adapterName)
+        adapter.add(mServer, self.communicator().stringToIdentity(self.identity))
         adapter.activate()
         
         # Wait for an interrupt.

@@ -1,6 +1,6 @@
 """
-    Omero.fs for Mac OS Leopard
-    ===========================
+    Omero.fs
+    ========
     
     Docs built using epydoc
     

@@ -32,7 +32,7 @@ class Directory(object):
 
     """
 
-    def __init__(self, pathString=None, whitelist=None, blacklist=None):
+    def __init__(self, pathString=None, whitelist=None, pathMode='Flat'):
         """
             Build a tree of the directory given its path.
             
@@ -66,17 +66,13 @@ class Directory(object):
         #: whitelist of extensions
         self.whitelist = Lists.Whitelist(whitelist)
 
-        # Use an empty blacklist if necessary.
-        if blacklist == None:
-            blacklist = []
-        #: blacklist of subdirectories
-        self.blacklist = Lists.Blacklist(blacklist)
-       
+        self.pathMode = pathMode
+
         #: path of parent, ie where walking starts from.
         self.parent = self.path.parent
         
         #: the root node for this subdirectory
-        self.root = DirNode(self.path, self)
+        self.root = DirNode(self.path, self, self.pathMode)
         
         #: the root node for a subdirectory
         self.subRoot = None
@@ -103,15 +99,6 @@ class Directory(object):
         """
         return self.whitelist.asList()
 
-    def getBlacklist(self):
-        """
-            Getter for the blacklist.
-        
-            :return: String representation blacklist.
-            :rtype: list<string>
-
-        """
-        return self.blacklist.asList()
 
     def getPath(self):
         """
@@ -138,19 +125,6 @@ class Directory(object):
         """
         return self.whitelist.onList(ext)
         
-    def onBlacklist(self, pathString):
-        """
-            Return true is path is not on blacklist of paths.
-            
-            :Parameters:
-                pathString : string
-                    A relative path to  subdirectory.         
-
-            :return: Status of subdirectory on blacklist.
-            :rtype: boolean
-
-        """
-        return  self.blacklist.onList(pathString)
         
     def isSubdirectory(self, pathString):
         """
@@ -167,7 +141,7 @@ class Directory(object):
             :rtype: boolean
 
         """
-        return True #DUMMY RESPONSE
+        return (pathString != str(self.path) and pathString.find(self.path) == 1)
    
 
     def getFile(self, pathString):
@@ -231,28 +205,27 @@ class Directory(object):
         path = pathModule.path(pathString)
         subPath = self.getPath().relpathto(path)
         
-        if not self.onBlacklist(subPath):
-            # Generate a snapshot from the live file system/
-            newTree = DirNode(path, self)
+        # Generate a snapshot from the live file system/
+        newTree = DirNode(path, self, self.pathMode)
 
-            # Find the old tree in the full snapshot.
-            oldTree = self.root
-            parent = None
-            subParts = subPath.splitall()
-            for part in subParts[1:]:
-                parent = oldTree
-                oldTree = oldTree.getSubDir(part)
-            
-            # Patch in the new tree (which may be the whole tree)
-            if parent == None:
-                self.root = newTree
-            else:
-                parent.replaceSubDir(part, newTree)
+        # Find the old tree in the full snapshot.
+        oldTree = self.root
+        parent = None
+        subParts = subPath.splitall()
+        for part in subParts[1:]:
+            parent = oldTree
+            oldTree = oldTree.getSubDir(part)
+        
+        # Patch in the new tree (which may be the whole tree)
+        if parent == None:
+            self.root = newTree
+        else:
+            parent.replaceSubDir(part, newTree)
 
         return (newTree, oldTree)        
         
 
-    def getExtraFilesFromTree(self, bigTree, littleTree, recurse=False):
+    def getExtraFilesFromTree(self, bigTree, littleTree):
         """
             Return a list of files that appear in bigTree but not littleTree.
             
@@ -264,27 +237,24 @@ class Directory(object):
                     A directory snapshot.
                 littleTree : DirNode
                     A directory snapshot.
-                recurse : boolean
-                    A flag to signal whether subdirectories should
-                    be checked recursively. If False then only the 
-                    files in the immediate directory will be compared.
                     
             :return: A list containing files as full path strings.
             :rtype: list<string>
             
         """
         fileList = []
-        for childName, childNode in bigTree.getChildren().items():
-            if childName not in littleTree.getChildren().keys():
-                fileList.extend(childNode.getAllFiles())
-            else:
-                if recurse and isinstance(childNode, DirNode):
-                    fileList.extend(self.getExtraFilesFromTree(childNode, 
-                            littleTree.getChildren()[childName], recurse))     
+        if isinstance(littleTree, DirNode) and isinstance(bigTree, DirNode)  :
+            for childName, childNode in bigTree.getChildren().items():
+                if childName not in littleTree.getChildren().keys():
+                    fileList.extend(childNode.getAllFiles())
+                else:
+                    if self.pathMode == 'Follow' and isinstance(childNode, DirNode):
+                        fileList.extend(self.getExtraFilesFromTree(childNode, 
+                                littleTree.getChildren()[childName]))     
         
         return fileList
 
-    def getChangedFilesFromTree(self, bigTree, littleTree, recurse=False, compare=['SIZE']):
+    def getChangedFilesFromTree(self, bigTree, littleTree, compare=['SIZE']):
         """
             Return a list of files that appear in both trees but differ in size.
         
@@ -295,10 +265,6 @@ class Directory(object):
                     A directory snapshot.
                 littleTree : DirNode
                     A directory snapshot.
-                recurse : boolean
-                    A flag to signal whether subdirectories should
-                    be checked recursively. If False then only the 
-                    files in the immediate directory will be compared.
                 compare : list<string>
                     A list of what file attribute should be compared.
                     
@@ -307,21 +273,21 @@ class Directory(object):
             
         """
         fileList = []
-        for childName, childNode in bigTree.getChildren().items():
-            if childName in littleTree.getChildren().keys():                
-                if isinstance(childNode, FileNode):
-                    if 'SIZE' in compare:
-                        if (childNode.getSize() != 
-                                littleTree.getChildren()[childName].getSize()):
-                            fileList.extend(childNode.getAllFiles())
-                     # if 'CTIME'...
-                     # if 'MTIME'...
+        if isinstance(littleTree, DirNode) and isinstance(bigTree, DirNode)  :
+            for childName, childNode in bigTree.getChildren().items():
+                if childName in littleTree.getChildren().keys():                
+                    if isinstance(childNode, FileNode):
+                        if 'SIZE' in compare:
+                            if (childNode.getSize() != 
+                                    littleTree.getChildren()[childName].getSize()):
+                                fileList.extend(childNode.getAllFiles())
+                         # if 'CTIME'...
+                         # if 'MTIME'...
                      
-                else:
-                    if recurse and isinstance(childNode, DirNode):
-                        fileList.extend(self.getChangedFilesFromTree(childNode, 
-                            littleTree.getChildren()[childName], 
-                            recurse, compare))     
+                    else:
+                        if self.pathMode == 'Follow' and isinstance(childNode, DirNode):
+                            fileList.extend(self.getChangedFilesFromTree(childNode, 
+                                littleTree.getChildren()[childName], compare))     
         
         return fileList
 
@@ -346,11 +312,11 @@ class Directory(object):
                 if self.getFile(fileName).getSize() > 0:
                     newFileList.append(fileName)
             except Exception, e:
-                print 'Exception in server: ', str(e)
-                print '    File: ', fileName
+                raise
+                
         return newFileList
             
-    def getChangedFiles(self, pathString, recurse=False, compare=['SIZE']):
+    def getChangedFiles(self, pathString, compare=['SIZE']):
         """
             Return lists of new, deleted and changed files in a subtree.
             
@@ -362,10 +328,6 @@ class Directory(object):
             :Parameters:
                 pathString : string
                     A list containing files as full path strings.
-                recurse : boolean
-                    A flag to signal whether subdirectories should
-                    be checked recursively. If False then only the 
-                    files in the immediate directory will be compared.
                 compare : list<string>
                     A list of what file attribute should be compared.
                     
@@ -381,9 +343,9 @@ class Directory(object):
         chgFileList = []
         
         if newTree != None or oldTree!= None:
-            newFileList = self.getExtraFilesFromTree(newTree, oldTree, recurse)
-            delFileList = self.getExtraFilesFromTree(oldTree, newTree, recurse)
-            chgFileList = self.getChangedFilesFromTree(newTree, oldTree, recurse, compare)
+            newFileList = self.getExtraFilesFromTree(newTree, oldTree)
+            delFileList = self.getExtraFilesFromTree(oldTree, newTree)
+            chgFileList = self.getChangedFilesFromTree(newTree, oldTree, compare)
         
         return newFileList, delFileList, chgFileList     
     
@@ -523,7 +485,7 @@ class DirNode(Node):
 
     """
 
-    def __init__(self, path, base):
+    def __init__(self, path, base, mode):
         """
             Create the tree for this node.
 
@@ -538,6 +500,7 @@ class DirNode(Node):
         #: children is a dictionary of child paths keyed by name
         self.children = {} 
         self.base = base
+        self.mode = mode
         
         # add each item in the directory to the dictionary
         #
@@ -562,7 +525,7 @@ class DirNode(Node):
             :rtype: string
             
         """
-        reprStr = padding + Node.__repr__(self) + '\n'
+        reprStr = padding + Node.__repr__(self) + '/\n'
         if len(self.children) > 0:
             for child in self.children.values():
                 reprStr += child.__repr__(padding=padding+'  ')
@@ -596,9 +559,11 @@ class DirNode(Node):
             if self.base.onWhitelist(path.ext): 
                 self.children[path.name] = FileNode(path)
         else:
-            if not self.base.onBlacklist(self.base.getPath().relpathto(path)):
-                self.children[path.name] = DirNode(path, self.base)
-
+            if self.mode == 'Flat':
+                self.children[path.name] = DirStub(path)
+            elif self.mode == 'Follow':
+                self.children[path.name] = DirNode(path, self.base, self.mode)
+                
     def getAllFiles(self):
         """
             Return a list form of the full filenames under the current node with 
@@ -741,3 +706,53 @@ class FileNode(Node):
         """
         return [self.pathString]        
 
+
+class DirStub(Node):
+    """
+        A direectory stub node.
+
+        A direectory stub cannot have children. It can have an extension.
+
+        :group Constructor: __init__
+        :group Other methods: getAllFiles
+        :group String Representation: __repr__
+
+    """
+
+    def __init__(self, path):
+        """
+            Set specific file attributes.
+
+            :Parameters:
+                path : pathModule.path object
+                    The path of this file node.
+
+        """
+        Node.__init__(self, path)
+        self.ext = path.ext
+
+    def __repr__(self,  padding=''):
+        """
+            Return a string form of current file node.
+
+            :Parameters:
+                padding : string
+                    On optional padding string to give a degree
+                    of nested output.
+
+            :return: String representation of the object.
+            :rtype: str
+
+        """
+        return padding + Node.__repr__(self) + '/X\n'
+
+
+    def getAllFiles(self):
+        """
+            Return a list form of the full filename of the current node
+
+            :return: List containing the path string.
+            :rtype: list<string>
+
+        """
+        return [self.pathString]        
