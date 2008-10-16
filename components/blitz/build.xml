@@ -85,7 +85,6 @@
 		<dsl template="${resrc.dir}/templates/ice_includes.vm" filepattern="${gen.dir}/omero/fwd.ice">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-                <fixcrlf srcDir="${gen.dir}/omero/" includes="fwd.ice"/>
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
