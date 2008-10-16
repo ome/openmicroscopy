@@ -96,7 +96,7 @@
         </copy>
         <scons_py>
             <arg value="install"/>
-        </scons_py
+        </scons_py>
         <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
         <copy todir="../target/include">
             <fileset dir="src"       includes="**/*.h"/>
