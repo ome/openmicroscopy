@@ -26,6 +26,15 @@
 		    <src path="${src.dir}"/>
 		    <src path="${src.dest}"/>
 		    <src path="${basedir}/generated"/>
+                    <include name="omero/**"/>
+                    <include name="omero/model/**"/>
+		</myjavac>
+		<myjavac>
+		    <src path="${src.dir}"/>
+		    <src path="${src.dest}"/>
+		    <src path="${basedir}/generated"/>
+                    <exclude name="omero/**"/>
+                    <exclude name="omero/model/**"/>
 		</myjavac>
                 <move file="${file.fake.sessionmanager}" tofile="${file.real.sessionmanager}"/>
 		<myjavac>
