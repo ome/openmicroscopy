@@ -144,9 +144,61 @@ module omero {
              * @return The raw plane in 2-d array of doubles.
              * @throws omero::ServerError
              */
-            idempotent DoubleArrayArray getPlane(long pixelsId, int z, int c, int t)
+            idempotent DoubleArrayArray getPlaneAsDouble(long pixelsId, int z, int c, int t)
                 throws omero::ServerError;
 
+			 /*
+	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
+	          * representing the plane, it returns doubles but will not lose data.
+	          * @param pixelsId id of the pixels to retrieve.
+	          * @param c the channel of the pixels to retrieve.
+	          * @param t the time point to retrieve.
+	          * @param z the z section to retrieve.
+	          * @return The raw plane in 2-d array of doubles.
+	          * @throws omero::ServerError
+	          */
+	         idempotent LongArrayArray getPlaneAsLong(long pixelsId, int z, int c, int t)
+	                throws omero::ServerError;
+	
+			 /*
+	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
+	          * representing the plane, it returns doubles but will not lose data.
+	          * @param pixelsId id of the pixels to retrieve.
+	          * @param c the channel of the pixels to retrieve.
+	          * @param t the time point to retrieve.
+	          * @param z the z section to retrieve.
+	          * @return The raw plane in 2-d array of doubles.
+	          * @throws omero::ServerError
+	          */
+	         idempotent IntegerArrayArray getPlaneAsInt(long pixelsId, int z, int c, int t)
+	                throws omero::ServerError;
+
+			 /*
+	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
+	          * representing the plane, it returns doubles but will not lose data.
+	          * @param pixelsId id of the pixels to retrieve.
+	          * @param c the channel of the pixels to retrieve.
+	          * @param t the time point to retrieve.
+	          * @param z the z section to retrieve.
+	          * @return The raw plane in 2-d array of doubles.
+	          * @throws omero::ServerError
+	          */
+	         idempotent ShortArrayArray getPlaneAsShort(long pixelsId, int z, int c, int t)
+	                throws omero::ServerError;
+	
+			 /*
+	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
+	          * representing the plane, it returns doubles but will not lose data.
+	          * @param pixelsId id of the pixels to retrieve.
+	          * @param c the channel of the pixels to retrieve.
+	          * @param t the time point to retrieve.
+	          * @param z the z section to retrieve.
+	          * @return The raw plane in 2-d array of doubles.
+	          * @throws omero::ServerError
+	          */
+	         idempotent ByteArrayArray getPlaneAsByte(long pixelsId, int z, int c, int t)
+	                throws omero::ServerError;
+	
             /*
              * Get the pixels information for an image, this method will also
              * attach the logical channels, channels, and other metadata in the pixels.
@@ -331,7 +383,7 @@ module omero {
              * @throws omero::ServerError
              */
             idempotent BufferedImage getRenderedImage(long pixelsId, int z, int t)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Render the pixels for the zSection z and timePoint t.
@@ -343,7 +395,7 @@ module omero {
              * @throws omero::ServerError
              */
             idempotent IntegerArrayArrayArray getRenderedImageMatrix(long pixelsId, int z, int t)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Render the pixels for the zSection z and timePoint t.
@@ -355,7 +407,7 @@ module omero {
              * @throws omero::ServerError
              */
             idempotent IntegerArray renderAsPackedInt(long pixelsId, int z, int t)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Set the active channels to be on or off in the rendering engine for
@@ -366,7 +418,7 @@ module omero {
              * @throws omero::ServerError
              */
             void setActive(long pixelsId, int w, bool active)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Is the channel active, turned on in the rendering engine.
@@ -376,7 +428,7 @@ module omero {
              * @throws omero::ServerError
              */
             idempotent bool isActive(long pixelsId, int w)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Get the default zSection of the image, this is the zSection the image
@@ -386,7 +438,7 @@ module omero {
              * @throws omero::ServerError
              */
             idempotent int getDefaultZ(long pixelsId)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Get the default time-point of the image, this is the time-point the image
@@ -396,7 +448,7 @@ module omero {
              * @throws omero::ServerError
              */
             idempotent int getDefaultT(long pixelsId)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Set the default zSection of the image, this is the zSection the image
@@ -406,7 +458,7 @@ module omero {
              * @throws omero::ServerError
              */
             void setDefaultZ(long pixelsId, int z)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Set the default timepoint of the image, this is the timepoint the image
@@ -416,7 +468,7 @@ module omero {
              * @throws omero::ServerError
              */
             void setDefaultT(long pixelsId, int t)
-		throws omero::ServerError;
+				throws omero::ServerError;
 
             /*
              * Set the channel Minimum, Maximum values, that map from image space to
@@ -534,7 +586,7 @@ module omero {
             long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
                              IntegerList channelList, omero::model::PixelsType pixelsType, string name,
                              string description)
-		throws omero::ServerError;
+								throws omero::ServerError;
             /*
              * Get the images from as dataset.
              * @param dataset see above.
@@ -553,8 +605,58 @@ module omero {
              * @return see above.
              * @throws omero::ServerError
              */
-            idempotent DoubleArrayArray getPlaneFromImage(long imageId, int z, int c, int t)
-		throws omero::ServerError;
+            idempotent DoubleArrayArray getPlaneFromImageAsDouble(long imageId, int z, int c, int t)
+				throws omero::ServerError;
+
+			/**
+			 * Get the plane from the image with imageId.
+			 * @param imageId see above.
+			 * @param z zSection of the plane.
+			 * @param c channel of the plane.
+			 * @param t timepoint of the plane.
+			 * @return see above.
+			 * @throws DSOutOfServiceException
+			 * @throws omero.ServerError
+			 */
+			idempotent LongArrayArray getPlaneFromImageAsLong(long imageId, int z, int c, int t) throws  omero::ServerError;
+
+
+			/**
+			 * Get the plane from the image with imageId.
+			 * @param imageId see above.
+			 * @param z zSection of the plane.
+			 * @param c channel of the plane.
+			 * @param t timepoint of the plane.
+			 * @return see above.
+			 * @throws DSOutOfServiceException
+			 * @throws omero.ServerError
+			 */
+			idempotent IntegerArrayArray getPlaneFromImageAsInteger(long imageId, int z, int c, int t) throws  omero::ServerError;
+
+
+			/**
+			 * Get the plane from the image with imageId.
+			 * @param imageId see above.
+			 * @param z zSection of the plane.
+			 * @param c channel of the plane.
+			 * @param t timepoint of the plane.
+			 * @return see above.
+			 * @throws DSOutOfServiceException
+			 * @throws omero.ServerError
+			 */
+			idempotent ShortArrayArray getPlaneFromImageAsShort(long imageId, int z, int c, int t) throws  omero::ServerError;
+	
+			/**
+			 * Get the plane from the image with imageId.
+			 * @param imageId see above.
+			 * @param z zSection of the plane.
+			 * @param c channel of the plane.
+			 * @param t timepoint of the plane.
+			 * @return see above.
+			 * @throws DSOutOfServiceException
+			 * @throws omero.ServerError
+			 */
+			idempotent ByteArrayArray getPlaneFromImageAsByte(long imageId, int z, int c, int t) throws  omero::ServerError;
 
             /*
              * This is a helper method and makes no calls to the server. It
@@ -694,6 +796,34 @@ module omero {
              */
             idempotent void keepAlive()
                 throws omero::ServerError;
+
+			/**
+			 * Close the renderingService for which is accessing pixels with id.
+			 * @param pixelsId see above.
+			 * @throws ServerError
+			 */
+			idempotent void closeRenderingService(long pixelsId) throws omero::ServerError;
+
+			/**
+			 * Close the PixelsStoreService for which is accessing pixels with id.
+			 * @param pixelsId see above.
+			 * @throws ServerError
+			 */
+			idempotent void closePixelsStoreService(long pixelsId) throws omero::ServerError;
+
+			/**
+			 * Close the fileService for which is accessing original file with id.
+			 * @param originalFile see above.
+			 * @throws ServerError
+			 */
+			idempotent void closeRawFileService(long fileId)  throws omero::ServerError;
+
+			/**
+			 * Close the ThumbnailService for which is accessing pixels  with id.
+			 * @param pixelsId see above.
+			 * @throws ServerError
+			 */
+			idempotent void closeThumbnailService(long pixelsId)  throws omero::ServerError;
 
         };
 
