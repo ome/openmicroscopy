@@ -40,4 +40,8 @@
         <delete dir="${copy.dir}"/>
     </target>
 
+    <!-- Temporary: this will be moved to scons.xml -->
+    <target name="findbugs">
+        <echo>Not yet implemented</echo>
+    </target>
 </project>
