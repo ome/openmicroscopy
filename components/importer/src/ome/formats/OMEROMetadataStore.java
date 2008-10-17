@@ -1790,22 +1790,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /* ---- Light Source Settings ---- */
 
-    /* Assuming we're working with Light Sources now */
-    public void setLightSourceID(String id, int instrumentIndex,
-            int lightSourceIndex)
+    public void setLightSourceID(String id, int instrumentIndex, int lightSourceIndex)
     {
-        // Add this lsid to the lsidMap and set currentID = id.
-        mapLSID(id);
-        
-        log.debug(String.format(
-                "Mapping LightSourceID[%s] InstrumentIndex[%d] lightSourceIndex[%d]",
-                id, instrumentIndex, lightSourceIndex));    
+        currentLSID = "ome.formats.importer.lightsource." + instrumentIndex + "." + lightSourceIndex;
+        mapLSID(currentLSID);    
     }
  
     /* Based on the currentLSID we have stored, see if the lightsource is set, if not, set it */
-    private LightSource getLightSource(Instrument instrument, int lightSourceIndex)
+    private LightSource getLightSource(int instrumentIndex, int lightSourceIndex)
     {
+        setLightSourceID(null, instrumentIndex, lightSourceIndex);
         
+        Instrument instrument = getInstrument(instrumentIndex);
+    	
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             MetaLightSource mls = new MetaLightSource();
@@ -1865,9 +1862,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLightSourceManufacturer[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 manufacturer, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        LightSource ls = getLightSource(instrument, lightSourceIndex);            
+
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
         if (ls != null)
             ls.setManufacturer(manufacturer);
     }
@@ -1878,8 +1874,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setLightSourceModel[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 model, instrumentIndex, lightSourceIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        LightSource ls = getLightSource(instrument, lightSourceIndex);            
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
         if (ls != null)
             ls.setModel(model);
     }
@@ -1890,8 +1885,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setLightSourceSerialNumber[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 serialNumber, instrumentIndex, lightSourceIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        LightSource ls = getLightSource(instrument, lightSourceIndex);            
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
         if (ls != null)
             ls.setSerialNumber(serialNumber);
     }
@@ -1903,16 +1897,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setLightSourcePower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
                 power, instrumentIndex, lightSourceIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        LightSource ls = getLightSource(instrument, lightSourceIndex);            
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
         if (ls != null)
             ls.setPower(power);
     }
 
     /* ---- Laser ---- */ 
 
-    public Laser getLaser(Instrument instrument, int lightSourceIndex)
+    public Laser getLaser(int instrumentIndex, int lightSourceIndex)
     {
+        setLightSourceID(null, instrumentIndex, lightSourceIndex);
+        
+        Instrument instrument = getInstrument(instrumentIndex);
+    	
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             Laser laser = new Laser();
@@ -1935,7 +1932,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             }
         }  
         
-        LightSource ls = getLightSource(instrument, lightSourceIndex);
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);
         if (ls instanceof Laser)
         {
             return (Laser) ls; 
@@ -1949,9 +1946,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLaserFrequencyMultiplication[%d] instrumentIndex[%d] lightSourceIndex[%d]",
                 frequencyMultiplication, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex);  
+
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex);  
         if (frequencyMultiplication != null && laser != null)
         {
             laser.setFrequencyMultiplication((FrequencyMultiplication)
@@ -1966,9 +1962,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLaserLaserMedium[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 laserMedium, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex);            
+
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
         if (laser != null)
             laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, laserMedium));   
     }
@@ -1979,8 +1974,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setLaserPower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
                 power, instrumentIndex, lightSourceIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex);            
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
         if (laser != null)
             laser.setPower(power);
     }
@@ -1990,9 +1984,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLaserPulse[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 pulse, instrumentIndex, lightSourceIndex));  
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex);            
+
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
         if (laser != null)
             laser.setPulse((Pulse) getEnumeration(Pulse.class, pulse));   
     }
@@ -2002,9 +1995,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLaserTuneable[%b] instrumentIndex[%d] lightSourceIndex[%d]",
                 tuneable, instrumentIndex, lightSourceIndex));   
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex);            
+
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
         if (laser != null)
             laser.setTunable(tuneable);   
     }
@@ -2014,9 +2006,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLaserType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 type, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex);            
+
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
         if (laser != null)
             laser.setType((LaserType) getEnumeration(LaserType.class, type)); 
     }
@@ -2026,17 +2017,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setLaserWavelength[%d] instrumentIndex[%d] lightSourceIndex[%d]",
                 wavelength, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Laser laser = getLaser(instrument, lightSourceIndex); 
+
+        Laser laser = getLaser(instrumentIndex, lightSourceIndex); 
         if (laser != null)
             laser.setWavelength(wavelength);    
     }
 
     /* ---- Arc ---- */
 
-    public Arc getArc(Instrument instrument, int lightSourceIndex)
+    public Arc getArc(int instrumentIndex, int lightSourceIndex)
     {
+        setLightSourceID(null, instrumentIndex, lightSourceIndex);
+        
+        Instrument instrument = getInstrument(instrumentIndex);
+        
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             Arc arc = new Arc();
@@ -2057,8 +2051,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             }
         }
         
-        LightSource ls = getLightSource(instrument, lightSourceIndex);
-        if (getLightSource(instrument, lightSourceIndex) instanceof Arc)
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);
+        if (ls instanceof Arc)
         {
             return (Arc) ls;
         }  
@@ -2070,9 +2064,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setArcPower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
                 power, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Arc arc = getArc(instrument, lightSourceIndex); 
+
+        Arc arc = getArc(instrumentIndex, lightSourceIndex); 
         if (arc != null)
             arc.setPower(power);
     }
@@ -2082,18 +2075,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setArcType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 type, instrumentIndex, lightSourceIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Arc arc = getArc(instrument, lightSourceIndex);    
+
+        Arc arc = getArc(instrumentIndex, lightSourceIndex);    
         if (arc != null)
             arc.setType((ArcType) getEnumeration(ArcType.class, type));
     }
 
 
     /* ---- Filament ---- */
-
-    public Filament getFilament(Instrument instrument, int lightSourceIndex)
+    
+    public Filament getFilament(int instrumentIndex, int lightSourceIndex)
     {
+    	setLightSourceID(null, instrumentIndex, lightSourceIndex);
+        
+        Instrument instrument = getInstrument(instrumentIndex);
+    	
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             Filament filament = new Filament();
@@ -2113,8 +2109,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             }
         }
         
-        LightSource ls = getLightSource(instrument, lightSourceIndex);
-        if (getLightSource(instrument, lightSourceIndex) instanceof Filament)
+        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);
+        if (ls instanceof Filament)
         {
             return (Filament) ls;
         }  
@@ -2127,8 +2123,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setFilamentPower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
                 power, instrumentIndex, lightSourceIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Filament filament = getFilament(instrument, lightSourceIndex); 
+        Filament filament = getFilament(instrumentIndex, lightSourceIndex); 
         if (filament != null)
             filament.setPower(power);
     }
@@ -2139,8 +2134,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setFilamentType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 type, instrumentIndex, lightSourceIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Filament filament = getFilament(instrument, lightSourceIndex); 
+        Filament filament = getFilament(instrumentIndex, lightSourceIndex); 
         if (filament != null)
             filament.setType((FilamentType) getEnumeration(FilamentType.class, type)); 
     }
@@ -2150,16 +2144,16 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
     {
-        // Add this lsid to the lsidMap and set currentID = id.
-        mapLSID(id);
-        
-        log.debug(String.format(
-                "Mapping DetectorID[%s] InstrumentIndex[%d] detectorIndex[%d]",
-                id, instrumentIndex, detectorIndex));    
+        currentLSID = "ome.formats.importer.detector." + instrumentIndex + "." + detectorIndex;
+        mapLSID(currentLSID);    
     }
 
-    private Detector getDetector(Instrument instrument, int detectorIndex)
+    private Detector getDetector(int instrumentIndex, int detectorIndex)
     {
+    	setDetectorID(null, instrumentIndex, detectorIndex);
+        
+        Instrument instrument = getInstrument(instrumentIndex);
+        
         if ((instrument.sizeOfDetector() - 1) < detectorIndex)
         {
             Detector detector = new Detector();
@@ -2176,8 +2170,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setDetectorGain[%f] instrumentIndex[%d] detectorIndex[%d]",
                 gain, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setGain(gain);
     }
@@ -2188,8 +2181,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setDetectorManufacturer[%s] instrumentIndex[%d] detectorIndex[%d]",
                 manufacturer, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setManufacturer(manufacturer);
     }
@@ -2200,8 +2192,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setDetectorModel[%s] instrumentIndex[%d] detectorIndex[%d]",
                 model, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setManufacturer(model);
     }
@@ -2212,8 +2203,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setDetectorOffset[%f] instrumentIndex[%d] detectorIndex[%d]",
                 offset, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setOffsetValue(offset);
     }
@@ -2224,8 +2214,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setDetectorSerialNumber[%s] instrumentIndex[%d] detectorIndex[%d]",
                 serialNumber, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setSerialNumber(serialNumber);
     }
@@ -2236,8 +2225,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setDetectorType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
                 type, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setType((DetectorType) getEnumeration(DetectorType.class, type)); 
     }
@@ -2245,11 +2233,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setDetectorVoltage(Float voltage, int instrumentIndex,
             int detectorIndex) {
         log.debug(String.format(
-                "setDetectorOffset[%f] instrumentIndex[%d] detectorIndex[%d]",
+                "setDetectorVoltage[%f] instrumentIndex[%d] detectorIndex[%d]",
                 voltage, instrumentIndex, detectorIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Detector detector = getDetector(instrument, detectorIndex); 
+        Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
             detector.setVoltage(voltage);  
     }
@@ -2259,17 +2246,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveID(String id, int instrumentIndex,
             int objectiveIndex)
     {
-        // Add this lsid to the lsidMap and set currentID = id.
-        mapLSID(id);
-
-        log.debug(String.format(
-                "Mapping ObjectiveID[%s] InstrumentIndex[%d] detectorIndex[%d]",
-                id, instrumentIndex, objectiveIndex));    
+        currentLSID = "ome.formats.importer.objective." + instrumentIndex + "." + objectiveIndex;
+        mapLSID(currentLSID);   
     }
 
-    private Objective getObjective(Instrument instrument, int objectiveIndex)
+    private Objective getObjective(int instrumentIndex, int objectiveIndex)
     {
-        if ((instrument.sizeOfDetector() - 1) < objectiveIndex)
+        setObjectiveID(null, instrumentIndex, objectiveIndex);
+        
+        Instrument instrument = getInstrument(instrumentIndex);
+        
+        if ((instrument.sizeOfObjective() - 1) < objectiveIndex)
         {
             Objective objective = new Objective();
             lsidMap.put(currentLSID, objective);
@@ -2283,11 +2270,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             Float calibratedMagnification, int instrumentIndex, int objectiveIndex) 
     {
         log.debug(String.format(
-                "setObjectiveCalibratedMagnification[%f] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveCalibratedMagnification[%f] instrumentIndex[%d] objectiveIndex[%d]",
                 calibratedMagnification, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null && calibratedMagnification != null) // fix for older ome formats
             objective.setMagnificiation(calibratedMagnification.doubleValue());
     }
@@ -2295,11 +2281,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
             int objectiveIndex) {
         log.debug(String.format(
-                "setObjectiveImmersion[%s] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveImmersion[%s] instrumentIndex[%d] objectiveIndex[%d]",
                 immersion, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setImmersion((Immersion) getEnumeration(Immersion.class, immersion)); 
     }
@@ -2307,11 +2292,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
             int objectiveIndex) {
         log.debug(String.format(
-                "setObjectiveLensNA[%f] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveLensNA[%f] instrumentIndex[%d] objectiveIndex[%d]",
                 lensNA, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setLensNA(lensNA); 
     }
@@ -2319,11 +2303,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveManufacturer(String manufacturer,
             int instrumentIndex, int objectiveIndex) {
         log.debug(String.format(
-                "setObjectiveManufacturer[%s] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveManufacturer[%s] instrumentIndex[%d] objectiveIndex[%d]",
                 manufacturer, instrumentIndex, objectiveIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setManufacturer(manufacturer); 
     }
@@ -2331,11 +2314,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveModel(String model, int instrumentIndex,
             int objectiveIndex) {
         log.debug(String.format(
-                "setObjectiveModel[%s] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveModel[%s] instrumentIndex[%d] objectiveIndex[%d]",
                 model, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setModel(model); 
     }
@@ -2344,11 +2326,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             int instrumentIndex, int objectiveIndex) 
     {
         log.debug(String.format(
-                "setObjectiveNominalMagnification[%d] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveNominalMagnification[%d] instrumentIndex[%d] objectiveIndex[%d]",
                 nominalMagnification, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setMagnificiation(nominalMagnification.doubleValue());
     }
@@ -2357,11 +2338,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             int instrumentIndex, int objectiveIndex) 
     {
         log.debug(String.format(
-                "setObjectiveSerialNumber[%s] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveSerialNumber[%s] instrumentIndex[%d] objectiveIndex[%d]",
                 serialNumber, instrumentIndex, objectiveIndex));
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setSerialNumber(serialNumber);
     }
@@ -2369,11 +2349,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveWorkingDistance(Float workingDistance,
             int instrumentIndex, int objectiveIndex) {
         log.debug(String.format(
-                "setObjectiveWorkingDistance[%f] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveWorkingDistance[%f] instrumentIndex[%d] objectiveIndex[%d]",
                 workingDistance, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        //Objective objective = getObjective(instrument, objectiveIndex); 
         //if (objective != null)
         //    objective.set;
         
@@ -2387,19 +2366,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         mapLSID(id);
         
         log.debug(String.format(
-                "Mapping OTFID[%s] InstrumentIndex[%d] detectorIndex[%d]",
+                "Mapping OTFID[%s] InstrumentIndex[%d] otfIndex[%d]",
                 id, instrumentIndex, otfIndex));
     }
     
     private OTF getOTF(Instrument instrument, int otfIndex)
     {
-        if ((instrument.sizeOfDetector() - 1) < otfIndex)
-        {
-            OTF otf = new OTF();
-            lsidMap.put(currentLSID, otf);
-        } 
-
-        return (OTF) lsidMap.get(currentLSID);
+        //if ((instrument.sizeOfDetector() - 1) < otfIndex)
+        //{
+        //    OTF otf = new OTF();
+        //    lsidMap.put(currentLSID, otf);
+        //} 
+    	// return (OTF) lsidMap.get(currentLSID);
+    	return null;
     }
     
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
@@ -3334,8 +3313,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "setObjectiveCorrection[%s] instrumentIndex[%d] detectorIndex[%d]",
                 correction, instrumentIndex, objectiveIndex));
         
-        Instrument instrument = getInstrument(instrumentIndex);
-        Objective objective = getObjective(instrument, objectiveIndex); 
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         //if (objective != null)
             // needs to be added
     }
