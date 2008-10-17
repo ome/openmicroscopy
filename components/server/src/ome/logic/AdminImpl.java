@@ -448,7 +448,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         iUpdate.saveObject(experimenter);
         getBeanHelper().getLogger().info("Updated user info for " + name);
     }
-    
+
     @RolesAllowed("system")
     public void updateExperimenterWithPassword(@NotNull
     Experimenter experimenter, String password) {
@@ -505,11 +505,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 "Created user with blank password: " + e.getOmeName());
         return e.getId();
     }
-    
+
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
-    public long createExperimenterWithPassword(Experimenter experimenter, 
-            String password, ExperimenterGroup defaultGroup, 
+    public long createExperimenterWithPassword(Experimenter experimenter,
+            String password, ExperimenterGroup defaultGroup,
             ExperimenterGroup... otherGroups) {
 
         SecureAction action = new SecureUpdate(iUpdate);
@@ -1064,35 +1064,42 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (null == id) {
             if (ldap != null) {
                 // Try to create account from LDAP if set
-                boolean login = ldap.createUserFromLdap(name, password);
-                if (login) {
-                    return true; // User exists on LDAP
+                try {
+                    boolean login = ldap.createUserFromLdap(name, password);
+                    if (login) {
+                        return true; // User exists on LDAP
+                    }
+                } catch (ApiUsageException e) {
+                    return false;
                 }
+                return false;
             }
             return false; // Unknown user. TODO Guest?
         }
+        // User exist
         String hash = PasswordUtil.getUserPasswordHash(jdbc, id);
         if (hash == null) {
-            return false; // Password is turned off.
-        } else if (hash.trim().length() == 0) {
-            // Check type of authentication if hash is empty
-            // Try to get DN
-            String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
-            if (dn == null) {
-                return true; // Password is blank. Open for all.
-            } else {
-                if (ldap != null) {
-                    // if LDAP Plugin is on try to verify password
-                    if (ldap.validatePassword(dn, password)) {
+            if (ldap != null) {
+                // Check type of authentication if hash is empty
+                // Try to get DN
+                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+                if (null == dn) {
+                    return false; // no DN. Unknown user. TODO Guest?
+                } 
+                try {
+                    if (ldap.validatePassword(dn, password))
                         return true;
-                    }
+                } catch (ApiUsageException e) {
+                    return false;
                 }
             }
-            return false; // Wrong password from LDAP
+            return false; // Password is turned off.
+        } else if (hash.trim().length() == 0) {
+            return true;
         }
-
         String digest = PasswordUtil.preparePassword(password);
         return hash.equals(digest);
+
     }
 
     // ~ Security context
