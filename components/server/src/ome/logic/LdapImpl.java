@@ -220,12 +220,6 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     }
 
     @RolesAllowed("system")
-    public Attributes searchAttributes() {
-
-        return null;
-    }
-
-    @RolesAllowed("system")
     public List<String> searchDnInGroups(String attr, String value) {
         if (attr != null && !attr.equals("") && value != null
                 && !value.equals("")) {

@@ -148,13 +148,21 @@ module omero {
 	{
 	    idempotent ExperimenterList searchAll() throws ServerError;
 	    idempotent StringSet searchDnInGroups(string attr, string value) throws ServerError;
-	    idempotent ExperimenterList searchByAttribute(string attribute, string value) throws ServerError;
+	    idempotent ExperimenterList searchByAttribute(string dn, string attribute, string value) throws ServerError;
+	    idempotent ExperimenterList searchByAttributes(string dn, StringSet attributes, StringSet values) throws ServerError;
 	    idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
 	    idempotent string findDN(string username) throws ServerError;
-	    idempotent void setDN(long experimenterID, string dn) throws ServerError;
+	    idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
+	    idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
 	    idempotent ExperimenterGroupList searchGroups() throws ServerError;
-	    idempotent StringSet searchAttributes() throws ServerError;
-	    idempotent bool checkAttributes(string dn, StringSet attrs) throws ServerError;
+	    idempotent StringSet getReqGroups() throws ServerError;
+	    idempotent StringSet getReqAttributes() throws ServerError;
+	    idempotent StringSet getReqValues() throws ServerError;
+	    idempotent void setReqGroups(StringSet groups) throws ServerError;
+	    idempotent void setReqAttributes(StringSet attrs) throws ServerError;
+	    idempotent void setReqValues(StringSet vals) throws ServerError;
+	    idempotent bool getSetting() throws ServerError;
+	    
 	};
 
 

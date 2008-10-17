@@ -16,15 +16,22 @@ import omero.ApiUsageException;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
-import omero.api.AMD_ILdap_checkAttributes;
 import omero.api.AMD_ILdap_findDN;
+import omero.api.AMD_ILdap_findExperimenter;
+import omero.api.AMD_ILdap_getReqGroups;
+import omero.api.AMD_ILdap_getReqAttributes;
+import omero.api.AMD_ILdap_getReqValues;
+import omero.api.AMD_ILdap_getSetting;
 import omero.api.AMD_ILdap_searchAll;
-import omero.api.AMD_ILdap_searchAttributes;
 import omero.api.AMD_ILdap_searchByAttribute;
+import omero.api.AMD_ILdap_searchByAttributes;
 import omero.api.AMD_ILdap_searchByDN;
 import omero.api.AMD_ILdap_searchDnInGroups;
 import omero.api.AMD_ILdap_searchGroups;
 import omero.api.AMD_ILdap_setDN;
+import omero.api.AMD_ILdap_setReqGroups;
+import omero.api.AMD_ILdap_setReqAttributes;
+import omero.api.AMD_ILdap_setReqValues;
 import omero.api._ILdapOperations;
 import Ice.Current;
 
@@ -44,60 +51,107 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
     // Interface methods
     // =========================================================================
 
-    public void checkAttributes_async(AMD_ILdap_checkAttributes __cb,
-            String dn, List<String> attrs, Current __current)
-            throws ServerError {
-        
-        callInvokerOnRawArgs(__cb, __current, dn, attrs);
-        
-    }
-
-    public void findDN_async(AMD_ILdap_findDN __cb, String username,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, username);        
-    }
+    /*
+     * public void checkAttributes_async(AMD_ILdap_checkAttributes __cb, String
+     * dn, List<String> attrs, Current __current) throws ServerError {
+     * 
+     * callInvokerOnRawArgs(__cb, __current, dn, attrs); }
+     */
 
     public void searchAll_async(AMD_ILdap_searchAll __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-        
+
     }
 
-    public void searchAttributes_async(AMD_ILdap_searchAttributes __cb,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
-        
-    }
-
-    public void searchByAttribute_async(AMD_ILdap_searchByAttribute __cb,
+    public void searchDnInGroups_async(AMD_ILdap_searchDnInGroups __cb,
             String attribute, String value, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, attribute, value);
-        
+
+    }
+
+    public void searchByAttribute_async(AMD_ILdap_searchByAttribute __cb,
+            String dn, String attribute, String value, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, attribute, value);
+
+    }
+
+    public void searchByAttributes_async(AMD_ILdap_searchByAttributes __cb,
+            String dn, List<String> attributes, List<String> values,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, dn, attributes, values);
+
     }
 
     public void searchByDN_async(AMD_ILdap_searchByDN __cb, String userdn,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, userdn);
-        
+
     }
 
-    public void searchDnInGroups_async(AMD_ILdap_searchDnInGroups __cb,
-            String attr, String value, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, attr, value);
-        
+    public void findDN_async(AMD_ILdap_findDN __cb, String username,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, username);
+    }
+
+    public void findExperimenter_async(AMD_ILdap_findExperimenter __cb,
+            String username, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, username);
+    }
+
+    public void setDN_async(AMD_ILdap_setDN __cb, omero.RLong experimenterID,
+            String dn, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, experimenterID, dn);
+
     }
 
     public void searchGroups_async(AMD_ILdap_searchGroups __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-        
+
     }
 
-    public void setDN_async(AMD_ILdap_setDN __cb, long experimenterID,
-            String dn, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, experimenterID, dn);
-        
+    public void getReqGroups_async(AMD_ILdap_getReqGroups __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+
     }
 
+    public void getReqAttributes_async(AMD_ILdap_getReqAttributes __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void getReqValues_async(AMD_ILdap_getReqValues __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void setReqGroups_async(AMD_ILdap_setReqGroups __cb,
+            List<String> groups, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, groups);
+
+    }
+
+    public void setReqAttributes_async(AMD_ILdap_setReqAttributes __cb,
+            List<String> attrs, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, attrs);
+
+    }
+
+    public void setReqValues_async(AMD_ILdap_setReqValues __cb,
+            List<String> vals, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void getSetting_async(AMD_ILdap_getSetting __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
 }

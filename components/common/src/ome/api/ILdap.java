@@ -164,13 +164,6 @@ public interface ILdap extends ServiceInterface {
 	 */
 	List<ExperimenterGroup> searchGroups();
 
-	/**
-	 * Searchs all {@link javax.naming.directory.Attributes} in LDAP
-	 * 
-	 * @return {@link javax.naming.directory.Attributes}
-	 */
-	Attributes searchAttributes();
-
 	//  ~ Getters and Setters Ldap rewuiroments from properties file
 	// =========================================================================
 
