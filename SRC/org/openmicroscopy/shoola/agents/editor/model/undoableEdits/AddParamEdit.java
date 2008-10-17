@@ -31,14 +31,14 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.undo.AbstractUndoableEdit;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * This is an undoable edit for adding a Parameter to a Field. 
@@ -101,17 +101,17 @@ public class AddParamEdit
 		this.tree = tree;
 		this.node = node;
 		
-		field.addParam(param);
+		field.addContent(param);
 		notifySelectStartEdit();
 	}
 	
 	public void undo() {
-		indexOfParam = field.removeParam(param);
+		indexOfParam = field.removeContent(param);
 		notifySelectStartEdit();
 	}
 	
 	public void redo() {
-		field.addParam(indexOfParam, param);
+		field.addContent(indexOfParam, param);
 		notifySelectStartEdit();
 	}
 	

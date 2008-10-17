@@ -61,11 +61,6 @@ public class Field
 	public static final String 		FIELD_NAME = "fieldName";
 	
 	/**
-	 * A property of this field. The attribute for an optional Description.
-	 */
-	public static final String 		FIELD_DESCRIPTION = "fieldDescription";
-	
-	/**
 	 * A property of this field. The attribute for an optional Url.
 	 */
 	public static final String 		FIELD_URL = "fieldUrl";
@@ -87,7 +82,7 @@ public class Field
 	 * The list of Parameters, representing experimental variables for this 
 	 * field.
 	 */
-	private List<IParam> 			fieldParams;
+	private List<IFieldContent> 			fieldParams;
 	
 	/**
 	 * A reference to a lock that may be applied to this field to prevent
@@ -115,7 +110,7 @@ public class Field
 	{
 		templateAttributesMap = new HashMap<String, String>();
 		displayAttributesMap = new HashMap<String, String>();
-		fieldParams = new ArrayList<IParam>();
+		fieldParams = new ArrayList<IFieldContent>();
 	}
 	
 	/**
@@ -135,10 +130,18 @@ public class Field
 		
 		newField.setAllAttributes(newAtt);
 		
-		for (int i=0; i<getParamCount(); i++) {
-			IParam param = getParamAt(i);
-			IParam newP = FieldParamsFactory.cloneParam(param);
-			newField.addParam(newP);
+		for (int i=0; i<getContentCount(); i++) {
+			
+			IFieldContent content = getContentAt(i);
+			if (content instanceof IParam) {
+				IParam param = (IParam)content;
+					IParam newP = FieldParamsFactory.cloneParam(param);
+				newField.addContent(newP);
+			} else if (content instanceof TextContent) {
+				TextContent text = (TextContent)content;
+				TextContent newText = new TextContent(text);	// clone content
+				newField.addContent(newText);
+			}
 		}
 		
 		return newField;
@@ -205,6 +208,7 @@ public class Field
 	}
 
 	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * Convenience method for querying the attributes map for 
 	 * boolean attributes.
 	 */
@@ -216,6 +220,7 @@ public class Field
 
 	
 	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * This method tests to see whether the field has been filled out. 
 	 * ie, Has the user entered a "valid" value into the Form. 
 	 * This will return false if any of the parameters for this field are
@@ -225,48 +230,56 @@ public class Field
 	 */
 	public boolean isFieldFilled() {
 		
-		for (IParam param : fieldParams) {
-			if (! param.isParamFilled()) {
-				return false;
+		for (IFieldContent content : fieldParams) {
+			if (content instanceof IParam) {
+				IParam param = (IParam)content;
+				if (! param.isParamFilled()) {
+					return false;
+				}
 			}
 		}
 		return true;
 	}
 
 	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * Returns the number of IParam parameters for this field.
 	 */
-	public int getParamCount() {
+	public int getContentCount() {
 		return fieldParams.size();
 	}
 
 	/**
-	 * Returns the parameter of this field at the given index.
+	 * Implemented as specified by the {@link IField} interface.
+	 * Returns the content of this field at the given index.
 	 */
-	public IParam getParamAt(int index) {
+	public IFieldContent getContentAt(int index) {
 		return fieldParams.get(index);
 	}
 
 	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * Adds a parameter to the list for this field
 	 */
-	public void addParam(IParam param) {
+	public void addContent(IFieldContent param) {
 		if (param != null)
 			fieldParams.add(param);
 	}
 	
 	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * Adds a parameter to the list for this field
 	 */
-	public void addParam(int index, IParam param) {
+	public void addContent(int index, IFieldContent param) {
 		if (param != null)
 			fieldParams.add(index, param);
 	}
 
 	/**
-	 * Removes the specified parameter from the list. 
+	 * Implemented as specified by the {@link IField} interface.
+	 * Removes the specified content from the list. 
 	 */
-	public int removeParam(IParam param) {
+	public int removeContent(IFieldContent param) {
 		int index = fieldParams.indexOf(param);
 		
 		fieldParams.remove(param);
@@ -299,16 +312,12 @@ public class Field
 	 */
 	public String getToolTipText() 
 	{
-		String desc = getAttribute(FIELD_DESCRIPTION);
 		String toolTipText = "";
-		if (desc != null)
-		{
-			toolTipText = toolTipText + desc;
-		}
+		
 		String paramText;
-		for (int i=0; i<getParamCount(); i++) {
-			paramText = getParamAt(i).toString();
-			if (paramText.length() > 0)
+		for (int i=0; i<getContentCount(); i++) {
+			paramText = getContentAt(i).toString();
+			if ((paramText != null) && (paramText.length() > 0))
 			{
 				if (toolTipText.length() > 0) 
 					toolTipText = toolTipText + ", ";
@@ -346,5 +355,33 @@ public class Field
 		if (fieldLock == null)	return false;
 	
 		return (! (fieldLock.getLockLevel() == Lock.NOT_LOCKED));
+	}
+	
+	/**
+	 * Returns an html representation of the field. 
+	 * 
+	 * @return
+	 */
+	public String toHtmlString() {
+		
+		String fieldName = getAttribute(Field.FIELD_NAME);
+		
+		String text = fieldName + ": ";
+		String contentText;
+		IFieldContent content;
+		
+		for (int index=0; index<fieldParams.size(); index++) {
+			content = fieldParams.get(index);
+			if (content instanceof IParam) {
+				contentText = "<a href='" + index + "'>" + 
+				content.toString() + "</a>";
+			} else {
+				contentText = content.toString();
+			}
+			
+			text = text + " " + contentText;
+		}
+		return text;
+		
 	}
 }

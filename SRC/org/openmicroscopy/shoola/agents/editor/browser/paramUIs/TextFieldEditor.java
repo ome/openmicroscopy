@@ -36,8 +36,9 @@ import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
 
 /** 
- * This is an editing component that edits a text value in a 
- * IFieldValue object. 
+ * This is a text editing component that edits an attribute in an
+ * instance of IParam. The name of the attribute can be specified in 
+ * the constructor, or will otherwise be {@link SingleParam#PARAM_VALUE}
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -62,14 +63,15 @@ public class TextFieldEditor
 	private JTextField 			textField;
 	
 	/**
-	 * initialises the text field, adds listeners to call attributeEdited()
+	 * Initialises the text field, adds listeners to call 
+	 * {@link #attributeEdited(String, Object)}
 	 * when focus lost (if text has been edited), and sets text. 
 	 */
 	private void initialise() 
 	{
 		String value = getParameter().getAttribute(attributeName);
 		
-		textField = new CustomTextField(150);
+		textField = new CustomTextField(150);		// 150 width
 		AttributeEditListeners.addListeners(textField, this, attributeName);
 		
 		textField.setText(value);

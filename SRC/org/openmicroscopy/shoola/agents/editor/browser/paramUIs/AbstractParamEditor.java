@@ -52,14 +52,14 @@ public abstract class AbstractParamEditor
 	/**
 	 * The Parameter object that this UI component edits. 
 	 */
-	private IAttributes param;
+	private IAttributes 			param;
 	
 	/**
 	 * The attribute to be edited by this component.
 	 * Or, if multiple attributes are edited, this is updated to the 
 	 * name of the most-recently edited attribute.
 	 */
-	private String lastEditedAttribute;
+	private String 					lastEditedAttribute;
 
 	/**
 	 * Creates an instance.
@@ -85,7 +85,7 @@ public abstract class AbstractParamEditor
 	 * Listener (<code>FieldPanel</code>) will edit the attribute, adding the 
 	 * edit to the undo/redo queue. 
 	 * The newValue could be a string (the value of the named attribute)
-	 * To to this, listeners will need to call <code>getAttributeName()</code>.
+	 * In this case, listeners will need to call <code>getAttributeName()</code>.
 	 * Or newValue could be a Map of attribute:value pairs.
 	 * In this case, attributeName will not be queried by listeners. 
 	 */

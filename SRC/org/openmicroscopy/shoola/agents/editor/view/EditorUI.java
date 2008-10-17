@@ -97,7 +97,7 @@ class EditorUI
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
-		//c.add(toolBar, BorderLayout.NORTH);
+		c.add(toolBar, BorderLayout.NORTH);
 		
 		c.add(statusBar, BorderLayout.SOUTH);
 	}

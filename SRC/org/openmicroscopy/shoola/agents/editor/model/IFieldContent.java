@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.NavTree 
+ * org.openmicroscopy.shoola.agents.editor.model.IFieldContent 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,31 +20,25 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.browser;
+package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
-
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * This class extends JTree and provides an outline of the Tree (text only).
- * This is used to navigate the tree and select nodes.
- * Other views of the same tree-model may update their tree-selection or display
- * of a single node when selection changes on this tree. 
- * Conversely, the selection path of this navTree mimics that of the mainTree,
- * using a TreeSelectionListener on the main Tree. 
+ * The interface for components that make up the content of a {@link Field};
+ * By extending the {@link IAttributes} interface, the text can be edited
+ * using a "Parameter-editing" UI component. 
  * 
+ * Implemented by {@link TextContent}
+ * Extended by {@link IParam} 
+ * 
+ * @see IParam
+ * @see TextContent
+ *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
@@ -53,28 +47,14 @@ import javax.swing.tree.TreeSelectionModel;
  * </small>
  * @since OME3.0
  */
-public class NavTree 
-	extends JTree
-{
+public interface IFieldContent 
+	extends IAttributes {
 	
 	/**
-	 * Creates an instance.
-	 * Also calls {@link #initialise()}
+	 * Allows String representation to be displayed by UI. 
+	 * 
+	 * @return
 	 */
-	NavTree() 
-	{
-		initialise();
-	}
-	
-	/**
-	 * Called by constructor. 
-	 * Sets the CellRenderer, SelectionModel and adds appropriate listeners
-	 * to the NavTree and the main display Tree. 
-	 */
-	private void initialise() 
-	{
-		setCellRenderer(new TreeOutlineCellRenderer());
-		setSelectionModel(new ContiguousChildSelectionModel());
-	}
-	
+	public String toString();
+
 }

@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 import java.util.HashMap;
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 
 /** 
  * This interface specifies the minimum methods needed to 
@@ -52,7 +53,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
  * @since OME3.0
  */
 public interface IParam 
-	extends IAttributes 
+	extends IFieldContent 
 {
 	
 	/**

@@ -36,6 +36,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 
@@ -69,12 +70,12 @@ public class ChangeParamEdit
 	/**
 	 * The old parameter (null if none is being removed from the field)
 	 */
-	private IParam 			newParam;
+	private IFieldContent 	newParam;
 	
 	/**
 	 * The new Parameter (null if not adding a parameter)
 	 */
-	private IParam 			oldParam;
+	private IFieldContent 	oldParam;
 	
 	/**
 	 * The index of the parameter to change. 
@@ -165,12 +166,12 @@ public class ChangeParamEdit
 	{
 		if (!canDo()) return;
 		
-		if (field.getParamCount() > paramIndex) {
-			oldParam = field.getParamAt(paramIndex);
-			field.removeParam(oldParam);	
+		if (field.getContentCount() > paramIndex) {
+			oldParam = field.getContentAt(paramIndex);
+			field.removeContent(oldParam);	
 		}
 		if (newParam != null)
-			field.addParam(paramIndex, newParam);
+			field.addContent(paramIndex, newParam);
 		
 		notifySelectStartEdit();
 	}
@@ -185,10 +186,10 @@ public class ChangeParamEdit
 		if (!canDo()) return;
 		
 		if (newParam != null) {
-			field.removeParam(newParam);
+			field.removeContent(newParam);
 		}
 		if (oldParam != null) {
-			field.addParam(paramIndex, oldParam);
+			field.addContent(paramIndex, oldParam);
 		}
 		
 		notifySelectStartEdit();
@@ -204,10 +205,10 @@ public class ChangeParamEdit
 		if (!canDo()) return;
 		
 		if (oldParam != null) {
-			field.removeParam(oldParam);
+			field.removeContent(oldParam);
 		}
 		if (newParam != null) {
-			field.addParam(paramIndex, newParam);
+			field.addContent(paramIndex, newParam);
 		}
 		
 		notifySelectStartEdit();

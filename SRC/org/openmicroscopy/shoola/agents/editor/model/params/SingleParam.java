@@ -153,7 +153,14 @@ public class SingleParam
 		String text = "";
 		
 		String value = getAttribute (PARAM_VALUE);
-		if (value != null) { text = text + value; }
+		String def = getAttribute (DEFAULT_VALUE);
+		if (value != null) { 
+			text = text + value; 
+		} else if (def != null) {
+			text = text + "Default: " + def;
+		} else {
+			text = text + "Value not set";
+		}
 		
 		String units = getAttribute(PARAM_UNITS);
 		if (units != null) { text = text + " " + units; }

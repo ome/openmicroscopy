@@ -59,12 +59,15 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
 /** 
  * The Panel for editing the "Template" of each field.
@@ -80,11 +83,10 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
  * </small>
  * @since OME3.0
  */
-public class FieldEditorPanel 
+public class FieldContentEditor 
 	extends JPanel 
 	implements PropertyChangeListener,
-	Scrollable,
-	ActionListener
+	Scrollable
 {
 	/**
 	 * Defines a minimum size for this Panel. 
@@ -124,12 +126,6 @@ public class FieldEditorPanel
 	 * Vertical Box layout panel. Main panel.
 	 */
 	private JPanel 				attributeFieldsPanel;
-	
-	/**
-	 * A comboBox for changing the type of parameter
-	 */
-	private JComboBox 			paramTypeChooser;
-	
 
 	/**
 	 * Launches the colour pop-up menu
@@ -149,29 +145,12 @@ public class FieldEditorPanel
 		// set border and background
 		Border emptyBorder = new EmptyBorder(10, 5, 15,5);
 		Border lineBorder = BorderFactory.createMatteBorder(
-                0, 0, 1, 0, new Color(200,200,200));
+                0, 0, 1, 0, UIUtilities.LIGHT_GREY);
 		Border compoundBorder = BorderFactory.createCompoundBorder
 			(lineBorder, emptyBorder);
 		attributeFieldsPanel.setBorder(compoundBorder);
 		attributeFieldsPanel.setBackground(ImageBorderFactory.DEFAULT_BACKGROUND);
 		
-		
-		// Combo-box for choosing parameter type
-		paramTypeChooser = new CustomComboBox(FieldParamsFactory.UI_INPUT_TYPES);
-		paramTypeChooser.setMaximumRowCount(
-				FieldParamsFactory.UI_INPUT_TYPES.length);
-		// Set it to the current input type
-		String inputType = FieldParamsFactory.NO_PARAMS;
-		if (field.getParamCount() > 0) {
-			IParam param1 =  field.getParamAt(0);
-			inputType = param1.getAttribute(AbstractParam.PARAM_TYPE);
-		}
-		if (inputType != null) {
-			for (int i=0; i<FieldParamsFactory.UI_INPUT_TYPES.length; i++)
-				if (inputType.equals(FieldParamsFactory.PARAM_TYPES[i]))
-					paramTypeChooser.setSelectedIndex(i);
-		}
-		paramTypeChooser.addActionListener(this);
 	}
 	
 	/**
@@ -187,44 +166,13 @@ public class FieldEditorPanel
 		attributeFieldsPanel.add(nameEditor);
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		
-		// Description: Label and text box
-		AttributeEditArea descriptionEditor = new AttributeEditArea
-				(field, Field.FIELD_DESCRIPTION, "Description");
-		descriptionEditor.addPropertyChangeListener
-				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		attributeFieldsPanel.add(descriptionEditor);
-		
 		// Parameters: Label and "Add" button
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		//JLabel paramLabel = new CustomLabel("Parameters:");
-		JPanel paramHeader = new JPanel(new BorderLayout());
-		Border emptyB = new EmptyBorder(4, 4, 4,4);
-		Border lineB = BorderFactory.createMatteBorder(
-                1, 1, 1, 1, new Color(200,200,200));
-		Border compoundBorder = BorderFactory.createCompoundBorder
-			(lineB, emptyB);
-		paramHeader.setBorder(compoundBorder);
-		paramHeader.setBackground(Color.white);
-		
-		// Add the JComboBox for changing type of FIRST parameter
-		paramHeader.add(paramTypeChooser, BorderLayout.CENTER);
-		paramHeader.add(new CustomLabel("Parameter type: "), BorderLayout.WEST);		
-		attributeFieldsPanel.add(paramHeader);
-		
-		if (field.getParamCount() > 0) {
-			IParam param = field.getParamAt(0);
-			JComponent edit = ParamTemplateUIFactory.
-								getEditDefaultComponent(param);
-			if (edit != null) {
-				edit.addPropertyChangeListener( 
-						ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-				paramHeader.add(edit, BorderLayout.SOUTH);
-			}
-		}
 		
 		// For each parameter of this field, add the components for
 		// editing their default or template values. 
-		addAdditionalParams();
+		addFieldContents();
 		
 		this.setLayout(new BorderLayout());
 		add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -255,21 +203,38 @@ public class FieldEditorPanel
 	 * Uses the {@link ParamTemplateUIFactory} to create the UI components,
 	 * depending on the value type
 	 */
-	private void addAdditionalParams() 
+	private void addFieldContents() 
 	{
 		addFieldComponent(createAdditionalParamsHeader());
 		
-		int paramCount = field.getParamCount();
+		int paramCount = field.getContentCount();
 		if (paramCount < 2) { return; }
 		
-		for (int i=1; i<paramCount; i++) {
-			IParam param = field.getParamAt(i);
-			JComponent edit = ParamTemplateUIFactory.
-									getEditDefaultComponent(param);
-			if (edit != null) {
-				addFieldComponent(edit);
+		for (int i=0; i<paramCount; i++) {
+			IFieldContent content = field.getContentAt(i); 
+			if (content instanceof IParam) {
+				IParam param = (IParam)content;
+				JComponent edit = ParamTemplateUIFactory.
+										getEditDefaultComponent(param);
+				if (edit != null) {
+					addFieldComponent(edit);
+				}
+			} else {
+				if (content instanceof TextContent) {
+					addTextComponent(content);
+				}
 			}
 		}
+	}
+	
+	private void addTextComponent(IAttributes textContent) {
+		
+		// Description: Label and text box
+		AttributeEditArea descriptionEditor = new AttributeEditArea
+				(textContent, TextContent.TEXT_CONTENT, "");
+		descriptionEditor.addPropertyChangeListener
+				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		attributeFieldsPanel.add(descriptionEditor);
 	}
 	
 	private JComponent createAdditionalParamsHeader() {
@@ -314,7 +279,7 @@ public class FieldEditorPanel
 	 * @param tree		The JTree in which the field is displayed
 	 * @param treeNode	The node of the Tree which contains the field
 	 */
-	public FieldEditorPanel(IField field, JTree tree, 
+	public FieldContentEditor(IField field, JTree tree, 
 			DefaultMutableTreeNode treeNode, BrowserControl controller) 
 	{
 		this.field = field;
@@ -326,20 +291,6 @@ public class FieldEditorPanel
 		initialise();
 		buildPanel();
 	}
-	
-	/**
-	 * takes the parameter-type of the comboBox and 
-	 * calls paramTypeChanged(String paramType)
-	 */
-	public class ParamTypeSelectorListener implements ActionListener 
-	{	
-		public void actionPerformed (ActionEvent event) {
-			JComboBox source = (JComboBox)event.getSource();
-			int selectedIndex = source.getSelectedIndex();
-			String newType = FieldParamsFactory.PARAM_TYPES[selectedIndex];
-			paramTypeChanged(newType);
-		}
-	}	
 	
 	/**
 	 * If the size of a sub-component of this panel changes, 
@@ -421,22 +372,7 @@ public class FieldEditorPanel
 		*/
 	}
 	
-	/**
-	 * Called from the {@link #paramTypeChooser}.
-	 * Calls {@link #paramTypeChanged(String)}.
-	 * 
-	 * Implemented as specified by the {@link ActionListener} interface.
-	 * 
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed (ActionEvent event) 
-	{
-		if (event.getSource().equals(paramTypeChooser)) {
-			int selectedIndex = paramTypeChooser.getSelectedIndex();
-			String newType = FieldParamsFactory.PARAM_TYPES[selectedIndex];
-			paramTypeChanged(newType);
-		}
-	}
+	
 	
 	/**
 	 * Implemented as specified by the {@link Scrollable} interface.

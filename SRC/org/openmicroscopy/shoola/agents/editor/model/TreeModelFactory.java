@@ -208,9 +208,10 @@ public class TreeModelFactory
 		 Field field = new Field();
 		 
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
-		 field.setAttribute(Field.FIELD_DESCRIPTION, description);
 		 field.setAttribute(Field.FIELD_URL, url);
 		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
+		 
+		 field.addContent(new TextContent(description));
 		 
 		 // Field lock
 		 String lockLevel = allAttributes.get(DataFieldConstants.LOCK_LEVEL);
@@ -348,7 +349,7 @@ public class TreeModelFactory
 		 //TODO ADD conversion from other element types to IParam
 		 
 		 if (param != null) {
-			 field.addParam(param);
+			 field.addContent(param);
 		 }
 		 
 		 return field;

@@ -28,8 +28,6 @@ package org.openmicroscopy.shoola.agents.editor.model;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-
 
 /** 
  * This interface specifies methods of a Field, which corresponds to a node
@@ -57,7 +55,7 @@ public interface IField
 	 * 
 	 * @return 	the number of parameters for this field
 	 */
-	public int getParamCount();
+	public int getContentCount();
 	
 	/**
 	 * Returns a parameter object at the specified index
@@ -65,20 +63,20 @@ public interface IField
 	 * @param index		
 	 * @return
 	 */
-	public IParam getParamAt(int index);
+	public IFieldContent getContentAt(int index);
 	
 	/**
 	 * Adds a parameter object to the field
 	 * 
 	 * @param param
 	 */
-	public void addParam(IParam param);
+	public void addContent(IFieldContent param);
 	
 	/**
 	 * Adds a parameter to the list for this field,
 	 * at the specified index.
 	 */
-	public void addParam(int index, IParam param);
+	public void addContent(int index, IFieldContent param);
 	
 	/**
 	 * Removes a parameter object from the field
@@ -86,7 +84,7 @@ public interface IField
 	 * @param param		The object to remove
 	 * @return		The index of the parameter before removal (or -1 if not found)
 	 */
-	public int removeParam(IParam param);
+	public int removeContent(IFieldContent param);
 	
 	/**
 	 * Indicates whether all parameters have been filled out. 
@@ -116,4 +114,11 @@ public interface IField
 	 * @return		see above
 	 */
 	public Lock getLock();
+	
+	/**
+	 * Returns a html-formatted string representation of this field. 
+	 * 
+	 * @return		see above.
+	 */
+	public String toHtmlString();
 }

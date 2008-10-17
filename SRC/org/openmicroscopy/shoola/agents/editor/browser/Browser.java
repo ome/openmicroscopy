@@ -69,6 +69,13 @@ public interface Browser
      */
     public void setTreeModel(TreeModel model);
     
+    /**
+     * Gets the treeModel for the browser. 
+     * 
+     * @return TreeModel		see above.
+     */
+    public TreeModel getTreeModel();
+    
     /** 
      * Returns the UI component. 
      * 

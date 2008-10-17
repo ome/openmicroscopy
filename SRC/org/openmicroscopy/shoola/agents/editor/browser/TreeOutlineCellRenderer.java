@@ -30,8 +30,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -84,12 +84,16 @@ public class TreeOutlineCellRenderer
 				IField field = (IField)object;
 				toolTipText = field.getToolTipText();
 				
-				if (field.getParamCount() < 1) {
+				if (field.getContentCount() < 1) {
 					//paramIcon = imF.getIcon(ImageFactory.)
 				} else {
-					IParam param1 = field.getParamAt(0);
-					String paramType = param1.getAttribute(
-							AbstractParam.PARAM_TYPE);
+					IFieldContent content = field.getContentAt(0);
+					String paramType = SingleParam.TEXT_BOX_PARAM;
+					
+					if (content instanceof IParam) {
+						paramType = ((IParam)content).getAttribute(
+								AbstractParam.PARAM_TYPE);
+					}
 					
 					if (SingleParam.TEXT_LINE_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.TEXT_LINE_ICON);

@@ -26,6 +26,8 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 //Java imports
 
 //Third-party libraries
@@ -45,6 +47,11 @@ import java.util.Map;
  */
 public class UIUtilities {
 
+	/**
+	 * A light grey colour for line borders etc. 
+	 */
+	public static final Color LIGHT_GREY = new Color(200,200,200);
+	
 	/**
 	 * A light blue colour for highlighting fields, etc. 
 	 */
@@ -140,6 +147,22 @@ public class UIUtilities {
 		
 		return dimensions.get(dimension);
 
+	}
+	
+	/**
+	 * Convenience method to show a confirmation dialog. 
+	 * Returns true if the user hits "OK".
+	 * 
+	 * @param title			The dialog title
+	 * @param message		The message to display
+	 * @return
+	 */
+	public static boolean showConfirmDialog(String title, String message) 
+	{
+		int n = JOptionPane.showConfirmDialog(null, message, title, 
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+		
+		return (n == JOptionPane.OK_OPTION);
 	}
 	
 }

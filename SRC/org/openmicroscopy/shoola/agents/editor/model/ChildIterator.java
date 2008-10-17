@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.NavTree 
+ * org.openmicroscopy.shoola.agents.editor.model.ChildIterator 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,31 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.browser;
+package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.Iterator;
 
-import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * This class extends JTree and provides an outline of the Tree (text only).
- * This is used to navigate the tree and select nodes.
- * Other views of the same tree-model may update their tree-selection or display
- * of a single node when selection changes on this tree. 
- * Conversely, the selection path of this navTree mimics that of the mainTree,
- * using a TreeSelectionListener on the main Tree. 
- * 
+ *  An {@link Iterator} for iterating through the children of a {@link TreeNode}
+ *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
@@ -53,28 +43,56 @@ import javax.swing.tree.TreeSelectionModel;
  * </small>
  * @since OME3.0
  */
-public class NavTree 
-	extends JTree
+public class ChildIterator 
+	implements Iterator<TreeNode>
 {
+	/**
+	 * A pointer to the current index. 
+	 */
+	private int 				index;
 	
 	/**
-	 * Creates an instance.
-	 * Also calls {@link #initialise()}
+	 * The node that has the children we're iterating through
 	 */
-	NavTree() 
-	{
-		initialise();
-	}
+	private TreeNode 			treeNode;
 	
 	/**
-	 * Called by constructor. 
-	 * Sets the CellRenderer, SelectionModel and adds appropriate listeners
-	 * to the NavTree and the main display Tree. 
+	 * Creates an instance
+	 * 
+	 * @param parent	The node that has the children we're iterating through
 	 */
-	private void initialise() 
-	{
-		setCellRenderer(new TreeOutlineCellRenderer());
-		setSelectionModel(new ContiguousChildSelectionModel());
+	public ChildIterator(TreeNode parent) {
+		treeNode = parent;
+		index = 0;
 	}
-	
+
+	/**
+	  * Implemented as specified by the {@link Iterator} interface
+	  */
+	public boolean hasNext() {
+		if (index < treeNode.getChildCount())
+			return true;
+		return false;
+	}
+
+	/**
+	  * Implemented as specified by the {@link Iterator} interface
+	  */
+	public TreeNode next() {
+		if (hasNext()) {
+			TreeNode next = treeNode.getChildAt(index);
+			index++;
+			return next;
+		}
+		return null;
+	}
+
+	/**
+	  * Implemented as specified by the {@link Iterator} interface
+	  * Null implementation. Will throw {@link UnsupportedOperationException};
+	  */
+	public void remove() {
+		throw new UnsupportedOperationException("Can't remove.");
+	}
+
 }

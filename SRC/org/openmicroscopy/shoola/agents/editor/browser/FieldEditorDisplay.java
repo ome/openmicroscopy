@@ -43,11 +43,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldEditorPanel;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 
 /** 
- * A container to display a {@link FieldEditorPanel} for the currently 
+ * A container to display a {@link FieldContentEditor} for the currently 
  * highlighted field of the JTree. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -99,7 +99,7 @@ public class FieldEditorDisplay
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 				tree.getSelectionPath().getLastPathComponent();
 			IField field = (IField)node.getUserObject();
-			FieldEditorPanel fe = new FieldEditorPanel(field, tree, node,
+			FieldContentEditor fe = new FieldContentEditor(field, tree, node,
 					controller);
 			setPanel(fe);
 		}
@@ -128,12 +128,12 @@ public class FieldEditorDisplay
 	{	
 		if (currentDisplay != null) {
 			currentDisplay.removePropertyChangeListener
-				(FieldEditorPanel.PANEL_CHANGED_PROPERTY, this);
+				(FieldContentEditor.PANEL_CHANGED_PROPERTY, this);
 		}
 		
 		currentDisplay = panel;
 		currentDisplay.addPropertyChangeListener
-		(FieldEditorPanel.PANEL_CHANGED_PROPERTY, this);
+		(FieldContentEditor.PANEL_CHANGED_PROPERTY, this);
 		
 		scrollPane.setViewportView(currentDisplay);
 		validate();
@@ -195,7 +195,7 @@ public class FieldEditorDisplay
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (FieldEditorPanel.PANEL_CHANGED_PROPERTY
+		if (FieldContentEditor.PANEL_CHANGED_PROPERTY
 				.equals(evt.getPropertyName())) {
 			refreshEditorDisplay();
 		}

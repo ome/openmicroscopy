@@ -31,7 +31,6 @@ import javax.swing.tree.TreeModel;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /**  
@@ -100,6 +99,15 @@ public class BrowserComponent
     {
     	model.setTreeModel(treeModel);
     	view.displayTree();
+    }
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getTreeModel() 
+     */
+	public TreeModel getTreeModel() 
+    {
+    	return model.getTreeModel();
     }
 
 	/**

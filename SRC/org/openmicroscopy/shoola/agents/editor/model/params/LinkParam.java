@@ -112,9 +112,10 @@ public class LinkParam
 		if (path == null) path = getAttribute (RELATIVE_FILE_LINK);
 		if (path == null) path = getAttribute (URL_LINK);
 		
-		if (path != null) 
-		{
+		if (path != null) {
 			text = text + path;
+		} else {
+			text = text + "no link set";
 		}
 		
 		return text;

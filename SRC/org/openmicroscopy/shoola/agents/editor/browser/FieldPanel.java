@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.Lock;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -148,7 +149,10 @@ public class FieldPanel
 	 */
 	private FieldNode			 	treeNode;
 	
-	
+	/**
+	 * This panel (BorderLayout) contains nameLabel in the WEST of this,
+	 * then the horizontalBox for all other items is in the CENTER
+	 */
 	private JPanel 					contentsPanel;
 	
 	/**
@@ -191,14 +195,11 @@ public class FieldPanel
 	 */
 	private JLabel 					descriptionLabel;
 	
-	
-	private Icon 					infoIcon;
-	
-	private Icon 					wwwIcon;
-	
+	/**
+	 * The source of icons
+	 */
 	private IconManager 			iconManager;
 	
-
 	/**
 	 * A flag to indicate if this field is highlighted. 
 	 */
@@ -256,7 +257,7 @@ public class FieldPanel
 		descriptionLabel.setBackground(null);
 		
 		// Description button
-		infoIcon = iconManager.getIcon(IconManager.INFO_ICON);
+		Icon infoIcon = iconManager.getIcon(IconManager.INFO_ICON);
 		descriptionButton = new CustomButton(infoIcon);
 		descriptionButton.setFocusable(false); // so it is not selected by tabbing
 		descriptionButton.setActionCommand(TOGGLE_DESCRIPTION_CMD);
@@ -265,7 +266,7 @@ public class FieldPanel
 		setDescriptionText(); 	// will update description label
 		
 		// A url-link button, that is only visible if a URL has been set.
-		wwwIcon = iconManager.getIcon(IconManager.WWW_ICON);
+		Icon wwwIcon = iconManager.getIcon(IconManager.WWW_ICON);
 		urlButton = new CustomButton(wwwIcon);
 		urlButton.setFocusable(false); // so it is not selected by tabbing
 		urlButton.setActionCommand(OPEN_URL_CMD);
@@ -338,13 +339,17 @@ public class FieldPanel
 	 */
 	private void buildParamComponents() 
 	{
-		int paramCount = field.getParamCount();
+		int paramCount = field.getContentCount();
 		
 		for (int i=0; i<paramCount; i++) {
-			IParam param = field.getParamAt(i);
-			JComponent edit = ParamUIFactory.getEditingComponent(param);
-			if (edit != null)
-				addFieldComponent(edit);
+			IFieldContent content = field.getContentAt(i);
+			if (content instanceof IParam) {
+				IParam param = (IParam)content;
+					JComponent edit = ParamUIFactory.getEditingComponent(param);
+				if (edit != null) {
+					addFieldComponent(edit);
+				}
+			}
 		}
 	}
 
@@ -412,39 +417,6 @@ public class FieldPanel
 	{
 		nameLabel.setText(name);
 		
-		/*	 TODO		Refresh locked status...
-		String lockedLevel = dataField.getAttribute(DataFieldConstants.LOCK_LEVEL);
-		if (lockedLevel == null) {
-			nameLabel.setIcon(null);
-			nameLabel.setToolTipText(null);
-		} else {
-			String toolTipText = "";
-			Icon newIcon = lockedTemplateIcon;
-			
-			if (lockedLevel.equals(DataFieldConstants.LOCKED_TEMPLATE)) {
-				toolTipText += "Template Locked";
-			} else if (lockedLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)) {
-				toolTipText += "Field Locked";
-				newIcon = lockedAllIcon;
-			}
-			
-			String user = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_USER_NAME);
-			if (user != null)
-			toolTipText = toolTipText + " by " + user;
-			
-			String lockedTimeUTC = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC);
-			if (lockedTimeUTC != null) {
-				Calendar lockedTime = new GregorianCalendar();
-				lockedTime.setTimeInMillis(new Long(lockedTimeUTC));
-				SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
-				toolTipText = toolTipText + " at " + time.format(lockedTime.getTime());
-			}
-			
-			nameLabel.setToolTipText(toolTipText);
-			nameLabel.setIcon(newIcon);
-		}
-			*/
-		
 	}
 
 	/**
@@ -453,8 +425,7 @@ public class FieldPanel
 	 */
 	private void setDescriptionText() 
 	{
-		String description = field.getAttribute(
-				Field.FIELD_DESCRIPTION);
+		String description = getDescription();
 		boolean showDescription = treeNode.getDescriptionVisisibility();
 		
 		if ((description != null) && (description.trim().length() > 0)) {
@@ -475,6 +446,24 @@ public class FieldPanel
 			descriptionLabel.setText(null);
 			descriptionLabel.setVisible(false);
 		}
+	}
+	
+	/**
+	 * Returns a String representation of the content of this field. 
+	 * This will be text, possibly interspersed with parameters. 
+	 *  //TODO Maybe this should not include the parameters, unless they are in
+	 * context with other description text? 
+	 */
+	private String getDescription() 
+	{
+		if (field.getContentCount() == 0) return null;
+		
+		String content = "";
+		for (int i=0; i< field.getContentCount(); i++) {
+			if (i>0)content = content + " ";
+			content = content + field.getContentAt(i).toString();
+		}
+		return content;
 	}
 
 	/**

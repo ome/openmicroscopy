@@ -25,9 +25,12 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Java imports
 
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellEditor;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -49,11 +52,21 @@ import javax.swing.tree.TreeCellEditor;
  */
 public class EditableTree 
 	extends JTree 
+	implements TreeSelectionListener
 {
+	/**
+	 * This JTree observes selection changes to the navTree
+	 */
+	private JTree 			navTree;
 	
-	public EditableTree(BrowserControl controller) 
+	public EditableTree(BrowserControl controller, JTree navTree) 
 	{
 		super();
+		
+		this.navTree = navTree;
+		if (navTree != null) {
+			navTree.addTreeSelectionListener(this);
+		}
 		
 		configureTree(controller);
 	}
@@ -102,6 +115,39 @@ public class EditableTree
 	    setCellEditor(editor);
 		
 		setEditable(false);
+	}
+	
+	/**
+	 * Every selection change in the nav Tree is mimicked by this tree view,
+	 * and vice versa. 
+	 * 
+	 * @see	TreeSelectionListener#valueChanged(TreeSelectionEvent)
+	 */
+	public void valueChanged(TreeSelectionEvent e) 
+	{
+		Object source = e.getSource();
+		
+		if (source.equals(navTree)) 
+		{
+			if (navTree.getSelectionCount() == 0) return;
+			
+			TreePath selPath = navTree.getSelectionPath();
+			
+			/* make sure the node is visible (expand parent) */
+			expandPath(selPath.getParentPath());
+			setSelectionPath(selPath);
+			scrollPathToVisible(selPath);
+		} 
+		else if (source.equals(this)) {
+			if (getSelectionCount() == 0) return;
+			
+			TreePath selPath = getSelectionPath();
+			
+			/* make sure the node is visible (expand parent) */
+			navTree.expandPath(selPath.getParentPath());
+			navTree.setSelectionPath(selPath);
+			navTree.scrollPathToVisible(selPath);
+		}
 	}
 
 }

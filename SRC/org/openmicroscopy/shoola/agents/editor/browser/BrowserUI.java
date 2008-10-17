@@ -26,9 +26,11 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Java imports
 
 import java.awt.BorderLayout;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.TreeModel;
@@ -39,6 +41,9 @@ import javax.swing.tree.TreeModel;
 
 /** 
  * The UI for the Browser (the View of the Browser MVC).
+ * Displays a Navigation tree, {@link #navTree} on the left, 
+ * a tabbed pane containing alternative views of the tree-model in the center,
+ * and a {@link FieldEditorDisplay} on the right, for editing fields.  
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -59,12 +64,12 @@ class BrowserUI
      * An outline view of the Tree, displayed on the left, used
      * to navigate
      */
-    private JTree					treeOutline;
+    private JTree					navTree;
     
     /**
      * This UI component displays the {@link FieldEditorPanel}.
      * The {@link FieldEditorDisplay} listens to selection changes to the
-     * {@link #treeDisplay} and creates a new {@link FieldEditorPanel} for
+     * {@link #navTree} and creates a new {@link FieldEditorPanel} for
      * the selected field. 
      * The {@link #editorPanel} is not visible if Editing of the tree is
      * disabled (ie. if the {@link Browser} is in the 
@@ -86,19 +91,29 @@ class BrowserUI
     private BrowserModel    		model;
     
     /**
+     * An alternative way of viewing the treeModel, resembling a text document.
+     * Contains text-components corresponding to each node of the tree, but
+     * not organised hierarchically. 
+     */
+    private TextAreasView 			textView;
+    
+    
+    /**
      * Initialises the JTrees for this UI.
      */
     private void createTrees() 
     {
-    	treeDisplay = new EditableTree(controller);
+    	navTree = new NavTree();
+    	treeDisplay = new EditableTree(controller, navTree);
+    	
+    	textView = new TextAreasView(navTree, controller);
     	
     	int state = model.getState();
     	if (state == Browser.TREE_EDIT)
     		treeDisplay.setEditable(true);
     	
-		treeOutline = new NavTree(treeDisplay);
 		ToolTipManager.sharedInstance().registerComponent(treeDisplay);
-		ToolTipManager.sharedInstance().registerComponent(treeOutline);
+		ToolTipManager.sharedInstance().registerComponent(navTree);
     }
     
     /**
@@ -112,24 +127,31 @@ class BrowserUI
     	leftSplitPane.setOneTouchExpandable(true);
     	leftSplitPane.setDividerLocation(200);
     	leftSplitPane.setBorder(null);
-        leftSplitPane.setLeftComponent(new JScrollPane(treeOutline));
+        leftSplitPane.setLeftComponent(new JScrollPane(navTree));
         
         rightSplitPane = new JSplitPane();
         rightSplitPane.setOneTouchExpandable(true);
-        //rightSplitPane.setDividerLocation(500);
         rightSplitPane.setBorder(null);
         rightSplitPane.setResizeWeight(0.7);
         
-        rightSplitPane.setLeftComponent(new JScrollPane(treeDisplay));
+        // The central component (tab pane)...
+        // TODO: Need to split this out into it's own class, that has a
+        // single setTreeModel() method, and only instantiates the views 
+        // as needed. 
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Text View", new JScrollPane(textView));
+        tabbedPane.addTab("Tree View", new JScrollPane(treeDisplay));
+        // goes in the left part of the right splitPane
+        rightSplitPane.setLeftComponent(tabbedPane);
         
-        editorPanel = new FieldEditorDisplay(treeDisplay, controller);
+        editorPanel = new FieldEditorDisplay(navTree, controller);
         rightSplitPane.setRightComponent(editorPanel);
         
         leftSplitPane.setRightComponent(rightSplitPane);
         
         add(leftSplitPane, BorderLayout.CENTER);
         
-        // add(new ToolBar(controller, treeDisplay), BorderLayout.NORTH);
+        add(new ToolBar(controller, treeDisplay), BorderLayout.NORTH);
     }
     
     /**
@@ -181,8 +203,13 @@ class BrowserUI
      */
     void displayTree() {
     	TreeModel tm = model.getTreeModel();
+    	
+    	navTree.setModel(tm);
+    	
+    	//TODO  need to merge these componenets into a single UI class.
+    	textView.setTreeModel(tm);
     	treeDisplay.setModel(tm);
-    	treeOutline.setModel(tm);
+    	
     	tm.addTreeModelListener(editorPanel);
     }
     

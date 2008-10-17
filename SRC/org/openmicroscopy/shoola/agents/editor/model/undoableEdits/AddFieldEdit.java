@@ -29,12 +29,13 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import org.openmicroscopy.shoola.agents.editor.model.Field;
-import org.openmicroscopy.shoola.agents.editor.model.IField;
-
 //Third-party libraries
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.editor.model.Field;
+import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
+import org.openmicroscopy.shoola.agents.editor.model.IField;
 
 /** 
 * This is the UndoableEdit for adding fields to a JTree.
@@ -116,7 +117,7 @@ public class AddFieldEdit
 		 /*
 		  * Place this in a new Node
 		  */
-		newNode = new DefaultMutableTreeNode(field);
+		newNode = new FieldNode(field);
 		
 		TreePath[] selectedPaths = tree.getSelectionPaths();
 		if ((selectedPaths != null) && (selectedPaths.length > 0)) {

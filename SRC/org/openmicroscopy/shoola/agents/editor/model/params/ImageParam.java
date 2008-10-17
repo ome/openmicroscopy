@@ -114,9 +114,10 @@ public class ImageParam
 		String path = getAttribute (ABSOLUTE_IMAGE_PATH);
 		if (path == null) path = getAttribute (RELATIVE_IMAGE_PATH);
 		
-		if (path != null) 
-		{
+		if (path != null) {
 			text = text + path;
+		} else {
+			text = text + "no image set.";
 		}
 		
 		return text;

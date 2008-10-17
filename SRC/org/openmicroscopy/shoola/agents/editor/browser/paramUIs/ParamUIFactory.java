@@ -82,7 +82,7 @@ public class ParamUIFactory
 	 * @param paramObject	The parameter data
 	 * @return				A JComponent for editing the value of the data.
 	 */
-	public static JComponent getEditingComponent(IParam paramObject) 
+	public static AbstractParamEditor getEditingComponent(IParam paramObject) 
 	{
 		
 		if (paramObject == null) {
@@ -91,7 +91,7 @@ public class ParamUIFactory
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 		
 		if (inputType == null) {
-			return new JPanel();
+			return null;
 		}
 		
 		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
@@ -135,7 +135,7 @@ public class ParamUIFactory
 		}
 		
 		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
-			return new JPanel();
+			return null;
 		}
 		
 		return null;

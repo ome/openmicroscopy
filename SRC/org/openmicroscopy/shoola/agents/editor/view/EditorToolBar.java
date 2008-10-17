@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 
 //Java imports
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
@@ -61,11 +63,24 @@ class EditorToolBar
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
-		JButton b = new CustomButton(controller.getAction(
-				EditorControl.OPEN_LOCAL_FILE));
-		b.setText("");
-		bar.add(b);
+		addAction(EditorControl.OPEN_LOCAL_FILE, bar);
+		addAction(EditorControl.SAVE_FILE_LOCALLY, bar);
 		return bar;
+	}
+	
+	/**
+	 * Convenience method for getting an {@link Action} from the 
+	 * {@link #controller}, creating a {@link CustomButton} and adding
+	 * it to the component;
+	 * 
+	 * @param actionId		Action ID, e.g. {@link EditorControl#CLOSE_EDITOR}
+	 * @param comp			The component to add the button. 
+	 */
+	private void addAction(int actionId, JComponent comp)
+	{
+		JButton b = new CustomButton(controller.getAction(actionId));
+		b.setText("");
+		comp.add(b);
 	}
 	
 	/** Builds and lays out the UI. */

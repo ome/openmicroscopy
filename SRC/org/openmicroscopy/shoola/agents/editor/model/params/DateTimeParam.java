@@ -154,6 +154,8 @@ public class DateTimeParam
 				date.setTime(millis);
 				SimpleDateFormat dateF = new SimpleDateFormat("yyyy, MMM d");
 				text = text + dateF.format(date);
+			} else {
+				text = text + " No Date Set";
 			}
 		}
 		String timeSecs = getAttribute(TIME_ATTRIBUTE);

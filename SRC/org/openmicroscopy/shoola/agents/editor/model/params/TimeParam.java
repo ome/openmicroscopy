@@ -137,6 +137,8 @@ public class TimeParam
 			Date t = new Date(millis);
 			SimpleDateFormat timeF = new SimpleDateFormat("HH:mm:ss");
 			time = timeF.format(t);
+		} else {
+			time = time + " Time not set";
 		}
 		
 		return time;
