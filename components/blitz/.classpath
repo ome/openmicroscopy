@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="generated"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
@@ -15,7 +16,6 @@
 	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry kind="lib" path="target/libs/checkstyle.jar"/>
-	<classpathentry kind="lib" path="target/libs/client.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-codec.jar"/>

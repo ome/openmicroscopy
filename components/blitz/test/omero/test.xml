@@ -19,12 +19,13 @@
 
 <beans>
 
- <bean id="mockDeclarer" class="ome.services.blitz.test.MockDeclarer">
+ <bean id="mockDeclarer" class="ome.services.blitz.test.mock.MockDeclarer">
    <constructor-arg>
      <map>
        <entry key="ome.api.IAdmin" value="ome.api.local.LocalAdmin"/>
        <entry key="ome.api.IConfig" value=""/>
        <entry key="ome.api.IDelete" value=""/>
+       <entry key="ome.api.ILdap" value=""/>
        <entry key="ome.api.IPixels" value=""/>
        <entry key="ome.api.IPojos" value=""/>
        <entry key="ome.api.IQuery" value="ome.api.local.LocalQuery"/>

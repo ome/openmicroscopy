@@ -12,14 +12,11 @@ import java.util.List;
 
 import ome.api.ILdap;
 import ome.services.blitz.util.BlitzExecutor;
-import omero.ApiUsageException;
-import omero.SecurityViolation;
 import omero.ServerError;
-import omero.ValidationException;
 import omero.api.AMD_ILdap_findDN;
 import omero.api.AMD_ILdap_findExperimenter;
-import omero.api.AMD_ILdap_getReqGroups;
 import omero.api.AMD_ILdap_getReqAttributes;
+import omero.api.AMD_ILdap_getReqGroups;
 import omero.api.AMD_ILdap_getReqValues;
 import omero.api.AMD_ILdap_getSetting;
 import omero.api.AMD_ILdap_searchAll;
@@ -29,8 +26,8 @@ import omero.api.AMD_ILdap_searchByDN;
 import omero.api.AMD_ILdap_searchDnInGroups;
 import omero.api.AMD_ILdap_searchGroups;
 import omero.api.AMD_ILdap_setDN;
-import omero.api.AMD_ILdap_setReqGroups;
 import omero.api.AMD_ILdap_setReqAttributes;
+import omero.api.AMD_ILdap_setReqGroups;
 import omero.api.AMD_ILdap_setReqValues;
 import omero.api._ILdapOperations;
 import Ice.Current;
@@ -74,7 +71,7 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
     public void searchByAttribute_async(AMD_ILdap_searchByAttribute __cb,
             String dn, String attribute, String value, Current __current)
             throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, attribute, value);
+        callInvokerOnRawArgs(__cb, __current, dn, attribute, value);
 
     }
 
@@ -145,7 +142,7 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
 
     public void setReqValues_async(AMD_ILdap_setReqValues __cb,
             List<String> vals, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current, vals);
 
     }
 

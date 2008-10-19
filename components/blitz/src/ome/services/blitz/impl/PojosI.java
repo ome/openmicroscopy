@@ -16,6 +16,7 @@ import java.util.Set;
 
 import ome.api.IPojos;
 import ome.services.blitz.util.BlitzExecutor;
+import omero.ApiUsageException;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IPojos_createDataObject;
@@ -174,7 +175,12 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
         } else {
             array = new ome.model.ILink[links.size()];
             for (int i = 0; i < array.length; i++) {
-                array[i] = (ome.model.ILink) mapper.reverse(links.get(i));
+                try {
+                    mapToLinkArrayOrThrow(links, mapper, array, i);
+                } catch (Exception e) {
+                    __cb.ice_exception(e);
+                    return; // EARLY EXIT !
+                }
             }
         }
         Object map = mapper.reverse(options);
@@ -205,7 +211,12 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
         } else {
             array = new ome.model.ILink[links.size()];
             for (int i = 0; i < array.length; i++) {
-                array[i] = (ome.model.ILink) mapper.reverse(links.get(i));
+                try {
+                    mapToLinkArrayOrThrow(links, mapper, array, i);
+                } catch (Exception e) {
+                    __cb.ice_exception(e);
+                    return; // EARLY EXIT!
+                }
             }
         }
         Object map = mapper.reverse(options);
@@ -226,4 +237,20 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
 
     }
 
+    // Helpers
+    // =========================================================================
+
+    private void mapToLinkArrayOrThrow(
+            List<IObject> links, IceMapper mapper, ome.model.ILink[] array,
+            int i) throws ApiUsageException {
+        try {
+            array[i] = (ome.model.ILink) mapper.reverse(links.get(i));
+        } catch (ClassCastException cce) {
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            mapper.fillServerError(aue, cce);
+            aue.message = "ClassCastException: " + cce.getMessage();
+            throw aue;
+        }
+    }
+    
 }

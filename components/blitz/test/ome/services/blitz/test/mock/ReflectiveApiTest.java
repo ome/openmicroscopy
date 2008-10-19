@@ -4,7 +4,7 @@
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.services.blitz.test;
+package ome.services.blitz.test.mock;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -18,140 +18,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
-import ome.services.blitz.test.utests.TestCache;
-import ome.model.meta.Session;
-import ome.security.SecuritySystem;
-import ome.services.blitz.fire.SessionManagerI;
-import ome.services.sessions.SessionManager;
-import ome.services.util.Executor;
-import ome.system.OmeroContext;
-import ome.system.Roles;
 import omero.api.GatewayPrx;
 import omero.api.IScriptPrx;
 import omero.api.ServiceFactoryPrx;
-import omero.api.ServiceFactoryPrxHelper;
-import omero.constants.CLIENTUUID;
-import omero.util.ObjectFactoryRegistrar;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.builder.ArgumentsMatchBuilder;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import Ice.InitializationData;
 import Ice.ObjectPrxHelperBase;
 
+/**
+ * Reflectively calls all interface methods defined in omero/API.ice and checks
+ * for exceptions. Generally called "fuzz-testing".
+ */
 public class ReflectiveApiTest extends MockObjectTestCase {
-
-    class MockFixture {
-
-        private final Ice.Communicator communicator;
-        private final Ice.ObjectAdapter adapter;
-
-        private final OmeroContext ctx;
-        private final SecuritySystem secSys;
-        private final SessionManager sessions;
-        private final Executor executor;
-        private final SessionManagerI sm;
-
-        MockFixture(MockObjectTestCase test) {
-            InitializationData id = new InitializationData();
-            id.properties = Ice.Util.createProperties();
-
-            //
-            // The follow properties are necessary for Gateway
-            //
-
-            // Collocation isn't working (but should)
-            id.properties.setProperty("Ice.Default.CollocationOptimized", "0");
-            // Gateway calls back on the SF and so needs another thread or
-            // blocks.
-            id.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-            id.properties.setProperty("Ice.ThreadPool.Client.SizeMax", "50");
-            id.properties.setProperty("Ice.ThreadPool.Server.Size", "10");
-            id.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "100");
-
-            communicator = Ice.Util.initialize(id);
-            adapter = communicator.createObjectAdapterWithEndpoints(
-                    "BlitzAdapter", "default -p 10000");
-            ObjectFactoryRegistrar.registerObjectFactory(communicator,
-                    ObjectFactoryRegistrar.INSTANCE);
-            adapter.activate();
-
-            ctx = new OmeroContext(new String[] { "classpath:omero/test.xml",
-                    "classpath:ome/services/blitz-servantDefinitions.xml",
-                    "classpath:ome/services/throttling/throttling.xml" });
-            secSys = (SecuritySystem) ctx.getBean("securitySystem");
-            sessions = (SessionManager) ctx.getBean("sessionManager");
-            executor = (Executor) ctx.getBean("executor");
-            sm = new SessionManagerI(adapter, secSys, sessions, executor);
-            sm.setApplicationContext(ctx);
-        }
-
-        Mock mock(String name) {
-            return (Mock) ctx.getBean(name);
-        }
-
-        Cache cache() {
-            return new TestCache();
-        }
-
-        Ice.Current current(String method) {
-            Ice.Current current = new Ice.Current();
-            current.operation = method;
-            current.adapter = adapter;
-            current.ctx = new HashMap<String, String>();
-            current.ctx.put(CLIENTUUID.value, "my-client-uuid");
-            return current;
-        }
-
-        Session session() {
-            Session session = new Session();
-            session.setUuid("my-session-uuid");
-            return session;
-        }
-
-        Mock blitzMock(Class serviceClass) {
-            String name = serviceClass.getName();
-            name = name.replaceFirst("omero", "ome").replace("PrxHelper", "");
-            // WORKAROUND
-            if (name.equals("ome.api.RenderingEngine")) {
-                name = "omeis.providers.re.RenderingEngine";
-            }
-            Mock mock = mock("mock-" + name);
-            if (mock == null) {
-                throw new RuntimeException("No mock for serviceClass");
-            }
-            return mock;
-        }
-
-    }
 
     MockFixture fixture;
 
     @AfterMethod
     public void shutdownFixture() {
-        fixture.communicator.destroy();
-        fixture.ctx.closeAll();
+        fixture.tearDown();
     }
 
     @Test
     public void testByReflection() throws Exception {
 
         fixture = new MockFixture(this);
-        fixture.mock("securityMock").expects(once()).method("getSecurityRoles")
-                .will(returnValue(new Roles()));
-        fixture.mock("sessionsMock").expects(once()).method("create").will(
-                returnValue(fixture.session()));
-        fixture.mock("sessionsMock").expects(once()).method("inMemoryCache")
-                .will(returnValue(fixture.cache()));
-        fixture.mock("methodMock").expects(atLeastOnce()).method("isActive")
-                .will(returnValue(false));
-
-        ServiceFactoryPrx sf = ServiceFactoryPrxHelper.uncheckedCast(fixture.sm
-                .create("name", null, fixture.current("create")));
+        ServiceFactoryPrx sf = fixture.createServiceFactory();
 
         List<Method> factoryMethods = factoryMethods();
         for (Method factoryMethod : factoryMethods) {

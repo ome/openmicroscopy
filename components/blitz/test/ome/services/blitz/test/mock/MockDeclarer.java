@@ -1,4 +1,4 @@
-package ome.services.blitz.test;
+package ome.services.blitz.test.mock;
 
 import java.util.Arrays;
 import java.util.List;

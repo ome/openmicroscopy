@@ -19,24 +19,7 @@
 
 <beans>
 
-  <bean id="configuration" class="ome.services.blitz.util.BlitzConfiguration"
-    destroy-method="destroy">
-    <description>
-    Central configuration for the Blitz server runtime. This is done within
-    a single object due to interdependencies which are complicated to express
-    in Spring. All created instances are available via getters.
-    </description>
-    <constructor-arg ref="sessionManager"/>
-    <constructor-arg ref="securitySystem"/>
-    <constructor-arg ref="executor"/>
-  </bean>
-
-  <bean id="Ice.Communicator" factory-bean="configuration" factory-method="getCommunicator"/>
-  <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
-  <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>
-  <bean id="BlitzVerifier" factory-bean="configuration" factory-method="getBlitzVerifier"/>
-
-  <bean class="ome.services.blitz.util.ApiConsistencyCheck">
+ <bean class="ome.services.blitz.util.ApiConsistencyCheck">
     <description>
     BeanPostProcessor which checks each newly created servant (see below) for
     proper mappings from the ome.api.* classes. If the servant is BlitzOnly,
@@ -86,7 +69,7 @@
         </bean>
     </constructor-arg>
   </bean>
-  
+
   <bean id="omero.api.ILdap" class="omero.api._ILdapTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.LdapI">
@@ -95,6 +78,7 @@
         </bean>
     </constructor-arg>
   </bean>
+
 
   <bean id="omero.api.IPixels" class="omero.api._IPixelsTie" singleton="false">
     <constructor-arg>

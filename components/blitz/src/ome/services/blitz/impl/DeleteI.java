@@ -18,7 +18,7 @@ import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IDelete_checkImageDelete;
 import omero.api.AMD_IDelete_deleteImage;
-import omero.api.AMD_IDelete_deleteImageByDataset;
+import omero.api.AMD_IDelete_deleteImagesByDataset;
 import omero.api.AMD_IDelete_deleteImages;
 import omero.api.AMD_IDelete_previewImageDelete;
 import omero.api._IDeleteOperations;
@@ -63,8 +63,8 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations {
         callInvokerOnRawArgs(__cb, __current, ids, force);
     }
 
-    public void deleteImageByDataset_async(
-            AMD_IDelete_deleteImageByDataset __cb, long datasetId,
+    public void deleteImagesByDataset_async(
+            AMD_IDelete_deleteImagesByDataset __cb, long datasetId,
             boolean force, Current __current) throws ApiUsageException,
             SecurityViolation, ServerError, ValidationException {
         callInvokerOnRawArgs(__cb, __current, datasetId, force);

@@ -27,7 +27,6 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.services.dao.Dao;
 import ome.services.query.Query;
 import ome.services.search.FullText;
 import ome.services.search.SearchValues;
@@ -84,11 +83,6 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
-
-    @RolesAllowed("user")
-    public <T extends IObject> Dao<T> getDao() {
-        return new Dao<T>(this);
-    }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)

@@ -110,12 +110,9 @@ public class BlitzConfiguration {
             // tandem with the code in Main.main() which takes command line
             // arguments.
             id.properties.load(ICE_CONFIG);
-            ic = Ice.Util.initialize(id);
-
-        } else {
-            throw new IllegalStateException("No ICE_CONFIG property found.");
         }
 
+        ic = Ice.Util.initialize(id);
         return ic;
     }
 
