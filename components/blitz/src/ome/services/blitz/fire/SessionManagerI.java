@@ -198,19 +198,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     }
 
     /**
-     * Called periodically by SessionManagerI in order to clean up sessions
-     * which were marked for reaping by {@link DestroySessionMessage}.
-     * 
-     * Unfortunately, that message does not have an {@link Ice.Current} instance
-     * and so reaping must happen asynchronously.
-     * 
-     * @param cantUseThisCurrent
-     *            a current from another method invocation which is not usable
-     *            for reaping the given sessions except to get the current
-     *            {@link Ice.ObjectAdapter}
+     * {@link ServiceFactoryI#doDestroy() Destroys} all the {@link ServiceFactoryI}
+     * instances based on the given sessionId. Multiple clients can be attached to the same
+     * session, each with its own {@link ServiceFactoryI} 
      */
     public void reapSession(String sessionId) {
-        Set<String> clientIds = sessionToClientIds.keySet();
+        Set<String> clientIds = sessionToClientIds.get(sessionId);
         for (String clientId : clientIds) {
             try {
                 Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
@@ -222,6 +215,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 } else {
                     ServiceFactoryI sf = (ServiceFactoryI) obj;
                     sf.doDestroy();
+                    adapter.remove(sf.sessionId());
                 }
             } catch (Exception e) {
                 log.error("Error reaping session " + sessionId
