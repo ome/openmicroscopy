@@ -1911,7 +1911,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /* ---- Laser ---- */ 
 
-    public Laser getLaser(int instrumentIndex, int lightSourceIndex)
+    private Laser getLaser(int instrumentIndex, int lightSourceIndex)
     {
         setLightSourceID(null, instrumentIndex, lightSourceIndex);
         
@@ -2032,7 +2032,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /* ---- Arc ---- */
 
-    public Arc getArc(int instrumentIndex, int lightSourceIndex)
+    private Arc getArc(int instrumentIndex, int lightSourceIndex)
     {
         setLightSourceID(null, instrumentIndex, lightSourceIndex);
         
@@ -2091,7 +2091,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /* ---- Filament ---- */
     
-    public Filament getFilament(int instrumentIndex, int lightSourceIndex)
+    private Filament getFilament(int instrumentIndex, int lightSourceIndex)
     {
     	setLightSourceID(null, instrumentIndex, lightSourceIndex);
         
