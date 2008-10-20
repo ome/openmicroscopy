@@ -872,7 +872,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param imageIndex The image index.
      * @return See above.
      */
-    public Image getImage(int imageIndex)
+    private Image getImage(int imageIndex)
     {
         if (imageList.size() < (imageIndex + 1))
         {
@@ -909,7 +909,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param pixelsIndex The pixels index within <code>imageIndex</code>.
      * @return See above.
      */
-    public Pixels getPixels(int imageIndex, int pixelsIndex)
+    private Pixels getPixels(int imageIndex, int pixelsIndex)
     {
         Image image = getImage(imageIndex);
 
@@ -1016,10 +1016,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.Integer, int)
      */
-    public void setImageInstrumentRef(Integer instrumentRef, int imageIndex)
+    public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
+        /*
         Image image = getImage(imageIndex);
-        Instrument instrument = getInstrument(instrumentRef);
+        Instrument instrument = getInstrument(imageIndex);
         log.debug(String.format(
                 "Setting ImageInstrumentRef[%d] image: '%d", instrumentRef, imageIndex));
         if (instrument != null)
@@ -1028,6 +1029,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                     " -- skipped till fixed."));
             //image.setSetup(instrument);
         }
+        */ 
+        return;
     }
     
     /* ---- Pixels ---- */
@@ -1273,8 +1276,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param planeIndex The plane info index within <code>pixelsIndex</code>.
      * @return See above.
      */
-    public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
-            int planeIndex)
+    public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex, int planeIndex)
     {
         Pixels pixels = getPixels(imageIndex, pixelsIndex);
         if (!planeInfoCache.containsKey(pixels))
@@ -1770,7 +1772,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param instrumentIndex The instrument index.
      * @return See above.
      */
-    public Instrument getInstrument(int instrumentIndex)
+    private Instrument getInstrument(int instrumentIndex)
     {
         if (instrumentList.size() < (instrumentIndex + 1))
         {
@@ -2442,9 +2444,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param description
      * @return returns the new screen created
      */
-    public Screen getScreen(int screenIndex)
+    private Screen getScreen(int screenIndex)
     {
-        return getScreen(screenIndex);
+        return addScreen(screenIndex);
     }
  
     /**
@@ -2453,7 +2455,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param description
      * @return returns the new screen created
      */
-    public Screen addScreen(int screenIndex)
+    private Screen addScreen(int screenIndex)
     {
         if (screenList.size() < (screenIndex + 1))
         {
@@ -2645,7 +2647,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param description
      * @return returns the new plate created
      */
-    public Plate getPlate(int plateIndex)
+    private Plate getPlate(int plateIndex)
     {
         return addPlate(plateIndex);
     }
@@ -2656,7 +2658,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param description
      * @return returns the new plate created
      */
-    public Plate addPlate(int plateIndex)
+    private Plate addPlate(int plateIndex)
     {
         setPlateID(null, plateIndex);
         
@@ -2755,7 +2757,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         mapLSID(id);
     }
     
-    public Well getWell(int plateIndex, int wellIndex)
+    private Well getWell(int plateIndex, int wellIndex)
     {
         Plate plate = getPlate(plateIndex);
         setWellID(null, plateIndex, wellIndex);
@@ -3361,11 +3363,5 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
         "ignoring setUUID"));
     }
-
-    public void setImageInstrumentRef(String instrumentRef, int imageIndex)
-    {
-        log.debug(String.format(
-        "ignoring setImageInstrumentRef"));
-    }    
     // Bio-formats also needs a way to link OTF to Logical Channel
 }
