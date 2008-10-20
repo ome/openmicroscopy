@@ -16,7 +16,7 @@ import os.path
 from django.conf.urls.defaults import *
 from django.views.static import serve
 
-from webadminforblitz.webadmin import views
+from omeroweb.webadmin import views
 
 # url patterns
 urlpatterns = patterns('',

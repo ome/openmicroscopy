@@ -91,7 +91,7 @@ SESSION_COOKIE_AGE = 86400 # 1 day in sec
 FILE_UPLOAD_TEMP_DIR = '/tmp'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 100000 #default 2621440
 
-ROOT_URLCONF = 'webadminforblitz.urls'
+ROOT_URLCONF = 'omeroweb.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
@@ -107,7 +107,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'webadminforblitz.webadmin',
+    'omeroweb.webadmin',
 )
 
 # Logs
