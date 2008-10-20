@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+  <bean id="configuration" class="ome.services.blitz.util.BlitzConfiguration"
+    destroy-method="destroy">
+    <description>
+    Central configuration for the Blitz server runtime. This is done within
+    a single object due to interdependencies which are complicated to express
+    in Spring. All created instances are available via getters.
+    </description>
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="executor"/>
+  </bean>
+
+  <bean id="Ice.Communicator" factory-bean="configuration" factory-method="getCommunicator"/>
+  <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
+  <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>
+  <bean id="BlitzVerifier" factory-bean="configuration" factory-method="getBlitzVerifier"/>
+
+</beans>
