@@ -270,7 +270,8 @@ public class Field
 	 * Implemented as specified by the {@link IField} interface.
 	 * Adds a parameter to the list for this field
 	 */
-	public void addContent(int index, IFieldContent param) {
+	public void addContent(int index, IFieldContent param) 
+	{
 		if (param != null)
 			fieldParams.add(index, param);
 	}
@@ -279,11 +280,30 @@ public class Field
 	 * Implemented as specified by the {@link IField} interface.
 	 * Removes the specified content from the list. 
 	 */
-	public int removeContent(IFieldContent param) {
+	public int removeContent(IFieldContent param) 
+	{
 		int index = fieldParams.indexOf(param);
 		
 		fieldParams.remove(param);
 		return index;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * 
+	 * @see IField#getParams()
+	 */
+	public List<IParam> getParams() 
+	{
+		List<IParam> params = new ArrayList<IParam>();
+		
+		for (IFieldContent content : fieldParams) {
+			if (content instanceof IParam) {
+				params.add((IParam)content);
+			}
+		}
+		
+		return params;
 	}
 
 	/**
@@ -300,7 +320,8 @@ public class Field
 	 * Sets a display attribute. 
 	 * This will not be saved in the file, 
 	 */
-	public void setDisplayAttribute(String name, String value) {
+	public void setDisplayAttribute(String name, String value) 
+	{
 		displayAttributesMap.put(name, value);
 	}
 	
@@ -351,7 +372,8 @@ public class Field
 	 * 
 	 * @see IField#isFieldLocked()
 	 */
-	public boolean isFieldLocked() {
+	public boolean isFieldLocked() 
+	{
 		if (fieldLock == null)	return false;
 	
 		return (! (fieldLock.getLockLevel() == Lock.NOT_LOCKED));
@@ -362,7 +384,8 @@ public class Field
 	 * 
 	 * @return
 	 */
-	public String toHtmlString() {
+	public String toHtmlString() 
+	{
 		
 		String fieldName = getAttribute(Field.FIELD_NAME);
 		

@@ -22,6 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model;
 
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+
 //Java imports
 
 //Third-party libraries
@@ -85,6 +89,13 @@ public interface IField
 	 * @return		The index of the parameter before removal (or -1 if not found)
 	 */
 	public int removeContent(IFieldContent param);
+	
+	/**
+	 * Returns a list of the parameters for this field
+	 * 
+	 * @return 		see above
+	 */
+	public List<IParam> getParams();
 	
 	/**
 	 * Indicates whether all parameters have been filled out. 

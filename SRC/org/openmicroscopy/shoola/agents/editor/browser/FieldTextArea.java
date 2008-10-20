@@ -137,7 +137,10 @@ public class FieldTextArea
 		setBackground(null);
 		addFocusListener(this);
 		
-		refreshText();
+		//refreshField();
+		
+		String text = field.toHtmlString();
+		setText(text);
 		addCaretListener(this);
 	}
 	
@@ -154,6 +157,20 @@ public class FieldTextArea
 			paramEditDialog = new ParamEditorDialog(param, point, this);
 			paramEditDialog.setVisible(true);
 		}
+	}
+	
+	/**
+	 * Returns true if the {@link #treeNode} is selected in the {@link #navTree}.
+	 * 
+	 * @return		see above.
+	 */
+	private boolean isFieldSelected() 
+	{
+		if (treeNode == null) return false;
+		if (navTree == null) return false;
+		
+		TreePath path = new TreePath(treeNode.getPath());
+		return navTree.isPathSelected(path);
 	}
 
 	/**
@@ -180,13 +197,32 @@ public class FieldTextArea
 	
 	/**
 	 * Refreshes the text displayed, according to the {@link #field}.
-	 * This is called by the parent UI when a tree-nodes-changed event is
-	 * received. 
+	 * This is called by the parent UI when a tree-nodes-changed event 
+	 * or a tree-selection-event is received. 
+	 * 
+	 * If the field is selected, the text is updated from the field. 
+	 * Don't update unselected fields, otherwise all fields are updated 
+	 * and the scroll-pane displaying them will scroll to the last field. 
+	 * If only the selected field is updated, this field will also be 
+	 * scrolled to be visible.
+	 * 
+	 * Also updates the border to correspond to the selection state and
+	 * if the field is not selected, the {@link #paramEditDialog} is disposed. 
 	 */
-	public void refreshText()
+	public void refreshField()
 	{
-		String text = field.toHtmlString();
-		setText(text);
+		boolean selected = isFieldSelected();
+		
+		if (selected) {
+			String text = field.toHtmlString();
+			setText(text);
+		}
+		
+		setBorder(selected ? selectedBorder : unselectedBorder);
+		
+		if ((! selected) && (paramEditDialog != null)) {
+			paramEditDialog.dispose();
+		}
 	}
 	
 	/**

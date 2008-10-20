@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
+//Java imports
+
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,21 +31,24 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-
-import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
+import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+
 /** 
- * 
+ * A dialog for hosting a component for editing a parameter. 
+ * The parent that creates this dialog is added as a 
+ * {@link PropertyChangeListener} to the dialog, to handle edits etc. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -55,12 +60,22 @@ import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
  */
 public class ParamEditorDialog 
 	extends JDialog 
-	implements ActionListener, 
-	ITreeEditComp,
-	PropertyChangeListener {
-
-	private AbstractParamEditor paramEditor;
+	implements ActionListener,
+	PropertyChangeListener
+{
+	/**
+	 * The UI component this dialog holds. 
+	 */
+	private JComponent 			paramEditor;
 	
+	/**
+	 * Creates an instance of a non-modal, undecorated dialog. 
+	 * Builds the UI but does not show the dialog. 	
+	 * 
+	 * @param param				The parameter to edit with this dialog
+	 * @param mouseLocation		The location to show dialog. Can be null. 
+	 * @param parent			Responsible for listening for edits. 
+	 */
 	public ParamEditorDialog(IParam param, Point mouseLocation, 
 			PropertyChangeListener parent) {
 		
@@ -74,10 +89,14 @@ public class ParamEditorDialog
 		if (paramEditor != null) {
 			paramEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, parent);
+			paramEditor.addPropertyChangeListener
+				(FieldPanel.UPDATE_EDITING_PROPERTY, this);
 			horizontalBox.add(paramEditor);
 		}
 		
-		JButton closeButton = new JButton("Close");
+		IconManager iM = IconManager.getInstance();
+		Icon closeIcon = iM.getIcon(IconManager.FILE_CLOSE_ICON);
+		JButton closeButton = new CustomButton(closeIcon);
 		closeButton.addActionListener(this);
 		horizontalBox.add(closeButton);
 		
@@ -88,42 +107,26 @@ public class ParamEditorDialog
 		}
 	}
 
+	/**
+	 * Implemented as specified by the {@link ActionListener} interface
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
 	public void actionPerformed(ActionEvent e) {
 		this.dispose();
 	}
 
-	public void attributeEdited(String attributeName, Object newValue) {
-		if (attributeName == null) return;
-
-		String oldValue = getParameter().getAttribute(attributeName);
-		
-		firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
-				oldValue, newValue);
-	}
-
-	public String getAttributeName() {
-		if (paramEditor != null)
-			return paramEditor.getAttributeName();
-		return null;
-	}
-
-	public String getEditDisplayName() {
-		if (paramEditor != null)
-			return paramEditor.getEditDisplayName();
-		return null;
-	}
-
-	public IAttributes getParameter() {
-		if (paramEditor != null)
-			return paramEditor.getParameter();
-		return null;
-	}
-
+	/**
+	 * Implemented as specified by the {@link PropertyChangeListener} interface
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-			attributeEdited(getAttributeName(), evt.getNewValue());
+		
+		// refresh the size of the UI.
+		if (FieldPanel.UPDATE_EDITING_PROPERTY.equals(evt.getPropertyName())) {
+			pack();
 		}
 	}
-	
 	
 }

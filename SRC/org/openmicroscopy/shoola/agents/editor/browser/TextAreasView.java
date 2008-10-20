@@ -37,6 +37,8 @@ import javax.swing.Scrollable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -67,7 +69,8 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
 public class TextAreasView
 	extends JPanel 
 	implements Scrollable,
-	TreeModelListener
+	TreeModelListener,
+	TreeSelectionListener
 	{
 	
 	/**
@@ -140,7 +143,7 @@ public class TextAreasView
 		for (int i=0; i<getComponentCount(); i++) {
 			comp = getComponent(i);
 			if (comp instanceof FieldTextArea) {
-				((FieldTextArea)comp).refreshText();
+				((FieldTextArea)comp).refreshField();
 			}
 		}
 	}
@@ -156,6 +159,9 @@ public class TextAreasView
 		this.navTree = tree;
 		this.controller = controller;
 		
+		if (navTree != null) {
+			navTree.addTreeSelectionListener(this);
+		}
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.white);
 		setBorder(new EmptyBorder(10,10,10,10));
@@ -180,7 +186,7 @@ public class TextAreasView
 	 * Null implementation. 
 	 */
 	public Dimension getPreferredScrollableViewportSize() {
-		return null;
+		return new Dimension(400, 200);
 	}
 
 	/**
@@ -189,7 +195,7 @@ public class TextAreasView
 	 */
 	public int getScrollableBlockIncrement(Rectangle visibleRect,
 			int orientation, int direction) {
-		return 0;
+		return visibleRect.height;
 	}
 
 	/**
@@ -215,7 +221,7 @@ public class TextAreasView
 	 */
 	public int getScrollableUnitIncrement(Rectangle visibleRect,
 			int orientation, int direction) {
-		return 0;
+		return 10;
 	}
 
 	/**
@@ -260,6 +266,16 @@ public class TextAreasView
 	 */
 	public void treeStructureChanged(TreeModelEvent e) {
 		refreshTreeDisplay();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeSelectionListener} interface.
+	 * Sets the currently selected nodes as highlighted, etc. 
+	 * 
+	 * @see TreeSelectionListener#valueChanged(TreeSelectionEvent)
+	 */
+	public void valueChanged(TreeSelectionEvent e) {
+		refreshTextAreas();
 	}
 
 }
