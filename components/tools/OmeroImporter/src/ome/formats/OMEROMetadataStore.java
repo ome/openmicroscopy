@@ -12,25 +12,28 @@ import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
-import omero.RObject;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.client;
+import omero.api.IAdminPrx;
+import omero.api.IPojosPrx;
+import omero.api.IQueryPrx;
+import omero.api.IRepositoryInfoPrx;
+import omero.api.IUpdatePrx;
 import omero.api.MetadataStorePrx;
 import omero.api.MetadataStorePrxHelper;
+import omero.api.RawFileStorePrx;
+import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.constants.METADATASTORE;
 import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.Pixels;
-import omero.model.PixelsI;
-import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Project;
 
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
@@ -41,13 +44,33 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     MetadataStorePrx delegate;
     
     ServiceFactoryPrx serviceFactory;
+    IUpdatePrx iUpdate;
+    IQueryPrx iQuery;
+    IAdminPrx iAdmin;
+    RawFileStorePrx rawFileStore;
+    RawPixelsStorePrx rawPixelStore;
+    IRepositoryInfoPrx iRepoInfo;
+    IPojosPrx iPojos;
+
+    private Long currentPixId;
+    
+    //PlaneInfo pInfo;
 
     public OMEROMetadataStore(String username, String password, String server,
             String port) throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         client c = new client(server);
         serviceFactory = c.createSession(username, password);
-        delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
+        iUpdate = serviceFactory.getUpdateService();
+        iQuery = serviceFactory.getQueryService();
+        iAdmin = serviceFactory.getAdminService();
+        rawFileStore = serviceFactory.createRawFileStore();
+        rawPixelStore = serviceFactory.createRawPixelsStore();
+        iRepoInfo = serviceFactory.getRepositoryInfoService();
+        iPojos = serviceFactory.getPojosService();
+        
+        
+        delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));        
     }
 
     /* (non-Javadoc)
@@ -1131,6 +1154,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             throw new RuntimeException(e);
         }
+        
     }
 
     public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
@@ -1142,10 +1166,22 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             throw new RuntimeException(e);
         }
+        
+    }
+
+    public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
+    {
+        try
+        {
+            delegate.setPixelsSizeZ(new RInt(sizeZ), imageIndex, pixelsIndex);
+        } catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
-    {
+    {       
         try
         {
             delegate.setPixelsSizeX(new RInt(sizeX), imageIndex, pixelsIndex);
@@ -1166,20 +1202,25 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
     }
 
-    public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
-    {
-        try
-        {
-            delegate.setPixelsSizeZ(new RInt(sizeZ), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
             int planeIndex)
-    {
+    {    
+        /*
+        if (pInfo == null)
+        {
+            pInfo = new PlaneInfoI();
+        }
+        
+        pInfo.setTheC(new RInt(theC));  
+        
+        if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
+        {
+            // Submit the pInfo.
+            //delegate.setplaneinfo(imageIndex, pixelsIndex, planeIndex, pInfo);
+            pInfo = null;
+        }
+        */
+        
         try
         {
             delegate.setPlaneTheC(new RInt(theC), imageIndex, pixelsIndex, planeIndex);
@@ -1192,6 +1233,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
+        /*
+        if (pInfo == null)
+        {
+            pInfo = new PlaneInfoI();
+        }
+        
+        pInfo.setTheT(new RInt(theT));  
+        
+        if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
+        {
+            // Submit the pInfo.
+            //delegate.setplaneinfo(imageIndex, pixelsIndex);
+        }
+        */
+        
         try
         {
             delegate.setPlaneTheT(new RInt(theT), imageIndex, pixelsIndex, planeIndex);
@@ -1204,6 +1260,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
+        /*
+        if (pInfo == null)
+        {
+            pInfo = new PlaneInfoI();
+        }
+        
+        pInfo.setTheZ(new RInt(theZ));  
+        
+        if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
+        {
+            // Submit the pInfo.
+            //delegate.setplaneinfo(imageIndex, pixelsIndex);
+        }
+        */
+        
         try
         {
             delegate.setPlaneTheZ(new RInt(theZ), imageIndex, pixelsIndex, planeIndex);
@@ -1897,12 +1968,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             throw new RuntimeException(e);
         }
     }
-
+    
     public long getExperimenterID()
     {
         try
         {
-            return delegate.getExperimenterID();
+            return iAdmin.getEventContext().userId;
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1920,7 +1991,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            return delegate.getRepositorySpace();
+            return iRepoInfo.getFreeSpaceInKilobytes();
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1939,10 +2010,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
     public void addImageToDataset(Image image, Dataset dataset)
-    {
+    {   
         try
         {
-            delegate.addImageToDataset(image, dataset);
+            dataset.linkImage(image);
+            iUpdate.saveObject(dataset);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1953,30 +2025,32 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            return delegate.getProject(projectId);
+            return (Project) iQuery.get("Project", projectId);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    public Dataset getDataset(long datasetID)
+    public Dataset getDataset(long datasetId)
     {
         try
         {
-            return delegate.getDataset(datasetID);
+            return (Dataset) iQuery.get("Dataset", datasetId);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
     }
 
+ // FIXME: change to iQuery
     public void addBooleanAnnotationToPixels(BooleanAnnotation annotation,
             Pixels pixels)
     {
         try
         {
-            delegate.addBooleanAnnotationToPixels(annotation, pixels);
+            pixels.linkAnnotation(annotation);
+            iUpdate.saveObject(pixels);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1997,15 +2071,24 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public Dataset addDataset(String datasetName, String datasetDescription,
             Project project)
     {
+        Dataset dataset = new DatasetI();
+        if (datasetName.length() != 0)
+            dataset.setName(new RString(datasetName));
+        if (datasetDescription.length() != 0)
+            dataset.setDescription(new RString(datasetDescription));
+        Project p = new ProjectI(project.getId().val, false);
+        dataset.linkProject(p);
+
         try
         {
-            return delegate.addDataset(new RString(datasetName), new RString(datasetDescription), project);
+            return (Dataset) iUpdate.saveAndReturnObject(dataset);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
     }
 
+ // FIXME: change to iQuery
     public List<Project> getProjects()
     {
         try
@@ -2018,6 +2101,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
     }
 
+ // FIXME: change to iQuery
     public List<Dataset> getDatasets(Project p)
     {
         try
@@ -2032,16 +2116,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public Project addProject(String projectName, String projectDescription)
     {
-            return null;
-            
-        /*
-        try {
-            //return delegate.addProject(new RString(projectName), new RString(projectDescription));
+        Project project = new ProjectI();
+        if (projectName.length() != 0)
+            project.setName(new RString(projectName));
+        if (projectDescription.length() != 0)
+            project.setDescription(new RString(projectDescription));
+
+        try
+        {
+            return (Project) iUpdate.saveAndReturnObject(project);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
-        */
     }
     
     public void setOriginalFiles(File[] files, String formatString)
@@ -2056,11 +2143,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return;
     }
 
+ // FIXME: change to iQuery
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
     {
         try
         {
-            delegate.setPlane(new RLong(pixId), arrayBuf, z, c, t);
+            if (currentPixId != pixId)
+            {
+                rawPixelStore.setPixelsId(pixId);
+                currentPixId = pixId;
+            }
+            rawPixelStore.setPlane(arrayBuf, z, c, t);
         }
         catch (ServerError e)
         {
@@ -2083,18 +2176,46 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public void populateSHA1(MessageDigest md, Long id)
     {
-        return;
-        /*
+        Pixels p;
         try
         {
-            // FIXME: missing populateSha1
-            delegate.populateSHA1(md, new RLong(id));
-        }
-        catch (ServerError e)
+            p = (Pixels) iQuery.get("Pixels", id);
+            p.setSha1(new RString(byteArrayToHexString(md.digest())));
+            iUpdate.saveObject(p);
+        } catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
-        */
+    }
+
+    static String byteArrayToHexString(byte in[]) {
+
+        byte ch = 0x00;
+        int i = 0;
+
+        if (in == null || in.length <= 0) {
+            return null;
+        }
+
+        String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "a", "b", "c", "d", "e", "f" };
+
+        StringBuffer out = new StringBuffer(in.length * 2);
+
+        while (i < in.length) {
+
+            ch = (byte) (in[i] & 0xF0);
+            ch = (byte) (ch >>> 4);
+            ch = (byte) (ch & 0x0F);
+            out.append(pseudo[ch]);
+            ch = (byte) (in[i] & 0x0F);
+            out.append(pseudo[ch]);
+            i++;
+
+        }
+
+        String rslt = new String(out);
+        return rslt;
     }
 
     public void populateMinMax(Long id, Integer i)
