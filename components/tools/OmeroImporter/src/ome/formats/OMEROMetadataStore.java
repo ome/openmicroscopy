@@ -519,7 +519,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImageInstrumentRef2(new RString(instrumentRef), imageIndex);
+            delegate.setImageInstrumentRef(new RString(instrumentRef), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
