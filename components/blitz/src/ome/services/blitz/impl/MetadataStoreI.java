@@ -76,20 +76,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
     // ~ Service methods
     // =========================================================================
 
-    public void addPlate_async(final AMD_MetadataStore_addPlate __cb,
-            final int plateIndex, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.addPlate(plateIndex);
-                    }
-                }));
-    }
-
     public void createRoot_async(final AMD_MetadataStore_createRoot __cb,
             final Current __current) throws ServerError {
 
@@ -121,20 +107,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void getImage_async(final AMD_MetadataStore_getImage __cb,
-            final int imageIndex, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.getImage(imageIndex);
-                    }
-                }));
-    }
-
     public void getPixels_async(final AMD_MetadataStore_getPixels __cb,
             final int series, final Current __current) throws ServerError {
 
@@ -160,21 +132,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-                        return null;
-                    }
-                }));
-    }
-
-    public void getPlate_async(final AMD_MetadataStore_getPlate __cb,
-            final int plateIndex, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.getPlate(plateIndex);
                         return null;
                     }
                 }));
