@@ -35,7 +35,6 @@ module omero {
 		ProjectList getProjects() throws ServerError;
 		PixelsList saveToDB() throws ServerError;
 		void populateMinMax(RLong id, RInt i) throws ServerError;
-		omero::model::Image getImage(int imageIndex) throws ServerError;
 		omero::model::Pixels getPixels(int series) throws ServerError;
 		void setImageName(RString name, int imageIndex) throws ServerError;
 		void setImageCreationDate(RString creationDate, int imageIndex) throws ServerError;
