@@ -76,62 +76,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
     // ~ Service methods
     // =========================================================================
 
-    public void addBooleanAnnotationToPixels_async(
-            final AMD_MetadataStore_addBooleanAnnotationToPixels __cb,
-            final BooleanAnnotation ba, final Pixels p,
-            final Ice.Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                        ome.model.annotations.BooleanAnnotation _ba = safeReverse(
-                                ba, mapper);
-                        ome.model.core.Pixels _p = safeReverse(p, mapper);
-                        store.addBooleanAnnotationToPixels(_ba, _p);
-                        return null;
-                    }
-                }));
-
-    }
-
-    public void addDataset_async(final AMD_MetadataStore_addDataset __cb,
-            final RString name, final RString description,
-            final Project project, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                        IceMapper mapper = new IceMapper();
-                        ome.model.containers.Project _p = safeReverse(project,
-                                mapper);
-                        return store.addDataset(name.val, description.val, _p);
-                    }
-                }));
-    }
-
-    public void addImageToDataset_async(
-            final AMD_MetadataStore_addImageToDataset __cb, final Image image,
-            final Dataset dataset, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        ome.model.core.Image _image = safeReverse(image, mapper);
-                        ome.model.containers.Dataset _dataset = safeReverse(
-                                dataset, mapper);
-                        store.addImageToDataset(_image, _dataset);
-                        return null;
-                    }
-                }));
-    }
-
     public void addPlate_async(final AMD_MetadataStore_addPlate __cb,
             final int plateIndex, final Current __current) throws ServerError {
 
@@ -142,20 +86,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         return store.addPlate(plateIndex);
-                    }
-                }));
-    }
-
-    public void addScreen_async(final AMD_MetadataStore_addScreen __cb,
-            final int screenIndex, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.addScreen(screenIndex);
                     }
                 }));
     }
@@ -171,37 +101,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
                         store.createRoot();
                         return null;
-                    }
-                }));
-    }
-
-    public void getArc_async(final AMD_MetadataStore_getArc __cb,
-            final Instrument instrument, final int lightSourceIndex,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        ome.model.acquisition.Instrument _i = safeReverse(
-                                instrument, mapper);
-                        return store.getArc(_i, lightSourceIndex);
-                    }
-                }));
-    }
-
-    public void getDataset_async(final AMD_MetadataStore_getDataset __cb,
-            final long datasetID, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.getDataset(datasetID);
                     }
                 }));
     }
@@ -222,38 +121,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void getExperimenterID_async(
-            final AMD_MetadataStore_getExperimenterID __cb,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.getExperimenterID();
-                    }
-                }));
-    }
-
-    public void getFilament_async(final AMD_MetadataStore_getFilament __cb,
-            final Instrument instrument, final int lightSourceIndex,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        ome.model.acquisition.Instrument _instrument = safeReverse(
-                                instrument, mapper);
-                        return store.getFilament(_instrument, lightSourceIndex);
-                    }
-                }));
-    }
-
     public void getImage_async(final AMD_MetadataStore_getImage __cb,
             final int imageIndex, final Current __current) throws ServerError {
 
@@ -264,55 +131,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         return store.getImage(imageIndex);
-                    }
-                }));
-    }
-
-    public void getInstrument_async(final AMD_MetadataStore_getInstrument __cb,
-            final int instrumentIndex, final Current __current)
-            throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.getInstrument(instrumentIndex);
-                    }
-                }));
-    }
-
-    public void getLaser_async(final AMD_MetadataStore_getLaser __cb,
-            final Instrument instrument, final int lightSourceIndex,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        ome.model.acquisition.Instrument _instrument = safeReverse(
-                                instrument, mapper);
-                        store.getLaser(_instrument, lightSourceIndex);
-                        return null;
-                    }
-                }));
-    }
-
-    public void getPixels2_async(final AMD_MetadataStore_getPixels2 __cb,
-            final int imageIndex, final int pixelsIndex, final Current __current)
-            throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.getPixels(imageIndex, pixelsIndex);
-                        return null;
                     }
                 }));
     }
@@ -362,21 +180,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void getProject_async(final AMD_MetadataStore_getProject __cb,
-            final long projectID, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.getProject(projectID);
-                        return null;
-                    }
-                }));
-    }
-
     public void getProjects_async(final AMD_MetadataStore_getProjects __cb,
             final Current __current) throws ServerError {
 
@@ -391,21 +194,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void getRepositorySpace_async(
-            final AMD_MetadataStore_getRepositorySpace __cb,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        return store.getRepositorySpace();
-                    }
-                }));
-    }
-
     public void getRoot_async(final AMD_MetadataStore_getRoot __cb,
             final Current __current) throws ServerError {
 
@@ -415,37 +203,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
                         return store.getRoot();
-                    }
-                }));
-    }
-
-    public void getScreen_async(final AMD_MetadataStore_getScreen __cb,
-            final int screenIndex, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.getScreen(screenIndex);
-                        return null;
-                    }
-                }));
-    }
-
-    public void getWell_async(final AMD_MetadataStore_getWell __cb,
-            final int plateIndex, final int wellIndex, final Current __current)
-            throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.getWell(plateIndex, wellIndex);
-                        return null;
                     }
                 }));
     }
@@ -1242,27 +999,9 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void setImageInstrumentRef2_async(
-            final AMD_MetadataStore_setImageInstrumentRef2 __cb,
-            final RString instrumentRef, final int imageIndex,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.setImageInstrumentRef(instrumentRef.val,
-                                imageIndex);
-                        return null;
-                    }
-                }));
-    }
-
     public void setImageInstrumentRef_async(
             final AMD_MetadataStore_setImageInstrumentRef __cb,
-            final RInt instrumentRef, final int imageIndex,
+            final RString instrumentRef, final int imageIndex,
             final Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
@@ -2588,24 +2327,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void setPlane_async(final AMD_MetadataStore_setPlane __cb,
-            final RLong id, final byte[] pixels, final int theZ,
-            final int theC, final int theT, final Current __current)
-            throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-			store.setPixelsId(id.val);
-                        store.setPlane(id.val, pixels, theZ, theC, theT);
-                        return null;
-                    }
-                }));
-    }
-
     public void setPlateDescription_async(
             final AMD_MetadataStore_setPlateDescription __cb,
             final RString description, final int plateIndex,
@@ -3096,22 +2817,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
                         store.setScreenReagentSetDescription(
                                 reagentSetDescription.val, screenIndex);
-                        return null;
-                    }
-                }));
-    }
-
-    public void setStack_async(final AMD_MetadataStore_setStack __cb,
-            final RLong id, final byte[] pixels, final int theC,
-            final int theT, final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-
-                        store.setStack(id.val, pixels, theC, theT);
                         return null;
                     }
                 }));
