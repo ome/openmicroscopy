@@ -58,7 +58,8 @@ connectors = {}
 logger.info("INIT '%s'" % os.getpid())
 
 try:
-    emailsender = SendEmial()
+    if settings.EMAIL_ERROR_NOTIFICATION:
+        emailsender = SendEmial()
 except:
     logger.error(traceback.format_exc())
 
@@ -769,22 +770,24 @@ def handler404(request):
     logger.error('handler404: Page not found')
     exc_info = sys.exc_info()
     logger.error(traceback.format_exc())
-    try:
-        emailsender.create_error_message("webadmin", debug.technical_404_response(request, exc_info[1]))
-        logger.debug('handler404: Email to queue')
-    except:
-        logger.error(traceback.format_exc())
-        logger.debug('handler404: Email could not be sent')
+    if settings.EMAIL_ERROR_NOTIFICATION:
+        try:
+            emailsender.create_error_message("webadmin", debug.technical_404_response(request, exc_info[1]))
+            logger.debug('handler404: Email to queue')
+        except:
+            logger.error('handler404: Email could not be sent')
+            logger.error(traceback.format_exc())
     return page_not_found(request, "404.html")
 
 def handler500(request):
     logger.error('handler500: Server error')
     exc_info = sys.exc_info()
     logger.error(traceback.format_exc())
-    try:
-        emailsender.create_error_message("webadmin", debug.technical_500_response(request, *exc_info))
-        logger.debug('handler500: Email to queue')
-    except:
-        logger.error(traceback.format_exc())
-        logger.debug('handler500: Email could not be sent')
+    if settings.EMAIL_ERROR_NOTIFICATION:
+        try:
+            emailsender.create_error_message("webadmin", debug.technical_500_response(request, *exc_info))
+            logger.debug('handler500: Email to queue')
+        except:
+            logger.error('handler500: Email could not be sent')
+            logger.error(traceback.format_exc())
     return server_error(request, "500.html")

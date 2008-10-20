@@ -33,8 +33,8 @@ DATABASE_HOST = ''             # Set to empty string for localhost. Not used wit
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
 # Admin error notification
+EMAIL_ERROR_NOTIFICATION = False
 EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
-EMAIL_ERROR_NOTIFICATION = True
 EMAIL_ADMIN_ADDRESS = 'admin@domain' # email address
 EMAIL_SMTP_SERVER = 'smtp.domain'
 
