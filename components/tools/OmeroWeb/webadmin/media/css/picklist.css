@@ -1,0 +1,64 @@
+table.formTable {
+	margin: 0 20px;
+}
+table.formTable td {
+	padding: 3px;
+}
+input.button {
+	background: #ddd url(/webadmin/static/images/button_bg.gif) left center repeat-x;
+	border:1px solid #919191;
+	color:#000000;
+	font-weight:bold;
+	font-size: 11px;
+	margin:0px;
+	padding:2px 4px;
+	text-align:center;
+	margin-right: 5px;
+}
+label.horizontalLabel {
+	font-size: 0.8em;
+}
+
+table.formTable td.pickListTd {
+	width: 50px;
+}
+table.formTable td.pickListRight {
+	padding-right: 15px;
+}
+.pickList {
+	border: 1px solid #ccc;
+	width: auto;
+}
+.pickListSelected {
+	background: url(/webadmin/static/images/tiny_selected.gif) 1px top no-repeat;
+	padding-top: 6px;
+}
+.pickListAvailable {
+	background: url(/webadmin/static/images/tiny_available.gif) 1px top no-repeat;
+	padding-top: 6px;
+}
+table.formTable td.pickListButtons {
+	padding: 0;
+	width: 50px;
+}
+div.pickListButtons {
+	padding-top: 20%;
+	width: 100%;
+	text-align: center;
+}
+input.addButton,
+input.removeButton,
+input.addAllButton,
+input.removeAllButton{
+	border-color: #ccc;
+	text-align: center;
+	width: 30px;
+	margin-right: 0;
+}
+input.removeButton,
+input.removeAllButton {
+	margin-top: 5px;
+}
+input.addAllButton {
+	margin-top: 15px;
+}

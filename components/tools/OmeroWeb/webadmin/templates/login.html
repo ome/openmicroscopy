@@ -1,0 +1,58 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/login.css" type="text/css" />
+
+    <link rel="shortcut icon" href="{% get_webadmin_static_url %}/images/ome.ico" type="image/x-icon" />
+
+    <title>{% trans "WebAdmin - Login" %}</title>
+
+    <script type="text/javascript" src="{% get_webadmin_static_url %}/js/popup.js"></script>
+
+</head>
+<body>
+<div id="login-logo">
+    <img src="{% get_webadmin_static_url %}/images/logo.png" />
+</div>
+<div id="login">
+	<form action="{% get_webadmin_root_url %}/login/" method="post">
+		<table><tbody>
+		    {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
+		    <tr>
+		        <th>{% trans form.base.label_tag %}{% if form.base.field.required %}*{% endif %}</th>
+    				<td>{{ form.base.errors }}{{ form.base }}</td>
+		    </tr>
+		</tbody></table>
+		<table><tbody>
+		    <tr>
+		        <th></th>
+				<td>{{ form.login.errors }}</td>
+				<th></th>
+    			<td>{{ form.password.errors }}</td>
+			</tr>
+		    <tr>
+		        <th>{% trans form.login.label_tag %}{% if form.login.field.required %}*{% endif %}</th>
+				<td>{{ form.login }}</td>
+				<th>{% trans form.password.label_tag %}{% if form.password.field.required %}*{% endif %}</th>
+    			<td>{{ form.password }}</td>
+			</tr>
+		</tbody></table>
+		<!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text }}</td> -->
+		<center><input type="submit" value="Connect" /></center>
+	</form>
+</div>
+
+<div id="bottom">
+    <center><a href="javascript:openHelp()">Help</a></center>
+	<p>All material ©2008 OMERO Team</p>
+</div>
+
+</body>
+</html>

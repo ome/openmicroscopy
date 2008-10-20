@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block title %}
+{% if gid %}
+    Edit group
+{% else %}
+    Add group
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div>
+{% if gid %}
+    <h2>{% trans "Edit group" %}</h2>
+{% else %}
+    <h2>{% trans "Add group" %}</h2>
+{% endif %}
+
+<p>{% trans "Fields marked with an * are mandatory." %}</p>
+<br/>
+
+{% if gid %}
+    <form action="{% get_webadmin_root_url %}/group/save/{{ gid }}/" method="POST">
+{% else %}
+    <form action="{% get_webadmin_root_url %}/group/create/" method="POST">
+{% endif %}
+
+<table>
+  <tbody>
+    {% for field in form %}
+        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+    {% endfor %}
+  </tbody>
+  <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="Save" /></td></tr>
+</table>
+</form>
+
+</div>
+{% endblock %}

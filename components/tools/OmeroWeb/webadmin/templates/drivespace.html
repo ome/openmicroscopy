@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block title %}{% trans "Drive space" %}{% endblock %}
+
+{% block content %}
+<div>
+<h2>{% trans "Drive space" %}</h2>
+
+<p>{% trans "Pie-chart shows usage of main hard drive." %}</p>
+<br/>
+
+<center><img src="{% get_webadmin_root_url %}/piechart/" title="drivespace" alt="drivespace" /></center>
+</div>
+<br/>
+<p>{% trans "Free space" %}: {{ driveSpace.free }} [KB]</p>
+<p>{% trans "Used space" %}: {{ driveSpace.used }} [KB]</p>
+
+<p>{% trans "Top ten list" %}:</p>
+<ol>
+{% for item in topTen %}
+    <li>{{ item.0 }} - {{ item.1 }} [KB]</li>
+{% endfor %}
+</ul>
+{% endblock %}

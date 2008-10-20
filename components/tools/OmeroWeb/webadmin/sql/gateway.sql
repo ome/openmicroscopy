@@ -1,0 +1,1 @@
+INSERT INTO webadmin_gateway (base_path, server, port) VALUES ('omero', 'localhost', 4063);
