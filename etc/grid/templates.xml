@@ -62,7 +62,7 @@
 
     <server-template id="ShellTemplate">
       <parameter name="id"/>
-      <parameter name="exe" default="lib/shell.py"/>
+      <parameter name="exe" default="lib/shellserver.py"/>
       <parameter name="act" default="always"/>
       <server id="${id}" exe="${exe}" activation="${act}">
         <option>${id}</option>

@@ -11,7 +11,7 @@
 
 """
 
-import subprocess, optparse, os, sys
+import subprocess, optparse, os, sys, signal, time
 from omero.cli import Arguments, BaseControl, VERSION
 import omero.java
 
@@ -47,6 +47,14 @@ class ServerControl(BaseControl):
         # Run java -jar blitz/blitz.jar replacing the current process
         omero.java.run(["-jar","blitz/blitz.jar",first], debug=debug, xargs=xargs, use_exec = True)
 
+    def web(self, args):
+        args = Arguments(args)
+        sys.stderr.write("Starting django... \n")
+        subprocess.call(["python","manage.py","syncdb","--noinput"], cwd="omeroweb", env = os.environ)
+        # Now exec
+        os.chdir("omeroweb")
+        django = ["python","manage.py","runserver","--noreload"]
+        os.execvpe("python", django, os.environ)
 try:
     register("server", ServerControl)
 except NameError:
