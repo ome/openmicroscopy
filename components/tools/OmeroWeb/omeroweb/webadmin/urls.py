@@ -22,7 +22,7 @@ from omeroweb.webadmin import views
 urlpatterns = patterns('',
 
     ( r'^$', views.index ),
-    ( r'login/$', views.login ),
+    ( r'login/$', views.index ),
     ( r'logout/$', views.logout ),
     ( r'experimenters/$', views.experimenters ),
     ( r'experimenter/(?P<action>[a-z]+)/$', views.manage_experimenter ),

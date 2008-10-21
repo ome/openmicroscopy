@@ -237,13 +237,17 @@ def isUserConnected (f):
 # views controll
 
 def index(request):
-    error = None
-    try:
-        error = request.GET['error']
-    except:
-        pass
+    
+    if request.method == 'POST' and request.POST.get('base'):
+        blitz = Gateway.objects.get(pk=request.POST.get('base'))
+        request.session['base'] = blitz.id
+        request.session['server'] = blitz.server
+        request.session['port'] = blitz.port
+        request.session['login'] = request.POST.get('login')
+        request.session['password'] = request.POST.get('password')
     
     conn = None
+    error = None
     try:
         conn = getConnection(request)
     except Exception, x:
@@ -266,30 +270,6 @@ def index(request):
         c = Context(request, context)
         rsp = t.render(c)
         return HttpResponse(rsp)
-    else:
-        if conn.getEventContext().isAdmin:
-            return HttpResponseRedirect("/%s/experimenters/" % (settings.WEBADMIN_ROOT_BASE))
-        else:
-            return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
-
-def login(request):
-    if request.method == 'POST' and request.POST.get('base'):
-        blitz = Gateway.objects.get(pk=request.POST.get('base'))
-        request.session['base'] = blitz.id
-        request.session['server'] = blitz.server
-        request.session['port'] = blitz.port
-        request.session['login'] = request.POST.get('login')
-        request.session['password'] = request.POST.get('password')
-    
-    conn = None
-    try:
-        conn = getConnection(request)
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        error = x.__class__.__name__
-    
-    if conn is None:
-        return HttpResponseRedirect("/%s/?error=%s" % (settings.WEBADMIN_ROOT_BASE, error))
     else:
         if conn.getEventContext().isAdmin:
             return HttpResponseRedirect("/%s/experimenters/" % (settings.WEBADMIN_ROOT_BASE))
