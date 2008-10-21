@@ -106,12 +106,11 @@ build-* targets.
     <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="init">
         <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <iterate buildpathref="app.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
-        <iterate buildpathref="WebAdmin.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
+        <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="licenses.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
@@ -148,6 +147,12 @@ build-* targets.
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
+
+    <target name="build-web" description="Build OmeroWeb and copy to dist">
+        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 

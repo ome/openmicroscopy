@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="OmeroWeb" default="install" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        OMERO.web django-based client
+    </description>
+
+    <dirname property="up-two"        file="${basedir}"/>
+    <dirname property="up-one"        file="${up-two}"/>
+    <property name="import.dir"       value="${up-one}/antlib/resources"/>
+
+    <import file="${import.dir}/global.xml"/>
+
+    <target name="tools-init">
+        <untar compression="gzip" src="${lib.dir}/repository/django-lib-1.0.tar.gz" dest="${basedir}/omeroweb"/>
+    </target>
+
+    <target name="tools-build" depends="tools-init"/>
+
+    <target name="tools-dist" depends="tools-build" description="Copies files into tools/target">
+        <copy todir="${basedir}/../target/omeroweb">
+            <fileset dir="omeroweb" excludes="**/*.pyc,logs"/>
+        </copy>
+    </target>
+
+   <target name="tools-clean">
+        <delete dir="${basedir}/omeroweb/db.sqlite3"/>
+        <delete dir="${basedir}/omeroweb/django"/>
+        <delete dir="${basedir}/omeroweb/logs"/>
+        <delete>
+            <fileset dir="${basedir}" includes="**/*.pyc"/>
+        </delete>
+    </target>
+
+</project>
