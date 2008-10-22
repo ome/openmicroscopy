@@ -1,6 +1,6 @@
-package cmd;
-
-/*
+ /*
+ * util.TextExport 
+ *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -19,41 +19,37 @@ package cmd;
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
- *	author Will Moore will@lifesci.dundee.ac.uk
  */
+package util;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
+import java.io.PrintWriter;
 
-import tree.DataFieldNode;
-import util.DefaultExport;
-import util.IExport;
-import util.TextExport;
-public class ExportTextCmd extends ExportHtmlCmd{
+//Java imports
 
-	public ExportTextCmd(List<DataFieldNode> rootNodes) {
-		super(rootNodes);
-		
-		fileExtension = ".txt";
+//Third-party libraries
+
+//Application-internal dependencies
+
+/** 
+ * Export that removes html tags from Description. 
+ *
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+public class TextExport 
+extends DefaultExport {
+	
+	protected void printDescription(String description, PrintWriter outputStream) {
+		if (description != null) {
+			description = DefaultExport.removeHtmlTags(description);
+        	outputStream.print(DIV_CLASS_ATTRIBUTE + 
+        			description + DIV_END);
+        }
 	}
-	
-	public ExportTextCmd(DataFieldNode rootNode) {
-		super(rootNode);
-		
-		fileExtension = ".txt";
-	}
-	
-	
-	/**
-	 * Export via the DefaultExport class
-	 */
-	public void export(File file, Map<String, Boolean> booleanMap) {
-		IExport exporter = new TextExport();
-		exporter.export(file, rootNodes, booleanMap);
-	}
-	
-	// don't display the text file
-	public void displayOutput(File file) {}
 
 }

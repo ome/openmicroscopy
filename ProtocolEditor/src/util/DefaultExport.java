@@ -334,9 +334,9 @@ public class DefaultExport
         	outputStream.print(DIV_CLASS_ATTRIBUTE + "Default Value = " +
         			allAttributes.get(DataFieldConstants.DEFAULT) + DIV_END);
         }
-        if ((showDescriptions) && (allAttributes.get(DataFieldConstants.DESCRIPTION) != null)) {
-        	outputStream.print(DIV_CLASS_ATTRIBUTE + 
-        			allAttributes.get(DataFieldConstants.DESCRIPTION) + DIV_END);
+        if (showDescriptions) {
+        	printDescription(allAttributes.get(DataFieldConstants.DESCRIPTION),
+        			outputStream);
         }
         if ((showUrl) && (allAttributes.get(DataFieldConstants.URL) != null)) {
         	outputStream.print(DIV_CLASS_ATTRIBUTE + "URL = " +
@@ -352,6 +352,12 @@ public class DefaultExport
         outputStream.println(DIV_END);
 	}
 	
+	protected void printDescription(String description, PrintWriter outputStream) {
+		if (description != null) {
+        	outputStream.print(DIV_CLASS_ATTRIBUTE + 
+        			description + DIV_END);
+        }
+	}
 	
 	private void printAllAttributes(HashMap<String, String> allAttributes, PrintWriter outputStream) {
 		
@@ -415,6 +421,27 @@ public class DefaultExport
 			return false;
 		else 
 			return map.get(attribute);
+	}
+	
+	/**
+	 * Convenience method for converting html-formatted strings to tag-free
+	 * strings.
+	 * 
+	 * @param withTags		A string containing br, u and b tags. 
+	 * @return			The same string, without the br, u and b tags. 
+	 */
+	public static String removeHtmlTags(String withTags) 
+	{
+		if (withTags == null) return null;
+		
+		String noTags = withTags.replace("<br>", "\n");
+		noTags = noTags.replace("<br />", "");
+		noTags = noTags.replace("<u>", "");
+		noTags = noTags.replace("</u>", "");
+		noTags = noTags.replace("<b>", "");
+		noTags = noTags.replace("</b>", "");
+		
+		return noTags;
 	}
 
 }
