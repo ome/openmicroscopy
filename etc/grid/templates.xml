@@ -62,9 +62,10 @@
 
     <server-template id="ShellTemplate">
       <parameter name="id"/>
-      <parameter name="exe" default="lib/shellserver.py"/>
+      <parameter name="exe" default="python"/>
       <parameter name="act" default="always"/>
       <server id="${id}" exe="${exe}" activation="${act}">
+        <option>lib/shellserver.py</option>
         <option>${id}</option>
         <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
       </server>
