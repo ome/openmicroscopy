@@ -46,4 +46,8 @@
         </delete>
     </target>
 
+    <target name="findbugs">
+        <echo>Not yet implemented</echo>
+    </target>
+
 </project>
