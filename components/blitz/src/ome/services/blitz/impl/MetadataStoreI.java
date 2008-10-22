@@ -32,6 +32,7 @@ import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Pixels;
+import omero.model.PlaneInfo;
 import omero.model.Project;
 import omero.util.IceMapper;
 
@@ -3294,6 +3295,28 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
                         return store.getSF().getAdminService()
                                 .getEventContext();
+                    }
+                }));
+    }
+    
+    // ~ Service methods
+    // =========================================================================
+
+    public void setPlaneInfo_async(
+            final AMD_MetadataStore_setPlaneInfo __cb,
+            final PlaneInfo planeInfo, final int imageIndex, 
+            final int pixelsIndex, final int planeIndex,
+            final Current __current) throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setPlaneTheC(planeInfo.getTheC().val, imageIndex, 
+                                pixelsIndex, planeIndex);
+                        return null;
                     }
                 }));
     }

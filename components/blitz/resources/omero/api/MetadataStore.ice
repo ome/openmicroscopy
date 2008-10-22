@@ -55,6 +55,7 @@ module omero {
 		void setImagingEnvironmentHumidity(RFloat humidity, int imageIndex) throws ServerError;
 		void setImagingEnvironmentCO2Percent(RFloat percent, int imageIndex) throws ServerError;
 		omero::model::PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex, int planeIndex) throws ServerError;
+		void setPlaneInfo(omero::model::PlaneInfo planeInfo, int imageIndex, int pixelsIndex, int planeIndex) throws ServerError;
 		void setPlaneTheZ(RInt theZ, int imageIndex, int pixelsIndex, int planeIndex) throws ServerError;
 		void setPlaneTheC(RInt theC, int imageIndex, int pixelsIndex, int planeIndex) throws ServerError;
 		void setPlaneTheT(RInt theT, int imageIndex, int pixelsIndex, int planeIndex) throws ServerError;
