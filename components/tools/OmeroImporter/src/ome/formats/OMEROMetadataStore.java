@@ -4,6 +4,9 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
@@ -30,8 +33,12 @@ import omero.constants.METADATASTORE;
 import omero.model.BooleanAnnotation;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.PlaneInfo;
+import omero.model.PlaneInfoI;
 import omero.model.ProjectI;
 import omero.model.Project;
 
@@ -41,6 +48,9 @@ import loci.formats.meta.MetadataStore;
 
 public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 {
+    /** Logger for this class. */
+    private static Log     log    = LogFactory.getLog(OMEROMetadataStore.class);
+    
     MetadataStorePrx delegate;
     
     ServiceFactoryPrx serviceFactory;
@@ -54,7 +64,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     private Long currentPixId;
     
-    //PlaneInfo pInfo;
+    private PlaneInfo pInfo;
 
     public OMEROMetadataStore(String username, String password, String server,
             String port) throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -981,6 +991,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             Float calibratedMagnification, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveCalibratedMagnification[%f] instrumentIndex[%d] objectiveIndex[%d]",
+                calibratedMagnification, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveCalibratedMagnification(new RFloat(calibratedMagnification), instrumentIndex, objectiveIndex);
@@ -1017,6 +1030,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveImmersion[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                immersion, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveImmersion(new RString(immersion), instrumentIndex, objectiveIndex);
@@ -1205,25 +1221,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
             int planeIndex)
     {    
-        /*
-        if (pInfo == null)
-        {
-            pInfo = new PlaneInfoI();
-        }
-        
-        pInfo.setTheC(new RInt(theC));  
-        
-        if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
-        {
-            // Submit the pInfo.
-            //delegate.setplaneinfo(imageIndex, pixelsIndex, planeIndex, pInfo);
-            pInfo = null;
-        }
-        */
-        
         try
         {
-            delegate.setPlaneTheC(new RInt(theC), imageIndex, pixelsIndex, planeIndex);
+            if (pInfo == null)
+            {
+                pInfo = new PlaneInfoI();
+            }
+
+            pInfo.setTheC(new RInt(theC));  
+
+            if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
+            {
+                // Submit the pInfo.
+                delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
+            }
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1233,24 +1244,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
-        /*
-        if (pInfo == null)
-        {
-            pInfo = new PlaneInfoI();
-        }
-        
-        pInfo.setTheT(new RInt(theT));  
-        
-        if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
-        {
-            // Submit the pInfo.
-            //delegate.setplaneinfo(imageIndex, pixelsIndex);
-        }
-        */
-        
         try
         {
-            delegate.setPlaneTheT(new RInt(theT), imageIndex, pixelsIndex, planeIndex);
+            if (pInfo == null)
+            {
+                pInfo = new PlaneInfoI();
+            }
+
+            pInfo.setTheT(new RInt(theT));  
+
+            if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
+            {
+                // Submit the pInfo.
+                delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
+            }
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1260,24 +1267,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
-        /*
-        if (pInfo == null)
-        {
-            pInfo = new PlaneInfoI();
-        }
-        
-        pInfo.setTheZ(new RInt(theZ));  
-        
-        if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
-        {
-            // Submit the pInfo.
-            //delegate.setplaneinfo(imageIndex, pixelsIndex);
-        }
-        */
-        
         try
         {
-            delegate.setPlaneTheZ(new RInt(theZ), imageIndex, pixelsIndex, planeIndex);
+            if (pInfo == null)
+            {
+                pInfo = new PlaneInfoI();
+            }
+
+            pInfo.setTheZ(new RInt(theZ));  
+
+            if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
+            {
+                // Submit the pInfo.
+                delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
+            }
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1692,7 +1695,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public void setStagePositionPositionX(Float positionX, int imageIndex,
             int pixelsIndex, int planeIndex)
-    {
+    {        
+        log.debug(String.format(
+            "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position X: '%f'",
+            imageIndex, pixelsIndex, planeIndex, positionX));
         try
         {
              delegate.setStagePositionPositionX(
@@ -1706,6 +1712,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setStagePositionPositionY(Float positionY, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
+        log.debug(String.format(
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Y: '%f'",
+                imageIndex, pixelsIndex, planeIndex, positionY));
         try
         {
              delegate.setStagePositionPositionY(
@@ -1719,6 +1728,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setStagePositionPositionZ(Float positionZ, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
+        log.debug(String.format(
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Z: '%f'",
+                imageIndex, pixelsIndex, planeIndex, positionZ));
         try
         {
              delegate.setStagePositionPositionZ(
@@ -2013,8 +2025,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {   
         try
         {
-            dataset.linkImage(image);
-            iUpdate.saveObject(dataset);
+            Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
+            DatasetImageLink l = new DatasetImageLinkI();
+            l.setChild(image);
+            l.setParent(unloadedDataset);
+            iUpdate.saveObject(l);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -2228,5 +2243,57 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setExperimentDescription(String description, int experimentIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimentID(String id, int experimentIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimentType(String type, int experimentIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimenterMembershipGroup(String group,
+            int experimenterIndex, int groupRefIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageDefaultPixels(String defaultPixels, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelOTF(String otf, int imageIndex,
+            int logicalChannelIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setOTFObjective(String objective, int instrumentIndex,
+            int otfIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
     }
 }
