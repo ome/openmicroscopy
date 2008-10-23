@@ -198,28 +198,35 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     }
 
     /**
-     * {@link ServiceFactoryI#doDestroy() Destroys} all the {@link ServiceFactoryI}
-     * instances based on the given sessionId. Multiple clients can be attached to the same
-     * session, each with its own {@link ServiceFactoryI} 
+     * {@link ServiceFactoryI#doDestroy() Destroys} all the
+     * {@link ServiceFactoryI} instances based on the given sessionId. Multiple
+     * clients can be attached to the same session, each with its own
+     * {@link ServiceFactoryI}
      */
     public void reapSession(String sessionId) {
         Set<String> clientIds = sessionToClientIds.get(sessionId);
-        for (String clientId : clientIds) {
-            try {
-                Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
-                        sessionId);
-                Ice.Object obj = adapter.find(iid);
-                if (obj == null) {
-                    log.debug(Ice.Util.identityToString(iid)
-                            + " already removed.");
-                } else {
-                    ServiceFactoryI sf = (ServiceFactoryI) obj;
-                    sf.doDestroy();
-                    adapter.remove(sf.sessionId());
+        if (clientIds != null) {
+            for (String clientId : clientIds) {
+                try {
+                    Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
+                            sessionId);
+                    Ice.Object obj = adapter.find(iid);
+                    if (obj == null) {
+                        log.debug(Ice.Util.identityToString(iid)
+                                + " already removed.");
+                    } else {
+                        ServiceFactoryI sf = (ServiceFactoryI) obj;
+                        sf.doDestroy();
+                        adapter.remove(sf.sessionId());
+                    }
+                } catch (Ice.ObjectAdapterDeactivatedException oade) {
+                    log.warn("Cannot reap session " + sessionId
+                            + " from client " + clientId
+                            + " since adapter is deactivated.");
+                } catch (Exception e) {
+                    log.error("Error reaping session " + sessionId
+                            + " from client " + clientId, e);
                 }
-            } catch (Exception e) {
-                log.error("Error reaping session " + sessionId
-                        + " from client " + clientId, e);
             }
         }
         sessionToClientIds.remove(sessionId);

@@ -6,11 +6,28 @@
  */
 package ome.services.blitz.test.mock;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import net.sf.ehcache.CacheManager;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.messages.DestroySessionMessage;
+import ome.services.messages.GlobalMulticaster;
+import ome.services.sessions.SessionManagerImpl;
+import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.services.sessions.state.SessionCache;
+import ome.services.util.Executor;
+import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
 
+import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.springframework.aop.target.HotSwappableTargetSource;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -131,6 +148,77 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
         fixture.getSessionManager().onApplicationEvent(
                 new DestroySessionMessage(this, "my-session-uuid"));
+    }
+
+    @Test
+    @SuppressWarnings( { "unchecked" })
+    public void testSessionTimeoutWithRealSessionCache() throws Exception {
+
+        // Manual configuration of some lower-level objects
+        fixture = new MockFixture(this);
+        SessionCache cache = new SessionCache();
+        cache.setApplicationContext(fixture.getContext());
+        cache.setCacheManager(CacheManager.getInstance());
+        cache.setUpdateInterval(1000L); // Every second check for chanages
+        SessionManagerImpl manager = new SessionManagerImpl();
+        manager.setApplicationContext(fixture.getContext());
+        manager
+                .setExecutor((Executor) fixture.getContext()
+                        .getBean("executor"));
+        manager.setRoles(new Roles());
+        manager.setDefaultTimeToLive(1000L); // Only lives one second.
+        manager.setSessionCache(cache);
+
+        // Now insert that into our context
+        HotSwappableTargetSource ts = (HotSwappableTargetSource) fixture
+                .getContext().getBean("swappableSessionManagerSource");
+        ts.swap(manager);
+
+        // We also want to receive the callback about session destruction
+        class Listener implements ApplicationListener {
+            List<String> killed = new ArrayList<String>();
+
+            public void onApplicationEvent(ApplicationEvent arg0) {
+                if (arg0 instanceof DestroySessionMessage) {
+                    DestroySessionMessage dsm = (DestroySessionMessage) arg0;
+                    killed.add(dsm.getSessionId());
+                }
+            }
+        }
+        Listener listener = new Listener();
+        ((GlobalMulticaster) fixture.getContext().getBean(
+                "applicationEventMulticaster"))
+                .addApplicationListener(listener);
+
+        // Setup all the necessary expectations
+        Experimenter exp = new Experimenter("joe", "joe", "blow");
+        ExperimenterGroup grp = new ExperimenterGroup("cool");
+        List<Long> grps = Arrays.asList(0L, 1L, 2L);
+        List rv = new ArrayList();
+        rv.add(exp);
+        rv.add(grp);
+        rv.add(grps);
+        rv.add(grps);
+        rv.add(Arrays.asList("user", "system", "cool"));
+
+        Session s = fixture.session();
+        s.setTimeToLive(1000L); // Actually have to set here because of mocking.
+        Mock ex = fixture.mock("executorMock");
+        ex.expects(atLeastOnce()).method("execute").will(
+                onConsecutiveCalls(returnValue(new ExperimenterGroup("group")),
+                        returnValue(s), returnValue(rv)));
+
+        // Now create the session and wait for it to time out.
+        ServiceFactoryPrx sf1 = fixture.createServiceFactory(s);
+
+        long start = System.currentTimeMillis();
+        ex.expects(atLeastOnce()).method("execute").will(returnValue(rv));
+        while (System.currentTimeMillis() < (start + 1000L)) {
+            Thread.sleep(500L);
+            cache.updateEvent(new UserGroupUpdateEvent(this));
+        }
+        assertTrue(s.getUuid(), listener.killed.contains(s.getUuid()));
+
     }
 
 }

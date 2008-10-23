@@ -26,8 +26,10 @@ import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
+import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 
@@ -65,6 +67,16 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
 
     private static OmeroContext _managed;;
 
+    /**
+     * Multicaster used by this instance. Unlike other Spring application
+     * contexts, this context assumes that a "global multicaster" is configured
+     * and so does not pass messages to the parent context, but assumes that
+     * the multicaster will do this. In order to implement this logic, it is
+     * necessary to lookup the entity by name, since all getters and fields
+     * are private in the superclasses.
+     */
+    private ApplicationEventMulticaster multicaster;
+    
     // ~ Constructors
     // =========================================================================
 
@@ -298,6 +310,11 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         return pc.getProperty(propertyName);
     }
 
+    @Override
+    public void publishEvent(ApplicationEvent event) {
+        multicaster.multicastEvent(event);
+    }
+    
     /**
      * Convenience method around
      * {@link #publishEvent(org.springframework.context.ApplicationEvent)} which
@@ -313,6 +330,12 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         } catch (MessageException me) {
             throw me.getException();
         }
+    }
+    
+    @Override
+    protected void onRefresh() throws BeansException {
+        super.onRefresh();
+        multicaster = (ApplicationEventMulticaster) getBean("applicationEventMulticaster");
     }
 
     // ~ Non-singleton locator

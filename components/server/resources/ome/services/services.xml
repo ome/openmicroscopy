@@ -185,7 +185,6 @@
     <property name="jobDetails">
       <list>
         <ref bean="process-jobs-run" />
-        <ref bean="update-cache-run" />
       </list>
     </property>
     <property name="triggers">

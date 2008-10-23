@@ -22,13 +22,18 @@ import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
+import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Synchronized and lockable state for the {@link SessionManager}. Maps from
@@ -38,10 +43,13 @@ import org.apache.commons.logging.LogFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionCache {
+public class SessionCache implements ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(SessionCache.class);
 
+    /**
+     * Read/write lock used to protect access to the {@link #doUpdate()} method.
+     */
     private final ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
     /**
@@ -61,17 +69,64 @@ public class SessionCache {
         SessionContext reload(SessionContext context);
     }
 
-    private boolean needsUpdate = false;
+    /**
+     * Time in milliseconds between updates. Can be set via
+     * {@link #setUpdateInterval(long)} but has a non-null value just in case
+     * (30 minutes)
+     */
+    private long updateInterval = 1800000;
+
+    /**
+     * Time of the last update.
+     */
     private long lastUpdate = System.currentTimeMillis();
+
+    /**
+     * Injected {@link CacheManager} used to create various caches.
+     */
     private CacheManager ehmanager;
+
+    /**
+     * Primary in-memory cache which maps from session uuids as strings to
+     * {@link SessionContext} instances.
+     */
     private Ehcache sessions;
+
+    /**
+     * 
+     */
     private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
             64);
+
     private StaleCacheListener staleCacheListener = null;
 
+    /**
+     * {@link OmeroContext} instance used to publish
+     * {@link DestroySessionMessage} on {@link #removeSession(String)}
+     */
+    private OmeroContext context;
+
+    /**
+     * Injection method, also performs the creation of {@link #sessions}
+     */
     public void setCacheManager(CacheManager manager) {
         this.ehmanager = manager;
         sessions = createCache("SessionCache", true, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Context injector.
+     */
+    public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+        context = (OmeroContext) ctx;
+    }
+
+    /**
+     * Inject time in milliseconds between updates.
+     */
+    public void setUpdateInterval(long milliseconds) {
+        this.updateInterval = milliseconds;
     }
 
     // Accessors
@@ -100,30 +155,6 @@ public class SessionCache {
             }
             return set.remove(cb);
         }
-    }
-
-    public long getLastUpdated() {
-        return lastUpdate;
-    }
-
-    public void updateEvent(UserGroupUpdateEvent ugue) {
-        updateLock.writeLock().lock();
-        try {
-            if (lastUpdate < ugue.getTimestamp()) {
-                doUpdate();
-            }
-        } finally {
-            updateLock.writeLock().unlock();
-        }
-    }
-
-    public void setNeedsUpdate(boolean needsUpdate) {
-        this.needsUpdate = needsUpdate;
-        doUpdate();
-    }
-
-    public boolean getNeedsUpdate() {
-        return this.needsUpdate;
     }
 
     // State management
@@ -184,7 +215,7 @@ public class SessionCache {
                     timeToLive, (alive - timeToLive));
         } else if (0 < timeToIdle && timeToIdle < idle) {
             internalRemove(uuid);
-            throwExpiredException("timeToLive", lastAccess, hits, start,
+            throwExpiredException("timeToIdle", lastAccess, hits, start,
                     timeToIdle, (idle - timeToIdle));
         }
         return ctx;
@@ -204,6 +235,7 @@ public class SessionCache {
     }
 
     private void internalRemove(String uuid) {
+        log.info("Destroying session " + uuid);
         sessions.remove(uuid);
         ehmanager.removeCache("memory:" + uuid);
         ehmanager.removeCache("ondisk:" + uuid);
@@ -213,11 +245,19 @@ public class SessionCache {
                 try {
                     cb.close();
                 } catch (Exception e) {
-                    log.warn(String.format(
-                            "SessionCallback %s throw exception.", cb), e);
+                    final String msg = "SessionCallback %s throw exception for session %s";
+                    log.warn(String.format(msg, cb, uuid), e);
                 }
             }
         }
+
+        try {
+            context.publishEvent(new DestroySessionMessage(this, uuid));
+        } catch (RuntimeException re) {
+            final String msg = "Session listener threw an exception for session %s";
+            log.warn(String.format(msg, uuid), re);
+        }
+
     }
 
     public List<String> getIds() {
@@ -268,28 +308,69 @@ public class SessionCache {
     // Update
     // =========================================================================
 
+    public long getLastUpdated() {
+        return lastUpdate;
+    }
+
+    /**
+     * May be called simultaneously by several threads. Similar to
+     * {@link #blockingUpdate()} but uses the timestamp of the
+     * {@link UserGroupUpdateEvent} rather than the current time.
+     */
+    public void updateEvent(UserGroupUpdateEvent ugue) {
+        if (ugue == null || ugue.getTimestamp() > System.currentTimeMillis()) {
+            // If the event is not valid, perform a regular blockingUpdate
+            blockingUpdate();
+        } else {
+            updateLock.readLock().lock();
+            if (lastUpdate <= ugue.getTimestamp()) {
+                updateLock.readLock().unlock();
+                doUpdate(ugue.getTimestamp());
+            } else {
+                updateLock.readLock().unlock();
+            }
+        }
+    }
+
+    /**
+     * May be called simultaneously by several threads. Similar to
+     * {@link #updateEvent(UserGroupUpdateEvent)} but uses the current time
+     * rather than the event timestamp.
+     */
     protected void blockingUpdate() {
         updateLock.readLock().lock();
-        if (needsUpdate) {
+        long targetUpdate = System.currentTimeMillis() - updateInterval;
+        if (lastUpdate <= targetUpdate) {
             updateLock.readLock().unlock();
-            doUpdate();
+            doUpdate(targetUpdate);
         } else {
             updateLock.readLock().unlock();
         }
     }
 
-    protected void doUpdate() {
+    /**
+     * Will only ever be accessed by a single thread. Rechecks the target update
+     * time again in case a second write thread was blocking the current one.
+     */
+    @SuppressWarnings("unchecked")
+    protected void doUpdate(long targetUpdate) {
         updateLock.writeLock().lock();
         try {
             // Could have been unset while we were waiting.
-            if (needsUpdate) {
+            if (lastUpdate <= targetUpdate) {
+
                 // Prevent recursion!
-                needsUpdate = false;
+                // ------------------
+                // To prevent another call from entering this block it's
+                // necessary
+                // to update the lastUpdate time here.
+                lastUpdate = System.currentTimeMillis();
                 boolean success = false;
 
                 try {
+                    log.info("Synchronizing session cache");
                     if (staleCacheListener != null) {
-                        List<String> ids = sessions.getKeysWithExpiryCheck();
+                        List<String> ids = sessions.getKeys();
                         for (String id : ids) {
                             Element elt = sessions.getQuiet(id);
                             SessionContext ctx = (SessionContext) elt
@@ -301,16 +382,26 @@ public class SessionCache {
                                 internalRemove(id);
                             } else {
                                 sessions.putQuiet(new Element(id, replacement));
+                                try {
+                                    getSessionContext(id);
+                                } catch (Exception e) {
+                                    // We are just reloading it to guarantee
+                                    // that it's timeToLive and timeToIdle are
+                                    // properly set and to have the proper
+                                    // cancellation messages sent if necessary.
+                                    // All exceptions can be ignored.
+                                }
                             }
                         }
                         success = true;
                     }
+                } catch (Exception e) {
+                    log.error("Error synchronizing cache", e);
                 } finally {
                     if (success) {
-                        needsUpdate = false;
                         lastUpdate = System.currentTimeMillis();
                     } else {
-                        needsUpdate = true;
+                        lastUpdate = 0L;
                         throw new InternalException(
                                 "Could not update session cache."
                                         + "\nAll further attempts to access the server may fail."

@@ -6,15 +6,13 @@
  */
 package ome.services.blitz.test.mock;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 
 import net.sf.ehcache.Cache;
 import ome.model.meta.Session;
-import ome.security.SecuritySystem;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.test.utests.TestCache;
-import ome.services.sessions.SessionManager;
-import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
@@ -24,6 +22,7 @@ import omero.util.ObjectFactoryRegistrar;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.springframework.aop.target.HotSwappableTargetSource;
 
 import Ice.InitializationData;
 
@@ -34,14 +33,22 @@ public class MockFixture {
     private final Ice.ObjectAdapter adapter;
 
     private final OmeroContext ctx;
-    private final SecuritySystem secSys;
-    private final SessionManager sessions;
-    private final Executor executor;
     private final SessionManagerI sm;
 
     public MockFixture(MockObjectTestCase test) throws Exception {
+        this(test, new OmeroContext(new String[] { "classpath:omero/test.xml",
+                "classpath:ome/services/blitz-servantDefinitions.xml",
+                "classpath:ome/services/throttling/throttling.xml",
+                "classpath:ome/services/messaging.xml", }));
+    }
+
+    public MockFixture(MockObjectTestCase test, OmeroContext ctx) {
 
         this.test = test;
+        this.ctx = ctx;
+        this.sm = (SessionManagerI) ctx.getBean("BlitzManager");
+
+        // --------------------------------------------
 
         InitializationData id = new InitializationData();
         id.properties = Ice.Util.createProperties();
@@ -67,15 +74,12 @@ public class MockFixture {
         ObjectFactoryRegistrar.registerObjectFactory(communicator,
                 ObjectFactoryRegistrar.INSTANCE);
         adapter.activate();
-
-        ctx = new OmeroContext(new String[] { "classpath:omero/test.xml",
-                "classpath:ome/services/blitz-servantDefinitions.xml",
-                "classpath:ome/services/throttling/throttling.xml" });
-        secSys = (SecuritySystem) ctx.getBean("securitySystem");
-        sessions = (SessionManager) ctx.getBean("sessionManager");
-        executor = (Executor) ctx.getBean("executor");
-        sm = new SessionManagerI(adapter, secSys, sessions, executor);
-        sm.setApplicationContext(ctx);
+        // The following is a bit of spring magic so that we can configure
+        // the adapter in code. If this can be pushed to BlitzConfiguration
+        // for example then we might not need it here anymore.
+        HotSwappableTargetSource ts = (HotSwappableTargetSource) ctx
+                .getBean("swappableAdapterSource");
+        ts.swap(adapter);
     }
 
     public void tearDown() {
@@ -83,18 +87,27 @@ public class MockFixture {
         this.ctx.closeAll();
     }
 
+    public OmeroContext getContext() {
+        return this.ctx;
+    }
+
     public SessionManagerI getSessionManager() {
         return this.sm;
     }
-    
-    public ServiceFactoryPrx createServiceFactory()
-            throws Exception {
+
+    public ServiceFactoryPrx createServiceFactory() throws Exception {
         Session s = session();
         Cache cache = cache();
         return createServiceFactory(s, cache, "single-client");
     }
-    
-    public ServiceFactoryPrx createServiceFactory(Session s, Cache cache, String clientId) throws Exception {
+
+    public ServiceFactoryPrx createServiceFactory(Session s) throws Exception {
+        Cache cache = cache();
+        return createServiceFactory(s, cache, "single-client");
+    }
+
+    public ServiceFactoryPrx createServiceFactory(Session s, Cache cache,
+            String clientId) throws Exception {
         mock("securityMock").expects(test.once()).method("getSecurityRoles")
                 .will(test.returnValue(new Roles()));
         mock("sessionsMock").expects(test.once()).method("create").will(
@@ -118,7 +131,7 @@ public class MockFixture {
     Ice.Current current(String method) {
         return current(method, "my-client-uuid");
     }
-    
+
     Ice.Current current(String method, String clientId) {
         Ice.Current current = new Ice.Current();
         current.operation = method;
@@ -131,6 +144,9 @@ public class MockFixture {
     Session session() {
         Session session = new Session();
         session.setUuid("my-session-uuid");
+        session.setStarted(new Timestamp(System.currentTimeMillis()));
+        session.setTimeToIdle(0L);
+        session.setTimeToLive(0L);
         return session;
     }
 

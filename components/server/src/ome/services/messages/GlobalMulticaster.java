@@ -16,19 +16,16 @@ import org.springframework.context.event.SimpleApplicationEventMulticaster;
 
 /**
  * Global {@link ApplicationEventMulticaster} which can be used to integrate
- * parent and child {@link OmeroContext} instances.
+ * parent and child {@link OmeroContext} instances. A singleton, this instance
+ * will delegate all method calls to a single static {@link SimpleApplicationEventMulticaster}.
  * 
  * @see ome.system.OmeroContext
+ * @see ome.system.OmeroContext#publishEvent(ApplicationEvent)
+ * @see ome.system.OmeroContext#onRefresh()
  */
 public class GlobalMulticaster implements ApplicationEventMulticaster {
 
-    private static int TOTAL = 0;
-
     private final static SimpleApplicationEventMulticaster _em = new SimpleApplicationEventMulticaster();
-
-    private final int index;
-
-    private final Object lock = new Object();
 
     /**
      * Keeps track of which instance this is. Only the first instance will
@@ -37,10 +34,6 @@ public class GlobalMulticaster implements ApplicationEventMulticaster {
      * {@link ApplicationListener listeners}.
      */
     public GlobalMulticaster() {
-        synchronized (lock) {
-            TOTAL++;
-            index = TOTAL;
-        }
     }
 
     public void addApplicationListener(ApplicationListener arg0) {
@@ -51,9 +44,7 @@ public class GlobalMulticaster implements ApplicationEventMulticaster {
      * Multicast only if this instance was the first created.
      */
     public void multicastEvent(ApplicationEvent arg0) {
-        if (index == 1) {
-            _em.multicastEvent(arg0);
-        }
+        _em.multicastEvent(arg0);
     }
 
     public void removeAllListeners() {
