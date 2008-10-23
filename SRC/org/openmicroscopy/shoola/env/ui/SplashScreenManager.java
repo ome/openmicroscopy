@@ -185,7 +185,7 @@ class SplashScreenManager
     private Icon createIcon(String name, String path)
     {
     	StringBuffer buf;
-    	if (name == null) return null;
+    	if (name == null || path == null) return null;
     	buf = new StringBuffer(path);
 		buf.append(File.separatorChar);
 		buf.append(name);
