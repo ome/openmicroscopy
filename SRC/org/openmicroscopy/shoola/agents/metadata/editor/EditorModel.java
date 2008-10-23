@@ -40,6 +40,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
@@ -56,6 +57,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -507,7 +509,9 @@ class EditorModel
 		List<ViewedByDef> results = new ArrayList<ViewedByDef>();
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
-			if (def.getExperimenter().getId() != userID)
+			def.setFormattedExperimenter(formatOwner(def.getExperimenter()));
+			//tmp
+			//if (def.getExperimenter().getId() != userID)
 				results.add(def);
 		}
 		return results; 
@@ -1129,5 +1133,35 @@ class EditorModel
 	
 	/** Cancels any ongoing parents retrieval. */
 	void cancelParentsLoading() {  }
+	
+	/**
+	 * Returns <code>true</code> if the image has been viewed by other users,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasBeenViewedBy()
+	{
+		if (!(getRefObject() instanceof ImageData)) return false;
+		return getViewedByCount() != 0;
+	}
+
+	/**
+	 * Views the image and sets the rendering settings.
+	 * 
+	 * @param def 	The object hosting rendering settings. 
+	 */
+	void viewImage(ViewedByDef def)
+	{
+		ViewImage evt;
+		ImageData img = (ImageData) getRefObject();
+		evt = new ViewImage(img, null);
+		if (def != null)
+			evt.setSettings(def.getRndSettings(), 
+					def.getExperimenter().getId());
+		
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		bus.post(evt);
+	}
 	
 }

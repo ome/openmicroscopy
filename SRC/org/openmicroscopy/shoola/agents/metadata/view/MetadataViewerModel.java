@@ -270,6 +270,7 @@ class MetadataViewerModel
 								refNode, (DataObject) uo);
 		loaders.put(refNode, loader);
 		loader.load();
+		state = MetadataViewer.LOADING_METADATA;
 	}
 	
 	/**
@@ -346,6 +347,7 @@ class MetadataViewerModel
 	void setStructuredDataResults(StructuredDataResults data)
 	{
 		this.data = data;
+		state = MetadataViewer.READY;
 	}
 	
 	/**

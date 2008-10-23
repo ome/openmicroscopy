@@ -129,6 +129,9 @@ class FileSaverUI
 	/** The panel hosting the additions. */
 	private JPanel						controlsPanel;
 	
+	/** The title pane. */
+	private TitlePanel 					titlePane;
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -220,8 +223,11 @@ class FileSaverUI
 		fillControlButtonsPanel(null, -1);
 		JPanel controls = new JPanel();
     	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-    	controls.add(Box.createRigidArea(new Dimension(20, 5)));
-    	controls.add(newFolderButton);
+    	if (model.getChooserType() != FileChooser.LOAD) {
+    		controls.add(Box.createRigidArea(new Dimension(20, 5)));
+        	controls.add(newFolderButton);
+    	}
+    	
     	JPanel p = UIUtilities.buildComponentPanelRight(buttonPanel);
         p.setOpaque(true);
         controls.add(p);
@@ -274,9 +280,8 @@ class FileSaverUI
 		}
 		Container c = model.getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
-		TitlePanel tp = new TitlePanel(model.getTitle(), model.getNote(), icon);
-
-		c.add(tp, BorderLayout.NORTH);
+		titlePane = new TitlePanel(model.getTitle(), model.getNote(), icon);
+		c.add(titlePane, BorderLayout.NORTH);
 		c.add(p, BorderLayout.CENTER);
 		if (JDialog.isDefaultLookAndFeelDecorated()) {
 			boolean supportsWindowDecorations = 
@@ -432,6 +437,20 @@ class FileSaverUI
 	 */
     void requestFocusOnName() { chooser.requestFocusOnName(); }
     
+    /**
+     * Sets the title icon.
+     * 
+     * @param icon The value to set.
+     */
+	void setTitleIcon(Icon icon)
+	{
+		Container c = model.getContentPane();
+		c.remove(titlePane);
+		titlePane = new TitlePanel(model.getTitle(), model.getNote(), icon);
+		c.add(titlePane, BorderLayout.NORTH);
+		c.repaint();
+	}
+
 	/**
 	 * Reacts to click on buttons.
 	 * @see ActionListener#actionPerformed(ActionEvent)

@@ -1347,7 +1347,7 @@ class ImViewerModel
 	/** Shows the image details. */
 	void showImageDetails()
 	{
-		 if (metadataViewer != null)  metadataViewer.showImageInfo();
+		
 	}
 	
 	 /**

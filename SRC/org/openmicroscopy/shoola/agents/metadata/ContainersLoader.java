@@ -28,14 +28,9 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.DataObject;
 
 /** 
  * Loads the containers of a given object.

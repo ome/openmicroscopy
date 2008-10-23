@@ -37,6 +37,8 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.AnnotationData;
+
 /** 
  * 
  *
@@ -77,9 +79,6 @@ public interface Editor
 	 * 					Mustn't be <code>null</code>.
 	 */
 	public void setRootObject(Object refObject);
-	
-	/** Loads the thumbnails. */
-	public void loadThumbnails();
 	
 	/**
 	 * Sets the thumbnails of the image currently selected.
@@ -151,7 +150,7 @@ public interface Editor
 	public void passwordChanged(boolean changed);
 
 	/** Brings up on screen the image's information. */
-	public void showImageInfo();
+	public void loadChannelData();
 
 	/**
 	 * Sets the collection of existing attachments, attachments added
@@ -179,5 +178,23 @@ public interface Editor
 
 	/** Loads the container hosting the currently edited object. */
 	public void loadParents();
+
+    /**
+     * Sets to <code>true</code> if loading data, to <code>false</code>
+     * otherwise.
+     * 
+     * @param busy 	Pass <code>true</code> while loading data, 
+     * 				<code>false</code> otherwise.
+     */
+	public void setStatus(boolean busy);
+
+	public void loadExistingTags();
+	
+	/**
+	 * Deletes the specified annotation.
+	 * 
+	 * @param data The annotation to delete.
+	 */
+	public void deleteAnnotation(AnnotationData data);
 	
 }

@@ -24,27 +24,24 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
-import pojos.TagAnnotationData;
 
 /** 
  * The tool bar of the editor.
@@ -61,62 +58,40 @@ import pojos.TagAnnotationData;
  */
 class ToolBar 
 	extends JPanel
-	implements ActionListener
 {
-
-	/** 
-	 * Index indicating that the tool bar is added to the top of a component, 
-	 * useful to set the separator.
-	 */
-	static final int			TOP = 100;
 	
-	/** 
-	 * Index indicating that the tool bar is added to the bottom of a component, 
-	 * useful to set the separator.
-	 */
-	static final int			BOTTOM = 101;
+	/** The default width of the {@link #busyLabel}. */
+	private static final int	DEFAULT_WIDTH = 16;
 	
-	/** Action ID to save the data. */
-	private static final int 	SAVE = 0;
-	
-	/** Action ID to display info. */
-	private static final int 	INFO = 1;
-	
-	/** Action ID to download archived files. */
-	private static final int	DOWNLOAD = 2;
-	
-	/** Action ID to collapse all extanded nodes. */
-	private static final int	COLLAPSE = 3;
-	
-	/** One of the location constants defined by this class. */
-	private int				index;
+	/** The default height of the {@link #busyLabel}. */
+	private static final int	DEFAULT_HEIGHT = 16;
 	
 	/** Button to save the annotations. */
 	private JButton			saveButton;
-	
-	/** Button to display the image info. */
-	private JButton			infoButton;
-	
+
 	/** Button to download the original image. */
 	private JButton			downloadButton;
-	
-	/** Button to collapse all the extanded nodes. */
-	private JButton			collapseButton;
-	
+
 	/** The decorator. */
 	private JPanel			decorator;
 	
 	/** The decorator. */
 	private JPanel			annotation;
 	
-	/** Reference to the Model. */
-	private EditorModel		model;
-	
-	/** Reference to the View. */
-	private EditorUI		view;
-	
+	/** Indicates the loading progress. */
+	private JXBusyLabel		busyLabel;
+
+	/** 
+	 * The component hosting the control only used when an <code>Image</code>
+	 * is selected.
+	 */
+	private JComponent		imageBar;
+
 	/** Reference to the Control. */
 	private EditorControl	controller;
+	
+	/** Reference to the Model. */
+	private EditorModel 	model;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -124,32 +99,38 @@ class ToolBar
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		IconManager icons = IconManager.getInstance();
-		saveButton = new JButton(icons.getIcon(IconManager.SAVE));
-		saveButton.setToolTipText("Save changes.");
-		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVE);
+		int h = DEFAULT_HEIGHT;
+		int w = DEFAULT_WIDTH;
+		Icon icon = icons.getIcon(IconManager.SAVE);
+		if (icon != null) {
+			if (icon.getIconHeight() > h) h = icon.getIconHeight();
+			if (icon.getIconWidth() > w) w = icon.getIconWidth();
+		}
+		saveButton = new JButton(icon);
+		saveButton.setToolTipText("Save changes back to the server.");
+		saveButton.addActionListener(controller);
+		saveButton.setActionCommand(""+EditorControl.SAVE);
 		saveButton.setEnabled(false);
-		downloadButton = new JButton(icons.getIcon(IconManager.DOWNLOAD));
+		icon = icons.getIcon(IconManager.DOWNLOAD);
+		if (icon != null) {
+			if (icon.getIconHeight() > h) h = icon.getIconHeight();
+			if (icon.getIconWidth() > w) w = icon.getIconWidth();
+		}
+		downloadButton = new JButton(icon);
 		downloadButton.setToolTipText("Download the Archived File(s).");
-		downloadButton.addActionListener(this);
-		downloadButton.setActionCommand(""+DOWNLOAD);
+		downloadButton.addActionListener(controller);
+		downloadButton.setActionCommand(""+EditorControl.DOWNLOAD);
 		downloadButton.setEnabled(false);
-		infoButton = new JButton(icons.getIcon(IconManager.INFO));
-		infoButton.setToolTipText("View Image's info.");
-		infoButton.addActionListener(this);
-		infoButton.setActionCommand(""+INFO);
 		
-		collapseButton = new JButton(icons.getIcon(IconManager.COLLAPSE));
-		collapseButton.setToolTipText("Collapse all nodes.");
-		collapseButton.addActionListener(this);
-		collapseButton.setActionCommand(""+COLLAPSE);
-		
+		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-		UIUtilities.unifiedButtonLookAndFeel(infoButton);
-		UIUtilities.unifiedButtonLookAndFeel(collapseButton);
 		
 		decorator = new JPanel();
     	decorator.setLayout(new BoxLayout(decorator, BoxLayout.X_AXIS));
+    	
+    	busyLabel = new JXBusyLabel(new Dimension(w, h));
+    	busyLabel.setEnabled(true);
+    	busyLabel.setVisible(false);
 	}
     
     /** 
@@ -164,7 +145,6 @@ class ToolBar
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
-    	//bar.add(infoButton);
     	bar.add(downloadButton);
     	return bar;
     }
@@ -184,19 +164,21 @@ class ToolBar
     	return bar;
     }
     
-    /** 
-     * Builds the controls bar.
-     * 
-     * @return See above.
-     */
-    private JComponent buildControlsBar()
+    /** Builds and lays out the UI. */
+    private void buildGUI()
     {
-    	JToolBar bar = new JToolBar();
-    	bar.setFloatable(false);
-    	bar.setRollover(true);
-    	bar.setBorder(null);
-    	bar.add(collapseButton);
-    	return bar;
+    	JPanel bars = new JPanel();
+    	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
+    	bars.add(buildGeneralBar());
+    	bars.add(Box.createHorizontalStrut(2));
+    	imageBar = buildImageToolBar();
+    	bars.add(imageBar);
+    	JPanel p = new JPanel();
+    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+    	p.add(UIUtilities.buildComponentPanel(bars));
+    	p.add(UIUtilities.buildComponentPanelRight(busyLabel));
+    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    	add(p);
     }
     
     /**
@@ -204,57 +186,18 @@ class ToolBar
      * 
      * @param model 		Reference to the model. 
      * 						Mustn't be <code>null</code>.
-     * @param view 			Reference to the view. Mustn't be <code>null</code>.
      * @param controller 	Reference to the view. Mustn't be <code>null</code>.
-     * @param index			 One of the location constants defined by this 
-     * 						class.	
      */
-    ToolBar(EditorModel model, EditorUI view, EditorControl controller, 
-    		int index)
+    ToolBar(EditorModel model, EditorControl controller)
     {
     	if (model == null)
     		throw new IllegalArgumentException("No model.");
-    	if (view == null)
-    		throw new IllegalArgumentException("No view.");
     	if (controller == null)
     		throw new IllegalArgumentException("No control.");
     	this.model = model;
-    	this.view = view;
     	this.controller = controller;
-    	this.index = index;
     	initComponents();
     	buildGUI();
-    }
-    
-    /** Builds and lays out the UI. */
-    void buildGUI()
-    {
-    	removeAll();
-    	decorator.removeAll();
-    	decorator.add(buildGeneralBar());
-    	
-    	if ((model.getRefObject() instanceof ImageData)) {
-    		if (!model.isMultiSelection()) {
-    			decorator.add(Box.createHorizontalStrut(2));
-        		decorator.add(new JSeparator(JSeparator.VERTICAL));
-        		decorator.add(buildImageToolBar());
-    		}
-    	}
-    	
-    	switch (index) {
-			case BOTTOM:
-	    		add(new JSeparator(JSeparator.HORIZONTAL));
-	    		add(UIUtilities.buildComponentPanel(decorator));
-				break;
-			case TOP:
-			default:
-				decorator.add(Box.createHorizontalStrut(2));
-				decorator.add(new JSeparator(JSeparator.VERTICAL));
-				decorator.add(buildControlsBar());
-				add(UIUtilities.buildComponentPanel(decorator));
-	    		add(new JSeparator(JSeparator.HORIZONTAL));
-				break;
-		}
     }
     
     /** Enables the various controls. */
@@ -268,75 +211,29 @@ class ToolBar
      */
     void setDataToSave(boolean b) { saveButton.setEnabled(b); }
     
-    /** 
-     * Indicates the types of annotations attached to the item
-     * using icons. 
+    /**
+     * Sets to <code>true</code> if loading data, to <code>false</code>
+     * otherwise.
+     * 
+     * @param busy 	Pass <code>true</code> while loading data, 
+     * 				<code>false</code> otherwise.
      */
-    void setDecorator()
+    void setStatus(boolean busy)
     {
-    	if (model.isMultiSelection()) return;
-    	IconManager icons = IconManager.getInstance();
-    	if (annotation == null) {
-    		annotation = new JPanel();
-        	annotation.setLayout(new FlowLayout(FlowLayout.LEFT));
-    	} else annotation.removeAll();
-    	JLabel label;
-    	int n = model.getTextualAnnotationCount();
-    	Object refObject = model.getRefObject();
-    	if (n > 0  && !(refObject instanceof TagAnnotationData)) {
-    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
-    										+n+AnnotationUI.RIGHT);
-    		label.setIcon(icons.getIcon(IconManager.ANNOTATION));
-    		annotation.add(label);
-    	}
-    	n = model.getTagsCount();
-    	if (n > 0) {
-    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
-    										+n+AnnotationUI.RIGHT);
-    		label.setIcon(icons.getIcon(IconManager.TAG));
-    		annotation.add(label);
-    	}
-    	n = model.getUrlsCount();
-    	if (n > 0) {
-    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
-    										+n+AnnotationUI.RIGHT);
-    		label.setIcon(icons.getIcon(IconManager.URL));
-    		annotation.add(label);
-    	}
-    	n = model.getAttachmentsCount();
-    	if (n > 0) {
-    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
-    										+n+AnnotationUI.RIGHT);
-    		label.setIcon(icons.getIcon(IconManager.DOC));
-    		annotation.add(label);
-    	}
-    	decorator.add(Box.createHorizontalStrut(10));
-    	decorator.add(annotation);
-    	decorator.revalidate();
-    	decorator.repaint();
+    	busyLabel.setBusy(busy);
+    	busyLabel.setVisible(busy);
     }
     
     /**
-     * 
-     * @see ActionListener#actionPerformed(ActionEvent)
+     * Updates the UI when a new object is selected.
      */
-	public void actionPerformed(ActionEvent e)
-	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case SAVE:
-				view.saveData();
-				break;
-			case DOWNLOAD:
-				model.download();
-				break;
-			case INFO:
-				controller.showImageInfo();
-				break;
-			case COLLAPSE:
-				view.collapseAllNodes();
-		}
-		
-	}
+    void buildUI()
+    {
+    	if ((model.getRefObject() instanceof ImageData))
+    		imageBar.setVisible(!model.isMultiSelection());
+    	else imageBar.setVisible(false);
+    	revalidate();
+    	repaint();
+    }
 	
 }

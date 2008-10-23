@@ -355,8 +355,8 @@ class ViewedByUI
 				if (model.getThumbnails().size() == 0) {
 					add(buildEmptyPane(), Component.CENTER_ALIGNMENT);
 				} else {
-					add(UIUtilities.buildComponentPanelRight(displayBar), 
-										Component.RIGHT_ALIGNMENT);
+					//add(UIUtilities.buildComponentPanelRight(displayBar), 
+					//					Component.RIGHT_ALIGNMENT);
 					JScrollPane pane;
 					switch (layoutIndex) {
 						case LIST_VIEW:

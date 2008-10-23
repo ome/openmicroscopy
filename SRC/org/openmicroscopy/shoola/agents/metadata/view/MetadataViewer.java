@@ -228,9 +228,6 @@ public interface MetadataViewer
 	 */
 	public void addExternalComponent(JComponent external, int location);
 	
-	/** Brings up on screen the image's information. */
-	public void showImageInfo();
-
 	/**
 	 * Refreshes the view when the metadata has been saved.
 	 * 
@@ -282,5 +279,14 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	public StructuredDataResults getStructuredData();
+	
+    /**
+     * Sets to <code>true</code> if loading data, to <code>false</code>
+     * otherwise.
+     * 
+     * @param busy 	Pass <code>true</code> while loading data, 
+     * 				<code>false</code> otherwise.
+     */
+	public void setStatus(boolean busy);
 	
 }

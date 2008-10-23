@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -65,7 +66,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -569,9 +572,15 @@ class SlideShowView
 	{
 		Object src = e.getSource();
         ImageDisplay n = findParentDisplay(src);
-         if (n instanceof ImageNode)
-             ThumbnailWindowManager.rollOverDisplay((ImageNode) n);
-         else ThumbnailWindowManager.rollOverDisplay(null);
+         if (n != null && n instanceof ImageNode) {
+        	ImageNode node = (ImageNode) n;
+        	Thumbnail prv = node.getThumbnail();
+            BufferedImage full = prv.getFullScaleThumb();
+            if (prv.getScalingFactor() == Thumbnail.MAX_SCALING_FACTOR)
+            	full = prv.getZoomedFullScaleThumb();
+        	 RollOverThumbnailManager.rollOverDisplay(full, node.getBounds(), 
+        			 node.getLocationOnScreen(), node.toString());
+         } else RollOverThumbnailManager.stopOverDisplay();
 	}
 
 	/**
@@ -580,7 +589,7 @@ class SlideShowView
 	 */
 	public void mouseExited(MouseEvent e)
 	{
-		ThumbnailWindowManager.rollOverDisplay(null);
+		RollOverThumbnailManager.stopOverDisplay();
 	}
 
 	/**

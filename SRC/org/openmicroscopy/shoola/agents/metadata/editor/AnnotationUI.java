@@ -25,14 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.util.List;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
 import pojos.AnnotationData;
 
 /** 
@@ -52,14 +49,27 @@ abstract class AnnotationUI
 	extends JPanel
 {
 
+	/** Bound property indicating to delete the annotation. */
+	static final String	DELETE_ANNOTATION_PROPERTY = "deleteAnnotation";
+	
 	/** The symbol inserted before the number of annotations. */
-	static final String		LEFT = "[";
+	static final String	LEFT = "[";
 	
 	/** The symbol inserted after the number of annotations. */
-	static final String		RIGHT = "]";
+	static final String	RIGHT = "]";
+
+	/** The length of a column. */
+	static final int	COLUMN_WIDTH = 200;
 	
-	/** The collapse version of this component. */
-	private JPanel			collapseComponent;
+	/** The length of a column. */
+	static final int	DEFAULT_WIDTH = COLUMN_WIDTH+100;
+	
+	/** The default height of a component displaying text. */
+	static final int	DEFAULT_HEIGHT = 100;
+	
+	/** Default text if no data entered. */
+	static final String DEFAULT_TEXT = "None";
+
 	
 	/** Reference to the model. */
 	protected EditorModel 	model;

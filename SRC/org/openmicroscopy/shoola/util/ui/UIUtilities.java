@@ -77,6 +77,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
@@ -96,6 +97,13 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 	
+	/** The default background color. */
+    public static final Color				BACKGROUND_COLOR = Color.WHITE;
+    
+	/** The default color of the description. */
+    public static final Color				DEFAULT_FONT_COLOR = Color.GRAY;
+
+    
 	/**
 	 * This property should be exposed but is NOT.
 	 */
@@ -1229,6 +1237,22 @@ public class UIUtilities
 		pane.setTitle(title);
 		pane.setCollapsed(collapse);
 		return pane;
+	}
+	
+	/**
+	 * Creates a new label.
+	 * 
+	 * @param c The foreground color if not <code>null</code>.
+	 * @return See above.
+	 */
+	public static JLabel createLabel(Color c)
+	{
+		JLabel label = new JLabel();
+		label.setBackground(BACKGROUND_COLOR);
+		Font font = label.getFont();
+		label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+		if (c != null) label.setForeground(c);
+		return label;
 	}
 	
 }

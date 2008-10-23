@@ -26,10 +26,10 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.Box;
 import javax.swing.JPanel;
 
 
@@ -147,8 +147,10 @@ public class RatingComponent
 	 */
 	private void buildGUI(boolean hasListeners)
 	{
+		setBorder(null);
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(canvas);
-		add(Box.createHorizontalStrut(5));
+		//add(Box.createHorizontalStrut(5));
 		if (!hasListeners) canvas.uninstallListeners();
 	}
 	

@@ -59,7 +59,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -77,7 +76,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.AnnotationData;
 import pojos.DataObject;

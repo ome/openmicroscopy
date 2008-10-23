@@ -63,6 +63,12 @@ public class ViewedByDef
 	/** The id of the pixels set. */
 	private long			pixelsID;
 	
+	/** 
+	 * String hosting the formatted experimenter, b/c we override the 
+	 * {@link #toString()} method.
+	 */
+	private String			formattedExperimenter;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -80,6 +86,11 @@ public class ViewedByDef
 		this.experimenter = experimenter;
 		this.ratings = ratings;
 		this.rndSettings = rndSettings;
+	}
+	
+	public void setFormattedExperimenter(String formattedExperimenter)
+	{
+		this.formattedExperimenter = formattedExperimenter; 
 	}
 	
 	/**
@@ -128,5 +139,7 @@ public class ViewedByDef
 	 * @return See above.
 	 */
 	public Collection getRatings() { return ratings; }
+	
+	public String toString() { return formattedExperimenter; }
 	
 }

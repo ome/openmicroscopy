@@ -25,24 +25,27 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+
 
 //Third-party libraries
 import layout.TableLayout;
@@ -50,15 +53,13 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -86,23 +87,8 @@ class PropertiesUI
 	/** The title associated to this component. */
 	static final String			TITLE = "Properties";
 
-	/** The details string. */
-    private static final String DETAILS = "Owner";
-    
-    /** The maximum width of the name area. */
-    private static final int	WIDTH = 250;
-    
-    /** The maximum width of the e-mail and owner area. */
-    private static final int	WIDTH_NAME = 200;
-    
-    /** Area where to enter the name of the <code>DataObject</code>. */
-    private JTextField          nameArea;
-     
-    /** Area where to enter the description of the <code>DataObject</code>. */
-    private JTextArea          	descriptionArea;
-
-    /** Panel hosting the main display. */
-    private JComponent			contentPanel;
+	/** The default description. */
+    private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
     
     /** The name before possible modification. */
     private String				originalName;
@@ -112,6 +98,89 @@ class PropertiesUI
     
     /** The description before possible modification. */
     private String				originalDescription;
+    
+    /** The component hosting the name of the <code>DataObject</code>. */
+    private JTextArea			namePane;
+    
+    /** The component hosting the description of the <code>DataObject</code>. */
+    private JTextArea			descriptionPane;
+    
+    /** Indicates if the <code>DataObject</code> has group visibility. */
+    private JCheckBox 			publicBox;
+    
+    /** Indicates if the <code>DataObject</code> is only visible by owner. */
+    private JCheckBox 			privateBox;
+    
+    /** The area displaying the channels information. */
+	private JLabel				channelsArea;
+
+	/**
+     * Builds the panel hosting the information
+     * 
+     * @param details The information to display.
+     * @return See above.
+     */
+    private JPanel buildContentPanel(Map details)
+    {
+    	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+    	double[] columns = {TableLayout.PREFERRED, 2, TableLayout.FILL};
+    	TableLayout layout = new TableLayout();
+    	content.setLayout(layout);
+    	layout.setColumn(columns);
+    	int index = 0;
+    	JLabel l = new JLabel();
+    	Font font = l.getFont();
+    	int size = font.getSize()-2;
+    	layout.insertRow(index, TableLayout.PREFERRED);
+    	
+    	JLabel label = UIUtilities.setTextFont("Dimensions", Font.BOLD, size);
+    	JLabel value = UIUtilities.createLabel(null);
+    	String v = (String) details.get(EditorUtil.SIZE_X);
+    	v += " x ";
+    	v += (String) details.get(EditorUtil.SIZE_Y);
+    	value.setText(v);
+    	content.add(label, "0, "+index);
+    	content.add(value, "2, "+index);
+    	
+    	index++;
+    	layout.insertRow(index, TableLayout.PREFERRED);
+    	label = UIUtilities.setTextFont("Pixels Size", Font.BOLD, size);
+    	value = UIUtilities.createLabel(null);
+    	v = (String) details.get(EditorUtil.PIXEL_SIZE_X);
+    	v += " x ";
+    	v += (String) details.get(EditorUtil.PIXEL_SIZE_Y);
+    	v += " x ";
+    	v += (String) details.get(EditorUtil.PIXEL_SIZE_Z);
+    	value.setText(v);
+    	content.add(label, "0, "+index);
+    	content.add(value, "2, "+index);
+    	
+    	index++;
+    	layout.insertRow(index, TableLayout.PREFERRED);
+    	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 
+    			size);
+    	value = UIUtilities.createLabel(null);
+    	v = (String) details.get(EditorUtil.SECTIONS);
+    	v += " x ";
+    	v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	value.setText(v);
+    	content.add(label, "0, "+index);
+    	content.add(value, "2, "+index);
+    	
+    	index++;
+    	layout.insertRow(index, TableLayout.PREFERRED);
+    	
+    	label = UIUtilities.setTextFont(EditorUtil.WAVELENGTHS, Font.BOLD, 
+    			size);
+    	content.add(label, "0, "+index);
+    	content.add(channelsArea, "2, "+index);
+    	
+    	JPanel p = UIUtilities.buildComponentPanel(content);
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return p;
+    }
     
     /**
      * Builds and lays out the panel displaying the permissions of the edited
@@ -123,209 +192,96 @@ class PropertiesUI
     private JPanel buildPermissions(PermissionData permissions)
     {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, WIDTH}, //columns
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED} }; //rows
-        content.setLayout(new TableLayout(tl));
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        //The owner is the only person allowed to modify the permissions.
-        //boolean isOwner = model.isObjectOwner();
-        //Owner
-        JLabel label = UIUtilities.setTextFont(EditorUtil.OWNER);
-        JPanel p = new JPanel();
-        JCheckBox box =  new JCheckBox(EditorUtil.READ);
-        box.setSelected(permissions.isUserRead());
-        /*
-        box.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setUserRead(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        box =  new JCheckBox(EditorUtil.WRITE);
-        box.setSelected(permissions.isUserWrite());
-        /*
-        box.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setUserWrite(source.isSelected());
-               view.setEdit(true);
-            }
-        
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        content.add(label, "0, 0, l, c");
-        content.add(p, "1, 0, l, c");  
-        //Group
-        label = UIUtilities.setTextFont(EditorUtil.GROUP);
-        p = new JPanel();
-        box =  new JCheckBox(EditorUtil.READ);
-        box.setSelected(permissions.isGroupRead());
-        /*
-        box.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setGroupRead(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        box =  new JCheckBox(EditorUtil.WRITE);
-        box.setSelected(permissions.isGroupWrite());
-        /*
-        box.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setGroupWrite(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        content.add(label, "0, 1, l, c");
-        content.add(p, "1, 1, l, c"); 
-        //OTHER
-        label = UIUtilities.setTextFont(EditorUtil.WORLD);
-        p = new JPanel();
-        box =  new JCheckBox(EditorUtil.READ);
-        box.setSelected(permissions.isWorldRead());
-        /*
-        box.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setWorldRead(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        box =  new JCheckBox(EditorUtil.WRITE);
-        box.setSelected(permissions.isWorldWrite());
-        /*
-        box.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setWorldWrite(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        content.add(label, "0, 2, l, c");
-        content.add(p, "1, 2, l, c"); 
+       	if (permissions.isGroupRead()) publicBox.setSelected(true);
+       	content.add(privateBox);
+       	content.add(publicBox);
         return content;
     }
-    
-    /**
-     * Lays out the key/value (String, String) pairs.
+  
+    /** 
+     * Initializes a <code>TextPane</code>.
      * 
-     * @param details The map to handle.
      * @return See above.
      */
-    private JPanel layoutDetails(Map details)
+    private JTextArea createTextPane()
     {
-    	JPanel content = new JPanel();
-    	double[] columns = {TableLayout.PREFERRED, 5,  WIDTH_NAME};
-    	TableLayout tl = new TableLayout();
-    	content.setLayout(tl);
-    	tl.setColumn(columns);
-    	Iterator i = details.keySet().iterator();
-        JLabel label;
-        JTextField area;
-        String key, value;
-        int index = 0;
-        while (i.hasNext()) {
-        	tl.insertRow(index, TableLayout.PREFERRED);
-            key = (String) i.next();
-            value = (String) details.get(key);
-            label = UIUtilities.setTextFont(key);
-            content.add(label, "0, "+index);
-            area = new JTextField(value);
-            area.setEditable(false);
-            area.setEnabled(false);
-            label.setLabelFor(area);
-            content.add(area, "2, "+index);  
-            index++;
-            tl.insertRow(index, TableLayout.PREFERRED);
-            content.add(new JLabel(), "0, "+index+", 2, "+index);
-            index++;
-        }
-        return content;
+    	JTextArea pane = new JTextArea();
+    	//pane.setLineWrap(true);
+    	pane.setWrapStyleWord(true);
+    	pane.setOpaque(false);
+    	pane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	pane.addMouseListener(new MouseAdapter() {
+		
+			/**
+			 * Sets the border of the component when the mouse is pressed.
+			 */
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				super.mousePressed(e);
+				Object src = e.getSource();
+				if (src instanceof JTextArea) {
+					((JTextArea) src).setBorder(
+							BorderFactory.createLineBorder(Color.GRAY));
+				}
+			}
+		
+		});
+    	pane.addFocusListener(new FocusAdapter() {
+		
+    		/**
+			 * Sets the border of the component to <code>null</code>.
+			 */
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				super.focusLost(e);
+				Object src = e.getSource();
+				if (src instanceof JTextArea) {
+					((JTextArea) src).setBorder(null);
+				}
+			}
+		});
+    	return pane;
     }
-    
+
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-        nameArea = new JTextField();
-        UIUtilities.setTextAreaDefault(nameArea);
-        descriptionArea = new MultilineLabel();
-        UIUtilities.setTextAreaDefault(descriptionArea);
-        nameArea.setEnabled(false);
-        descriptionArea.setEnabled(false);
+    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBackground(UIUtilities.BACKGROUND_COLOR);
+        
+    	publicBox =  new JCheckBox(EditorUtil.PUBLIC);
+        privateBox =  new JCheckBox(EditorUtil.PUBLIC);
+        privateBox.setSelected(true);
+    	ButtonGroup group = new ButtonGroup();
+       	group.add(privateBox);
+       	group.add(publicBox);
+       	
+    	namePane = createTextPane();
+    	descriptionPane = createTextPane();
+    	descriptionPane.setLineWrap(true);
+    	Font font = namePane.getFont();
+    	namePane.setFont(font.deriveFont(Font.BOLD, font.getSize()+2));
+    	font = descriptionPane.getFont();
+    	descriptionPane.setFont(font.deriveFont(font.getStyle(), 
+    							font.getSize()-2));
+    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	channelsArea =  UIUtilities.createLabel(null);
     }   
-    
+  
     /**
-     * Builds the panel hosting the {@link #nameArea} and the
-     * {@link #descriptionArea}. If the <code>DataOject</code>
-     * is annotable and if we are in the {@link Editor#PROPERTIES_EDITOR} mode,
-     * we display the annotation pane. 
+     * Builds the properties component.
      * 
      * @return See above.
      */
-    private JPanel buildContentPanel()
+    private JPanel buildProperties()
     {
-        JPanel p = new JPanel();
-        p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
-		p.add(UIUtilities.setTextFont("Name"), c);
-		c.gridx++;
-		p.add(Box.createHorizontalStrut(5), c);
-		c.gridx++;
-		c.weightx = 0.5;
-		p.add(nameArea, c);
-		c.gridy++;
-		p.add(Box.createVerticalStrut(5), c);
-		c.gridx = 0;
-		c.gridy++;
-		c.weightx = 0;
-		p.add (UIUtilities.setTextFont("Description"), c);
-		c.gridx++;
-		p.add(Box.createHorizontalStrut(5), c);
-		c.gridx++;
-		c.weightx = 0.5;
-		c.ipady = 80; 
-		p.add(new JScrollPane(descriptionArea), c);
-        return p;
+    	 JPanel p = new JPanel();
+         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+         p.add(namePane);
+         p.add(Box.createVerticalStrut(5));
+         p.add(descriptionPane);
+         p.setBackground(UIUtilities.BACKGROUND_COLOR);
+         return p;
     }
     
     /**
@@ -334,33 +290,13 @@ class PropertiesUI
      */
     private void buildGUI()
     {
-        setLayout(new BorderLayout());
-        contentPanel = new JPanel();
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        contentPanel.setLayout(new BoxLayout(contentPanel, 
-    		   					BoxLayout.Y_AXIS));
-    	contentPanel.add(buildContentPanel());
-        ExperimenterData exp = model.getRefObjectOwner();
-        if (exp != null) {
-        	JPanel p = new JPanel();
-        	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        	JPanel details = layoutDetails(
-        				EditorUtil.transformExperimenterData(exp));
-        	PermissionData perm = model.getRefObjectPermissions();
-        	p.add(details);
-        	if (perm != null && !(model.getRefObject() instanceof ImageData)) {
-        		p.add(buildPermissions(perm));
-        	}
-        	//UIUtilities.setBoldTitledBorder(DETAILS, p);
-        	p.setBorder(new TitledLineBorder(DETAILS));
-        	TreeComponent tree = new TreeComponent();
-        	JPanel collapse = new JPanel();
-        	collapse.setBorder(new TitledLineBorder(DETAILS));
-        	tree.insertNode(p, collapse, false);
-        	contentPanel.add(tree);
-            contentPanel.add(new JPanel());
-        }
-        add(contentPanel, BorderLayout.NORTH);
+    	setBackground(UIUtilities.BACKGROUND);
+        add(buildProperties());
+        Object refObject = model.getRefObject();
+    	if (!(refObject instanceof ImageData)) return;
+    	PixelsData data = ((ImageData) refObject).getDefaultPixels();
+    	add(Box.createVerticalStrut(5));
+    	add(buildContentPanel(EditorUtil.transformPixelsData(data)));
     }
 
     /**
@@ -384,25 +320,27 @@ class PropertiesUI
 	protected void buildUI()
 	{
 		removeAll();
-		nameArea.getDocument().removeDocumentListener(this);
-		descriptionArea.getDocument().removeDocumentListener(this);
+		namePane.getDocument().removeDocumentListener(this);
+		descriptionPane.getDocument().removeDocumentListener(this);
 		originalName = model.getRefObjectName();
-		nameArea.setText(originalName);
+		namePane.setText(originalName);
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
-		nameArea.setText(originalDisplayedName);
-		nameArea.setToolTipText(originalName);
+		namePane.setText(originalDisplayedName);
+		namePane.setToolTipText(originalName);
 		originalDescription = model.getRefObjectDescription();
-        descriptionArea.setText(originalDescription);
+		if (originalDescription == null || originalDescription.length() == 0)
+			originalDescription = DEFAULT_DESCRIPTION_TEXT;
+		descriptionPane.setText(originalDescription);
         boolean b = model.isCurrentUserOwner(model.getRefObject());
-        nameArea.setEnabled(b);
-        descriptionArea.setEnabled(b);
+        namePane.setEnabled(b);
+        descriptionPane.setEnabled(b);
         if (b) {
-        	nameArea.getDocument().addDocumentListener(this);
-    		descriptionArea.getDocument().addDocumentListener(this);
+        	namePane.getDocument().addDocumentListener(this);
+        	descriptionPane.getDocument().addDocumentListener(this);
         }
         if (model.getRefObject() instanceof TagAnnotationData) {
-        	nameArea.getDocument().removeDocumentListener(this);
-        	nameArea.setEnabled(false);
+        	namePane.getDocument().removeDocumentListener(this);
+        	namePane.setEnabled(false);
         }
         buildGUI();
 	}
@@ -413,29 +351,29 @@ class PropertiesUI
 		if (!(model.getRefObject() instanceof TagAnnotationData))  return;
 		boolean b = model.isCurrentUserOwner(model.getRefObject());
 		if (b)
-			descriptionArea.getDocument().removeDocumentListener(this);
+			descriptionPane.getDocument().removeDocumentListener(this);
 		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		List l = annotations.get(userID);
 		if (l != null && l.size() > 0) {
 			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
-			descriptionArea.setText(data.getText());
-			originalDescription = descriptionArea.getText();
+			descriptionPane.setText(data.getText());
+			originalDescription = descriptionPane.getText();
 		}
 		if (b)
-			descriptionArea.getDocument().addDocumentListener(this);
+			descriptionPane.getDocument().addDocumentListener(this);
 	}
 	
     /** Sets the focus on the name area. */
-	void setFocusOnName() { nameArea.requestFocus(); }
+	void setFocusOnName() { namePane.requestFocus(); }
    
 	/** Updates the data object. */
 	void updateDataObject() 
 	{
 		if (!hasDataToSave()) return;
 		Object object =  model.getRefObject();
-		String name = nameArea.getText().trim();
-		String desc = descriptionArea.getText().trim();
+		String name = namePane.getText().trim();
+		String desc = descriptionPane.getText().trim();
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
@@ -470,9 +408,30 @@ class PropertiesUI
 	 */
 	boolean isNameValid()
 	{ 
-		String name = nameArea.getText();
+		String name = namePane.getText();
 		if (name == null) return false;
 		return name.trim().length() != 0;
+	}
+	
+	/**
+	 * Sets the channels when loaded.
+	 * 
+	 * @param waves The value to set.
+	 */
+	void setChannelData(List waves)
+	{
+		if (waves == null) return;
+		String s = "";
+		Iterator k = waves.iterator();
+		int j = 0;
+		while (k.hasNext()) {
+			s += ((ChannelMetadata) k.next()).getEmissionWavelength();
+			if (j != waves.size()-1) s +=", ";
+			j++;
+		}
+		channelsArea.setText(s);
+		channelsArea.revalidate();
+		channelsArea.repaint();
 	}
 	
 	/**
@@ -501,14 +460,14 @@ class PropertiesUI
 	protected boolean hasDataToSave()
 	{
 		String name = originalName;//model.getRefObjectName().trim();
-		String value = nameArea.getText();
+		String value = namePane.getText();
 		value = value.trim();
 		if (name == null) return false;
 		if (!name.equals(value) && !originalDisplayedName.equals(value))
 			return true;
 		
 		name = originalDescription;//model.getRefObjectDescription();
-		value = descriptionArea.getText();
+		value = descriptionPane.getText();
 		value = value.trim();
 		if (name == null) 
 			return value.length() != 0;
@@ -523,20 +482,15 @@ class PropertiesUI
 	 */
 	protected void clearData()
 	{
-		nameArea.getDocument().removeDocumentListener(this);
-		descriptionArea.getDocument().removeDocumentListener(this);
-		nameArea.setText(model.getRefObjectName());
-		descriptionArea.setText(model.getRefObjectDescription());
-		nameArea.getDocument().addDocumentListener(this);
-		descriptionArea.getDocument().addDocumentListener(this);
-		originalName = nameArea.getText();
-		originalDescription = descriptionArea.getText();
-		/*
-		nameArea.setText(originalName);
-		String name = originalDescription;//model.getRefObjectDescription();
-		if (name != null)
-			descriptionArea.setText(name.trim());
-			*/
+		namePane.getDocument().removeDocumentListener(this);
+		descriptionPane.getDocument().removeDocumentListener(this);
+		namePane.setText(model.getRefObjectName());
+		descriptionPane.setText(model.getRefObjectDescription());
+		namePane.getDocument().addDocumentListener(this);
+		descriptionPane.getDocument().addDocumentListener(this);
+		originalName = namePane.getText();
+		originalDescription = descriptionPane.getText();
+		channelsArea.setText("");
 	}
 	
 	/**

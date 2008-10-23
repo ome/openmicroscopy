@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Cursor;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -39,8 +41,13 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.AnnotationData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.URLAnnotationData;
 
 /** 
  * Implements the {@link Editor} interface to provide the functionality
@@ -97,7 +104,7 @@ class EditorComponent
 	void initialize(int layout)
 	{
 		controller.initialize(this, view);
-		view.initialize(model, controller, layout);
+		view.initialize(model, controller);
 		model.getObservable() .addPropertyChangeListener(controller);
 	}
 	
@@ -115,6 +122,8 @@ class EditorComponent
 	{
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.layoutUI();
+		if (model.hasBeenViewedBy() && !model.isThumbnailsLoaded())
+			model.loadThumbnails();
 	}
 
 	/** 
@@ -133,18 +142,8 @@ class EditorComponent
 		} else {
 			view.showEditor(true);
 			view.setRootObject();
-			model.loadUserThumbnail();
+			//model.loadUserThumbnail();
 		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#loadThumbnails()
-	 */
-	public void loadThumbnails()
-	{
-		if (!model.isThumbnailsLoaded())
-			model.loadThumbnails();
 	}
 
 	/** 
@@ -171,6 +170,7 @@ class EditorComponent
 	{
 		model.setExistingTags(tags);
 		view.setExistingTags();
+		setStatus(false);
 	}
 
 	/** 
@@ -263,9 +263,9 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#showImageInfo()
+	 * @see Editor#loadChannelData()
 	 */
-	public void showImageInfo()
+	public void loadChannelData()
 	{
 		if (model.getChannelData() == null) model.loadChannelData();
 		else view.showChannelData();
@@ -309,6 +309,51 @@ class EditorComponent
 	public void loadParents()
 	{
 		model.loadParents();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setStatus(boolean)
+	 */
+	public void setStatus(boolean busy)
+	{
+		view.setStatus(busy);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setStatus(boolean)
+	 */
+	public void loadExistingTags()
+	{
+		model.loadExistingTags();
+		setStatus(true);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#deleteAnnotation(AnnotationData)
+	 */
+	public void deleteAnnotation(AnnotationData data)
+	{
+		if (data == null) return;
+		String s = null;
+		if (data instanceof FileAnnotationData) 
+			s = "Do you want to delete the attachment?";
+		else if (data instanceof URLAnnotationData) 
+			s = "Do you want to delete the URL?";
+		
+		if (s == null) return;
+		JFrame owner = 
+			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		MessageBox msg = new MessageBox(owner, "Delete", s);
+		int option = msg.centerMsgBox();
+		if (option == MessageBox.YES_OPTION) {
+			List<AnnotationData> toRemove = new ArrayList<AnnotationData>(1);
+			List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+			toRemove.add(data);
+			//model.fireAnnotationSaving(toAdd, toRemove);
+		}
 	}
 	
 }

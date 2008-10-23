@@ -25,18 +25,37 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
+import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
+import org.openmicroscopy.shoola.util.filter.file.PowerPointFilter;
+import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
+import org.openmicroscopy.shoola.util.filter.file.WordFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import pojos.AnnotationData;
 
 /** 
- * 
+ * The Editor's controller.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,11 +68,26 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 class EditorControl
-	implements PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
 	static final String SAVE_PROPERTY = "save";
+	
+	/** Action id indicating to attach documents. */
+	static final int	ADD_DOCS = 0;
+	
+	/** Action id indicating to attach documents. */
+	static final int	ADD_TAGS = 1;
+	
+	/** Action ID to save the data. */
+	static final int 	SAVE = 2;
+	
+	/** Action ID to download archived files. */
+	static final int	DOWNLOAD = 3;
+
+	/** Action ID to display the acquisition metadata. */
+	static final int	ACQUISITION_METADATA = 4;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -61,6 +95,40 @@ class EditorControl
     /** Reference to the View. */
     private EditorUI	view;
     
+	/** Collection of supported file formats. */
+	private List<FileFilter>	filters; 
+	
+	/** Creates the collection of supported file filters. */
+	private void createFileFilters()
+	{
+		filters = new ArrayList<FileFilter>();
+		filters.add(new PDFFilter());
+		filters.add(new TEXTFilter());
+		filters.add(new XMLFilter());
+		filters.add(new HTMLFilter());
+		filters.add(new PowerPointFilter());
+		filters.add(new ExcelFilter());
+		filters.add(new WordFilter());
+	}
+
+	/** 
+	 * Launches a dialog to select the file to attach to the 
+	 * <code>DataObject</code>.
+	 */
+	private void selectFileToAttach()
+	{
+		JFrame owner = 
+			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(owner, FileChooser.LOAD, 
+				"Choose File", "Select the file to attach.", filters);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.ATTACHMENT_48));
+		chooser.setApproveButtonText("Attach");
+		chooser.addPropertyChangeListener(
+				FileChooser.APPROVE_SELECTION_PROPERTY, this);
+		UIUtilities.centerAndShow(chooser);
+	}
+	
 	/**
      * Links this Controller to its Model and its View.
      * 
@@ -73,20 +141,18 @@ class EditorControl
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         this.view = view;
+        createFileFilters();
     }
-
-    /** Loads the thumbnails, forwards call the model. */
-	void loadThumbnails() { model.loadThumbnails(); }
 	
 	/** Displays the image info. */
-	void showImageInfo() { model.showImageInfo(); }
+	void loadChannelData() { model.loadChannelData(); }
 	
 	/** 
 	 * Loads the container hosting the currently edited object,
 	 * forwards call to the model. 
 	 */
 	void loadParents() { model.loadParents(); }
-	
+
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -102,7 +168,39 @@ class EditorControl
 			view.clearData();
 		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
 			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());
+		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+			view.attachFile((File) evt.getNewValue());
+		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
+			Object object = evt.getNewValue();
+			if (object instanceof File)
+				view.removeAttachedFile((File) object);
+			else if (object instanceof AnnotationData)
+				model.deleteAnnotation((AnnotationData) object);
+		} 
+	}
+
+	/**
+	 * Handles events.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case ADD_DOCS:
+				selectFileToAttach();
+				break;
+			case SAVE:
+				view.saveData();
+				break;
+			case DOWNLOAD:
+				//model.download();
+				break;
+			case ADD_TAGS:
+				view.onTagsLoading(true);
+				model.loadExistingTags();
 		}
+		
 	}
 	
 }

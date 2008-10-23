@@ -108,6 +108,12 @@ public class EditorUtil
     /** Text describing the <code>Write</code> permission. */
     public static final String	WRITE = "Write";
     
+    /** Text describing the <code>Public</code> permission. */
+    public static final String	PUBLIC = "public";
+    
+    /** Text describing the <code>Private</code> permission. */
+    public static final String	PRIVATE = "private";
+    
 	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";
     
@@ -118,31 +124,31 @@ public class EditorUtil
     public static final String	EMAIL = "E-mail";
     
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in \u00B5m)";
+    public static final String MICRONS = "(in \u00B5m)";
     
     /** Identifies the <code>SizeX</code> field. */
-    private static final String SIZE_X = "Size X";
+    public static final String SIZE_X = "Size X";
     
     /** Identifies the <code>SizeY</code> field. */
-    private static final String SIZE_Y = "Size Y";
+    public static final String SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+MICRONS;
+    public static final String PIXEL_SIZE_X = "Pixel size X "+MICRONS;
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
+    public static final String PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
+    public static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
     
     /** Identifies the <code>Sections</code> field. */
-    private static final String SECTIONS = "Number of sections";
+    public static final String SECTIONS = "Number of sections";
     
     /** Identifies the <code>Timepoints</code> field. */
-    private static final String TIMEPOINTS = "Number of timepoints";
+    public static final String TIMEPOINTS = "Number of timepoints";
 
     /** Identifies the <code>PixelType</code> field. */
-    private static final String PIXEL_TYPE = "Pixel Type";
+    public static final String PIXEL_TYPE = "Pixel Type";
 
     /** Identifies the <code>Acquisition date</code> field. */
     private static final String ACQUISITION_DATE = "Acquisition date";

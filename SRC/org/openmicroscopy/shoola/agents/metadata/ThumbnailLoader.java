@@ -131,7 +131,6 @@ public class ThumbnailLoader
     	else
     		handle = mhView.loadThumbnails(image, userIDs, STANDARD_WIDTH,
                 	STANDARD_HEIGHT, this);	
-    		
     }
     
     /** 

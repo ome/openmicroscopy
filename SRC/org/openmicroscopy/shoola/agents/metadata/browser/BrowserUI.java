@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -49,8 +48,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -265,8 +264,11 @@ class BrowserUI
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	setLayout(new BorderLayout(0, 0));
-    	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+    	//setLayout(new BorderLayout(0, 0));
+    	double[][] size = {{TableLayout.FILL}, {100}};
+    	setLayout(new TableLayout(size));
+    	add(new JScrollPane(treeDisplay), "0, 0");
+    	//add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
     
     /** Creates a new instance. */

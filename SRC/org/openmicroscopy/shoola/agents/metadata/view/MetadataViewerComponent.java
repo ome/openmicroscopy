@@ -178,8 +178,10 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		if (userObject instanceof DataObject) {
-			if (model.isSingleMode())
+			if (model.isSingleMode()) {
 				model.fireStructuredDataLoading(node);
+				fireStateChange();
+			}
 		} 
 	}
 
@@ -202,6 +204,7 @@ class MetadataViewerComponent
 						model.getStructuredData().getParents());
 				model.getEditor().setStructuredDataResults();
 				view.setOnScreen();
+				fireStateChange();
 				return;
 			}
 				
@@ -471,17 +474,6 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#showImageInfo()
-	 */
-	public void showImageInfo()
-	{
-		Editor editor = model.getEditor();
-		if (editor == null) return;
-		editor.showImageInfo();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#onDataSave(Collection)
 	 */
 	public void onDataSave(List<DataObject> data)
@@ -550,6 +542,7 @@ class MetadataViewerComponent
 		if (data.getParents() != null) return;
 		Object ho = data.getRelatedObject();
 		model.loadParents(ho.getClass(), ((DataObject) ho).getId());
+		setStatus(true);
 		firePropertyChange(LOADING_PARENTS_PROPERTY, Boolean.FALSE, 
 				Boolean.TRUE);
 	}
@@ -562,6 +555,15 @@ class MetadataViewerComponent
 	{
 		//TODO: Check state
 		return model.getStructuredData();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setStatus(boolean)
+	 */
+	public void setStatus(boolean busy)
+	{
+		model.getEditor().setStatus(busy);
 	}
 	
 }

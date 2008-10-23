@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.util.RollOverThumbnailCanvas 
+ * org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailCanvas 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.dataBrowser.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 
@@ -29,17 +29,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.border.BevelBorder;
-
 
 //Third-party libraries
 
@@ -57,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta3
  */
 class RollOverThumbnailCanvas 
 	extends JComponent
@@ -65,38 +59,20 @@ class RollOverThumbnailCanvas
     
     /** Reference to the model. */
     private final RollOverThumbnail	model;
-    
-    /** The pin image painted in the top-right corner. */
-    private ImageIcon           	pinIcon;
-    
-    /** The location of the pin icon. */
-    private Rectangle           	pinRectangle;
 
     /**
      * Creates a new instance. 
      * 
-     * @param md		Reference to the model. Mustn't be <code>null</code>.
-     * @param pinIcon   The pin icon painted in the top-left corner.
+     * @param md	Reference to the model. Mustn't be <code>null</code>.
      */
-    RollOverThumbnailCanvas(RollOverThumbnail md, ImageIcon pinIcon)
+    RollOverThumbnailCanvas(RollOverThumbnail md)
     {
         if (md == null) throw new IllegalArgumentException("No model.");
-        if (pinIcon == null) throw new IllegalArgumentException("No pin.");
         this.model = md;
-        this.pinIcon = pinIcon;
-        pinRectangle = new Rectangle();
         setOpaque(false); 
         setBorder(BorderFactory.createBevelBorder(
                 BevelBorder.LOWERED, UIUtilities.INNER_BORDER_HIGHLIGHT, 
                 UIUtilities.INNER_BORDER_SHADOW));
-        addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e)
-            {
-                Point p = e.getPoint();
-                if (pinRectangle.contains(p)) model.pinThumbnail();
-                if (e.getClickCount() == 2) model.viewImage();
-            }
-        });
         addMouseWheelListener(new MouseWheelListener() {
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				model.magnifyImage(e.getWheelRotation());
@@ -116,14 +92,7 @@ class RollOverThumbnailCanvas
             int x = i.left+1;
             int y = i.top+1;
             g2D.drawImage(model.getImage(), null, x, y);
-            /*
-            int w = getWidth();
-            int width = pinIcon.getIconWidth();
-            int height = pinIcon.getIconHeight();
-            pinRectangle.setBounds(w-width-5, y, width, height);
-            g2D.drawImage(pinIcon.getImage(), w-width-5, y, width, height, 
-            				null);
-            				*/
-        }  
+        }
     }
+    
 }

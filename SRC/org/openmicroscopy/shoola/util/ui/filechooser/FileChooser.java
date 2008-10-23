@@ -28,6 +28,8 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -89,7 +91,7 @@ public class FileChooser
 	public static final int 	RIGHT = 102;
 	
 	/** which approval option the user chose. */
-	private int option;
+	private int 				option;
 	
     /** The UI delegate. */
     private FileSaverUI      	uiDelegate;
@@ -477,6 +479,17 @@ public class FileChooser
     	if (component == null) 
     		throw new IllegalArgumentException("The component cannot be null.");
     	uiDelegate.addComponentToControls(component);
+    }
+    
+    /**
+     * Sets the icon displayed in the title panel.
+     * 
+     * @param icon the value to set.
+     */
+    public void setTitleIcon(Icon icon)
+    {
+    	if (icon == null) return;
+    	uiDelegate.setTitleIcon(icon);
     }
     
 }

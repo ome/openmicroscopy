@@ -296,7 +296,7 @@ class SearchPanel
  		fromDate = UIUtilities.createDatePicker(false);
 		toDate = UIUtilities.createDatePicker(false);
 		
-		fullTextArea = new JTextField(AREA_COLUMNS+2);
+		fullTextArea = new JTextField(AREA_COLUMNS);
 		fullTextArea.addKeyListener(new KeyAdapter() {
 
             /** Finds the phrase. */

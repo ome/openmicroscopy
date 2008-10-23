@@ -91,7 +91,6 @@ class MetadataViewerControl
 	/** The loading window. */
 	private LoadingWindow   					loadingWindow;
 	
-	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
@@ -150,11 +149,14 @@ class MetadataViewerControl
 	{
 		switch (model.getState()) {
 			case MetadataViewer.READY:
+				model.setStatus(false);
 				loadingWindow.setVisible(false);
 				break;
 			case MetadataViewer.BATCH_SAVING:
 				UIUtilities.centerAndShow(loadingWindow);
 				break;
+			case MetadataViewer.LOADING_METADATA:
+				model.setStatus(true);
 		}
 	}
 

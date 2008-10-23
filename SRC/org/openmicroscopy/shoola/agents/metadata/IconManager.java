@@ -199,11 +199,23 @@ public class IconManager
     /** The <code>Plate</code> icon. */
     public static int           PLATE = 48;
     
+    /** The <code>Attach</code> icon. */
+    public static int           ATTACH = 49;
+    
+    /** The <code>Acquisition</code> icon. */
+    public static int           ACQUISITION = 50;
+    
+    /** The <code>Plus</code> icon. */
+    public static int           PLUS = 51;
+    
+    /** The <code>Minus</code> icon. */
+    public static int           MINUS = 52;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 48;
+	private static int          MAX_ID = 52;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -255,7 +267,11 @@ public class IconManager
 		relPaths[DOC] = "nuvola_kword16.png";
 		relPaths[TAG_12] = "nuvola_message12.png";
 		relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
-        relPaths[PLATE] ="plate16.png";
+        relPaths[PLATE] = "plate16.png";
+        relPaths[ATTACH] = "nuvola_attach16.png";
+        relPaths[ACQUISITION] = "nuvola_attach16.png";
+        relPaths[PLUS] = "plus.png";
+        relPaths[MINUS] = "minus.png";
 	}
    
 	/** The sole instance. */

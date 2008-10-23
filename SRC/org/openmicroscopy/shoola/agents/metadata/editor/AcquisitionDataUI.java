@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.TextualAnnotationComponent 
+ * org.openmicroscopy.shoola.agents.metadata.editor.AcquisitionDataUI 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,19 +24,24 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.FlowLayout;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+
+import layout.TableLayout;
+
+import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.TextualAnnotationData;
 
 /** 
- * Component displaying a textual annotation.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,67 +51,56 @@ import pojos.TextualAnnotationData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-class TextualAnnotationComponent 
+class AcquisitionDataUI 
 	extends JPanel
 {
 
-	/** Area displaying the textual annotation. */
-	private MultilineLabel 			area;
+	/** Reference to the controller. */
+	private EditorControl				controller;
 	
-	/** The annotation to handle. */
-	private TextualAnnotationData	data;
+	/** Reference to the Model. */
+	private EditorModel					model;
 	
-	/** Reference to the model.	*/
-	private EditorModel				model;
-
+	/** Reference to the Model. */
+	private EditorUI					view;
+	
 	/** Initializes the UI components. */
-	private void initialize()
+	private void initComponents()
 	{
-		area = new MultilineLabel();
-        area.setEditable(false);
-        area.setOpaque(true);
-        area.setText(data.getText());
-    	String owner = model.formatOwner(data);
-		String date = model.formatDate(data);
-		UIUtilities.setBoldTitledBorder(owner+" "+date, area);
+		
 	}
 	
-	/** Builds and lays out the UI. */
+	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(area);
+		setBackground(UIUtilities.BACKGROUND);
 	}
 	
 	/**
-	 * Creates a new component.
+	 * Creates a new instance.
 	 * 
-	 * @param uiDelegate	Reference to the ui component hosting this 
-	 * 						component.
-	 * @param model			Reference to the model. 
+	 * @param view			Reference to the View. Mustn't be <code>null</code>.
+	 * @param model			Reference to the Model. 
 	 * 						Mustn't be <code>null</code>.
-	 * @param data			The annotation to handle.
+	 * @param controller	Reference to the Control. 
+	 * 						Mustn't be <code>null</code>.
 	 */
-	TextualAnnotationComponent(EditorModel model, TextualAnnotationData data)
+	AcquisitionDataUI(EditorUI view, EditorModel model, 
+				EditorControl controller)
 	{
-		this.data = data;
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		if (controller == null)
+			throw new IllegalArgumentException("No control.");
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		this.model = model;
-		initialize();
+		this.controller = controller;
+		this.view = view;
+		initComponents();
 		buildGUI();
-	}
-	
-	/**
-	 * Sets the background of the area, the background color
-	 * will change when the user clicks on the node.
-	 * 
-	 * @param color The color to set.
-	 */
-	void setAreaColor(Color color)
-	{
-		area.setOriginalBackground(color);
-		setBackground(color);
 	}
 	
 }

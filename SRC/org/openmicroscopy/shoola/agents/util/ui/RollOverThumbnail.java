@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.util.RollOverThumbnail 
+ * org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnail 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.dataBrowser.util;
-
-
-
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
@@ -35,12 +32,10 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import javax.swing.JDialog;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
@@ -54,17 +49,17 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta3
  */
-public class RollOverThumbnail     
+public class RollOverThumbnail 	
 	extends JDialog
 {
 
     /** The minimum magnification value. */
-    final static int		MINIMUM_ZOOM = 1;
+    private final static int		MINIMUM_ZOOM = 1;
     
     /** The maximum magnification value. */
-    final static int		MAXIMUM_ZOOM = 2;
+    private final static int		MAXIMUM_ZOOM = 2;
      
     /** The image to display. */
     private BufferedImage   		image;
@@ -112,12 +107,11 @@ public class RollOverThumbnail
     /** Creates a new instance. */
     public RollOverThumbnail()
     {
-        IconManager icons = IconManager.getInstance();
-        canvas = new RollOverThumbnailCanvas(this, 
-        					icons.getImageIcon(IconManager.PIN));
+        canvas = new RollOverThumbnailCanvas(this);
         setProperties();
         buildUI();
     }
+    
     
     /**
      * Magnifies the displayed image.
@@ -134,19 +128,6 @@ public class RollOverThumbnail
 		makeComponentsSize(image.getWidth(), image.getHeight());
 		pack();
     }
-
-    /** Pins the thumbnail. */
-    void pinThumbnail()
-    { 
-    	//TODO
-    	
-    }
-    
-    /** Views the magnified thumbnail. */
-    void viewImage()
-    { 
-        //TODO
-    }
     
     /**
      * Returns the image to display.
@@ -158,17 +139,12 @@ public class RollOverThumbnail
     /**
      * Sets the image and resizes the components. 
      * 
-     * @param node The image to display.
+     * @param full		The thumbnail to display.
+     * @param toolTip 	The tooltip.
      */
-    public void setImageNode(ImageNode node)
+    public void setThumbnail(BufferedImage full, String toolTip)
     {
-        if (node == null)
-            throw new IllegalArgumentException("No node.");
-        canvas.setToolTipText(node.toString());
-        Thumbnail prv = node.getThumbnail();
-        BufferedImage full = prv.getFullScaleThumb();
-        if (prv.getScalingFactor() == Thumbnail.MAX_SCALING_FACTOR)
-        	full = prv.getZoomedFullScaleThumb();
+        canvas.setToolTipText(toolTip);
         if (full != null)  {
             image = full;
             originalImage = full;

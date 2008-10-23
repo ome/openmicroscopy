@@ -30,7 +30,6 @@ import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -47,8 +46,6 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -75,15 +72,6 @@ class MetadataViewerUI
     
     /** The text corresponding to the creation of a <code>Dataset</code>. */
     private static final String     DATASET_MSG = "Dataset";
-    
-    /** 
-     * The text corresponding to the creation of a
-     * <code>Category Group</code>.
-     */
-    private static final String     CATEGORY_GROUP_MSG = "Tag Set";
-    
-    /** The text corresponding to the creation of a <code>Category</code>. */
-    private static final String     CATEGORY_MSG = "Tag";
     
     /** The text corresponding to the creation of a <code>Image</code>. */
     private static final String     IMAGE_MSG = "Image";
@@ -117,9 +105,6 @@ class MetadataViewerUI
         Class nodeType = model.getRefObject().getClass();
         if (nodeType.equals(ProjectData.class)) return PROJECT_MSG;
         else if (nodeType.equals(DatasetData.class)) return DATASET_MSG;
-        else if (nodeType.equals(CategoryData.class)) return CATEGORY_MSG;
-        else if (nodeType.equals(CategoryGroupData.class)) 
-        	return CATEGORY_GROUP_MSG;
         else if (nodeType.equals(ImageData.class)) return IMAGE_MSG;
         return "";
     }
