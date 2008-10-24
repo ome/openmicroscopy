@@ -144,7 +144,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // These fields are special for this instance of SF alone. It represents
     // a single clients use of a session.
 
-    boolean doClose = false;
+    boolean doClose = true;
 
     public final String clientId;
 
