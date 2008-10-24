@@ -28,7 +28,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -43,6 +45,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -88,6 +91,12 @@ public class TextAreasView
 	 * This class is a {@link TreeModelListener} of this treeModel. 
 	 */
 	private TreeModel 			treeModel;
+	
+	/**
+	 * A collection of all the fields displayed, mapped to their path in the
+	 * treeModel. 
+	 */
+	private Map<TreePath, FieldTextArea> textAreas;
 	 
 	/**
 	 * Refreshes the contents of this UI. 
@@ -98,6 +107,7 @@ public class TextAreasView
 	private void refreshTreeDisplay() {
 		
 		removeAll();
+		textAreas.clear();
 		
 		if (treeModel != null)	{
 		
@@ -109,15 +119,20 @@ public class TextAreasView
 			
 			TreeNode tn;
 			IField f;
-			JTextComponent tc;
+			FieldTextArea tc;
+			Object userOb;
+			DefaultMutableTreeNode node;
+			TreePath path;
 			while (iterator.hasNext()) {
 				tn = iterator.next();
 				if (tn instanceof DefaultMutableTreeNode) {
-					DefaultMutableTreeNode node = (DefaultMutableTreeNode)tn;
-					Object userOb = node.getUserObject();
+					node = (DefaultMutableTreeNode)tn;
+					path = new TreePath(node.getPath());
+					userOb = node.getUserObject();
 					if (userOb instanceof IField) {
 						f = (Field)userOb;
 						tc = new FieldTextArea(f, navTree, node, controller);
+						textAreas.put(path, tc);
 						add(tc);
 					}
 				}
@@ -133,17 +148,33 @@ public class TextAreasView
 
 	/**
 	 * Iterates through all the text components contained in this UI and 
-	 * if they are {@link FieldTextArea} objects, the text is refreshed.
-	 * This method is called when the {@link treeModel} nodes change, but
-	 * the structure is the same. 
+	 * if they are {@link FieldTextArea} objects, the selection is refreshed.
+	 * This method is called when the {@link #navTree} selection changes.
 	 */
-	private void refreshTextAreas()
+	private void refreshSelection()
 	{
 		Component comp;
 		for (int i=0; i<getComponentCount(); i++) {
 			comp = getComponent(i);
 			if (comp instanceof FieldTextArea) {
-				((FieldTextArea)comp).refreshField();
+				((FieldTextArea)comp).refreshSelection();
+			}
+		}
+	}
+	
+	/**
+	 * Iterates through all the text components contained in this UI and 
+	 * if they are {@link FieldTextArea} objects, the text is refreshed.
+	 * This method is called when the {@link treeModel} nodes change, but
+	 * the structure is the same. 
+	 */
+	private void refreshText()
+	{
+		Component comp;
+		for (int i=0; i<getComponentCount(); i++) {
+			comp = getComponent(i);
+			if (comp instanceof FieldTextArea) {
+				((FieldTextArea)comp).refreshText();
 			}
 		}
 	}
@@ -158,6 +189,8 @@ public class TextAreasView
 	{
 		this.navTree = tree;
 		this.controller = controller;
+		
+		textAreas = new HashMap<TreePath, FieldTextArea>();
 		
 		if (navTree != null) {
 			navTree.addTreeSelectionListener(this);
@@ -226,13 +259,25 @@ public class TextAreasView
 
 	/**
 	 * Implemented as specified by the {@link TreeModelListener} interface.
-	 * Calls {@link #refreshTextAreas()} to refresh the text within each
+	 * Calls {@link #refreshSelection()} to refresh the text within each
 	 * existing node / field.
 	 * 
 	 * @see TreeModelListener#treeNodesChanged(TreeModelEvent)
 	 */
 	public void treeNodesChanged(TreeModelEvent e) {
-		refreshTextAreas();
+		//TreePath path = e.getTreePath();
+		Object[] children = e.getChildren();
+		
+		TreePath path;
+		DefaultMutableTreeNode node;
+		for(int i=0; i<children.length; i++) {
+			if (children[i] instanceof DefaultMutableTreeNode) {
+				node = (DefaultMutableTreeNode)children[i];
+				path = new TreePath(node.getPath());
+				FieldTextArea ta = textAreas.get(path);
+				ta.refreshText();
+			}
+		}
 	}
 
 	/**
@@ -275,7 +320,7 @@ public class TextAreasView
 	 * @see TreeSelectionListener#valueChanged(TreeSelectionEvent)
 	 */
 	public void valueChanged(TreeSelectionEvent e) {
-		refreshTextAreas();
+		refreshSelection();
 	}
 
 }

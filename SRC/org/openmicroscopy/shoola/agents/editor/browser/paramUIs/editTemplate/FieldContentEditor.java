@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.Scrollable;
 import javax.swing.border.Border;
@@ -187,9 +188,23 @@ public class FieldContentEditor
 	 * 
 	 * @param defaultEdit	A component for editing the defaults of each param
 	 */
-	private void addFieldComponent(JComponent defaultEdit) 
+	private void addFieldComponent(IParam param) 
 	{
+		JComponent defaultEdit = ParamTemplateUIFactory.
+			getEditDefaultComponent(param);
+		
+		if (defaultEdit == null) return;
+		
 		attributeFieldsPanel.add(Box.createVerticalStrut(5));
+		attributeFieldsPanel.add(new JSeparator());
+		attributeFieldsPanel.add(Box.createVerticalStrut(3));
+		// add name field
+		AttributeEditLine nameEditor = new AttributeEditLine
+			(param, AbstractParam.PARAM_NAME, "Parameter Name");
+		nameEditor.addPropertyChangeListener
+			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		attributeFieldsPanel.add(nameEditor);
+	
 		attributeFieldsPanel.add(defaultEdit);
 		defaultEdit.addPropertyChangeListener( 
 				ITreeEditComp.VALUE_CHANGED_PROPERTY, 
@@ -205,7 +220,7 @@ public class FieldContentEditor
 	 */
 	private void addFieldContents() 
 	{
-		addFieldComponent(createAdditionalParamsHeader());
+		attributeFieldsPanel.add(createAdditionalParamsHeader());
 		
 		int paramCount = field.getContentCount();
 		if (paramCount < 2) { return; }
@@ -214,11 +229,9 @@ public class FieldContentEditor
 			IFieldContent content = field.getContentAt(i); 
 			if (content instanceof IParam) {
 				IParam param = (IParam)content;
-				JComponent edit = ParamTemplateUIFactory.
-										getEditDefaultComponent(param);
-				if (edit != null) {
-					addFieldComponent(edit);
-				}
+				
+				addFieldComponent(param);
+				
 			} else {
 				if (content instanceof TextContent) {
 					addTextComponent(content);
@@ -231,7 +244,7 @@ public class FieldContentEditor
 		
 		// Description: Label and text box
 		AttributeEditArea descriptionEditor = new AttributeEditArea
-				(textContent, TextContent.TEXT_CONTENT, "");
+				(textContent, TextContent.TEXT_CONTENT, "Description");
 		descriptionEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		attributeFieldsPanel.add(descriptionEditor);
@@ -247,7 +260,7 @@ public class FieldContentEditor
 		addParamsHeader.add(addParamsButton, BorderLayout.EAST);
 		
 		addParamsHeader.add(
-				new CustomLabel("Additional Parameters:"), BorderLayout.WEST);
+				new CustomLabel("Field Content:"), BorderLayout.WEST);
 		
 		return addParamsHeader;
 	}

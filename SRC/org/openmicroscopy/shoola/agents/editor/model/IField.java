@@ -91,6 +91,13 @@ public interface IField
 	public int removeContent(IFieldContent param);
 	
 	/**
+	 * Removes a content object from the field
+	 * 
+	 * @param index		The index of the object to remove
+	 */
+	public void removeContent(int index);
+	
+	/**
 	 * Returns a list of the parameters for this field
 	 * 
 	 * @return 		see above

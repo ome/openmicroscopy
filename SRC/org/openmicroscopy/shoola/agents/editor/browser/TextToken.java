@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.NavTree 
+ * org.openmicroscopy.shoola.agents.editor.browser.TextToken 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,27 +24,13 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * This class extends JTree and provides an outline of the Tree (text only).
- * This is used to navigate the tree and select nodes.
- * Other views of the same tree-model may update their tree-selection or display
- * of a single node when selection changes on this tree. 
- * Conversely, the selection path of this navTree mimics that of the mainTree,
- * using a TreeSelectionListener on the main Tree. 
  * 
+ *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
@@ -53,29 +39,47 @@ import javax.swing.tree.TreeSelectionModel;
  * </small>
  * @since OME3.0
  */
-public class NavTree 
-	extends JTree
-{
+public class TextToken {
 	
-	/**
-	 * Creates an instance.
-	 * Also calls {@link #initialise()}
-	 */
-	NavTree() 
-	{
-		initialise();
+	private String textContent;
+	
+	private int startIndex;
+	
+	private int stopIndex;
+	
+	private String id;
+	
+	public TextToken(int start, int end, String text) {
+		this(start, end, text, null);
 	}
 	
-	/**
-	 * Called by constructor. 
-	 * Sets the CellRenderer, SelectionModel and adds appropriate listeners
-	 * to the NavTree and the main display Tree. 
-	 */
-	private void initialise() 
-	{
-		setUI(new MyBasicTreeUI());
-		setCellRenderer(new TreeOutlineCellRenderer());
-		setSelectionModel(new ContiguousChildSelectionModel());
+	public TextToken(int start, int end, String text, String id) {
+		textContent = text;
+		startIndex = start;
+		stopIndex = end;
+		if(id != null) {
+			this.id = id;
+		}
 	}
 	
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getId() {
+		return id;
+	}
+	
+	public int getStart() {
+		return startIndex;
+	}
+	
+	public int getEnd() {
+		return stopIndex;
+	}
+	
+	public String getText() {
+		return textContent;
+	}
+
 }

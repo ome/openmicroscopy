@@ -67,6 +67,7 @@ public class EditableTree
 		if (navTree != null) {
 			navTree.addTreeSelectionListener(this);
 		}
+		addTreeSelectionListener(this);
 		
 		configureTree(controller);
 	}
@@ -131,22 +132,22 @@ public class EditableTree
 		{
 			if (navTree.getSelectionCount() == 0) return;
 			
-			TreePath selPath = navTree.getSelectionPath();
+			TreePath[] selPaths = navTree.getSelectionPaths();
 			
 			/* make sure the node is visible (expand parent) */
-			expandPath(selPath.getParentPath());
-			setSelectionPath(selPath);
-			scrollPathToVisible(selPath);
+			expandPath(selPaths[0].getParentPath());
+			setSelectionPaths(selPaths);
+			scrollPathToVisible(selPaths[0]);
 		} 
 		else if (source.equals(this)) {
 			if (getSelectionCount() == 0) return;
 			
-			TreePath selPath = getSelectionPath();
+			TreePath[] selPaths = getSelectionPaths();
 			
 			/* make sure the node is visible (expand parent) */
-			navTree.expandPath(selPath.getParentPath());
-			navTree.setSelectionPath(selPath);
-			navTree.scrollPathToVisible(selPath);
+			navTree.expandPath(selPaths[0].getParentPath());
+			navTree.setSelectionPaths(selPaths);
+			navTree.scrollPathToVisible(selPaths[0]);
 		}
 	}
 

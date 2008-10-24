@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Java imports
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Action;
@@ -52,11 +53,13 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributeEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ChangeParamEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentEdit;
 
 
 
@@ -253,6 +256,36 @@ public class BrowserControl
 			JTree tree, TreeNode node) {
 		
 		UndoableEdit edit = new AddParamEdit(field, paramType, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by adding text content
+	 * 
+	 * @param text		The text to add as text content. 
+	 * @param field		The field to add a new parameter to.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void addParamToField(String text, IField field, 
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new AddParamEdit(text, field, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by changing the content
+	 * 
+	 * @param field		The field to add a new parameter to.
+	 * @param content 		The new content, as a list.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void editFieldContent(IField field, List<IFieldContent> content,
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new FieldContentEdit(field, content, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	

@@ -290,6 +290,15 @@ public class Field
 	
 	/**
 	 * Implemented as specified by the {@link IField} interface.
+	 * Removes the specified content from the list. 
+	 */
+	public void removeContent(int index) 
+	{
+		fieldParams.remove(index);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * 
 	 * @see IField#getParams()
 	 */
