@@ -60,6 +60,14 @@ public class SessionCache implements ApplicationContextAware {
     public interface StaleCacheListener {
 
         /**
+         * Called once before all the reload methods are called to push
+         * out the current state to database and trigger any exceptions
+         * as the current user. Reload must be executed as root and so
+         * can't be run with readOnly set to false.
+         */
+        void prepareReload();
+        
+        /**
          * Method called for every active session in the cache. The returned
          * {@link SessionContext} will be used to replace the current one.
          * 
@@ -133,7 +141,12 @@ public class SessionCache implements ApplicationContextAware {
     // ========================================================================
 
     public void setStaleCacheListener(StaleCacheListener staleCacheListener) {
-        this.staleCacheListener = staleCacheListener;
+        updateLock.writeLock().lock();
+        try {
+            this.staleCacheListener = staleCacheListener;
+        } finally {
+            updateLock.writeLock().unlock();
+        }
     }
 
     public boolean addSessionCallback(String session, SessionCallback cb) {
@@ -183,7 +196,11 @@ public class SessionCache implements ApplicationContextAware {
         Element elt = sessions.getQuiet(uuid);
 
         if (elt == null) {
-            internalRemove(uuid);
+            // Previously we called internalRemove here, under the
+            // assumption that some other thread/event could cause the
+            // element to be set to null. That's no longer allowed
+            // and will only occur by a call to internalRemove,
+            // making that call unneeded.
             throw new RemovedSessionException("No context for " + uuid);
         }
 
@@ -235,10 +252,10 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     private void internalRemove(String uuid) {
+        
         log.info("Destroying session " + uuid);
-        sessions.remove(uuid);
-        ehmanager.removeCache("memory:" + uuid);
-        ehmanager.removeCache("ondisk:" + uuid);
+        
+        // Announce to all callbacks.
         Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
         if (cbs != null) {
             for (SessionCallback cb : cbs) {
@@ -251,13 +268,17 @@ public class SessionCache implements ApplicationContextAware {
             }
         }
 
+        // Announce to all listeners
         try {
             context.publishEvent(new DestroySessionMessage(this, uuid));
         } catch (RuntimeException re) {
             final String msg = "Session listener threw an exception for session %s";
             log.warn(String.format(msg, uuid), re);
         }
-
+        
+        ehmanager.removeCache("memory:" + uuid);
+        ehmanager.removeCache("ondisk:" + uuid);
+        sessions.remove(uuid);
     }
 
     public List<String> getIds() {
@@ -357,19 +378,19 @@ public class SessionCache implements ApplicationContextAware {
         updateLock.writeLock().lock();
         try {
             // Could have been unset while we were waiting.
-            if (lastUpdate <= targetUpdate) {
+            if (0 <= lastUpdate && lastUpdate <= targetUpdate) {
 
                 // Prevent recursion!
                 // ------------------
                 // To prevent another call from entering this block it's
-                // necessary
-                // to update the lastUpdate time here.
-                lastUpdate = System.currentTimeMillis();
+                // necessary to update the lastUpdate time here.
+                lastUpdate = -1;
                 boolean success = false;
 
                 try {
                     log.info("Synchronizing session cache");
                     if (staleCacheListener != null) {
+                        staleCacheListener.prepareReload();
                         List<String> ids = sessions.getKeys();
                         for (String id : ids) {
                             Element elt = sessions.getQuiet(id);

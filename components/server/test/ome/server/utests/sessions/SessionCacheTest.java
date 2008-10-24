@@ -70,12 +70,18 @@ public class SessionCacheTest extends TestCase {
         long before, after;
         called[0] = false;
         StaleCacheListener doesSomething = new StaleCacheListener() {
+            public void prepareReload() {
+                // noop
+            }
             public SessionContext reload(SessionContext context) {
                 called[0] = true;
                 return context;
             }
         };
         StaleCacheListener doesNothing = new StaleCacheListener() {
+            public void prepareReload() {
+                // noop
+            }
             public SessionContext reload(SessionContext context) {
                 called[0] = true;
                 throw new RuntimeException();
@@ -194,6 +200,9 @@ public class SessionCacheTest extends TestCase {
         Session s = sess();
         cache.putSession(s.getUuid(), sc(s));
         cache.setStaleCacheListener(new StaleCacheListener() {
+            public void prepareReload() {
+                // noop.
+            }
             public SessionContext reload(SessionContext context) {
                 throw new RuntimeException();
             }
@@ -231,6 +240,9 @@ public class SessionCacheTest extends TestCase {
         done[0] = done[1] = false;
         final int[] count = new int[] { 0 };
         cache.setStaleCacheListener(new StaleCacheListener() {
+            public void prepareReload() {
+                // noop
+            }
             public SessionContext reload(SessionContext context) {
                 try {
                     Thread.sleep(1000L);
@@ -344,7 +356,9 @@ public class SessionCacheTest extends TestCase {
         }
         
         StaleCacheListener stale = new StaleCacheListener() {
-
+            public void prepareReload() {
+                // noop
+            }
             public SessionContext reload(SessionContext context) {
                 return context;
             }

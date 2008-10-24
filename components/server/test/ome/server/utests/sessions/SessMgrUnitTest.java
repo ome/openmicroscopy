@@ -324,8 +324,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         };
         sf.mockUpdate.expects(once()).method("saveObject").with(closedSession);
         mgr.close(session.getUuid());
-        assertNull(mgr.find(session.getUuid()));
-        fail("NYI");
+        try {
+            mgr.find(session.getUuid());
+            fail("oops");
+        } catch (RemovedSessionException rse) {
+            // ok
+        }
     }
 
     @Test

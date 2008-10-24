@@ -128,7 +128,7 @@ public interface Executor extends ApplicationContextAware {
      * </ul>
      */
     public interface StatelessWork {
-        Object doWork(StatelessSession session);
+        Object doWork(TransactionStatus status, StatelessSession session);
 
     }
 
@@ -226,6 +226,7 @@ public interface Executor extends ApplicationContextAware {
          */
         public Object executeStateless(final StatelessWork work) {
             return txTemplate.execute(new TransactionCallback() {
+                @SuppressWarnings("deprecation")
                 public Object doInTransaction(final TransactionStatus status) {
                     return hibTemplate.execute(new HibernateCallback() {
                         public Object doInHibernate(final Session session)
@@ -233,7 +234,7 @@ public interface Executor extends ApplicationContextAware {
                             StatelessSession s = hibTemplate
                                     .getSessionFactory().openStatelessSession(
                                             session.connection());
-                            return work.doWork(s);
+                            return work.doWork(status, s);
                         }
                     }, true);
                 }
@@ -278,11 +279,8 @@ public interface Executor extends ApplicationContextAware {
                     return mi.proceed();
 
                 } else {
-                    final Work work = (Work) mi.getThis();
-                    final ServiceFactory sf = (ServiceFactory) mi
-                            .getArguments()[2];
-
                     return txTemplate.execute(new TransactionCallback() {
+                        @SuppressWarnings("deprecation")
                         public Object doInTransaction(
                                 final TransactionStatus status) {
                             return hibTemplate.execute(new HibernateCallback() {

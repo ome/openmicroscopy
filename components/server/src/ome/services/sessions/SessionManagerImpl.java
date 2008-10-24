@@ -17,17 +17,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.RemovedSessionException;
-import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
-import ome.conditions.ValidationException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.UserGroupUpdateEvent;
@@ -42,6 +43,7 @@ import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -78,13 +80,23 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     protected Executor executor;
     protected long defaultTimeToIdle;
     protected long defaultTimeToLive;
+    protected PrincipalHolder principalHolder;
+
+    // Local state
 
     /**
      * A private session for use only by this instance for running methods via
-     * {@link Executor}
+     * {@link Executor}. The name of this {@link Principal} will not be removed
+     * by calls to {@link #closeAll()}.
      */
     protected Principal asroot;
-    protected SessionContext sc;
+
+    /**
+     * Internal {@link SessionContext} created during {@link #init()} which is
+     * used for all method calls internal to the session manager (see execute*
+     * methods)
+     */
+    protected SessionContext internalSession;
 
     // ~ Injectors
     // =========================================================================
@@ -115,14 +127,19 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         this.defaultTimeToLive = defaultTimeToLive;
     }
 
+    public void setPrincipalHolder(PrincipalHolder principal) {
+        this.principalHolder = principal;
+    }
+
     /**
      * Initialization method called by the Spring run-time to acquire an initial
      * {@link Session}.
      */
     public void init() {
         asroot = new Principal(internal_uuid, "system", "Sessions");
-        sc = new InternalSessionContext(executeInternalSession(), roles);
-        cache.putSession(internal_uuid, sc);
+        internalSession = new InternalSessionContext(executeInternalSession(),
+                roles);
+        cache.putSession(internal_uuid, internalSession);
     }
 
     // ~ Session definition
@@ -214,6 +231,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         principal = checkPrincipalNameAndDefaultGroup(principal);
         session = executeUpdate(session);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
+        if (ctx == null) {
+            throw new RemovedSessionException("No info in database for "
+                    + principal);
+        }
 
         // This the publishEvent returns successfully, then we will have to
         // handle rolling back this addition our selves
@@ -282,19 +303,29 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // Need to handle notifications
 
         ctx = currentDatabaseShapshot(principal, orig);
-        Session copy = copy(orig);
-        executeUpdate(copy);
-        cache.putSession(orig.getUuid(), ctx);
-
-        return session;
+        if (ctx == null) {
+            cache.removeSession(principal.getName());
+            throw new RemovedSessionException("Database contains no info for "
+                    + principal);
+        } else {
+            Session copy = copy(orig);
+            executeUpdate(copy);
+            cache.putSession(orig.getUuid(), ctx);
+            return session;
+        }
 
     }
 
     @SuppressWarnings("unchecked")
     protected SessionContext currentDatabaseShapshot(Principal principal,
             Session session) {
+
         // Do lookups
-        List<?> list = executeSessionContextLookup(principal);
+        final List<?> list = executeSessionContextLookup(principal);
+        if (list == null) {
+            return null; // EARLY EXIT when user no longer exists (on delete)
+        }
+
         final Experimenter exp = (Experimenter) list.get(0);
         final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
         final List<Long> memberOfGroupsIds = (List<Long>) list.get(2);
@@ -310,7 +341,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         SessionContext sessionContext = new SessionContextImpl(session,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles);
         return sessionContext;
-
     }
 
     public Session find(String uuid) {
@@ -341,23 +371,31 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         int refCount = ctx.decrement();
         if (refCount < 1) {
-
-            final Session s = ctx.getSession();
-
-            try {
-                s.setClosed(new Timestamp(System.currentTimeMillis()));
-                update(s);
-            } catch (Exception e) {
-                log.error("FAILED TO CLOSE SESSION IN DATABASE: " + uuid);
-            } finally {
-                // Guaranteed to not throw; publishes a Message
-                cache.removeSession(uuid);
-            }
-            
+            cache.removeSession(uuid);
             return -2;
         } else {
             return refCount;
         }
+    }
+
+    public int closeAll() {
+        List<String> ids = cache.getIds();
+        for (String id : ids) {
+            if (asroot.getName().equals(id)) {
+                continue; // DON'T KILL OUR ROOT SESSION
+            }
+            try {
+                cache.removeSession(id);
+            } catch (RemovedSessionException rse) {
+                // Ok. Done for us
+            } catch (SessionTimeoutException ste) {
+                // Also ok
+            } catch (Exception e) {
+                log.warn(String.format("Exception thrown on closeAll: %s:%s", e
+                        .getClass().getName(), e.getMessage()));
+            }
+        }
+        return ids.size();
     }
 
     public List<String> getUserRoles(String uuid) {
@@ -478,14 +516,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.server.utests.sessions.SessionManager#onApplicationEvent(org.springframework.context.ApplicationEvent)
+    /**
      */
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserGroupUpdateEvent) {
             cache.updateEvent((UserGroupUpdateEvent) event);
+        } else if (event instanceof DestroySessionMessage) {
+            executeCloseSession(((DestroySessionMessage) event).getSessionId());
         }
 
         // TODO
@@ -508,8 +545,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     /**
-     * Checks the validity of the given {@link Principal}, and in the case of
-     * an error attempts to correct the problem by returning a new Principal.
+     * Checks the validity of the given {@link Principal}, and in the case of an
+     * error attempts to correct the problem by returning a new Principal.
      */
     private Principal checkPrincipalNameAndDefaultGroup(Principal p) {
 
@@ -533,6 +570,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         else if (roles.getUserGroupName().equals(p.getGroup())) {
             // Throws an exception if no properly defined default group
             group = executeDefaultGroup(p.getName()).getName();
+            if (group == null) {
+                throw new ApiUsageException("Can't find default group for "
+                        + p.getName());
+            }
         }
         Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
@@ -588,19 +629,51 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     /**
+     * Calls {@link #flushAsCurrentUser()} to prevent strange Hibernate
+     * exceptions during {@link #reload(SessionContext)}. This is not necessary
+     * the best solution to the problem, but will work for now. Most likely the
+     * session manager should have its own session, but how it takes parts in
+     * transactions would have to be clarified.
+     */
+    public void prepareReload() {
+        flushAsCurrentUser();
+    }
+
+    /**
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
     public SessionContext reload(SessionContext ctx) {
         Principal p = new Principal(ctx.getCurrentUserName(), ctx
                 .getCurrentGroupName(), ctx.getCurrentEventType());
-        SessionContext replacement = currentDatabaseShapshot(p, ctx
-                .getSession());
-        return replacement;
+        return currentDatabaseShapshot(p, ctx.getSession());
     }
 
     // Executor methods
     // =========================================================================
+
+    /**
+     * Calls flush without passing a principal to
+     * {@link Executor#execute(Principal, ome.services.util.Executor.Work)} and
+     * read-only set to false to make way for proper read-only reloading via
+     * {@link StaleCacheListener#reload(SessionContext)}. This should be safe
+     * since currently no stateful services make changes to the users/groups
+     * which would cause a {@link UserGroupUpdateEvent} to be raised.
+     * 
+     * Note: if there is not currently a principal (i.e. no one is logged in),
+     * then this is skipped, since no action can be active.
+     */
+    private void flushAsCurrentUser() {
+        if (principalHolder.size() > 0) {
+            executor.execute(null, new Executor.Work() {
+                public Object doWork(TransactionStatus status,
+                        org.hibernate.Session s, ServiceFactory sf) {
+                    ((LocalUpdate) sf.getUpdateService()).flush();
+                    return null;
+                }
+            }, false);
+        }
+    }
 
     public boolean executePasswordCheck(final String name,
             final String credentials) {
@@ -653,6 +726,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 }, true);
     }
 
+    /**
+     * To prevent having the transaction rolled back, this method returns null
+     * rather than throw an exception.
+     */
     @SuppressWarnings("unchecked")
     private ExperimenterGroup executeDefaultGroup(final String name) {
         return (ExperimenterGroup) executor.execute(asroot,
@@ -660,53 +737,92 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     public Object doWork(TransactionStatus status,
                             org.hibernate.Session session, ServiceFactory sf) {
                         LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-                        long id;
+
                         try {
-                            id = admin.userProxy(name).getId();
-                        } catch (ApiUsageException api) {
-                            throw new SecurityViolation("No known user:" + name);
-                        }
-                        try {
-                            return sf.getAdminService().getDefaultGroup(id);
-                        } catch (ValidationException ve) {
-                            throw new SecurityViolation(
-                                    "User has no default group.");
+                            Experimenter exp = admin.userProxy(name);
+                            ExperimenterGroup grp = admin.getDefaultGroup(exp
+                                    .getId());
+                            return grp;
+                        } catch (Exception e) {
+                            return null;
                         }
                     }
                 }, true);
     }
 
+    /**
+     * Returns a List of state for creating a new {@link SessionContext}. If an
+     * exception is thrown, return nulls since throwing an exception within the
+     * Work will set our transaction to rollback only.
+     */
     @SuppressWarnings("unchecked")
     private List<Object> executeSessionContextLookup(final Principal principal) {
         return (List<Object>) executor.execute(asroot, new Executor.Work() {
 
             public Object doWork(TransactionStatus status,
                     org.hibernate.Session session, ServiceFactory sf) {
-                List<Object> list = new ArrayList<Object>();
-                LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-                final Experimenter exp = admin.userProxy(principal.getName());
-                final ExperimenterGroup grp = admin.groupProxy(principal
-                        .getGroup());
-                final List<Long> memberOfGroupsIds = admin
-                        .getMemberOfGroupIds(exp);
-                final List<Long> leaderOfGroupsIds = admin
-                        .getLeaderOfGroupIds(exp);
-                final List<String> userRoles = admin.getUserRoles(exp);
-                list.add(exp);
-                list.add(grp);
-                list.add(memberOfGroupsIds);
-                list.add(leaderOfGroupsIds);
-                list.add(userRoles);
-                return list;
+                try {
+                    List<Object> list = new ArrayList<Object>();
+                    LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+                    final Experimenter exp = admin.userProxy(principal
+                            .getName());
+                    final ExperimenterGroup grp = admin.groupProxy(principal
+                            .getGroup());
+                    final List<Long> memberOfGroupsIds = admin
+                            .getMemberOfGroupIds(exp);
+                    final List<Long> leaderOfGroupsIds = admin
+                            .getLeaderOfGroupIds(exp);
+                    final List<String> userRoles = admin.getUserRoles(exp);
+                    list.add(exp);
+                    list.add(grp);
+                    list.add(memberOfGroupsIds);
+                    list.add(leaderOfGroupsIds);
+                    list.add(userRoles);
+                    return list;
+                } catch (Exception e) {
+                    return null;
+                }
             }
-        }, true);
+        }, false);
 
+    }
+
+    /**
+     * Loads a session directly from the database, sets its "closed" value and
+     * immediately saves it back to the database. This method is not called
+     * directly from the {@link #close(String)} and {@link #closeAll()} methods
+     * since there are other non-explicit ways for a session to be destroy, such
+     * as a timeout within {@link SessionCache} and so this is called from
+     * {@link #onApplicationEvent(ApplicationEvent)} when a
+     * {@link DestroySessionMessage} is received.
+     */
+    private Session executeCloseSession(final String uuid) {
+        return (Session) executor
+                .executeStateless(new Executor.StatelessWork() {
+                    public Object doWork(TransactionStatus status,
+                            StatelessSession sSession) {
+                        try {
+                            Query q = sSession
+                                    .createQuery("select s from Session s where s.uuid = :uuid");
+                            q.setString("uuid", uuid);
+                            Session s = (Session) q.uniqueResult();
+                            s.setClosed(new Timestamp(System
+                                    .currentTimeMillis()));
+                            sSession.update(s);
+                        } catch (Exception e) {
+                            log.error("FAILED TO CLOSE SESSION IN DATABASE: "
+                                    + uuid);
+                        }
+                        return null;
+                    }
+                });
     }
 
     private Session executeInternalSession() {
         return (Session) executor
                 .executeStateless(new Executor.StatelessWork() {
-                    public Object doWork(StatelessSession sSession) {
+                    public Object doWork(TransactionStatus status,
+                            StatelessSession sSession) {
                         final Permissions p = Permissions.USER_PRIVATE;
                         final Session s = new Session();
                         define(s, internal_uuid, "Session Manager internal",
