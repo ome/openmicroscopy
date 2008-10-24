@@ -30,9 +30,7 @@
 	<classpathentry kind="src" path="components/tools/licenses/test"/>
 	<classpathentry kind="src" path="components/tools/licenses/resources"/>
 	<classpathentry kind="src" path="components/tools/licenses/src"/>
-	<classpathentry kind="src" output="target/eclipse-client" path="components/client/resources"/>
-	<classpathentry kind="src" output="target/eclipse-client" path="components/client/test"/>
-	<classpathentry kind="src" output="target/eclipse-client" path="components/client/src"/>
+	<classpathentry kind="src" path="components/tools/licenses/generated"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/test"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/resources"/>

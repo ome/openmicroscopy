@@ -38,7 +38,7 @@
 	The value is the class names of a LicenseStore implementation with a 
 	a no-arg constructor. This allows classes unknown to the server at 
 	compile time to become a part of a distribution. -->
-	<target name="compile" depends="generate" unless="skip.compile">
+	<target name="compile" depends="generate">
 		<hard-wire file="ome/services/licenses/LicenseBean.java"
 			token="&quot;ome.services.licenses.Store&quot;"
 			value="${ome.services.licenses.Store_class}"/>
@@ -71,7 +71,7 @@
         </scons_py>
     </target>
 
-    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target" unless="skip.compile">
+    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target">
         <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
         <scons_py>
             <arg value="lib"/>
@@ -83,7 +83,7 @@
     directory so that they can be bundled together for the final products.
     This is necessary since otherwise the jar listed here would have to
     be manually added to app/resources/application.xml -->
-    <target name="tools-dist" depends="deps-resolve,tools-build,python-install" description="Copied artifacts to tools/target" unless="skip.compile">
+    <target name="tools-dist" depends="deps-resolve,tools-build,python-install" description="Copied artifacts to tools/target">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
         <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
