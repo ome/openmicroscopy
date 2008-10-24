@@ -134,10 +134,18 @@ class PropertiesUI
     	Font font = l.getFont();
     	int size = font.getSize()-2;
     	layout.insertRow(index, TableLayout.PREFERRED);
+    	JLabel label = UIUtilities.setTextFont("Image Date", Font.BOLD, size);
+    	JLabel value = UIUtilities.createComponent(null);
+    	String v = model.formatDate((ImageData) model.getRefObject());
+    	value.setText(v);
+    	content.add(label, "0, "+index);
+    	content.add(value, "2, "+index);
     	
-    	JLabel label = UIUtilities.setTextFont("Dimensions", Font.BOLD, size);
-    	JLabel value = UIUtilities.createLabel(null);
-    	String v = (String) details.get(EditorUtil.SIZE_X);
+    	index++;
+    	layout.insertRow(index, TableLayout.PREFERRED);
+    	label = UIUtilities.setTextFont("Dimensions", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	v = (String) details.get(EditorUtil.SIZE_X);
     	v += " x ";
     	v += (String) details.get(EditorUtil.SIZE_Y);
     	value.setText(v);
@@ -147,7 +155,7 @@ class PropertiesUI
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	label = UIUtilities.setTextFont("Pixels Size", Font.BOLD, size);
-    	value = UIUtilities.createLabel(null);
+    	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.PIXEL_SIZE_X);
     	v += " x ";
     	v += (String) details.get(EditorUtil.PIXEL_SIZE_Y);
@@ -161,7 +169,7 @@ class PropertiesUI
     	layout.insertRow(index, TableLayout.PREFERRED);
     	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 
     			size);
-    	value = UIUtilities.createLabel(null);
+    	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
     	v += " x ";
     	v += (String) details.get(EditorUtil.TIMEPOINTS);
@@ -192,10 +200,14 @@ class PropertiesUI
     private JPanel buildPermissions(PermissionData permissions)
     {
         JPanel content = new JPanel();
-       	if (permissions.isGroupRead()) publicBox.setSelected(true);
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	if (permissions != null && 
+       			permissions.isGroupRead()) publicBox.setSelected(true);
        	content.add(privateBox);
        	content.add(publicBox);
-        return content;
+       	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
+       	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return p;
     }
   
     /** 
@@ -248,10 +260,18 @@ class PropertiesUI
     {
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
-        
+        Font f;
     	publicBox =  new JCheckBox(EditorUtil.PUBLIC);
-        privateBox =  new JCheckBox(EditorUtil.PUBLIC);
+    	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
+    	publicBox.setEnabled(false);
+    	f = publicBox.getFont();
+        privateBox =  new JCheckBox(EditorUtil.PRIVATE);
+        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+        publicBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+        privateBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
         privateBox.setSelected(true);
+        
     	ButtonGroup group = new ButtonGroup();
        	group.add(privateBox);
        	group.add(publicBox);
@@ -259,13 +279,12 @@ class PropertiesUI
     	namePane = createTextPane();
     	descriptionPane = createTextPane();
     	descriptionPane.setLineWrap(true);
-    	Font font = namePane.getFont();
-    	namePane.setFont(font.deriveFont(Font.BOLD, font.getSize()+2));
-    	font = descriptionPane.getFont();
-    	descriptionPane.setFont(font.deriveFont(font.getStyle(), 
-    							font.getSize()-2));
+    	f = namePane.getFont();
+    	namePane.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
+    	f = descriptionPane.getFont();
+    	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	channelsArea =  UIUtilities.createLabel(null);
+    	channelsArea = UIUtilities.createComponent(null);
     }   
   
     /**
@@ -281,6 +300,8 @@ class PropertiesUI
          p.add(Box.createVerticalStrut(5));
          p.add(descriptionPane);
          p.setBackground(UIUtilities.BACKGROUND_COLOR);
+         p.add(Box.createVerticalStrut(5));
+         p.add(buildPermissions(null));
          return p;
     }
     

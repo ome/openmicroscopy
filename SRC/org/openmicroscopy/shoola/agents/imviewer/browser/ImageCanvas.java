@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.FontMetrics;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -34,7 +33,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * Components where the image to display is painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

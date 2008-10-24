@@ -57,6 +57,8 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -1242,17 +1244,34 @@ public class UIUtilities
 	/**
 	 * Creates a new label.
 	 * 
-	 * @param c The foreground color if not <code>null</code>.
+	 * @param c 	The foreground color if not <code>null</code>.
 	 * @return See above.
 	 */
-	public static JLabel createLabel(Color c)
+	public static JLabel createComponent(Color c)
 	{
-		JLabel label = new JLabel();
-		label.setBackground(BACKGROUND_COLOR);
-		Font font = label.getFont();
-		label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
-		if (c != null) label.setForeground(c);
-		return label;
+		return (JLabel) createComponent(JLabel.class, c);
+	}
+	
+	/**
+	 * Creates a new label.
+	 * 
+	 * @param type 	The type of component to create. Default type is JLabel.
+	 * @param c 	The foreground color if not <code>null</code>.
+	 * @return See above.
+	 */
+	public static JComponent createComponent(Class type, Color c)
+	{
+		if (type == null) type = JLabel.class;
+		JComponent comp = null;
+		if (JLabel.class.equals(type)) comp = new JLabel();
+		else if (JTextField.class.equals(type)) comp = new JTextField();
+		else if (JTextArea.class.equals(type)) comp = new JTextArea();
+		if (comp == null) comp = new JLabel();
+		comp.setBackground(BACKGROUND_COLOR);
+		Font font = comp.getFont();
+		comp.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+		if (c != null) comp.setForeground(c);
+		return comp;
 	}
 	
 }

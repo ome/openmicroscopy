@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -47,9 +46,6 @@ import layout.TableLayout;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.sun.corba.se.impl.ior.iiop.JavaSerializationComponent;
-
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -122,14 +118,14 @@ class TextualAnnotationsUI
 			int index = 0;
 			while (i.hasNext()) {
 				data = (TextualAnnotationData) i.next();
-				//if (data.getOwner().getId() != userID) {
+				if (data.getOwner().getId() != userID) {
 					comp = new TextualAnnotationComponent(model, data);
 					if (index%2 == 0) 
 						comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		            else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
 					p.add(comp);
 					index++;
-				//}
+				}
 			}
 		}
 		previousComments = new JScrollPane(p);

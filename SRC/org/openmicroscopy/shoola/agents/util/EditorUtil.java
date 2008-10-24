@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -111,8 +112,13 @@ public class EditorUtil
     /** Text describing the <code>Public</code> permission. */
     public static final String	PUBLIC = "public";
     
+    /** Text describing the <code>Public</code> permission. */
+    public static final String	PUBLIC_DESCRIPTION = 
+    								"Visible to Group members only.";
+    
     /** Text describing the <code>Private</code> permission. */
     public static final String	PRIVATE = "private";
+    
     
 	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";
@@ -124,38 +130,119 @@ public class EditorUtil
     public static final String	EMAIL = "E-mail";
     
     /** String to represent the micron symbol. */
-    public static final String MICRONS = "(in \u00B5m)";
+    public static final String 	MICRONS = "(in \u00B5m)";
     
     /** Identifies the <code>SizeX</code> field. */
-    public static final String SIZE_X = "Size X";
+    public static final String 	SIZE_X = "Size X";
     
     /** Identifies the <code>SizeY</code> field. */
-    public static final String SIZE_Y = "Size Y";
+    public static final String 	SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    public static final String PIXEL_SIZE_X = "Pixel size X "+MICRONS;
+    public static final String 	PIXEL_SIZE_X = "Pixel size X "+MICRONS;
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    public static final String PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
+    public static final String 	PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    public static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
+    public static final String 	PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
     
     /** Identifies the <code>Sections</code> field. */
-    public static final String SECTIONS = "Number of sections";
+    public static final String 	SECTIONS = "Number of sections";
     
     /** Identifies the <code>Timepoints</code> field. */
-    public static final String TIMEPOINTS = "Number of timepoints";
+    public static final String 	TIMEPOINTS = "Number of timepoints";
 
     /** Identifies the <code>PixelType</code> field. */
-    public static final String PIXEL_TYPE = "Pixel Type";
+    public static final String 	PIXEL_TYPE = "Pixel Type";
 
-    /** Identifies the <code>Acquisition date</code> field. */
-    private static final String ACQUISITION_DATE = "Acquisition date";
-    
     /** Identifies the <code>Name</code> field. */
-    private static final String NAME = "Owner";
+    public static final String  NAME = "Name";
     
+    /** Identifies the <code>Acquisition date</code> field. */
+    public static final String  ACQUISITION_DATE = "Acquisition date";
+    
+    /** Identifies the <code>Emission wavelength</code> field. */
+    public static final String  EM_WAVE = "Emission";
+    
+    /** Identifies the <code>Excitation wavelength</code> field. */
+    public static final String  EX_WAVE = "Excitation";
+    
+    /** Identifies the <code>Pin hole size</code> field. */
+    public static final String  PIN_HOLE_SIZE = "Pin hole size";
+    
+    /** Identifies the <code>ND filter</code> field. */
+    public static final String  ND_FILTER = "ND Filter";
+    
+    /** Identifies the <code>Fluor</code> field. */
+    public static final String 	FLUOR = "Fluor";
+    
+    /** Identifies the <code>Illumination</code> field. */
+    public static final String 	ILLUMINATION = "Illumination";
+    
+    /** Identifies the <code>Contrast Method</code> field. */
+    public static final String 	CONTRAST_METHOD = "Contrast Method";
+    
+    /** Identifies the <code>Mode</code> field. */
+    public static final String 	MODE = "Mode";
+    
+    /** Identifies the <code>Pockel Cell</code> field. */
+    public static final String 	POCKEL_CELL_SETTINGS = "Pockel Cell";
+    
+    /** Identifies the Objective's <code>Magnification</code> field. */
+	public static final String	MAGNIFICATION = "Magnification";
+	
+	/** Identifies the Objective's <code>Lens NA</code> field. */
+	public static final String	LENSNA = "Lens NA";
+	
+	/** Identifies the Objective's <code>Working distance</code> field. */
+	public static final String	WORKING_DISTANCE = "Working Distance";
+	
+	/** Identifies the Objective's <code>Working distance</code> field. */
+	public static final String	IMMERSION = "Immersion";
+	
+	/** Identifies the Objective's <code>Coating</code> field. */
+	public static final String	COATING = "Coating";
+	
+	/** Identifies the <code>Correction Collar</code> field. */
+	public static final String	CORRECTION_COLLAR = "Correction Collar";
+
+	/** Identifies the Objective's <code>Medium</code> field. */
+	public static final String	MEDIUM = "Medium";
+	
+	/** Identifies the Objective's <code>Refactive index</code> field. */
+	public static final String	REFRACTIVE_INDEX = "Refractive index";
+
+	/** Identifies the Environment <code>temperature</code> field. */
+	public static final String	TEMPERATURE = "Temperature";
+	
+	/** Identifies the Environment <code>Air pressure</code> field. */
+	public static final String	AIR_PRESSURE = "Air Pressure";
+	
+	/** Identifies the Environment <code>Humidity</code> field. */
+	public static final String	HUMIDITY = "Humidy";
+	
+	/** Identifies the Environment <code>CO2 Percent</code> field. */
+	public static final String	CO2_PERCENT = "CO2 Percent";
+	
+	/** Identifies the <code>Model</code> field. */
+	public static final String	MODEL = "Model";
+	
+	/** Identifies the <code>Manufacturer</code> field. */
+	public static final String	MANUFACTURER = "Manufacturer";
+	
+	/** Identifies the <code>Serial number</code> field. */
+	public static final String	SERIAL_NUMBER = "Serial Number";
+	
+	/** Identifies the Stage label <code>Position X</code> field. */
+	public static final String	POSITION_X = "Position X";
+	
+	/** Identifies the Stage label <code>Position Y</code> field. */
+	public static final String	POSITION_Y = "Position Y";
+	
+	/** Identifies the Stage label <code>Position Z</code> field. */
+	public static final String	POSITION_Z = "Position Z";
+	
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
 	
@@ -231,14 +318,14 @@ public class EditorUtil
         LinkedHashMap<String, String> details = 
         							new LinkedHashMap<String, String>(2);
         if (data == null) {
-            details.put(NAME, "");
+            details.put(OWNER, "");
             details.put(EMAIL, "");
         } else {
             try {
-                details.put(NAME, data.getFirstName()+" "+data.getLastName());
+                details.put(OWNER, data.getFirstName()+" "+data.getLastName());
                 details.put(EMAIL, data.getEmail());
             } catch (Exception e) {
-                details.put(NAME, "");
+                details.put(OWNER, "");
                 details.put(EMAIL, "");
             }
         }
@@ -653,5 +740,115 @@ public class EditorUtil
     	}
         return name;
     }
+    
+    /**
+     * Transforms the specified channel information.
+     * 
+     * @param data  The object to transform.
+     * @return      The map whose keys are the field names, and the values 
+     *              the corresponding fields' values.
+     */
+    public static Map<String, String> transformChannelData(ChannelMetadata data)
+    {
+        LinkedHashMap<String, String> 
+        		details = new LinkedHashMap<String, String>(10);
+        if (data == null) {
+        	details.put(NAME, "");
+            details.put(EM_WAVE, "");
+            details.put(EX_WAVE, "");
+            details.put(ND_FILTER, "");
+            details.put(PIN_HOLE_SIZE, "");
+            details.put(FLUOR, "");
+            details.put(ILLUMINATION, "");
+            details.put(CONTRAST_METHOD, "");
+            details.put(MODE, "");
+            details.put(POCKEL_CELL_SETTINGS, "");
+        } else {
+        	details.put(NAME, data.getName());
+            details.put(EM_WAVE, ""+data.getEmissionWavelength());
+            details.put(EX_WAVE, ""+data.getEmissionWavelength());
+            details.put(ND_FILTER, ""+data.getNDFilter());
+            details.put(PIN_HOLE_SIZE, ""+data.getPinholeSize());
+            details.put(FLUOR, data.getFluor());
+            details.put(ILLUMINATION, data.getIllumination());
+            details.put(CONTRAST_METHOD, data.getContrastMethod());
+            details.put(MODE, data.getMode());
+            details.put(POCKEL_CELL_SETTINGS, data.getPockelCell());
+        }
+        return details;
+    }
+    
+    /**
+     * Transforms the passed objective.
+     * 
+     * @param objective The value to convert.
+     * @return See above.
+     */
+    public static Map<String, String> transformObjective(Object objective)
+    {
+    	LinkedHashMap<String, String> 
+    			details = new LinkedHashMap<String, String>(8);
+    	details.put(MODEL, "");
+    	details.put(MANUFACTURER, "");
+    	details.put(SERIAL_NUMBER, "");
+    	details.put(MAGNIFICATION, "");
+        details.put(LENSNA, "");
+        details.put(IMMERSION, "");
+        details.put(COATING, "");
+        details.put(WORKING_DISTANCE, "");
+        return details;
+    }
+    
+    /**
+     * Transforms the passed objective.
+     * 
+     * @param settings The value to convert.
+     * @return See above.
+     */
+    public static Map<String, String> transformObjectiveSettings(
+    								Object settings)
+    {
+    	LinkedHashMap<String, String> 
+    			details = new LinkedHashMap<String, String>(3);
+    	details.put(CORRECTION_COLLAR, "");
+    	details.put(MEDIUM, "");
+    	details.put(REFRACTIVE_INDEX, "");
+        return details;
+    }
+    
+    /**
+     * Transforms the passed imaging environment.
+     * 
+     * @param env The value to convert.
+     * @return See above.
+     */
+    public static Map<String, String> transformImageEnvironment(Object env)
+    {
+    	LinkedHashMap<String, String> 
+			details = new LinkedHashMap<String, String>(4);
+    	details.put(TEMPERATURE, "");
+    	details.put(AIR_PRESSURE, "");
+    	details.put(HUMIDITY, "");
+    	details.put(CO2_PERCENT, "");
+    	return details;
+    }
+    
+    /**
+     * Transforms the passed stage label.
+     * 
+     * @param label The value to convert.
+     * @return See above.
+     */
+    public static Map<String, String> transformStageLabel(Object label)
+    {
+    	LinkedHashMap<String, String> 
+			details = new LinkedHashMap<String, String>(4);
+    	details.put(NAME, "");
+    	details.put(POSITION_X, "");
+    	details.put(POSITION_Y, "");
+    	details.put(POSITION_Z, "");
+    	return details;
+    }
+    
     
 }

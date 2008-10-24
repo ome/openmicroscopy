@@ -233,6 +233,47 @@ class AnnotationDataUI
 		add(content);
 	}
 	
+	/**
+	 * Creates a row.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel initRow()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		return p;
+	}
+	
+	/** 
+	 * Lays out the passed row. 
+	 * 
+	 * @param row The row to lay out.
+	 * @return See above.
+	 */
+	private JPanel layoutRow(JPanel row)
+	{
+		JPanel p = new JPanel(); 
+		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		Component[] comps = row.getComponents();
+		row.removeAll();
+		JLabel l;
+		for (int i = 0; i < comps.length; i++) {
+			row.add(comps[i]);
+			if (i < comps.length-1) {
+				l = new JLabel();
+				l.setBackground(UIUtilities.BACKGROUND_COLOR);
+				l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+				l.setText(", ");
+				row.add(l);
+			}
+		}
+		p.add(row);
+		return p;
+	}
+	
 	/** 
 	 * Lays out the users who viewed the image. 
 	 * Returns <code>true</code> if the image has been seen by other users,
@@ -242,6 +283,7 @@ class AnnotationDataUI
 	 */
 	private boolean layoutViewedBy()
 	{
+		//value order by user name.
 		Collection views = model.getViewedBy();
 		viewedByPane.removeAll();
 		viewedBy.clear();
@@ -249,12 +291,21 @@ class AnnotationDataUI
 		Iterator i = views.iterator();
 		ViewedByDef def;
 		ViewedByComponent comp;
+		JPanel p = initRow();
+		int width = 0;
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
 			comp = new ViewedByComponent(def, model);
 			viewedBy.put(def.getExperimenter().getId(), comp);
-			viewedByPane.add(comp);
+			if (width+comp.getPreferredSize().width >= COLUMN_WIDTH) {
+				viewedByPane.add(layoutRow(p));
+				p = initRow();
+			} 
+			p.add(comp);
 		}
+		if (p.getComponentCount() > 0)
+			viewedByPane.add(layoutRow(p));
+			
 		return true;
 	}
 	
@@ -455,6 +506,7 @@ class AnnotationDataUI
 			layoutTags(values);
 		}
 		content.revalidate();
+		content.repaint();
 		revalidate();
 		repaint();
 	}

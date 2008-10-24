@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -86,6 +84,8 @@ class ViewedByComponent
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		JLabel label = new JLabel();
 		label.setBackground(UIUtilities.BACKGROUND_COLOR);
+		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+		label.setToolTipText("Click on name to launch a Viewer.");
 		label.setText(def.toString());
 		label.addMouseListener(new MouseAdapter() {
 		

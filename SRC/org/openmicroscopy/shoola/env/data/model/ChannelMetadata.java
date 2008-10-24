@@ -69,6 +69,24 @@ public class ChannelMetadata
     /** The global maximum of the channel i.e. the minimum of all minima. */
     private double		globalMax;
     
+    /** The fluor used. */
+    private String		fluor;
+    
+    /** The Name given to that channel. */
+    private String		name;
+    
+    /** The illumination, value from an enumeration. */
+    private String		illumination;
+    
+    /** The mode, value from an enumeration. */
+    private String		mode;
+    
+    /** The constrast method, value from an enumeration. */
+    private String		contrastMethod;
+    
+    /** The pockel cell settings. */
+    private String		pockelCell;
+    
     /** 
      * Sets the emission wavelength.
      * 
@@ -103,6 +121,20 @@ public class ChannelMetadata
      */
     void setNDFilter(float ndFilter) { this.ndFilter = ndFilter; }
     
+    /** 
+     * Sets the name of the channel.
+     * 
+     * @param name The name given to the channel.
+     */
+    void setName(String name) { this.name = name; }
+    
+    /** 
+     * Sets the fluor's value.
+     * 
+     * @param fluor The value to set.
+     */
+    void setFluor(String fluor) { this.fluor = fluor; }
+
     /**
      * Creates a new instance.
      * 
@@ -175,4 +207,47 @@ public class ChannelMetadata
      * @return See above.
      */
     public int getIndex() { return index; }
+    
+    /**
+     * Returns the name given to the channel.
+     * 
+     * @return See above.
+     */
+    public String getName() { return name; }
+    
+    /**
+     * Returns the fluor used.
+     * 
+     * @return See above.
+     */
+    public String getFluor() { return fluor; }
+    
+    /**
+     * Returns the illumination.
+     * 
+     * @return See above.
+     */
+    public String getIllumination() { return illumination; }
+    
+    /**
+     * Returns the contrast method.
+     * 
+     * @return See above.
+     */
+    public String getContrastMethod() { return contrastMethod; }
+    
+    /**
+     * Returns the mode.
+     * 
+     * @return See above.
+     */
+    public String getMode() { return mode; }
+    
+    /**
+     * Returns the pockel cell settings.
+     * 
+     * @return See above.
+     */
+    public String getPockelCell() { return pockelCell; }
+    
 }

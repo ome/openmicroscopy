@@ -507,12 +507,26 @@ class EditorModel
 		ViewedByDef def;
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		List<ViewedByDef> results = new ArrayList<ViewedByDef>();
+		Map<String, ViewedByDef> 
+			m = new HashMap<String, ViewedByDef>();
+		String value;
+		List<String> names = new ArrayList<String>();
+		ExperimenterData exp;
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
-			def.setFormattedExperimenter(formatOwner(def.getExperimenter()));
-			//tmp
-			//if (def.getExperimenter().getId() != userID)
-				results.add(def);
+			exp = def.getExperimenter();
+			//if (exp.getId() != userID) {
+				value = formatOwner(exp);
+				names.add(value);
+				m.put(value, def);
+				def.setFormattedExperimenter(value);
+			//}
+		}
+		l = sorter.sort(names);
+		i = l.iterator();
+		while (i.hasNext()) {
+			value = (String) i.next();
+			results.add(m.get(value));
 		}
 		return results; 
 	}

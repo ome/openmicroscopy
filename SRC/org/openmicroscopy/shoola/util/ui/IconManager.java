@@ -424,7 +424,7 @@ public class IconManager
         relPaths[SEARCH_48] = "nuvola_find48.png";
         relPaths[SEARCH] = "eclipse_view_menu16.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
-        relPaths[CLEAR_DISABLED] = "eclipse_remove_att16.png"; 
+        relPaths[CLEAR_DISABLED] = "nuvola_fileclose_light16.png";
         relPaths[SEARCH_TAG] = "search_knotes16.png";
         relPaths[SEARCH_IMAGE] = "search_image16.png";
         relPaths[SEARCH_ANNOTATION] = "search_annotation16.png";

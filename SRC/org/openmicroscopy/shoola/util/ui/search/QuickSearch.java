@@ -196,6 +196,7 @@ public class QuickSearch
 		IconManager icons = IconManager.getInstance();
 		clearButton = new JButton(icons.getIcon(IconManager.CLEAR_DISABLED));
 		//clearButton.setEnabled(false);
+		clearButton.setToolTipText("Clear Filtering and Show All");
 		UIUtilities.setTextAreaDefault(clearButton);
 		clearButton.setBorder(null);
 		clearButton.addActionListener(this);
@@ -237,8 +238,7 @@ public class QuickSearch
 	private void initComponents(Icon icon)
 	{
 		IconManager icons = IconManager.getInstance();
-		if (icon == null)
-			icon = icons.getIcon(IconManager.SEARCH);
+		if (icon == null) icon = icons.getIcon(IconManager.SEARCH);
 		searchButton = new JButton(icon);
 		UIUtilities.setTextAreaDefault(searchButton);
 		searchButton.setBorder(null);

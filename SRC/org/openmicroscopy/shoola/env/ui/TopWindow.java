@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Frame;
-
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -109,13 +108,9 @@ class GeneralPaneUI
 	private void initComponents()
 	{
 		if (model.getBrowser() != null) {
-			browserTaskPane = new JXTaskPane();
-			browserTaskPane.setTitle(Browser.TITLE);
-			browserTaskPane.setCollapsed(true);
+			browserTaskPane = EditorUI.createTaskPane(Browser.TITLE);
 			browserTaskPane.add(model.getBrowser().getUI());
 			browserTaskPane.addPropertyChangeListener(controller);
-			Font font = browserTaskPane.getFont();
-			browserTaskPane.setFont(font.deriveFont(font.getSize2D()-2));
 		}
 		
 		propertiesUI = new PropertiesUI(model);
@@ -264,7 +259,7 @@ class GeneralPaneUI
 	}
 	
 	/** Shows the image's info. */
-    void showChannelData()
+    void setChannelData()
     { 
     	Object refObject = model.getRefObject();
     	if (refObject instanceof ImageData) 

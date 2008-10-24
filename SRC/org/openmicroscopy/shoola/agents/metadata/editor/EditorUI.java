@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -40,7 +41,7 @@ import javax.swing.JTabbedPane;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -95,11 +96,9 @@ public class EditorUI
 		generalPane = new GeneralPaneUI(this, model, controller);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
-		IconManager icons = IconManager.getInstance();
-		tabbedPane.addTab("General", icons.getIcon(IconManager.ANNOTATION), 
-				generalPane, "General Information");
-		tabbedPane.addTab("Acquisition", icons.getIcon(IconManager.ANNOTATION), 
-				acquisitionPane, "Acquisition Metadata");
+		tabbedPane.addTab("General", null, generalPane, "General Information");
+		tabbedPane.addTab("Acquisition", null, acquisitionPane, 
+				"Acquisition Metadata");
 	}
 	
 	/** Builds and lays out the components. */
@@ -114,6 +113,23 @@ public class EditorUI
 	/** Creates a new instance. */
 	EditorUI() {}
     
+	/**
+	 * Initiliases a <code>JXTaskPane</code>.
+	 * 
+	 * @param title The title of the component.
+	 * @return See above.
+	 */
+	static JXTaskPane createTaskPane(String title)
+	{
+		JXTaskPane taskPane = new JXTaskPane();
+		taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		taskPane.setTitle(title);
+		taskPane.setCollapsed(true);
+		Font font = taskPane.getFont();
+		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
+		return taskPane;
+	}
+	
     /**
      * Links this View to its Controller and its Model.
      * 
@@ -258,7 +274,8 @@ public class EditorUI
 	/** Shows the image's info. */
     void showChannelData()
     { 
-    	generalPane.showChannelData();
+    	generalPane.setChannelData();
+    	acquisitionPane.setChannelData();
     }
 
     /**
@@ -367,12 +384,22 @@ public class EditorUI
 		
 	}
 
+	/** 
+	 * Attaches the specified file.
+	 * 
+	 * @param file The file to attach.
+	 */
 	void attachFile(File file)
 	{
 		if (file == null) return;
 		generalPane.attachFile(file);
 	}
 
+	/** 
+	 * Removes the attached file.
+	 * 
+	 * @param file The file to remove.
+	 */
 	void removeAttachedFile(File file)
 	{
 		if (file == null) return;
