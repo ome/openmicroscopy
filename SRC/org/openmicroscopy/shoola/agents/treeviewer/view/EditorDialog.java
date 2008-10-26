@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -88,7 +89,7 @@ class EditorDialog
 	static final String				CREATE_NO_PARENT_PROPERTY = "createNoParent";
 	
     /** The default size of the dialog. */
-    private static final Dimension 	WIN_DIM = new Dimension(600, 350);
+    private static final Dimension 	WIN_DIM = new Dimension(600, 300);
    
     /** The default title of the window. */
     private static final String		TITLE = "Create";
@@ -114,6 +115,12 @@ class EditorDialog
     /** The objec to create. */
     private DataObject			data;
     
+    /** Box used to indicate that the new object will have group visibility. */
+    private JCheckBox			publicBox;
+    
+    /** Box used to indicate that the new object will be private. */
+    private JCheckBox			privateBox;
+    
     /** 
      * Sets to <code>true</code> if the object will have a parent,
      * <code>false</code> otherwise. 
@@ -129,138 +136,35 @@ class EditorDialog
     private JPanel buildPermissions()
     {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED} }; //rows
-        content.setLayout(new TableLayout(tl));
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        //The owner is the only person allowed to modify the permissions.
-        //boolean isOwner = model.isObjectOwner();
-        //Owner
-        JLabel label = UIUtilities.setTextFont(EditorUtil.OWNER);
-        JPanel p = new JPanel();
-        JCheckBox box =  new JCheckBox(EditorUtil.READ);
-        box.setSelected(true);
-        /*
-        box.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setUserRead(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        box =  new JCheckBox(EditorUtil.WRITE);
-        box.setSelected(true);
-        /*
-        box.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setUserWrite(source.isSelected());
-               view.setEdit(true);
-            }
-        
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        content.add(label, "0, 0, l, c");
-        content.add(p, "1, 0, l, c");  
-        //Group
-        label = UIUtilities.setTextFont(EditorUtil.GROUP);
-        p = new JPanel();
-        box =  new JCheckBox(EditorUtil.READ);
-        box.setSelected(true);
-        /*
-        box.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setGroupRead(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        box =  new JCheckBox(EditorUtil.WRITE);
-        box.setSelected(false);
-        /*
-        box.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setGroupWrite(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        content.add(label, "0, 1, l, c");
-        content.add(p, "1,1, l, c"); 
-        //OTHER
-        label = UIUtilities.setTextFont(EditorUtil.WORLD);
-        p = new JPanel();
-        box =  new JCheckBox(EditorUtil.READ);
-        box.setSelected(true);
-        /*
-        box.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setWorldRead(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        box =  new JCheckBox(EditorUtil.WRITE);
-        box.setSelected(false);
-        /*
-        box.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-               JCheckBox source = (JCheckBox) e.getSource();
-               permissions.setWorldWrite(source.isSelected());
-               view.setEdit(true);
-            }
-        });
-        */
-        //box.setEnabled(isOwner);
-        box.setEnabled(false);
-        p.add(box);
-        content.add(label, "0, 2, l, c");
-        content.add(p, "1, 2, l, c"); 
+    	content.add(privateBox);
+       	content.add(publicBox);
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
         return content;
     }
     
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+    	publicBox =  new JCheckBox(EditorUtil.PUBLIC);
+    	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
+    	publicBox.setEnabled(false);
+        privateBox =  new JCheckBox(EditorUtil.PRIVATE);
+        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+        privateBox.setSelected(true);
+        publicBox.setEnabled(false);
         nameArea = new JTextField();
-        UIUtilities.setTextAreaDefault(nameArea);
+        //UIUtilities.setTextAreaDefault(nameArea);
         nameArea.getDocument().addDocumentListener(this);
         descriptionArea = new MultilineLabel();
-        UIUtilities.setTextAreaDefault(descriptionArea);
+        //UIUtilities.setTextAreaDefault(descriptionArea);
         cancelButton = new JButton("Cancel");
+        cancelButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         cancelButton.setToolTipText("Close the dialog.");
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
         saveButton = new JButton("Create");
+        saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         saveButton.setToolTipText("Create a new item.");
         saveButton.addActionListener(this);
         saveButton.setActionCommand(""+SAVE);
@@ -283,19 +187,20 @@ class EditorDialog
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, height} }; //rows
+        				{TableLayout.PREFERRED, 5, height, 5, 
+        				TableLayout.PREFERRED} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
        
-        content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
-        content.add(nameArea, "1, 1, f, c");
-        content.add(new JLabel(), "0, 2, 1, 2");
-        content.add(UIUtilities.setTextFont("Description"), "0, 3, l, c");
-        content.add(new JScrollPane(descriptionArea), "1, 3, 1, 4");
+        content.add(UIUtilities.setTextFont("Name"), "0, 0, l, t");
+        content.add(nameArea, "1, 0");
+        content.add(UIUtilities.setTextFont("Description"), "0, 2, l, t");
+        content.add(new JScrollPane(descriptionArea), "1, 2");
+        content.add(buildPermissions(), "1, 4, l, t");
         return content;
     }
     
@@ -307,12 +212,15 @@ class EditorDialog
     public JPanel buildToolBar()
     {
     	JPanel bar = new JPanel();
+    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(saveButton);
     	bar.add(Box.createHorizontalStrut(10));
-    	return UIUtilities.buildComponentPanelRight(bar);
+    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	return p;
     }
     
     /**
@@ -350,6 +258,7 @@ class EditorDialog
     	contentPanel.setLayout(new BoxLayout(contentPanel, 
     								BoxLayout.Y_AXIS));
     	contentPanel.add(buildContentPanel());
+    	contentPanel.add(new JSeparator());
     	c.add(buildTitlePanel(), BorderLayout.NORTH);
         c.add(contentPanel, BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);

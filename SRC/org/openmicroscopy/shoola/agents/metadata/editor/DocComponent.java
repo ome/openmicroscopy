@@ -165,7 +165,7 @@ class DocComponent
 				initButton();
 				File f = (File) data;
 				label.setText(f.getName());
-				label.setForeground(Color.BLACK);
+				label.setForeground(Color.BLUE);
 			}
 		}
 			

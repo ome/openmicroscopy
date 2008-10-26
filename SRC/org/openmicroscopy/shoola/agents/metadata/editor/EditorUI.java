@@ -33,6 +33,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -41,6 +43,7 @@ import javax.swing.JTabbedPane;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -112,23 +115,6 @@ public class EditorUI
 	
 	/** Creates a new instance. */
 	EditorUI() {}
-    
-	/**
-	 * Initiliases a <code>JXTaskPane</code>.
-	 * 
-	 * @param title The title of the component.
-	 * @return See above.
-	 */
-	static JXTaskPane createTaskPane(String title)
-	{
-		JXTaskPane taskPane = new JXTaskPane();
-		taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		taskPane.setTitle(title);
-		taskPane.setCollapsed(true);
-		Font font = taskPane.getFont();
-		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
-		return taskPane;
-	}
 	
     /**
      * Links this View to its Controller and its Model.

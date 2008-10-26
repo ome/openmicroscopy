@@ -77,20 +77,9 @@ class ImageAcquisitionComponent
 	/** Initiliases the components. */
 	private void initComponents()
 	{
-		immersionBox = new JComboBox(Mapper.IMMERSIONS);
-		immersionBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-		Font f = immersionBox.getFont();
-		int size = f.getSize()-2;
-		immersionBox.setBorder(null);
-		immersionBox.setFont(f.deriveFont(f.getStyle(), size));
-		coatingBox = new JComboBox(Mapper.COATING);
-		coatingBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-		coatingBox.setBorder(null);
-		coatingBox.setFont(f.deriveFont(f.getStyle(), size));
-		mediumBox = new JComboBox(Mapper.MEDIUM);
-		mediumBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-		mediumBox.setBorder(null);
-		mediumBox.setFont(f.deriveFont(f.getStyle(), size));
+		immersionBox = EditorUtil.createComboBox(Mapper.IMMERSIONS);
+		coatingBox = EditorUtil.createComboBox(Mapper.COATING);
+		mediumBox = EditorUtil.createComboBox(Mapper.MEDIUM);
 	}
 	
 	/** 
@@ -136,7 +125,7 @@ class ImageAcquisitionComponent
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
+            //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
@@ -192,7 +181,7 @@ class ImageAcquisitionComponent
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
+            //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
@@ -248,7 +237,7 @@ class ImageAcquisitionComponent
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
+            //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
@@ -301,7 +290,7 @@ class ImageAcquisitionComponent
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
+            //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }

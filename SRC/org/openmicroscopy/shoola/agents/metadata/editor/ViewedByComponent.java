@@ -69,12 +69,15 @@ class ViewedByComponent
 	/** Reference to the model. */
 	private EditorModel		model;
 	
+	/** The label hosting the name. */
+	private JLabel			nameLabel;
+	
 	/** Display thumbnail. */
 	private void rollOver()
 	{
 		if (thumbnail == null) return;
 		RollOverThumbnailManager.rollOverDisplay(thumbnail, 
-				getBounds(), getLocationOnScreen(), "");
+				nameLabel.getBounds(), nameLabel.getLocationOnScreen(), "");
 	}
 	
 	/** Initialises the component. */
@@ -82,12 +85,12 @@ class ViewedByComponent
 	{
 		setBorder(null);
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		JLabel label = new JLabel();
-		label.setBackground(UIUtilities.BACKGROUND_COLOR);
-		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-		label.setToolTipText("Click on name to launch a Viewer.");
-		label.setText(def.toString());
-		label.addMouseListener(new MouseAdapter() {
+		nameLabel = new JLabel();
+		nameLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		nameLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+		nameLabel.setToolTipText("Click on name to launch a Viewer.");
+		nameLabel.setText(def.toString());
+		nameLabel.addMouseListener(new MouseAdapter() {
 		
 			/**
 			 * Views the image.
@@ -114,7 +117,7 @@ class ViewedByComponent
 		
 		});
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(label);
+		add(nameLabel);
 	}
 	
 	/**
@@ -140,9 +143,6 @@ class ViewedByComponent
 	 * 
 	 * @param thumbnail The value to set.
 	 */
-	void setThumbnail(BufferedImage thumbnail)
-	{
-		this.thumbnail = thumbnail;
-	}
+	void setThumbnail(BufferedImage thumbnail) { this.thumbnail = thumbnail; }
 	
 }

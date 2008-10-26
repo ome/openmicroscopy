@@ -352,11 +352,14 @@ public class IconManager
     /** ID of the <code>Backward</code> icon. */
     public static final int BACKWARD = 99;
     
+    /** ID of the <code>Backward</code> icon. */
+    public static final int ACQUISITION = 100;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 99;
+    private static int      MAX_ID = 100;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -443,10 +446,10 @@ public class IconManager
         relPaths[CLOSE] = "nuvola_fileclose16.png";
         relPaths[CLOSE_OVER] = "filecloseRed16.png";
         relPaths[HELP] = "nuvola_help16.png";
-        relPaths[HELP_48] ="nuvola_help48.png";
-        relPaths[ANNOTATION] ="nuvola_kwrite16.png";
-        relPaths[FILE_ANNOTATION] ="nuvola_attach16.png";
-        relPaths[URL_ANNOTATION] ="nuvola_browser16.png";
+        relPaths[HELP_48] = "nuvola_help48.png";
+        relPaths[ANNOTATION] = "nuvola_kwrite16.png";
+        relPaths[FILE_ANNOTATION] = "nuvola_attach16.png";
+        relPaths[URL_ANNOTATION] = "nuvola_browser16.png";
         relPaths[START_SELECTED] = "nuvola_mozilla16.png";
         relPaths[START_UNSELECTED] = "mozilla_grey16.png";
         relPaths[BROKEN_FILE96] = "nuvola_file_broken96.png";
@@ -464,6 +467,7 @@ public class IconManager
         relPaths[BROWSER] = "nuvola_browser16.png";
         relPaths[FORWARD] = "eclipse_forward_nav16.png";
         relPaths[BACKWARD] = "eclipse_backward_nav16.png";
+        relPaths[ACQUISITION] = "nuvola_help48.png";
     }
     
     /** 

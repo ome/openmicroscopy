@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -59,6 +60,7 @@ class AcquisitionDataUI
 
 	/** The default text of the channel. */
 	private static final String			DEFAULT_CHANNEL_TEXT = "Channel ";
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -82,7 +84,7 @@ class AcquisitionDataUI
 	{
 		channelAcquisitionPanes = new ArrayList<JXTaskPane>();
 		imageAcquisition = new ImageAcquisitionComponent(model);
-		imagePane = EditorUI.createTaskPane("Image");
+		imagePane = EditorUtil.createTaskPane("Image");
 		imagePane.add(imageAcquisition);
 	}
 	
@@ -149,7 +151,7 @@ class AcquisitionDataUI
 			while (i.hasNext()) {
 				channel = (ChannelMetadata) i.next();
 				comp = new ChannelAcquisitionComponent(channel);
-				p = EditorUI.createTaskPane(DEFAULT_CHANNEL_TEXT+
+				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getEmissionWavelength());
 				p.add(comp);
 				channelAcquisitionPanes.add(p);

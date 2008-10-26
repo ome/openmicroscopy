@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
+import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -36,9 +37,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -242,6 +250,27 @@ public class EditorUtil
 	
 	/** Identifies the Stage label <code>Position Z</code> field. */
 	public static final String	POSITION_Z = "Position Z";
+	
+	/** Identifies the <code>Type</code> field. */
+	public static final String	TYPE = "Type";
+	
+	/** Identifies the  <code>Voltage</code> field. */
+	public static final String	VOLTAGE = "Voltage";
+	
+	/** Identifies the  <code>Gain</code> field. */
+	public static final String	GAIN = "Gain";
+	
+	/** Identifies the  <code>Offset</code> field. */
+	public static final String	OFFSET = "Offset";
+	
+	/** Identifies the  <code>Read out rate</code> field. */
+	public static final String	READ_OUT_RATE = "Read out rate";
+	
+	/** Identifies the  <code>Binning</code> field. */
+	public static final String	BINNING = "Binnning";
+	
+	/** Identifies the  <code>Aplication</code> field. */
+	public static final String	APLIFICATION = "Aplification";
 	
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
@@ -850,5 +879,94 @@ public class EditorUtil
     	return details;
     }
     
+    /**
+     * Transforms the detector and its settings.
+     * 
+     * @param detector 			The value to convert.
+     * @param detectorSettings	The value to convert.
+     * @return See above.
+     */
+    public static Map<String, String> transformDectector(Object detector, 
+    					Object detectorSettings)
+    {
+    	LinkedHashMap<String, String> 
+			details = new LinkedHashMap<String, String>(7);
+    	details.put(TYPE, "");
+    	details.put(VOLTAGE, "");
+    	details.put(GAIN, "");
+    	details.put(OFFSET, "");
+    	details.put(READ_OUT_RATE, "");
+    	details.put(BINNING, "");
+    	details.put(APLIFICATION, "");
+    	return details;
+    }
     
+    /**
+     * Transforms the detector.
+     * 
+     * @param detector The value to convert.
+     * @return See above.
+     */
+    public static Map<String, String> transformDectector(Object detector)
+    {
+    	LinkedHashMap<String, String> 
+			details = new LinkedHashMap<String, String>(4);
+    	details.put(TYPE, "");
+    	details.put(VOLTAGE, "");
+    	details.put(GAIN, "");
+    	details.put(OFFSET, "");
+    	return details;
+    }
+    
+    /**
+	 * Initialises a <code>JComboBox</code>.
+	 * 
+	 * @param values The values to display.
+	 * @return See above.
+	 */
+    public static JComboBox createComboBox(String[] values)
+	{
+		JComboBox box = new JComboBox(values);
+		box.setBackground(UIUtilities.BACKGROUND_COLOR);
+		box.setUI(new BasicComboBoxUI() {
+			 
+			
+	        /**
+	         * Hides the arrow Button.
+	         * 
+	         */
+	         protected JButton createArrowButton() {
+	        	
+	        	JButton b = super.createArrowButton();
+	          	b.setVisible(false);
+	            return b;
+	         }
+	         
+	      });
+
+		Font f = box.getFont();
+		int size = f.getSize()-3;
+		box.setBorder(null);
+		box.setFont(f.deriveFont(Font.ITALIC, size));
+		return box;
+	}
+    
+    
+	/**
+	 * Initiliases a <code>JXTaskPane</code>.
+	 * 
+	 * @param title The title of the component.
+	 * @return See above.
+	 */
+	public static JXTaskPane createTaskPane(String title)
+	{
+		JXTaskPane taskPane = new JXTaskPane();
+		taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		taskPane.setTitle(title);
+		taskPane.setCollapsed(true);
+		Font font = taskPane.getFont();
+		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
+		return taskPane;
+	}
+	
 }

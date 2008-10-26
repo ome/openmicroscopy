@@ -72,12 +72,6 @@ class ToolBar
 	/** Button to download the original image. */
 	private JButton			downloadButton;
 
-	/** The decorator. */
-	private JPanel			decorator;
-	
-	/** The decorator. */
-	private JPanel			annotation;
-	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
 
@@ -125,9 +119,6 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		
-		decorator = new JPanel();
-    	decorator.setLayout(new BoxLayout(decorator, BoxLayout.X_AXIS));
-    	
     	busyLabel = new JXBusyLabel(new Dimension(w, h));
     	busyLabel.setEnabled(true);
     	busyLabel.setVisible(false);

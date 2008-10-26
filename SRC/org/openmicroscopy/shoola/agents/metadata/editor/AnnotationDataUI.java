@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
@@ -162,7 +161,7 @@ class AnnotationDataUI
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		tagsPane = new JTextPane();
-		tagsPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		//tagsPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		tagsPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		tagsPane.setText(DEFAULT_TEXT);
 		urlPane = new JPanel();

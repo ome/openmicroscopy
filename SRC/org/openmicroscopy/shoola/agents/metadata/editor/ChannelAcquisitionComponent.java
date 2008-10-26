@@ -30,6 +30,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -74,27 +77,79 @@ class ChannelAcquisitionComponent
 	/** The component displaying the contrast Method options. */
 	private JComboBox		modeBox;
 	
+	/** The component displaying the binning options. */
+	private JComboBox		binningBox;
+	
+	/** The component displaying the binning options. */
+	private JComboBox		detectorBox;
+	
 	/** Initializes the components */
 	private void initComponents()
 	{
-		illuminationBox = new JComboBox(Mapper.ILLUMINATION);
-		illuminationBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-		Font f = illuminationBox.getFont();
-		int size = f.getSize()-2;
-		illuminationBox.setBorder(null);
-		illuminationBox.setFont(f.deriveFont(f.getStyle(), size));
-		
-		contrastMethodBox = new JComboBox(Mapper.CONSTRAST_METHOD);
-		contrastMethodBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-		contrastMethodBox.setBorder(null);
-		contrastMethodBox.setFont(f.deriveFont(f.getStyle(), size));
-		
-		modeBox = new JComboBox(Mapper.MODE);
-		modeBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-		modeBox.setBorder(null);
-		modeBox.setFont(f.deriveFont(f.getStyle(), size));
+		illuminationBox = EditorUtil.createComboBox(Mapper.ILLUMINATION);
+		contrastMethodBox = EditorUtil.createComboBox(Mapper.CONSTRAST_METHOD);
+		modeBox = EditorUtil.createComboBox(Mapper.MODE);
+		binningBox = EditorUtil.createComboBox(Mapper.BINNING);
+		detectorBox = EditorUtil.createComboBox(Mapper.DETECTOR_TYPE);
 	}
 	
+	 /**
+     * Builds and lays out the body displaying the channel info.
+     * 
+     * @return See above.
+     */
+    private JPanel buildDetector()
+    {
+        Map<String, String> details = EditorUtil.transformDectector(null, null);
+        JPanel content = new JPanel();
+        content.setBorder(BorderFactory.createTitledBorder("Detector"));
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        content.setLayout(new GridBagLayout());
+        //content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(0, 2, 2, 0);
+        Iterator i = details.keySet().iterator();
+        JLabel label;
+        JComponent area;
+        String key, value;
+        label = new JLabel();
+        Font font = label.getFont();
+        int sizeLabel = font.getSize()-2;
+        while (i.hasNext()) {
+            ++c.gridy;
+            c.gridx = 0;
+            key = (String) i.next();
+            value = details.get(key);
+            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+            label.setBackground(UIUtilities.BACKGROUND_COLOR);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            if (key.equals(EditorUtil.BINNING)) {
+            	area = binningBox;
+            } else if (key.equals(EditorUtil.TYPE)) {
+            	area = detectorBox;
+            } else area = UIUtilities.createComponent(JTextArea.class, null);
+            if (value == null || value.equals("")) {
+            	value = AnnotationUI.DEFAULT_TEXT;
+            }
+            if (area instanceof JTextArea) {
+            	 ((JTextArea) area).setEditable(false);
+            	 ((JTextArea) area).setText(value);
+            }
+            label.setLabelFor(area);
+            c.gridx = 1;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(area, c);  
+        }
+        return content;
+    }
+    
 	 /**
      * Builds and lays out the body displaying the channel info.
      * 
@@ -104,6 +159,7 @@ class ChannelAcquisitionComponent
     {
         Map<String, String> details = EditorUtil.transformChannelData(channel);
         JPanel content = new JPanel();
+        content.setBorder(BorderFactory.createTitledBorder("Info"));
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         content.setLayout(new GridBagLayout());
         //content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -146,7 +202,7 @@ class ChannelAcquisitionComponent
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
+            //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
@@ -157,7 +213,9 @@ class ChannelAcquisitionComponent
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	add(buildChannelInfo());
+    	add(buildDetector());
     }
     
 	/**

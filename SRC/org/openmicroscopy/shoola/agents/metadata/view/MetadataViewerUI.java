@@ -199,7 +199,7 @@ class MetadataViewerUI
                     //model.browse(model.getHierarchyObject());
             }
         });
-        titlePanel.setIconComponent(label);
+        //titlePanel.setIconComponent(label);
         uiDelegate.revalidate();
 		uiDelegate.repaint();
 	}
