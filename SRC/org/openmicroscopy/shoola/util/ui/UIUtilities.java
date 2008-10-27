@@ -101,6 +101,11 @@ public class UIUtilities
 	/** The default background color. */
     public static final Color				BACKGROUND_COLOR = Color.WHITE;
     
+    /** The default background color. */
+    public static final Color				WINDOW_BACKGROUND_COLOR = 
+    										new Color(248, 248, 248);
+    
+    
 	/** The default color of the description. */
     public static final Color				DEFAULT_FONT_COLOR = Color.GRAY;
 

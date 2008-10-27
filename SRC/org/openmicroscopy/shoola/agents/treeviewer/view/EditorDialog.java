@@ -40,10 +40,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -138,7 +136,7 @@ class EditorDialog
         JPanel content = new JPanel();
     	content.add(privateBox);
        	content.add(publicBox);
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         return content;
     }
     
@@ -146,11 +144,11 @@ class EditorDialog
     private void initComponents()
     {
     	publicBox =  new JCheckBox(EditorUtil.PUBLIC);
-    	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	publicBox.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
     	publicBox.setEnabled(false);
         privateBox =  new JCheckBox(EditorUtil.PRIVATE);
-        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+        privateBox.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         privateBox.setSelected(true);
         publicBox.setEnabled(false);
         nameArea = new JTextField();
@@ -159,12 +157,12 @@ class EditorDialog
         descriptionArea = new MultilineLabel();
         //UIUtilities.setTextAreaDefault(descriptionArea);
         cancelButton = new JButton("Cancel");
-        cancelButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         cancelButton.setToolTipText("Close the dialog.");
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
         saveButton = new JButton("Create");
-        saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        saveButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         saveButton.setToolTipText("Create a new item.");
         saveButton.addActionListener(this);
         saveButton.setActionCommand(""+SAVE);
@@ -187,7 +185,7 @@ class EditorDialog
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, 5, height, 5, 
@@ -212,14 +210,14 @@ class EditorDialog
     public JPanel buildToolBar()
     {
     	JPanel bar = new JPanel();
-    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(saveButton);
     	bar.add(Box.createHorizontalStrut(10));
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	return p;
     }
     
@@ -258,9 +256,8 @@ class EditorDialog
     	contentPanel.setLayout(new BoxLayout(contentPanel, 
     								BoxLayout.Y_AXIS));
     	contentPanel.add(buildContentPanel());
-    	contentPanel.add(new JSeparator());
     	c.add(buildTitlePanel(), BorderLayout.NORTH);
-        c.add(contentPanel, BorderLayout.CENTER);
+        c.add(buildContentPanel(), BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
     }
     

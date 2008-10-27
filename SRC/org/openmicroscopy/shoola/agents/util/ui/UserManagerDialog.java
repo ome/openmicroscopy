@@ -44,7 +44,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -238,9 +237,11 @@ public class UserManagerDialog
 		sorter = new ViewerSorter();
 		orderedMap = new LinkedHashMap<GroupData, Object[]>();
 		cancel = new JButton("Cancel");
+		cancel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		cancel.setToolTipText(
 				UIUtilities.formatToolTipText(CANCEL_DESCRIPTION));
 		apply = new JButton("Apply");
+		apply.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		apply.setEnabled(false);
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
@@ -274,6 +275,7 @@ public class UserManagerDialog
 		
 		//sort by name
 		groups = new JComboBox(objects);
+		groups.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		groups.setRenderer(new GroupsRenderer());
 		
 		
@@ -297,21 +299,15 @@ public class UserManagerDialog
 	private JPanel buildContent()
 	{
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 5,
-			TableLayout.PREFERRED, TableLayout.FILL}}; //rows
+				{TableLayout.PREFERRED, 5, TableLayout.FILL}}; //rows
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		content.setLayout(new TableLayout(tl));
-		//content.add(currentUser, "1, 0");
-		JLabel label = UIUtilities.setTextFont("Groups");
-		label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		content.add(label, "0, 0, l, c");
-		content.add(groups, "1, 0, f, c");
-		content.add(new JLabel(), "0, 1, 1, 1");
-		label = UIUtilities.setTextFont("Users");
-		label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		content.add(label, "0, 2, l, c");
-		content.add(new JScrollPane(users), "1, 2, 1, 3");
+		content.add( UIUtilities.setTextFont("Groups"), "0, 0, l, t");
+		content.add(groups, "1, 0");
+		content.add(UIUtilities.setTextFont("Users"), "0, 2, l, t");
+		content.add(new JScrollPane(users), "1, 2");
+		content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return content;
 	}
 	
@@ -330,7 +326,10 @@ public class UserManagerDialog
 		bar.add(cancel);
 		bar.add(Box.createRigidArea(H_SPACER_SIZE));
 		bar.add(apply);
-		return UIUtilities.buildComponentPanelRight(bar);
+		JPanel p =  UIUtilities.buildComponentPanelRight(bar);
+		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		return p;
 	}
 	
 	/** 

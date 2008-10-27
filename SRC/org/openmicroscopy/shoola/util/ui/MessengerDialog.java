@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,6 +36,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -47,7 +50,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -113,7 +115,7 @@ public class MessengerDialog
 			"Your feedback will be used to further the development of " +
 			"OMERO and improve our software. Any personal details you " +
 			"provide are purely optional, and will only be used for " +
-			"development purposes.";
+			"development purposes.\n\n";
 	
 	/** The default message displayed. */
 	private static final String		DEBUG_MESSAGE = "An error message has " +
@@ -271,9 +273,9 @@ public class MessengerDialog
         emailArea.setText(emailAddress);
         commentArea = new MultilineLabel();
         commentArea.setEditable(true);
-        commentArea.setBorder(
-        		BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        commentArea.setBackground(Color.WHITE);
+        //commentArea.setBorder(
+        //		BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        commentArea.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         commentArea.setOpaque(true);
         if (exception != null) {
         	debugArea = buildExceptionArea();
@@ -427,13 +429,16 @@ public class MessengerDialog
 	private JPanel buildDebugPanel()
 	{
 		JPanel panel = new JPanel();
+		panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.setOpaque(false);
         double tableSize[][] = {{TableLayout.FILL}, // columns
         						{TableLayout.FILL, 32}}; // rows
         TableLayout layout = new TableLayout(tableSize);
         panel.setLayout(layout);       
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panel.add(new JScrollPane(debugArea), "0, 0");
+        JScrollPane pane = new JScrollPane(debugArea);
+        pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        panel.add(pane, "0, 0");
         panel.add(copyButton, "0, 1, c, b");
         return panel;
 	}
@@ -441,29 +446,21 @@ public class MessengerDialog
 	/**
 	 * Builds and lays out the panel hosting the comments.
 	 * 
-	 * @param instructions	The message explaining to the user what to do.
 	 * @param comment		The comment's text.
-	 * @param icon			The icon to display.
 	 * @return See above.
 	 */
-	private JPanel buildCommentPanel(String instructions, String comment, 
-									Icon icon)
+	private JPanel buildCommentPanel(String comment)
 	{
 		JPanel commentPanel = new JPanel();
-		
+		commentPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         int iconSpace = 0;
-        if (icon != null) iconSpace = icon.getIconWidth()+20;
         double tableSize[][] =  {{iconSpace, (160 - iconSpace), 
         						TableLayout.FILL}, // columns
-        						{100, 0, 30, TableLayout.FILL}}; // rows
+        						{0, 0, 30, TableLayout.FILL}}; // rows
 	    TableLayout layout = new TableLayout(tableSize);
 	    commentPanel.setLayout(layout);  
 	    commentPanel.setBorder(
 	    				BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	    
-	    if (icon != null)
-	    	commentPanel.add(new JLabel(icon), "0, 0, l, c");
-	    commentPanel.add(UIUtilities.buildTextPane(instructions), "1, 0, 2, 0");
 	    commentPanel.add(buildEmailAreaPanel('E'), "0, 2, 2, 2");
 	    commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 3, 2, 3");
 	    if (errorDescription != null && errorDescription.length() > 0) {
@@ -485,42 +482,62 @@ public class MessengerDialog
 	{
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false);
+        tPane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         IconManager icons = IconManager.getInstance();
         Icon icon = icons.getIcon(IconManager.ERROR_ICON_64);
         if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
-        tPane.addTab("Comments", null, 
-        		buildCommentPanel(DEBUG_MESSAGE, DEBUG_COMMENT_FIELD, icon), 
+        tPane.addTab("Comments", null, buildCommentPanel(DEBUG_COMMENT_FIELD), 
         		"Your comments go here.");
         tPane.addTab("Error Message", null, buildDebugPanel(),
         			"The Exception Message.");
 		return tPane;
 	}
 	
+    /**
+     * Builds and lays out the buttons.
+     * 
+     * @return See above.
+     */
+    public JPanel buildToolBar()
+    {
+    	JPanel bar = new JPanel();
+    	bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+    	bar.add(cancelButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(sendButton);
+    	bar.add(Box.createHorizontalStrut(10));
+    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
+    	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	return p;
+    }
+    
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
-		JPanel mainPanel = new JPanel();
-		mainPanel.setOpaque(false);
-		double tableSize[][] = {{TableLayout.FILL, 100, 5, 100, 10}, // columns
-								{TableLayout.FILL, 40}}; // rows
-        TableLayout layout = new TableLayout(tableSize);
-        mainPanel.setLayout(layout);       
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        //Add the buttons.
-        mainPanel.add(cancelButton, "1, 1, f, c");
-        mainPanel.add(sendButton, "3, 1, f, c");
         JComponent component;
+        Icon icon;
+        IconManager icons = IconManager.getInstance();
+        String message;
         if (exception == null) {
-        	IconManager icons = IconManager.getInstance();
-            Icon icon = icons.getIcon(IconManager.COMMENT_ICON_64);
+        	message = MESSAGE;
+            icon = icons.getIcon(IconManager.COMMENT_ICON_64);
             if (icon == null)
             	icon = UIManager.getIcon("OptionPane.questionIcon");
-        	component = buildCommentPanel(MESSAGE, COMMENT_FIELD, icon);
-        } else component = buildExceptionPane();
-        
-        mainPanel.add(component, "0, 0, 4, 0");
-		getContentPane().add(mainPanel, BorderLayout.CENTER);
+        	component = buildCommentPanel(COMMENT_FIELD);
+        	
+        } else {
+        	message = DEBUG_MESSAGE;
+        	component = buildExceptionPane();
+        	icon = icons.getIcon(IconManager.ERROR_ICON_64);
+            if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
+        }
+        Container c = getContentPane();
+        TitlePanel tp = new TitlePanel(getTitle(), message, icon);
+        c.setLayout(new BorderLayout(0, 0));
+        c.add(tp, BorderLayout.NORTH);
+		c.add(component, BorderLayout.CENTER);
+		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
 	/** 

@@ -33,6 +33,7 @@ import javax.swing.Icon;
 //Third-party libraries
 import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.painter.CompoundPainter;
+import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.painter.RectanglePainter;
@@ -61,11 +62,12 @@ import org.jdesktop.swingx.painter.RectanglePainter;
  * @since OME2.2
  */
 public class TitlePanel
-    extends JXHeader//JPanel
+    extends JXHeader
 {
     
     /** Default background color. */
-    private static final Color  BG_COLOR = new Color(0x417DDD);  
+    private static final Color  BG_COLOR = 
+    		UIUtilities.SELECTED_BACKGROUND_COLOUR.darker();//new Color(0x417DDD);  
     
     /**
      * Creates a new instance.
@@ -92,7 +94,7 @@ public class TitlePanel
     	MattePainter veil = new MattePainter(bgToTranslucent);
     	veil.setPaintStretched(true);
     	Painter backgroundPainter = new RectanglePainter(Color.white, null);
-    	Painter p = new CompoundPainter(backgroundPainter, veil, veil);
+    	Painter p = new CompoundPainter(backgroundPainter, veil, new GlossPainter());
     	setBackgroundPainter(p);
     }
     
