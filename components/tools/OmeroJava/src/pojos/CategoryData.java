@@ -7,11 +7,11 @@
 
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.Category;
 import omero.model.CategoryGroupCategoryLink;
 import omero.model.CategoryI;
@@ -92,7 +92,7 @@ public class CategoryData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asCategory().setName(new omero.RString(name));
+        asCategory().setName(rstring(name));
     }
 
     /**
@@ -102,11 +102,11 @@ public class CategoryData extends DataObject {
      */
     public String getName() {
         omero.RString n = asCategory().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -117,7 +117,7 @@ public class CategoryData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asCategory().setDescription(new omero.RString(description));
+        asCategory().setDescription(rstring(description));
     }
 
     /**
@@ -127,7 +127,7 @@ public class CategoryData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asCategory().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     // Singleton set.

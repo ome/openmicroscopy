@@ -6,6 +6,7 @@
  */
 package coverage;
 
+import static omero.rtypes.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,17 +33,17 @@ public class PojosTest extends IceTest {
     public void testFindAnnotations() throws Exception {
 
         ImageI i = new ImageI();
-        i.setName(new omero.RString("findAnnotationsTest"));
+        i.setName(rstring("findAnnotationsTest"));
 
         TextAnnotationI a = new TextAnnotationI();
-        a.setTextValue(new omero.RString("an annotation"));
+        a.setTextValue(rstring("an annotation"));
         i.linkAnnotation(a);
 
         i = (ImageI) ice.getSession().getUpdateService().saveAndReturnObject(i);
         a = (TextAnnotationI) i.linkedAnnotationList().get(0);
 
         Map<Long, List<IObject>> retVal = ice.getSession().getPojosService()
-                .findAnnotations("Image", Arrays.asList(i.getId().val), null,
+                .findAnnotations("Image", Arrays.asList(i.getId().getValue()), null,
                         null);
     }
 }

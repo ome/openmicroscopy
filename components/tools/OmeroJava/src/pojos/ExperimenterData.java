@@ -7,10 +7,10 @@
 
 package pojos;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.List;
 
+import static omero.rtypes.*;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.GroupExperimenterMap;
@@ -85,7 +85,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setFirstName(String firstName) {
         setDirty(true);
-        asExperimenter().setFirstName(new omero.RString(firstName));
+        asExperimenter().setFirstName(rstring(firstName));
     }
 
     /**
@@ -95,11 +95,11 @@ public class ExperimenterData extends DataObject {
      */
     public String getFirstName() {
         omero.RString n = asExperimenter().getFirstName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -110,7 +110,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setLastName(String lastName) {
         setDirty(true);
-        asExperimenter().setLastName(new omero.RString(lastName));
+        asExperimenter().setLastName(rstring(lastName));
     }
 
     /**
@@ -120,11 +120,11 @@ public class ExperimenterData extends DataObject {
      */
     public String getLastName() {
         omero.RString n = asExperimenter().getLastName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -135,7 +135,7 @@ public class ExperimenterData extends DataObject {
      */
     public void setEmail(String email) {
         setDirty(true);
-        asExperimenter().setEmail(new omero.RString(email));
+        asExperimenter().setEmail(rstring(email));
     }
 
     /**
@@ -145,7 +145,7 @@ public class ExperimenterData extends DataObject {
      */
     public String getEmail() {
         omero.RString e = asExperimenter().getEmail();
-        return e == null ? null : e.val;
+        return e == null ? null : e.getValue();
 
     }
 
@@ -158,7 +158,7 @@ public class ExperimenterData extends DataObject {
     public void setInstitution(String institution) {
         setDirty(true);
         asExperimenter().setInstitution(
-                institution == null ? null : new omero.RString(institution));
+                institution == null ? null : rstring(institution));
     }
 
     /**
@@ -168,7 +168,7 @@ public class ExperimenterData extends DataObject {
      */
     public String getInstitution() {
         omero.RString i = asExperimenter().getInstitution();
-        return i == null ? null : i.val;
+        return i == null ? null : i.getValue();
     }
 
     // Lazy loaded links

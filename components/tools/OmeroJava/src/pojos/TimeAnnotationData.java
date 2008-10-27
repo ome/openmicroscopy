@@ -22,14 +22,10 @@
  */
 package pojos;
 
-// Java imports
 import java.sql.Timestamp;
 
+import static omero.rtypes.rtime;
 import omero.model.TimestampAnnotation;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Basic time annotation.
@@ -76,7 +72,7 @@ public class TimeAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RTime t = ((TimestampAnnotation) asAnnotation()).getTimeValue();
-        return t == null ? null : new Timestamp(t.val);
+        return t == null ? null : new Timestamp(t.getValue());
     }
 
     /**
@@ -105,7 +101,7 @@ public class TimeAnnotationData extends AnnotationData {
                     + "Timestamp");
         }
         long time = ((Timestamp) content).getTime();
-        ((TimestampAnnotation) asAnnotation()).setTimeValue(new omero.RTime(
+        ((TimestampAnnotation) asAnnotation()).setTimeValue(rtime(
                 time));
     }
 

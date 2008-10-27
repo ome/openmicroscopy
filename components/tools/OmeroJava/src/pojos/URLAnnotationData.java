@@ -22,14 +22,9 @@
  */
 package pojos;
 
-// Java imports
-
-// Third-party libraries
-import omero.model.TagAnnotation;
+import static omero.rtypes.*;
 import omero.model.UrlAnnotation;
 import omero.model.UrlAnnotationI;
-
-// Application-internal dependencies
 
 /**
  * Define a URL Annotation. Note that a URL annotation is a specific text
@@ -102,7 +97,7 @@ public class URLAnnotationData extends AnnotationData {
      */
     public void setURL(String url) {
         validateURL(url);
-        ((UrlAnnotation) asAnnotation()).setTextValue(new omero.RString(url));
+        ((UrlAnnotation) asAnnotation()).setTextValue(rstring(url));
     }
 
     /**
@@ -122,7 +117,7 @@ public class URLAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RString s = ((UrlAnnotation) asAnnotation()).getTextValue();
-        return s == null ? null : s.val;
+        return s == null ? null : s.getValue();
     }
 
     /**

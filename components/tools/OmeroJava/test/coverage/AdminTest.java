@@ -6,7 +6,7 @@
  */
 package coverage;
 
-import omero.JString;
+import static omero.rtypes.*;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.model.Experimenter;
@@ -29,7 +29,7 @@ public class AdminTest extends IceTest {
         assertNotNull(prx);
         long id = newUser(prx);
         Experimenter e = prx.getExperimenter(id);
-        prx.changeUserPassword(e.getOmeName().val, new JString("foo"));
+        prx.changeUserPassword(e.getOmeName().getValue(), rstring("foo"));
     }
 
     // ~ Helpers
@@ -37,9 +37,9 @@ public class AdminTest extends IceTest {
 
     private long newUser(IAdminPrx prx) throws ServerError {
         Experimenter e = new ExperimenterI();
-        e.setFirstName(new JString("admin"));
-        e.setLastName(new JString("test"));
-        e.setOmeName(new JString(Ice.Util.generateUUID()));
+        e.setFirstName(rstring("admin"));
+        e.setLastName(rstring("test"));
+        e.setOmeName(rstring(Ice.Util.generateUUID()));
         long id = prx.createUser(e, "default");
         return id;
     }

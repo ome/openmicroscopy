@@ -39,6 +39,8 @@ import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.util.GuiCommonElements.WholeNumberField;
+
+import static omero.rtypes.*;
 import omero.RLong;
 import omero.RString;
 import omero.model.Dataset;
@@ -347,7 +349,7 @@ public class ImportDialog extends JDialog implements ActionListener
             {
                 RLong pId = projectItems[i].getProject().getId();
 
-                if (pId != null && pId.val == savedProject)
+                if (pId != null && pId.getValue() == savedProject)
                 {
                     pbox.setSelectedIndex(i);
 
@@ -371,7 +373,7 @@ public class ImportDialog extends JDialog implements ActionListener
                             addDatasetBtn.setEnabled(true);
                             importBtn.setEnabled(true);
                             dbox.addItem(datasetItems[k]);
-                            if (dId != null && dId.val == savedDataset)
+                            if (dId != null && dId.getValue() == savedDataset)
                             {
                                 dbox.setSelectedIndex(k);
                             }                        
@@ -393,7 +395,7 @@ public class ImportDialog extends JDialog implements ActionListener
             for (int k = 0; k < projectItems.length; k++ )
             {
                 RLong pId = projectItems[k].getProject().getId();                
-                if (pId != null && pId.val == savedProject)
+                if (pId != null && pId.getValue() == savedProject)
                 {
                     pbox.insertItemAt(projectItems[k], k);
                     pbox.setSelectedIndex(k);
@@ -418,7 +420,7 @@ public class ImportDialog extends JDialog implements ActionListener
             addDatasetBtn.setEnabled(true);
             importBtn.setEnabled(true);
             dbox.insertItemAt(datasetItems[k], k);
-            if (dId != null && dId.val == savedDataset)
+            if (dId != null && dId.getValue() == savedDataset)
             {
                 dbox.setSelectedIndex(k);
             }                        
@@ -461,8 +463,8 @@ public class ImportDialog extends JDialog implements ActionListener
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
             userPrefs.putLong("savedProject", 
-                    ((ProjectItem) pbox.getSelectedItem()).getProject().getId().val);
-            userPrefs.putLong("savedDataset", dataset.getId().val);
+                    ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
+            userPrefs.putLong("savedDataset", dataset.getId().getValue());
             if (fullPathButton.isSelected() == true)
                 userPrefs.putBoolean("savedFileNaming", true);
             else 
@@ -552,11 +554,11 @@ class DatasetItem
     public String toString()
     {
         if (dataset == null) return "";
-        return dataset.getName().val;
+        return dataset.getName().getValue();
     }
 
     public Long getId() {
-        return dataset.getId().val;
+        return dataset.getId().getValue();
     }
 
     public static DatasetItem[] createDatasetItems(List<Dataset> datasets)
@@ -572,7 +574,7 @@ class DatasetItem
     public static DatasetItem[] createEmptyDataset()
     {
         DatasetI d = new DatasetI();
-        d.setName(new RString("--- Empty Set ---"));
+        d.setName(rstring("--- Empty Set ---"));
         DatasetItem[] items = new DatasetItem[1];
         items[0] = new DatasetItem(d);
         return items;
@@ -596,19 +598,19 @@ class ProjectItem
     @Override
     public String toString()
     {
-        return project.getName().val;
+        return project.getName().getValue();
     }
 
     public Long getId()
     {
-        return project.getId().val;
+        return project.getId().getValue();
     }
 
     public static ProjectItem[] createProjectItems(List<Project> projects)
     {
         ProjectItem[] items = new ProjectItem[projects.size() + 1];
         ProjectI p = new ProjectI();
-        p.setName(new RString("--- Select Project ---"));
+        p.setName(rstring("--- Select Project ---"));
         items[0] = new ProjectItem(p);
 
         for (int i = 1; i < (projects.size() + 1); i++)

@@ -7,12 +7,12 @@
 
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectI;
@@ -83,7 +83,7 @@ public class ProjectData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asProject().setName(new omero.RString(name));
+        asProject().setName(rstring(name));
     }
 
     /**
@@ -93,11 +93,11 @@ public class ProjectData extends DataObject {
      */
     public String getName() {
         omero.RString n = asProject().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -108,7 +108,7 @@ public class ProjectData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asProject().setDescription(new omero.RString(description));
+        asProject().setDescription(rstring(description));
     }
 
     /**
@@ -118,7 +118,7 @@ public class ProjectData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asProject().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     /**

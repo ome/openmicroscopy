@@ -7,11 +7,11 @@
 
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.CategoryGroup;
 import omero.model.CategoryGroupCategoryLink;
 import omero.model.CategoryGroupI;
@@ -80,7 +80,7 @@ public class CategoryGroupData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asCategoryGroup().setName(new omero.RString(name));
+        asCategoryGroup().setName(rstring(name));
     }
 
     /**
@@ -90,11 +90,11 @@ public class CategoryGroupData extends DataObject {
      */
     public String getName() {
         omero.RString n = asCategoryGroup().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null.");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -105,7 +105,7 @@ public class CategoryGroupData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asCategoryGroup().setDescription(new omero.RString(description));
+        asCategoryGroup().setDescription(rstring(description));
     }
 
     /**
@@ -115,7 +115,7 @@ public class CategoryGroupData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asCategoryGroup().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     // Lazy loaded sets

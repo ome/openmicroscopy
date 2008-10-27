@@ -7,7 +7,6 @@
 
 package pojos;
 
-// Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +19,8 @@ import java.util.Set;
 
 import ome.model.IAnnotated;
 import ome.model.IMutable;
+
+import static omero.rtypes.*;
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.Category;
@@ -233,7 +234,7 @@ public abstract class DataObject {
      */
     public long getId() {
         return value.getId() == null ? -1 : (value.getId() == null ? -1 : value
-                .getId().val);
+                .getId().getValue());
     }
 
     /**
@@ -244,7 +245,7 @@ public abstract class DataObject {
      */
     public void setId(long id) {
         setDirty(true);
-        value.setId(new omero.RLong(id));
+        value.setId(rlong(id));
     }
 
     /**
@@ -327,7 +328,7 @@ public abstract class DataObject {
     }
 
     protected int nullSafe(omero.RInt i) {
-        return i == null ? 0 : i.val;
+        return i == null ? 0 : i.getValue();
     }
 
     protected long nullSafe(Long l) {
@@ -343,14 +344,14 @@ public abstract class DataObject {
     }
 
     protected float nullSafe(omero.RFloat f) {
-        return f == null ? 0.0f : f.val;
+        return f == null ? 0.0f : f.getValue();
     }
 
     protected Timestamp timeOfEvent(Event event) {
         if (event == null || !event.isLoaded() || event.getTime() == null) {
             throw new IllegalStateException("Event does not contain timestamp.");
         }
-        return new Timestamp(event.getTime().val);
+        return new Timestamp(event.getTime().getValue());
     }
 
     protected boolean nullDetails() {

@@ -22,14 +22,9 @@
  */
 package pojos;
 
+import static omero.rtypes.*;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Annotation used to rate an object. The five starts approach is selected.
@@ -137,7 +132,7 @@ public class RatingAnnotationData extends AnnotationData {
      */
     public void setRating(int value) {
         checkValue(value);
-        omero.RLong l = new omero.RLong(value);
+        omero.RLong l = rlong(value);
         ((LongAnnotation) asAnnotation()).setLongValue(l);
     }
 
@@ -149,7 +144,7 @@ public class RatingAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RLong l = ((LongAnnotation) asAnnotation()).getLongValue();
-        return l == null ? null : l.val;
+        return l == null ? null : l.getValue();
     }
 
     /**

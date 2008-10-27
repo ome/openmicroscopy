@@ -22,11 +22,11 @@
  */
 package pojos;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static omero.rtypes.*;
 import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
@@ -87,7 +87,7 @@ public class WellData extends DataObject {
      */
     public String getExternalDescription() {
         omero.RString d = asWell().getExternalDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     /**
@@ -98,7 +98,7 @@ public class WellData extends DataObject {
      */
     public String getWellType() {
         omero.RString t = asWell().getType();
-        return t == null ? null : t.val;
+        return t == null ? null : t.getValue();
     }
 
     /**
@@ -110,7 +110,7 @@ public class WellData extends DataObject {
     public void setExternalDescription(String description) {
         setDirty(true);
         asWell().setExternalDescription(
-                description == null ? null : new omero.RString(description));
+                description == null ? null : rstring(description));
     }
 
     /**
@@ -142,7 +142,7 @@ public class WellData extends DataObject {
      */
     public Integer getColumn() {
         omero.RInt c = asWell().getColumn();
-        return c == null ? null : c.val;
+        return c == null ? null : c.getValue();
     }
 
     /**
@@ -152,7 +152,7 @@ public class WellData extends DataObject {
      */
     public Integer getRow() {
         omero.RInt r = asWell().getRow();
-        return r == null ? null : r.val;
+        return r == null ? null : r.getValue();
     }
 
     /**

@@ -119,9 +119,9 @@ public class FileQueueHandler
                     return;
                 
                 addFileToQueue(file, dialog.dataset,
-                        dialog.dataset.getName().val, dialog.project.getName().val, 
+                        dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
                         dialog.useFullPath, dialog.numOfDirectories, 
-                        dialog.archiveImage.isSelected(), dialog.project.getId().val);
+                        dialog.archiveImage.isSelected(), dialog.project.getId().getValue());
             } else { 
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
@@ -173,12 +173,12 @@ public class FileQueueHandler
                 {
                     if (f.isFile()) 
                         addFileToQueue(f, dialog.dataset, 
-                                dialog.dataset.getName().val, 
-                                dialog.project.getName().val,
+                                dialog.dataset.getName().getValue(), 
+                                dialog.project.getName().getValue(),
                                 dialog.useFullPath, 
                                 dialog.numOfDirectories,
                                 dialog.archiveImage.isSelected(),
-                                dialog.project.getId().val);
+                                dialog.project.getId().getValue());
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -339,7 +339,7 @@ public class FileQueueHandler
         row.add(imageName);
         row.add(project + "/" + dName);
         row.add("added");
-        row.add(dataset.getId().val);
+        row.add(dataset.getId().getValue());
         row.add(file);
         row.add(archiveImage);
         row.add(projectID);
@@ -478,7 +478,7 @@ public class FileQueueHandler
                 file = new File((String) historyTable.table.getValueAt(r, 4));
                 
                 try {
-                    datasetName = store.getDataset(datasetID).getName().val;
+                    datasetName = store.getDataset(datasetID).getName().getValue();
                 } catch (Exception e)
                 {
                     //System.err.println("failed getDatasetName:" + datasetID);
@@ -488,7 +488,7 @@ public class FileQueueHandler
 
                 
                 try {
-                    projectName = store.getProject(projectID).getName().val;
+                    projectName = store.getProject(projectID).getName().getValue();
                 } catch (Exception e)
                 {
                     //System.err.println("failed getProjectName:" + projectID);
@@ -503,7 +503,7 @@ public class FileQueueHandler
                 row.add(projectName + "/" + datasetName);
                 row.add("added");
                 // FIXME: Blitz types are not serializable.
-                row.add(d.getId().val);
+                row.add(d.getId().getValue());
                 row.add(file);
                 row.add(false);
                 row.add(projectID);

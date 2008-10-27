@@ -6,7 +6,7 @@
  */
 package coverage;
 
-import omero.JString;
+import static omero.rtypes.*;
 import omero.api.IUpdatePrx;
 
 import org.testng.annotations.Test;
@@ -19,11 +19,11 @@ public class UpdateTest extends IceTest {
         assertNotNull(prx);
 
         omero.model.ImageI obj = new omero.model.ImageI();
-        obj.setName(new JString("foo"));
+        obj.setName(rstring("foo"));
 
         omero.model.CategoryImageLinkI link = new omero.model.CategoryImageLinkI();
         omero.model.CategoryI cat = new omero.model.CategoryI();
-        cat.setName(new JString("bar"));
+        cat.setName(rstring("bar"));
         link.setParent(cat);
         link.setChild(obj);
         obj.addCategoryImageLink(link);
@@ -32,11 +32,11 @@ public class UpdateTest extends IceTest {
         link = (omero.model.CategoryImageLinkI) obj.copyCategoryLinks().get(0);
         cat = (omero.model.CategoryI) link.getParent();
 
-        assertTrue("foo".equals(obj.getName().val));
+        assertTrue("foo".equals(obj.getName().getValue()));
         if (cat == null) {
             fail("Cat is null");
         } else {
-            assertTrue("bar".equals(cat.getName().val));
+            assertTrue("bar".equals(cat.getName().getValue()));
         }
     }
 
@@ -47,7 +47,7 @@ public class UpdateTest extends IceTest {
 
         String uuid = Ice.Util.generateUUID();
         omero.model.ImageI obj = new omero.model.ImageI();
-        obj.setName(new JString(uuid));
+        obj.setName(rstring(uuid));
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
 
         prx.deleteObject(obj);

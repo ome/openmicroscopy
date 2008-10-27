@@ -22,16 +22,11 @@
  */
 package pojos;
 
-// Java imports
 import java.io.File;
 
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.OriginalFile;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Annotation to upload files to the server.
@@ -252,7 +247,7 @@ public class FileAnnotationData extends AnnotationData {
         String unknown = "UNKNOWN OR NULL FORMAT";
         String format = f == null ? unknown : (f.getFormat() == null ? unknown
                 : (f.getFormat().getValue() == null ? unknown : f.getFormat()
-                        .getValue().val));
+                        .getValue().getValue()));
         if (SERVER_PDF.equals(format)) {
             return PDF;
         } else if (SERVER_CSV.equals(format)) {
@@ -326,7 +321,7 @@ public class FileAnnotationData extends AnnotationData {
         OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
         if (f != null) {
             if (f.getName() != null) {
-                return f.getName().val;
+                return f.getName().getValue();
             }
         }
         return "";
@@ -344,7 +339,7 @@ public class FileAnnotationData extends AnnotationData {
         OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
         if (f != null) {
             if (f.getPath() != null) {
-                return f.getPath().val;
+                return f.getPath().getValue();
             }
         }
         return "";
@@ -363,7 +358,7 @@ public class FileAnnotationData extends AnnotationData {
         if (f == null || f.getSize() == null) {
             return -1;
         }
-        return f.getSize().val;
+        return f.getSize().getValue();
     }
 
     /**
@@ -379,7 +374,7 @@ public class FileAnnotationData extends AnnotationData {
         if (f == null || f.getId() == null) {
             return -1;
         }
-        return f.getId().val;
+        return f.getId().getValue();
     }
 
     /**

@@ -22,15 +22,13 @@
  */
 package pojos;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import ome.util.CBlock;
-import omero.model.IObject;
+import static omero.rtypes.*;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.TagAnnotation;
@@ -239,7 +237,7 @@ public class TagAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RString s = ((TagAnnotation) asAnnotation()).getTextValue();
-        return s == null ? null : s.val;
+        return s == null ? null : s.getValue();
     }
 
     /**
@@ -270,7 +268,7 @@ public class TagAnnotationData extends AnnotationData {
         if (tag.trim().length() == 0) {
             throw new IllegalArgumentException("Tag value cannot be null.");
         }
-        ((TagAnnotation) asAnnotation()).setTextValue(new omero.RString(tag));
+        ((TagAnnotation) asAnnotation()).setTextValue(rstring(tag));
     }
 
 }

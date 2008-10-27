@@ -40,6 +40,17 @@ module omero {
    */
   ["protected"] class RType
   {
+    /**
+     * Equals-like functionality for all RTypes. A return value
+     * of 0 means they are equivalent and were almost certainly
+     * created by the same constructor call, e.g.
+     *
+     *   rbool(true).compare(rbool(true)) == 0
+     *
+     * This method was originally addd (Oct 2008) to force the
+     * base RType class to be abstract in all languages.
+     */
+    int compare(RType rhs);
   };
 
   /*

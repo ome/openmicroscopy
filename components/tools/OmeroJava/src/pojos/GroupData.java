@@ -7,11 +7,11 @@
 
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.GroupExperimenterMap;
@@ -72,11 +72,11 @@ public class GroupData extends DataObject {
      */
     public String getName() {
         omero.RString n = asGroup().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been be null");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -92,7 +92,7 @@ public class GroupData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asGroup().setName(new omero.RString(name));
+        asGroup().setName(rstring(name));
     }
 
     // Lazy loaded links

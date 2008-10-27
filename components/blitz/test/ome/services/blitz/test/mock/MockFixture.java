@@ -73,6 +73,9 @@ public class MockFixture {
                 "default -h 127.0.0.1");
         ObjectFactoryRegistrar.registerObjectFactory(communicator,
                 ObjectFactoryRegistrar.INSTANCE);
+        for (omero.rtypes.ObjectFactory of : omero.rtypes.ObjectFactories.values()) {
+            of.register(communicator);
+        }
         adapter.activate();
         // The following is a bit of spring magic so that we can configure
         // the adapter in code. If this can be pushed to BlitzConfiguration

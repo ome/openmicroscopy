@@ -7,12 +7,12 @@
 
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.Annotation;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
@@ -118,7 +118,7 @@ public class DatasetData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asDataset().setName(new omero.RString(name));
+        asDataset().setName(rstring(name));
     }
 
     /**
@@ -128,11 +128,11 @@ public class DatasetData extends DataObject {
      */
     public String getName() {
         omero.RString n = asDataset().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null.");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -143,7 +143,7 @@ public class DatasetData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asDataset().setDescription(new omero.RString(description));
+        asDataset().setDescription(rstring(description));
     }
 
     /**
@@ -153,7 +153,7 @@ public class DatasetData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asDataset().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     /**

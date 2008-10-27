@@ -22,15 +22,10 @@
  */
 package pojos;
 
+import static omero.rtypes.*;
 import omero.model.TagAnnotation;
 import omero.model.TextAnnotation;
 import omero.model.TextAnnotationI;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Basic textual annotation used to add comments to a given object.
@@ -98,7 +93,7 @@ public class TextualAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RString s = ((TextAnnotation) asAnnotation()).getTextValue();
-        return s == null ? null : s.val;
+        return s == null ? null : s.getValue();
     }
 
     /**
@@ -132,7 +127,7 @@ public class TextualAnnotationData extends AnnotationData {
                     "Annotation value cannot be null.");
         }
         ((TextAnnotation) asAnnotation())
-                .setTextValue(new omero.RString(value));
+                .setTextValue(rstring(value));
     }
 
 }

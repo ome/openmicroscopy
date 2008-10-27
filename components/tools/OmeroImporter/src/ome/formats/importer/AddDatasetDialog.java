@@ -43,6 +43,8 @@ import layout.TableLayout;
 
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.GuiCommonElements;
+
+import static omero.rtypes.*;
 import omero.RBool;
 import omero.RLong;
 import omero.RString;
@@ -155,7 +157,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             if (datasetName.trim().length() > 0)
             {
                 dataset = store.addDataset(datasetName, datasetDescription, project);
-                userPrefs.putLong("savedDataset", dataset.getId().val);
+                userPrefs.putLong("savedDataset", dataset.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");
@@ -173,10 +175,10 @@ public class AddDatasetDialog extends JDialog implements ActionListener
     {
         dataset = new DatasetI();
         if (name.length() != 0)
-            dataset.setName(new RString(name));
+            dataset.setName(rstring(name));
         if (description.length() != 0)
-            dataset.setDescription(new RString(description));
-        ProjectI p = new ProjectI(project.getId().val, false);
+            dataset.setDescription(rstring(description));
+        ProjectI p = new ProjectI(project.getId().getValue(), false);
         dataset.linkProject(p);
         
         DatasetI storedDataset = null;

@@ -22,14 +22,9 @@
  */
 package pojos;
 
+import static omero.rtypes.*;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Wraps a long annotation.
@@ -84,7 +79,7 @@ public class LongAnnotationData extends AnnotationData {
      *            class.
      */
     public void setDataValue(long value) {
-        omero.RLong l = new omero.RLong(value);
+        omero.RLong l = rlong(value);
         ((LongAnnotation) asAnnotation()).setLongValue(l);
     }
 
@@ -106,7 +101,7 @@ public class LongAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RLong l = ((LongAnnotation) asAnnotation()).getLongValue();
-        return l == null ? null : l.val;
+        return l == null ? null : l.getValue();
     }
 
     /**

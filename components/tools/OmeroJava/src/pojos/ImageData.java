@@ -7,7 +7,6 @@
 
 package pojos;
 
-// Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.Annotation;
 import omero.model.CategoryImageLink;
 import omero.model.DatasetImageLink;
@@ -142,7 +142,7 @@ public class ImageData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asImage().setName(new omero.RString(name));
+        asImage().setName(rstring(name));
     }
 
     /**
@@ -152,11 +152,11 @@ public class ImageData extends DataObject {
      */
     public String getName() {
         omero.RString n = asImage().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -168,7 +168,7 @@ public class ImageData extends DataObject {
     public void setDescription(String description) {
         setDirty(true);
         asImage().setDescription(
-                description == null ? null : new omero.RString(description));
+                description == null ? null : rstring(description));
     }
 
     /**
@@ -178,7 +178,7 @@ public class ImageData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asImage().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     /**

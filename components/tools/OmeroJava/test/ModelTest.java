@@ -8,6 +8,7 @@
 import java.util.HashMap;
 import java.util.Map;
 
+import static omero.rtypes.*;
 import junit.framework.TestCase;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -30,7 +31,7 @@ public class ModelTest extends TestCase {
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
         // arcI.unload();
-        arcI.setPower(new RFloat(1.0f));
+        arcI.setPower(rfloat(1.0f));
     }
 
     @Test
@@ -51,7 +52,7 @@ public class ModelTest extends TestCase {
     @Test
     public void testFillObject() throws Exception {
         ExperimenterI e = new ExperimenterI();
-        e.setOmeName(new RString("name"));
+        e.setOmeName(rstring("name"));
         e.linkExperimenterGroup(new ExperimenterGroupI());
         e.fillObject(new IceMapper());
 

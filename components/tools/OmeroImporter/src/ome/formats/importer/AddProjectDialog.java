@@ -124,7 +124,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
             if (projectName.trim().length() > 0)
             {
                 project = store.addProject(projectName, projectDescription);
-                userPrefs.putLong("savedProject", project.getId().val);
+                userPrefs.putLong("savedProject", project.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");

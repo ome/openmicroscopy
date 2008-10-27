@@ -22,14 +22,10 @@
  */
 package pojos;
 
+import static omero.rtypes.*;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Boolean annotation.
@@ -99,7 +95,7 @@ public class BooleanAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RBool b = ((BooleanAnnotation) asAnnotation()).getBoolValue();
-        return b == null ? null : b.val;
+        return b == null ? null : b.getValue();
     }
 
     /**
@@ -130,7 +126,7 @@ public class BooleanAnnotationData extends AnnotationData {
                     + "Boolean");
         }
 
-        omero.RBool b = new omero.RBool(((Boolean) content).booleanValue());
+        omero.RBool b = rbool(((Boolean) content).booleanValue());
         ((BooleanAnnotation) asAnnotation()).setBoolValue(b);
     }
 

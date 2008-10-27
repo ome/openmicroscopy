@@ -24,12 +24,7 @@ package pojos;
 
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
+import static omero.rtypes.*;
 
 /**
  * Boolean annotation used to see if an image has been archived or not.
@@ -108,7 +103,7 @@ public class ArchivedAnnotationData extends AnnotationData {
     @Override
     public Object getContent() {
         omero.RBool b = ((BooleanAnnotation) asAnnotation()).getBoolValue();
-        return b == null ? null : b.val;
+        return b == null ? null : b.getValue();
     }
 
     /**
@@ -138,7 +133,7 @@ public class ArchivedAnnotationData extends AnnotationData {
             throw new IllegalArgumentException("Object must be of type "
                     + "Boolean");
         }
-        omero.RBool b = new omero.RBool(((Boolean) content).booleanValue());
+        omero.RBool b = rbool(((Boolean) content).booleanValue());
         ((BooleanAnnotation) asAnnotation()).setBoolValue(b);
     }
 

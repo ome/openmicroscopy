@@ -7,16 +7,11 @@
 
 package pojos;
 
+import static omero.rtypes.*;
 import omero.model.Pixels;
 import omero.model.PixelsDimensions;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
@@ -130,7 +125,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeX(int sizeX) {
         setDirty(true);
-        asPixels().setSizeX(new omero.RInt(sizeX));
+        asPixels().setSizeX(rint(sizeX));
     }
 
     /**
@@ -150,7 +145,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeY(int sizeY) {
         setDirty(true);
-        asPixels().setSizeY(new omero.RInt(sizeY));
+        asPixels().setSizeY(rint(sizeY));
     }
 
     /**
@@ -170,7 +165,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeZ(int sizeZ) {
         setDirty(true);
-        asPixels().setSizeZ(new omero.RInt(sizeZ));
+        asPixels().setSizeZ(rint(sizeZ));
     }
 
     /**
@@ -190,7 +185,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeC(int sizeC) {
         setDirty(true);
-        asPixels().setSizeC(new omero.RInt(sizeC));
+        asPixels().setSizeC(rint(sizeC));
     }
 
     /**
@@ -210,7 +205,7 @@ public class PixelsData extends DataObject {
      */
     public void setSizeT(int sizeT) {
         setDirty(true);
-        asPixels().setSizeT(new omero.RInt(sizeT));
+        asPixels().setSizeT(rint(sizeT));
     }
 
     /**
@@ -232,7 +227,7 @@ public class PixelsData extends DataObject {
         setDirty(true);
         PixelsDimensions dims = asPixels().getPixelsDimensions();
         if (dims != null) {
-            dims.setSizeX(new omero.RFloat((float) pixelSizeX)); // FIXME
+            dims.setSizeX(rfloat((float) pixelSizeX)); // FIXME
         }
     }
 
@@ -257,7 +252,7 @@ public class PixelsData extends DataObject {
         setDirty(true);
         PixelsDimensions dims = asPixels().getPixelsDimensions();
         if (dims != null) {
-            dims.setSizeY(new omero.RFloat((float) pixelSizeY)); // FIXME
+            dims.setSizeY(rfloat((float) pixelSizeY)); // FIXME
         }
     }
 
@@ -282,7 +277,7 @@ public class PixelsData extends DataObject {
         setDirty(true);
         PixelsDimensions dims = asPixels().getPixelsDimensions();
         if (dims != null) {
-            dims.setSizeZ(new omero.RFloat((float) pixelSizeZ)); // FIXME
+            dims.setSizeZ(rfloat((float) pixelSizeZ)); // FIXME
         }
     }
 
@@ -305,7 +300,7 @@ public class PixelsData extends DataObject {
     public String getPixelType() {
         PixelsType type = asPixels().getPixelsType();
         return type == null ? null : (type.getValue() == null ? null : type
-                .getValue().val);
+                .getValue().getValue());
     }
 
     /**

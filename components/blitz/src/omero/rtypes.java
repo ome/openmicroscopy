@@ -29,12 +29,14 @@ import Ice.Current;
  * static factory methods. Where possible, factory methods return cached values
  * (the fly-weight pattern) such that <code>rbool(true) == rbool(true)</code>
  * might hold true.
- *
+ * 
  * This class is fairly non-traditional Java and instead is more like a Python
- * module or static methods in C++ to keep the three language bindings fairly
- * in step.
+ * module or static methods in C++ to keep the three language bindings fairly in
+ * step.
  */
 public abstract class rtypes {
+
+    public final static Map<Class, ObjectFactory> ObjectFactories;
 
     // Shared state (flyweight)
     // =========================================================================
@@ -176,11 +178,15 @@ public abstract class rtypes {
         public boolean getValue(Current __current) {
             return val;
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return Boolean.class;
         }
-        
+
         public Object convert(IceMapper mapper) {
             return val;
         }
@@ -214,14 +220,18 @@ public abstract class rtypes {
             return val;
         }
 
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
+        
         public Class<?> type() {
             return Double.class;
         }
-        
+
         public Object convert(IceMapper mapper) {
             return val;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == this) {
@@ -249,6 +259,10 @@ public abstract class rtypes {
         public float getValue(Current __current) {
             return val;
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return Float.class;
@@ -257,7 +271,7 @@ public abstract class rtypes {
         public Object convert(IceMapper mapper) {
             return val;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == this) {
@@ -284,11 +298,15 @@ public abstract class rtypes {
         public int getValue(Current __current) {
             return val;
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return Integer.class;
         }
-        
+
         public Object convert(IceMapper mapper) {
             return val;
         }
@@ -319,11 +337,15 @@ public abstract class rtypes {
         public long getValue(Current __current) {
             return val;
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return Long.class;
         }
-        
+
         public Object convert(IceMapper mapper) {
             return val;
         }
@@ -354,11 +376,15 @@ public abstract class rtypes {
         public long getValue(Current __current) {
             return val;
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return Timestamp.class;
         }
-        
+
         public Object convert(IceMapper mapper) {
             return mapper.convert(this);
         }
@@ -392,18 +418,23 @@ public abstract class rtypes {
         public omero.Internal getValue(Current __current) {
             return val;
         }
+        
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
 
         public Class<?> type() {
             return RInternal.class;
         }
-        
-        /** Do nothing. RInternal is intended for us with blitz.
-         * See Scripts.ice to explain the temporary solution.
+
+        /**
+         * Do nothing. RInternal is intended for us with blitz. See Scripts.ice
+         * to explain the temporary solution.
          */
         public Object convert(IceMapper mapper) {
             return this;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == this) {
@@ -431,14 +462,18 @@ public abstract class rtypes {
             return val;
         }
 
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
+        
         public Class<?> type() {
             return IObject.class;
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             return mapper.reverse(val);
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == this) {
@@ -465,11 +500,15 @@ public abstract class rtypes {
         public String getValue(Current __current) {
             return val;
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return String.class;
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             return val;
         }
@@ -501,14 +540,18 @@ public abstract class rtypes {
             return val;
         }
 
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
+        
         public Class<?> type() {
             return Class.class;
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             return mapper.omeroClass(val, true);
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == this) {
@@ -549,11 +592,15 @@ public abstract class rtypes {
                 val = new ArrayList<RType>(arg);
             }
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return RType[].class; // FIXME not exactly correct.
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             Object rv;
             Collection<?> reversed = mapper.reverse(val);
@@ -563,10 +610,11 @@ public abstract class rtypes {
                 Conversion conv = (Conversion) first;
                 Class<?> k = conv.type();
                 rv = Array.newInstance(k, val.size());
-                rv = reversed.toArray((Object[]) rv);      
+                rv = reversed.toArray((Object[]) rv);
                 return rv;
             } else {
-                throw new omero.ApiUsageException(null, null, "First argument not convertible");
+                throw new omero.ApiUsageException(null, null,
+                        "First argument not convertible");
             }
         }
 
@@ -625,11 +673,15 @@ public abstract class rtypes {
                 val = new ArrayList<RType>(arg);
             }
         }
+
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
         
         public Class<?> type() {
             return List.class;
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             return mapper.reverse(val, List.class);
         }
@@ -688,15 +740,19 @@ public abstract class rtypes {
                 val = new ArrayList<RType>(arg);
             }
         }
+        
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
 
         public Class<?> type() {
             return Set.class;
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             return mapper.reverse(val, Set.class);
         }
-        
+
         public List<RType> getValue(Current __current) {
             return val;
         }
@@ -745,14 +801,18 @@ public abstract class rtypes {
             }
         }
 
+        public int compare(RType rhs, Ice.Current current) { 
+            throw new UnsupportedOperationException();
+        }
+        
         public Class<?> type() {
             return Map.class;
         }
-        
+
         public Object convert(IceMapper mapper) throws ApiUsageException {
             return mapper.reverse(val);
         }
-        
+
         public Map<String, RType> getValue(Current __current) {
             return val;
         }
@@ -789,22 +849,162 @@ public abstract class rtypes {
     // Helpers
     // ========================================================================
 
+    /**
+     * SPI-style interface which helps the omero server to properly convert
+     * omero.RType objects into Java-native objects for use in Hibernate.
+     */
     public interface Conversion {
 
-        
         /**
-         * Specifies the type that can be expected from the {@link #convert(IceMapper)} method.
+         * Specifies the type that can be expected from the
+         * {@link #convert(IceMapper)} method.
+         * 
          * @return
          */
         public Class<?> type();
 
         /**
-         * Convert the "val" field on the given RType instance to an ome.model.* representation.
+         * Convert the "val" field on the given RType instance to an ome.model.*
+         * representation.
+         * 
          * @param mapper
          * @return
          * @throws ApiUsageException
          */
         public Object convert(IceMapper mapper) throws ApiUsageException;
+
+    }
+
+    public static abstract class ObjectFactory implements Ice.ObjectFactory {
+
+        private final String id;
+
+        public ObjectFactory(String id) {
+            this.id = id;
+        }
+
+        public abstract RType rtype();
+
+        public void register(Ice.Communicator ic) {
+            ic.addObjectFactory(this, id);
+        }
+
+        public Ice.Object create(String arg0) {
+            return rtype();
+        }
+
+        public void destroy() {
+            // noop
+        }
+
+    }
+
+    // Object factories
+
+    static {
+        Map<Class, ObjectFactory> factories = new HashMap<Class, ObjectFactory>();
+        factories.put(RBool.class, new ObjectFactory(RBool.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RBoolI(false);
+            }
+
+        });
+        factories.put(RDouble.class, new ObjectFactory(RDouble.ice_staticId()) {
+            @Override
+            public RType rtype() {
+                return new RDoubleI(0.0);
+            }
+        });
+        factories.put(RFloat.class, new ObjectFactory(RFloat.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RFloatI(0.0f);
+            }
+        });
+        factories.put(RInt.class, new ObjectFactory(RInt.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RIntI(0);
+            }
+        });
+        factories.put(RLong.class, new ObjectFactory(RLong.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RLongI(0L);
+            }
+        });
+        factories.put(RTime.class, new ObjectFactory(RTime.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RTimeI(0L);
+            }
+        });
+        factories.put(RClass.class, new ObjectFactory(RClass.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RClassI("");
+            }
+        });
+        factories.put(RString.class, new ObjectFactory(RString.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RStringI("");
+            }
+        });
+        factories.put(RInternal.class, new ObjectFactory(RInternal
+                .ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RInternalI(null);
+            }
+        });
+        factories.put(RObject.class,
+                new ObjectFactory(RObjectI.ice_staticId()) {
+
+                    @Override
+                    public RType rtype() {
+                        return new RObjectI(null);
+                    }
+                });
+        factories.put(RArray.class, new ObjectFactory(RArray.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RArrayI();
+            }
+        });
+        factories.put(RList.class, new ObjectFactory(RList.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RListI();
+            }
+        });
+        factories.put(RSet.class, new ObjectFactory(RSet.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RSetI();
+            }
+        });
+        factories.put(RMap.class, new ObjectFactory(RMap.ice_staticId()) {
+
+            @Override
+            public RType rtype() {
+                return new RMapI(null);
+            }
+        });
+
+        ObjectFactories = factories;
     }
 
 }

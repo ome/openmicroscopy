@@ -7,14 +7,10 @@
 
 package pojos;
 
-// Java imports
 import java.sql.Timestamp;
 
+import static omero.rtypes.*;
 import omero.model.Annotation;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Holds a textual annotation of a given data object and a reference to the
@@ -43,7 +39,7 @@ public abstract class AnnotationData extends DataObject {
         }
         try {
             Annotation a = annotationClass.newInstance();
-            a.setNs(new omero.RString(""));
+            a.setNs(rstring(""));
             setValue(a);
         } catch (Exception e) {
             throw new IllegalArgumentException("Unkown annotation type: "
@@ -76,7 +72,7 @@ public abstract class AnnotationData extends DataObject {
      *            The value to set.
      */
     public void setNameSpace(String name) {
-        asAnnotation().setNs(name == null ? null : new omero.RString(name));
+        asAnnotation().setNs(name == null ? null : rstring(name));
     }
 
     /**
@@ -87,7 +83,7 @@ public abstract class AnnotationData extends DataObject {
      */
     public String getNameSpace() {
         omero.RString ns = asAnnotation().getNs();
-        return ns == null ? null : ns.val;
+        return ns == null ? null : ns.getValue();
     }
 
     /**

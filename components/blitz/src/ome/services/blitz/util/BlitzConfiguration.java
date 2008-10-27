@@ -198,9 +198,17 @@ public class BlitzConfiguration {
         return configFile;
     }
 
+    /**
+     * Registers both the code generated {@link ObjectFactory} for all
+     * the omero.model.* classes as well as all the classes which the
+     * server would like to receive from clients. 
+     */
     protected void registerObjectFactory() {
         ObjectFactoryRegistrar.registerObjectFactory(communicator,
                 ObjectFactoryRegistrar.INSTANCE);
+        for (omero.rtypes.ObjectFactory of : omero.rtypes.ObjectFactories.values()) {
+            of.register(communicator);
+        }
     }
 
     /**

@@ -22,12 +22,12 @@
  */
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.Plate;
 import omero.model.PlateI;
 import omero.model.ScreenPlateLink;
@@ -119,7 +119,7 @@ public class PlateData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asPlate().setName(new omero.RString(name));
+        asPlate().setName(rstring(name));
     }
 
     /**
@@ -129,11 +129,11 @@ public class PlateData extends DataObject {
      */
     public String getName() {
         omero.RString n = asPlate().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have bee null.");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -144,7 +144,7 @@ public class PlateData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asPlate().setDescription(new omero.RString(description));
+        asPlate().setDescription(rstring(description));
     }
 
     /**
@@ -154,7 +154,7 @@ public class PlateData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asPlate().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     /**

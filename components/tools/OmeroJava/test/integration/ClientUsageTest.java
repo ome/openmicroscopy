@@ -6,6 +6,7 @@
  */
 package integration;
 
+import static omero.rtypes.*;
 import java.io.File;
 
 import junit.framework.TestCase;
@@ -40,10 +41,10 @@ public class ClientUsageTest extends TestCase {
         client.createSession();
 
         assertEquals(0, client.getInputKeys().size());
-        client.setInput("a", new omero.RString("b"));
+        client.setInput("a", rstring("b"));
         assertEquals(1, client.getInputKeys().size());
         assertTrue(client.getInputKeys().contains("a"));
-        assertEquals("b", ((RString) client.getInput("a")).val);
+        assertEquals("b", ((RString) client.getInput("a")).getValue());
 
         client.close();
     }

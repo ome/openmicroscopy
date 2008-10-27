@@ -11,9 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import ome.system.Login;
+import static omero.rtypes.*;
 import omero.RLong;
-import omero.RString;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
@@ -73,15 +72,15 @@ public class CreatePojosFixture2 {
         IAdminPrx rootAdmin = sf.getAdminService();
         String G_NAME = UUID.randomUUID().toString();
         fixture.g = new ExperimenterGroupI();
-        fixture.g.setName( new RString( G_NAME ));
+        fixture.g.setName( rstring( G_NAME ));
         fixture.g = new ExperimenterGroupI(rootAdmin.createGroup(fixture.g),
                 false);
 
         fixture.TESTER = "TESTER-" + UUID.randomUUID().toString();
         fixture.e = new ExperimenterI();
-        fixture.e.setOmeName( new RString(fixture.TESTER) );
-        fixture.e.setFirstName(new RString("Mr.") );
-        fixture.e.setLastName( new RString("Allen") );
+        fixture.e.setOmeName( rstring(fixture.TESTER) );
+        fixture.e.setFirstName(rstring("Mr.") );
+        fixture.e.setLastName( rstring("Allen") );
         fixture.e = new ExperimenterI(rootAdmin.createUser(fixture.e, G_NAME),
                 false);
 
@@ -370,7 +369,7 @@ public class CreatePojosFixture2 {
     protected Project project(Experimenter owner, String name) throws Exception {
         Project p = new ProjectI();
         p.getDetails().owner = owner;
-        p.setName( new RString(name) );
+        p.setName( rstring(name) );
         p = push(p);
         return p;
     }
@@ -378,7 +377,7 @@ public class CreatePojosFixture2 {
     protected Dataset dataset(Experimenter owner, String name) throws Exception {
         Dataset d = new DatasetI();
         d.getDetails().owner = owner;
-        d.setName( new RString(name) );
+        d.setName( rstring(name) );
         d = push(d);
         return d;
     }
@@ -393,7 +392,7 @@ public class CreatePojosFixture2 {
     protected Image image(Experimenter e, String name) throws Exception {
         Image i = new ImageI();
         i.getDetails().owner = e;
-        i.setName( new RString(name) );
+        i.setName( rstring(name) );
         i = push(i);
         return i;
     }
@@ -409,7 +408,7 @@ public class CreatePojosFixture2 {
     protected DatasetAnnotationLink datasetann(Experimenter user, Dataset d,
             String name) throws Exception {
         TextAnnotation dann = new TextAnnotationI();
-        dann.setNs( new RString(name) );
+        dann.setNs( rstring(name) );
         dann.getDetails().owner = user;
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.link( (Dataset) d.proxy(), dann);
@@ -420,7 +419,7 @@ public class CreatePojosFixture2 {
     protected ImageAnnotationLink imageann(Experimenter user, Image i,
             String name) throws Exception {
         TextAnnotation iann = new TextAnnotationI();
-        iann.setNs( new RString(name) );
+        iann.setNs( rstring(name) );
         iann.getDetails().owner = user;
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.link((Image) i.proxy(), iann);
@@ -431,7 +430,7 @@ public class CreatePojosFixture2 {
     protected CategoryGroup catgroup(Experimenter owner, String name) throws Exception {
         CategoryGroup cg = new CategoryGroupI();
         cg.getDetails().owner = owner;
-        cg.setName( new RString(name) );
+        cg.setName( rstring(name) );
         cg = push(cg);
         return cg;
     }
@@ -439,7 +438,7 @@ public class CreatePojosFixture2 {
     protected Category category(Experimenter owner, String name) throws Exception {
         Category c = new CategoryI();
         c.getDetails().owner = owner;
-        c.setName( new RString(name) );
+        c.setName( rstring(name) );
         c = push(c);
         return c;
     }

@@ -22,12 +22,12 @@
  */
 package pojos;
 
-// Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
@@ -97,7 +97,7 @@ public class ScreenData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asScreen().setName(new omero.RString(name));
+        asScreen().setName(rstring(name));
     }
 
     /**
@@ -107,11 +107,11 @@ public class ScreenData extends DataObject {
      */
     public String getName() {
         omero.RString n = asScreen().getName();
-        if (n == null || n.val == null) {
+        if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
                     "The name should never have been null.");
         }
-        return n.val;
+        return n.getValue();
     }
 
     /**
@@ -122,7 +122,7 @@ public class ScreenData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asScreen().setDescription(new omero.RString(description));
+        asScreen().setDescription(rstring(description));
     }
 
     /**
@@ -132,7 +132,7 @@ public class ScreenData extends DataObject {
      */
     public String getDescription() {
         omero.RString d = asScreen().getDescription();
-        return d == null ? null : d.val;
+        return d == null ? null : d.getValue();
     }
 
     /**

@@ -107,17 +107,17 @@ public class TestEngine
                         // For each image, get or set important data
                         for (int series = 0; series < seriesCount; series++)
                         {
-                            Long pixId = pixList.get(series).getId().val;
+                            Long pixId = pixList.get(series).getId().getValue();
 
                             // Get Sha1
-                            String sha1 = store.getPixels(series).getSha1().val;
+                            String sha1 = store.getPixels(series).getSha1().getValue();
 
                             // Get image dimensions
-                            Integer sizeX = store.getPixels(series).getSizeX().val;
-                            Integer sizeY = store.getPixels(series).getSizeY().val;
-                            Integer sizeZ = store.getPixels(series).getSizeZ().val;
-                            Integer sizeC = store.getPixels(series).getSizeC().val;
-                            Integer sizeT = store.getPixels(series).getSizeT().val;
+                            Integer sizeX = store.getPixels(series).getSizeX().getValue();
+                            Integer sizeY = store.getPixels(series).getSizeY().getValue();
+                            Integer sizeZ = store.getPixels(series).getSizeZ().getValue();
+                            Integer sizeC = store.getPixels(series).getSizeC().getValue();
+                            Integer sizeT = store.getPixels(series).getSizeT().getValue();
                             PixelsType pixelType = store.getPixels(series).getPixelsType();
                             DimensionOrder dimOrder = store.getPixels(series).getDimensionOrder();
                             Float pixelSizeX = store.getPixels(series).getPixelsDimensions().getSizeX().val;
