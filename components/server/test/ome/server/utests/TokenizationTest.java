@@ -46,6 +46,9 @@ public class TokenizationTest extends MockObjectTestCase {
     public void testDefaults() {
         assertTokenizes("foo bar", "foo", "bar");
         assertTokenizes("foo/bar", "foo", "bar");
+        assertTokenizes("foo||bar", "foo", "bar");
+        assertTokenizes("foo;;bar", "foo", "bar");
+        assertTokenizes("foo||bar;;qaz", "foo", "bar", "qaz");
         assertTokenizes("foo-bar", "foo", "bar");
         assertTokenizes("foo_bar", "foo", "bar");
         assertTokenizes("foo.bar", "foo", "bar");
