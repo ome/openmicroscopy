@@ -121,6 +121,7 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.transaction.TransactionStatus;
 
+import omero.rtypes.*;
 import Ice.Current;
 
 /**
@@ -407,10 +408,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         try {
                             JobStatus status = new JobStatusI();
                             status
-                                    .setValue(new omero.RString(
+                                    .setValue(omero.rtypes.rstring(
                                             JobHandle.WAITING));
                             submittedJob.setStatus(status);
-                            submittedJob.setMessage(new omero.RString(
+                            submittedJob.setMessage(omero.rtypes.rstring(
                                     "Interactive job. Waiting."));
 
                             handle.submit((ome.model.jobs.Job) mapper

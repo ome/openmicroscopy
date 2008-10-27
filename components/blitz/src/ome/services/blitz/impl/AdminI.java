@@ -7,7 +7,6 @@
 
 package ome.services.blitz.impl;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +62,8 @@ import omero.model.Permissions;
 import omero.util.IceMapper;
 import Ice.Current;
 import Ice.UserException;
+
+import static omero.rtypes.*;
 
 /**
  * Implementation of the {@link omero.api.IAdmin} service.
@@ -252,18 +253,16 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
                 }
 
                 List<Map<String, Object>> rv = (List<Map<String, Object>>) value;
-                omero.RList list = new omero.RList();
-                list.val = new ArrayList<omero.RType>();
+                omero.RList list = rlist();
                 for (Map<String, Object> item : rv) {
                     if (item == null || item.keySet().size() == 0) {
                         throw new IllegalArgumentException(value.toString());
                     }
-                    omero.RMap map = new omero.RMap();
-                    map.val = new HashMap<String, RType>();
+                    omero.RMap map = rmap();
                     String key = (String) item.get("dn");
                     omero.RType val = mapper.toRType(item.get("experimenter_id"));
-                    map.val.put(key, val);
-                    list.val.add(map);
+                    map.put(key, val);
+                    list.add(map);
                 }
                 return list;
             }

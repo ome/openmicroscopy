@@ -8,6 +8,7 @@ package ome.services.blitz.test.old;
 
 import java.io.File;
 
+import static omero.rtypes.*;
 import omero.RString;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
@@ -42,9 +43,9 @@ public class SimpleWorflowTest extends IceTest {
         IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
 
         Image i = new ImageI();
-        i.setName(new RString("simpleworkflowtest"));
+        i.setName(rstring("simpleworkflowtest"));
         i = (Image) prx.saveAndReturnObject(i, null);
-        imageId = i.getId().val;
+        imageId = i.getId().getValue();
     }
 
     @Test(dependsOnGroups = "first")
@@ -52,6 +53,6 @@ public class SimpleWorflowTest extends IceTest {
         IQueryPrx prx = ice.getServiceFactory().getQueryService();
 
         Image i = (Image) prx.get(Image.class.getName(), imageId);
-        assertTrue("simpleworkflowtest".equals(i.getName().val));
+        assertTrue("simpleworkflowtest".equals(i.getName().getValue()));
     }
 }

@@ -6,7 +6,7 @@
  */
 package ome.services.blitz.test.old;
 
-import omero.JString;
+import static omero.rtypes.*;
 import omero.SecurityViolation;
 import omero.ServerError;
 
@@ -32,13 +32,13 @@ public class SecurityTest extends IceTest {
     private omero.client createUser() throws ServerError,
             CannotCreateSessionException, PermissionDeniedException {
         omero.model.Experimenter e = new omero.model.ExperimenterI();
-        e.setOmeName(new JString(Ice.Util.generateUUID()));
-        e.setFirstName(new JString("ticket"));
-        e.setLastName(new JString("645"));
+        e.setOmeName(rstring(Ice.Util.generateUUID()));
+        e.setFirstName(rstring("ticket"));
+        e.setLastName(rstring("645"));
         root.getServiceFactory().getAdminService().createUser(e, "default");
 
         omero.client user = new omero.client();
-        user.createSession(e.getOmeName().val, "");
+        user.createSession(e.getOmeName().getValue(), "");
         return user;
     }
 

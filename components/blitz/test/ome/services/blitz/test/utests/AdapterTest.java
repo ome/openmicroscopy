@@ -6,6 +6,19 @@
  */
 package ome.services.blitz.test.utests;
 
+import static omero.rtypes.rarray;
+import static omero.rtypes.rbool;
+import static omero.rtypes.rclass;
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rfloat;
+import static omero.rtypes.rint;
+import static omero.rtypes.rlist;
+import static omero.rtypes.rlong;
+import static omero.rtypes.robject;
+import static omero.rtypes.rset;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,18 +40,7 @@ import ome.model.display.PlaneSlicingContext;
 import ome.model.display.RenderingDef;
 import ome.model.meta.Event;
 import ome.util.builders.PojoOptions;
-import omero.JArray;
-import omero.JBool;
-import omero.JClass;
-import omero.JDouble;
-import omero.JFloat;
-import omero.JInt;
-import omero.JList;
-import omero.JLong;
-import omero.JObject;
-import omero.JSet;
-import omero.JString;
-import omero.JTime;
+import omero.RArray;
 import omero.RBool;
 import omero.RClass;
 import omero.RDouble;
@@ -248,12 +250,12 @@ public class AdapterTest extends TestCase {
         po.leaves();
         po.exp(1L);
 
-        RList rl = new RList();
-        rl.val = Arrays.<RType> asList(new JString("a"), new JString("b"));
+        RList rl = rlist(
+                Arrays.<RType> asList(rstring("a"), rstring("b")));
 
         Map<String, RType> map = new HashMap<String, RType>();
-        map.put(POJOLEAVES.value, new JBool(true));
-        map.put(POJOEXPERIMENTER.value, new JLong(1L));
+        map.put(POJOLEAVES.value, rbool(true));
+        map.put(POJOEXPERIMENTER.value, rlong(1L));
 
         IceMapper mapper = new IceMapper();
         Map reversed = mapper.reverse(map);
@@ -267,50 +269,39 @@ public class AdapterTest extends TestCase {
     public void testRTypes() throws Exception {
         IceMapper mapper = new IceMapper();
         // Nulls
-        assertNull(mapper.fromRType((JString) null));
         assertNull(mapper.fromRType((RString) null));
-        assertNull(mapper.fromRType((JBool) null));
         assertNull(mapper.fromRType((RBool) null));
-        assertNull(mapper.fromRType((JInt) null));
         assertNull(mapper.fromRType((RInt) null));
-        assertNull(mapper.fromRType((JLong) null));
         assertNull(mapper.fromRType((RLong) null));
-        assertNull(mapper.fromRType((JDouble) null));
         assertNull(mapper.fromRType((RDouble) null));
-        assertNull(mapper.fromRType((JClass) null));
         assertNull(mapper.fromRType((RClass) null));
-        assertNull(mapper.fromRType((JFloat) null));
         assertNull(mapper.fromRType((RFloat) null));
-        assertNull(mapper.fromRType((JObject) null));
         assertNull(mapper.fromRType((RObject) null));
-        assertNull(mapper.convert((JTime) null));
         assertNull(mapper.convert((RTime) null));
-        assertNull(mapper.fromRType((JList) null));
         assertNull(mapper.fromRType((RList) null));
-        assertNull(mapper.fromRType((JSet) null));
         assertNull(mapper.fromRType((RSet) null));
         //
-        assertEquals("a", mapper.fromRType(new JString("a")));
-        assertEquals(1L, mapper.fromRType(new JLong(1L)));
-        assertEquals(1, mapper.fromRType(new JInt(1)));
-        assertEquals(1.0, mapper.fromRType(new JDouble(1.0)));
-        assertEquals(1.0f, mapper.fromRType(new JFloat(1.0f)));
-        assertEquals(true, mapper.fromRType(new JBool(true)));
-        assertEquals(Image.class, mapper.fromRType(new JClass("Image")));
+        assertEquals("a", mapper.fromRType(rstring("a")));
+        assertEquals(1L, mapper.fromRType(rlong(1L)));
+        assertEquals(1, mapper.fromRType(rint(1)));
+        assertEquals(1.0, mapper.fromRType(rdouble(1.0)));
+        assertEquals(1.0f, mapper.fromRType(rfloat(1.0f)));
+        assertEquals(true, mapper.fromRType(rbool(true)));
+        assertEquals(Image.class, mapper.fromRType(rclass("Image")));
         IObject obj = new ImageI(1L, false);
-        Image img = (Image) mapper.fromRType(new JObject(obj));
-        assertEquals(img.getId(), Long.valueOf(obj.getId().val));
-        JTime time = new JTime(1L);
+        Image img = (Image) mapper.fromRType(robject(obj));
+        assertEquals(img.getId(), Long.valueOf(obj.getId().getValue()));
+        RTime time = rtime(1L);
         Timestamp ts = mapper.convert(time);
-        assertEquals(ts.getTime(), time.val);
-        JArray jarr = new JArray(new JString("A"));
+        assertEquals(ts.getTime(), time.getValue());
+        RArray jarr = rarray(rstring("A"));
         String[] strings = (String[]) mapper.fromRType(jarr);
         assertTrue(strings[0].equals("A"));
-        JList jlist = new JList(Arrays.<RType> asList(new JString("L")));
+        RList jlist = rlist(Arrays.<RType> asList(rstring("L")));
         List stringList = (List) mapper.fromRType(jlist);
         assertTrue(stringList.contains("L"));
-        JSet jset = new JSet(new HashSet<RType>(Arrays
-                .<RType> asList(new JString("S"))));
+        RSet jset = rset(new HashSet<RType>(Arrays
+                .<RType> asList(rstring("S"))));
         Set stringSet = (Set) mapper.fromRType(jset);
         assertTrue(stringSet.contains("S"));
     }
@@ -319,7 +310,7 @@ public class AdapterTest extends TestCase {
     public void testMapsAreProperlyDispatched() throws Exception {
         IceMapper mapper = new IceMapper();
         Map m = new HashMap();
-        m.put("a", new JString("a"));
+        m.put("a", rstring("a"));
         Map reversed = mapper.reverse(m);
         assertTrue(reversed.get("a").equals("a"));
     }

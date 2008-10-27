@@ -890,7 +890,7 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlaneAsDouble(firstPixels.getId().val, z, c, t, current);
+		return getPlaneAsDouble(firstPixels.getId().getValue(), z, c, t, current);
 	}
 	/**
 	 * Get the plane from the image with imageId.
@@ -906,7 +906,7 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlaneAsLong(firstPixels.getId().val, z, c, t, current);
+		return getPlaneAsLong(firstPixels.getId().getValue(), z, c, t, current);
 	}
 	
 	/**
@@ -923,7 +923,7 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlaneAsInt(firstPixels.getId().val, z, c, t, current);
+		return getPlaneAsInt(firstPixels.getId().getValue(), z, c, t, current);
 	}
 	
 	/**
@@ -940,7 +940,7 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlaneAsShort(firstPixels.getId().val, z, c, t, current);
+		return getPlaneAsShort(firstPixels.getId().getValue(), z, c, t, current);
 	}
 
 	/**
@@ -957,7 +957,7 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlaneAsByte(firstPixels.getId().val, z, c, t, current);
+		return getPlaneAsByte(firstPixels.getId().getValue(), z, c, t, current);
 	}
 
 	/**

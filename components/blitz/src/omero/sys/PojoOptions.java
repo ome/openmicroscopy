@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import omero.ClientError;
-import omero.RBool;
 import omero.RInt;
 import omero.RLong;
 import omero.RTime;
@@ -23,6 +22,8 @@ import omero.constants.POJOLEAVES;
 import omero.constants.POJOLIMIT;
 import omero.constants.POJOOFFSET;
 import omero.constants.POJOSTARTTIME;
+
+import static omero.rtypes.*;
 
 /**
  * generates Maps for Pojo service calls.
@@ -86,7 +87,7 @@ public class PojoOptions extends Parameters {
      */
 
     public PojoOptions leaves() {
-        map.put(LEAF, new RBool(Boolean.TRUE));
+        map.put(LEAF, rbool(Boolean.TRUE));
         return this;
     }
 

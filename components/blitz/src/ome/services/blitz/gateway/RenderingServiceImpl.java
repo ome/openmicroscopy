@@ -316,8 +316,8 @@ public class RenderingServiceImpl
 			throws  omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
-		int width = pixels.getSizeX().val;
-		int height = pixels.getSizeY().val;
+		int width = pixels.getSizeX().getValue();
+		int height = pixels.getSizeY().getValue();
 		int [][][] data = new int[width][height][3];
 		int[] buff = renderAsPackedInt(pixelsId, z, t);
 		for(int x = 0 ; x < width ; x++)

@@ -39,6 +39,8 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 
+import static omero.rtypes.*;
+
 /** 
  * 
  *
@@ -290,7 +292,7 @@ class ImageServiceImpl
 			String methodology) throws omero.ServerError
 	{
 		Long newID = iPixels.copyAndResizePixels
-						(pixelsID, new omero.RInt(x), new omero.RInt(y), new omero.RInt(t), new omero.RInt(z), channelList, methodology, true).val;
+						(pixelsID, rint(x), rint(y), rint(t), rint(z), channelList, methodology, true).getValue();
 		return newID;
 	}
 	
@@ -304,7 +306,7 @@ class ImageServiceImpl
 		Long newID = iPixels.copyAndResizePixels
 						(pixelsID, pixels.getSizeX(), pixels.getSizeY(), 
 						 pixels.getSizeT(),pixels.getSizeZ(), 
-						 channelList, methodology, true).val;
+						 channelList, methodology, true).getValue();
 		return newID;
 	}
 	
@@ -315,7 +317,7 @@ class ImageServiceImpl
 			String methodology) throws omero.ServerError
 	{
 		Long newID = iPixels.copyAndResizeImage
-						(imageId, new omero.RInt(x), new omero.RInt(y), new omero.RInt(t), new omero.RInt(z), channelList, methodology, true).val;
+						(imageId, rint(x), rint(y), rint(t), rint(z), channelList, methodology, true).getValue();
 		return newID;
 	}
 	
@@ -348,10 +350,10 @@ class ImageServiceImpl
 	 */
 	public byte[] convertClientToServer(Pixels pixels, double [][] data)
 	{
-		String pixelsType  = pixels.getPixelsType().getValue().val;
+		String pixelsType  = pixels.getPixelsType().getValue().getValue();
 		int pixelsSize = getPixelsSize(pixelsType); 
-		int sizex = pixels.getSizeX().val;
-		int sizey = pixels.getSizeY().val;
+		int sizex = pixels.getSizeX().getValue();
+		int sizey = pixels.getSizeY().getValue();
 		byte[] rawbytes =  new byte[sizex*sizey*pixelsSize];
 		for ( int x = 0 ; x < sizex ; x++)
 			for ( int y = 0 ; y < sizey ; y++)
@@ -483,8 +485,8 @@ class ImageServiceImpl
 		Pixels pixels = getPixels(pixelsId);
 		double[][] serverPlane = getPlaneAsDouble(pixelsId, z, c, t);
 		byte[] clientBytes = convertClientToServer(pixels, serverPlane);
-		return DataSink.mapServerToClient(clientBytes, pixels.getSizeX().val, 
-			pixels.getSizeY().val, pixels.getPixelsType().getValue().val);
+		return DataSink.mapServerToClient(clientBytes, pixels.getSizeX().getValue(), 
+			pixels.getSizeY().getValue(), pixels.getPixelsType().getValue().getValue());
 	}
 	
 	/**
@@ -672,7 +674,7 @@ class ImageServiceImpl
 			List<Integer> channelList, PixelsType pixelsType, String name,
 			String description) throws omero.ServerError
 	{
-		return iPixels.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description).val;
+		return iPixels.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description).getValue();
 	}
 
 	/* (non-Javadoc)
@@ -691,8 +693,8 @@ class ImageServiceImpl
 			throws omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
-		double[][][] stack = new double[pixels.getSizeZ().val][pixels.getSizeX().val][pixels.getSizeY().val];
-		for(int z = 0 ; z < pixels.getSizeZ().val ; z++)
+		double[][][] stack = new double[pixels.getSizeZ().getValue()][pixels.getSizeX().getValue()][pixels.getSizeY().getValue()];
+		for(int z = 0 ; z < pixels.getSizeZ().getValue() ; z++)
 			stack[z] = getPlaneAsDouble(pixelsId, z, c, t);
 		return stack;
 	}

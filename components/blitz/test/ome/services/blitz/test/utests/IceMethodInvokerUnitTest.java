@@ -42,11 +42,6 @@ import ome.system.Roles;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
-import omero.JBool;
-import omero.JList;
-import omero.JLong;
-import omero.JString;
-import omero.JTime;
 import omero.RString;
 import omero.RType;
 import omero.constants.POJOEXPERIMENTER;
@@ -69,6 +64,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
+
+import static omero.rtypes.*;
 
 @Test
 public class IceMethodInvokerUnitTest extends MockObjectTestCase {
@@ -314,7 +311,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     public void testInvokeProperlyMapsIObject() throws Exception {
 
         Image i = new ImageI();
-        i.setName(new RString("foo"));
+        i.setName(rstring("foo"));
 
         init(IUpdate.class, "saveObject");
         mock.expects(once()).method(current.operation).with(new Constraint() {
@@ -344,13 +341,13 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         ISession s;
 
         init(ISession.class, "getInput");
-        method().will(returnValue(new omero.RInt()));
+        method().will(returnValue(rint(1)));
         Object rv = invoke("a", "a");
         assertNotNull(rv);
 
         init(ISession.class, "setInput");
         method();
-        rv = invoke("a", "a", new omero.RInt());
+        rv = invoke("a", "a", rint(2));
 
         init(ISession.class, "getOutput");
         method().will(returnValue(new omero.Point()));
@@ -358,7 +355,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         init(ISession.class, "setOutput");
         method();
-        rv = invoke("a", "a", new omero.RInternal(new omero.grid.JobParams()));
+        rv = invoke("a", "a", rinternal(new omero.grid.JobParams()));
 
     }
 
@@ -369,7 +366,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         String sess = new String("sess");
         String key = new String("key");
-        RString value = new RString("value");
+        RString value = rstring("value");
 
         init(ISession.class, "setInput");
         method();
@@ -401,7 +398,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         m.put("string", new ome.model.core.Image());
 
         mapper.toRType(1);
-        mapper.toRType(new omero.RInt(1));
+        mapper.toRType(rint(1));
         mapper.toRType(m);
         mapper.toRType(new ome.model.core.Image());
         mapper.toRType(Arrays.asList(m));
@@ -620,11 +617,11 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         }).will(returnValue(Arrays.asList(new ome.model.core.Image())));
         omero.sys.Parameters p = new omero.sys.Parameters();
         p.theFilter = new Filter();
-        p.theFilter.ownerId = new JLong(2L);
+        p.theFilter.ownerId = rlong(2L);
         p.map = new HashMap<String, RType>();
-        p.map.put("S", new JString("S"));
-        p.map.put("List", new JList(new JLong(1L), new JLong(2L)));
-        p.map.put("Time", new JTime(10L));
+        p.map.put("S", rstring("S"));
+        p.map.put("List", rlist(rlong(1L), rlong(2L)));
+        p.map.put("Time", rtime(10L));
         // p.map.put("Array",new JArray(new JString("A")));
         // FIXME: Not supported. Array class needed for query parameters.
         Object rv = invoke("my query", p);
@@ -776,7 +773,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         IPojos p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
-        paramMap.put("foo", new JString("bar"));
+        paramMap.put("foo", rstring("bar"));
 
         init(IPojos.class, "getUserDetails");
         method().will(returnValue(new HashMap()));
@@ -795,7 +792,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         IPojos p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
-        paramMap.put("foo", new JBool(true));
+        paramMap.put("foo", rbool(true));
 
         Map<Long, Set<? extends IObject>> retVal = new HashMap<Long, Set<? extends IObject>>();
 
@@ -813,8 +810,8 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         IPojos p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
-        paramMap.put(POJOLEAVES.value, new JBool(true));
-        paramMap.put(POJOEXPERIMENTER.value, new JLong(1L));
+        paramMap.put(POJOLEAVES.value, rbool(true));
+        paramMap.put(POJOEXPERIMENTER.value, rlong(1L));
 
         init(IPojos.class, "loadContainerHierarchy");
         method().with(ANYTHING, ANYTHING, new Constraint() {

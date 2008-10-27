@@ -32,8 +32,9 @@ module omero {
      *
      * Direct references to RType2 should be minimized.
      */
-    class RInternal extends omero::RType {
+    ["protected"] class RInternal extends omero::RType {
         Internal val;
+        Internal getValue();
     };
 
     /*

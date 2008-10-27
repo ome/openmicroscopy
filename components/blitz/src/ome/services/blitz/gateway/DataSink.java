@@ -117,10 +117,10 @@ public class DataSink
 		this.source = source;
 		this.service = service;
 		this.source = source;
-		String type = source.getPixelsType().getValue().val;
+		String type = source.getPixelsType().getValue().getValue();
 		bytesPerPixels = getBytesPerPixels(type);
-//		cache = CachingService.createPixelsCache(source.id.val, 
-//				source.sizeX.val*source.sizeY.val*bytesPerPixels);
+//		cache = CachingService.createPixelsCache(source.id.getValue(), 
+//				source.sizeX.getValue()*source.sizeY.getValue()*bytesPerPixels);
 		strategy = BytesConverter.getConverter(type);
 	}
 
@@ -152,17 +152,17 @@ public class DataSink
 	 */
 	private Integer linearize(int z, int w, int t)
 	{
-		int sizeZ = source.getSizeZ().val;
-		int sizeC = source.getSizeC().val;
+		int sizeZ = source.getSizeZ().getValue();
+		int sizeC = source.getSizeC().getValue();
 		if (z < 0 || sizeZ <= z) 
 			throw new IllegalArgumentException(
 					"z out of range [0, "+sizeZ+"): "+z+".");
 		if (w < 0 || sizeC <= w) 
 			throw new IllegalArgumentException(
 					"w out of range [0, "+sizeC+"): "+w+".");
-		if (t < 0 || source.getSizeT().val <= t) 
+		if (t < 0 || source.getSizeT().getValue() <= t) 
 			throw new IllegalArgumentException(
-					"t out of range [0, "+source.getSizeT().val+"): "+t+".");
+					"t out of range [0, "+source.getSizeT().getValue()+"): "+t+".");
 		return new Integer(sizeZ*sizeC*t + sizeZ*w + z);
 	}
 
@@ -187,10 +187,10 @@ public class DataSink
 		Plane2D plane = null;
 		if (plane != null) return plane;
 		byte[] data = null; 
-		data = service.getRawPlane(source.getId().val, z, w, t);
+		data = service.getRawPlane(source.getId().getValue(), z, w, t);
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
-		plane = new Plane2D(array, source.getSizeX().val, 
-							source.getSizeY().val, bytesPerPixels, 
+		plane = new Plane2D(array, source.getSizeX().getValue(), 
+							source.getSizeY().getValue(), bytesPerPixels, 
 							strategy);
 		return plane;
 	}
@@ -220,7 +220,7 @@ public class DataSink
 	 */
 	public boolean isSame(long pixelsID)
 	{
-		return (pixelsID == source.getId().val);
+		return (pixelsID == source.getId().getValue());
 	}
 	
 	static public double[][] mapServerToClient(byte[] data, int x, int y, String pixelType)

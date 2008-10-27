@@ -7,6 +7,8 @@
 
 package ome.services.blitz.impl;
 
+import static omero.rtypes.rmap;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -367,9 +369,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     InteractiveProcessorPrx proc = factory.acquireProcessor(
                             job, 10, __current);
                     omero.grid.ProcessPrx prx = proc
-                            .execute(new omero.RMap(map));
+                            .execute(rmap(map));
                     prx._wait();
-                    cb.ice_response(proc.getResults(prx).val);
+                    cb.ice_response(proc.getResults(prx).getValue());
                 } catch (Exception e) {
                     cb.ice_exception(e);
                 }
@@ -485,7 +487,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10,
                 __current);
         JobParams rv = proc.params();
-        deleteTempJob(proc.getJob().getId().val);
+        deleteTempJob(proc.getJob().getId().getValue());
         return rv;
     }
 

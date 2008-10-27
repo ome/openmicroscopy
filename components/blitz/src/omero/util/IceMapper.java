@@ -12,9 +12,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.*;
 import ome.api.IPojos;
 import ome.conditions.InternalException;
 import ome.model.IObject;
@@ -36,17 +39,6 @@ import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omero.ApiUsageException;
-import omero.JBool;
-import omero.JClass;
-import omero.JDouble;
-import omero.JFloat;
-import omero.JInt;
-import omero.JList;
-import omero.JLong;
-import omero.JObject;
-import omero.JSet;
-import omero.JString;
-import omero.JTime;
 import omero.RArray;
 import omero.RBool;
 import omero.RClass;
@@ -127,7 +119,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         public Object mapReturnValue(IceMapper mapper, Object value)
                 throws UserException {
-            return mapper.map((Filterable)value);
+            return mapper.map((Filterable) value);
         }
 
     };
@@ -142,7 +134,7 @@ public class IceMapper extends ome.util.ModelMapper implements
             } else {
                 List rv = new ArrayList(array.length);
                 for (int i = 0; i < array.length; i++) {
-                    rv.add( mapper.map(array[i]) );
+                    rv.add(mapper.map(array[i]));
                 }
                 return rv;
             }
@@ -180,7 +172,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         public Object mapReturnValue(IceMapper mapper, Object value)
                 throws Ice.UserException {
             String str = (String) value;
-            return new omero.RString(str);
+            return omero.rtypes.rstring(str);
         }
     };
 
@@ -191,7 +183,7 @@ public class IceMapper extends ome.util.ModelMapper implements
             if (value == null) {
                 return null;
             } else {
-                if ( ! IceMapper.isNullablePrimitive(value.getClass())) {
+                if (!IceMapper.isNullablePrimitive(value.getClass())) {
                     throw new RuntimeException(
                             "Object not nullable primitive: " + value);
                 }
@@ -200,7 +192,7 @@ public class IceMapper extends ome.util.ModelMapper implements
             }
         }
     };
-    
+
     public final static ReturnMapping PRIMITIVE_MAP = new ReturnMapping() {
 
         public Object mapReturnValue(IceMapper mapper, Object value)
@@ -212,11 +204,13 @@ public class IceMapper extends ome.util.ModelMapper implements
                 Map rv = new HashMap();
                 for (Object k : map.keySet()) {
                     Object v = map.get(k);
-                    if (k != null && ! IceMapper.isNullablePrimitive(k.getClass())) {
+                    if (k != null
+                            && !IceMapper.isNullablePrimitive(k.getClass())) {
                         throw new RuntimeException(
                                 "Key not nullable primitive: " + k);
                     }
-                    if (v != null && ! IceMapper.isNullablePrimitive(v.getClass())) {
+                    if (v != null
+                            && !IceMapper.isNullablePrimitive(v.getClass())) {
                         throw new RuntimeException(
                                 "Object not nullable primitive: " + v);
                     }
@@ -332,88 +326,70 @@ public class IceMapper extends ome.util.ModelMapper implements
             return (RType) o;
         } else if (o instanceof Date) {
             Date date = (Date) o;
-            omero.RTime time = new omero.JTime(date.getTime());
+            omero.RTime time = rtime(date.getTime());
             return time;
         } else if (o instanceof Integer) {
             Integer i = (Integer) o;
-            omero.RInt rint = new omero.JInt(i);
+            omero.RInt rint = rint(i);
             return rint;
         } else if (o instanceof Long) {
             Long lng = (Long) o;
-            omero.RLong rlng = new omero.JLong(lng.longValue());
+            omero.RLong rlng = rlong(lng.longValue());
             return rlng;
         } else if (o instanceof Float) {
             Float flt = (Float) o;
-            omero.RFloat rflt = new omero.JFloat(flt);
+            omero.RFloat rflt = rfloat(flt);
             return rflt;
         } else if (o instanceof Double) {
             Double dbl = (Double) o;
-            omero.RDouble rdbl = new omero.JDouble(dbl.doubleValue());
+            omero.RDouble rdbl = rdouble(dbl.doubleValue());
             return rdbl;
         } else if (o instanceof String) {
             String str = (String) o;
-            omero.RString rstr = new omero.JString(str);
+            omero.RString rstr = rstring(str);
             return rstr;
         } else if (o instanceof IObject) {
             IObject obj = (IObject) o;
-            omero.model.IObject omero = (omero.model.IObject) map(obj);
-            omero.RObject robj = new omero.RObject(omero);
+            omero.model.IObject om = (omero.model.IObject) map(obj);
+            omero.RObject robj = robject(om);
             return robj;
         } else if (o instanceof Collection) {
-            return new omero.JList(map((Collection) o));
+            return rlist(map((Collection) o));
         } else if (o instanceof Map) {
-            return new omero.RMap(map((Map) o));
+            return rmap(map((Map) o));
         } else if (o instanceof omero.Internal) {
-            return new omero.RInternal((omero.Internal) o);
+            return rinternal((omero.Internal) o);
         } else {
             throw new ApiUsageException(null, null,
                     "Unsupported conversion to rtype from:" + o);
         }
     }
 
+    /**
+     * Uses the omero.rtypes hierarchy to properly convert any {@link RType} to
+     * its internal representation. This requires that the instance properly
+     * implement {@link omero.rtypes.Conversion} otherwise ApiUsageException
+     * will be thrown.
+     * 
+     * @param rt
+     * @return
+     * @throws omero.ApiUsageException
+     */
     public Object fromRType(RType rt) throws omero.ApiUsageException {
 
         if (rt == null) {
             return null;
         }
 
-        Field f;
-        Object rv;
-        try {
-            f = rt.getClass().getField("val");
-            rv = f.get(rt);
-        } catch (Exception e) {
+        if (rt instanceof omero.rtypes.Conversion) {
+            omero.rtypes.Conversion conv = (omero.rtypes.Conversion) rt;
+            return conv.convert(this);
+        } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
-            fillServerError(aue, e);
-            aue.message = "Cannot get value for " + rt + ":" + aue.message;
+            aue.message = rt.getClass() + " is not a conversion type";
             throw aue;
         }
 
-        // Next round of conversions on the value itself.
-        if (RInternal.class.isAssignableFrom(rt.getClass())) {
-            // Do nothing. RInternal is intended for us with blitz.
-            // See Scripts.ice to explain the temporary solution.
-        } else if (RTime.class.isAssignableFrom(rt.getClass())) {
-            rv = new Timestamp((Long) rv);
-        } else if (RClass.class.isAssignableFrom(rt.getClass())) {
-            rv = omeroClass((String) rv, true);
-        } else if (RArray.class.isAssignableFrom(rt.getClass())) {
-            RArray arr = (RArray) rt;
-            Collection reversed = reverse(arr.val);
-            // Assuming all the same
-            Class k = rtypeTypes.get(arr.val.get(0).getClass());
-            rv = Array.newInstance(k, arr.val.size());
-            rv = reversed.toArray((Object[]) rv);
-        } else if (RSet.class.isAssignableFrom(rt.getClass())) {
-            RSet set = (RSet) rt;
-            rv = reverse(set.val, Set.class);
-        } else if (RList.class.isAssignableFrom(rt.getClass())) {
-            RList list = (RList) rt;
-            rv = reverse(list.val, List.class);
-        } else {
-            rv = reverse(rv); // TODO Any optimizations to be had here?
-        }
-        return rv;
     }
 
     public static EventContext convert(ome.system.EventContext ctx) {
@@ -486,14 +462,14 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     public static RTime convert(Date date) {
-        return new JTime(date);
+        return rtime(date);
     }
 
     public static Timestamp convert(RTime time) {
         if (time == null) {
             return null;
         }
-        return new Timestamp(time.val);
+        return new Timestamp(time.getValue());
     }
 
     public ome.parameters.Parameters convert(Parameters params)
@@ -516,36 +492,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         return p;
     }
 
-    static final Map<Class, Class> rtypeTypes;
-    static {
-        Map<Class, Class> tmp = new HashMap<Class, Class>();
-        tmp.put(RBool.class, Boolean.class);
-        tmp.put(JBool.class, Boolean.class);
-        tmp.put(RFloat.class, Float.class);
-        tmp.put(JFloat.class, Float.class);
-        tmp.put(RInt.class, Integer.class);
-        tmp.put(JInt.class, Integer.class);
-        tmp.put(RDouble.class, Double.class);
-        tmp.put(JDouble.class, Double.class);
-        tmp.put(RLong.class, Long.class);
-        tmp.put(JLong.class, Long.class);
-        tmp.put(RString.class, String.class);
-        tmp.put(JString.class, String.class);
-        tmp.put(RClass.class, Class.class);
-        tmp.put(JClass.class, Class.class);
-        tmp.put(RObject.class, IObject.class);
-        tmp.put(JObject.class, IObject.class);
-        tmp.put(RList.class, Collection.class);
-        tmp.put(JList.class, Collection.class);
-        // tmp.put(RArray.class,Collection.class);
-        // tmp.put(JArray.class,Collection.class);
-        tmp.put(RSet.class, Collection.class);
-        tmp.put(JSet.class, Collection.class);
-        tmp.put(RTime.class, Timestamp.class);
-        tmp.put(JTime.class, Timestamp.class);
-        rtypeTypes = tmp;
-    }
-
     public ome.parameters.QueryParameter convert(String key, Object o)
             throws ApiUsageException {
 
@@ -558,7 +504,9 @@ public class IceMapper extends ome.util.ModelMapper implements
         Object value = null;
         if (RType.class.isAssignableFrom(klass)) {
             value = fromRType((RType) o);
-            klass = rtypeTypes.get(klass);
+            // If fromRType passes correctly, then we're sure that we
+            // can convert to rtypes.Conversion
+            klass = ((Conversion) o).type();
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
             aue.message = "Query parameter must be a subclass of RType " + o;
@@ -580,19 +528,19 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         int offset = 0, limit = Integer.MAX_VALUE;
         if (f.offset != null) {
-            offset = f.offset.val;
+            offset = f.offset.getValue();
         }
         if (f.limit != null) {
-            limit = f.limit.val;
+            limit = f.limit.getValue();
         }
         filter.page(offset, limit);
 
         if (f.ownerId != null) {
-            filter.owner(f.ownerId.val);
+            filter.owner(f.ownerId.getValue());
         }
 
         if (f.groupId != null) {
-            filter.group(f.groupId.val);
+            filter.group(f.groupId.getValue());
         }
 
         if (f.unique) {
@@ -951,7 +899,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         } else if (RType.class.isAssignableFrom(type)) {
             return o;
         } else if (omero.Internal.class.isAssignableFrom(type)) {
-            return new RInternal((omero.Internal) o);
+            return rinternal((omero.Internal) o);
         } else if (void.class.isAssignableFrom(type)) {
             assert o == null;
             return null;

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static omero.rtypes.*;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
@@ -152,9 +153,9 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
             }
 
             // Setup environment
-            if (inputs != null && inputs.val != null) {
-                for (String key : inputs.val.keySet()) {
-                    mgr.setInput(session.getUuid(), key, inputs.val.get(key));
+            if (inputs != null && inputs.getValue() != null) {
+                for (String key : inputs.getValue().keySet()) {
+                    mgr.setInput(session.getUuid(), key, inputs.get(key));
                 }
             }
 
@@ -187,16 +188,16 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
             finishedOrThrow();
 
             // Gather output
-            omero.RMap output = new omero.RMap(
+            omero.RMap output = rmap(
                     new HashMap<String, omero.RType>());
             Map<String, Object> env = mgr.outputEnvironment(session.getUuid());
             IceMapper mapper = new IceMapper();
             for (String key : env.keySet()) {
                 RType rt = mapper.toRType(env.get(key));
-                output.val.put(key, rt);
+                output.put(key, rt);
             }
-            optionallyLoadFile(output.val, "stdout");
-            optionallyLoadFile(output.val, "stderr");
+            optionallyLoadFile(output.getValue(), "stdout");
+            optionallyLoadFile(output.getValue(), "stderr");
             currentProcess = null;
             obtainResults = false;
             return output;
@@ -252,10 +253,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
                 OriginalFile file = sf.getQueryService().findByQuery(
                         stdfile_query,
-                        new Parameters().addId(job.getId().val).addString(
+                        new Parameters().addId(job.getId().getValue()).addString(
                                 "name", name));
                 if (file != null) {
-                    val.put(name, new RObject(new OriginalFileI(file.getId(),
+                    val.put(name, robject(new OriginalFileI(file.getId(),
                             false)));
                 }
                 return null;

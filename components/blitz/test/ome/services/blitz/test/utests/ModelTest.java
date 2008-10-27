@@ -26,6 +26,7 @@ import omero.model.PixelsI;
 import omero.model.ProjectI;
 import omero.util.IceMapper;
 
+import static omero.rtypes.*;
 import org.testng.annotations.Test;
 
 public class ModelTest extends TestCase {
@@ -34,7 +35,7 @@ public class ModelTest extends TestCase {
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
         // arcI.unload();
-        arcI.setPower(new RFloat(1.0f));
+        arcI.setPower(rfloat(1.0f));
     }
 
     
@@ -72,7 +73,7 @@ public class ModelTest extends TestCase {
     @Test
     public void testFillObject() throws Exception {
         ExperimenterI ei = new ExperimenterI();
-        ei.setOmeName(new RString("name"));
+        ei.setOmeName(rstring("name"));
         ei.linkExperimenterGroup(new ExperimenterGroupI());
         Experimenter e = (Experimenter) ei.fillObject(new IceMapper());
         assertEquals(new Integer(1), new Integer(e.sizeOfGroupExperimenterMap()));

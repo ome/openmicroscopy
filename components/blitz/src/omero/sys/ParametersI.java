@@ -16,6 +16,7 @@ import java.util.Map;
 import omero.RList;
 import omero.RLong;
 import omero.RType;
+import static omero.rtypes.*;
 
 public class ParametersI extends omero.sys.Parameters {
 
@@ -33,7 +34,7 @@ public class ParametersI extends omero.sys.Parameters {
     }
 
     public ParametersI addId(long id) {
-        add("id", new RLong(id));
+        add("id", rlong(id));
         return this;
     }
 
@@ -48,7 +49,7 @@ public class ParametersI extends omero.sys.Parameters {
     }
 
     public ParametersI addLong(String name, long l) {
-        add(name, new RLong(l));
+        add(name, rlong(l));
         return this;
     }
 
@@ -58,10 +59,9 @@ public class ParametersI extends omero.sys.Parameters {
     }
 
     public ParametersI addLongs(String name, Collection<Long> longs) {
-        RList rlongs = new RList();
-        rlongs.val = new ArrayList<RType>();
+        RList rlongs = rlist();
         for (Long l : longs) {
-            rlongs.val.add(new RLong(l));
+            rlongs.add( rlong(l) );
         }
         this.map.put(name, rlongs);
         return this;

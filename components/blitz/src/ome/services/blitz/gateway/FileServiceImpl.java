@@ -94,12 +94,12 @@ class FileServiceImpl implements FileService {
     public List<Long> findFile(String fileName, Format fmt)
             throws omero.ServerError {
         String queryStr = "from OriginalFile as o left outer join fetch "
-                + "o.format as f where f.value = " + fmt.getValue().val;
+                + "o.format as f where f.value = " + fmt.getValue().getValue();
         List<OriginalFile> list = ServiceUtilities.collectionCast(
                 OriginalFile.class, iQuery.findAllByQuery(queryStr, null));
         List<Long> lList = new ArrayList<Long>();
         for (OriginalFile file : list) {
-            lList.add(new Long(file.getId().val));
+            lList.add(new Long(file.getId().getValue()));
         }
         return lList;
     }
@@ -150,7 +150,7 @@ class FileServiceImpl implements FileService {
      */
     public byte[] getRawFile(long id) throws omero.ServerError {
         OriginalFile file = getOriginalFile(id);
-        return rawFileStore.read(id, 0, (int) file.getSize().val);
+        return rawFileStore.read(id, 0, (int) file.getSize().getValue());
     }
 
     /*

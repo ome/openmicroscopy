@@ -14,7 +14,7 @@
 /*
  * Simple type definitions used for remoting purposes.
  *
- * RType-subclasses permit both the passing of null values to
+ * RType-sub["protected"] classes permit both the passing of null values to
  * OMERO.blitz, since the Ice protocol maps null values to default
  * (the empty string, 0.0, etc.), and a simple implementation of an
  * "Any" value.
@@ -36,70 +36,76 @@
 module omero { 
 
   /*
-   * Simple base class. Essentially abstract. 
+   * Simple base ["protected"] class. Essentially abstract. 
    */
-  class RType
+  ["protected"] class RType
   {
   };
 
   /*
    */
-  class RBool extends RType
+  ["protected"] class RBool extends RType
   {
     bool val;
+    bool getValue();
   };
   
   
   /*
    */
-  class RDouble extends RType
+  ["protected"] class RDouble extends RType
   {
     double val;
+    double getValue();
   };
   
   
   /*
    */
-  class RFloat extends RType
+  ["protected"] class RFloat extends RType
   {
     float val;
+    float getValue();
   };
   
   
   /*
    */
-  class RInt extends RType
+  ["protected"] class RInt extends RType
   {
-    int  val;
+    int val;
+    int getValue();
   };
   
   
   /*
    */
-  class RLong extends RType
+  ["protected"] class RLong extends RType
   {
     long val;
+    long getValue();
   };
   
   
   /*
    */
-  class RString extends RType
+  ["protected"] class RString extends RType
   {
     string val;
+    string getValue();
   };
 
   /*
    * Extends RString and simply provides runtime
    * information to the server that this string
-   * is intended as a class parameter. Used especially
+   * is intended as a ["protected"] class parameter. Used especially
    * by omero::system::ParamMap (omero/System.ice) 
    *
    * Usage:
    *   omero::RClass c = ...; // from service
    *   if (!c.null && c.val.equals("Image")) { ... }
    */
-  class RClass extends RString
+  ["protected"] class RClass extends RString
   {
   };
 
@@ -108,16 +114,18 @@ module omero {
   /* A simple Time implementation. The long value is the number
    * of milliseconds since the epoch (January 1, 1970). 
    */
-  class RTime extends RType
+  ["protected"] class RTime extends RType
   {
     long val;
+    long getValue();
   };
   
   /*
    */
-  class RObject extends RType
+  ["protected"] class RObject extends RType
   {
     omero::model::IObject val;
+    omero::model::IObject getValue();
   };
 
   // Collections
@@ -126,42 +134,55 @@ module omero {
   sequence<RType> RTypeSeq;
 
   /*
-   * The collection classes permit the passing of sequences of all
+   * The collection ["protected"] classes permit the passing of sequences of all
    * other RTypes (including other collections) and it is itself
    * nullable. The allows for similar arguments to collections in
    * languages with a unified inheritance hierarchy (e.g., Java in
-   * which all classes extend from java.lang.Object).
+   * which all ["protected"] classes extend from java.lang.Object).
+   *
+   * Unlike the other rtypes which are used internally within the
+   * omero.model classes, these types are mutable since they solely
+   * pass through the
    *
    * This flexible mechanism is not used in all API calls because
    * the flexibility brings a performance penalty.
    */
-  class RCollection extends RType
+  ["protected"] class RCollection extends RType
   {
     RTypeSeq val;
+    RTypeSeq getValue();
+    int size();
+    RType get(int index);
+    void add(RType value);
+    void addAll(RTypeSeq value);
   };
 
   // Mapped to an array on the server of a type given
   // by a random member of the RTypeSeq. Only pass
   // homogenous lists.
-  class RArray extends RCollection
+  ["protected"] class RArray extends RCollection
   {
   };
 
   // Mapped to a java.util.List on the server
-  class RList extends RCollection
+  ["protected"] class RList extends RCollection
   {
   };
 
   // Mapped to a java.util.HashSet on the server
-  class RSet extends RCollection
+  ["protected"] class RSet extends RCollection
   {
   };
 
   ["java:type:java.util.HashMap<String,RType>"]
   dictionary<string,omero::RType> RTypeDict;
 
-  class RMap extends RType {
+  ["protected"] class RMap extends RType {
     RTypeDict val;
+    RTypeDict getValue();
+    int size();
+    RType get(string key);
+    void put(string key, RType value);
   };
 };
 

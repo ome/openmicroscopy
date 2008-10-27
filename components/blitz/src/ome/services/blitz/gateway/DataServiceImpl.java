@@ -47,6 +47,7 @@ import omero.model.PixelsType;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectI;
+import static omero.rtypes.*;
 
 /** 
  * 
@@ -112,7 +113,7 @@ class DataServiceImpl
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		if(getLeaves)
-			map.put(omero.constants.POJOLEAVES.value, new RBool(true));
+			map.put(omero.constants.POJOLEAVES.value, rbool(true));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			pojoGateway.loadContainerHierarchy(
 				convertPojos(ContainerClass.Dataset), ids,	map));
@@ -127,7 +128,7 @@ class DataServiceImpl
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		if(getLeaves)
-			map.put(omero.constants.POJOLEAVES.value, new RBool(true));
+			map.put(omero.constants.POJOLEAVES.value, rbool(true));
 		return ServiceUtilities.collectionCast(Project.class, 
 			pojoGateway.loadContainerHierarchy(
 				convertPojos(ContainerClass.Project), ids, map));
@@ -287,7 +288,7 @@ class DataServiceImpl
 		Map<Long, Pixels> pixelsList = new TreeMap<Long, Pixels>();
 		for(Image image : images)
 			for(Pixels pixels : image.copyPixels())
-				pixelsList.put(image.getId().val, pixels);
+				pixelsList.put(image.getId().getValue(), pixels);
 		return pixelsList;
 	}
 

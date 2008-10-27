@@ -100,8 +100,9 @@ DECLARATION BLOCK:
 
 
 [$jav] package omero.model;
-[$jav] import  java.util.*;
-[$jav] import  ome.conditions.*;
+[$jav] import java.util.*;
+[$jav] import static omero.rtypes.*; 
+[$jav] import ome.conditions.*;
 [$jav] public class ${PojoI} extends ${Pojo}
 [$jav]    implements ome.model.ModelBased {
 
@@ -287,7 +288,7 @@ Python combines the two constructors. See below for a comparison.
 [$pyc]           if None == id or isinstance(id, _omero.RLong):
 [$pyc]               self.id = id
 [$pyc]           elif isinstance(id, long):
-[$pyc]               self.id = _omero.RLong(id)
+[$pyc]               self.id = rlong(id)
 [$pyc]           else:
 [$pyc]               raise omero.ClientError("id argument can only be an omero.RLong or long, not " + str(id))
 [$pyc]           self._loaded = loaded
@@ -324,7 +325,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 
 [$hdr]       ${PojoI}(Ice::Long id, bool isLoaded = false);
 [$cpp]    ${PojoI}::${PojoI}(Ice::Long _id, bool isLoaded) : ${Pojo}() {
-[$cpp]        id = new omero::RLong(_id);
+[$cpp]        id = rlong(_id);
 [$cpp]        loaded = isLoaded;
 [$cpp]        if (loaded) details = new omero::model::DetailsI(); 
 [$cpp]        toggleCollectionsLoaded(isLoaded);
@@ -332,7 +333,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 
 
 [$jav]    public ${PojoI}(long id, boolean loaded) {
-[$jav]        this( new omero.RLong(id), loaded );
+[$jav]        this( rlong(id), loaded );
 [$jav]    }
 
 [$jav]    public ${PojoI}(omero.RLong id, boolean loaded) {
@@ -499,7 +500,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 
 [$jav]       public IObject proxy($JAV_CURRENT) {
 [$jav]           if (this.id == null) throw new omero.ClientError("Proxies require an id");
-[$jav]           return new $PojoI( this.id.val, false );
+[$jav]           return new $PojoI( this.id.getValue(), false );
 [$jav]       }
 [$jav]
 [$jav]
@@ -547,7 +548,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 
 [$cpp]       omero::model::IObjectPtr ${PojoI}::proxy($CPP_CURRENT) {
 [$cpp]           if ( ! id )  throw new omero::ClientError(__FILE__, __LINE__, "Proxies require an id");
-[$cpp]           return new ${PojoI}( id->val, false );
+[$cpp]           return new ${PojoI}( id->getValue(), false );
 [$cpp]       }
 [$cpp]
 [$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT) {
@@ -569,7 +570,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 
 [$pyc]       def proxy(self, $PYC_CURRENT):
 [$pyc]           if not id: raise omero.ClientError("Proxies require an id")
-[$pyc]           return ${PojoI}( _id.val, False )
+[$pyc]           return ${PojoI}( _id.getValue(), False )
 [$pyc]
 [$pyc]       def getDetails(self, $PYC_CURRENT):
 [$pyc]           return self._details
@@ -751,35 +752,35 @@ Properties used throughout the accessor generation
 #set( $javaType = "omero.RBool");
 #set( $iceType   = "omero::RBool" )
 #set( $cppType   = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rbool(source.get${PropertyName}());" );
 [$Ice]       omero::RBool ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Integer"))
 #set( $javaType = "omero.RInt");
 #set( $iceType   = "omero::RInt" )
 #set( $cppType   = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rint(source.get${PropertyName}());" );
 [$Ice]       omero::RInt ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Long"))
 #set( $javaType = "omero.RLong");
 #set( $iceType   = "omero::RLong" )
 #set( $cppType   = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rlong(source.get${PropertyName}());" );
 [$Ice]       omero::RLong ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Double"))
 #set( $javaType = "omero.RDouble");
 #set( $iceType   = "omero::RDouble" )
 #set( $cppType   = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rdouble(source.get${PropertyName}());" );
 [$Ice]       omero::RDouble ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Float"))
 #set( $javaType = "omero.RFloat");
 #set( $iceType   = "omero::RFloat" )
 #set( $cppType   = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rfloat(source.get${PropertyName}());" );
 [$Ice]       omero::RFloat ${property.name};
 
 #elseif( $javaType.equals("byte[]"))
@@ -808,14 +809,14 @@ Properties used throughout the accessor generation
 #set( $javaType = "omero.RTime");
 #set( $iceType = "omero::RTime" )
 #set( $cppType = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}().getTime() );" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rtime(source.get${PropertyName}().getTime() );" );
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
 #set( $iceType = "omero::RString" )
 #set( $cppType = "${iceType}Ptr" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}() );" );
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rstring(source.get${PropertyName}() );" );
 [$Ice]       omero::RString ${property.name};
 
 #else
@@ -1656,13 +1657,13 @@ COPYOBJECT BLOCK:
 [$jav]                ${type.id} source = (${type.id}) model;
 [$jav]                this.loaded = source.isLoaded();
 [$jav]                Long id = (Long) mapper.findTarget( source.getId() );
-[$jav]                this.setId( id == null ? new omero.RLong() : new omero.RLong(id) );
+[$jav]                this.setId( id == null ? null : rlong(id) );
 [$jav]                // Following also copy counts, etc. if necessary
 [$jav]                if (!source.isLoaded()) {
 [$jav]                    this.unload();
 [$jav]                } else {
 #if( ! $type.immutable )
-[$jav]             this.version = source.getVersion() == null ? null : new omero.RInt( source.getVersion() );
+[$jav]             this.version = source.getVersion() == null ? null : rint( source.getVersion() );
 #end
 #foreach($property in $type.propertyClosure)
 [$jav]                    this.copy${property.nameCapped}( source, mapper );
@@ -1687,13 +1688,13 @@ FILLOBJECT BLOCK:
 [$jav]           $type.id target = new ${type.id}();
 [$jav]           mapper.store(this, target);
 [$jav]           if (!this.loaded) {
-[$jav]             target.setId( id == null ? null : id.val );
+[$jav]             target.setId( id == null ? null : id.getValue() );
 [$jav]             target.unload();
 [$jav]           } else {
 [$jav]             omero.RLong id = this.getId();
-[$jav]             target.setId( id == null ? null : Long.valueOf(id.val) ); // special property
+[$jav]             target.setId( id == null ? null : Long.valueOf(id.getValue()) ); // special property
 #if( ! $type.immutable )
-[$jav]             target.setVersion(  this.version == null ? null : this.version.val );
+[$jav]             target.setVersion(  this.version == null ? null : this.version.getValue() );
 #end
 [$jav]             
 [$jav]             // Following also copy counts, etc. if necessary
