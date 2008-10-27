@@ -53,7 +53,7 @@ class ServerControl(BaseControl):
         subprocess.call(["python","manage.py","syncdb","--noinput"], cwd="omeroweb", env = os.environ)
         # Now exec
         os.chdir("omeroweb")
-        django = ["python","manage.py","runserver","--noreload"]
+        django = ["python","manage.py","runserver","--noreload","8080"]
         os.execvpe("python", django, os.environ)
 try:
     register("server", ServerControl)
