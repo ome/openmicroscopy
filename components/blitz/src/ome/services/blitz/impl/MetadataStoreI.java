@@ -3314,7 +3314,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheC(planeInfo.getTheC().val, imageIndex, 
+                        store.setPlaneTheC(planeInfo.getTheC().getValue(), imageIndex, 
                                 pixelsIndex, planeIndex);
                         return null;
                     }
