@@ -29,7 +29,7 @@ public class PermissionsITest extends TestCase {
     public void configure() throws Exception {
         p = new Permissions();
         pI = new PermissionsI();
-        pI.perm1 = (Long) Utils.internalForm(p);
+        pI.setPerm1( (Long) Utils.internalForm(p) );
         verify(p,pI);
     }
 

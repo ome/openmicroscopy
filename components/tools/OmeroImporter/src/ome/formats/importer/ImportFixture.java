@@ -140,7 +140,7 @@ public class ImportFixture
             library.open(fileName);
             library.calculateImageCount(fileName, 0);
             List<Pixels> pixId = library.importMetadata(file.getAbsolutePath());
-            library.importData(pixId.get(0).getId().val, fileName, 0, step);
+            library.importData(pixId.get(0).getId().getValue(), fileName, 0, step);
         }
     }
 
@@ -171,7 +171,7 @@ public class ImportFixture
     	ImportContainer[] fads = new ImportContainer[size];
     	File[] files = map.keySet().toArray( new File[size] );
     	for (int i = 0; i < fads.length; i++) {
-			fads[i] = new ImportContainer(files[i],null,map.get(files[i]).getId().val,files[i].toString(), false);
+			fads[i] = new ImportContainer(files[i],null,map.get(files[i]).getId().getValue(),files[i].toString(), false);
 		}
     	return fads;
     }

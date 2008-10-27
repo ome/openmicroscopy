@@ -22,7 +22,14 @@ module omero {
     ["protected"] class Permissions
     {
       // Internal representation. May change!
+      // ======================================================
+      // To make working with this object more straight-forward
+      // accessors are provided for the perm1 instance though it
+      // is protected, though NO GUARANTEES are made on the 
+      // representation.
       long perm1;
+      long getPerm1();             // Do not use
+      void setPerm1(long value);   // Do not use
 
       bool isUserRead();
       bool isUserWrite();

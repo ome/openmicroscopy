@@ -18,6 +18,8 @@ import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.constants.CLIENTUUID;
+import omero.model.DetailsI;
+import omero.model.PermissionsI;
 import omero.util.ObjectFactoryRegistrar;
 
 import org.jmock.Mock;
@@ -76,6 +78,8 @@ public class MockFixture {
         for (omero.rtypes.ObjectFactory of : omero.rtypes.ObjectFactories.values()) {
             of.register(communicator);
         }
+        communicator.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
+        communicator.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
         adapter.activate();
         // The following is a bit of spring magic so that we can configure
         // the adapter in code. If this can be pushed to BlitzConfiguration

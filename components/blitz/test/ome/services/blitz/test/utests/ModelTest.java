@@ -81,7 +81,7 @@ public class ModelTest extends TestCase {
         PixelsI p = new PixelsI();
         ImageI i = new ImageI();
         p.setImage(i);
-        p.getDetails().owner = ei;
+        p.getDetails().setOwner( ei );
         p.fillObject(new IceMapper());
     }
 
@@ -113,7 +113,7 @@ public class ModelTest extends TestCase {
         
         IceMapper mapper = new IceMapper();
         ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
-        ExperimenterI ei = (ExperimenterI) pi.getDetails().owner;
+        ExperimenterI ei = (ExperimenterI) pi.getDetails().getOwner();
         assertEquals( 1, e.sizeOfGroupExperimenterMap() );
         
     }
@@ -139,8 +139,8 @@ public class ModelTest extends TestCase {
         
         IceMapper mapper = new IceMapper();
         ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
-        ExperimenterI ei = (ExperimenterI) pi.getDetails().owner;
-        ExperimenterGroupI gi = (ExperimenterGroupI) pi.getDetails().group;
+        ExperimenterI ei = (ExperimenterI) pi.getDetails().getOwner();
+        ExperimenterGroupI gi = (ExperimenterGroupI) pi.getDetails().getGroup();
         assertEquals( 1, ei.sizeOfGroupExperimenterMap() );
         assertEquals( 1, gi.sizeOfGroupExperimenterMap() );
         
@@ -158,7 +158,7 @@ public class ModelTest extends TestCase {
         
         IceMapper mapper = new IceMapper();
         ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
-        ExperimenterI ei = (ExperimenterI) pi.getDetails().owner;
+        ExperimenterI ei = (ExperimenterI) pi.getDetails().getOwner();
         assertEquals( -1, ei.sizeOfGroupExperimenterMap() );
         
     }

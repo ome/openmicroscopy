@@ -31,12 +31,6 @@ namespace omero {
     ObjectFactory::~ObjectFactory() {}
 
     Ice::ObjectPtr ObjectFactory::create(const std::string& type) {
-    if (0==type.compare("::omero::model::Permissions")) {
-        return new omero::model::PermissionsI();
-    }
-    if (0==type.compare("::omero::model::Details")) {
-        return new omero::model::DetailsI();
-    }
 #foreach($type in $types)
 #if(!$type.abstract)
     if (0==type.compare("::omero::model::${type.shortname}")) {

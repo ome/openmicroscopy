@@ -415,7 +415,7 @@ public class HistoryTable
                 {
                     oldDatasetID = datasetID;
                     try {
-                        datasetName = store.getDataset(rs.getLong("datasetID")).getName().val;
+                        datasetName = store.getDataset(rs.getLong("datasetID")).getName().getValue();
                     } catch (Exception e)
                     {
                         datasetName = "unknown";
@@ -427,7 +427,7 @@ public class HistoryTable
                 {
                     oldProjectID = projectID;
                     try {
-                        projectName = store.getProject(rs.getLong("projectID")).getName().val;
+                        projectName = store.getProject(rs.getLong("projectID")).getName().getValue();
                     } catch (Exception e)
                     {
                         projectName = "unknown";

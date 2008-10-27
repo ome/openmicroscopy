@@ -103,7 +103,7 @@ public class OMEROWrapper extends MinMaxCalculator
         {
             List<PixelsI> p = (List<PixelsI>)iReader.getMetadataStoreRoot();
             try {
-                String name = p.get(series).getImage().getName().val; 
+                String name = p.get(series).getImage().getName().getValue(); 
                 return name == null ? "" + series : name;
             } catch (Exception e)
             {
@@ -164,7 +164,7 @@ public class OMEROWrapper extends MinMaxCalculator
                 (OMEROMetadataStore) reader.getMetadataStore();
             int series = reader.getSeries();
             Pixels p = store.getPixels(series);
-            ChannelI c = (ChannelI) p.getChannel(p.getSizeC().val - 1);
+            ChannelI c = (ChannelI) p.getChannel(p.getSizeC().getValue() - 1);
             if (c.getStatsInfo() == null)
             {
                 minMaxSet = false;

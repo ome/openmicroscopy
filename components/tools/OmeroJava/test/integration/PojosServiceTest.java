@@ -406,10 +406,10 @@ public class PojosServiceTest extends TestCase {
     void assertAnnotations(Map<Long, List<IObject>> m) {
         Annotation ann = (Annotation) m.values().iterator().next().iterator()
                 .next();
-        assertNotNull(ann.getDetails().owner);
-        assertTrue(ann.getDetails().owner.isLoaded());
-        assertNotNull(ann.getDetails().creationEvent);
-        assertTrue(ann.getDetails().creationEvent.isLoaded());
+        assertNotNull(ann.getDetails().getOwner());
+        assertTrue(ann.getDetails().getOwner().isLoaded());
+        assertNotNull(ann.getDetails().getCreationEvent());
+        assertTrue(ann.getDetails().getCreationEvent().isLoaded());
         // Annotations are immutable
         // assertNotNull(ann.getDetails().getUpdateEvent());
         // assertTrue(ann.getDetails().getUpdateEvent().isLoaded());
@@ -1112,13 +1112,13 @@ public class PojosServiceTest extends TestCase {
         if (e != null) {
             for (IObject iobj : __results) {
                 assertEquals(e.getId().getValue(),
-                        iobj.getDetails().owner.getId().getValue());
+                        iobj.getDetails().getOwner().getId().getValue());
             }
         }
         if (g != null) {
             for (IObject iobj : __results) {
                 assertEquals(g.getId().getValue(),
-                        iobj.getDetails().group.getId().getValue());
+                        iobj.getDetails().getGroup().getId().getValue());
             }
         }
     }
@@ -1258,8 +1258,8 @@ public class PojosServiceTest extends TestCase {
         ProjectData data = new ProjectData();
         data.setName("name");
         Project p = (Project) iPojos.createDataObject(data.asIObject(), null);
-        assertTrue(p.getDetails().group.sizeOfGroupExperimenterMap() != 0);
-        assertTrue(p.getDetails().owner.sizeOfGroupExperimenterMap() != 0);
+        assertTrue(p.getDetails().getGroup().sizeOfGroupExperimenterMap() != 0);
+        assertTrue(p.getDetails().getOwner().sizeOfGroupExperimenterMap() != 0);
     }
     
     // ~ Helpers

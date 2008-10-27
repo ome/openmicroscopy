@@ -47,8 +47,6 @@ public abstract class ObjectFactoryRegistrar {
    *
    */
   public static void registerObjectFactory(Ice.Communicator ic, Ice.ObjectFactory _factory) {
-    conditionalAdd("::omero::model::Permissions", ic, _factory);
-    conditionalAdd("::omero::model::Details", ic, _factory);
 #foreach($type in $types)
 #if(!$type.abstract)
     conditionalAdd("::omero::model::${type.shortname}", ic,  _factory);

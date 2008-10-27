@@ -59,7 +59,7 @@ public class ModelTest extends TestCase {
         PixelsI p = new PixelsI();
         ImageI i = new ImageI();
         p.setImage(i);
-        p.getDetails().owner = e;
+        p.getDetails().setOwner( e );
         p.fillObject(new IceMapper());
     }
 

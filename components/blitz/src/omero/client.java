@@ -20,7 +20,9 @@ import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.api._ClientCallbackDisp;
+import omero.model.DetailsI;
 import omero.model.OriginalFile;
+import omero.model.PermissionsI;
 import omero.util.ObjectFactoryRegistrar;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
@@ -258,9 +260,11 @@ public class client {
                 throw new ClientError("Improper initialization");
             }
 
-            // Register Object Factory
+            // Register Object Factories
             ObjectFactoryRegistrar.registerObjectFactory(__ic,
                     ObjectFactoryRegistrar.INSTANCE);
+            __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
+            __ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
 
             // Define our unique identifer (used during close/detach)
             Ice.ImplicitContext ctx = __ic.getImplicitContext();

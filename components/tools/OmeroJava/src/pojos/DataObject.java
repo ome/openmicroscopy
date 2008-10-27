@@ -293,7 +293,7 @@ public abstract class DataObject {
      */
     public ExperimenterData getOwner() {
         if (owner == null) {
-            owner = new ExperimenterData(asIObject().getDetails().owner);
+            owner = new ExperimenterData(asIObject().getDetails().getOwner());
         }
         return owner;
     }
@@ -305,7 +305,7 @@ public abstract class DataObject {
      */
     public PermissionData getPermissions() {
         if (permissions == null) {
-            permissions = new PermissionData(getDetails().permissions);
+            permissions = new PermissionData(getDetails().getPermissions());
         }
         return permissions;
     }

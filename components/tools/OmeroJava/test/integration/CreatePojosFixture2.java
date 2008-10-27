@@ -368,7 +368,7 @@ public class CreatePojosFixture2 {
 
     protected Project project(Experimenter owner, String name) throws Exception {
         Project p = new ProjectI();
-        p.getDetails().owner = owner;
+        p.getDetails().setOwner( owner );
         p.setName( rstring(name) );
         p = push(p);
         return p;
@@ -376,7 +376,7 @@ public class CreatePojosFixture2 {
 
     protected Dataset dataset(Experimenter owner, String name) throws Exception {
         Dataset d = new DatasetI();
-        d.getDetails().owner = owner;
+        d.getDetails().setOwner( owner );
         d.setName( rstring(name) );
         d = push(d);
         return d;
@@ -391,7 +391,7 @@ public class CreatePojosFixture2 {
 
     protected Image image(Experimenter e, String name) throws Exception {
         Image i = new ImageI();
-        i.getDetails().owner = e;
+        i.getDetails().setOwner( e );
         i.setName( rstring(name) );
         i = push(i);
         return i;
@@ -400,7 +400,7 @@ public class CreatePojosFixture2 {
     protected DatasetImageLink dilink(Experimenter user, Dataset ds, Image i) throws Exception {
         DatasetImageLink link = new DatasetImageLinkI();
         link.link(ds, i);
-        link.getDetails().owner = user;
+        link.getDetails().setOwner( user );
         link = push(link);
         return link;
     }
@@ -409,7 +409,7 @@ public class CreatePojosFixture2 {
             String name) throws Exception {
         TextAnnotation dann = new TextAnnotationI();
         dann.setNs( rstring(name) );
-        dann.getDetails().owner = user;
+        dann.getDetails().setOwner( user );
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.link( (Dataset) d.proxy(), dann);
         link = push(link);
@@ -420,7 +420,7 @@ public class CreatePojosFixture2 {
             String name) throws Exception {
         TextAnnotation iann = new TextAnnotationI();
         iann.setNs( rstring(name) );
-        iann.getDetails().owner = user;
+        iann.getDetails().setOwner( user );
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.link((Image) i.proxy(), iann);
         link = push(link);
@@ -429,7 +429,7 @@ public class CreatePojosFixture2 {
 
     protected CategoryGroup catgroup(Experimenter owner, String name) throws Exception {
         CategoryGroup cg = new CategoryGroupI();
-        cg.getDetails().owner = owner;
+        cg.getDetails().setOwner( owner );
         cg.setName( rstring(name) );
         cg = push(cg);
         return cg;
@@ -437,7 +437,7 @@ public class CreatePojosFixture2 {
 
     protected Category category(Experimenter owner, String name) throws Exception {
         Category c = new CategoryI();
-        c.getDetails().owner = owner;
+        c.getDetails().setOwner( owner );
         c.setName( rstring(name) );
         c = push(c);
         return c;
@@ -447,7 +447,7 @@ public class CreatePojosFixture2 {
             CategoryGroup cg, Category c) throws Exception {
         CategoryGroupCategoryLink link = new CategoryGroupCategoryLinkI();
         link.link(cg, c);
-        link.getDetails().owner = user;
+        link.getDetails().setOwner( user );
         link = push(link);
         return link;
     }
@@ -455,7 +455,7 @@ public class CreatePojosFixture2 {
     protected CategoryImageLink cilink(Experimenter user, Category c, Image i) throws Exception {
         CategoryImageLink link = new CategoryImageLinkI();
         link.link(c, i);
-        link.getDetails().owner = user;
+        link.getDetails().setOwner( user );
         link = push(link);
         return link;
     }

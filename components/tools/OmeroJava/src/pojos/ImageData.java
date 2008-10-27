@@ -198,7 +198,7 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public Timestamp getCreated() {
-        return timeOfEvent(asImage().getDetails().creationEvent);
+        return timeOfEvent(asImage().getDetails().getCreationEvent());
     }
 
     /**
@@ -207,7 +207,7 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public Timestamp getInserted() {
-        return timeOfEvent(asImage().getDetails().updateEvent);
+        return timeOfEvent(asImage().getDetails().getUpdateEvent());
     }
 
     // Single-valued objects.

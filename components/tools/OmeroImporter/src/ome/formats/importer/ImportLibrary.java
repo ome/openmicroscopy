@@ -14,7 +14,6 @@
 
 package ome.formats.importer;
 
-// Java imports
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,6 +35,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.formats.importer.util.Actions;
+
+import static omero.rtypes.*;
 import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
@@ -232,11 +233,11 @@ public class ImportLibrary implements IObservable
         List<Image> imageList = getRoot();
         // FIXME: This assumes only *one* Pixels. Image also missing iteratePixels
         Pixels pixels = (Pixels) ((ImageI) imageList.get(series)).iteratePixels().next();
-        this.sizeZ = pixels.getSizeZ().val;
-        this.sizeC = pixels.getSizeC().val;
-        this.sizeT = pixels.getSizeT().val;
-        this.sizeX = pixels.getSizeX().val;
-        this.sizeY = pixels.getSizeY().val;
+        this.sizeZ = pixels.getSizeZ().getValue();
+        this.sizeC = pixels.getSizeC().getValue();
+        this.sizeT = pixels.getSizeT().getValue();
+        this.sizeX = pixels.getSizeX().getValue();
+        this.sizeY = pixels.getSizeY().getValue();
         int imageCount = sizeZ * sizeC * sizeT;
         setOffsetInfo(fileName);
         return imageCount;
@@ -277,22 +278,22 @@ public class ImportLibrary implements IObservable
                     if (pix.sizeOfChannels() == 3)
                     {
                         ColorI red = new ColorI();
-                        red.setRed(new RInt(255));
-                        red.setGreen(new RInt(0));
-                        red.setBlue(new RInt(0));
-                        red.setAlpha(new RInt(255));
+                        red.setRed(rint(255));
+                        red.setGreen(rint(0));
+                        red.setBlue(rint(0));
+                        red.setAlpha(rint(255));
                         
                         ColorI green = new ColorI();
-                        green.setGreen(new RInt(255));
-                        green.setRed(new RInt(0));
-                        green.setBlue(new RInt(0));
-                        green.setAlpha(new RInt(255)); 
+                        green.setGreen(rint(255));
+                        green.setRed(rint(0));
+                        green.setBlue(rint(0));
+                        green.setAlpha(rint(255)); 
                         
                         ColorI blue = new ColorI();
-                        blue.setBlue(new RInt(255));
-                        blue.setGreen(new RInt(0));
-                        blue.setRed(new RInt(0));
-                        blue.setAlpha(new RInt(255));            
+                        blue.setBlue(rint(255));
+                        blue.setGreen(rint(0));
+                        blue.setRed(rint(0));
+                        blue.setAlpha(rint(255));            
                         
                         pix.getChannel(0).setColorComponent(red);
                         pix.getChannel(1).setColorComponent(green);
@@ -422,7 +423,7 @@ public class ImportLibrary implements IObservable
         for (int series = 0; series < seriesCount; series++)
         {
             int count = calculateImageCount(fileName, series);
-            long pixId = pixList.get(series).getId().val; 
+            long pixId = pixList.get(series).getId().getValue(); 
             
             args[4] = getDataset();
             args[5] = pixId;
@@ -432,8 +433,8 @@ public class ImportLibrary implements IObservable
             notifyObservers(Actions.DATASET_STORED, args);
             
             BooleanAnnotationI annotation = new BooleanAnnotationI();
-            annotation.setBoolValue(new RBool(archive));
-            annotation.setNs(new RString("openmicroscopy.org/omero/importer/archived")); // openmicroscopy.org/omero/importer/archived
+            annotation.setBoolValue(rbool(archive));
+            annotation.setNs(rstring("openmicroscopy.org/omero/importer/archived")); // openmicroscopy.org/omero/importer/archived
             
             store.addBooleanAnnotationToPixels(annotation, pixList.get(series));
             

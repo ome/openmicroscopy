@@ -17,6 +17,8 @@ import ome.security.SecuritySystem;
 import ome.services.blitz.fire.PermissionsVerifierI;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.util.Executor;
+import omero.model.DetailsI;
+import omero.model.PermissionsI;
 import omero.util.ObjectFactoryRegistrar;
 
 import org.apache.commons.logging.Log;
@@ -209,6 +211,9 @@ public class BlitzConfiguration {
         for (omero.rtypes.ObjectFactory of : omero.rtypes.ObjectFactories.values()) {
             of.register(communicator);
         }
+        communicator.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
+        communicator.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+        
     }
 
     /**

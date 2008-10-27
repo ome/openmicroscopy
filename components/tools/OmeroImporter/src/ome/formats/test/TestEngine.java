@@ -120,9 +120,9 @@ public class TestEngine
                             Integer sizeT = store.getPixels(series).getSizeT().getValue();
                             PixelsType pixelType = store.getPixels(series).getPixelsType();
                             DimensionOrder dimOrder = store.getPixels(series).getDimensionOrder();
-                            Float pixelSizeX = store.getPixels(series).getPixelsDimensions().getSizeX().val;
-                            Float pixelSizeY = store.getPixels(series).getPixelsDimensions().getSizeY().val;
-                            Float pixelSizeZ = store.getPixels(series).getPixelsDimensions().getSizeZ().val;
+                            Float pixelSizeX = store.getPixels(series).getPixelsDimensions().getSizeX().getValue();
+                            Float pixelSizeY = store.getPixels(series).getPixelsDimensions().getSizeY().getValue();
+                            Float pixelSizeZ = store.getPixels(series).getPixelsDimensions().getSizeZ().getValue();
 
                             // Compare
                             testValue(fileList[j], "s" + series + "_SHA1", sha1);
@@ -141,11 +141,11 @@ public class TestEngine
                             
                             for (int channel = 0; channel < sizeC; channel++)
                             {
-                                Double globalMin = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMin().val;
-                                Double globalMax = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMax().val;
+                                Double globalMin = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMin().getValue();
+                                Double globalMax = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMax().getValue();
                                 
-                                Integer emWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getEmissionWave().val;
-                                Integer exWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getExcitationWave().val;                                
+                                Integer emWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getEmissionWave().getValue();
+                                Integer exWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getExcitationWave().getValue();                                
                                 
                                 testValue(fileList[j], "s" + series + "_c" + channel + "_globalMin", globalMin);
                                 testValue(fileList[j], "s" + series + "_c" + channel + "_globalMax", globalMax);

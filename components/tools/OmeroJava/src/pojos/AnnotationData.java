@@ -95,7 +95,7 @@ public abstract class AnnotationData extends DataObject {
         if (nullDetails()) {
             return null;
         }
-        return timeOfEvent(getDetails().creationEvent);
+        return timeOfEvent(getDetails().getCreationEvent());
     }
 
     /**

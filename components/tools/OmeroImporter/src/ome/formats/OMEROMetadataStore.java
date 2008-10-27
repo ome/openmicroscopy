@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
+import static omero.rtypes.*;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -119,7 +120,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setArcType(new RString(type), instrumentIndex, lightSourceIndex);
+            delegate.setArcType(rstring(type), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -134,7 +135,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setChannelComponentColorDomain(new RString(colorDomain), 
+            delegate.setChannelComponentColorDomain(rstring(colorDomain), 
                     imageIndex, logicalChannelIndex, channelComponentIndex);
         } catch (ServerError e)
         {
@@ -150,7 +151,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setChannelComponentIndex(new RInt(index), 
+            delegate.setChannelComponentIndex(rint(index), 
                     imageIndex, logicalChannelIndex, channelComponentIndex);
         } catch (ServerError e)
         {
@@ -166,7 +167,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorGain(new RFloat(gain), instrumentIndex, detectorIndex);
+            delegate.setDetectorGain(rfloat(gain), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -177,7 +178,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorID(new RString(id), instrumentIndex, detectorIndex);
+            delegate.setDetectorID(rstring(id), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -189,7 +190,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorManufacturer(new RString(manufacturer), instrumentIndex, detectorIndex);
+            delegate.setDetectorManufacturer(rstring(manufacturer), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -201,7 +202,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorModel(new RString(model), instrumentIndex, detectorIndex);
+            delegate.setDetectorModel(rstring(model), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -213,7 +214,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorOffset(new RFloat(offset), instrumentIndex, detectorIndex);
+            delegate.setDetectorOffset(rfloat(offset), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -225,7 +226,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorSerialNumber(new RString(serialNumber), instrumentIndex, detectorIndex);
+            delegate.setDetectorSerialNumber(rstring(serialNumber), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -237,7 +238,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorSettingsDetector(new RString(detector), imageIndex, logicalChannelIndex);
+            delegate.setDetectorSettingsDetector(rstring(detector), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -249,7 +250,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorSettingsGain(new RFloat(gain), imageIndex, logicalChannelIndex);
+            delegate.setDetectorSettingsGain(rfloat(gain), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -261,7 +262,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorSettingsOffset(new RFloat(offset), imageIndex, logicalChannelIndex);
+            delegate.setDetectorSettingsOffset(rfloat(offset), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -273,7 +274,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorType(new RString(type), instrumentIndex, detectorIndex);
+            delegate.setDetectorType(rstring(type), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -285,7 +286,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDetectorVoltage(new RFloat(voltage), instrumentIndex, detectorIndex);
+            delegate.setDetectorVoltage(rfloat(voltage), instrumentIndex, detectorIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -297,7 +298,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDimensionsPhysicalSizeX(new RFloat(physicalSizeX), imageIndex, pixelsIndex);
+            delegate.setDimensionsPhysicalSizeX(rfloat(physicalSizeX), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -309,7 +310,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDimensionsPhysicalSizeY(new RFloat(physicalSizeY), imageIndex, pixelsIndex);
+            delegate.setDimensionsPhysicalSizeY(rfloat(physicalSizeY), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -321,7 +322,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDimensionsPhysicalSizeZ(new RFloat(physicalSizeZ), imageIndex, pixelsIndex);
+            delegate.setDimensionsPhysicalSizeZ(rfloat(physicalSizeZ), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -333,7 +334,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDimensionsTimeIncrement(new RFloat(timeIncrement), imageIndex, pixelsIndex);
+            delegate.setDimensionsTimeIncrement(rfloat(timeIncrement), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -345,7 +346,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDimensionsWaveIncrement(new RInt(waveIncrement), imageIndex, pixelsIndex);
+            delegate.setDimensionsWaveIncrement(rint(waveIncrement), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -357,7 +358,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDimensionsWaveStart(new RInt(waveStart), imageIndex, pixelsIndex);
+            delegate.setDimensionsWaveStart(rint(waveStart), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -368,7 +369,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDisplayOptionsID(new RString(id), imageIndex);
+            delegate.setDisplayOptionsID(rstring(id), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -379,7 +380,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDisplayOptionsProjectionZStart(new RInt(start), imageIndex);
+            delegate.setDisplayOptionsProjectionZStart(rint(start), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -390,7 +391,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDisplayOptionsProjectionZStop(new RInt(stop), imageIndex);
+            delegate.setDisplayOptionsProjectionZStop(rint(stop), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -401,7 +402,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDisplayOptionsTimeTStart(new RInt(start), imageIndex);
+            delegate.setDisplayOptionsTimeTStart(rint(start), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -412,7 +413,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDisplayOptionsTimeTStop(new RInt(stop), imageIndex);
+            delegate.setDisplayOptionsTimeTStop(rint(stop), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -423,7 +424,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setDisplayOptionsZoom(new RFloat(zoom), imageIndex);
+            delegate.setDisplayOptionsZoom(rfloat(zoom), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -434,7 +435,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setExperimenterEmail(new RString(email), experimenterIndex);
+            delegate.setExperimenterEmail(rstring(email), experimenterIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -445,7 +446,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setExperimenterFirstName(new RString(firstName), experimenterIndex);
+            delegate.setExperimenterFirstName(rstring(firstName), experimenterIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -462,7 +463,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setExperimenterInstitution(new RString(institution), experimenterIndex);
+            delegate.setExperimenterInstitution(rstring(institution), experimenterIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -473,7 +474,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setExperimenterLastName(new RString(lastName), experimenterIndex);
+            delegate.setExperimenterLastName(rstring(lastName), experimenterIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -485,7 +486,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setFilamentType(new RString(type), instrumentIndex, lightSourceIndex);
+            delegate.setFilamentType(rstring(type), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -496,7 +497,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImageCreationDate(new RString(creationDate), imageIndex);
+            delegate.setImageCreationDate(rstring(creationDate), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -507,7 +508,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImageDescription(new RString(description), imageIndex);
+            delegate.setImageDescription(rstring(description), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -518,7 +519,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImageID(new RString(id), imageIndex);
+            delegate.setImageID(rstring(id), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -529,7 +530,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImageInstrumentRef(new RString(instrumentRef), imageIndex);
+            delegate.setImageInstrumentRef(rstring(instrumentRef), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -540,7 +541,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImageName(new RString(name), imageIndex);
+            delegate.setImageName(rstring(name), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -552,7 +553,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImagingEnvironmentAirPressure(new RFloat(airPressure), imageIndex);
+            delegate.setImagingEnvironmentAirPressure(rfloat(airPressure), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -563,7 +564,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImagingEnvironmentCO2Percent(new RFloat(percent), imageIndex);
+            delegate.setImagingEnvironmentCO2Percent(rfloat(percent), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -574,7 +575,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImagingEnvironmentHumidity(new RFloat(humidity), imageIndex);
+            delegate.setImagingEnvironmentHumidity(rfloat(humidity), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -586,7 +587,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setImagingEnvironmentTemperature(new RFloat(temperature), imageIndex);
+            delegate.setImagingEnvironmentTemperature(rfloat(temperature), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -597,7 +598,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setInstrumentID(new RString(id), instrumentIndex);
+            delegate.setInstrumentID(rstring(id), instrumentIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -610,7 +611,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLaserFrequencyMultiplication(new RInt(frequencyMultiplication), instrumentIndex, lightSourceIndex);
+            delegate.setLaserFrequencyMultiplication(rint(frequencyMultiplication), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -622,7 +623,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLaserLaserMedium(new RString(laserMedium), instrumentIndex, lightSourceIndex);
+            delegate.setLaserLaserMedium(rstring(laserMedium), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -634,7 +635,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLaserPulse(new RString(pulse), instrumentIndex, lightSourceIndex);
+            delegate.setLaserPulse(rstring(pulse), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -646,7 +647,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLaserTuneable(new RBool(tuneable), instrumentIndex, lightSourceIndex);
+            delegate.setLaserTuneable(rbool(tuneable), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -658,7 +659,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLaserType(new RString(type), instrumentIndex, lightSourceIndex);
+            delegate.setLaserType(rstring(type), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -670,7 +671,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLaserWavelength(new RInt(wavelength), instrumentIndex, lightSourceIndex);
+            delegate.setLaserWavelength(rint(wavelength), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -682,7 +683,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceID(new RString(id), instrumentIndex, lightSourceIndex);
+            delegate.setLightSourceID(rstring(id), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -694,7 +695,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceManufacturer(new RString(manufacturer), instrumentIndex, lightSourceIndex);
+            delegate.setLightSourceManufacturer(rstring(manufacturer), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -706,7 +707,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceModel(new RString(model), instrumentIndex, lightSourceIndex);
+            delegate.setLightSourceModel(rstring(model), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -718,7 +719,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourcePower(new RFloat(power), instrumentIndex, lightSourceIndex);
+            delegate.setLightSourcePower(rfloat(power), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -730,7 +731,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceSerialNumber(new RString(serialNumber), instrumentIndex, lightSourceIndex);
+            delegate.setLightSourceSerialNumber(rstring(serialNumber), instrumentIndex, lightSourceIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -742,7 +743,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceSettingsAttenuation(new RFloat(attenuation), imageIndex, logicalChannelIndex);
+            delegate.setLightSourceSettingsAttenuation(rfloat(attenuation), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -754,7 +755,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceSettingsLightSource(new RString(lightSource), imageIndex, logicalChannelIndex);
+            delegate.setLightSourceSettingsLightSource(rstring(lightSource), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -766,7 +767,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLightSourceSettingsWavelength(new RInt(wavelength), imageIndex, logicalChannelIndex);
+            delegate.setLightSourceSettingsWavelength(rint(wavelength), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -778,7 +779,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelContrastMethod(new RString(contrastMethod), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelContrastMethod(rstring(contrastMethod), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -790,7 +791,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
          try
         {
-            delegate.setLogicalChannelEmWave(new RInt(emWave), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelEmWave(rint(emWave), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -802,7 +803,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
          try
         {
-            delegate.setLogicalChannelExWave(new RInt(exWave), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelExWave(rint(exWave), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -814,7 +815,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelFluor(new RString(fluor), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelFluor(rstring(fluor), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -826,7 +827,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelID(new RString(id), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelID(rstring(id), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -838,7 +839,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelID(new RString(illuminationType), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelID(rstring(illuminationType), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -850,7 +851,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelMode(new RString(mode), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelMode(rstring(mode), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -862,7 +863,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelName(new RString(name), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelName(rstring(name), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -874,7 +875,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelNdFilter(new RFloat(ndFilter), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelNdFilter(rfloat(ndFilter), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -887,7 +888,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelPhotometricInterpretation(new RString(photometricInterpretation), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelPhotometricInterpretation(rstring(photometricInterpretation), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -899,7 +900,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelPinholeSize(new RInt(pinholeSize), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelPinholeSize(rint(pinholeSize), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -911,7 +912,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelPockelCellSetting(new RInt(pockelCellSetting), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelPockelCellSetting(rint(pockelCellSetting), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -923,7 +924,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setLogicalChannelSamplesPerPixel(new RInt(samplesPerPixel), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelSamplesPerPixel(rint(samplesPerPixel), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -934,7 +935,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setOTFID(new RString(id), instrumentIndex, otfIndex);
+            delegate.setOTFID(rstring(id), instrumentIndex, otfIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -946,7 +947,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setOTFOpticalAxisAveraged(new RBool(opticalAxisAveraged), instrumentIndex, otfIndex);
+            delegate.setOTFOpticalAxisAveraged(rbool(opticalAxisAveraged), instrumentIndex, otfIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -958,7 +959,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setOTFPixelType(new RString(pixelType), instrumentIndex, otfIndex);
+            delegate.setOTFPixelType(rstring(pixelType), instrumentIndex, otfIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -969,7 +970,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setOTFSizeX(new RInt(sizeX), instrumentIndex, otfIndex);
+            delegate.setOTFSizeX(rint(sizeX), instrumentIndex, otfIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -980,7 +981,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setOTFSizeY(new RInt(sizeY), instrumentIndex, otfIndex);
+            delegate.setOTFSizeY(rint(sizeY), instrumentIndex, otfIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -996,7 +997,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 calibratedMagnification, instrumentIndex, objectiveIndex));
         try
         {
-            delegate.setObjectiveCalibratedMagnification(new RFloat(calibratedMagnification), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveCalibratedMagnification(rfloat(calibratedMagnification), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1008,7 +1009,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveCorrection(new RString(correction), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveCorrection(rstring(correction), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1020,7 +1021,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveID(new RString(id), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveID(rstring(id), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1035,7 +1036,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 immersion, instrumentIndex, objectiveIndex));
         try
         {
-            delegate.setObjectiveImmersion(new RString(immersion), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveImmersion(rstring(immersion), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1047,7 +1048,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveLensNA(new RFloat(lensNA), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveLensNA(rfloat(lensNA), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1059,7 +1060,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveManufacturer(new RString(manufacturer), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveManufacturer(rstring(manufacturer), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1071,7 +1072,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveModel(new RString(model), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveModel(rstring(model), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1083,7 +1084,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveNominalMagnification(new RInt(nominalMagnification), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveNominalMagnification(rint(nominalMagnification), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1095,7 +1096,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveSerialNumber(new RString(serialNumber), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveSerialNumber(rstring(serialNumber), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1107,7 +1108,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveWorkingDistance(new RFloat(workingDistance), instrumentIndex, objectiveIndex);
+            delegate.setObjectiveWorkingDistance(rfloat(workingDistance), instrumentIndex, objectiveIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1119,7 +1120,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsBigEndian(new RBool(bigEndian), imageIndex, pixelsIndex);
+            delegate.setPixelsBigEndian(rbool(bigEndian), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1131,7 +1132,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsDimensionOrder(new RString(dimensionOrder), imageIndex, pixelsIndex);
+            delegate.setPixelsDimensionOrder(rstring(dimensionOrder), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1142,7 +1143,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsID(new RString(id), imageIndex, pixelsIndex);
+            delegate.setPixelsID(rstring(id), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1154,7 +1155,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsPixelType(new RString(pixelType), imageIndex, pixelsIndex);
+            delegate.setPixelsPixelType(rstring(pixelType), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1165,7 +1166,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsSizeC(new RInt(sizeC), imageIndex, pixelsIndex);
+            delegate.setPixelsSizeC(rint(sizeC), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1177,7 +1178,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsSizeT(new RInt(sizeT), imageIndex, pixelsIndex);
+            delegate.setPixelsSizeT(rint(sizeT), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1189,7 +1190,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsSizeZ(new RInt(sizeZ), imageIndex, pixelsIndex);
+            delegate.setPixelsSizeZ(rint(sizeZ), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1200,7 +1201,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {       
         try
         {
-            delegate.setPixelsSizeX(new RInt(sizeX), imageIndex, pixelsIndex);
+            delegate.setPixelsSizeX(rint(sizeX), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1211,7 +1212,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPixelsSizeY(new RInt(sizeY), imageIndex, pixelsIndex);
+            delegate.setPixelsSizeY(rint(sizeY), imageIndex, pixelsIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1228,7 +1229,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 pInfo = new PlaneInfoI();
             }
 
-            pInfo.setTheC(new RInt(theC));  
+            pInfo.setTheC(rint(theC));
 
             if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
             {
@@ -1251,7 +1252,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 pInfo = new PlaneInfoI();
             }
 
-            pInfo.setTheT(new RInt(theT));  
+            pInfo.setTheT(rint(theT));  
 
             if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
             {
@@ -1274,7 +1275,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 pInfo = new PlaneInfoI();
             }
 
-            pInfo.setTheZ(new RInt(theZ));  
+            pInfo.setTheZ(rint(theZ));  
 
             if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
             {
@@ -1292,7 +1293,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlaneTimingDeltaT(new RFloat(deltaT), imageIndex, pixelsIndex, planeIndex);
+            delegate.setPlaneTimingDeltaT(rfloat(deltaT), imageIndex, pixelsIndex, planeIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1304,7 +1305,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlaneTimingExposureTime(new RFloat(exposureTime), imageIndex, pixelsIndex, planeIndex);
+            delegate.setPlaneTimingExposureTime(rfloat(exposureTime), imageIndex, pixelsIndex, planeIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1315,7 +1316,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlateDescription(new RString(description), plateIndex);
+            delegate.setPlateDescription(rstring(description), plateIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1327,7 +1328,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlateExternalIdentifier(new RString(externalIdentifier), plateIndex);
+            delegate.setPlateExternalIdentifier(rstring(externalIdentifier), plateIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1338,7 +1339,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlateID(new RString(id), plateIndex);
+            delegate.setPlateID(rstring(id), plateIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1349,7 +1350,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlateName(new RString(name), plateIndex);
+            delegate.setPlateName(rstring(name), plateIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1360,7 +1361,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlateRefID(new RString(id), screenIndex, plateRefIndex);
+            delegate.setPlateRefID(rstring(id), screenIndex, plateRefIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1371,7 +1372,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setPlateStatus(new RString(status), plateIndex);
+            delegate.setPlateStatus(rstring(status), plateIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1382,7 +1383,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIID(new RString(id), imageIndex, roiIndex);
+            delegate.setROIID(rstring(id), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1393,7 +1394,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIT0(new RInt(t0), imageIndex, roiIndex);
+            delegate.setROIT0(rint(t0), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1404,7 +1405,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIT1(new RInt(t1), imageIndex, roiIndex);
+            delegate.setROIT1(rint(t1), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1415,7 +1416,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIX0(new RInt(x0), imageIndex, roiIndex);
+            delegate.setROIX0(rint(x0), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1426,7 +1427,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIX1(new RInt(x1), imageIndex, roiIndex);
+            delegate.setROIX1(rint(x1), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1437,7 +1438,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIY0(new RInt(y0), imageIndex, roiIndex);
+            delegate.setROIY0(rint(y0), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1448,7 +1449,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIY1(new RInt(y1), imageIndex, roiIndex);
+            delegate.setROIY1(rint(y1), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1459,7 +1460,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIZ0(new RInt(z0), imageIndex, roiIndex);
+            delegate.setROIZ0(rint(z0), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1470,7 +1471,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setROIZ1(new RInt(z1), imageIndex, roiIndex);
+            delegate.setROIZ1(rint(z1), imageIndex, roiIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1482,7 +1483,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setReagentDescription(new RString(description), screenIndex, reagentIndex);
+            delegate.setReagentDescription(rstring(description), screenIndex, reagentIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1493,7 +1494,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setReagentID(new RString(id), screenIndex, reagentIndex);
+            delegate.setReagentID(rstring(id), screenIndex, reagentIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1504,7 +1505,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setReagentName(new RString(name), screenIndex, reagentIndex);
+            delegate.setReagentName(rstring(name), screenIndex, reagentIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1516,7 +1517,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setReagentReagentIdentifier(new RString(reagentIdentifier), screenIndex, reagentIndex);
+            delegate.setReagentReagentIdentifier(rstring(reagentIdentifier), screenIndex, reagentIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1540,7 +1541,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setScreenAcquisitionEndTime(
-                new RString(endTime), screenIndex, screenAcquisitionIndex);
+                rstring(endTime), screenIndex, screenAcquisitionIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1553,7 +1554,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setScreenAcquisitionStartTime(
-                new RString(id), screenIndex, screenAcquisitionIndex);
+                rstring(id), screenIndex, screenAcquisitionIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1566,7 +1567,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setScreenAcquisitionStartTime(
-                new RString(startTime), screenIndex, screenAcquisitionIndex);
+                rstring(startTime), screenIndex, screenAcquisitionIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1577,7 +1578,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setScreenID(new RString(id), screenIndex);
+             delegate.setScreenID(rstring(id), screenIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1588,7 +1589,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setScreenName(new RString(name), screenIndex);
+             delegate.setScreenName(rstring(name), screenIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1601,7 +1602,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setScreenProtocolDescription(
-                new RString(protocolDescription), screenIndex);
+                rstring(protocolDescription), screenIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1614,7 +1615,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setScreenProtocolIdentifier(
-                new RString(protocolIdentifier), screenIndex);
+                rstring(protocolIdentifier), screenIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1627,7 +1628,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setScreenReagentSetDescription(
-                new RString(reagentSetDescription), screenIndex);
+                rstring(reagentSetDescription), screenIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1640,7 +1641,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 /*
         try
         {
-             delegate.setScreenType(new RString(type), screenIndex);
+             delegate.setScreenType(rstring(type), screenIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1653,7 +1654,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setStageLabelName(new RString(name), imageIndex);
+             delegate.setStageLabelName(rstring(name), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1664,7 +1665,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setStageLabelX(new RFloat(x), imageIndex);
+             delegate.setStageLabelX(rfloat(x), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1675,7 +1676,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setStageLabelY(new RFloat(y), imageIndex);
+             delegate.setStageLabelY(rfloat(y), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1686,7 +1687,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setStageLabelZ(new RFloat(z), imageIndex);
+             delegate.setStageLabelZ(rfloat(z), imageIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1702,7 +1703,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setStagePositionPositionX(
-                new RFloat(positionX), imageIndex, pixelsIndex, planeIndex);
+                rfloat(positionX), imageIndex, pixelsIndex, planeIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1718,7 +1719,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setStagePositionPositionY(
-                new RFloat(positionY), imageIndex, pixelsIndex, planeIndex);
+                rfloat(positionY), imageIndex, pixelsIndex, planeIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1734,7 +1735,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setStagePositionPositionZ(
-                new RFloat(positionZ), imageIndex, pixelsIndex, planeIndex);
+                rfloat(positionZ), imageIndex, pixelsIndex, planeIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1747,7 +1748,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataFileName(
-                new RString(fileName), imageIndex, pixelsIndex, tiffDataIndex);
+                rstring(fileName), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1760,7 +1761,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataFirstC(
-                new RInt(firstC), imageIndex, pixelsIndex, tiffDataIndex);
+                rint(firstC), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1773,7 +1774,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataFirstT(
-                new RInt(firstT), imageIndex, pixelsIndex, tiffDataIndex);
+                rint(firstT), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1786,7 +1787,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataFirstZ(
-                new RInt(firstZ), imageIndex, pixelsIndex, tiffDataIndex);
+                rint(firstZ), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1799,7 +1800,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataIFD(
-                new RInt(ifd), imageIndex, pixelsIndex, tiffDataIndex);
+                rint(ifd), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1812,7 +1813,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataNumPlanes(
-                new RInt(numPlanes), imageIndex, pixelsIndex, tiffDataIndex);
+                rint(numPlanes), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1825,7 +1826,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setTiffDataUUID(
-                new RString(uuid), imageIndex, pixelsIndex, tiffDataIndex);
+                rstring(uuid), imageIndex, pixelsIndex, tiffDataIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1836,7 +1837,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-             delegate.setUUID(new RString(uuid));
+             delegate.setUUID(rstring(uuid));
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1848,7 +1849,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellColumn(
-                new RInt(column), plateIndex, wellIndex);
+                rint(column), plateIndex, wellIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1861,7 +1862,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellExternalDescription(
-                new RString(externalDescription), plateIndex, wellIndex);
+                rstring(externalDescription), plateIndex, wellIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1874,7 +1875,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellExternalIdentifier(
-                new RString(externalIdentifier), plateIndex, wellIndex);
+                rstring(externalIdentifier), plateIndex, wellIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1886,7 +1887,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellID(
-                new RString(id), plateIndex, wellIndex);
+                rstring(id), plateIndex, wellIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1898,7 +1899,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellRow(
-                new RInt(row), plateIndex, wellIndex);
+                rint(row), plateIndex, wellIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1911,7 +1912,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellSampleID(
-                new RString(id), plateIndex, wellIndex, wellSampleIndex);
+                rstring(id), plateIndex, wellIndex, wellSampleIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1924,7 +1925,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellSampleIndex(
-                new RInt(index), plateIndex, wellIndex, wellSampleIndex);
+                rint(index), plateIndex, wellIndex, wellSampleIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1937,7 +1938,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
              delegate.setWellSamplePosX(
-                new RFloat(posX), plateIndex, wellIndex, wellSampleIndex);
+                rfloat(posX), plateIndex, wellIndex, wellSampleIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1950,7 +1951,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {            
             delegate.setWellSamplePosY(
-                new RFloat(posY), plateIndex, wellIndex, wellSampleIndex);
+                rfloat(posY), plateIndex, wellIndex, wellSampleIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1963,7 +1964,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
             delegate.setWellSampleTimepoint(
-                new RInt(timepoint), plateIndex, wellIndex, wellSampleIndex);
+                rint(timepoint), plateIndex, wellIndex, wellSampleIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1974,7 +1975,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setWellType(new RString(type), plateIndex, wellIndex);
+            delegate.setWellType(rstring(type), plateIndex, wellIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -2088,10 +2089,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         Dataset dataset = new DatasetI();
         if (datasetName.length() != 0)
-            dataset.setName(new RString(datasetName));
+            dataset.setName(rstring(datasetName));
         if (datasetDescription.length() != 0)
-            dataset.setDescription(new RString(datasetDescription));
-        Project p = new ProjectI(project.getId().val, false);
+            dataset.setDescription(rstring(datasetDescription));
+        Project p = new ProjectI(project.getId().getValue(), false);
         dataset.linkProject(p);
 
         try
@@ -2133,9 +2134,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         Project project = new ProjectI();
         if (projectName.length() != 0)
-            project.setName(new RString(projectName));
+            project.setName(rstring(projectName));
         if (projectDescription.length() != 0)
-            project.setDescription(new RString(projectDescription));
+            project.setDescription(rstring(projectDescription));
 
         try
         {
@@ -2181,7 +2182,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setChannelGlobalMinMax(channel, new RDouble(minimum), new RDouble(maximum), new RInt(series));
+            delegate.setChannelGlobalMinMax(channel, rdouble(minimum), rdouble(maximum), rint(series));
         }
         catch (ServerError e)
         {
@@ -2195,7 +2196,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         try
         {
             p = (Pixels) iQuery.get("Pixels", id);
-            p.setSha1(new RString(byteArrayToHexString(md.digest())));
+            p.setSha1(rstring(byteArrayToHexString(md.digest())));
             iUpdate.saveObject(p);
         } catch (ServerError e)
         {
@@ -2237,7 +2238,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.populateMinMax(new RLong(id), new RInt(i));
+            delegate.populateMinMax(rlong(id), rint(i));
         }
         catch (ServerError e)
         {

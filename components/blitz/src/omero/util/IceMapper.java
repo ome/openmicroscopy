@@ -594,7 +594,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         if (p == null) {
             return null;
         }
-        return Utils.toPermissions(p.perm1);
+        return Utils.toPermissions(p.getPerm1());
     }
 
     // TODO copied with ModelMapper
