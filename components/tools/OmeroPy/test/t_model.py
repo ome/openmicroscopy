@@ -19,6 +19,7 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
+from omero.rtypes import *
 
 class TestModel(unittest.TestCase):
 
@@ -40,7 +41,7 @@ class TestModel(unittest.TestCase):
         self.assert_( img.sizeOfPixels() >= 0 )
 
     def testUnloadedCtor(self):
-        img = ImageI(omero.RLong(1),False)
+        img = ImageI(rlong(1),False)
         self.assert_( not img.isLoaded() )
         try:
             self.assert_( img.sizeOfDatasetLinks() < 0 )
@@ -78,7 +79,7 @@ class TestModel(unittest.TestCase):
             pass
 
     def testAccessors(self):
-        name = omero.RString("name")
+        name = rstring("name")
         img = ImageI()
         self.assert_( not img.getName() )
         img.setName( name )
@@ -87,7 +88,7 @@ class TestModel(unittest.TestCase):
         self.assert_( name.val == "name" )
         self.assert_( name == name )
 
-        img.setName(omero.RString("name2"))
+        img.setName(rstring("name2"))
         self.assert_( img.getName().val == "name2" )
         self.assert_( img.getName() )
 
@@ -100,7 +101,7 @@ class TestModel(unittest.TestCase):
             pass
 
     def testUnloadedAccessThrows(self):
-        unloaded = ImageI(omero.RLong(1),False)
+        unloaded = ImageI(rlong(1),False)
         self.assertRaises( omero.UnloadedEntityException, unloaded.getName )
 
     def testIterators(self):
@@ -148,7 +149,7 @@ class TestModel(unittest.TestCase):
         group = ExperimenterGroupI()
         link = GroupExperimenterMapI()
 
-        link.id = omero.RLong(1)
+        link.id = rlong(1)
         link.link(group,user)
         user.addGroupExperimenterMap( link, False )
         group.addGroupExperimenterMap( link, False )
@@ -161,9 +162,9 @@ class TestModel(unittest.TestCase):
 
     def testLinkViaLink(self):
         user = ExperimenterI()
-        user.setFirstName(omero.RString("test"))
-        user.setLastName(omero.RString("user"))
-        user.setOmeName(omero.RString("UUID"))
+        user.setFirstName(rstring("test"))
+        user.setLastName(rstring("user"))
+        user.setOmeName(rstring("UUID"))
         
         # possibly setOmeName() and setOmeName(string) ??
         # and then don't need omero/types.h
@@ -211,7 +212,7 @@ class TestModel(unittest.TestCase):
        self.assert_( i.loaded )
        self.assert_( i.isLoaded() )
        self.assert_( not i.name )
-       i.name = omero.RString("name")
+       i.name = rstring("name")
        self.assert_( i.name )
        i.setName( None )
        self.assert_( not i.getName() )

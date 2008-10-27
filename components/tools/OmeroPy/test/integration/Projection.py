@@ -31,6 +31,7 @@
 # @return new pixels object containing the projection.
 #
 import omero, omero.scripts as s
+from omero.rtypes import *
 #import getRawPlane
 class GetRawPlane:
     def getRawPlane(self, *args):
@@ -113,7 +114,7 @@ def Projection():
 				#client.setPlane(newPixelsID, newPlaneData, 1, time, channel, time);
 					
 		# save the image?
-		client.setOutput("newPixelsID", omero.RLong(-1))
+		client.setOutput("newPixelsID", rlong(-1))
 
 if __name__ == "__main__":
     Projection()

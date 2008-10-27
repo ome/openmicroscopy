@@ -11,7 +11,6 @@
 import unittest
 import test.integration.library as lib
 import omero
-import omero_RTypes_ice
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -20,6 +19,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero.rtypes import *
 
 class TestISession(lib.ITest):
 
@@ -47,7 +47,7 @@ class TestISession(lib.ITest):
     def testCreateSessionForUser(self):
         p = omero.sys.Parameters()
         p.theFilter = omero.sys.Filter()
-        p.theFilter.limit = omero.RInt(1)
+        p.theFilter.limit = rint(1)
         user = self.root.sf.getQueryService().findByQuery("""
             select e from Experimenter e where e.id > 0 and e.omeName != 'guest'
             """, p)

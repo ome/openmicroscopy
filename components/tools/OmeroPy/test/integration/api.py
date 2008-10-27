@@ -18,6 +18,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero.rtypes import *
 
 class TestApi(lib.ITest):
 
@@ -30,8 +31,8 @@ class TestApi(lib.ITest):
 
         # Filter to only get one possible pixels
         f = omero.sys.Filter()
-        f.offset = omero.RInt(0)
-        f.limit  = omero.RInt(1)
+        f.offset = rint(0)
+        f.limit  = rint(1)
         p = omero.sys.Parameters()
         p.theFilter = f
 
@@ -40,7 +41,7 @@ class TestApi(lib.ITest):
         if not tstore.setPixelsId(pixel.id.val):
             tstore.resetDefaults()
             tstore.setPixelsId(pixel.id.val)
-        tstore.getThumbnail(omero.RInt(16), omero.RInt(16))
+        tstore.getThumbnail(rint(16), rint(16))
 
 if __name__ == '__main__':
     unittest.main()

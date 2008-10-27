@@ -19,6 +19,7 @@
 
 import exceptions, omero
 from omero_ext import pysys
+from omero.rtypes import *
 
 class Type:
     def __init__(self, name, optional = False, out = False):
@@ -42,31 +43,31 @@ class Type:
 class Long(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RLong()
+        self.type = RLongI()
 class String(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RString()
+        self.type = RStringI()
 class Bool(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RBool()
+        self.type = RBoolI()
 class Point(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RInternal(omero.Point())
+        self.type = rinternal(omero.Point())
 class Plane(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RInternal(omero.Plane())
+        self.type = rinternal(omero.Plane())
 class Set(Type):
     def __init__(self, name, optional = False, out = False, *contents):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RSet(contents)
+        self.type = rset(contents)
 class Map(Type):
     def __init__(self, name, optional = False, out = False, **contents):
         Type.__init__(self, name, optional, out)
-        self.type = omero.RMap(contents)
+        self.type = rmap(contents)
 
 def client(name, description = None, *args, **kwargs):
     """
@@ -96,7 +97,7 @@ def client(name, description = None, *args, **kwargs):
     to overwrite the value with another file, use
     client.setOutput(). Though it is possible to attach any RType to
     "stdout" or "stderr", there is an assumption that the value will
-    be an omero.RObject(OriginalFileI())
+    be an robject(OriginalFileI())
 
     """
     # Checking kwargs
@@ -124,7 +125,7 @@ def client(name, description = None, *args, **kwargs):
             c.params.outputs[p.name] = param
     if len(c.getProperty("omero.scripts.parse")) > 0: # Add to omero/Constants.ice
         c.createSession()
-        c.setOutput("omero.scripts.parse", omero.RInternal(c.params))
+        c.setOutput("omero.scripts.parse", rinternal(c.params))
         pysys.exit(0)
     else:
         return c

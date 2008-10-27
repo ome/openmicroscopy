@@ -11,7 +11,6 @@
 
 import test.integration.library as lib
 import omero, unittest
-import omero_RTypes_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -19,19 +18,20 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero.rtypes import rstring
 
 class TestIPojos(lib.ITest):
 
     def testFindAnnotations(self):
         ipojo = self.client.sf.getPojosService()
         i = ImageI()
-        i.setName(omero.RString("name"))
+        i.setName(rstring("name"))
         i = ipojo.createDataObject(i,None)
 
     def testCreateAfterBlitzPort(self):
         ipojo = self.client.sf.getPojosService()
         i = ImageI()
-        i.setName(omero.RString("name"))
+        i.setName(rstring("name"))
         i = ipojo.createDataObject(i,None)
         o = i.getDetails().owner
         self.assertEquals( -1, o.sizeOfGroupExperimenterMap() )

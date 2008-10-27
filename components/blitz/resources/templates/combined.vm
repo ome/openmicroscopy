@@ -1372,7 +1372,8 @@ COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]           return $GETCOUNTVALUE;
 [$cpp]       }
 [$pyc]       def $GETCOUNTMETHOD(self, $PYC_CURRENT):
-[$pyc]           return $GETCOUNTVALUE
+[$pyc]           return self._$GETCOUNTVALUE
+[$pyc]
 
 
 ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -27,48 +27,87 @@ class DetailsI(_omero_model.Details):
 
       def __init__(self):
           super(DetailsI, self).__init__()
-          self.permissions = _omero_model.PermissionsI()
+          self._permissions = _omero_model.PermissionsI()
 
       def getOwner(self):
-          return self.owner
+          return self._owner
 
       def setOwner(self, value):
-          self.owner = value
+          self._owner = value
           pass
 
       def getGroup(self):
-          return self.group
+          return self._group
 
       def setGroup(self, value):
-          self.group = value
+          self._group = value
           pass
 
       def getCreationEvent(self):
-          return self.creationEvent
+          return self._creationEvent
 
       def setCreationEvent(self, value):
-          self.creationEvent = value
+          self._creationEvent = value
           pass
 
       def getUpdateEvent(self):
-          return self.updateEvent
+          return self._updateEvent
 
       def setUpdateEvent(self, value):
-          self.updateEvent = value
+          self._updateEvent = value
           pass
 
       def getPermissions(self):
-          return self.permissions
+          return self._permissions
 
       def setPermissions(self, value):
-          self.permissions = value
+          self._permissions = value
           pass
 
       def getExternalInfo(self):
-          return self.externalInfo
+          return self._externalInfo
 
       def setExternalInfo(self, value):
-          self.externalInfo = value
+          self._externalInfo = value
           pass
+
+      def __getattr__(self, attr):
+        if attr == "owner":
+            return self.getOwner()
+        elif attr == "group":
+            return self.getGroup()
+        elif attr == "creationEvent":
+            return self.getCreationEvent()
+        elif attr == "updateEvent":
+            return self.getUpdateEvent()
+        elif attr == "permissions":
+            return self.getPermissions()
+        elif attr == "externalInfo":
+            return self.getExternalInfo()
+        else:
+            raise AttributeError(attr)
+
+      def  __setattr__(self, attr, value):
+        if attr.startswith("_"):
+            self.__dict__[attr] = value
+        else:
+            try:
+                object.__getattribute__(self, attr)
+                object.__setattr__(self, attr, value)
+            except AttributeError:
+                if attr == "owner":
+                    return self.setOwner(value)
+                elif attr == "group":
+                    return self.setGroup(value)
+                elif attr == "creationEvent":
+                    return self.setCreationEvent(value)
+                elif attr == "updateEvent":
+                    return self.setUpdateEvent(value)
+                elif attr == "permissions":
+                    return self.setPermissions(value)
+                elif attr == "externalInfo":
+                    return self.setExternalInfo(value)
+                else:
+                    raise
 
 _omero_model.DetailsI = DetailsI

@@ -11,6 +11,7 @@
 
 import test.integration.library as lib
 import omero, tempfile, unittest
+from omero.rtypes import *
 
 SENDFILE = """
 #<script>
@@ -61,10 +62,9 @@ class TestPing(lib.ITest):
         scripts = self.root.getSession().getScriptService()
         id = scripts.uploadScript(SENDFILE)
         j = omero.model.ScriptJobI()
-        j.linkOriginalFile(omero.model.OriginalFileI(omero.RLong(id),False))
+        j.linkOriginalFile(omero.model.OriginalFileI(rlong(id),False))
         p = self.client.sf.acquireProcessor(j, 100)
-        input = omero.RMap({})
-        input = omero.RMap({"x":omero.RLong(3), "y":omero.RLong(3)})
+        input = rmap({"x":rlong(3), "y":rlong(3)})
         
         process = p.execute(input)
         process.wait()

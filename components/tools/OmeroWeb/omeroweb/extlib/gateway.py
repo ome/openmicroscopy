@@ -26,6 +26,7 @@ import traceback
 import Ice
 import Glacier2
 import omero_api_IScript_ice
+from omero.rtypes import *
 
 from datetime import datetime
 from django.utils.translation import ugettext as _
@@ -293,7 +294,7 @@ class BlitzGateway (threading.Thread):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["omeName"] = omero.RString(str(ome_name))
+        p.map["omeName"] = rstring(str(ome_name))
         sql = "select e from Experimenter as e where e.omeName = (:omeName)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:
@@ -308,7 +309,7 @@ class BlitzGateway (threading.Thread):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["name"] = omero.RString(str(name))
+        p.map["name"] = rstring(str(name))
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
         grs = query_serv.findAllByQuery(sql, p)
         if len(grs) > 0:
@@ -322,7 +323,7 @@ class BlitzGateway (threading.Thread):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["email"] = omero.RString(str(email))
+        p.map["email"] = rstring(str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
         exps = query_serv.findAllByQuery(sql, p)
         if len(exps) > 0:
@@ -335,12 +336,12 @@ class BlitzGateway (threading.Thread):
     
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
         admin_serv = self.getAdminService()
-        admin_serv.createExperimenterWithPassword(experimenter, omero.RString(password), defaultGroup, otherGroups)
+        admin_serv.createExperimenterWithPassword(experimenter, rstring(password), defaultGroup, otherGroups)
     
     def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups, password=None):
         admin_serv = self.getAdminService()
         if password is not None:
-            admin_serv.updateExperimenterWithPassword(experimenter, omero.RString(password))
+            admin_serv.updateExperimenterWithPassword(experimenter, rstring(password))
         else:
             admin_serv.updateExperimenter(experimenter)
         if len(addGroups) > 0:
@@ -376,7 +377,7 @@ class BlitzGateway (threading.Thread):
         admin_serv.updateSelf(experimenter)
         admin_serv.setDefaultGroup(experimenter, defultGroup)
         if password is not None:
-            admin_serv.changePassword(omero.RString(password))
+            admin_serv.changePassword(rstring(password))
     
     ##############################################
     ##  helpers                                 ##

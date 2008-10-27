@@ -13,6 +13,7 @@
 
 import omero
 
+from omero.rtypes import *
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from webadmin.controller import BaseController
 
@@ -100,15 +101,15 @@ class BaseGroup(BaseController):
     
     def createGroup(self, name, eid, description=None):
         new_gr = ExperimenterGroupI()
-        new_gr.name = omero.RString(name)
-        new_gr.description = omero.RString(description)
+        new_gr.name = rstring(name)
+        new_gr.description = rstring(description)
         gr_owner = self.conn.getExperimenter(eid)._obj
         self.conn.createGroup(new_gr, gr_owner)
     
     def updateGroup(self, name, eid, description=None):
         up_gr = self.group._obj
-        up_gr.name = omero.RString(name)
-        up_gr.description = omero.RString(description)
+        up_gr.name = rstring(name)
+        up_gr.description = rstring(description)
         gr_owner = self.conn.getExperimenter(eid)._obj
         up_gr.details.owner = gr_owner
         self.conn.updateGroup(up_gr, gr_owner)

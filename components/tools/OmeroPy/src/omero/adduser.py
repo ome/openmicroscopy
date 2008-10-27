@@ -11,6 +11,7 @@ Copyright (c) 2007, Glencoe Software, Inc.
 """
 
 from optparse import OptionParser
+from omero.rtypes import rstring
 
 def main():
 	version="%prog 1.0"
@@ -56,16 +57,16 @@ def main():
 		p.setProperty(omero.constants.PASSWORD,options.sudopass)
 	c.createSession()
 	e = Exp()
-	e.omeName = omero.RString(on)
-	e.firstName = omero.RString(fn)
-	e.lastName = omero.RString(ln)
-	e.middleName = omero.RString(mn)
-	e.email = omero.RString(options.email)
-	e.institute = omero.RString(options.institute)
+	e.omeName = rstring(on)
+	e.firstName = rstring(fn)
+	e.lastName = rstring(ln)
+	e.middleName = rstring(mn)
+	e.email = rstring(options.email)
+	e.institute = rstring(options.institute)
 	admin = c.getSession().getAdminService()
 	id = admin.createUser(e,options.group)
 	print "Added user "+str(id)
-	admin.changeUserPassword(on,omero.RString(options.password))
+	admin.changeUserPassword(on,rstring(options.password))
 	
 	
 if __name__ == "__main__":

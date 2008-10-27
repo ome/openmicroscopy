@@ -12,6 +12,7 @@ import test.integration.library as lib
 import omero
 from omero_model_ImageI import ImageI
 from omero_model_TagAnnotationI import TagAnnotationI
+from omero.rtypes import rstring
 
 class TestCounts(lib.ITest):
 
@@ -19,7 +20,7 @@ class TestCounts(lib.ITest):
         usr = self.client.sf.getAdminService().getEventContext().userId
 
         img = ImageI()
-        img.name = omero.RString("name")
+        img.name = rstring("name")
         tag = TagAnnotationI()
         img.linkAnnotation( tag )
 
@@ -32,6 +33,7 @@ class TestCounts(lib.ITest):
         where img.id = %s
         """ % (img.id.val), None
         )
+        self.assert_(img)
         self.assert_(img.getAnnotationLinksCountPerOwner()[usr] > 0)
 
 if __name__ == '__main__':

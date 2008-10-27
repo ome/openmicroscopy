@@ -11,7 +11,6 @@
 import unittest
 import test.integration.library as lib
 import omero, uuid
-import omero_RTypes_ice
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -22,6 +21,7 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
+from omero.rtypes import *
 
 class TestTicket2000(lib.ITest):
 
@@ -40,10 +40,10 @@ class TestTicket2000(lib.ITest):
             test_user = admin.lookupExperimenter("new_test_user")
         except:
             new_exp = ExperimenterI()
-            new_exp.omeName = omero.RString("new_test_user")
-            new_exp.firstName = omero.RString("New")
-            new_exp.lastName = omero.RString("Test")
-            new_exp.email = omero.RString("newtest@emaildomain.com")
+            new_exp.omeName = rstring("new_test_user")
+            new_exp.firstName = rstring("New")
+            new_exp.lastName = rstring("Test")
+            new_exp.email = rstring("newtest@emaildomain.com")
 
             listOfGroups = list()
             defaultGroup = admin.lookupGroup("default")
@@ -55,7 +55,7 @@ class TestTicket2000(lib.ITest):
             test_group1 = admin.lookupGroup("test_group1")
         except:
             new_gr = ExperimenterGroupI()
-            new_gr.name = omero.RString("test_group1")
+            new_gr.name = rstring("test_group1")
             admin.createGroup(new_gr, None)
 
         groups = list()
@@ -80,10 +80,10 @@ class TestTicket2000(lib.ITest):
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
 
     def test1069(self):
-        unique = omero.RString(str(uuid.uuid4()))
+        unique = rstring(str(uuid.uuid4()))
         project = ProjectI()
         project.name = unique
-        project.description = omero.RString("NOTME")
+        project.description = rstring("NOTME")
         project = self.client.sf.getUpdateService().saveAndReturnObject(project)
         self.root.sf.getUpdateService().indexObject(project)
 
@@ -107,34 +107,34 @@ class TestTicket2000(lib.ITest):
         
         #projects
         pr1 = ProjectI()
-        pr1.setName(omero.RString('test1071-pr1-%s' % (uuid)))
+        pr1.setName(rstring('test1071-pr1-%s' % (uuid)))
         pr1 = update.saveAndReturnObject(pr1)
         pr1.unload()
 
         pr2 = ProjectI()
-        pr2.setName(omero.RString('test1071-pr2-%s' % (uuid)))
+        pr2.setName(rstring('test1071-pr2-%s' % (uuid)))
         pr2 = update.saveAndReturnObject(pr2)
         pr2.unload()
 
         #datasets
         ds1 = DatasetI()
-        ds1.setName(omero.RString('test1071-ds1-%s' % (uuid)))
+        ds1.setName(rstring('test1071-ds1-%s' % (uuid)))
         ds1 = update.saveAndReturnObject(ds1)
         ds1.unload()
         
         ds2 = DatasetI()
-        ds2.setName(omero.RString('test1071-ds2-%s' % (uuid)))
+        ds2.setName(rstring('test1071-ds2-%s' % (uuid)))
         ds2 = update.saveAndReturnObject(ds2)
         ds2.unload()
         
         ds3 = DatasetI()
-        ds3.setName(omero.RString('test1071-ds3-%s' % (uuid)))
+        ds3.setName(rstring('test1071-ds3-%s' % (uuid)))
         ds3 = update.saveAndReturnObject(ds3)
         ds3.unload()
         
         #images
         im2 = ImageI()
-        im2.setName(omero.RString('test1071-im2-%s' % (uuid)))
+        im2.setName(rstring('test1071-im2-%s' % (uuid)))
         im2 = update.saveAndReturnObject(im2)
         im2.unload()
         
@@ -181,12 +181,11 @@ class TestTicket2000(lib.ITest):
         self.assert_(len(hier) == 3)
         for c in hier:
             if c.id.val == pr1.id.val and isinstance(c, ProjectI):
-                self.assert_(len(c.datasetLinks) == 2, "length 2 != " + str(len(c.datasetLinks)))
-                for pdl in c.datasetLinks:
-                    self.assert_(len(pdl.child.imageLinks) == 1)
-                    for dil in pdl.child.imageLinks:
+                self.assert_(c.sizeOfDatasetLinks() == 2, "length 2 != " + str(c.sizeOfDatasetLinks()))
+                for pdl in c.copyDatasetLinks():
+                    self.assert_(pdl.child.sizeOfImageLinks() == 1)
+                    for dil in pdl.child.copyImageLinks():
                         self.assert_(dil.child.id.val == im2.id.val)
-                        
             elif c.id.val == pr2.id.val and isinstance(c, ProjectI):
                 self.assert_( c.sizeOfDatasetLinks() == 1 )
             elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
@@ -200,10 +199,10 @@ class TestTicket2000(lib.ITest):
             test_user = admin.lookupExperimenter("new_test_user1")
         except:
             new_exp = ExperimenterI()
-            new_exp.omeName = omero.RString("new_test_user1")
-            new_exp.firstName = omero.RString("New1")
-            new_exp.lastName = omero.RString("Test1")
-            new_exp.email = omero.RString("newtest1@emaildomain.com")
+            new_exp.omeName = rstring("new_test_user1")
+            new_exp.firstName = rstring("New1")
+            new_exp.lastName = rstring("Test1")
+            new_exp.email = rstring("newtest1@emaildomain.com")
 
             listOfGroups = list()
             defaultGroup = admin.lookupGroup("default")
@@ -216,10 +215,10 @@ class TestTicket2000(lib.ITest):
             test_user = admin.lookupExperimenter("new_test_user2")
         except:
             new_exp = ExperimenterI()
-            new_exp.omeName = omero.RString("new_test_user2")
-            new_exp.firstName = omero.RString("New2")
-            new_exp.lastName = omero.RString("Test2")
-            new_exp.email = omero.RString("newtest2@emaildomain.com")
+            new_exp.omeName = rstring("new_test_user2")
+            new_exp.firstName = rstring("New2")
+            new_exp.lastName = rstring("Test2")
+            new_exp.email = rstring("newtest2@emaildomain.com")
 
             listOfGroups = list()
             defaultGroup = admin.lookupGroup("default")
@@ -245,29 +244,29 @@ class TestTicket2000(lib.ITest):
         
         #projects
         pr1 = ProjectI()
-        pr1.setName(omero.RString('test1071-pr1-%s' % (c1_uuid)))
+        pr1.setName(rstring('test1071-pr1-%s' % (c1_uuid)))
         pr1 = c1_update.saveAndReturnObject(pr1)
         pr1.unload()
 
         pr2 = ProjectI()
-        pr2.setName(omero.RString('test1071-pr2-%s' % (c2_uuid)))
+        pr2.setName(rstring('test1071-pr2-%s' % (c2_uuid)))
         pr2 = c2_update.saveAndReturnObject(pr2)
         pr2.unload()
 
         #datasets
         ds1 = DatasetI()
-        ds1.setName(omero.RString('test1071-ds1-%s' % (c1_uuid)))
+        ds1.setName(rstring('test1071-ds1-%s' % (c1_uuid)))
         ds1 = c1_update.saveAndReturnObject(ds1)
         ds1.unload()
         
         ds2 = DatasetI()
-        ds2.setName(omero.RString('test1071-ds2-%s' % (c2_uuid)))
+        ds2.setName(rstring('test1071-ds2-%s' % (c2_uuid)))
         ds2 = c2_update.saveAndReturnObject(ds2)
         ds2.unload()
         
         #images
         im2 = ImageI()
-        im2.setName(omero.RString('test1071-im2-%s' % (c2_uuid)))
+        im2.setName(rstring('test1071-im2-%s' % (c2_uuid)))
         im2 = c2_update.saveAndReturnObject(im2)
         im2.unload()
         
@@ -327,7 +326,7 @@ class TestTicket2000(lib.ITest):
             admin.lookupGroup("test_group_load_hierarchy")
         except:
             new_gr = ExperimenterGroupI()
-            new_gr.name = omero.RString("test_group_load_hierarchy")
+            new_gr.name = rstring("test_group_load_hierarchy")
             admin.createGroup(new_gr)
 
         test_user = None
@@ -335,17 +334,17 @@ class TestTicket2000(lib.ITest):
             test_user = admin.lookupExperimenter("test_load_hierarchy_user1")
         except:
             new_exp = ExperimenterI()
-            new_exp.omeName = omero.RString("test_load_hierarchy_user1")
-            new_exp.firstName = omero.RString("Test")
-            new_exp.lastName = omero.RString("Test")
-            new_exp.email = omero.RString("test@emaildomain.com")
+            new_exp.omeName = rstring("test_load_hierarchy_user1")
+            new_exp.firstName = rstring("Test")
+            new_exp.lastName = rstring("Test")
+            new_exp.email = rstring("test@emaildomain.com")
             
             listOfGroups = list()
             defaultGroup = admin.lookupGroup("test_group_load_hierarchy")
             listOfGroups.append(admin.lookupGroup("user"))
             
             admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
-            admin.changeUserPassword("test_load_hierarchy_user1", omero.RString("ome"))
+            admin.changeUserPassword("test_load_hierarchy_user1", rstring("ome"))
             test_user = admin.lookupExperimenter("test_load_hierarchy_user1")
             
         test_user2 = None
@@ -353,17 +352,17 @@ class TestTicket2000(lib.ITest):
             test_user2 = admin.lookupExperimenter("test_load_hierarchy_user2")
         except:
             new_exp2 = ExperimenterI()
-            new_exp2.omeName = omero.RString("test_load_hierarchy_user2")
-            new_exp2.firstName = omero.RString("Test")
-            new_exp2.lastName = omero.RString("Test")
-            new_exp2.email = omero.RString("test2@emaildomain.com")
+            new_exp2.omeName = rstring("test_load_hierarchy_user2")
+            new_exp2.firstName = rstring("Test")
+            new_exp2.lastName = rstring("Test")
+            new_exp2.email = rstring("test2@emaildomain.com")
             
             listOfGroups2 = list()
             defaultGroup2 = admin.lookupGroup("test_group_load_hierarchy")
             listOfGroups2.append(admin.lookupGroup("user"))
             
             admin.createExperimenter(new_exp2, defaultGroup2, listOfGroups2)
-            admin.changeUserPassword("test_load_hierarchy_user2", omero.RString("ome"))
+            admin.changeUserPassword("test_load_hierarchy_user2", rstring("ome"))
             test_user2 = admin.lookupExperimenter("test_load_hierarchy_user2")
         
         #login as user1
@@ -372,7 +371,7 @@ class TestTicket2000(lib.ITest):
         update = c1.sf.getUpdateService()
         
         pr1 = ProjectI()
-        pr1.setName(omero.RString('test1072-pr1-%s' % (uuid)))
+        pr1.setName(rstring('test1072-pr1-%s' % (uuid)))
         pr1.details.permissions.setUserRead(True)
         pr1.details.permissions.setUserWrite(True)
         pr1.details.permissions.setGroupRead(True)
@@ -385,7 +384,7 @@ class TestTicket2000(lib.ITest):
         
         #datasets
         ds1 = DatasetI()
-        ds1.setName(omero.RString('test1072-ds1-%s' % (uuid)))
+        ds1.setName(rstring('test1072-ds1-%s' % (uuid)))
         ds1.details.permissions.setUserRead(True)
         ds1.details.permissions.setUserWrite(True)
         ds1.details.permissions.setGroupRead(False)
@@ -411,9 +410,9 @@ class TestTicket2000(lib.ITest):
         
         p = omero.sys.Parameters()
         p.map = {} 
-        #p.map[omero.constants.POJOEXPERIMENTER] = omero.RLong(c2.sf.getAdminService().getEventContext().userId)
-        p.map[omero.constants.POJOGROUP] = omero.RLong(c2.sf.getAdminService().getEventContext().groupId)
-        #p.map[omero.constants.POJOLEAVES] = omero.RBool(True)
+        #p.map[omero.constants.POJOEXPERIMENTER] = rlong(c2.sf.getAdminService().getEventContext().userId)
+        p.map[omero.constants.POJOGROUP] = rlong(c2.sf.getAdminService().getEventContext().groupId)
+        #p.map[omero.constants.POJOLEAVES] = rbool(True)
         pojos.loadContainerHierarchy("Project",None,  p.map)
     
     def test1088(self):
@@ -423,9 +422,9 @@ class TestTicket2000(lib.ITest):
         
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["uid"] = omero.RLong(cx.userId)
-        p.map['start'] = start = omero.RTime(1218529874000)
-        p.map['end'] = end = omero.RTime(1221121874000)
+        p.map["uid"] = rlong(cx.userId)
+        p.map['start'] = start = rtime(1218529874000)
+        p.map['end'] = end = rtime(1221121874000)
 
         sql1 = "select el from EventLog el left outer join fetch el.event ev " \
                "where el.entityType in ('ome.model.core.Pixels', 'ome.model.core.Image', " \
@@ -455,16 +454,16 @@ class TestTicket2000(lib.ITest):
         
         # create data
         #group1
-        new_gr = ExperimenterGroupI()
-        new_gr.name = omero.RString("group1_%s" % uuid)
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
         gid = admin.createGroup(new_gr1)
         
         #new user1
         new_exp = ExperimenterI()
-        new_exp.omeName = omero.RString("user_%s" % uuid)
-        new_exp.firstName = omero.RString("New")
-        new_exp.lastName = omero.RString("Test")
-        new_exp.email = omero.RString("newtest@emaildomain.com")
+        new_exp.omeName = rstring("user_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
 
         listOfGroups = list()
         defaultGroup = admin.lookupGroup("default")

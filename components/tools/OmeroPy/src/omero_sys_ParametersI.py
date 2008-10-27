@@ -10,6 +10,7 @@
 
 import omero
 import omero_System_ice
+from omero.rtypes import *
 
 class ParametersI(omero.sys.Parameters):
 
@@ -35,12 +36,12 @@ class ParametersI(omero.sys.Parameters):
         return self
 
     def addLong(self, name, longValue):
-        self.add(name, omero.RLong(longValue))
+        self.add(name, rlong(longValue))
         return self
 
     def addLongs(self, name, longs):
-        rlongs = omero.RList([])
+        rlongs = rlist([])
         for l in longs:
-            rlongs.val.append(omero.RLong(l))
+            rlongs.val.append(rlong(l))
         self.add(name, rlongs)
         return self

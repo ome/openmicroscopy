@@ -10,8 +10,7 @@
 import unittest
 import test.integration.library as lib
 import omero
-import omero_Gateway_ice
-import omero_RTypes_ice
+import omero_api_Gateway_ice
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -20,12 +19,13 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero.rtypes import *
 
 # Common bits
 params = omero.sys.Parameters()
 params.theFilter = omero.sys.Filter()
-params.theFilter.offset = omero.RInt(0)
-params.theFilter.limit = omero.RInt(1)
+params.theFilter.offset = rint(0)
+params.theFilter.limit = rint(1)
 
 class TestGateway(lib.ITest):
 

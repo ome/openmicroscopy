@@ -12,7 +12,6 @@
 import unittest
 import test.integration.library as lib
 import omero
-import omero_RTypes_ice
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI

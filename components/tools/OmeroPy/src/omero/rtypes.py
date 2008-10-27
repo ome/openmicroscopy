@@ -105,7 +105,7 @@ class RBoolI(omero.RBool):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -122,6 +122,12 @@ class RBoolI(omero.RBool):
         else:
             return hash(False)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RDoubleI(omero.RDouble):
 
     def __init__(self, value):
@@ -132,7 +138,7 @@ class RDoubleI(omero.RDouble):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -146,6 +152,12 @@ class RDoubleI(omero.RDouble):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RFloatI(omero.RFloat):
 
     def __init__(self, value):
@@ -156,7 +168,7 @@ class RFloatI(omero.RFloat):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -170,6 +182,12 @@ class RFloatI(omero.RFloat):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RIntI(omero.RInt):
 
     def __init__(self, value):
@@ -180,7 +198,7 @@ class RIntI(omero.RInt):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -194,6 +212,12 @@ class RIntI(omero.RInt):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RLongI(omero.RLong):
 
     def __init__(self, value):
@@ -204,7 +228,7 @@ class RLongI(omero.RLong):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -218,6 +242,12 @@ class RLongI(omero.RLong):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RTimeI(omero.RTime):
 
     def __init__(self, value):
@@ -228,7 +258,7 @@ class RTimeI(omero.RTime):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -241,6 +271,12 @@ class RTimeI(omero.RTime):
 
     def __hash__(self):
         return hash(self._val)
+
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
 
 
 # Implementations (objects)
@@ -256,7 +292,7 @@ class RInternalI(omero.RInternal):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -270,6 +306,12 @@ class RInternalI(omero.RInternal):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RObjectI(omero.RObject):
 
     def __init__(self, value):
@@ -280,7 +322,7 @@ class RObjectI(omero.RObject):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -294,6 +336,12 @@ class RObjectI(omero.RObject):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RStringI(omero.RString):
 
     def __init__(self, value):
@@ -304,7 +352,7 @@ class RStringI(omero.RString):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -318,6 +366,12 @@ class RStringI(omero.RString):
     def __hash__(self):
         return hash(self._val)
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RClassI(omero.RClass):
 
     def __init__(self, value):
@@ -328,7 +382,7 @@ class RClassI(omero.RClass):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-    
+
     def __eq__(self, obj):
         if obj is self:
             return True
@@ -341,6 +395,12 @@ class RClassI(omero.RClass):
 
     def __hash__(self):
         return hash(self._val)
+
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
 
 
 # Implementations (collections)
@@ -362,13 +422,13 @@ class RArrayI(omero.RArray):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-        
+
     def getValue(self, current = None):
         return self._val
 
     def get(self, index, current = None):
         return self._val[index]
-        
+
     def size(self, current = None):
         return len(self._val)
 
@@ -377,7 +437,7 @@ class RArrayI(omero.RArray):
 
     def addAll(self, values, current = None):
         self.val.append(values)
-        
+
     def __eq__(self, obj):
         if self is obj:
             return True
@@ -387,12 +447,18 @@ class RArrayI(omero.RArray):
 
     def __ne__(self, obj):
         return not self.__eq__(obj)
-    
+
     def __hash__(self, obj):
         """
         Not allowed. Hashing a list is not supported.
         """
         return hash(self._val) # Throws an exception
+
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
 
 class RListI(omero.RList):
     """
@@ -410,13 +476,13 @@ class RListI(omero.RList):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-        
+
     def getValue(self, current = None):
         return self._val
 
     def get(self, index, current = None):
         return self._val[index]
-        
+
     def size(self, current = None):
         return len(self._val)
 
@@ -442,6 +508,12 @@ class RListI(omero.RList):
         """
         return hash(self._val) # Throws an exception
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RSetI(omero.RSet):
     """
     Guaranteed to never contain an empty list.
@@ -458,13 +530,13 @@ class RSetI(omero.RSet):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-        
+
     def getValue(self, current = None):
         return self._val
 
     def get(self, index, current = None):
         return self._val[index]
-        
+
     def size(self, current = None):
         return len(self._val)
 
@@ -490,6 +562,12 @@ class RSetI(omero.RSet):
         """
         return hash(self._val) # Throws an exception
 
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
+
 class RMapI(omero.RMap):
 
     def __init__(self, arg = None, **kwargs):
@@ -501,7 +579,7 @@ class RMapI(omero.RMap):
 
     def compare(self, rhs, current = None):
         raise NotImplementedError("compare")
-        
+
     def getValue(self, current = None):
         return self._val
 
@@ -510,7 +588,7 @@ class RMapI(omero.RMap):
 
     def put(self, key, value, current = None):
         self._val[key] = value
-        
+
     def size(self, current = None):
         return len(self._val)
 
@@ -529,6 +607,12 @@ class RMapI(omero.RMap):
         Not allowed. Hashing a list is not supported.
         """
         return hash(self._val) # Throws an exception
+
+    def __getattr__(self, attr):
+        if attr == "val":
+            return self.getValue()
+        else:
+            raise AttributeError(attr)
 
 # Helpers
 # ========================================================================

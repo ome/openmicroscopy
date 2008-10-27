@@ -15,6 +15,22 @@ ids = [rlong(1)]
 
 class TestModel(unittest.TestCase):
 
+    def testGetAttrWorks(self):
+        rbool(True).val
+        rdouble(0.0).val
+        rfloat(0.0).val
+        rint(0).val
+        rlong(0).val
+        rtime(0).val
+        rinternal(None).val
+        robject(None).val
+        rstring("").val
+        rclass("").val
+        rarray().val
+        rlist().val
+        rset().val
+        rmap().val
+
     def testObjectCreationEqualsAndHash(self):
 
         # RBool
@@ -128,6 +144,19 @@ class TestModel(unittest.TestCase):
         self.assert_(string_notnull1 ==  string_notnull1)
         self.assert_(string_notnull1 !=  string_notnull2)
         self.assert_(string_notnull1 ==  string_notnull1b)
+
+        # RClass
+        class_null1 = rclass(None)
+        class_null2 = rclass(None)
+        class_notnull1 = rclass("str1")
+        class_notnull1b = rclass("str1")
+        class_notnull2 = rclass("str2")
+        self.assert_(class_null1 == class_null2)
+        self.assert_(class_null1 ==  class_null2)
+        self.assert_(class_null1 !=  class_notnull2)
+        self.assert_(class_notnull1 ==  class_notnull1)
+        self.assert_(class_notnull1 !=  class_notnull2)
+        self.assert_(class_notnull1 ==  class_notnull1b)
 
     def testArrayCreationEqualsHash(self):
 

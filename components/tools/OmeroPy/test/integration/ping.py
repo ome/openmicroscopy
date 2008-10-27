@@ -11,7 +11,8 @@
 
 import test.integration.library as lib
 import omero, tempfile, unittest, os, sys
-import omero_IScript_ice
+import omero_api_IScript_ice
+from omero.rtypes import *
 
 PINGFILE = """
 #!/usr/bin/env python
@@ -19,6 +20,7 @@ PINGFILE = """
 import os, uuid
 from omero_ext import pysys
 import omero, omero.scripts as s
+from omero.rtypes import *
 
 #
 # Unique name so that IScript does not reject us
@@ -76,9 +78,9 @@ class TestPing(lib.ITest):
             jp = p.params()
             self.assert_(jp, "Non-zero params")
 
-            input = omero.RMap({})
-            input.val["a"] = omero.RInt(1)
-            input.val["b"] = omero.RString("c")
+            input = rmap({})
+            input.val["a"] = rint(1)
+            input.val["b"] = rstring("c")
             process = p.execute(input)
             rc = process.wait()
             if rc:
@@ -92,15 +94,15 @@ class TestPing(lib.ITest):
         scripts = self.root.getSession().getScriptService()
         id = scripts.uploadScript(PINGFILE)
         j = omero.model.ScriptJobI()
-        j.linkOriginalFile(omero.model.OriginalFileI(omero.RLong(id),False))
+        j.linkOriginalFile(omero.model.OriginalFileI(rlong(id),False))
         p = self.client.sf.acquireProcessor(j, 100)
         return p
 
     def testPingViaISCript(self):
         p = self._getProcessor()
-        input = omero.RMap({})
-        input.val["a"] = omero.RInt(2)
-        input.val["b"] = omero.RString("d")
+        input = rmap({})
+        input.val["a"] = rint(2)
+        input.val["b"] = rstring("d")
         process = p.execute(input)
         process.wait()
         output = p.getResults(process)
@@ -132,7 +134,7 @@ class TestPing(lib.ITest):
         params = p.params()
         self.assert_( params.stdoutFormat )
 
-        process = p.execute(omero.RMap({}))
+        process = p.execute(rmap({}))
         process.wait()
         output = p.getResults(process)
 

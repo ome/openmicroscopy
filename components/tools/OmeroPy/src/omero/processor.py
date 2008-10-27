@@ -8,6 +8,7 @@
 import omero, Ice
 import os, signal, subprocess, sys, threading, tempfile, time, traceback
 from omero_model_OriginalFileI import OriginalFileI
+from omero.rtypes import *
 
 CONFIG="""
 Ice.ACM.Client=0
@@ -205,7 +206,7 @@ class ProcessI(omero.grid.Process):
                 ofile = client.upload(filename, name=name, type=format)
                 jobid = long(client.getProperty("omero.job"))
                 link = omero.model.JobOriginalFileLinkI()
-                link.parent = omero.model.ScriptJobI(omero.RLong(jobid), False)
+                link.parent = omero.model.ScriptJobI(rlong(jobid), False)
                 link.child = ofile
                 client.getSession().getUpdateService().saveObject(link)
 
@@ -235,7 +236,7 @@ class ProcessI(omero.grid.Process):
         rv = self.popen.poll()
         if None == rv:
             return None
-        rv = omero.RInt(rv)
+        rv = rint(rv)
         self.allcallbacks("processFinished", rv)
         self.__del__()
         return rv
@@ -375,6 +376,8 @@ class Server(Ice.Application):
         self.shutdownOnInterrupt()
         self.objectfactory = omero.ObjectFactory()
         self.objectfactory.registerObjectFactory(self.communicator())
+        for of in ObjectFactories.values():
+            of.register(self.communicator())
         self.adapter = self.communicator().createObjectAdapter("ProcessorAdapter")
         self.p = ProcessorI(self.communicator().getLogger())
         self.p.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")

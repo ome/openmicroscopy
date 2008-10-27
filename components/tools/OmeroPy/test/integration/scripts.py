@@ -12,6 +12,7 @@ import unittest
 import test.integration.library as lib
 import omero
 from omero_model_ScriptJobI import ScriptJobI
+from omero.rtypes import *
 
 class TestScripts(lib.ITest):
 
@@ -21,7 +22,7 @@ class TestScripts(lib.ITest):
         #proc.
 
     def testTicket1036(self):
-        self.client.setInput("a", omero.RString("a"));
+        self.client.setInput("a", rstring("a"));
         self.client.getInput("a");
 
 if __name__ == '__main__':

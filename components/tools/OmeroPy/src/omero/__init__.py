@@ -16,6 +16,7 @@ import api
 import model
 import util
 from omero_ext import pysys
+from omero.rtypes import *
 import omero_Constants_ice
 import uuid
 import omero.constants
@@ -386,17 +387,17 @@ class client(object):
             if not ofile:
                 ofile = OriginalFileI()
 
-            ofile.size = omero.RLong(size)
-            ofile.sha1 = omero.RString(self.sha1(file.name))
+            ofile.size = rlong(size)
+            ofile.sha1 = rstring(self.sha1(file.name))
 
             if not ofile.name:
                 if name:
-                    ofile.name = omero.RString(name)
+                    ofile.name = rstring(name)
                 else:
-                    ofile.name = omero.RString(file.name)
+                    ofile.name = rstring(file.name)
 
             if not ofile.path:
-                ofile.path = omero.RString(os.path.abspath(file.name))
+                ofile.path = rstring(os.path.abspath(file.name))
 
             if not ofile.format:
                 if not type:
@@ -405,7 +406,7 @@ class client(object):
                     raise ClientError("no format given")
                 else:
                     ofile.format = FormatI()
-                    ofile.format.value = omero.RString(type)
+                    ofile.format.value = rstring(type)
 
             up = self.__sf.getUpdateService()
             ofile = up.saveAndReturnObject(ofile)

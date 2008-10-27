@@ -10,6 +10,7 @@
 
 import test.integration.library as lib
 import omero, tempfile, unittest, os
+from omero.rtypes import *
 
 class TestProjection(lib.ITest):
 
@@ -23,14 +24,14 @@ class TestProjection(lib.ITest):
 
         p = self.client.sf.acquireProcessor(j, 100)
         map = {}
-        map["pixelsID"] = omero.RLong(1)
-        map["channelSet"] = omero.RSet([omero.RObject(omero.model.ChannelI())])
-        map["timeSet"] = omero.RSet([omero.RInt(0)])
-        map["zSectionSet"] = omero.RSet([omero.RInt(1)])
-        map["point1"] = omero.RInternal(omero.Point(1,2))
-        map["point2"] = omero.RInternal(omero.Point(2,2))
-        map["method"] = omero.RString("max")
-        input = omero.RMap(map)
+        map["pixelsID"] = rlong(1)
+        map["channelSet"] = rset([robject(omero.model.ChannelI())])
+        map["timeSet"] = rset([rint(0)])
+        map["zSectionSet"] = rset([rint(1)])
+        map["point1"] = rinternal(omero.Point(1,2))
+        map["point2"] = rinternal(omero.Point(2,2))
+        map["method"] = rstring("max")
+        input = rmap(map)
         process = p.execute(input)
         process.wait()
         output = p.getResults(process)

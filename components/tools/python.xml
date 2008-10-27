@@ -2,7 +2,7 @@
 <project name="python" default="install" basedir=".">
 
     <property name="env.DESTDIR"    value="${up-two}/target/"/>
-    <property name="env.ICE_CONFIG" value="${basedir}/../../blitz/target/generated/resources/local.properties"/>
+    <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/ice.config"/>
 
     <defineVariables/>
 

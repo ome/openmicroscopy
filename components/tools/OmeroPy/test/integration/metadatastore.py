@@ -10,7 +10,7 @@
 import unittest
 import test.integration.library as lib
 import omero
-import omero_MetadataStore_ice
+import omero_api_MetadataStore_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -18,6 +18,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero.rtypes import *
 
 class TestMetdataStore(lib.ITest):
 
@@ -26,14 +27,13 @@ class TestMetdataStore(lib.ITest):
         ms = self.client.sf.createByName(omero.constants.METADATASTORE)
         ms = omero.api.MetadataStorePrx.checkedCast(ms)
 
-        ms.setRoot(omero.RList([]))
-        ms.setPixelsSizeX(omero.RInt(1), 1, 1)
-        ms.setPixelsSizeY(omero.RInt(1), 1, 1)
-        ms.setPixelsSizeZ(omero.RInt(1), 1, 1)
-        ms.setPixelsSizeC(omero.RInt(1), 1, 1)
-        ms.setPixelsSizeT(omero.RInt(1), 1, 1)
+        ms.setRoot(rlist([]))
+        ms.setPixelsSizeX(rint(1), 1, 1)
+        ms.setPixelsSizeY(rint(1), 1, 1)
+        ms.setPixelsSizeZ(rint(1), 1, 1)
+        ms.setPixelsSizeC(rint(1), 1, 1)
+        ms.setPixelsSizeT(rint(1), 1, 1)
         ms.getProjects()
-        ms.getExperimenterID()
 
 if __name__ == '__main__':
     unittest.main()

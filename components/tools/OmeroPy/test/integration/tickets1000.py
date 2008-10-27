@@ -10,18 +10,19 @@
 
 import test.integration.library as lib
 import omero, tempfile, unittest
+from omero.rtypes import *
 
 # Reused bits
 params = omero.sys.Parameters()
 params.theFilter = omero.sys.Filter()
-params.theFilter.limit = omero.RInt(1)
-params.theFilter.offset = omero.RInt(1)
+params.theFilter.limit = rint(1)
+params.theFilter.offset = rint(1)
 
 class TestTicket1000(lib.ITest):
 
     def test711(self):
         exp = omero.model.ExperimenterI()
-        exp.omeName = omero.RString("root")
+        exp.omeName = rstring("root")
         list = self.client.sf.getQueryService().findAllByExample(exp, None)
         self.assertEquals(1, len(list))
 
@@ -75,7 +76,7 @@ class TestTicket1000(lib.ITest):
     def test985(self):
         prms = omero.sys.Parameters()
         prms.map = {} # ParamMap
-        prms.map["id"] = omero.RLong(53)
+        prms.map["id"] = rlong(53)
         self.client.sf.getQueryService().findAllByQuery(TestTicket1000.success, prms);
         self.client.sf.getQueryService().findAllByQuery(TestTicket1000.failing, prms);
 
@@ -90,7 +91,7 @@ class TestTicket1000(lib.ITest):
         pojos = self.client.sf.getPojosService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map[omero.constants.POJOEXPERIMENTER] = omero.RLong(0)
+        p.map[omero.constants.POJOEXPERIMENTER] = rlong(0)
 
         for e in pojos.getImages("Dataset",[d.id.val],  p.map):
             for px in e.pixels:
@@ -99,12 +100,12 @@ class TestTicket1000(lib.ITest):
         self.assert_(len(pixelsIds)>0)
 
         tb = self.client.sf.createThumbnailStore()
-        th = tb.getThumbnailSet(omero.RInt(120), omero.RInt(120), pixelsIds)
+        th = tb.getThumbnailSet(rint(120), rint(120), pixelsIds)
         print th.items()
         for key in th:
             tb.setPixelsId(key)
             print th[key]
-            print tb.getThumbnailDirect(omero.RInt(120),omero.RInt(120))
+            print tb.getThumbnailDirect(rint(120),rint(120))
 
 if __name__ == '__main__':
     unittest.main()

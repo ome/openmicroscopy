@@ -13,6 +13,7 @@
 
 import omero
 
+from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from webadmin.controller import BaseController
@@ -131,11 +132,11 @@ class BaseExperimenter(BaseController):
     
     def updateMyAccount(self, firstName, lastName, email, dGroup, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj
-        up_exp.firstName = omero.RString(firstName)
-        up_exp.middleName = omero.RString(middleName)
-        up_exp.lastName = omero.RString(lastName)
-        up_exp.email = omero.RString(email)
-        up_exp.institution = omero.RString(institution)
+        up_exp.firstName = rstring(firstName)
+        up_exp.middleName = rstring(middleName)
+        up_exp.lastName = rstring(lastName)
+        up_exp.email = rstring(email)
+        up_exp.institution = rstring(institution)
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup, password)
@@ -154,12 +155,12 @@ class BaseExperimenter(BaseController):
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):
         new_exp = ExperimenterI()
-        new_exp.omeName = omero.RString(omeName)
-        new_exp.firstName = omero.RString(firstName)
-        new_exp.middleName = omero.RString(middleName)
-        new_exp.lastName = omero.RString(lastName)
-        new_exp.email = omero.RString(email)
-        new_exp.institution = omero.RString(institution)
+        new_exp.omeName = rstring(omeName)
+        new_exp.firstName = rstring(firstName)
+        new_exp.middleName = rstring(middleName)
+        new_exp.lastName = rstring(lastName)
+        new_exp.email = rstring(email)
+        new_exp.institution = rstring(institution)
         
         listOfGroups = set()
         # default group
@@ -193,12 +194,12 @@ class BaseExperimenter(BaseController):
     
     def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj
-        up_exp.omeName = omero.RString(omeName)
-        up_exp.firstName = omero.RString(firstName)
-        up_exp.middleName = omero.RString(middleName)
-        up_exp.lastName = omero.RString(lastName)
-        up_exp.email = omero.RString(email)
-        up_exp.institution = omero.RString(institution)
+        up_exp.omeName = rstring(omeName)
+        up_exp.firstName = rstring(firstName)
+        up_exp.middleName = rstring(middleName)
+        up_exp.lastName = rstring(lastName)
+        up_exp.email = rstring(email)
+        up_exp.institution = rstring(institution)
         
         # old list of groups
         old_groups = list()
