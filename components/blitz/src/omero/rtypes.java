@@ -36,26 +36,7 @@ import Ice.Current;
  */
 public abstract class rtypes {
 
-    public final static Map<Class, ObjectFactory> ObjectFactories;
-
-    // Shared state (flyweight)
-    // =========================================================================
-
-    private final static omero.RBool rtrue = new RBoolI(true);
-
-    private final static omero.RBool rfalse = new RBoolI(false);
-
-    private final static omero.RLong rlong0 = new RLongI(0);
-
-    private final static omero.RInt rint0 = new RIntI(0);
-
-    private final static omero.RString remptystr = new RStringI(null);
-
-    private final static omero.RClass remptyclass = new RClassI(null);
-
-    private final static omero.RInternal rnullinternal = new RInternalI(null);
-
-    private final static omero.RObject rnullobject = new RObjectI(null);
+    // Static state at bottom
 
     // Static factory methods (primitives)
     // =========================================================================
@@ -899,8 +880,30 @@ public abstract class rtypes {
 
     }
 
-    // Object factories
+    // Shared state (flyweight)
+    // =========================================================================
 
+    private final static omero.RBool rtrue = new RBoolI(true);
+
+    private final static omero.RBool rfalse = new RBoolI(false);
+
+    private final static omero.RLong rlong0 = new RLongI(0);
+
+    private final static omero.RInt rint0 = new RIntI(0);
+
+    private final static omero.RString remptystr = new RStringI(null);
+
+    private final static omero.RClass remptyclass = new RClassI(null);
+
+    private final static omero.RInternal rnullinternal = new RInternalI(null);
+
+    private final static omero.RObject rnullobject = new RObjectI(null);
+
+    // Object factories
+    // =========================================================================
+    
+    public final static Map<Class, ObjectFactory> ObjectFactories;
+    
     static {
         Map<Class, ObjectFactory> factories = new HashMap<Class, ObjectFactory>();
         factories.put(RBool.class, new ObjectFactory(RBool.ice_staticId()) {

@@ -19,6 +19,7 @@ from omero_ext import pysys
 import omero_Constants_ice
 import uuid
 import omero.constants
+import omero.rtypes
 
 class client(object):
     """
@@ -184,6 +185,8 @@ class client(object):
             # Register Object Factory
             self.of = ObjectFactory()
             self.of.registerObjectFactory(self.__ic)
+            for of in omero.rtypes.ObjectFactories.values():
+                of.register(self.__ic)
 
             # Define our unique identifier (used during close/detach)
             ctx = self.__ic.getImplicitContext()
