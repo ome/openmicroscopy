@@ -26,9 +26,9 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -218,16 +218,17 @@ class ServerDialog
 		editor.addPropertyChangeListener(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the window.");
-		
+		cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		finishButton =  new JButton("Apply");
 		finishButton.setEnabled(false);
+		finishButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(finishButton);
 		//layer hosting title and empty message
 		IconManager icons = IconManager.getInstance();
 		titleLayer = new JLayeredPane();
 		titlePanel = new TitlePanel(TITLE, TEXT, 
 									icons.getIcon(IconManager.CONFIG_48));
-		titleLayer.add(titlePanel, new Integer(0));
+		//titleLayer.add(titlePanel, new Integer(0));
 	}
 	
 	/**
@@ -238,12 +239,15 @@ class ServerDialog
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
+		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		bar.setOpaque(true);
         bar.setBorder(null);
         bar.add(finishButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
         JPanel p = UIUtilities.buildComponentPanelRight(bar);
         p.setOpaque(true);
+        p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         return p;
 	}
 	
@@ -261,7 +265,7 @@ class ServerDialog
         //mainPanel.add(editor);
         Container c = getContentPane();
         //setLayout(new BorderLayout(0, 0));
-        c.add(titleLayer, BorderLayout.NORTH);
+        c.add(titlePanel, BorderLayout.NORTH);
         c.add(mainPanel, BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
@@ -296,9 +300,11 @@ class ServerDialog
 	private JPanel buildConnectionSpeed(int index)
 	{
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
 		buttonsGroup = new ButtonGroup();
 		JRadioButton button = new JRadioButton();
+		button.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		button.setText("LAN");
 		button.setActionCommand(""+HIGH_SPEED);
 		button.addActionListener(this);
@@ -306,6 +312,7 @@ class ServerDialog
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
+		button.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		button.setText("High (Broadband)");
 		button.setActionCommand(""+MEDIUM_SPEED);
 		button.setSelected(index == LoginCredentials.MEDIUM);
@@ -313,6 +320,7 @@ class ServerDialog
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
+		button.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		button.setText("Low (Dial-up)");
 		button.setActionCommand(""+LOW_SPEED);
 		button.setSelected(index == LoginCredentials.LOW);
@@ -322,7 +330,10 @@ class ServerDialog
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.add(editor);
-		content.add(UIUtilities.buildComponentPanel(p));
+		p = UIUtilities.buildComponentPanel(p);
+		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		content.add(p);
+		content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return content;
 	}
 	
@@ -341,9 +352,7 @@ class ServerDialog
 		initComponents();
 		initListeners();
 		buildGUI(index);
-		//setSize(WINDOW_DIM);
-		//pack();
-		setSize(getPreferredSize());
+		setSize(WINDOW_DIM);
 	}
 	
 	/** 
@@ -365,6 +374,7 @@ class ServerDialog
      */
 	public void componentResized(ComponentEvent e) 
 	{
+		/*
 		Rectangle r = getBounds();
 		if (titleLayer == null) return;
 		Dimension d  = new Dimension(r.width, ServerEditor.TITLE_HEIGHT);
@@ -374,6 +384,7 @@ class ServerDialog
 	    titleLayer.setPreferredSize(d);
 	    titleLayer.validate();
 	    titleLayer.repaint();
+	    */
 	}
 
 	/**

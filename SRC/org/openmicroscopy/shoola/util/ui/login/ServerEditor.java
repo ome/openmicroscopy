@@ -47,10 +47,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
-
-
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -75,7 +72,7 @@ public class ServerEditor
 {
 	
 	/** The default height of the <code>TitlePanel</code>. */
-    public static final int		TITLE_HEIGHT = 70;
+   // public static final int		TITLE_HEIGHT = 70;
     
 	/** Bound property indicating to remove the warning message. */
 	public static final String	REMOVE_MESSAGE_PROPERTY = "removeMessage";
@@ -211,10 +208,12 @@ public class ServerEditor
 		UIUtilities.unifiedButtonLookAndFeel(removeButton);
 		removeButton.setToolTipText("Remove the selected server " +
 									"from the list of servers.");
+		removeButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		addButton = new JButton(icons.getIcon(IconManager.ADD));
 		addButton.setToolTipText("Add a new server to the list of servers.");
 		addButton.setBorder(new TitledBorder(""));
 		UIUtilities.unifiedButtonLookAndFeel(addButton);
+		addButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		removeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{ 
@@ -232,6 +231,7 @@ public class ServerEditor
 		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         //setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         JPanel labels = new JPanel();
+        labels.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         labels.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -266,42 +266,17 @@ public class ServerEditor
             c.gridx = 1;
             labels.add(new JLabel(activeServer), c); 
         }
-        /*
-        double[] columns = {TableLayout.PREFERRED, 5, TableLayout.FILL};
-        double[] rows;
-        if (activeServer != null) {
-        	rows = new double[3];
-        	rows[0] = TableLayout.FILL;
-        	rows[1] = 5;
-        	rows[2] = TableLayout.FILL;
-        } else {
-        	rows = new double[1];
-        	rows[0] = TableLayout.FILL;
-        }
-        TableLayout layout = new TableLayout();
-        layout.setColumn(columns);
-        layout.setRow(rows);
-        labels.setLayout(layout);
-        JLabel label = UIUtilities.setTextFont("Server Address");
-        labels.add(label, "0, 0");  
-        label = new JLabel(EXAMPLE);
-        label.setFont(FONT);
-        labels.add(label, "2, 0"); 
-        if (activeServer != null) {
-        	labels.add(new JLabel(), "0, 1, 2, 1"); 
-        	label = UIUtilities.setTextFont("Connected to ");
-            labels.add(label, "0, 2");  
-            labels.add(new JLabel(activeServer), "2, 2"); 
-        }
-        */
         JPanel p = new JPanel();
+        p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         p.add(new JScrollPane(table));
         p.add(buildControls());
        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(UIUtilities.buildComponentPanel(labels)); 
+        JPanel content = UIUtilities.buildComponentPanel(labels);
+        content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        add(content); 
         add(p);
 	}
 	
@@ -313,12 +288,15 @@ public class ServerEditor
 	private JPanel buildControls()
 	{
 		JToolBar bar = new JToolBar();
+		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
         bar.add(addButton);
         bar.add(removeButton);
-        return UIUtilities.buildComponentPanel(bar);
+        JPanel p = UIUtilities.buildComponentPanel(bar);
+        p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        return p;
 	}
 	
 	/**
@@ -369,7 +347,7 @@ public class ServerEditor
         emptyMessagePanel.add(label);
         Insets i = emptyMessagePanel.getInsets();
         h += i.top+i.bottom;
-        emptyMessagePanel.setBounds(2, TITLE_HEIGHT-h-1, 3*w/2, h);
+        //emptyMessagePanel.setBounds(2, TITLE_HEIGHT-h-1, 3*w/2, h);
     }
     
 	/**
