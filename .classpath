@@ -16,6 +16,7 @@
 	<classpathentry kind="src" path="components/importer/resources"/>
 	<classpathentry kind="src" path="components/importer/src"/>
 	<classpathentry kind="src" path="components/importer/test"/>
+	<classpathentry kind="src" path="components/tools/OmeroImporter/src"/>
 	<classpathentry kind="src" path="components/testing/target/generated/src"/>
 	<classpathentry kind="src" path="components/testing/resources"/>
 	<classpathentry kind="src" path="components/testing/src"/>
@@ -36,6 +37,7 @@
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/resources"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/src"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/generated"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/src"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/test"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/resources"/>
