@@ -70,7 +70,7 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/findbugs-ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/freemarker.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/groovy.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/hibernate.jar" sourcepath="/Users/josh/code/SOURCES/Hibernate_Branch_3_2"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-search.jar"/>
@@ -96,9 +96,7 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/rendering.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar" sourcepath="/Users/josh/lib/spring-framework-2.5"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-ldap.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
@@ -110,7 +108,6 @@
 	<classpathentry kind="lib" path="target/libs/activation.jar"/>
 	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
-	<classpathentry kind="lib" path="target/libs/commons-validator.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
