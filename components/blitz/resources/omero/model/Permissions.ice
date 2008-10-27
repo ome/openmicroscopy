@@ -19,11 +19,11 @@ module omero {
      * every OMERO.blitz type. Represents a similar 
      * logic to the Unix filesystem.
      */
-    class Permissions
+    ["protected"] class Permissions
     {
       // Internal representation. May change!
       long perm1;
-      
+
       bool isUserRead();
       bool isUserWrite();
       bool isGroupRead();
