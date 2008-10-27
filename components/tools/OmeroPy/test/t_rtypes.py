@@ -95,8 +95,8 @@ class TestModel(unittest.TestCase):
         self.assert_(time_notzero1 !=  time_notzero2)
 
         # RInternal
-        internal_null1 = rinternal(null)
-        internal_null2 = rinternal(null)
+        internal_null1 = rinternal(None)
+        internal_null2 = rinternal(None)
         internal_notnull1 = rinternal(omero.grid.JobParams())
         internal_notnull2 = rinternal(omero.grid.JobParams())
         self.assert_(internal_null1 == internal_null2)
@@ -106,8 +106,8 @@ class TestModel(unittest.TestCase):
         self.assert_(internal_notnull1 !=  internal_notnull2)
 
         # RObject
-        object_null1 = robject(null)
-        object_null2 = robject(null)
+        object_null1 = robject(None)
+        object_null2 = robject(None)
         object_notnull1 = robject(omero.model.ImageI())
         object_notnull2 = robject(omero.model.ImageI())
         self.assert_(object_null1 == object_null2)
@@ -117,8 +117,8 @@ class TestModel(unittest.TestCase):
         self.assert_(object_notnull1 !=  object_notnull2)
 
         # RString
-        string_null1 = rstring(null)
-        string_null2 = rstring(null)
+        string_null1 = rstring(None)
+        string_null2 = rstring(None)
         string_notnull1 = rstring("str1")
         string_notnull1b = rstring("str1")
         string_notnull2 = rstring("str2")
@@ -189,12 +189,10 @@ class TestModel(unittest.TestCase):
         map_notnull1 = rmap({"ids": id})
         map_notnull2 = rmap({"ids": id})
         # Equals based on content
-        print map_notnull1
-        print map_notnull2
         self.assert_(map_notnull1 != map_notnull2)
 
         # But content is copied!
-        self.assert_(map_notnull1.getValue() != map_notnull2.getValue())
+        self.assert_(not map_notnull1.getValue() is map_notnull2.getValue())
 
         map_null1 = rmap()
         map_null2 = rmap(None)
@@ -202,8 +200,8 @@ class TestModel(unittest.TestCase):
 
         # All different since the contents are mutable.
         self.assert_(map_null1 !=  map_notnull1)
-        self.assert_(map_null1 ==  map_null2) # TODO Different with maps
-        self.assert_(map_null1 ==  map_null3) # TODO Different with maps
+        self.assert_(map_null1 !=  map_null2) # TODO Different with maps
+        self.assert_(map_null1 !=  map_null3) # TODO Different with maps
 
 if __name__ == '__main__':
     unittest.main()
