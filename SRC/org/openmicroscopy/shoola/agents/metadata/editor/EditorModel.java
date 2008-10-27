@@ -40,7 +40,12 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.ImagingEnvironment;
+import omero.model.ObjectiveSettings;
+import omero.model.StageLabel;
+
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
@@ -140,6 +145,9 @@ class EditorModel
 	
 	/** Reference to the browser. */
 	private Browser					browser;
+	
+	/** The image acquisition data. */
+	private Map						imageAcquisitionData;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -1176,6 +1184,78 @@ class EditorModel
 		
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
+	}
+	
+	/** Loads the image acquisition data. */
+	void  fireImagAcquisitionDataLoading()
+	{
+		AcquisitionDataLoader 
+			loader = new AcquisitionDataLoader(component, getRefObject()); 
+		loader.load();
+	}
+	
+	/**
+	 * Sets the image acquisition data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setImageAcquisitionData(Map data)
+	{
+		imageAcquisitionData = data;
+	}
+	
+	/**
+	 * Returns the image acquisition data.
+	 * 
+	 * @return See above.
+	 */
+	Map getImageAcquisitionData() { return imageAcquisitionData; }
+	
+	/**
+	 * Returns the position of the image in the microscope's frame.
+	 * 
+	 * @return See above.
+	 */
+	Object getStageLabel()
+	{
+		if (imageAcquisitionData == null) return null;
+		return imageAcquisitionData.get(StageLabel.class);
+	}
+	
+	/**
+	 * Returns the condition of acquisition of the image.
+	 * 
+	 * @return See above.
+	 */
+	Object getImagingEnvironment()
+	{
+		if (imageAcquisitionData == null) return null;
+		return imageAcquisitionData.get(ImagingEnvironment.class);
+	}
+	
+	/**
+	 * Returns the settings of the objective.
+	 * 
+	 * @return See above.
+	 */
+	Object getObjectiveSettings()
+	{
+		if (imageAcquisitionData == null) return null;
+		return imageAcquisitionData.get(ObjectiveSettings.class);
+	}
+	
+	/**
+	 * Returns the objective.
+	 * 
+	 * @return See above.
+	 */
+	Object getObjective()
+	{
+		if (imageAcquisitionData == null) return null;
+		ObjectiveSettings settings = (ObjectiveSettings)
+			imageAcquisitionData.get(ObjectiveSettings.class);
+		if (settings == null) return null;
+		return settings.getObjective();
 	}
 	
 }

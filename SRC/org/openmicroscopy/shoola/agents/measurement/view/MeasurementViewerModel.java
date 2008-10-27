@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -136,7 +136,7 @@ class MeasurementViewerModel
     private Map						analysisResults;
     
     /** Metadata for the pixels set. */
-    private ChannelMetadata[]		metadata;
+    private ChannelData[]		metadata;
     
     /** 
      * Will either be a data loader or
@@ -810,11 +810,11 @@ class MeasurementViewerModel
 	 */
 	void setChannelMetadata(List m)
 	{
-		metadata = new ChannelMetadata[m.size()];
+		metadata = new ChannelData[m.size()];
         Iterator i = m.iterator();
-        ChannelMetadata cm;
+        ChannelData cm;
         while (i.hasNext()) {
-        	cm = (ChannelMetadata) i.next();
+        	cm = (ChannelData) i.next();
             metadata[cm.getIndex()] = cm;
         }
 	}
@@ -824,7 +824,7 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	ChannelMetadata[] getMetadata() { return metadata; }
+	ChannelData[] getMetadata() { return metadata; }
 	
 	/**
 	 * Returns the metadata corresponding to the specified index or 
@@ -833,7 +833,7 @@ class MeasurementViewerModel
 	 * @param index The channel index.
 	 * @return See above.
 	 */
-	ChannelMetadata getMetadata(int index) 
+	ChannelData getMetadata(int index) 
 	{
 		if (index < 0 || index >= metadata.length) return null;
 		return metadata[index];

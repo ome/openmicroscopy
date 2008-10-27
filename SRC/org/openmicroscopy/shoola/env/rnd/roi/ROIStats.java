@@ -78,15 +78,15 @@ public class ROIStats
      */
     private Integer linearize(int z, int w, int t)
     {
-    	int sizeZ = dims.getSizeZ().val;
-    	int sizeC = dims.getSizeC().val;
+    	int sizeZ = dims.getSizeZ().getValue();
+    	int sizeC = dims.getSizeC().getValue();
         if (z < 0 || sizeZ <= z) 
             throw new IllegalArgumentException(
                     "z out of range [0, "+sizeZ+"): "+z+".");
         if (w < 0 || sizeC <= w) 
             throw new IllegalArgumentException(
                     "w out of range [0, "+sizeC+"): "+w+".");
-        if (t < 0 || dims.getSizeT().val <= t) 
+        if (t < 0 || dims.getSizeT().getValue() <= t) 
             throw new IllegalArgumentException(
                     "t out of range [0, "+dims.getSizeT()+"): "+t+".");
         return new Integer(sizeZ*sizeC*t + sizeZ*w + z);

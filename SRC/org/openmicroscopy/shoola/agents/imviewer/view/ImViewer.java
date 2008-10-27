@@ -41,7 +41,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -448,7 +448,7 @@ public interface ImViewer
 	 * @param index The index of the channel.
 	 * @return See above.
 	 */
-	ChannelMetadata getChannelMetadata(int index);
+	ChannelData getChannelMetadata(int index);
 
 	/**
 	 * Returns <code>true</code> if the unit bar is painted on top of 

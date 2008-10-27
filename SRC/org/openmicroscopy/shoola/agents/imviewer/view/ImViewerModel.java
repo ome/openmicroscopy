@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -450,7 +450,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	ChannelMetadata[] getChannelData()
+	ChannelData[] getChannelData()
 	{ 
 		return currentRndControl.getChannelData();
 	}
@@ -462,7 +462,7 @@ class ImViewerModel
 	 * @param index The index of the channel.
 	 * @return See above.
 	 */
-	ChannelMetadata getChannelData(int index)
+	ChannelData getChannelData(int index)
 	{ 
 		return currentRndControl.getChannelData(index);
 	}

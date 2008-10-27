@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
@@ -193,6 +194,17 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rndToCopy, 
 									indexes);
         return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadAcquisitionDat(Object, AgentEventListener)
+     */
+	public CallHandle loadAcquisitionDat(Object refObject, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AcquisitionDataLoader(refObject);
+		return cmd.exec(observer);
 	}
 
 }

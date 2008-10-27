@@ -187,7 +187,7 @@ class UserNotifierManager
 		}
         if (!exist) return original;
         if (f == null) return original;
-        String name = f.getName().val;
+        String name = f.getName().getValue();
     	int lastDot = name.lastIndexOf(".");
     	if (lastDot != -1) {
     		String extension = name.substring(lastDot, name.length());
@@ -253,7 +253,8 @@ class UserNotifierManager
         File[] files = directory.listFiles();
         String dirPath = directory+File.separator;
         log.debug(this, "dirPath: "+dirPath);
-        String name = getFileName(files, file, file.getName().val, dirPath, 1);
+        String name = getFileName(files, file, file.getName().getValue(), 
+        		dirPath, 1);
         
         log.debug(this, "name: "+name);
         
@@ -262,10 +263,10 @@ class UserNotifierManager
         log.debug(this, "name and path: "+path);
 		FileLoader loader = new FileLoader(component, 
 									container.getRegistry(), 
-										path, file.getId().val, 
-										file.getSize().val);
+										path, file.getId().getValue(), 
+										file.getSize().getValue());
 		loader.load();
-		download.addDowloadEntry(path, name, file.getId().val);
+		download.addDowloadEntry(path, name, file.getId().getValue());
 		loaders.put(path, loader);
 		
 		if (!download.isVisible())
@@ -306,12 +307,14 @@ class UserNotifierManager
         FileLoader loader;
         while (i.hasNext()) {
         	file = (OriginalFile) i.next();
-        	name = getFileName(files, file, file.getName().val, dirPath, 1);
+        	name = getFileName(files, file, file.getName().getValue(), 
+        			dirPath, 1);
         	path = dirPath+name;
         	loader = new FileLoader(component, container.getRegistry(), 
-						path, file.getId().val, file.getSize().val);
+						path, file.getId().getValue(), 
+						file.getSize().getValue());
         	loader.load();
-        	download.addDowloadEntry(path, name, file.getId().val);
+        	download.addDowloadEntry(path, name, file.getId().getValue());
         	loaders.put(path, loader);
 		}
 		

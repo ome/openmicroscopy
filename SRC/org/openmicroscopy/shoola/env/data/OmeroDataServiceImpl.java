@@ -38,8 +38,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RLong;
-import omero.RTime;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
@@ -55,7 +53,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -143,7 +141,7 @@ class OmeroDataServiceImpl
 			return loadScreenPlates(rootNodeType, rootNodeIDs, userID);
 		}
 		PojoOptions po = new PojoOptions();
-		if (rootNodeIDs == null) po.exp(new RLong(userID));
+		if (rootNodeIDs == null) po.exp(omero.rtypes.rlong(userID));
 		if (withLeaves) po.leaves();
 		else po.noLeaves();
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
@@ -155,7 +153,7 @@ class OmeroDataServiceImpl
 
 			if (klass != null) {
 				po = new PojoOptions(); 
-				po.exp(new RLong(userID));
+				po.exp(omero.rtypes.rlong(userID));
 				po.noLeaves();
 				//Set r = gateway.loadContainerHierarchy(klass, null, po.map());
 				Set r = gateway.fetchContainers(klass, userID);
@@ -197,7 +195,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		PojoOptions po = new PojoOptions();
-		po.exp(new RLong(userID));
+		po.exp(omero.rtypes.rlong(userID));
 		//po.noLeaves();
 		return gateway.loadContainerHierarchy(rootNodeType, null, po.map());                         
 	}
@@ -213,7 +211,7 @@ class OmeroDataServiceImpl
 		try {
 			PojoOptions po = new PojoOptions();
 			po.leaves();
-			po.exp(new RLong(userID));
+			po.exp(omero.rtypes.rlong(userID));
 			return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
 					po.map());
 		} catch (Exception e) {
@@ -255,7 +253,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
-		po.exp(new RLong(userID));
+		po.exp(omero.rtypes.rlong(userID));
 		return gateway.getUserImages(po.map());
 	}
 
@@ -507,7 +505,7 @@ class OmeroDataServiceImpl
 	{
 		Collection l = gateway.getChannelsData(pixelsID);
 		Iterator i = l.iterator();
-		List<ChannelMetadata> m = new ArrayList<ChannelMetadata>(l.size());
+		List<ChannelData> m = new ArrayList<ChannelData>(l.size());
 		int index = 0;
 		while (i.hasNext()) {
 			m.add(Mapper.mapChannel(index, (Channel) i.next()));
@@ -738,9 +736,11 @@ class OmeroDataServiceImpl
 		
 		PojoOptions po = new PojoOptions();
 		po.leaves();
-		po.exp(new RLong(userID));
-		if (startTime != null) po.startTime(new RTime(startTime.getTime()));
-		if (endTime != null) po.endTime(new RTime(endTime.getTime()));
+		po.exp(omero.rtypes.rlong(userID));
+		if (startTime != null) 
+			po.startTime(omero.rtypes.rtime(startTime.getTime()));
+		if (endTime != null) 
+			po.endTime(omero.rtypes.rtime(endTime.getTime()));
 		return gateway.getImages(po.map());
 	}
 
@@ -774,9 +774,9 @@ class OmeroDataServiceImpl
 		Event evt;
 		while (i.hasNext()) {
 			object = (Image) i.next();
-			evt = object.getDetails().creationEvent;
+			evt = object.getDetails().getCreationEvent();
 			if (evt != null)
-				times.add(new Timestamp(evt.getTime().val));
+				times.add(new Timestamp(evt.getTime().getValue()));
 		}
 		return times;
 	}
@@ -881,7 +881,7 @@ class OmeroDataServiceImpl
 				else if (parentClass.equals(Screen.class))
 					parent = ((ScreenPlateLink) i.next()).getParent();
 				object = gateway.findIObject(parent.getClass().getName(), 
-						parent.getId().val);
+						parent.getId().getValue());
 				nodes.add(PojoMapper.asDataObject(object));
 			}
 			return nodes;

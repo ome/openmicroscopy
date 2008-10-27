@@ -153,6 +153,9 @@ class EditorControl
 	 */
 	void loadParents() { model.loadParents(); }
 
+	/** Loads the image acquisition data. */
+	void loadImageAcquisitionData() { model.loadImageAcquisitionData(); }
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

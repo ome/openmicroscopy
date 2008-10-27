@@ -28,6 +28,8 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +40,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -56,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class AcquisitionDataUI 
 	extends JPanel
+	implements PropertyChangeListener
 {
 
 	/** The default text of the channel. */
@@ -86,6 +89,8 @@ class AcquisitionDataUI
 		imageAcquisition = new ImageAcquisitionComponent(model);
 		imagePane = EditorUtil.createTaskPane("Image");
 		imagePane.add(imageAcquisition);
+		imagePane.addPropertyChangeListener(
+				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
 	
 	/** Builds and lays out the components. */
@@ -144,12 +149,12 @@ class AcquisitionDataUI
 		List channels = model.getChannelData();
 		channelAcquisitionPanes.clear();
 		if (channels != null) {
-			ChannelMetadata channel;
+			ChannelData channel;
 			Iterator i = channels.iterator();
 			ChannelAcquisitionComponent comp;
 			JXTaskPane p;
 			while (i.hasNext()) {
-				channel = (ChannelMetadata) i.next();
+				channel = (ChannelData) i.next();
 				comp = new ChannelAcquisitionComponent(channel);
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getEmissionWavelength());
@@ -158,6 +163,26 @@ class AcquisitionDataUI
 			}
 		}
 		buildGUI();
+	}
+	
+	/** Sets the metadata. */
+	void setImageAcquisitionData()
+	{
+		imageAcquisition.setImageAcquisitionData();
+	}
+	
+	/**
+	 * Loads the acquisition metadata.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (!UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) return;
+		Object src = evt.getSource();
+		if (src == imagePane) {
+			controller.loadImageAcquisitionData();
+		}
 	}
 	
 }

@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.util.ui.login;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -227,10 +229,44 @@ public class ServerEditor
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-       
+		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        //setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         JPanel labels = new JPanel();
+        labels.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+		JLabel label = UIUtilities.setTextFont("Server Address");
+        labels.add(label, c);  
+        label = new JLabel(EXAMPLE);
+        label.setFont(FONT);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        //c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        labels.add(label, c); 
+        
+        if (activeServer != null) {
+        	c.gridx = 0;
+    		c.gridy++;
+    		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+    		label = UIUtilities.setTextFont("Connected to ");
+            labels.add(label, c);  
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            c.gridx = 1;
+            labels.add(new JLabel(activeServer), c); 
+        }
+        /*
         double[] columns = {TableLayout.PREFERRED, 5, TableLayout.FILL};
         double[] rows;
         if (activeServer != null) {
@@ -246,7 +282,6 @@ public class ServerEditor
         layout.setColumn(columns);
         layout.setRow(rows);
         labels.setLayout(layout);
-        //labels.setLayout(new BoxLayout(labels, BoxLayout.Y_AXIS));
         JLabel label = UIUtilities.setTextFont("Server Address");
         labels.add(label, "0, 0");  
         label = new JLabel(EXAMPLE);
@@ -258,24 +293,32 @@ public class ServerEditor
             labels.add(label, "0, 2");  
             labels.add(new JLabel(activeServer), "2, 2"); 
         }
-        
-        
+        */
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         p.add(new JScrollPane(table));
-        
+        p.add(buildControls());
+       
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(UIUtilities.buildComponentPanel(labels)); 
+        add(p);
+	}
+	
+	/**
+	 * Builds the component hosting the controls.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildControls()
+	{
 		JToolBar bar = new JToolBar();
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
         bar.add(addButton);
         bar.add(removeButton);
-        
-        p.add(UIUtilities.buildComponentPanel(bar));
-        
-        add(UIUtilities.buildComponentPanel(labels)); 
-        add(p);
+        return UIUtilities.buildComponentPanel(bar);
 	}
 	
 	/**

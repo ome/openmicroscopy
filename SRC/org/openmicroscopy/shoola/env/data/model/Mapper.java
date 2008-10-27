@@ -143,15 +143,16 @@ public class Mapper
 	}
 	
 	/**
-	 * Turns the specified {@link Channel} object into {@link ChannelMetadata}
+	 * Turns the specified {@link Channel} object into {@link ChannelData}
 	 * object.
 	 * 
 	 * @param index		The index of the channel.	
 	 * @param channel	The channel to transform.
 	 * @return See above.
 	 */
-	public static ChannelMetadata mapChannel(int index, Channel channel)
+	public static ChannelData mapChannel(int index, Channel channel)
 	{
+		/*
 		StatsInfo stats = channel.getStatsInfo();
 		double min = 0;
 		double max = 1;
@@ -161,7 +162,8 @@ public class Mapper
 			object = stats.getGlobalMax();
 			if (object != null) max = object.val;
 		}
-		ChannelMetadata cm = new ChannelMetadata(index, min, max);
+		
+		ChannelMetadata cm = new ChannelMetadata(index, channel);
 		LogicalChannel lc = channel.getLogicalChannel();
 		RInt value  = lc.getEmissionWave();
 		if (value != null) cm.setEmissionWavelength(value.val);
@@ -176,6 +178,8 @@ public class Mapper
 		s = lc.getFluor();
 		if (s != null) cm.setFluor(s.val); 
 		return cm;
+		*/
+		return null;
 	}
 	
 }

@@ -196,9 +196,9 @@ public class ScreenLogin
 	 */
 	private void config()
 	{
-		ServerDialog d = new ServerDialog(this, editor);
-		if (connectionSpeed) 
-			d.showConnectionSpeed(speedIndex);
+		ServerDialog d;
+		if (connectionSpeed) d = new ServerDialog(this, editor, speedIndex);
+		else d = new ServerDialog(this, editor);
 		d.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(d);
 	}

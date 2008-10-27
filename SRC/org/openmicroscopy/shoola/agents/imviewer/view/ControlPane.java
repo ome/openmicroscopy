@@ -58,7 +58,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
@@ -508,7 +508,7 @@ class ControlPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        ChannelMetadata[] data = model.getChannelData();
+        ChannelData[] data = model.getChannelData();
         ChannelButton button;
         p.add(Box.createRigidArea(VBOX));
         channelButtons = createChannelButtons();
@@ -599,10 +599,10 @@ class ControlPane
     List<ChannelButton> createChannelButtons()
     {
     	List<ChannelButton> channelButtons = new ArrayList<ChannelButton>();
-    	ChannelMetadata[] data = model.getChannelData();
+    	ChannelData[] data = model.getChannelData();
     	boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
     	ChannelButton button;
-        ChannelMetadata d;
+        ChannelData d;
         for (int k = 0; k < data.length; k++) {
             d = data[k];
             button = new ChannelButton(""+d.getEmissionWavelength(), 

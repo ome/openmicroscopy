@@ -242,4 +242,14 @@ public class NullRenderingService
 		return Boolean.TRUE;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadAcquisitionData(Object)
+     */
+	public Object loadAcquisitionData(Object refObject) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

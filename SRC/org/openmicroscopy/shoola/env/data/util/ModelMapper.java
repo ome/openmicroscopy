@@ -30,8 +30,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RLong;
-import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
@@ -149,10 +147,10 @@ public class ModelMapper
             List links = ((Image) child).copyDatasetLinks();
             Iterator i = links.iterator();
             DatasetImageLink link = null;
-            long parentID = parent.getId().val;
+            long parentID = parent.getId().getValue();
             while (i.hasNext()) {
                 link = (DatasetImageLink) i.next();
-                if (link.getParent().getId().val == parentID) 
+                if (link.getParent().getId().getValue() == parentID) 
                 	break;  
             }
             return link;
@@ -162,10 +160,10 @@ public class ModelMapper
             List links = ((Project) parent).copyDatasetLinks();
             Iterator i = links.iterator();
             ProjectDatasetLink link = null;
-            long childID = child.getId().val;
+            long childID = child.getId().getValue();
             while (i.hasNext()) {
                 link = (ProjectDatasetLink) i.next();
-                if (link.getChild().getId().val == childID) {
+                if (link.getChild().getId().getValue() == childID) {
                     return link;  
                 }
             }
@@ -189,16 +187,19 @@ public class ModelMapper
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            Project unloadedProject = new ProjectI(parent.getId().val, false);
-            Dataset unloadedDataset = new DatasetI(child.getId().val, false);
+            Project unloadedProject = new ProjectI(parent.getId().getValue(), 
+            		false);
+            Dataset unloadedDataset = new DatasetI(child.getId().getValue(), 
+            		false);
             ProjectDatasetLink l = new ProjectDatasetLinkI();
             l.link(unloadedProject, unloadedDataset);
             return l;
         } else if (parent instanceof Dataset) {
             if (!(child instanceof Image))
                 throw new IllegalArgumentException("Child not valid.");
-            Dataset unloadedDataset = new DatasetI(parent.getId().val, false);
-            Image unloadedImage = new ImageI(child.getId().val, false);
+            Dataset unloadedDataset = new DatasetI(parent.getId().getValue(), 
+            		false);
+            Image unloadedImage = new ImageI(child.getId().getValue(), false);
             
             DatasetImageLink l = new DatasetImageLinkI();
             l.link(unloadedDataset, unloadedImage);
@@ -206,8 +207,9 @@ public class ModelMapper
         } else if (parent instanceof Screen) {
             if (!(child instanceof Plate))
                 throw new IllegalArgumentException("Child not valid.");
-            Screen unloadedScreen = new ScreenI(parent.getId().val, false);
-            Plate unloadedPlate = new PlateI(child.getId().val, false);
+            Screen unloadedScreen = new ScreenI(parent.getId().getValue(), 
+            		false);
+            Plate unloadedPlate = new PlateI(child.getId().getValue(), false);
             
             ScreenPlateLink l = new ScreenPlateLinkI();
             l.link(unloadedScreen, unloadedPlate);
@@ -240,10 +242,10 @@ public class ModelMapper
             if (l == null) return;
             ProjectDatasetLink link;
             Iterator it = l.iterator();
-            long id = p.getId().val;
+            long id = p.getId().getValue();
             while (it.hasNext()) {
                 link = (ProjectDatasetLink) it.next();
-                if (id == link.getParent().getId().val)
+                if (id == link.getParent().getId().getValue())
                 	p.addProjectDatasetLink2(link, false);
             }
         } else if (parent instanceof Dataset) {
@@ -255,10 +257,10 @@ public class ModelMapper
             if (l == null) return;
             DatasetImageLink link;
             Iterator it = l.iterator();
-            long id = p.getId().val;
+            long id = p.getId().getValue();
             while (it.hasNext()) {
                 link = (DatasetImageLink) it.next();
-                if (id == link.getParent().getId().val)
+                if (id == link.getParent().getId().getValue())
                 	p.addDatasetImageLink2(link, false);
             }
         } else
@@ -278,24 +280,25 @@ public class ModelMapper
         if (child instanceof ProjectData) {
             ProjectData data = (ProjectData) child;
             Project model = new ProjectI();
-            model.setName(new RString(data.getName()));
-            model.setDescription(new RString(data.getDescription()));
+            model.setName(omero.rtypes.rstring(data.getName()));
+            model.setDescription(omero.rtypes.rstring(data.getDescription()));
             return model;
         } else if (child instanceof DatasetData) {
             DatasetData data = (DatasetData) child;
             Dataset model = new DatasetI();
-            model.setName(new RString(data.getName()));
-            model.setDescription(new RString(data.getDescription()));
+            model.setName(omero.rtypes.rstring(data.getName()));
+            model.setDescription(omero.rtypes.rstring(data.getDescription()));
             if (parent != null)
-            	model.linkProject(new ProjectI(new Long(parent.getId()), false));
+            	model.linkProject(
+            			new ProjectI(new Long(parent.getId()), false));
             return model;
         } else if (child instanceof ImageData) {
             if (!(parent instanceof DatasetData))
                 throw new IllegalArgumentException("Parent not valid.");
             ImageData data = (ImageData) child;
             Image model = new ImageI();
-            model.setName(new RString(data.getName()));
-            model.setDescription(new RString(data.getDescription()));
+            model.setName(omero.rtypes.rstring(data.getName()));
+            model.setDescription(omero.rtypes.rstring(data.getDescription()));
             if (parent instanceof DatasetData) 
                 model.linkDataset(new DatasetI(new Long(parent.getId()), 
                                             false));
@@ -303,8 +306,8 @@ public class ModelMapper
         } else if (child instanceof ScreenData) {
         	ScreenData data = (ScreenData) child;
         	Screen model = new ScreenI();
-        	model.setName(new RString(data.getName()));
-        	model.setDescription(new RString(data.getDescription()));
+        	model.setName(omero.rtypes.rstring(data.getName()));
+        	model.setDescription(omero.rtypes.rstring(data.getDescription()));
             return model;
         }
         throw new IllegalArgumentException("Child and parent are not " +
@@ -367,21 +370,21 @@ public class ModelMapper
     	Annotation annotation = null;
     	if (data instanceof TextualAnnotationData) {
     		annotation = new TextAnnotationI();
-    		((TextAnnotation) annotation).setTextValue(new RString(
+    		((TextAnnotation) annotation).setTextValue(omero.rtypes.rstring(
     										data.getContentAsString()));
     	} else if (data instanceof RatingAnnotationData) {
     		int rate = ((RatingAnnotationData) data).getRating();
 			if (rate == RatingAnnotationData.LEVEL_ZERO) return null;
     		annotation = new LongAnnotationI();
-    		annotation.setNs(new RString(
+    		annotation.setNs(omero.rtypes.rstring(
     				RatingAnnotationData.INSIGHT_RATING_NS));
-    		((LongAnnotation) annotation).setLongValue(new RLong(
+    		((LongAnnotation) annotation).setLongValue(omero.rtypes.rlong(
     										(Long) data.getContent()));
     	} else if (data instanceof URLAnnotationData) {
     		annotation = new UrlAnnotationI();
     		try {
     			((UrlAnnotation) annotation).setTextValue(
-    					new RString(data.getContentAsString()));
+    					omero.rtypes.rstring(data.getContentAsString()));
 			} catch (Exception e) { //Need to propagate that.
 				return null;
 			}
@@ -389,7 +392,7 @@ public class ModelMapper
     	} else if (data instanceof TagAnnotationData) {
     		annotation = new TagAnnotationI();
     		((TagAnnotation) annotation).setTextValue(
-    				new RString(data.getContentAsString()));
+    				omero.rtypes.rstring(data.getContentAsString()));
     	}
     	return annotation;
     }

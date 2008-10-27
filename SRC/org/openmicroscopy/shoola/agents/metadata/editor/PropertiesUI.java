@@ -53,7 +53,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DatasetData;
@@ -446,7 +446,7 @@ class PropertiesUI
 		Iterator k = waves.iterator();
 		int j = 0;
 		while (k.hasNext()) {
-			s += ((ChannelMetadata) k.next()).getEmissionWavelength();
+			s += ((ChannelData) k.next()).getEmissionWavelength();
 			if (j != waves.size()-1) s +=", ";
 			j++;
 		}

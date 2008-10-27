@@ -93,7 +93,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -764,7 +764,7 @@ class ImViewerControl
 			}
 		} else if (ChannelButton.INFO_PROPERTY.equals(pName)) {
 			int index = ((Integer) pce.getNewValue()).intValue();
-			ChannelMetadata data = model.getChannelMetadata(index);
+			ChannelData data = model.getChannelMetadata(index);
 			if (data != null) {
 				InfoDialog dialog = new InfoDialog(model.getUI(), data);
 				dialog.addPropertyChangeListener(this);

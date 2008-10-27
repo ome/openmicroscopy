@@ -37,7 +37,6 @@ import javax.imageio.ImageIO;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
 import omero.api.RenderingEnginePrx;
 import omero.model.IObject;
 import omero.model.Image;
@@ -49,6 +48,7 @@ import omero.util.PojoOptionsI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -422,7 +422,7 @@ class OmeroImageServiceImpl
 				ref.getChannels(), ref.getName(), ref.getPixelsType());
 		if (image == null) return null;
 		Image img = image.asImage();
-		img.setDescription(new RString(ref.getDescription()));
+		img.setDescription(omero.rtypes.rstring(ref.getDescription()));
 		image = (ImageData) 
 			PojoMapper.asDataObject(
 					gateway.updateObject(img, new PojoOptionsI().map()));
@@ -488,4 +488,21 @@ class OmeroImageServiceImpl
 		return Boolean.TRUE;
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadAcquisitionData(Object)
+	 */
+	public Object loadAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (refObject instanceof ImageData) {
+			return gateway.loadImageAcquisitionData(
+					((ImageData) refObject).asImage());
+			
+		} else if (refObject instanceof ChannelData) {
+			
+		}
+		return null;
+	}
+	
 }

@@ -28,13 +28,10 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -43,8 +40,6 @@ import javax.swing.JTabbedPane;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.Mapper;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -390,6 +385,12 @@ public class EditorUI
 	{
 		if (file == null) return;
 		generalPane.removeAttachedFile(file);
+	}
+
+	/** Sets the image acquisition metadata. */
+	void setImageAcquisitionData()
+	{
+		acquisitionPane.setImageAcquisitionData();
 	}
 	
 }

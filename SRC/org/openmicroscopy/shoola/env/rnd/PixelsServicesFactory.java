@@ -97,13 +97,14 @@ public class PixelsServicesFactory
 	{
 		if (rndDef == null) return null;
 		RndProxyDef proxy = new RndProxyDef();
-		proxy.setDefaultZ(rndDef.getDefaultZ().val);
-		proxy.setDefaultT(rndDef.getDefaultT().val);
-		proxy.setColorModel(rndDef.getModel().getValue().val);
+		proxy.setDefaultZ(rndDef.getDefaultZ().getValue());
+		proxy.setDefaultT(rndDef.getDefaultT().getValue());
+		proxy.setColorModel(rndDef.getModel().getValue().getValue());
 		
 		QuantumDef def = rndDef.getQuantization();
-		proxy.setCodomain(def.getCdStart().val, def.getCdEnd().val);
-		proxy.setBitResolution(def.getBitResolution().val);
+		proxy.setCodomain(def.getCdStart().getValue(), 
+				def.getCdEnd().getValue());
+		proxy.setBitResolution(def.getBitResolution().getValue());
 		
 		ChannelBinding c;
 		Collection bindings = rndDef.copyWaveRendering();
@@ -123,17 +124,19 @@ public class PixelsServicesFactory
 			if (c != null) {
 				rgba = new int[4];
 				color = c.getColor();
-				rgba[0] = color.getRed().val;
-				rgba[1] = color.getGreen().val;
-				rgba[2] = color.getBlue().val;
-				rgba[3] = color.getAlpha().val;
+				rgba[0] = color.getRed().getValue();
+				rgba[1] = color.getGreen().getValue();
+				rgba[2] = color.getBlue().getValue();
+				rgba[3] = color.getAlpha().getValue();
 				
 				
-				cb.setActive(c.getActive().val);
-				cb.setInterval(c.getInputStart().val, c.getInputEnd().val);
+				cb.setActive(c.getActive().getValue());
+				cb.setInterval(c.getInputStart().getValue(), 
+						c.getInputEnd().getValue());
 				cb.setRGBA(rgba);
-				cb.setQuantization(c.getFamily().getValue().val, 
-						c.getCoefficient().val, c.getNoiseReduction().val);
+				cb.setQuantization(c.getFamily().getValue().getValue(), 
+						c.getCoefficient().getValue(), 
+						c.getNoiseReduction().getValue());
 			}		
 			i++;
 		}
@@ -470,7 +473,7 @@ public class PixelsServicesFactory
 							List metadata, int compression, RenderingDef def)
 	{
 		if (singleton == null) throw new NullPointerException();
-		Long id = pixels.getId().val;
+		Long id = pixels.getId().getValue();
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
 		RndProxyDef proxyDef = convert(def);

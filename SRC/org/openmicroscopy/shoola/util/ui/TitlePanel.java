@@ -67,7 +67,7 @@ public class TitlePanel
     
     /** Default background color. */
     private static final Color  BG_COLOR = 
-    		UIUtilities.SELECTED_BACKGROUND_COLOUR.darker();//new Color(0x417DDD);  
+    	UIUtilities.SELECTED_BACKGROUND_COLOUR.darker();//new Color(0x417DDD);  
     
     /**
      * Creates a new instance.

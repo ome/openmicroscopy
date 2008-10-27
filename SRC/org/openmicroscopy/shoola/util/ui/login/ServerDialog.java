@@ -141,9 +141,6 @@ class ServerDialog
     /** The UI component hosting the title. */
     private TitlePanel      titlePanel;
     
-    /** The panel hosting the center component. */
-    private JPanel			mainPanel;
-    
     /** Group hosting the connection speed level. */
     private ButtonGroup 	buttonsGroup;
     
@@ -250,14 +247,20 @@ class ServerDialog
         return p;
 	}
 	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
+	/** Builds and lays out the UI.
+	 * 
+	 *  @param index The connection speed index.
+	 */
+	private void buildGUI(int index)
 	{
-		mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.add(editor);
+		JPanel mainPanel;
+		if (index == -1) 
+			mainPanel = editor;
+		else mainPanel = buildConnectionSpeed(index);
+		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        //mainPanel.add(editor);
         Container c = getContentPane();
-        setLayout(new BorderLayout(0, 0));
+        //setLayout(new BorderLayout(0, 0));
         c.add(titleLayer, BorderLayout.NORTH);
         c.add(mainPanel, BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
@@ -285,28 +288,12 @@ class ServerDialog
 	}
 
 	/** 
-	 * Creates a new instance. 
-	 * 
-	 * @param frame		The parent frame. 
-	 * @param editor 	The server editor. Mustn't be <code>null</code>.
-	 */
-	ServerDialog(JFrame frame, ServerEditor editor)
-	{ 
-		super(frame);
-		this.editor = editor;
-		setProperties();
-		initComponents();
-		initListeners();
-		buildGUI();
-		setSize(WINDOW_DIM);
-	}
-
-	/** 
 	 * Adds the connection speed options to the display. 
 	 * 
 	 * @param index The default index.
+	 * @return See above.
 	 */
-	void showConnectionSpeed(int index)
+	private JPanel buildConnectionSpeed(int index)
 	{
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
@@ -332,10 +319,45 @@ class ServerDialog
 		button.addActionListener(this);
 		buttonsGroup.add(button);
 		p.add(button);
-		mainPanel.removeAll();
-		mainPanel.add(editor);
-		mainPanel.add(UIUtilities.buildComponentPanel(p));
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		content.add(editor);
+		content.add(UIUtilities.buildComponentPanel(p));
+		return content;
 	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param frame		The parent frame. 
+	 * @param editor 	The server editor. Mustn't be <code>null</code>.
+	 * @param index		The speed of the connection.
+	 */
+	ServerDialog(JFrame frame, ServerEditor editor, int index)
+	{ 
+		super(frame);
+		this.editor = editor;
+		setProperties();
+		initComponents();
+		initListeners();
+		buildGUI(index);
+		//setSize(WINDOW_DIM);
+		//pack();
+		setSize(getPreferredSize());
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param frame		The parent frame. 
+	 * @param editor 	The server editor. Mustn't be <code>null</code>.
+	 */
+	ServerDialog(JFrame frame, ServerEditor editor)
+	{ 
+		this(frame, editor, -1);
+	}
+
+	
 	
 	/** 
      * Resizes the layered pane hosting the title when the window is resized.

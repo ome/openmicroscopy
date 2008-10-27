@@ -51,7 +51,7 @@ import javax.swing.JTextField;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -98,7 +98,7 @@ public class InfoDialog
     private JButton         cancelButton;
     
     /** The metadata to display. */
-    private ChannelMetadata metadata;
+    private ChannelData metadata;
     
     /** Sets the properties of this window. */
     private void setDialogProperties()
@@ -209,7 +209,7 @@ public class InfoDialog
      * @param owner     The owner of the frame.
      * @param metadata  The metadata to display. Mustn't be <code>null</code>.
      */
-    public InfoDialog(JFrame owner, ChannelMetadata metadata)
+    public InfoDialog(JFrame owner, ChannelData metadata)
     {
         super(owner);
         if (metadata == null) throw new IllegalArgumentException("No metadata");

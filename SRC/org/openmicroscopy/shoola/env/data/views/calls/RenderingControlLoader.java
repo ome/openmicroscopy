@@ -76,7 +76,7 @@ public class RenderingControlLoader
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
 	 * @param index		Pass <code>true</code> to reload the rendering engine,
 	 * 					<code>false</code> otherwise.
-	 * @return          The {@link BatchCall}.
+	 * @return The {@link BatchCall}.
 	 */
 	private BatchCall makeBatchCall(final long pixelsID, final int index)
 	{

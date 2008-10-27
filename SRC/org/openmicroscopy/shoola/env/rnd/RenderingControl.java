@@ -34,7 +34,7 @@ import java.util.List;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import pojos.PixelsData;
 
 
@@ -486,14 +486,14 @@ public interface RenderingControl
      * @param w The channel index.
      * @return See above.
      */
-    public ChannelMetadata getChannelData(int w);
+    public ChannelData getChannelData(int w);
     
     /**
      * Returns an array of <code>ChannelMetadata</code> objects.
      * 
      * @return See above.
      */
-    public ChannelMetadata[] getChannelData();
+    public ChannelData[] getChannelData();
     
     /**
      * Returns <code>true</code> if one of the active channel is mapped

@@ -86,6 +86,7 @@ import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
 import omero.model.Details;
+import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
@@ -94,7 +95,9 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.ImagingEnvironment;
 import omero.model.LongAnnotation;
+import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -105,6 +108,7 @@ import omero.model.Project;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
+import omero.model.StageLabel;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
@@ -723,7 +727,7 @@ class OMEROGateway
 	 */
 	private boolean isSystemGroup(ExperimenterGroup group)
 	{
-		String n = group.getName() == null ? null : group.getName().val;
+		String n = group.getName() == null ? null : group.getName().getValue();
 		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
 				"guest".equals(n));
 	}
@@ -744,7 +748,7 @@ class OMEROGateway
 		List<Experimenter> exps = new ArrayList<Experimenter>();
 		Parameters p = new ParametersI();
 		p.map = new HashMap<String, RType>();
-		p.map.put("id", new RLong(groupID));
+		p.map.put("id", omero.rtypes.rlong(groupID));
 		try {
 			List<IObject> rv = service.findAllByQuery(
 					"select e from Experimenter e "
@@ -1547,7 +1551,7 @@ class OMEROGateway
 			IQueryPrx service = getQueryService();
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
-			p.map.put("id", new RLong(pixelsID));
+			p.map.put("id", omero.rtypes.rlong(pixelsID));
 
 			Pixels pixs = (Pixels) service.findByQuery(
 					"select p from Pixels as p " +
@@ -1581,7 +1585,7 @@ class OMEROGateway
 			IQueryPrx service = getQueryService();
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
-			p.map.put("id", new RLong(pixelsID));
+			p.map.put("id", omero.rtypes.rlong(pixelsID));
 			Pixels pixs = (Pixels) service.findByQuery(
 					"select p from Pixels as p " +
 					"left outer join fetch p.pixelsType as pt " +
@@ -1621,9 +1625,11 @@ class OMEROGateway
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
 				RenderingDef def = getRenderingDef(pixelsID, userID);
-				if (def != null) service.setRenderingDefId(def.getId().val);
+				if (def != null) service.setRenderingDefId(
+						def.getId().getValue());
 			}
-			return service.getThumbnail(new RInt(sizeX), new RInt(sizeY));
+			return service.getThumbnail(omero.rtypes.rint(sizeX), 
+					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
 			if (thumbnailService != null) {
 				try {
@@ -1659,7 +1665,8 @@ class OMEROGateway
 		try {
 			ThumbnailStorePrx service = getThumbService();
 			needDefault(pixelsID, null);
-			return service.getThumbnailByLongestSide(new RInt(maxLength));
+			return service.getThumbnailByLongestSide(
+					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
 			if (thumbnailService != null) {
 				try {
@@ -1695,7 +1702,7 @@ class OMEROGateway
 		try {
 			ThumbnailStorePrx service = getThumbService();
 			return service.getThumbnailByLongestSideSet(
-					new RInt(maxLength), pixelsID);
+					omero.rtypes.rint(maxLength), pixelsID);
 		} catch (Throwable t) {
 			if (thumbnailService != null) {
 				try {
@@ -1762,10 +1769,10 @@ class OMEROGateway
 			"link.parent.id = :parentID"; 
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
-			p.map.put("parentID", new RLong(parentID));
+			p.map.put("parentID", omero.rtypes.rlong(parentID));
 			if (childID >= 0) {
 				sql += " and link.child.id = :childID";
-				p.map.put("childID", new RLong(childID));
+				p.map.put("childID", omero.rtypes.rlong(childID));
 			}
 
 			return service.findByQuery(sql, p);
@@ -1805,7 +1812,7 @@ class OMEROGateway
 					sql += " and link.child.id in (:childIDs)";
 					p.addLongs("childIDs", children);
 				}
-				p.map.put("parentID", new RLong(parentID));
+				p.map.put("parentID", omero.rtypes.rlong(parentID));
 			} else {
 				if (children != null && children.size() > 0) {
 					sql += " where link.child.id in (:childIDs)";
@@ -1959,7 +1966,7 @@ class OMEROGateway
 
 			if (userID >= 0) {
 				sql += " and link.details.owner.id = :userID";
-				param.map.put("userID", new RLong(userID));
+				param.map.put("userID", omero.rtypes.rlong(userID));
 			}
 			
 			return getQueryService().findAllByQuery(sql, param);
@@ -1989,13 +1996,13 @@ class OMEROGateway
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			ParametersI param = new ParametersI();
-			param.map.put("childID", new RLong(childID));
+			param.map.put("childID", omero.rtypes.rlong(childID));
 
 			String sql = "select link from "+table+" as link where " +
 			"link.child.id = :childID";
 			if (userID >= 0) {
 				sql += " and link.details.owner.id = :userID";
-				param.map.put("userID", new RLong(userID));
+				param.map.put("userID", omero.rtypes.rlong(userID));
 			}
 			return getQueryService().findAllByQuery(sql, param);
 		} catch (Throwable t) {
@@ -2020,7 +2027,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			return getQueryService().find(o.getClass().getName(), 
-									o.getId().val);
+									o.getId().getValue());
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
 					"object ID: "+o.getId());
@@ -2084,7 +2091,7 @@ class OMEROGateway
 			long gpId;
 			while (i.hasNext()) {
 				group = (ExperimenterGroup) i.next();
-				gpId = group.getId().val;
+				gpId = group.getId().getValue();
 				if (!isSystemGroup(group) && groupIds.contains(gpId)) {
 					pojoGroup = PojoMapper.asDataObject(group);
 					experimenters = containedExperimenters(gpId);
@@ -2129,7 +2136,7 @@ class OMEROGateway
 					BooleanAnnotation ann = (BooleanAnnotation) data;
 					if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
 						ann.getNs()))
-						return ann.getBoolValue().val;
+						return ann.getBoolValue().getValue();
 				}
 			}
 		} catch (Exception e) {
@@ -2159,7 +2166,7 @@ class OMEROGateway
 		List files = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("childID", new RLong(pixelsID));
+			param.map.put("childID", omero.rtypes.rlong(pixelsID));
 			files = service.findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
@@ -2183,7 +2190,7 @@ class OMEROGateway
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			try {
-				store.setFileId(of.getId().val); 
+				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
@@ -2192,7 +2199,7 @@ class OMEROGateway
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
-				size = of.getSize().val; 
+				size = of.getSize().getValue(); 
 				try {
 					try {
 						for (offset = 0; (offset+INC) < size;) {
@@ -2206,11 +2213,11 @@ class OMEROGateway
 				} catch (Exception e) {
 					if (stream != null) stream.close();
 					if (f != null) f.delete();
-					notDownloaded.add(of.getName().val);
+					notDownloaded.add(of.getName().getValue());
 				}
 			} catch (IOException e) {
 				if (f != null) f.delete();
-				notDownloaded.add(of.getName().val);
+				notDownloaded.add(of.getName().getValue());
 				throw new DSAccessException("Cannot create file with path " +
 											fullPath, e);
 			}
@@ -2284,7 +2291,7 @@ class OMEROGateway
 		OriginalFile of = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("id", new RLong(id));
+			param.map.put("id", omero.rtypes.rlong(id));
 			of = (OriginalFile) getQueryService().findByQuery(
 					"select p from OriginalFile as p " +
 					"left outer join fetch p.format " +
@@ -2312,7 +2319,7 @@ class OMEROGateway
 		List files = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("childID", new RLong(pixelsID));
+			param.map.put("childID", omero.rtypes.rlong(pixelsID));
 			files = getQueryService().findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
@@ -2346,15 +2353,15 @@ class OMEROGateway
 			Format f = (Format) getQueryService().findByString(
 					Format.class.getName(), "value", format);
 			OriginalFile oFile = new OriginalFileI();
-			oFile.setName(new RString(file.getName()));
-			oFile.setPath(new RString(file.getAbsolutePath()));
-			oFile.setSize(new RLong(file.length()));
-			oFile.setSha1(new RString("pending"));
+			oFile.setName(omero.rtypes.rstring(file.getName()));
+			oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
+			oFile.setSize(omero.rtypes.rlong(file.length()));
+			oFile.setSha1(omero.rtypes.rstring("pending"));
 			oFile.setFormat(f);
 			
 			save = (OriginalFile) saveAndReturnObject(oFile, null);
 			//service.saveAndReturnObject(oFile);
-			store.setFileId(save.getId().val);
+			store.setFileId(save.getId().getValue());
 		} catch (Exception e) {
 			handleException(e, "Cannot set the file's id.");
 		}
@@ -2389,7 +2396,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			getAdminService().changePassword(new RString(password));
+			getAdminService().changePassword(omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
 		}
@@ -2510,17 +2517,17 @@ class OMEROGateway
 			"i.details.owner.id = :userID and ";
 			IQueryPrx service = getQueryService();
 			ParametersI param = new ParametersI();
-			param.map.put("userID", new RLong(userID));
+			param.map.put("userID", omero.rtypes.rlong(userID));
 			if (startTime != null && endTime != null) {
 				sql += "c.time < :endTime and c.time > :startTime";
-				param.add("startTime", new RTime(startTime.getTime()));
-				param.add("endTime", new RTime(endTime.getTime()));
+				param.add("startTime", omero.rtypes.rtime(startTime.getTime()));
+				param.add("endTime", omero.rtypes.rtime(endTime.getTime()));
 			} else if (startTime == null && endTime != null) {
 				sql += "c.time < :endTime";
-				param.add("endTime", new RTime(endTime.getTime()));
+				param.add("endTime", omero.rtypes.rtime(endTime.getTime()));
 			} else if (startTime != null && endTime == null) {
 				sql += "c.time  > :startTime";
-				param.add("startTime", new RTime(startTime.getTime()));
+				param.add("startTime", omero.rtypes.rtime(startTime.getTime()));
 			} 
 			
 			return service.findAllByQuery(sql, param);
@@ -2730,7 +2737,7 @@ class OMEROGateway
                 + "where rdef.pixels.id = :pixid";
 			IQueryPrx service = getQueryService();
 			Parameters param = new ParametersI();
-			param.map.put("pixid", new RLong(pixelsID));
+			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
 			List results = service.findAllByQuery(sql, param);
 			if (results == null || results.size() == 0) return map;
 			Iterator i = results.iterator();
@@ -2738,7 +2745,7 @@ class OMEROGateway
 			Experimenter exp;
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
-				exp = rndDef.getDetails().owner;
+				exp = rndDef.getDetails().getOwner();
 				//if (exp.getId() != userID) {
 				map.put(PojoMapper.asDataObject(exp), rndDef);
 				//}
@@ -2780,8 +2787,8 @@ class OMEROGateway
                 	"rdef.details.owner.id = :userid";
 
 			Parameters param = new ParametersI();
-			param.map.put("pixid", new RLong(pixelsID));
-			param.map.put("userid", new RLong(userID));
+			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
+			param.map.put("userid", omero.rtypes.rlong(userID));
 			return (RenderingDef) getQueryService().findByQuery(sql, param);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings");
@@ -2816,14 +2823,14 @@ class OMEROGateway
                 + "left outer join fetch ann.details.owner";
 			if (id >= 0 && userID >= 0) {
 				sql += " where ann.id = :id and ann.details.owner.id = :uid";
-				param.map.put("id", new RLong(id));
-				param.map.put("uid", new RLong(userID));
+				param.map.put("id", omero.rtypes.rlong(id));
+				param.map.put("uid", omero.rtypes.rlong(userID));
 			} else if (id < 0 && userID >= 0) {
 				sql += " where ann.details.owner.id = :uid";
-				param.map.put("uid", new RLong(userID));
+				param.map.put("uid", omero.rtypes.rlong(userID));
 			} else if (id >= 0 && userID < 0) {
 				sql += " where ann.id = :id";
-				param.map.put("id", new RLong(id));
+				param.map.put("id", omero.rtypes.rlong(id));
 			}
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
@@ -2861,7 +2868,7 @@ class OMEROGateway
 
 			if (userID >= 0) {
 				sql += "and link.details.owner.id = :uid";
-				param.map.put("uid", new RLong(userID));
+				param.map.put("uid", omero.rtypes.rlong(userID));
 			}
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
@@ -2900,7 +2907,7 @@ class OMEROGateway
 		while (k.hasNext()) {
 			object = (IObject) k.next();
 			if (type.equals(object.getClass().getName())) {
-				id = object.getId().val;
+				id = object.getId().getValue();
 				if (!r.contains(id)) 
 					r.add(id); //Retrieve the object of a given type.
 			}
@@ -2985,16 +2992,19 @@ class OMEROGateway
 			if (start != null || end != null) {
 				switch (context.getTimeIndex()) {
 					case SearchDataContext.CREATION_TIME:
-						service.onlyCreatedBetween(new RTime(start.getTime()), 
-									new RTime(end.getTime()));
+						service.onlyCreatedBetween(
+								omero.rtypes.rtime(start.getTime()), 
+								omero.rtypes.rtime(end.getTime()));
 						break;
 					case SearchDataContext.MODIFICATION_TIME:
-						service.onlyModifiedBetween(new RTime(start.getTime()), 
-								new RTime(end.getTime()));
+						service.onlyModifiedBetween(
+								omero.rtypes.rtime(start.getTime()), 
+								omero.rtypes.rtime(end.getTime()));
 						break;
 					case SearchDataContext.ANNOTATION_TIME:
-						service.onlyAnnotatedBetween(new RTime(start.getTime()), 
-								new RTime(end.getTime()));	
+						service.onlyAnnotatedBetween(
+								omero.rtypes.rtime(start.getTime()), 
+								omero.rtypes.rtime(end.getTime()));	
 				}
 			}
 			List<ExperimenterData> users = context.getOwners();
@@ -3007,8 +3017,8 @@ class OMEROGateway
 				i = users.iterator();
 				while (i.hasNext()) {
 					exp = (ExperimenterData) i.next();
-					d = new Details();
-			        d.owner = exp.asExperimenter();
+					d = new DetailsI();
+					d.setOwner(exp.asExperimenter());
 			        owners.add(d);
 				}
 			//}
@@ -3125,12 +3135,12 @@ class OMEROGateway
 		try {
 			SearchPrx service = getSearchService();
 			if (start != null || end != null)
-				service.onlyAnnotatedBetween(new RTime(start.getTime()), 
-						new RTime(end.getTime()));
+				service.onlyAnnotatedBetween(
+						omero.rtypes.rtime(start.getTime()), 
+						omero.rtypes.rtime(end.getTime()));
 			if (exp != null) {
-				
-				Details d = new Details();
-				d.owner = exp.asExperimenter();
+				Details d = new DetailsI();
+				d.setOwner(exp.asExperimenter());
 			}
 			List<String> t = prepareTextSearch(terms, service);
 
@@ -3167,7 +3177,7 @@ class OMEROGateway
 			IQueryPrx service = getQueryService();
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
-			p.map.put("id", new RLong(userID));
+			p.map.put("id", omero.rtypes.rlong(userID));
 			String table = getTableForClass(type);
 			return PojoMapper.asDataObjects(service.findAllByQuery(
 	                "from "+table+" as p where p.details.owner.id = :id", p));
@@ -3200,7 +3210,7 @@ class OMEROGateway
 			IQueryPrx service = getQueryService();
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
-			p.map.put("tagID", new RLong(tagID));
+			p.map.put("tagID", omero.rtypes.rlong(tagID));
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("select ann from Annotation as ann ");
@@ -3804,7 +3814,7 @@ class OMEROGateway
 		return new HashSet();
 	}
 	
-	//Should move to server
+	//Should be moved to server
 	Set loadScreenPlate(Class rootType, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -3830,7 +3840,7 @@ class OMEROGateway
 				for (IObject o : results) {
 					s = (Screen) o;
 					for (ScreenPlateLink link : s.copyPlateLinks()) {
-						plates.add(link.getChild().getId().val);
+						plates.add(link.getChild().getId().getValue());
 					}
 				}
 
@@ -3859,5 +3869,64 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
+	
+	Object loadImageAcquisitionData(Image image)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//stage Label
+		IQueryPrx service = getQueryService();
+		StringBuilder sb;
+		ParametersI param;
+		//Objective settings and objective
+		IObject o = image.getPosition();
+		Map<Class, IObject> results =new HashMap<Class, IObject>();
+		try {
+			if (o != null) {
+				sb = new StringBuilder();
+				param = new ParametersI();
+				sb.append("select label from StageLabel label ");
+				sb.append("where id = :id");
+	        	param.addLong("id", o.getId());
+	        	results.put(StageLabel.class, 
+	        			service.findByQuery(sb.toString(), param));
+			}
+			o = image.getCondition();
+			if (o != null) {
+				sb = new StringBuilder();
+				param = new ParametersI();
+				sb.append("select condition from ImagingEnvironment condition");
+				sb.append(" where id = :id");
+	        	param.addLong("id", o.getId());
+	        	results.put(ImagingEnvironment.class, 
+	        			service.findByQuery(sb.toString(), param));
+			}
+			o = image.getObjectiveSettings();
+			if (o != null) {
+				sb = new StringBuilder();
+				param = new ParametersI();
+				sb.append("select settings from ObjectiveSettings settings ");
+				sb.append("left outer join fetch settings.objective ");
+				sb.append("where id = :id");
+	        	param.addLong("id", o.getId());
+	        	results.put(ObjectiveSettings.class, 
+	        			service.findByQuery(sb.toString(), param));
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot load image acquisition data.");
+		}
+		return results;
+	}
+	
+	Object loadChannelAcquisitionData()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//stage Label
+		IQueryPrx service = getQueryService();
+		StringBuilder sb;
+		ParametersI param;
+		List<IObject> results = new ArrayList<IObject>();
+		return results;
+	}
+	
 	
 }

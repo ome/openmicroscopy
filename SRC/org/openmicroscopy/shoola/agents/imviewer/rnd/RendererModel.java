@@ -35,7 +35,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
@@ -447,7 +447,7 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	ChannelMetadata[] getChannelData()
+	ChannelData[] getChannelData()
 	{
 		return rndControl.getChannelData();
 	}

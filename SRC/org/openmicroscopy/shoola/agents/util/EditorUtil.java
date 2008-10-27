@@ -48,7 +48,7 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -777,7 +777,7 @@ public class EditorUtil
      * @return      The map whose keys are the field names, and the values 
      *              the corresponding fields' values.
      */
-    public static Map<String, String> transformChannelData(ChannelMetadata data)
+    public static Map<String, String> transformChannelData(ChannelData data)
     {
         LinkedHashMap<String, String> 
         		details = new LinkedHashMap<String, String>(10);

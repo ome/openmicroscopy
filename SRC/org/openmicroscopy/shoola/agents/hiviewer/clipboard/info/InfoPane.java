@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import pojos.ImageData;
 
 /** 
@@ -99,7 +99,7 @@ public class InfoPane
             int j = 0;
             while (k.hasNext()) {
                 s += 
-                   ((ChannelMetadata) k.next()).getEmissionWavelength();
+                   ((ChannelData) k.next()).getEmissionWavelength();
                 if (j != l.size()-1) s +=", ";
                 j++;
             }

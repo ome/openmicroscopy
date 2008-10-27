@@ -40,7 +40,6 @@ import java.util.Set;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
-import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.FileAnnotation;
@@ -245,12 +244,13 @@ class OmeroMetadataServiceImpl
 			//tag a tag.
 			if (TagAnnotationData.class.equals(data.getClass())) {
 				link = gateway.findAnnotationLink(
-						AnnotationData.class, tag.getId(), ho.getId().val);
+						AnnotationData.class, tag.getId(), 
+						ho.getId().getValue());
 				if (link == null) 
 					link = ModelMapper.linkAnnotation(an, (Annotation) ho);
 			} else {
 				link = gateway.findAnnotationLink(ho.getClass(), 
-						ho.getId().val, tag.getId());
+						ho.getId().getValue(), tag.getId());
 				if (link == null)
 					link = ModelMapper.linkAnnotation(ho, an);
 				else {
@@ -340,7 +340,7 @@ class OmeroMetadataServiceImpl
 			data = (AnnotationData) i.next();
 			if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
-					fileID = fa.getFile().getId().val;
+					fileID = fa.getFile().getId().getValue();
 					of = gateway.getOriginalFile(fileID);
 					if (of != null) 
 						((FileAnnotationData) data).setContent(of);
@@ -458,7 +458,7 @@ class OmeroMetadataServiceImpl
 					ratings.add(data);
 				else if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
-					id = fa.getFile().getId().val;
+					id = fa.getFile().getId().getValue();
 					of = gateway.getOriginalFile(id);
 					if (of != null) 
 						((FileAnnotationData) data).setContent(of);
@@ -541,13 +541,15 @@ class OmeroMetadataServiceImpl
 			if (TagAnnotationData.class.equals(type)) {
 				if (tag.getId() <= 0) {
 					TagAnnotation ann = new TagAnnotationI();
-		    		ann.setTextValue(new RString(tag.getContentAsString()));
+		    		ann.setTextValue(
+		    				omero.rtypes.rstring(tag.getContentAsString()));
 		    		link = ModelMapper.linkAnnotation(ann, (Annotation) ho);
 				} else {
 					annObject = tag.asIObject();
 					ModelMapper.unloadCollections(annObject);
 					link = gateway.findAnnotationLink(
-							AnnotationData.class, tag.getId(), ho.getId().val);
+							AnnotationData.class, tag.getId(), 
+							ho.getId().getValue());
 					if (link == null) 
 						link = ModelMapper.linkAnnotation(annObject, 
 								(Annotation) ho);
@@ -559,7 +561,8 @@ class OmeroMetadataServiceImpl
 					annObject = tag.asIObject();
 					ModelMapper.unloadCollections(annObject);
 					link = gateway.findAnnotationLink(ho.getClass(), 
-												ho.getId().val, tag.getId());
+												ho.getId().getValue(), 
+												tag.getId());
 					if (link == null)
 						link = ModelMapper.linkAnnotation(ho, 
 								(Annotation) annObject);
@@ -656,7 +659,7 @@ class OmeroMetadataServiceImpl
 			while (i.hasNext()) {
 				obj = (IObject) i.next();
 				ids = new ArrayList<Long>(); 
-				ids.add(obj.getId().val);
+				ids.add(obj.getId().getValue());
 				l = gateway.findAnnotationLinks(klass, -1, ids);
 				if (l == null || l.size() == 0) gateway.deleteObject(obj);
 			}
@@ -701,12 +704,12 @@ class OmeroMetadataServiceImpl
 			throw new IllegalArgumentException("No objec to handle.");
 		IObject ho = gateway.findIObject(annotation.asIObject());
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
-				                         object.getId(), ho.getId().val);
+				                         object.getId(), ho.getId().getValue());
 		if (ho != null && link != null) {
 			gateway.deleteObject(link);
 			//Check that the annotation is not shared.
 			List<Long> ids = new ArrayList<Long>();
-			ids.add(ho.getId().val);
+			ids.add(ho.getId().getValue());
 			List l = gateway.findAnnotationLinks(object.getClass().getName(), 
 					-1, ids);
 			if (l == null || l.size() == 0)
@@ -811,7 +814,7 @@ class OmeroMetadataServiceImpl
 			if (annotationType.equals(data.getClass())) {
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
-					id = fa.getFile().getId().val;
+					id = fa.getFile().getId().getValue();
 					of = gateway.getOriginalFile(id);
 					if (of != null) 
 						((FileAnnotationData) data).setContent(of);
@@ -1485,7 +1488,7 @@ class OmeroMetadataServiceImpl
 					ImageAnnotationLink link;
 					while (i.hasNext()) {
 						link = (ImageAnnotationLink) i.next();
-						id = link.getChild().getId().val;
+						id = link.getChild().getId().getValue();
 						tag = map.get(id);
 						if (tag != null) {
 							map.remove(id);
@@ -1506,12 +1509,12 @@ class OmeroMetadataServiceImpl
 						AnnotationAnnotationLink link;
 						while (i.hasNext()) {
 							link = (AnnotationAnnotationLink) i.next();
-							id = link.getChild().getId().val;
+							id = link.getChild().getId().getValue();
 							tag = map.get(id);
 							if (tag != null) {
 								map.remove(id);
 							} else {
-								id = link.getParent().getId().val;
+								id = link.getParent().getId().getValue();
 								tag = map.get(id);
 								if (tag != null) map.remove(id);
 							}
@@ -1535,7 +1538,7 @@ class OmeroMetadataServiceImpl
 					AnnotationAnnotationLink link;
 					while (i.hasNext()) {
 						link = (AnnotationAnnotationLink) i.next();
-						id = link.getParent().getId().val;
+						id = link.getParent().getId().getValue();
 						tag = map.get(id);
 						if (tag != null) {
 							map.remove(id);
@@ -1552,7 +1555,7 @@ class OmeroMetadataServiceImpl
 					ImageAnnotationLink link;
 					while (i.hasNext()) {
 						link = (ImageAnnotationLink) i.next();
-						id = link.getChild().getId().val;
+						id = link.getChild().getId().getValue();
 						tag = map.get(id);
 						if (tag != null) 
 							map.remove(id);

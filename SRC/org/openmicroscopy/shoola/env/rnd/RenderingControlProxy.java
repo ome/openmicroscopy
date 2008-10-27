@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
@@ -102,7 +102,7 @@ class RenderingControlProxy
     private int						cacheID;
     
     /** The channel metadata. */
-    private ChannelMetadata[]       metadata;
+    private ChannelData[]       metadata;
     
     /** Local copy of the rendering settings used to speed-up the client. */
     private RndProxyDef             rndDef;
@@ -313,12 +313,13 @@ class RenderingControlProxy
             rndDef.setDefaultZ(servant.getDefaultZ());
             rndDef.setDefaultT(servant.getDefaultT());
             QuantumDef qDef = servant.getQuantumDef();
-            rndDef.setBitResolution(qDef.getBitResolution().val);
-            rndDef.setColorModel(servant.getModel().getValue().val);
-            rndDef.setCodomain(qDef.getCdStart().val, qDef.getCdEnd().val);
+            rndDef.setBitResolution(qDef.getBitResolution().getValue());
+            rndDef.setColorModel(servant.getModel().getValue().getValue());
+            rndDef.setCodomain(qDef.getCdStart().getValue(), 
+            		qDef.getCdEnd().getValue());
             
             ChannelBindingsProxy cb;
-            for (int i = 0; i < pixs.getSizeC().val; i++) {
+            for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                 cb = rndDef.getChannel(i);
                 if (cb == null) {
                     cb = new ChannelBindingsProxy();
@@ -327,7 +328,8 @@ class RenderingControlProxy
                 cb.setActive(servant.isActive(i));
                 cb.setInterval(servant.getChannelWindowStart(i), 
                                 servant.getChannelWindowEnd(i));
-                cb.setQuantization(servant.getChannelFamily(i).getValue().val, 
+                cb.setQuantization(
+                		servant.getChannelFamily(i).getValue().getValue(), 
                         servant.getChannelCurveCoefficient(i), 
                         servant.getChannelNoiseReduction(i));
                 cb.setRGBA(servant.getRGBA(i));
@@ -345,7 +347,7 @@ class RenderingControlProxy
     {
     	 //DOES NOTHING TMP SOLUTION.
         try {
-        	for (int i = 0; i < pixs.getSizeC().val; i++) {
+        	for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
     			setQuantizationMap(i, getChannelFamily(i), 
     					getChannelCurveCoefficient(i), false);
     		}
@@ -429,17 +431,17 @@ class RenderingControlProxy
             int sizeX1, sizeX2;
             switch (pDef.slice) {
                 case omero.romio.XZ.value:
-                    sizeX1 = pixs.getSizeX().val;
-                    sizeX2 = pixs.getSizeZ().val;
+                    sizeX1 = pixs.getSizeX().getValue();
+                    sizeX2 = pixs.getSizeZ().getValue();
                     break;
                 case omero.romio.ZY.value:
-                    sizeX1 = pixs.getSizeZ().val;
-                    sizeX2 = pixs.getSizeY().val;
+                    sizeX1 = pixs.getSizeZ().getValue();
+                    sizeX2 = pixs.getSizeY().getValue();
                     break;
                 case omero.romio.XY.value:
                 default:
-                    sizeX1 = pixs.getSizeX().val;
-                    sizeX2 = pixs.getSizeY().val;
+                    sizeX1 = pixs.getSizeX().getValue();
+                    sizeX2 = pixs.getSizeY().getValue();
                     break;
             }
             imageSize = 3*buf.length;
@@ -507,8 +509,8 @@ class RenderingControlProxy
             int[] buf = servant.renderProjectedAsPackedInt(
             		ProjectionParam.convertType(type), 
 					getDefaultT(), stepping, startZ, endZ);
-            int sizeX1 = pixs.getSizeX().val;
-            int sizeX2 = pixs.getSizeY().val;
+            int sizeX1 = pixs.getSizeX().getValue();
+            int sizeX2 = pixs.getSizeY().getValue();
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render projected selection.");
@@ -561,7 +563,7 @@ class RenderingControlProxy
             } else {
             	this.rndDef = rndDef;
             	ChannelBindingsProxy cb;
-            	for (int i = 0; i < pixs.getSizeC().val; i++) {
+            	for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
@@ -569,11 +571,11 @@ class RenderingControlProxy
             }
            
             //tmpSolutionForNoiseReduction();
-            metadata = new ChannelMetadata[m.size()];
+            metadata = new ChannelData[m.size()];
             Iterator i = m.iterator();
-            ChannelMetadata cm;
+            ChannelData cm;
             while (i.hasNext()) {
-            	cm = (ChannelMetadata) i.next();
+            	cm = (ChannelData) i.next();
                 metadata[cm.getIndex()] = cm;
             }
 		} catch (Exception e) {
@@ -607,7 +609,7 @@ class RenderingControlProxy
             } else {
             	this.rndDef = rndDef;
             	ChannelBindingsProxy cb;
-            	for (int i = 0; i < pixs.getSizeC().val; i++) {
+            	for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
@@ -654,7 +656,7 @@ class RenderingControlProxy
             
             Family family;
             int[] rgba;
-            for (int i = 0; i < pixs.getSizeC().val; i++) {
+            for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                 cb = rndDef.getChannel(i);
                 servant.setActive(i, cb.isActive());
                 servant.setChannelWindow(i, cb.getInputStart(), 
@@ -712,7 +714,7 @@ class RenderingControlProxy
             RenderingModel model;
             while (i.hasNext()) {
                 model= (RenderingModel) i.next();
-                if (model.getValue().val.equals(value)) {
+                if (model.getValue().getValue().equals(value)) {
                     servant.setModel(model); 
                     rndDef.setColorModel(value);
                     invalidateCache();
@@ -1054,7 +1056,7 @@ class RenderingControlProxy
     public float getPixelsSizeX()
     {
         if (pixDims.getSizeX() == null) return 1;
-        return pixDims.getSizeX().val;
+        return pixDims.getSizeX().getValue();
     }
 
     /** 
@@ -1064,7 +1066,7 @@ class RenderingControlProxy
     public float getPixelsSizeY()
     {
         if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeY().val;
+        return pixDims.getSizeY().getValue();
     }
 
     /** 
@@ -1074,38 +1076,38 @@ class RenderingControlProxy
     public float getPixelsSizeZ()
     {
         if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeZ().val;
+        return pixDims.getSizeZ().getValue();
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsX()
      */
-    public int getPixelsDimensionsX() { return pixs.getSizeX().val; }
+    public int getPixelsDimensionsX() { return pixs.getSizeX().getValue(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsY()
      */
-    public int getPixelsDimensionsY() { return pixs.getSizeY().val; }
+    public int getPixelsDimensionsY() { return pixs.getSizeY().getValue(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsZ()
      */
-    public int getPixelsDimensionsZ() { return pixs.getSizeZ().val; }
+    public int getPixelsDimensionsZ() { return pixs.getSizeZ().getValue(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsT()
      */
-    public int getPixelsDimensionsT() { return pixs.getSizeT().val; }
+    public int getPixelsDimensionsT() { return pixs.getSizeT().getValue(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsC()
      */
-    public int getPixelsDimensionsC() { return pixs.getSizeC().val; }
+    public int getPixelsDimensionsC() { return pixs.getSizeC().getValue(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -1116,7 +1118,7 @@ class RenderingControlProxy
         List<String> l = new ArrayList<String>(families.size());
         Iterator i= families.iterator();
         while (i.hasNext())
-            l.add(((Family) i.next()).getValue().val);
+            l.add(((Family) i.next()).getValue().getValue());
         return l;
     }
     
@@ -1124,13 +1126,13 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getChannelData(int)
      */
-    public ChannelMetadata getChannelData(int w) { return metadata[w]; }
+    public ChannelData getChannelData(int w) { return metadata[w]; }
     
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getChannelData()
      */
-    public ChannelMetadata[] getChannelData() { return metadata; }
+    public ChannelData[] getChannelData() { return metadata; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -1300,7 +1302,7 @@ class RenderingControlProxy
 		if (getPixelsDimensionsX() != pixels.getSizeX())
 			return false;
 		String s = pixels.getPixelType();
-		String value = pixs.getPixelsType().getValue().val;
+		String value = pixs.getPixelsType().getValue().getValue();
 		if (!value.equals(s)) return false;
 		return true;
 	}
@@ -1365,10 +1367,10 @@ class RenderingControlProxy
     		 servant.resetDefaultsNoSave();
     		 setModel(HSB);
     		 List list = servant.getAvailableFamilies();
-    		 ChannelMetadata m;
+    		 ChannelData m;
     		 Iterator j;
     		 Family family;
-    		 for (int i = 0; i < pixs.getSizeC().val; i++) {
+    		 for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
     			 j = list.iterator();
     			 while (j.hasNext()) {
     				 family= (Family) j.next();

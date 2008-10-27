@@ -77,6 +77,8 @@ class ImageAcquisitionComponent
 	/** Initiliases the components. */
 	private void initComponents()
 	{
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		immersionBox = EditorUtil.createComboBox(Mapper.IMMERSIONS);
 		coatingBox = EditorUtil.createComboBox(Mapper.COATING);
 		mediumBox = EditorUtil.createComboBox(Mapper.MEDIUM);
@@ -85,9 +87,10 @@ class ImageAcquisitionComponent
 	/** 
 	 * Builds and lays out the stage label.
 	 * 
+	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildStageLabel()
+	private JPanel buildStageLabel(Map<String, String> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
@@ -98,7 +101,6 @@ class ImageAcquisitionComponent
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-		Map<String, String> details = EditorUtil.transformStageLabel(null);
 		Iterator i = details.keySet().iterator();
         JLabel label;
         JTextArea area;
@@ -135,9 +137,10 @@ class ImageAcquisitionComponent
 	/** 
 	 * Builds and lays out the setting relative to the objective.
 	 * 
+	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildObjectiveSetting()
+	private JPanel buildObjectiveSetting(Map<String, String> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
@@ -148,8 +151,6 @@ class ImageAcquisitionComponent
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-		Map<String, String> 
-			details = EditorUtil.transformObjectiveSettings(null);
 		Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
@@ -191,9 +192,10 @@ class ImageAcquisitionComponent
 	/** 
 	 * Builds and lays out the objective's data.
 	 * 
+	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildObjective()
+	private JPanel buildObjective(Map<String, String> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createTitledBorder("Objective"));
@@ -203,7 +205,6 @@ class ImageAcquisitionComponent
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-		Map<String, String> details = EditorUtil.transformObjective(null);
 		Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
@@ -247,9 +248,10 @@ class ImageAcquisitionComponent
 	/** 
 	 * Builds and lays out the imaging environment.
 	 * 
+	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	public JPanel buildImagingEnvironment()
+	public JPanel buildImagingEnvironment(Map<String, String> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
@@ -260,8 +262,6 @@ class ImageAcquisitionComponent
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-		Map<String, String> 
-			details = EditorUtil.transformImageEnvironment(null);
 		Iterator i = details.keySet().iterator();
         JLabel label;
         JTextArea area;
@@ -290,7 +290,6 @@ class ImageAcquisitionComponent
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
@@ -300,12 +299,15 @@ class ImageAcquisitionComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(buildObjective());
-		add(buildObjectiveSetting());
-		add(buildImagingEnvironment());
-		add(buildStageLabel());
+		add(buildObjective(EditorUtil.transformObjective(
+				model.getObjective())));
+		add(buildObjectiveSetting(EditorUtil.transformObjectiveSettings(
+				model.getObjectiveSettings())));
+		add(buildImagingEnvironment(
+				EditorUtil.transformImageEnvironment(
+						model.getImagingEnvironment())));
+		add(buildStageLabel(EditorUtil.transformStageLabel(
+				model.getStageLabel())));
 	}
 	
 	/**
@@ -319,6 +321,13 @@ class ImageAcquisitionComponent
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
 		initComponents();
+		buildGUI();
+	}
+	
+	/** Sets the metadata. */
+	void setImageAcquisitionData()
+	{
+		removeAll();
 		buildGUI();
 	}
 	

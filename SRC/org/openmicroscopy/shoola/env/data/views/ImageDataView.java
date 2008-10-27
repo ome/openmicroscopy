@@ -183,4 +183,14 @@ public interface ImageDataView
     public CallHandle createRndSetting(long pixelsID, RndProxyDef rndToCopy,
     		List<Integer> indexes, AgentEventListener observer);
     
+    /**
+     * Loads the acquisition metadata for an image or a given channel.
+     * 
+     * @param refObject Either an image or a channel.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle loadAcquisitionDat(Object refObject, 
+    		AgentEventListener observer);
+    
 }

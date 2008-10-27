@@ -188,6 +188,7 @@ public interface Editor
      */
 	public void setStatus(boolean busy);
 
+	/** Loads the existing tags. */
 	public void loadExistingTags();
 	
 	/**
@@ -196,5 +197,15 @@ public interface Editor
 	 * @param data The annotation to delete.
 	 */
 	public void deleteAnnotation(AnnotationData data);
+
+	/**
+	 * Sets the image acquisition data.
+	 * 
+	 * @param map The value to set.
+	 */
+	public void setImageAcquisitionData(Map map);
+
+	/** Loads the image acquisition data. */
+	public void loadImageAcquisitionData();
 	
 }

@@ -79,7 +79,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -1407,8 +1407,8 @@ class ImViewerUI
 	{
 		switch (menuID) {
 			case ImViewer.COLOR_PICKER_MENU:
-				ChannelMetadata[] data = model.getChannelData();
-				ChannelMetadata d;
+				ChannelData[] data = model.getChannelData();
+				ChannelData d;
 				JPopupMenu menu = new JPopupMenu();
 				ChannelColorMenuItem item;
 				for (int j = 0; j < data.length; j++) {

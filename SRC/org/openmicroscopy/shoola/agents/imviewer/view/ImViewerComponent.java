@@ -68,7 +68,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -1506,7 +1506,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getChannelMetadata(int)
 	 */
-	public ChannelMetadata getChannelMetadata(int index)
+	public ChannelData getChannelMetadata(int index)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(

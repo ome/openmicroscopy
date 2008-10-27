@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
@@ -244,9 +244,9 @@ class DomainPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        ChannelMetadata[] data = model.getChannelData();
+        ChannelData[] data = model.getChannelData();
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
-        ChannelMetadata d;
+        ChannelData d;
         ChannelToggleButton item;
         p.add(Box.createRigidArea(VBOX));
         for (int j = 0; j < data.length; j++) {

@@ -44,7 +44,7 @@ import javax.swing.JTextArea;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -66,7 +66,7 @@ class ChannelAcquisitionComponent
 {
 
 	/** The channel data. */
-	private ChannelMetadata channel;
+	private ChannelData channel;
 	
 	/** The component displaying the illumination's options. */
 	private JComboBox		illuminationBox;
@@ -223,7 +223,7 @@ class ChannelAcquisitionComponent
 	 * 
 	 * @param channel The channel to display.
 	 */
-	ChannelAcquisitionComponent(ChannelMetadata channel)
+	ChannelAcquisitionComponent(ChannelData channel)
 	{
 		this.channel = channel;
 		initComponents();

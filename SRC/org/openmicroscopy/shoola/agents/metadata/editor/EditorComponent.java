@@ -355,5 +355,30 @@ class EditorComponent
 			//model.fireAnnotationSaving(toAdd, toRemove);
 		}
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setImageAcquisitionData(Map)
+	 */
+	public void setImageAcquisitionData(Map map)
+	{
+		if (map == null) return;
+		model.setImageAcquisitionData(map);
+		view.setImageAcquisitionData();
+		view.setStatus(false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#loadImageAcquisitionData()
+	 */
+	public void loadImageAcquisitionData()
+	{
+		Map data = model.getImageAcquisitionData();
+		if (data != null) return;
+		if (!(model.getRefObject() instanceof ImageData)) return;
+		model.fireImagAcquisitionDataLoading();
+		view.setStatus(true);
+	}
 	
 }
