@@ -1007,6 +1007,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveCorrection(String correction, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveCorrection[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                correction, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveCorrection(rstring(correction), instrumentIndex, objectiveIndex);
@@ -1019,6 +1022,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveID(String id, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveID[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                id, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveID(rstring(id), instrumentIndex, objectiveIndex);
@@ -1046,6 +1052,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveLensNA[%f] instrumentIndex[%d] objectiveIndex[%d]",
+                lensNA, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveLensNA(rfloat(lensNA), instrumentIndex, objectiveIndex);
@@ -1058,6 +1067,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveManufacturer(String manufacturer,
             int instrumentIndex, int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveManufacturer[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                manufacturer, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveManufacturer(rstring(manufacturer), instrumentIndex, objectiveIndex);
@@ -1070,6 +1082,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveModel(String model, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveModel[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                model, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveModel(rstring(model), instrumentIndex, objectiveIndex);
@@ -1082,6 +1097,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveNominalMagnification(Integer nominalMagnification,
             int instrumentIndex, int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveNominalMagnification[%d] instrumentIndex[%d] objectiveIndex[%d]",
+                nominalMagnification, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveNominalMagnification(rint(nominalMagnification), instrumentIndex, objectiveIndex);
@@ -1094,6 +1112,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveSerialNumber(String serialNumber,
             int instrumentIndex, int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveSerialNumber[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                serialNumber, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveSerialNumber(rstring(serialNumber), instrumentIndex, objectiveIndex);
@@ -1106,6 +1127,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveWorkingDistance(Float workingDistance,
             int instrumentIndex, int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveWorkingDistance[%f] instrumentIndex[%d] objectiveIndex[%d]",
+                workingDistance, instrumentIndex, objectiveIndex));
         try
         {
             delegate.setObjectiveWorkingDistance(rfloat(workingDistance), instrumentIndex, objectiveIndex);
@@ -1224,6 +1248,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {    
         try
         {
+            
+            delegate.setPlaneTheC(rint(theC), imageIndex, pixelsIndex, planeIndex);
+            
+            /*
             if (pInfo == null)
             {
                 pInfo = new PlaneInfoI();
@@ -1236,6 +1264,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // Submit the pInfo.
                 delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
             }
+            */
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1247,6 +1276,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
+            
+            
+            delegate.setPlaneTheT(rint(theT), imageIndex, pixelsIndex, planeIndex);
+            
+            /*
             if (pInfo == null)
             {
                 pInfo = new PlaneInfoI();
@@ -1259,6 +1293,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // Submit the pInfo.
                 delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
             }
+            */
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -1270,6 +1305,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
+            
+            delegate.setPlaneTheZ(rint(theZ), imageIndex, pixelsIndex, planeIndex);
+            
+            /*
             if (pInfo == null)
             {
                 pInfo = new PlaneInfoI();
@@ -1282,6 +1321,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // Submit the pInfo.
                 delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
             }
+            */
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
