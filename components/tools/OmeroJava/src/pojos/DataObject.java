@@ -25,6 +25,7 @@ import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.Category;
 import omero.model.CategoryGroup;
+import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Details;
 import omero.model.Event;
@@ -530,6 +531,17 @@ public abstract class DataObject {
         return (WellSample) asIObject();
     }
 
+    /**
+     * Returns the hosted IObject as a Well. Not null; may through class-cast
+     * exception
+     * 
+     * @throws ClassCastException
+     * @return See above
+     */
+    public Channel asChannel() {
+        return (Channel) asIObject();
+    }
+    
 }
 
 /**
