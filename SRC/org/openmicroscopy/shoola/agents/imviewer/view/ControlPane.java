@@ -58,9 +58,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+import pojos.ChannelData;
 
 /** 
  * Presents variable controls.

@@ -52,10 +52,9 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-
+import pojos.ChannelData;
 import pojos.PixelsData;
 
 

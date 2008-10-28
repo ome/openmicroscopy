@@ -59,9 +59,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+import pojos.ChannelData;
 
 
 /** 

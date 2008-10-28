@@ -93,7 +93,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -101,6 +100,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+import pojos.ChannelData;
 import pojos.ExperimenterData;
 
 

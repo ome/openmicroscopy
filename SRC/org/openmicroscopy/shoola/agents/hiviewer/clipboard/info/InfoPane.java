@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import pojos.ChannelData;
 import pojos.ImageData;
 
 /** 

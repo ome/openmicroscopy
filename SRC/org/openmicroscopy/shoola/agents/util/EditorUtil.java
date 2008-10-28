@@ -36,11 +36,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.UIManager;
-import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
 //Third-party libraries
@@ -48,8 +45,8 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -802,7 +799,7 @@ public class EditorUtil
             details.put(ILLUMINATION, data.getIllumination());
             details.put(CONTRAST_METHOD, data.getContrastMethod());
             details.put(MODE, data.getMode());
-            details.put(POCKEL_CELL_SETTINGS, data.getPockelCell());
+            details.put(POCKEL_CELL_SETTINGS, ""+data.getPockelCell());
         }
         return details;
     }

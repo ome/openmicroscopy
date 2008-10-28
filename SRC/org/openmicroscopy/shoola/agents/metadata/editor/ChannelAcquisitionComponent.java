@@ -44,9 +44,9 @@ import javax.swing.JTextArea;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ChannelData;
 
 /** 
  * 

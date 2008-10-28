@@ -48,7 +48,6 @@ import omero.util.PojoOptionsI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -56,6 +55,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;

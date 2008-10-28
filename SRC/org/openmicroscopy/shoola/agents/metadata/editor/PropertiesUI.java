@@ -53,9 +53,9 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PermissionData;

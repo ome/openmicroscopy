@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -88,7 +87,7 @@ import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
-
+import pojos.ChannelData;
 import pojos.PixelsData;
 
 /** 

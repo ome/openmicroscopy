@@ -68,7 +68,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -81,7 +80,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;

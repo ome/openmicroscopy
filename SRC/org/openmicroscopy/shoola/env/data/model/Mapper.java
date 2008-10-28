@@ -37,6 +37,7 @@ import omero.RString;
 import omero.model.Channel;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
+import pojos.ChannelData;
 
 /** 
  * Helper class used to map core object to 
@@ -140,46 +141,6 @@ public class Mapper
 		DETECTOR_TYPE[6] = "Life-time-Imaging";
 		DETECTOR_TYPE[7] = "Correlation-Spectroscoypy";
 		DETECTOR_TYPE[8] = "FTIR";
-	}
-	
-	/**
-	 * Turns the specified {@link Channel} object into {@link ChannelData}
-	 * object.
-	 * 
-	 * @param index		The index of the channel.	
-	 * @param channel	The channel to transform.
-	 * @return See above.
-	 */
-	public static ChannelData mapChannel(int index, Channel channel)
-	{
-		/*
-		StatsInfo stats = channel.getStatsInfo();
-		double min = 0;
-		double max = 1;
-		if (stats != null) {
-			RDouble object = stats.getGlobalMin();
-			if (object != null) min = object.val;
-			object = stats.getGlobalMax();
-			if (object != null) max = object.val;
-		}
-		
-		ChannelMetadata cm = new ChannelMetadata(index, channel);
-		LogicalChannel lc = channel.getLogicalChannel();
-		RInt value  = lc.getEmissionWave();
-		if (value != null) cm.setEmissionWavelength(value.val);
-		value = lc.getExcitationWave();
-		if (value != null) cm.setExcitationWavelength(value.val);
-		value = lc.getPinHoleSize();
-		if (value != null) cm.setPinHoleSize(value.val);
-		RFloat f = lc.getNdFilter();
-		if (f != null) cm.setNDFilter(f.val);
-		RString s = lc.getName();
-		if (s != null) cm.setName(s.val);
-		s = lc.getFluor();
-		if (s != null) cm.setFluor(s.val); 
-		return cm;
-		*/
-		return null;
 	}
 	
 }

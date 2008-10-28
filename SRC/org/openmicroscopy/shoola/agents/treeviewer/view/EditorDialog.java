@@ -61,6 +61,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Basic modal dialog brought up to create a new container.
@@ -232,13 +233,16 @@ class EditorDialog
         IconManager im = IconManager.getInstance();
         TitlePanel tp = null;
         if (data instanceof ProjectData) {
-        	tp = new TitlePanel("Create project", "Create a new project", 
+        	tp = new TitlePanel("Create project", "Create a new project.", 
         			im.getIcon(IconManager.CREATE_BIG));
         } else if (data instanceof DatasetData) {
-        	tp = new TitlePanel("Create dataset", "Create a new dataset", 
+        	tp = new TitlePanel("Create dataset", "Create a new dataset.", 
         			im.getIcon(IconManager.CREATE_BIG));
         } else if (data instanceof ScreenData) {
-        	tp = new TitlePanel("Create screen", "Create a new screen", 
+        	tp = new TitlePanel("Create screen", "Create a new screen.", 
+        			im.getIcon(IconManager.CREATE_BIG));
+        } else if (data instanceof TagAnnotationData) {
+        	tp = new TitlePanel("Create tag", "Create a new tag.", 
         			im.getIcon(IconManager.CREATE_BIG));
         }
        return tp;
@@ -285,6 +289,11 @@ class EditorDialog
     		ScreenData d = (ScreenData) data;
 			d.setName(nameArea.getText().trim());
 			d.setDescription(descriptionArea.getText().trim());
+			data = d;
+    	} else if (data instanceof TagAnnotationData) {
+    		TagAnnotationData d = (TagAnnotationData) data;
+    		d.setContent(nameArea.getText().trim());
+			d.setTagDescription(descriptionArea.getText().trim());
 			data = d;
     	}
     	if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);

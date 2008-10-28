@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -69,7 +68,7 @@ import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
-
+import pojos.ChannelData;
 import pojos.PixelsData;
 
 /** 
