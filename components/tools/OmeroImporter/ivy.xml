@@ -25,5 +25,6 @@
     <dependency org="gui" name="ini4j" rev="0.3.2"/>
     <dependency org="gui" name="java-getopt" rev="1.0.13"/>
     <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
+    <dependency org="gui" name="commons-codec" rev="${versions.commons-codec}"/>
   </dependencies>
 </ivy-module>

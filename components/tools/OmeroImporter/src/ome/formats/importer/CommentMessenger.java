@@ -80,7 +80,7 @@ public class CommentMessenger extends JDialog implements ActionListener
     
     CommentMessenger(JFrame owner, String title, Boolean modal)
     {
-        
+        super(owner);
         gui = new GuiCommonElements();
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);

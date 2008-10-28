@@ -17,8 +17,10 @@
 	<classpathentry kind="lib" path="target/libs/jbossall-client.jar"/>
 	<classpathentry kind="lib" path="target/libs/ini4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/java-getopt.jar"/>
-	<classpathentry kind="lib" path="/Users/TheBrain/Documents/BlitzImporter/target/libs/OmeroJava-build18.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/omero-importer"/>
+	<classpathentry kind="lib" path="/Users/TheBrain/Documents/LOCI Software/artifacts/loci-common.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-codec.jar"/>
+	<classpathentry kind="lib" path="/Users/TheBrain/Documents/BlitzImporter/target/libs/omero_client-build77.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

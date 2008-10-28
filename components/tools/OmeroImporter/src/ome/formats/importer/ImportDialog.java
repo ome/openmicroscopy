@@ -13,6 +13,7 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.*;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

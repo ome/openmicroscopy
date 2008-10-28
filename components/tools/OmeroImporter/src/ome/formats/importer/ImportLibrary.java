@@ -14,6 +14,7 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
-import loci.formats.DataTools;
+import loci.common.DataTools;
 import ome.formats.OMEROMetadataStore;
 
 import org.apache.commons.logging.Log;
@@ -38,18 +39,14 @@ import ome.formats.importer.util.Actions;
 
 import static omero.rtypes.*;
 import omero.RBool;
-import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.model.BooleanAnnotationI;
 import omero.model.ColorI;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Pixels;
-import omero.model.PixelsDimensionsI;
-import omero.model.PixelsI;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStore} and
@@ -527,6 +524,7 @@ public class ImportLibrary implements IObservable
                 }
             }
         }
+        
         if (dumpPixels)
             wChannel.close();
         reader.populateSHA1(pixId, md);
@@ -639,41 +637,48 @@ public class ImportLibrary implements IObservable
      * @throws FormatException if there is an error during metadata parsing.
      */
     private byte[] swapIfRequired(ByteBuffer buffer, String fileName)
-      throws FormatException, IOException
-    {
-      int pixelType = reader.getPixelType();
-      int bytesPerPixel = getBytesPerPixel(pixelType);
-      
-      // We've got nothing to do if the samples are only 8-bits wide.
-      if (bytesPerPixel == 1) 
-          return buffer.array();
+    throws FormatException, IOException
+  {
+    int pixelType = reader.getPixelType();
+    int bytesPerPixel = getBytesPerPixel(pixelType);
+    
+    // We've got nothing to do if the samples are only 8-bits wide.
+    if (bytesPerPixel == 1) 
+        return buffer.array();
 
-      //System.err.println(fileName + " is Little Endian: " + isLittleEndian(fileName));
-      if (isLittleEndian(fileName)) {
-        if (bytesPerPixel == 2) { // short
-          ShortBuffer buf = buffer.asShortBuffer();
-          for (int i = 0; i < (buffer.capacity() / 2); i++) {
+    int length;
+    
+    //System.err.println(fileName + " is Little Endian: " + isLittleEndian(fileName));
+    if (isLittleEndian(fileName)) {
+      if (bytesPerPixel == 2) { // short
+        ShortBuffer buf = buffer.asShortBuffer();
+        length = buffer.capacity() / 2;
+        short x;
+        for (int i = 0; i < length; i++) {
+          x = buf.get(i);
+          buf.put(i, (short) ((x << 8) | ((x >> 8) & 0xFF)));
+        }
+      } else if (bytesPerPixel == 4) { // int/uint/float
+          IntBuffer buf = buffer.asIntBuffer();
+          length = buffer.capacity() / 4;
+          for (int i = 0; i < length; i++) {
             buf.put(i, DataTools.swap(buf.get(i)));
           }
-        } else if (bytesPerPixel == 4) { // int/uint/float
-            IntBuffer buf = buffer.asIntBuffer();
-            for (int i = 0; i < (buffer.capacity() / 4); i++) {
-              buf.put(i, DataTools.swap(buf.get(i)));
-            }
-        } else if (bytesPerPixel == 8) // double
-        {
-            LongBuffer buf = buffer.asLongBuffer();
-            for (int i = 0; i < (buffer.capacity() / 8); i++) {
-              buf.put(i, DataTools.swap(buf.get(i)));
-            }
-        } else {
-          throw new FormatException(
-            "Unsupported sample bit width: '" + bytesPerPixel + "'");
-        }
+      } else if (bytesPerPixel == 8) // double
+      {
+          LongBuffer buf = buffer.asLongBuffer();
+          length = buffer.capacity() / 8;
+          for (int i = 0; i < length ; i++) {
+            buf.put(i, DataTools.swap(buf.get(i)));
+          }
+      } else {
+        throw new FormatException(
+          "Unsupported sample bit width: '" + bytesPerPixel + "'");
       }
-      // We've got a big-endian file with a big-endian byte array.
-      return buffer.array();
     }
+    // We've got a big-endian file with a big-endian byte array.
+    return buffer.array();
+  }
     
     // Observable methods
     

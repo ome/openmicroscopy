@@ -23,6 +23,7 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Window;

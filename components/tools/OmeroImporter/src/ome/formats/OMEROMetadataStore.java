@@ -11,12 +11,6 @@ import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
 import static omero.rtypes.*;
-import omero.RBool;
-import omero.RDouble;
-import omero.RFloat;
-import omero.RInt;
-import omero.RLong;
-import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.client;

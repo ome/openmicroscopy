@@ -98,7 +98,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     
     DebugMessenger(JFrame owner, String title, Boolean modal, Throwable e)
     {
-        
+        super(owner);
         gui = new GuiCommonElements();
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
