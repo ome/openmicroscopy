@@ -3364,4 +3364,56 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         "ignoring setUUID"));
     }
     // Bio-formats also needs a way to link OTF to Logical Channel
+
+    public void setExperimentDescription(String description, int experimentIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimentID(String id, int experimentIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimentType(String type, int experimentIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimenterMembershipGroup(String group,
+            int experimenterIndex, int groupRefIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageDefaultPixels(String defaultPixels, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelOTF(String otf, int imageIndex,
+            int logicalChannelIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setOTFObjective(String objective, int instrumentIndex,
+            int otfIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
 }
