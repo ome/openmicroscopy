@@ -90,7 +90,7 @@ public class MessageBox
 	 */
 	public MessageBox(JDialog owner, String title, String message)
 	{
-		super(owner, title, message, IconManager.getInstance().getIcon
+		this(owner, title, message, IconManager.getInstance().getIcon
 				(IconManager.QUESTION_ICON));
 	}
 	
@@ -105,7 +105,7 @@ public class MessageBox
 	 */
 	public MessageBox(JFrame owner, String title, String message)
 	{
-		super(owner, title, message, IconManager.getInstance().getIcon
+		this(owner, title, message, IconManager.getInstance().getIcon
 				(IconManager.QUESTION_ICON));
 	}
 
@@ -123,6 +123,7 @@ public class MessageBox
 					Icon icon)
 	{
 		super(owner, title, message, icon);
+		setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -138,6 +139,7 @@ public class MessageBox
 	public MessageBox(JFrame owner, String title, String message, Icon icon)
 	{
 		super(owner, title, message, icon);
+		setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 	}
 	
     /**
