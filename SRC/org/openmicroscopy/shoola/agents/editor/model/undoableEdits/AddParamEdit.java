@@ -220,7 +220,7 @@ public class AddParamEdit
 			DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
 			// tree.startEditingAtPath(new TreePath(dmtNode.getPath()));
 			
-			tree.clearSelection();
+			//tree.clearSelection();
 			
 			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
 			treeModel.nodeChanged(node);

@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Java imports
 
 import javax.swing.JTree;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellEditor;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -52,7 +55,9 @@ import javax.swing.tree.TreePath;
  */
 public class EditableTree 
 	extends JTree 
-	implements TreeSelectionListener
+	implements TreeSelectionListener,
+	TreeModelListener
+	
 {
 	/**
 	 * This JTree observes selection changes to the navTree
@@ -150,5 +155,62 @@ public class EditableTree
 			navTree.scrollPathToVisible(selPaths[0]);
 		}
 	}
+	
+	/**
+	 * Overrides {@link JTree#setModel(TreeModel)} in order to add this class
+	 * as a {@link TreeModelListener}
+	 * 
+	 * @see JTree#setModel(TreeModel)
+	 */
+	public void setModel(TreeModel treeModel) {
+		super.setModel(treeModel);
+		treeModel.addTreeModelListener(this);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeModelListener} interface.
+	 * This is a workaround to ensure that the {@link JTree} is re-rendered 
+	 * when the {@link #treeNodesChanged(TreeModelEvent)} method is fired. 
+	 * By manually changing the selection, it forces the {@link JTree} to 
+	 * re-display the selected nodes. 
+	 * Without this workaround, nodes occasionally do not become refreshed 
+	 * according to the changes in the model. 
+	 * 
+	 * @see TreeModelListener#treeNodesChanged(TreeModelEvent)
+	 */
+	public void treeNodesChanged(TreeModelEvent e) {
+		// need selection change to re-render sometimes! 
+		TreePath[] selPaths = getSelectionPaths();
+		
+		removeTreeSelectionListener(this);
+		clearSelection();
+		
+		setSelectionPaths(selPaths);
+		addTreeSelectionListener(this);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeModelListener} interface.
+	 * Null implementation in this case.
+	 * 
+	 * @see TreeModelListener#treeNodesInserted(TreeModelEvent)
+	 */
+	public void treeNodesInserted(TreeModelEvent e) {}
+
+	/**
+	 * Implemented as specified by the {@link TreeModelListener} interface.
+	 * Null implementation in this case.
+	 * 
+	 * @see TreeModelListener#treeNodesRemoved(TreeModelEvent)
+	 */
+	public void treeNodesRemoved(TreeModelEvent e) {}
+
+	/**
+	 * Implemented as specified by the {@link TreeModelListener} interface.
+	 * Null implementation in this case.
+	 * 
+	 * @see TreeModelListener#treeStructureChanged(TreeModelEvent)
+	 */
+	public void treeStructureChanged(TreeModelEvent e) {}
 
 }
