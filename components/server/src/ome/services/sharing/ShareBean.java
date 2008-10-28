@@ -419,6 +419,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public List<Annotation> getComments(long shareId) {
         List<SessionAnnotationLink> links = iQuery.findAllByQuery(
                 "select l from SessionAnnotationLink l "
+                        + "join fetch l.details.owner "
                         + "join fetch l.parent as share "
                         + "join fetch l.child as comment "
                         + "where share.id = :id and comment.ns like :ns ",
