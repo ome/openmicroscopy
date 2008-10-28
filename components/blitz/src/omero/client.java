@@ -263,6 +263,9 @@ public class client {
             // Register Object Factories
             ObjectFactoryRegistrar.registerObjectFactory(__ic,
                     ObjectFactoryRegistrar.INSTANCE);
+            for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
+                of.register(__ic);
+            }
             __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
             __ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
 
