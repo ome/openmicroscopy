@@ -266,9 +266,24 @@ public class ImportHandler
                 {
                     JOptionPane.showMessageDialog(
                             viewer,
-                            "\nThe server is out of space and imports cannot continue.");
+                            "The server is out of space and imports cannot continue.\n");
+                    qTable.setProgressFailed(j);
+                    if (importStatus < 0)   importStatus = -3;
+                    else                    importStatus = -2;
                     qTable.cancel = true;
-                    qTable.importBtn.setEnabled(true);
+                    qTable.abort = true;
+                    qTable.importing = false;
+                    try
+                    {
+                        if (db != null)
+                        {
+                            db.updateImportStatus(importKey, "incomplete");
+                            db.updateFileStatus(importKey, j, "failed");
+                        }
+                    } catch (SQLException sqle)
+                    {
+                        sqle.printStackTrace();
+                    }
                     
                 }
                 catch (Exception e)

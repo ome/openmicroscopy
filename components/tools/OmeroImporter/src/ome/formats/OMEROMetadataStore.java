@@ -32,7 +32,11 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.Pixels;
+import omero.model.PixelsAnnotationLink;
+import omero.model.PixelsAnnotationLinkI;
+import omero.model.PixelsI;
 import omero.model.PlaneInfo;
 import omero.model.PlaneInfoI;
 import omero.model.ProjectI;
@@ -2061,9 +2065,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {   
         try
         {
+            Image unloadedImage = new ImageI(image.getId(), false);
             Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
             DatasetImageLink l = new DatasetImageLinkI();
-            l.setChild(image);
+            l.setChild(unloadedImage);
             l.setParent(unloadedDataset);
             iUpdate.saveObject(l);
         } catch (ServerError e)
@@ -2100,8 +2105,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            pixels.linkAnnotation(annotation);
-            iUpdate.saveObject(pixels);
+            Pixels unloadedPixels = new PixelsI(pixels.getId(), false);
+            PixelsAnnotationLink l = new PixelsAnnotationLinkI();
+            l.setChild(annotation);
+            l.setParent(unloadedPixels);
+            iUpdate.saveObject(l);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
