@@ -11,6 +11,7 @@ import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
 import static omero.rtypes.*;
+import omero.ResourceError;
 import omero.RType;
 import omero.ServerError;
 import omero.client;
@@ -2194,20 +2195,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
  // FIXME: change to iQuery
-    public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
+    public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t) throws ServerError
     {
-        try
-        {
             if (currentPixId != pixId)
             {
                 rawPixelStore.setPixelsId(pixId);
                 currentPixId = pixId;
             }
             rawPixelStore.setPlane(arrayBuf, z, c, t);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
         }
     }
 

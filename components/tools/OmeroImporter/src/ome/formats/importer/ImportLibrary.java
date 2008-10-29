@@ -41,6 +41,7 @@ import static omero.rtypes.*;
 import omero.RBool;
 import omero.RInt;
 import omero.RString;
+import omero.ServerError;
 import omero.model.BooleanAnnotationI;
 import omero.model.ColorI;
 import omero.model.Dataset;
@@ -378,7 +379,7 @@ public class ImportLibrary implements IObservable
     // TODO: Add observer messaging for any agnostic viewer class to use
     @SuppressWarnings("unused")
     public List<Pixels> importImage(File file, int index, int numDone, int total, String imageName, boolean archive)
-    throws FormatException, IOException
+    throws FormatException, IOException, ServerError
     {        
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
@@ -471,7 +472,7 @@ public class ImportLibrary implements IObservable
      * @param series 
      */
     public void importData(Long pixId, String fileName, int series, Step step)
-    throws FormatException, IOException
+    throws FormatException, IOException, ServerError
     {
         int i = 1;
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());

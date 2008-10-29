@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStore;
+import omero.ResourceError;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 
@@ -260,6 +261,15 @@ public class ImportHandler
                     {
                         e1.printStackTrace();
                     }
+                }
+                catch (ResourceError e)
+                {
+                    JOptionPane.showMessageDialog(
+                            viewer,
+                            "\nThe server is out of space and imports cannot continue.");
+                    qTable.cancel = true;
+                    qTable.importBtn.setEnabled(true);
+                    
                 }
                 catch (Exception e)
                 {
