@@ -2203,7 +2203,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 currentPixId = pixId;
             }
             rawPixelStore.setPlane(arrayBuf, z, c, t);
-        }
     }
 
     public void setChannelGlobalMinMax(int channel, double minimum,
