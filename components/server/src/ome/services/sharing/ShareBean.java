@@ -638,14 +638,34 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     private Set<Session> sharesToSessions(List<ShareData> datas) {
-        Set<Session> sessions = new HashSet<Session>();
+        /* TODO: When Share will have details method can be updated:
+         * + "join fetch sh.details.owner where sh.id in (:ids) ",
+         */
+        /*Set<Session> sessions = new HashSet<Session>();
         for (ShareData data : datas) {
             sessions.add(shareToSession(data));
+        }
+        return sessions;*/
+        Set<Long> ids = new HashSet<Long>();
+        for (ShareData data : datas) {
+            ids.add(data.id);
+        }
+        Set<Session> sessions = new HashSet<Session>();
+        if (ids.size() > 0) {
+            List<Session> list = iQuery.findAllByQuery(
+                    "select sh from Session sh where sh.id in (:ids) ",
+                    new Parameters().addIds(ids));
+            sessions = new HashSet<Session>(list);
         }
         return sessions;
     }
 
     private Session shareToSession(ShareData data) {
+        /* TODO: When Share will have details method can be updated:
+        return iQuery.findByQuery("select sh from Session sh "
+                + "join fetch sh.details.owner where sh.id = :id ",
+                new Parameters().addId(data.id));
+        */
         return iQuery.find(Share.class, data.id);
     }
 
