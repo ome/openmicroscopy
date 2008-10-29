@@ -277,7 +277,7 @@ public class MeasureEllipseFigure
 	 */
 	public double getWidth()
 	{
-		return ellipse.getWidth();
+		return super.getWidth();
 	}
 	
 	/** 
@@ -287,7 +287,7 @@ public class MeasureEllipseFigure
 	 */
 	public double getHeight()
 	{
-		return ellipse.getHeight();
+		return super.getHeight();
 	}
 	
 	/**
@@ -465,8 +465,9 @@ public class MeasureEllipseFigure
 	{
 		if (shape==null) return;
 		AnnotationKeys.AREA.set(shape, getArea());
-		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
+		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
+		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
 		AnnotationKeys.PERIMETER.set(shape, getPerimeter());
 		AnnotationKeys.CENTREX.set(shape, getMeasurementCentre().getX());
 		AnnotationKeys.CENTREY.set(shape, getMeasurementCentre().getY());

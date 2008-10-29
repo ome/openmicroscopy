@@ -105,10 +105,10 @@ public class RotateEllipseFigure  extends SVGAttributedFigure
 	        return ellipse.y;
 	    }
 	    public double getWidth() {
-	        return ellipse.getWidth();
+	        return getTransformedShape().getBounds().getWidth();
 	    }
 	    public double getHeight() {
-	        return ellipse.getHeight();
+	        return getTransformedShape().getBounds().getHeight();
 	    }
 	    
 	    public Rectangle2D.Double getBounds() {
