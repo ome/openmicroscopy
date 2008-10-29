@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser;
 
+//Java imports
+
 import java.awt.Component;
 
 import javax.swing.Icon;
@@ -29,7 +31,12 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
@@ -41,12 +48,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * This TreeCellRenderer class merely extends DefaultTreeCellRenderer,
@@ -65,7 +66,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class TreeOutlineCellRenderer 
 	extends DefaultTreeCellRenderer {
 
+	private static final int 		MAX_CHARS = 25;
 	
+	/**
+	 * Overrides {@link DefaultTreeCellRenderer#getTreeCellRendererComponent
+	 * (JTree, Object, boolean, boolean, boolean, int, boolean)}
+	 * to display the name of the field (or field contents if no name).
+	 * Can also set Icon depending on type of parameters. 
+	 */
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean selected, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
@@ -84,10 +92,22 @@ public class TreeOutlineCellRenderer
 				IField field = (IField)object;
 				toolTipText = field.getToolTipText();
 				
+				String text = field.getAttribute(Field.FIELD_NAME);
+				
 				if (field.getContentCount() < 1) {
-					//paramIcon = imF.getIcon(ImageFactory.)
+					paramIcon = imF.getIcon(IconManager.TEXT_LINE_ICON);
+					// if no name set
+					if ((text == null) || (text.trim().length() == 0)) {
+						text = "Field Name";
+					}
 				} else {
 					IFieldContent content = field.getContentAt(0);
+					
+					// if no name set, use content for name
+					if ((text == null) || (text.trim().length() == 0)) {
+						text = content.toString();
+					}
+					
 					String paramType = SingleParam.TEXT_BOX_PARAM;
 					
 					if (content instanceof IParam) {
@@ -116,12 +136,14 @@ public class TreeOutlineCellRenderer
 					else if (SingleParam.NUMBER_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.NUMBER);
 				}
+				
+				if (text.length() > MAX_CHARS) { 
+					text = text.substring(0, MAX_CHARS-1) + "..";
+				}
+				setText(text);
+				
 			}
 		}
-		
-		String text = getText();
-		//text = "<html>" + text + "<html>";
-		setText(text);
 		
         setIcon(paramIcon);
          

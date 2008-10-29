@@ -113,7 +113,6 @@ public class AddFieldEdit
 		  * Create a new field and set name attribute.
 		  */
 		 IField field = new Field();
-		 field.setAttribute(Field.FIELD_NAME, "untitled");
 		 /*
 		  * Place this in a new Node
 		  */

@@ -41,7 +41,6 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -60,6 +59,9 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
  * representation.
  * Contains a number of text components, corresponding to the fields (or nodes)
  * of the tree, but these are not arranged hierarchically. 
+ * This class implements {@link TreeModelListener} and 
+ * {@link TreeSelectionListener} interfaces to respond to changes in the 
+ * model and navigation JTree. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -162,22 +164,7 @@ public class TextAreasView
 		}
 	}
 	
-	/**
-	 * Iterates through all the text components contained in this UI and 
-	 * if they are {@link FieldTextArea} objects, the text is refreshed.
-	 * This method is called when the {@link treeModel} nodes change, but
-	 * the structure is the same. 
-	 */
-	private void refreshText()
-	{
-		Component comp;
-		for (int i=0; i<getComponentCount(); i++) {
-			comp = getComponent(i);
-			if (comp instanceof FieldTextArea) {
-				((FieldTextArea)comp).refreshText();
-			}
-		}
-	}
+	
 
 	/**
 	 * Creates an instance. 

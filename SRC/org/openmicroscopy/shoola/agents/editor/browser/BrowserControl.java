@@ -275,17 +275,19 @@ public class BrowserControl
 	}
 	
 	/**
-	 * Edits a field by changing the content
+	 * Edits a field by changing the content, and name
 	 * 
 	 * @param field		The field to add a new parameter to.
+	 * @param name		The new name of the field
 	 * @param content 		The new content, as a list.
 	 * @param tree			The JTree to refresh with undo/redo
 	 * @param node		The node to highlight / refresh with undo/redo. 
 	 */
-	public void editFieldContent(IField field, List<IFieldContent> content,
-			JTree tree, TreeNode node) {
+	public void editFieldContent(IField field, String name,
+			List<IFieldContent> content, JTree tree, TreeNode node) {
 		
-		UndoableEdit edit = new FieldContentEdit(field, content, tree, node);
+		UndoableEdit edit = new FieldContentEdit(field, name, 
+				content, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	

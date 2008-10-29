@@ -24,9 +24,12 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.IllegalComponentStateException;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -37,33 +40,24 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JEditorPane;
+import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTML.Tag;
-import javax.swing.text.html.HTMLDocument.Iterator;
-import javax.swing.text.html.HTMLDocument.RunElement;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -71,6 +65,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamEditorDialog;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
@@ -78,7 +73,10 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
+import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
 /** 
@@ -94,12 +92,13 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
  * @since OME3.0
  */
 public class FieldTextArea 
-	extends JEditorPane 
+	extends JPanel
 	implements FocusListener,
-	CaretListener,
 	PropertyChangeListener,
-	DocumentListener
+	ActionListener
 {
+	
+	private HtmlContentEditor		htmlEditor;
 	
 	/** The field that is represented by this UI component */
 	private IField 					field;
@@ -132,56 +131,63 @@ public class FieldTextArea
 	 */
 	private JDialog					paramEditDialog;
 	
+
 	/** A border to illustrate when this field is selected */
 	private Border 					selectedBorder;
 	
 	/** A border to illustrate when this field is unselected */
 	private Border 					unselectedBorder;
 	
+	/** Button to add a parameter into this field. */
+	private JButton 				addParamButton;
+
 	/**
-	 * Set to true by document listener, set to false when saved to model.
+	 * The HTML tag id to use for displaying the Field Name.
+	 * This needs to be all lower case, since the styleSheet text in the
+	 * HTML header automatically is converted to lower case, but the 
+	 * id names in the HTML body is not, so they won't match if one includes
+	 * capitals!
 	 */
-	private boolean 				hasDataToSave;
-	
+	public static final String			NAME_ID = "fieldname";
+
+	/**
+	 * The HTML tag name to use for displaying the Field Text contents
+	 */
+	public static final Tag			TEXT_TAG = Tag.SPAN;
+
+	/**
+	 * The HTML tag name to use for displaying the Field Parameters
+	 */
+	public static final Tag			PARAM_TAG = Tag.A;
+
 	/**
 	 * The HTML tag name to use for displaying the Field Name.
 	 */
 	public static final Tag			NAME_TAG = Tag.SPAN;
 	
 	/**
-	 * The HTML tag name to use for displaying the Field Parameters
-	 */
-	public static final Tag			PARAM_TAG = Tag.A;
-	
-	/**
-	 * The HTML tag name to use for displaying the Field Text contents
-	 */
-	public static final Tag			TEXT_TAG = Tag.SPAN;
-	
-	/**
-	 * The HTML tag id to use for displaying the Field Name
-	 */
-	public static final String			NAME_ID = "FieldName";
-	
-	
-	/**
 	 * Initialises UI components. 
 	 */
 	private void initialise()
 	{
+		htmlEditor = new HtmlContentEditor();
+		htmlEditor.addFocusListener(this);
+		htmlEditor.addMouseListener(new ParamMouseListener());
+		
 		Border emptyBorder = new EmptyBorder(7,7,7,7);
 		Border lb = BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY);
 		selectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		lb = BorderFactory.createLineBorder(Color.white);
 		unselectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		
-		Document d = getDocument();
+		Document d = htmlEditor.getDocument();
 		AbstractDocument doc;
 		if (d instanceof AbstractDocument) {
             doc = (AbstractDocument)d;
             if (doc instanceof StyledDocument)
             doc.setDocumentFilter(new TextAreaFilter((StyledDocument)doc, Tag.A));
         }
+		
 	}
 	
 	/**
@@ -189,16 +195,106 @@ public class FieldTextArea
 	 */
 	private void buildUI()
 	{
-		setBorder(unselectedBorder);
-		setEditable(true);
 		setBackground(null);
-		addFocusListener(this);
-		addMouseListener(new ParamMouseListener());
-		
+		setLayout(new BorderLayout());
 		refreshText();
 		
-		getDocument().addDocumentListener(this);
+		add(htmlEditor, BorderLayout.CENTER);
+		
+		Icon addParam = IconManager.getInstance().getIcon(IconManager.ADD_NUMBER);
+		addParamButton = new CustomButton(addParam);
+		addParamButton.addActionListener(this);
+
+		JPanel buttonContainer = new JPanel(new BorderLayout());
+		buttonContainer.setBackground(null);
+		buttonContainer.add(addParamButton, BorderLayout.NORTH);
+		add(buttonContainer, BorderLayout.EAST);
+		
+		//setSelected(false);
+		setBorder(unselectedBorder);
+		addParamButton.setVisible(false);
 	}
+
+	
+	/**
+     * Converts the current text of the editor into a list of
+     * {@link IFieldContent}, as in the model. 
+     * 
+     * @return
+     */
+    private List<IFieldContent> getNewContent() 
+    {
+    	return getNewContent(null);
+    }
+	
+	/**
+     * Converts the current text of the editor into a list of
+     * {@link IFieldContent}, including a new parameter object, which will be
+     * added wherever a parameter tag has id="new"
+     * 
+     * @return
+     */
+    private List<IFieldContent> getNewContent(IFieldContent newParam) 
+    {
+    	List<IFieldContent> contentList = new ArrayList<IFieldContent>();
+    	
+    	int lastChar = 0;
+    	
+    	// ignore the name token, but need to know when it ends (content begins)
+    	TextToken nameTag = getNameTag();
+    	if (nameTag != null) {
+    		lastChar = nameTag.getEnd();
+    	}
+    	
+    	// Get the parameter tokens, iterate through them...
+    	List<TextToken> tags = htmlEditor.getElementsByTag
+    											(FieldTextArea.PARAM_TAG);
+    	Document d = htmlEditor.getDocument();
+    	String description;
+    	int id;
+    	
+    	try {
+    		for (TextToken param : tags) {
+    			// is there any text between start of this tag and end of last?
+				description = d.getText(lastChar, param.getStart()-lastChar);
+				description = description.trim();
+				if (description.length() > 0) {
+					// if so, add a new text content object to the list
+					contentList.add(new TextContent(description));
+				}
+				String tagId = param.getId();
+				if (("new".equals(tagId)) && (newParam != null)) {
+					contentList.add(newParam);
+				}
+				else {
+				try {
+					// now process the parameter. This should exist in the
+					// field already, since text editing can only edit text 
+					// content, or DELETE parameters.
+					id = Integer.parseInt(param.getId());
+					// Simply copy a reference into the new list
+					contentList.add(field.getContentAt(id));
+				} catch (NumberFormatException ex) {
+					// ignore elements that do not have a valid (integer) id
+				}
+				}
+				
+				lastChar = param.getEnd();	// update the end of last element
+			}
+    		// any text left over?
+    		description = d.getText(lastChar, d.getLength()-lastChar).trim();
+    		if (description.length() > 0) {
+    			// if so, add another text content to the list
+				contentList.add(new TextContent(description));
+			}
+    		
+    	} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+    	
+    	return contentList;
+    }
+    
 	
 	/**
 	 * Shows the pop-up dialog for editing a parameter. 
@@ -239,12 +335,6 @@ public class FieldTextArea
 		return navTree.isPathSelected(path);
 	}
 	
-	/**
-	 * Sets the {@link #hasDataToSave} flag to <code>true</code>
-	 */
-	private void dataEdited() {
-	    hasDataToSave = true;
-	}
 
 	/**
 	 * Method for generating the html representation of the <code>field</code>.
@@ -259,26 +349,42 @@ public class FieldTextArea
 		// html for the field name
 		String name = field.getAttribute(Field.FIELD_NAME);
 		if (name != null && name.length() > 0)
-			html = "<"+ NAME_TAG  +" " + HTML.Attribute.ID + "='"+ NAME_ID +"'>" 
-			+ name + "</"+ NAME_TAG +"><br>";
+			html = "<"+ FieldTextArea.NAME_TAG  +" " + HTML.Attribute.ID +
+			"='"+ FieldTextArea.NAME_ID +"'>" 
+			+ name + "</"+ FieldTextArea.NAME_TAG +"><br>";
 		
 		String contentText;
+		String contentString;
 		IFieldContent content;
+		
+		if (field.getContentCount() == 0) {
+			contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
+			HTML.Attribute.ID + 
+			"='0'> </"+ FieldTextArea.TEXT_TAG + ">";
+			return html + contentText;
+		}
 		
 		// html for the field contents. 
 		for (int i=0; i<field.getContentCount(); i++) {
 			content = field.getContentAt(i);
 			if (content instanceof IParam) {
+				contentString = content.toString();
+				if (contentString.length() == 0)
+					contentString = "[param]";
 				// id attribute allows parameters to be linked to model
 				// eg for editing parameters. 
-				contentText = "<"+ PARAM_TAG + " href='#' " + HTML.Attribute.ID 
-				+ "='" + i + "'>" + content.toString() + "</"+ PARAM_TAG + ">";
+				contentText = (i == 0 ? " " : "") + // space before first param
+						"<"+ FieldTextArea.PARAM_TAG + " href='#' " +
+				 		HTML.Attribute.ID + "='" + i + "'>" + 
+				 		contentString + 
+				 		"</"+ FieldTextArea.PARAM_TAG + ">";
 				
 			} else {
 				// don't need this ID attribute, but might be useful in future?
-				contentText = "<"+ TEXT_TAG +" " + HTML.Attribute.ID + 
+				contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
+				HTML.Attribute.ID + 
 				"='" + i + "'>" + content.toString() 
-								+ " </"+ TEXT_TAG + ">";
+				+ " </"+ FieldTextArea.TEXT_TAG + ">";
 			}
 			// add a space between each component. 
 			html = html + contentText + " ";
@@ -292,17 +398,22 @@ public class FieldTextArea
      */
     private void saveContent() 
     {
-    	if (hasDataToSave) {
-			
+    	if (htmlEditor.hasDataToSave()) {
+    		
+    		// get the new name...
+    		TextToken nameTag = getNameTag();
+    		String fieldName = (nameTag == null ? null : nameTag.getText());
+    		
     		// convert the current text of this editor into a list of
     		// content, in the same format as the data model...
 			List<IFieldContent> newContent = getNewContent();
 			
 			// replace the old content of the field with new content
-			controller.editFieldContent(field, newContent, navTree, treeNode);
+			controller.editFieldContent(field, fieldName, 
+					newContent, navTree, treeNode);
 			
 			// reset this flag
-			hasDataToSave = false;
+			htmlEditor.dataSaved();
 		}
     }
     
@@ -314,10 +425,11 @@ public class FieldTextArea
      */
     private TextToken getNameTag() {
 
-    	List<TextToken> tags = getElementsByTag(NAME_TAG);
+    	List<TextToken> tags = htmlEditor.getElementsByTag
+    											(FieldTextArea.NAME_TAG);
     	
     	for (TextToken token : tags) {
-    		if (NAME_ID.equals(token.getId())) {
+    		if (FieldTextArea.NAME_ID.equals(token.getId())) {
     			return token;
     		}
     	}
@@ -325,63 +437,72 @@ public class FieldTextArea
     }
     
     /**
-     * Converts the current text of the editor into a list of
-     * {@link IFieldContent}, as in the model. 
-     * 
-     * @return
-     */
-    private List<IFieldContent> getNewContent() 
-    {
-    	List<IFieldContent> contentList = new ArrayList<IFieldContent>();
-    	
-    	int lastChar = 0;
-    	
-    	// ignore the name token, but need to know when it ends (content begins)
-    	TextToken nameTag = getNameTag();
-    	if (nameTag != null) {
-    		lastChar = nameTag.getEnd();
-    	}
-    	
-    	// Get the parameter tokens, iterate through them...
-    	List<TextToken> tags = getElementsByTag(PARAM_TAG);
-    	Document d = getDocument();
-    	String description;
-    	int id;
-    	
-    	try {
-    		for (TextToken param : tags) {
-    			// is there any text between start of this tag and end of last?
-				description = d.getText(lastChar, param.getStart()-lastChar).trim();
-				if (description.length() > 0) {
-					// if so, add a new text content object to the list
-					contentList.add(new TextContent(description));
-				}
-				try {
-					// now process the parameter. This should exist in the
-					// field already, since text editing can only edit text 
-					// content, or DELETE parameters.
-					id = Integer.parseInt(param.getId());
-					// Simply copy a reference into the new list
-					contentList.add(field.getContentAt(id));
-				} catch (NumberFormatException ex) {
-					// ignore elements that do not have a valid (integer) id
-				}
-				
-				lastChar = param.getEnd();	// update the end of last element
-			}
-    		// any text left over?
-    		description = d.getText(lastChar, d.getLength()-lastChar).trim();
-    		if (description.length() > 0) {
-    			// if so, add another text content to the list
-				contentList.add(new TextContent(description));
-			}
-    		
-    	} catch (BadLocationException e) {
-			e.printStackTrace();
+	 * Inserts a new parameter, of the type defined by <code>paramType</code>
+	 * into the text content at the current selection or caret position. 
+	 * The currently highlighted text will become the value of the parameter. 
+	 */
+	private void insertParam(String paramType) 
+	{
+		// get the currently selected text and selection positions
+		String selectedText = htmlEditor.getSelectedText();
+		int start = htmlEditor.getSelectionStart();
+		int end = htmlEditor.getSelectionEnd();
+		
+		// edit the document text, inserting tags around the currently-selected
+		// text (or inserting the tag into the caret position, if no text
+		// is selected). 
+		MutableAttributeSet aAttributes = new SimpleAttributeSet();
+		aAttributes.addAttribute(HTML.Attribute.ID, "new");
+		
+		MutableAttributeSet tagAttributes = new SimpleAttributeSet();
+		tagAttributes.addAttribute(FieldTextArea.PARAM_TAG, aAttributes);
+		
+		if ((selectedText == null) || (selectedText.length() == 0)) {
+			selectedText = "param";		// need to insert something!
 		}
-    	
-    	return contentList;
-    }
+		
+		Document d = htmlEditor.getDocument();
+		try {
+			// replace the selected text with the parameter 
+			d.remove(start, end - start);
+			d.insertString(start, selectedText, tagAttributes);
+		} catch (BadLocationException e1) {
+			e1.printStackTrace();
+		}
+		
+		// create a new parameter
+		IParam param = FieldParamsFactory.getFieldParam(paramType);
+		param.setAttribute(SingleParam.PARAM_VALUE, selectedText);
+		
+		// and use it to build a new content list. This method links the 
+		// newly inserted tag (id=new) with the parameter argument
+		List<IFieldContent> newContent = getNewContent(param);
+		
+		// get the new name, just in case it changed...
+		TextToken nameTag = getNameTag();
+		String fieldName = (nameTag == null ? null : nameTag.getText());
+		
+		// replace the old content of the field with new content
+		controller.editFieldContent(field, fieldName, 
+				newContent, navTree, treeNode);
+		
+		// reset this flag
+		htmlEditor.dataSaved();
+	}
+
+	/**
+     * Changes the appearance of this Field to indicate that the corresponding
+     * node is selected in the JTree.
+     * Called by {@link #refreshSelection()}
+     * 
+     * @param selected		If true, border is painted etc. 
+     */
+    private void setSelected(boolean selected)
+	{
+		setBorder(selected ? selectedBorder : unselectedBorder);
+		addParamButton.setVisible(selected);
+
+	}
     
     /**
      * A {@link MouseListener} added to the editor component. 
@@ -397,144 +518,39 @@ public class FieldTextArea
     	public void mouseClicked(MouseEvent e) 
     	{
     		Point mouseLoc = e.getPoint();
-    		int c = FieldTextArea.this.viewToModel(mouseLoc);
+    		int c = htmlEditor.viewToModel(mouseLoc);
     		
     		// if any changes have been made to the document, save changes.
     		saveContent();
     		
-    		// if click is on a parameter, show edit dialog
-    		if (isOffsetWithinTag(c, PARAM_TAG)) {
-    			String id = getElementId(c);
+    		// if click is on a parameter...
+    		if (htmlEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG)) {
+    			// disable add-param button
+    			addParamButton.setEnabled(false);
+    			
+    			// show edit dialog
+    			String id = htmlEditor.getElementId(c);
     			if (id != null) { 
     				Point paneLoc = null;
     				try { 
     					paneLoc = getLocationOnScreen();
     					// give the exact location of the mouse
     					if (mouseLoc != null)
-    						paneLoc.translate((int)mouseLoc.getX(), (int)mouseLoc.getY());
+    						paneLoc.translate((int)mouseLoc.getX(), 
+    											(int)mouseLoc.getY());
     				} catch (IllegalComponentStateException ex){
     					ex.printStackTrace();
     				}
     				showParamDialog(Integer.parseInt(id), paneLoc);
     			}
     		}
-    	}
-    }
-    
-    
-    
-    /**
-     * Gets the "id" attribute of the {@link Tag.A} or {@link Tag.SPAN} 
-     * element that contains the offset, or null if the offset does not 
-     * fall within either of these tags. 
-     * 
-     * @param offset	The offset character position
-     * @return String 	The id attribute of the element.
-     */
-    private String getElementId(int offset) 
-    {
-    	Document d = getDocument();
-    	if ( !(d instanceof StyledDocument)) return null;
-    	
-    	StyledDocument styledDoc = (StyledDocument)d;
-    	Element el = styledDoc.getCharacterElement(offset);
-    	
-    	if (el instanceof RunElement) {
-    		
-    		RunElement rE = (RunElement)el;
-    		Object tag = rE.getAttribute(Tag.A);
-    		if (tag != null) {
-    			if (tag instanceof SimpleAttributeSet) {
-    				SimpleAttributeSet sas = (SimpleAttributeSet)tag;
-    				Object id = sas.getAttribute(HTML.Attribute.ID);
-    				if (id != null) return id.toString();
-    			}
-			}
-    		
-    		tag = rE.getAttribute(Tag.SPAN);
-			if (tag != null) {
-				if (tag instanceof SimpleAttributeSet) {
-    				SimpleAttributeSet sas = (SimpleAttributeSet)tag;
-    				Object id = sas.getAttribute(HTML.Attribute.ID);
-    				System.out.println("FieldTextArea getElementId SPAN: " + id);
-    				if (id != null) return id.toString();
-    			}
+    		else {
+    			// disable add-param button
+    			addParamButton.setEnabled(true);
     		}
-			
     	}
-    	return null;
     }
     
-    /**
-     * Returns true if the specified <code>offset</code> is within the type
-     * of tag specified by <code>tag</code>
-     * 
-     * @param offset	The character position
-     * @param tag		The type of tag. eg Tag.A
-     * 
-     * @return	boolean 	see above. 
-     */
-    private boolean isOffsetWithinTag(int offset, Tag tag)
-	{
-    	if (offset == 0) return false;
-    	
-    	Document d = getDocument();
-		Element el = ((StyledDocument)d).getCharacterElement(offset);
-    	
-    	if (el instanceof RunElement) {
-    		RunElement rE = (RunElement)el;
-    		Object ob = rE.getAttribute(tag);
-    		if (ob != null) {
-    			return true;
-			}
-    	}
-    	return false;
-	}
-
-  
-    /**
-     * Creates a list of {@link TextToken} objects that correspond to the html
-     * elements of type <code>tag</code> in the current document. 
-     * {@link TextToken} defines the start, stop, text and id (if exists) of
-     * each element. 
-     * 
-     * @param tag	The type of tag to get. e.g. {@link Tag.A}
-     * @return	see above. 
-     */
-    private List<TextToken> getElementsByTag(Tag tag) 
-    {
-    	Document d = getDocument();
-    	if (! (d instanceof StyledDocument)) return null;
-    	
-		HTMLDocument styledDoc = (HTMLDocument)d;
-		
-		List<TextToken> tokens = new ArrayList<TextToken>();
-		
-		Iterator i = styledDoc.getIterator(tag);
-		AttributeSet atSet;
-		int start;
-		int end;
-		String text;
-		String id;
-		while(i.isValid()) {
-			atSet = i.getAttributes();
-			Object idAttribute = atSet.getAttribute(HTML.Attribute.ID);
-			start = i.getStartOffset();
-			end = i.getEndOffset();
-			try {
-				text = styledDoc.getText(start, end-start);
-				id = (idAttribute == null ? null : idAttribute.toString());
-			
-				tokens.add(new TextToken(start, end, text, id));
-			
-			} catch (BadLocationException e) {
-				// ignore
-			}
-			i.next();
-		}
-		return tokens;
-    }
-
 	/**
 	 * Creates an instance of this class. 
 	 * Calls {@link #initialise()}, then {@link #buildUI()}.
@@ -547,7 +563,6 @@ public class FieldTextArea
 	FieldTextArea(IField field, JTree tree, DefaultMutableTreeNode treeNode,
 			BrowserControl controller) 
 	{
-		super("text/html", "");
 		
 		this.field = field;
 		this.navTree = tree;
@@ -560,18 +575,23 @@ public class FieldTextArea
 	
 	/**
 	 * Refreshes the text of this UI, based on the {@link #field}.
-	 * Removes and replaces the {@link CaretListener} so that it is not fired. 
+	 * Sets the HTML to include CSS style header. 
 	 * This method is called by the parent UI when the field has been 
 	 * edited.
 	 */
 	public void refreshText() {
 		
-		removeCaretListener(this);
+		String content = getHtml(field);
 		
-		setText(getHtml(field));
+		String html = "<html><head> <style type='text/css'> \n" +
+			FieldTextArea.NAME_TAG + "#" + FieldTextArea.NAME_ID +
+			" {font-weight: 500; font-family: arial} \n" +
+			"</style> </head> " +
+			"<body> " + content + " </body> </html>";
 		
-		addCaretListener(this);
-		hasDataToSave = false;
+		htmlEditor.setText(html);
+		
+		htmlEditor.dataSaved();
 	}
 
 	/**
@@ -585,7 +605,7 @@ public class FieldTextArea
 	{
 		boolean selected = isFieldSelected();
 		
-		setBorder(selected ? selectedBorder : unselectedBorder);
+		setSelected(selected);
 		
 		if ((! selected) && (paramEditDialog != null)) {
 			paramEditDialog.dispose();
@@ -616,18 +636,6 @@ public class FieldTextArea
 		saveContent();
 	}
 	
-	/**
-	 * Implemented as specified by the {@link CaretListener} interface.
-	 * If the caret is placed in a "a" tag, {@link #showParamDialog(int, Point)}
-	 * is called, to edit the parameter. 
-	 * 
-	 * @see CaretListener#caretUpdate(CaretEvent)
-	 */
-	public void caretUpdate(CaretEvent e) 
-	{
-		if (! isVisible()) return;
-		
-	}
 	
 	/**
 	 * Implemented as specified by the {@link PropertyChangeListener} interface.
@@ -673,34 +681,14 @@ public class FieldTextArea
 	}
 
 	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #dataEdited(DocumentEvent)}
+	 * Implemented as specified by the {@link ActionListener} interface.
+	 * Handles the "Add Parameter" button. 
 	 * 
-	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void insertUpdate(DocumentEvent e) {
-        dataEdited();
-    }
-	
-	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #dataEdited(DocumentEvent)}
-	 * 
-	 * @see DocumentListener#removeUpdate(DocumentEvent)
-	 */
-    public void removeUpdate(DocumentEvent e) {
-        dataEdited();
-    }
-    
-    /**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #dataEdited(DocumentEvent)}
-	 * 
-	 * @see DocumentListener#changeUpdate(DocumentEvent)
-	 */
-    public void changedUpdate(DocumentEvent e) {
-        dataEdited();
-    }
-    
-    
+	public void actionPerformed(ActionEvent e) 
+	{
+		insertParam(SingleParam.TEXT_LINE_PARAM);
+		
+	}
 }

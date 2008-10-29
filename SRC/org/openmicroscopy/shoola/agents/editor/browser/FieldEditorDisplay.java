@@ -44,6 +44,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldParamEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 
 /** 
@@ -99,7 +100,7 @@ public class FieldEditorDisplay
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 				tree.getSelectionPath().getLastPathComponent();
 			IField field = (IField)node.getUserObject();
-			FieldContentEditor fe = new FieldContentEditor(field, tree, node,
+			FieldParamEditor fe = new FieldParamEditor(field, tree, node,
 					controller);
 			setPanel(fe);
 		}

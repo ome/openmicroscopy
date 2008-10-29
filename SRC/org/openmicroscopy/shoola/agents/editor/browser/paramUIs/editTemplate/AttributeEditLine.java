@@ -65,19 +65,19 @@ public class AttributeEditLine
 	/**
 	 * This is the name of the attribute being edited by this UI
 	 */
-	private String 			attributeName;
+	protected String 			attributeName;
 	
 	/**
 	 * A string for the label beside the text field. e.g. "Name".
 	 * This is also used for the {@link #getEditDisplayName()} to provide 
 	 * an undo/redo display name. 
 	 */
-	private String 			labelText;
+	private String 				labelText;
 	
 	/**
 	 * Builds the UI. 
 	 */
-	private void buildUI() 
+	protected void buildUI() 
 	{
 		setLayout(new BorderLayout());
 		
@@ -98,6 +98,8 @@ public class AttributeEditLine
 	 * Creates an instance, and builds the UI. 
 	 * 
 	 * @param param		The parameter you're editing. 
+	 * @param attributeName 	The name of the attribute to edit
+	 * @param label		The display name (label) for the text input. 
 	 */
 	public AttributeEditLine(IAttributes param, String attributeName, String label) 
 	{	

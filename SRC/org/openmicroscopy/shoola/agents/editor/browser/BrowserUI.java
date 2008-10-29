@@ -125,14 +125,15 @@ class BrowserUI
 
     	JSplitPane leftSplitPane = new JSplitPane();
     	leftSplitPane.setOneTouchExpandable(true);
-    	leftSplitPane.setDividerLocation(200);
+    	leftSplitPane.setDividerLocation(220);
+    	leftSplitPane.setResizeWeight(0.3);
     	leftSplitPane.setBorder(null);
         leftSplitPane.setLeftComponent(new JScrollPane(navTree));
         
         rightSplitPane = new JSplitPane();
         rightSplitPane.setOneTouchExpandable(true);
         rightSplitPane.setBorder(null);
-        rightSplitPane.setResizeWeight(0.7);
+        rightSplitPane.setResizeWeight(0.75);
         
         // The central component (tab pane)...
         // TODO: Need to split this out into it's own class, that has a

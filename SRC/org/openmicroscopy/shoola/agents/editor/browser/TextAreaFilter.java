@@ -40,7 +40,7 @@ import javax.swing.text.html.HTMLDocument.RunElement;
 
 /** 
  * Filter for editing the text of a field. 
- * This filter prevents editing within a particular html tag. 
+ * This filter prevents editing within a particular HTML tag. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -136,6 +136,24 @@ public class TextAreaFilter
 			}
 			super.replace(fb, offs, length, str, a);
 		}
+		else
+			Toolkit.getDefaultToolkit().beep();
+	}
+	
+	/**
+	 * Overridden method, to prevent String removal if within a tag. 
+	 * 
+	 * @see DocumentFilter#remove(FilterBypass, int, int)
+	 */
+	public void remove(FilterBypass fb, int offset, int length) 
+	throws BadLocationException {
+		
+		int end = offset + length;
+		
+		if (canEdit(offset) && canEdit(end)) {
+			super.remove(fb, offset, length);
+		}
+		
 		else
 			Toolkit.getDefaultToolkit().beep();
 	}

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 //Java imports
 
 import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -102,6 +103,10 @@ public class TextFieldEditor
 		super(param);
 		this.attributeName = attributeName;
 		initialise();
+	}
+	
+	public JTextComponent getTextField() {
+		return textField;
 	}
 	
 	/**

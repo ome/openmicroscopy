@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser;
 
+import javax.swing.text.html.parser.Element;
+
 //Java imports
 
 //Third-party libraries
@@ -29,7 +31,9 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Application-internal dependencies
 
 /** 
- * 
+ * This is a simple representation of a piece of text within a document. 
+ * It can be used to model an HTML element, although it currently only 
+ * has: text, start, stop and id attributes. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -41,18 +45,35 @@ package org.openmicroscopy.shoola.agents.editor.browser;
  */
 public class TextToken {
 	
+	/** The textual content of this token / element */
 	private String textContent;
 	
+	/** The start index of this text within it's parent document */
 	private int startIndex;
 	
+	/** The end index of this text within it's parent document */
 	private int stopIndex;
 	
+	/** The id attribute of this element */
 	private String id;
 	
+	/**
+	 * Creates an instance. 
+	 * @param start		Start position of text within parent document
+	 * @param end		End position of text within parent document
+	 * @param text		The text that this element contains
+	 */
 	public TextToken(int start, int end, String text) {
 		this(start, end, text, null);
 	}
 	
+	/**
+	 * Creates an instance. 
+	 * @param start		Start position of text within parent document
+	 * @param end		End position of text within parent document
+	 * @param text		The text that this element contains
+	 * @param id 		An identifier for this token / element
+	 */
 	public TextToken(int start, int end, String text, String id) {
 		textContent = text;
 		startIndex = start;
@@ -62,22 +83,49 @@ public class TextToken {
 		}
 	}
 	
+	/**
+	 * Sets the {@link #id} attribute
+	 * 
+	 * @param id	An identifier for this token / element
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
 	
+	/**
+	 * Gets the {@link #id} attribute
+	 * 
+	 * @return	 see above
+	 */
 	public String getId() {
 		return id;
 	}
 	
+	/**
+	 * Gets the {@link #startIndex} of this text token within it's parent
+	 * document
+	 * 
+	 * @return	 see above
+	 */
 	public int getStart() {
 		return startIndex;
 	}
 	
+	/**
+	 * Gets the {@link #stopIndex} of this text token within it's parent
+	 * document
+	 *  
+	 * @return	 see above
+	 */
 	public int getEnd() {
 		return stopIndex;
 	}
 	
+	/**
+	 * Gets the {@link #textContent} of this token
+	 * 
+	 * @return	 see above
+	 */
 	public String getText() {
 		return textContent;
 	}
