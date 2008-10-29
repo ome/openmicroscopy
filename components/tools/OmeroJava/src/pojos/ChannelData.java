@@ -178,10 +178,10 @@ public class ChannelData
     public float getNDFilter()
     {
     	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return 0;
+    	if (lc == null) return 0f;
     	RFloat value = lc.getNdFilter();
     	if (value != null) return value.getValue();
-    	return 0; 
+    	return 0f; 
     }
     
     /**
@@ -262,10 +262,10 @@ public class ChannelData
     public double getGlobalMin()
     { 
     	StatsInfo stats = asChannel().getStatsInfo();
-    	if (stats == null) return 0;
+    	if (stats == null) return 0.0;
     	RDouble object = stats.getGlobalMin();
 		if (object != null) return object.getValue();
-		return 0;
+		return 0.0;
     }
     
     /** 
@@ -276,10 +276,10 @@ public class ChannelData
     public double getGlobalMax()
     { 
     	StatsInfo stats = asChannel().getStatsInfo();
-    	if (stats == null) return 1;
+    	if (stats == null) return 1.0;
     	RDouble object = stats.getGlobalMax();
 		if (object != null) return object.getValue();
-		return 1;
+		return 1.0;
     }
     
 }
