@@ -164,10 +164,10 @@ public class ChannelData
     public int getPinholeSize()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return -1;
+    	if (lc == null) return 0;
     	RInt value = lc.getPinHoleSize();
     	if (value != null) return value.getValue();
-    	return -1; 
+    	return 0; 
     }
     
     /**
@@ -178,10 +178,10 @@ public class ChannelData
     public float getNDFilter()
     {
     	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return -1;
+    	if (lc == null) return 0;
     	RFloat value = lc.getNdFilter();
     	if (value != null) return value.getValue();
-    	return -1; 
+    	return 0; 
     }
     
     /**
@@ -206,10 +206,10 @@ public class ChannelData
     public int getPockelCell()
     {
     	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return -1;
+    	if (lc == null) return 0;
     	RInt value =  lc.getPockelCellSetting();
     	if (value != null) return value.getValue();
-    	return -1; 
+    	return 0; 
     }
     
     /**
