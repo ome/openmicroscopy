@@ -2325,4 +2325,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         //
         throw new RuntimeException("Not implemented yet.");
     }
+    
+    public void setLogicalChannelPinholeSize(Float a, int b, int c)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
 }
