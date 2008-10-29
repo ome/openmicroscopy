@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
-import loci.formats.DataTools;
+import loci.common.DataTools;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.annotations.BooleanAnnotation;

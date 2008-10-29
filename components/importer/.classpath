@@ -44,7 +44,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/bio-formats"/>
 	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="lib" path="target/libs/bufr.jar"/>
 	<classpathentry kind="lib" path="target/libs/grib.jar"/>
@@ -53,5 +52,6 @@
 	<classpathentry kind="lib" path="target/libs/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi.jar"/>
+	<classpathentry kind="lib" path="/Users/TheBrain/Documents/LOCI Software/artifacts/loci-common.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
