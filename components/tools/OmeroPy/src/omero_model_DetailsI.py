@@ -71,6 +71,21 @@ class DetailsI(_omero_model.Details):
           self._externalInfo = value
           pass
 
+      def ice_postUnmarshal(self):
+          """
+          Provides additional initialization once all data loaded
+          Required due to __getattr__ implementation.
+          """
+          pass # Currently unused
+
+
+      def ice_preMarshal(self):
+          """
+          Provides additional validation before data is sent
+          Required due to __getattr__ implementation.
+          """
+          pass # Currently unused
+
       def __getattr__(self, attr):
         if attr == "owner":
             return self.getOwner()

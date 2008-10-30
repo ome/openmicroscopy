@@ -19,6 +19,7 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
+from omero_model_DetailsI import DetailsI
 from omero.rtypes import *
 
 class TestModel(unittest.TestCase):
@@ -233,6 +234,15 @@ class TestModel(unittest.TestCase):
        def assign_links():
             i.annotationLinks = []
        self.assertRaises( AttributeError, assign_links)
+
+    def testGetAttrSetAttrDetails(self):
+        d = DetailsI()
+        self.assert_( None == d.owner)
+        d.owner = ExperimenterI()
+        self.assert_( d.owner )
+        d.owner = None
+        self.assert_( None == d.owner)
+        d.ice_preMarshal()
 
 if __name__ == '__main__':
     unittest.main()
