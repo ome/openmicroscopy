@@ -42,6 +42,7 @@ import ome.services.search.HqlQuery;
 import ome.services.search.Intersection;
 import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
+import ome.services.search.SimilarTerms;
 import ome.services.search.SomeMustNone;
 import ome.services.search.TagsAndGroups;
 import ome.services.search.Union;
@@ -208,6 +209,17 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         actions.add(bySomeMustNone);
     }
 
+
+    @Transactional
+    @RolesAllowed("user")
+    public void bySimilarTerms(String...terms) {
+        SearchAction bySimilarTerms;
+        synchronized (values) {
+            bySimilarTerms = new SimilarTerms(values, terms);
+        }
+        actions.add(bySimilarTerms);
+    }
+    
     @Transactional
     @RolesAllowed("user")
     public void byGroupForTags(String group) {

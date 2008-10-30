@@ -406,6 +406,19 @@ public interface Search extends ome.api.StatefulServiceInterface,
     // =========================================================================
 
     /**
+     * Returns transient (without ID) {@link TexeAnnotation} instances which
+     * represent terms which are similar to the give terms. For example, if
+     * the argument is "cell", one return value might have as its textValue:
+     * "cellular" while another has "cellularize".
+     * 
+     * No filtering or fetching is performed.
+     * 
+     * @param terms
+     *            Cannot be empty.
+     */
+    void bySimilarTerms(String...terms);
+    
+    /**
      * Returns transient (without ID) {@link TagAnnotation} instances which
      * represent all the {@link TagAnnotation tags} in the given group. The
      * entities are transient and without ownership since multiple users can own

@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 import ome.api.IUpdate;
@@ -164,6 +165,41 @@ public class SearchTest extends AbstractTest {
     // This section tests each query method with various combinations of
     // restrictions
 
+    @Test
+    public void testBySearchTerms() {
+        
+        String base = uuid();
+        String base1 = base + "1";
+        String base2 = base + "2";
+        String base3 = base + "3";
+        
+        Image i1 = new Image(base1);
+        Image i2 = new Image(base2);
+        Image i3 = new Image(base3);
+        
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        i3 = iUpdate.saveAndReturnObject(i3);
+        
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
+        iUpdate.indexObject(i3);
+        
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.bySimilarTerms(base1);
+        List annotations = search.results();
+        List<String> terms = new ArrayList<String>();
+        for (Object obj : annotations) {
+            terms.add(((TextAnnotation)obj).getTextValue());
+        }
+        // Lower-casing is necessary since that's what's stored in the index.
+        assertTrue(terms.contains(base2.toLowerCase()));
+        assertTrue(terms.contains(base2.toLowerCase()));
+        assertFalse(terms.contains(base.toLowerCase()));
+        assertFalse(terms.contains(base1.toLowerCase()));
+    }
+    
     @Test
     public void testByGroupForTags() {
         String groupStr = uuid();
@@ -2539,4 +2575,5 @@ public class SearchTest extends AbstractTest {
                         new Parameters().addId(i.getId()));
         return i;
     }
+
 }
