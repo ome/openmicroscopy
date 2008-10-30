@@ -28,21 +28,24 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -66,13 +69,16 @@ class ImageAcquisitionComponent
 	private EditorModel	model;
 	
 	/** The component hosting the various immersion values. */
-	private JComboBox 	immersionBox;
+	private JComboBox 				immersionBox;
 	
 	/** The component hosting the various coating values. */
-	private JComboBox 	coatingBox;
+	private JComboBox 				coatingBox;
 	
 	/** The component hosting the various medium values. */
-	private JComboBox 	mediumBox;
+	private JComboBox 				mediumBox;
+	
+	/** The fields displaying the metadata. */
+	private Map<String, JComponent> fields;
 	
 	/** Initiliases the components. */
 	private void initComponents()
@@ -82,6 +88,7 @@ class ImageAcquisitionComponent
 		immersionBox = EditorUtil.createComboBox(Mapper.IMMERSIONS);
 		coatingBox = EditorUtil.createComboBox(Mapper.COATING);
 		mediumBox = EditorUtil.createComboBox(Mapper.MEDIUM);
+		fields = new HashMap<String, JComponent>();
 	}
 	
 	/** 
@@ -90,7 +97,7 @@ class ImageAcquisitionComponent
 	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildStageLabel(Map<String, String> details)
+	private JPanel buildStageLabel(Map<String, Object> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
@@ -103,8 +110,9 @@ class ImageAcquisitionComponent
 		c.insets = new Insets(0, 2, 2, 0);
 		Iterator i = details.keySet().iterator();
         JLabel label;
-        JTextArea area;
-        String key, value;
+        JComponent area;
+        String key;
+        Object value;
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
@@ -119,15 +127,31 @@ class ImageAcquisitionComponent
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
-            area = (JTextArea) UIUtilities.createComponent(
-            		JTextArea.class, null);
-            if (value == null || value.equals(""))
-             	value = AnnotationUI.DEFAULT_TEXT;
-            	area.setText(value);
+            if (value instanceof String) {
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
+                if (value == null || value.equals(""))
+                 	value = AnnotationUI.DEFAULT_TEXT;
+                ((OMETextArea) area).setText((String) value);
+           	 	((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
+            } else {
+            	area = UIUtilities.createComponent(NumericalTextField.class, 
+            			null);
+            	if (value instanceof Double) 
+            		((NumericalTextField) area).setNumberType(Double.class);
+            	else if (value instanceof Float) 
+        		((NumericalTextField) area).setNumberType(Float.class);
+            	((NumericalTextField) area).setText(""+value);
+            	((NumericalTextField) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
+            	
+            }
+            
             label.setLabelFor(area);
-            c.gridx = 1;
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
         }
@@ -140,7 +164,7 @@ class ImageAcquisitionComponent
 	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildObjectiveSetting(Map<String, String> details)
+	private JPanel buildObjectiveSetting(Map<String, Object> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
@@ -154,7 +178,8 @@ class ImageAcquisitionComponent
 		Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
-        String key, value;
+        String key;
+        Object value;
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
@@ -172,19 +197,27 @@ class ImageAcquisitionComponent
             if (key.equals(EditorUtil.MEDIUM)) {
             	area = mediumBox;
             } else {
-            	 area = UIUtilities.createComponent(JTextArea.class, null);
-                 ((JTextArea) area).setEditable(false);
-                 if (value == null || value.equals(""))
-                 	value = AnnotationUI.DEFAULT_TEXT;
-                 ((JTextArea) area).setText(value);
+            	 area = UIUtilities.createComponent(NumericalTextField.class, 
+            			 null);
+            	 if (value instanceof Double) 
+            		 ((NumericalTextField) area).setNumberType(Double.class);
+            	 else if (value instanceof Float) 
+            		 ((NumericalTextField) area).setNumberType(Float.class);
+                 ((NumericalTextField) area).setText(""+value);
+                 ((NumericalTextField) area).setEditedColor(
+                		 UIUtilities.EDITED_COLOR);
             }
            
             label.setLabelFor(area);
-            c.gridx = 1;
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
+
+            fields.put(key, area);
         }
 		return content;
 	}
@@ -195,7 +228,7 @@ class ImageAcquisitionComponent
 	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildObjective(Map<String, String> details)
+	private JPanel buildObjective(Map<String, Object> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createTitledBorder("Objective"));
@@ -208,7 +241,8 @@ class ImageAcquisitionComponent
 		Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
-        String key, value;
+        String key;
+        Object value;
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
@@ -228,19 +262,36 @@ class ImageAcquisitionComponent
             } else if (key.equals(EditorUtil.COATING)) {
             	area = coatingBox;
             } else {
-            	 area = UIUtilities.createComponent(JTextArea.class, null);
-                 ((JTextArea) area).setEditable(false);
-                 if (value == null || value.equals(""))
-                 	value = AnnotationUI.DEFAULT_TEXT;
-                 ((JTextArea) area).setText(value);
+            	if (value instanceof Number) {
+            		 area = UIUtilities.createComponent(
+            				 NumericalTextField.class, null);
+            		 if (value instanceof Double) 
+                		 ((NumericalTextField) area).setNumberType(Double.class);
+                	 else if (value instanceof Float) 
+                		 ((NumericalTextField) area).setNumberType(Float.class);
+            		 ((NumericalTextField) area).setText(""+value);
+            		 ((NumericalTextField) area).setEditedColor(
+            				 UIUtilities.EDITED_COLOR);
+            	} else {
+            		 area = UIUtilities.createComponent(OMETextArea.class, null);
+                     if (value == null || value.equals(""))
+                     	value = AnnotationUI.DEFAULT_TEXT;
+                     ((OMETextArea) area).setText((String) value);
+                     ((OMETextArea) area).setEditedColor(
+                			 UIUtilities.EDITED_COLOR);
+            	}
             }
            
             label.setLabelFor(area);
-            c.gridx = 1;
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
+
+            fields.put(key, area);
         }
 		return content;
 	}
@@ -251,7 +302,7 @@ class ImageAcquisitionComponent
 	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	public JPanel buildImagingEnvironment(Map<String, String> details)
+	public JPanel buildImagingEnvironment(Map<String, Object> details)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
@@ -264,8 +315,9 @@ class ImageAcquisitionComponent
 		c.insets = new Insets(0, 2, 2, 0);
 		Iterator i = details.keySet().iterator();
         JLabel label;
-        JTextArea area;
-        String key, value;
+        JComponent area;
+        String key;
+        Object value;
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
@@ -280,18 +332,41 @@ class ImageAcquisitionComponent
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
-            area = (JTextArea) UIUtilities.createComponent(JTextArea.class, 
-            		null);
-            if (value == null || value.equals(""))
-             	value = AnnotationUI.DEFAULT_TEXT;
-
-            area.setEditable(false);
-            area.setText(value);
+	
+            if (value instanceof Number) {
+            	 area = UIUtilities.createComponent(
+            			 NumericalTextField.class, null);
+            	 if (EditorUtil.HUMIDITY.equals(key) ||
+            		EditorUtil.CO2_PERCENT.equals(key)) {
+            		 //((NumericalTextField) area).setMinimum(0.0);
+            		 //((NumericalTextField) area).setMaximum(1.0);
+            	 }
+            	 if (value instanceof Double) 
+            		 ((NumericalTextField) area).setNumberType(Double.class);
+            	 else if (value instanceof Float) 
+            		 ((NumericalTextField) area).setNumberType(Float.class);
+            	 ((NumericalTextField) area).setText(""+value);
+            	 ((NumericalTextField) area).setEditedColor(
+            			 UIUtilities.EDITED_COLOR);
+            } else {
+            	 area = UIUtilities.createComponent(
+            			 OMETextArea.class, null);
+            	 if (value == null || value.equals(""))
+                  	value = AnnotationUI.DEFAULT_TEXT;
+                 ((OMETextArea) area).setText((String) value);
+                 ((OMETextArea) area).setEditedColor(
+            			 UIUtilities.EDITED_COLOR);
+            }
+           
             label.setLabelFor(area);
-            c.gridx = 1;
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
+            fields.put(key, area);
         }
 		return content;
 	}
@@ -299,6 +374,7 @@ class ImageAcquisitionComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		fields.clear();
 		add(buildObjective(EditorUtil.transformObjective(
 				model.getObjective())));
 		add(buildObjectiveSetting(EditorUtil.transformObjectiveSettings(

@@ -24,8 +24,13 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Toolkit;
+import java.util.regex.Pattern;
+
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
@@ -48,19 +53,61 @@ import javax.swing.text.PlainDocument;
  */
 public class NumericalTextField 
 	extends JTextField
+	implements DocumentListener
 {
 
-	/** Helper reference to the document. */
-	private NumericalPlainDocument document;
+	/** Accepted value if integer. */
+	private static final String 	NUMERIC = "0123456789";
 	
+	/** Accepted value if double or float. */
+	private static final String 	FLOAT = NUMERIC+".";
+	
+	/** The color used for the foreground when the user is editing the value. */
+	private Color 					editedColor;
+	
+	/** The default foreground color. */
+	private Color					defaultForeground;
+	
+	/** Helper reference to the document. */
+	private NumericalPlainDocument 	document;
+
+	/** The default Text. */
+	private String					originalText;
+	
+	/** The type of number to handle: integer, double or float. */
+	private Class					numberType;
+	
+	/** Flag indicating if negative values are accepted. */
+	private boolean					negativeAccepted;
+	
+	/** The accepted characters. */
+	private String					accepted;
 	
 	/**
-	 * Creates a default instance with {@link Integer#MIN_VALUE} as min value
-	 * and {@link Integer#MAX_VALUE} as max value.
+	 * Updates the <code>foreground</code> color depending on the text entered.
+	 */
+	private void updateForeGround()
+	{
+		String text = getText();
+		if (editedColor != null) {
+			if (originalText != null) {
+				if (originalText.equals(text)) setForeground(defaultForeground);
+				else setForeground(editedColor);
+			}
+		}
+		if (originalText == null) {
+			originalText = text;
+			defaultForeground = getForeground();
+		}
+	}
+	
+	/**
+	 * Creates a default instance with {@link Double#MIN_VALUE} as min value
+	 * and {@link Double#MAX_VALUE} as max value.
 	 */
 	public NumericalTextField()
 	{
-		this(Double.MIN_VALUE, Double.MAX_VALUE);	
+		this(0.0, Double.MAX_VALUE);	
 	}
 	
 	/**
@@ -73,6 +120,39 @@ public class NumericalTextField
 	{
 		document = new NumericalPlainDocument(min, max);
 		setDocument(document);
+		originalText = null;
+		editedColor = null;
+		document.addDocumentListener(this);
+		numberType = Integer.class;
+		accepted = NUMERIC;
+		negativeAccepted = false;
+	}
+	
+	/**
+	 * Sets to <code>true</code> if negative values are accepted,
+	 * to <code>false</code> otherwise.
+	 * 
+	 * @param negativeAccepted The value to set.
+	 */
+	public void setNegativeAccepted(boolean negativeAccepted)
+	{
+		this.negativeAccepted = negativeAccepted;
+		if (negativeAccepted) accepted += "-";
+	}
+	
+	/**
+	 * Sets the type of number to handle.
+	 * 
+	 * @param numberType The value to set.
+	 */
+	public void setNumberType(Class numberType)
+	{ 
+		if (numberType == null)
+			numberType = Integer.class;
+		this.numberType = numberType;
+		if (numberType.equals(Integer.class)) accepted = NUMERIC;
+		else accepted = FLOAT;
+		setNegativeAccepted(negativeAccepted);	
 	}
 	
 	/**
@@ -80,15 +160,44 @@ public class NumericalTextField
 	 * 
 	 * @param min The value to set.
 	 */
-	public void setMinimum(int min) { document.setMinimum(min); }
+	public void setMinimum(double min) { document.setMinimum(min); }
 	
 	/**
 	 * Sets the maximum value.
 	 * 
 	 * @param max The value to set.
 	 */
-	public void setMaximum(int max) { document.setMinimum(max); }
+	public void setMaximum(double max) { document.setMinimum(max); }
 	
+	/**
+	 * Sets the edited color. 
+	 * 
+	 * @param editedColor The value to set.
+	 */
+	public void setEditedColor(Color editedColor)
+	{ 
+		this.editedColor = editedColor;
+	}
+	
+	/**
+     * Updates the <code>foreground</code> color depending on the text entered.
+     * @see DocumentListener#insertUpdate(DocumentEvent)
+     */
+	public void insertUpdate(DocumentEvent e) { updateForeGround(); }
+
+	/**
+     * Updates the <code>foreground</code> color depending on the text entered.
+     * @see DocumentListener#removeUpdate(DocumentEvent)
+     */
+	public void removeUpdate(DocumentEvent e) { updateForeGround(); }
+	
+    /**
+     * Required by the {@link DocumentListener} I/F but no-op implementation
+     * in our case.
+     * @see DocumentListener#changedUpdate(DocumentEvent)
+     */
+	public void changedUpdate(DocumentEvent e) {}
+
 	/**
 	 * Inner class to make sure that we can only enter numerical value.
 	 */
@@ -102,21 +211,6 @@ public class NumericalTextField
 		/** The maximum value of the text field. */
 		private double max;
 		
-		/** 
-		 * Returns <code>true</code> if the passed string is an integer,
-		 * <code>false</code> otherwise.
-		 * 
-		 * @param str The string to handle.
-		 * @return See above
-		 */
-		private boolean isInteger(String str)
-		{
-			for (int i = 0 ; i < str.length(); i++ )
-        		if (!Character.isDigit(str.charAt(i)))
-        			return false;
-    		return true;
-		}
-		
 		/**
 		 * Returns <code>true</code> if the passed string is in the
 		 * [min, max] range if a range is specified, <code>false</code> 
@@ -127,13 +221,19 @@ public class NumericalTextField
 		 */
 		private boolean isInRange(String str)
 		{
-			boolean valid = false;
-			int val = 0;
 			try {
-	            val = Integer.parseInt(str);
-	            if (min <= val && val < max) valid = true;
+				if (Integer.class.equals(numberType)) {
+					int val = Integer.parseInt(str);
+		            if (min <= val && val <= max) return true;
+				} else if (Double.class.equals(numberType)) {
+					double val = Double.parseDouble(str);
+		            if (min <= val && val <= max) return true;
+				} else if (Float.class.equals(numberType)) {
+					float val = Float.parseFloat(str);
+		            if (min <= val && val <= max) return true;
+				}
 	        } catch(NumberFormatException nfe) {}
-	       return valid;
+	       return false;
 		}
 		
 		/**
@@ -167,27 +267,51 @@ public class NumericalTextField
 		 * value in the defined range.
 		 * @see PlainDocument#insertString(int, String, AttributeSet)
 		 */
-		public void insertString(int offset, String str, AttributeSet a) {
+		public void insertString(int offset, String str, AttributeSet a)
+		{
 			try {
+				System.err.println(numberType);
+				if (str == null) return;
+				for (int i = 0; i < str.length(); i++) {
+		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1)
+		                return;
+		        }
+				if (accepted.equals(FLOAT) ||
+				   (accepted.equals(FLOAT+"-") && negativeAccepted)) {
+					if (str.indexOf(".") != -1) {
+						if (getText(0, getLength()).indexOf(".") != -1) 
+							return;
+					}
+				}
+
+				if (negativeAccepted && str.indexOf("-") != -1) {
+					if (str.indexOf("-") != 0 || offset != 0 ) {
+						return;
+					}
+				}
+				//if (isInRange(str))
+					super.insertString(offset, str, a);
+				/*
 				if (!Character.isISOControl(str.charAt(0))) {
 					int length = getLength();
 					String text = getText(0, length);
-					if (isInteger(str)) {
+					//if (isNumber(str)) {
 						switch (length) {
 							case 0:
-								//if (isInRange(str)) 
 								super.insertString(offset, str, a);
 								break;
 							default:
-								if (isInRange(text)) 
+								if (isInRange(text)) {
 									super.insertString(offset, str, a);
+								}
 						}
-					} else Toolkit.getDefaultToolkit().beep();
+					//} else Toolkit.getDefaultToolkit().beep();
 		    	} else Toolkit.getDefaultToolkit().beep();
+		    	*/
 			} catch (Exception e) {
 				Toolkit.getDefaultToolkit().beep();
 			}
     	}
 	}
-	
+
 }

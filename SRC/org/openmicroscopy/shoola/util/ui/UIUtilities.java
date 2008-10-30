@@ -105,6 +105,8 @@ public class UIUtilities
     public static final Color				WINDOW_BACKGROUND_COLOR = 
     										new Color(248, 248, 248);
     
+    /** The color of the text when editing. */
+    public static final Color				EDITED_COLOR = Color.red;
     
 	/** The default color of the description. */
     public static final Color				DEFAULT_FONT_COLOR = Color.GRAY;
@@ -1268,8 +1270,13 @@ public class UIUtilities
 		if (type == null) type = JLabel.class;
 		JComponent comp = null;
 		if (JLabel.class.equals(type)) comp = new JLabel();
-		else if (JTextField.class.equals(type)) comp = new JTextField();
-		else if (JTextArea.class.equals(type)) comp = new JTextArea();
+		else if (OMETextField.class.equals(type)) comp = new OMETextField();
+		else if (OMETextArea.class.equals(type)) comp = new OMETextArea();
+		else if (NumericalTextField.class.equals(type)) {
+			comp = new NumericalTextField();
+			comp.setBorder(null);
+		}
+				
 		if (comp == null) comp = new JLabel();
 		comp.setBackground(BACKGROUND_COLOR);
 		Font font = comp.getFont();

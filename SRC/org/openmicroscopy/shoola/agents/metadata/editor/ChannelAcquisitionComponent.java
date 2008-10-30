@@ -28,16 +28,15 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 
 //Third-party libraries
@@ -45,11 +44,13 @@ import javax.swing.JTextArea;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 
 /** 
- * 
+ * Displays the metadata related to the channel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,22 +67,25 @@ class ChannelAcquisitionComponent
 {
 
 	/** The channel data. */
-	private ChannelData channel;
+	private ChannelData 			channel;
 	
 	/** The component displaying the illumination's options. */
-	private JComboBox		illuminationBox;
+	private JComboBox				illuminationBox;
 	
 	/** The component displaying the contrast Method options. */
-	private JComboBox		contrastMethodBox;
+	private JComboBox				contrastMethodBox;
 	
 	/** The component displaying the contrast Method options. */
-	private JComboBox		modeBox;
+	private JComboBox				modeBox;
 	
 	/** The component displaying the binning options. */
-	private JComboBox		binningBox;
+	private JComboBox				binningBox;
 	
 	/** The component displaying the binning options. */
-	private JComboBox		detectorBox;
+	private JComboBox				detectorBox;
+	
+	/** The fields displaying the metadata. */
+	private Map<String, JComponent> fields;
 	
 	/** Initializes the components */
 	private void initComponents()
@@ -91,16 +95,17 @@ class ChannelAcquisitionComponent
 		modeBox = EditorUtil.createComboBox(Mapper.MODE);
 		binningBox = EditorUtil.createComboBox(Mapper.BINNING);
 		detectorBox = EditorUtil.createComboBox(Mapper.DETECTOR_TYPE);
+		fields = new HashMap<String, JComponent>();
 	}
 	
-	 /**
-     * Builds and lays out the body displaying the channel info.
-     * 
-     * @return See above.
-     */
-    private JPanel buildDetector()
+	/**
+	 * Builds and lays out the body displaying the channel info.
+	 * 
+	 * @param details The data to lay out.
+	 * @return See above.
+	 */
+    private JPanel buildDetector(Map<String, Object> details)
     {
-        Map<String, String> details = EditorUtil.transformDectector(null, null);
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createTitledBorder("Detector"));
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -113,7 +118,8 @@ class ChannelAcquisitionComponent
         Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
-        String key, value;
+        String key;
+        Object value;
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
@@ -132,20 +138,32 @@ class ChannelAcquisitionComponent
             	area = binningBox;
             } else if (key.equals(EditorUtil.TYPE)) {
             	area = detectorBox;
-            } else area = UIUtilities.createComponent(JTextArea.class, null);
-            if (value == null || value.equals("")) {
-            	value = AnnotationUI.DEFAULT_TEXT;
+            } else if (value instanceof Number) {
+            	area = UIUtilities.createComponent(NumericalTextField.class, 
+            			null);
+            	if (value instanceof Double) 
+            		((NumericalTextField) area).setNumberType(Double.class);
+            	else if (value instanceof Float) 
+            		((NumericalTextField) area).setNumberType(Float.class);
+            	((NumericalTextField) area).setText(""+value);
+            	((NumericalTextField) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
+            } else {
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
+            	if (value == null || value.equals("")) 
+                	value = AnnotationUI.DEFAULT_TEXT;
+            	 ((OMETextArea) area).setEditable(false);
+            	 ((OMETextArea) area).setText((String) value);
+            	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             }
-            if (area instanceof JTextArea) {
-            	 ((JTextArea) area).setEditable(false);
-            	 ((JTextArea) area).setText(value);
-            }
+            
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
             //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
+            fields.put(key, area);
         }
         return content;
     }
@@ -153,11 +171,11 @@ class ChannelAcquisitionComponent
 	 /**
      * Builds and lays out the body displaying the channel info.
      * 
+     * @param details The data to lay out.
      * @return See above.
      */
-    private JPanel buildChannelInfo()
+    private JPanel buildChannelInfo(Map<String, Object> details)
     {
-        Map<String, String> details = EditorUtil.transformChannelData(channel);
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createTitledBorder("Info"));
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -170,7 +188,8 @@ class ChannelAcquisitionComponent
         Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
-        String key, value;
+        String key;
+        Object value;
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
@@ -185,26 +204,38 @@ class ChannelAcquisitionComponent
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
+            
             if (key.equals(EditorUtil.ILLUMINATION)) {
             	area = illuminationBox;
             } else if (key.equals(EditorUtil.CONTRAST_METHOD)) {
             	area = contrastMethodBox;
             } else if (key.equals(EditorUtil.MODE)) {
             	area = modeBox;
-            } else area = UIUtilities.createComponent(JTextArea.class, null);
-            if (value == null || value.equals("")) {
-            	value = AnnotationUI.DEFAULT_TEXT;
+            } else {
+            	if (value instanceof Number) {
+            		area = UIUtilities.createComponent(
+             				 NumericalTextField.class, null);
+             		 ((NumericalTextField) area).setText(""+value);
+             		((NumericalTextField) area).setEditedColor(
+             				UIUtilities.EDITED_COLOR);
+            	} else {
+            		area = UIUtilities.createComponent(OMETextArea.class, null);
+                	if (value == null || value.equals(""))
+                    	value = AnnotationUI.DEFAULT_TEXT;
+                	((OMETextArea) area).setEditable(false);
+                	((OMETextArea) area).setText((String) value);
+                	((OMETextArea) area).setEditedColor(
+                			UIUtilities.EDITED_COLOR);
+            	}
             }
-            if (area instanceof JTextArea) {
-            	 ((JTextArea) area).setEditable(false);
-            	 ((JTextArea) area).setText(value);
-            }
+            
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             content.add(area, c);  
+            fields.put(key, area);
         }
         return content;
     }
@@ -212,10 +243,11 @@ class ChannelAcquisitionComponent
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	fields.clear();
     	setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    	add(buildChannelInfo());
-    	add(buildDetector());
+    	add(buildChannelInfo(EditorUtil.transformChannelData(channel)));
+    	add(buildDetector(EditorUtil.transformDectector(null, null)));
     }
     
 	/**

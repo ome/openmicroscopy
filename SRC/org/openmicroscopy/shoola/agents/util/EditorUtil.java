@@ -45,6 +45,7 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -774,32 +775,32 @@ public class EditorUtil
      * @return      The map whose keys are the field names, and the values 
      *              the corresponding fields' values.
      */
-    public static Map<String, String> transformChannelData(ChannelData data)
+    public static Map<String, Object> transformChannelData(ChannelData data)
     {
-        LinkedHashMap<String, String> 
-        		details = new LinkedHashMap<String, String>(10);
+        LinkedHashMap<String, Object> 
+        		details = new LinkedHashMap<String, Object>(10);
         if (data == null) {
         	details.put(NAME, "");
-            details.put(EM_WAVE, "");
-            details.put(EX_WAVE, "");
-            details.put(ND_FILTER, "");
-            details.put(PIN_HOLE_SIZE, "");
+            details.put(EM_WAVE, new Integer(0));
+            details.put(EX_WAVE, new Integer(0));
+            details.put(ND_FILTER, new Integer(0));
+            details.put(PIN_HOLE_SIZE, new Integer(0));
             details.put(FLUOR, "");
             details.put(ILLUMINATION, "");
             details.put(CONTRAST_METHOD, "");
             details.put(MODE, "");
-            details.put(POCKEL_CELL_SETTINGS, "");
+            details.put(POCKEL_CELL_SETTINGS, new Integer(0));
         } else {
         	details.put(NAME, data.getName());
-            details.put(EM_WAVE, ""+data.getEmissionWavelength());
-            details.put(EX_WAVE, ""+data.getEmissionWavelength());
-            details.put(ND_FILTER, ""+data.getNDFilter());
-            details.put(PIN_HOLE_SIZE, ""+data.getPinholeSize());
+        	details.put(EM_WAVE, data.getEmissionWavelength());
+        	details.put(EX_WAVE, data.getExcitationWavelength());
+            details.put(ND_FILTER, data.getNDFilter());
+            details.put(PIN_HOLE_SIZE, data.getPinholeSize());
             details.put(FLUOR, data.getFluor());
             details.put(ILLUMINATION, data.getIllumination());
             details.put(CONTRAST_METHOD, data.getContrastMethod());
             details.put(MODE, data.getMode());
-            details.put(POCKEL_CELL_SETTINGS, ""+data.getPockelCell());
+            details.put(POCKEL_CELL_SETTINGS, data.getPockelCell());
         }
         return details;
     }
@@ -810,18 +811,18 @@ public class EditorUtil
      * @param objective The value to convert.
      * @return See above.
      */
-    public static Map<String, String> transformObjective(Object objective)
+    public static Map<String, Object> transformObjective(Object objective)
     {
-    	LinkedHashMap<String, String> 
-    			details = new LinkedHashMap<String, String>(8);
+    	LinkedHashMap<String, Object> 
+    			details = new LinkedHashMap<String, Object>(8);
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
-    	details.put(MAGNIFICATION, "");
-        details.put(LENSNA, "");
+    	details.put(MAGNIFICATION, new Double(0));
+        details.put(LENSNA, new Float(0));
         details.put(IMMERSION, "");
         details.put(COATING, "");
-        details.put(WORKING_DISTANCE, "");
+        details.put(WORKING_DISTANCE, new Float(0));
         return details;
     }
     
@@ -831,14 +832,14 @@ public class EditorUtil
      * @param settings The value to convert.
      * @return See above.
      */
-    public static Map<String, String> transformObjectiveSettings(
+    public static Map<String, Object> transformObjectiveSettings(
     								Object settings)
     {
-    	LinkedHashMap<String, String> 
-    			details = new LinkedHashMap<String, String>(3);
-    	details.put(CORRECTION_COLLAR, "");
+    	LinkedHashMap<String, Object> 
+    			details = new LinkedHashMap<String, Object>(3);
+    	details.put(CORRECTION_COLLAR, new Float(0));
     	details.put(MEDIUM, "");
-    	details.put(REFRACTIVE_INDEX, "");
+    	details.put(REFRACTIVE_INDEX, new Float(0));
         return details;
     }
     
@@ -848,14 +849,14 @@ public class EditorUtil
      * @param env The value to convert.
      * @return See above.
      */
-    public static Map<String, String> transformImageEnvironment(Object env)
+    public static Map<String, Object> transformImageEnvironment(Object env)
     {
-    	LinkedHashMap<String, String> 
-			details = new LinkedHashMap<String, String>(4);
-    	details.put(TEMPERATURE, "");
-    	details.put(AIR_PRESSURE, "");
-    	details.put(HUMIDITY, "");
-    	details.put(CO2_PERCENT, "");
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>(4);
+    	details.put(TEMPERATURE, new Float(0));
+    	details.put(AIR_PRESSURE, new Float(0));
+    	details.put(HUMIDITY, new Float(0));
+    	details.put(CO2_PERCENT, new Float(0));
     	return details;
     }
     
@@ -865,14 +866,14 @@ public class EditorUtil
      * @param label The value to convert.
      * @return See above.
      */
-    public static Map<String, String> transformStageLabel(Object label)
+    public static Map<String, Object> transformStageLabel(Object label)
     {
-    	LinkedHashMap<String, String> 
-			details = new LinkedHashMap<String, String>(4);
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>(4);
     	details.put(NAME, "");
-    	details.put(POSITION_X, "");
-    	details.put(POSITION_Y, "");
-    	details.put(POSITION_Z, "");
+    	details.put(POSITION_X, new Float(0));
+    	details.put(POSITION_Y, new Float(0));
+    	details.put(POSITION_Z, new Float(0));
     	return details;
     }
     
@@ -883,11 +884,11 @@ public class EditorUtil
      * @param detectorSettings	The value to convert.
      * @return See above.
      */
-    public static Map<String, String> transformDectector(Object detector, 
+    public static Map<String, Object> transformDectector(Object detector, 
     					Object detectorSettings)
     {
-    	LinkedHashMap<String, String> 
-			details = new LinkedHashMap<String, String>(7);
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>(7);
     	details.put(TYPE, "");
     	details.put(VOLTAGE, "");
     	details.put(GAIN, "");
@@ -904,10 +905,10 @@ public class EditorUtil
      * @param detector The value to convert.
      * @return See above.
      */
-    public static Map<String, String> transformDectector(Object detector)
+    public static Map<String, Object> transformDectector(Object detector)
     {
-    	LinkedHashMap<String, String> 
-			details = new LinkedHashMap<String, String>(4);
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>(4);
     	details.put(TYPE, "");
     	details.put(VOLTAGE, "");
     	details.put(GAIN, "");
@@ -923,14 +924,14 @@ public class EditorUtil
 	 */
     public static JComboBox createComboBox(String[] values)
 	{
-		JComboBox box = new JComboBox(values);
+    	OMEComboBox box = new OMEComboBox(values);
 		box.setBackground(UIUtilities.BACKGROUND_COLOR);
+		box.setSelectedIndex(0);
 		box.setUI(new BasicComboBoxUI() {
 			 
 			
 	        /**
 	         * Hides the arrow Button.
-	         * 
 	         */
 	         protected JButton createArrowButton() {
 	        	
@@ -945,6 +946,7 @@ public class EditorUtil
 		int size = f.getSize()-3;
 		box.setBorder(null);
 		box.setFont(f.deriveFont(Font.ITALIC, size));
+		box.setEditedColor(UIUtilities.EDITED_COLOR);
 		return box;
 	}
     
