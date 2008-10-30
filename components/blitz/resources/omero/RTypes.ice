@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -20,7 +20,7 @@
  * "Any" value.
  *
  * Usage (C++):
- *   
+ *
  *    omero::RBoolPtr b1 = new omero::RBool(true);
  *    omero::RBoolPtr b2 = someObjPtr->getBool();
  *    if (b2 && b2.val) { ... };
@@ -33,10 +33,10 @@
  *    // no operator overloading; check for null directly.
  *
  */
-module omero { 
+module omero {
 
   /*
-   * Simple base ["protected"] class. Essentially abstract. 
+   * Simple base ["protected"] class. Essentially abstract.
    */
   ["protected"] class RType
   {
@@ -60,8 +60,8 @@ module omero {
     bool val;
     bool getValue();
   };
-  
-  
+
+
   /*
    */
   ["protected"] class RDouble extends RType
@@ -69,8 +69,8 @@ module omero {
     double val;
     double getValue();
   };
-  
-  
+
+
   /*
    */
   ["protected"] class RFloat extends RType
@@ -78,8 +78,8 @@ module omero {
     float val;
     float getValue();
   };
-  
-  
+
+
   /*
    */
   ["protected"] class RInt extends RType
@@ -87,8 +87,8 @@ module omero {
     int val;
     int getValue();
   };
-  
-  
+
+
   /*
    */
   ["protected"] class RLong extends RType
@@ -96,8 +96,8 @@ module omero {
     long val;
     long getValue();
   };
-  
-  
+
+
   /*
    */
   ["protected"] class RString extends RType
@@ -110,7 +110,7 @@ module omero {
    * Extends RString and simply provides runtime
    * information to the server that this string
    * is intended as a ["protected"] class parameter. Used especially
-   * by omero::system::ParamMap (omero/System.ice) 
+   * by omero::system::ParamMap (omero/System.ice)
    *
    * Usage:
    *   omero::RClass c = ...; // from service
@@ -120,22 +120,23 @@ module omero {
   {
   };
 
-  
+
 
   /* A simple Time implementation. The long value is the number
-   * of milliseconds since the epoch (January 1, 1970). 
+   * of milliseconds since the epoch (January 1, 1970).
    */
   ["protected"] class RTime extends RType
   {
     long val;
     long getValue();
   };
-  
+
   /*
    */
   ["protected"] class RObject extends RType
   {
     omero::model::IObject val;
+    // Here we don't want the pointer being altered
     omero::model::IObject getValue();
   };
 

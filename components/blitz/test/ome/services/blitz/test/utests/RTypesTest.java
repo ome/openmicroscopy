@@ -20,20 +20,52 @@ import static omero.rtypes.robject;
 import static omero.rtypes.rset;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
-import static org.testng.Assert.assertTrue;
+import static omero.rtypes.rtype;
+import static org.testng.Assert.*;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import omero.ClientError;
 import omero.RLong;
 import omero.RType;
+import omero.grid.JobParams;
+import omero.model.ImageI;
 
 import org.testng.annotations.Test;
 
-public class RTypesTest {
+public class RTypesTest{
 
+    @Test
+    public void testConversionMethod() {
+        assertNull(rtype(null));
+        assertEquals(rbool(true), rtype(Boolean.valueOf(true)));
+        assertEquals(rdouble(0), rtype(Double.valueOf(0)));
+        assertEquals(rfloat(0), rtype(Float.valueOf(0)));
+        assertEquals(rlong(0), rtype(Long.valueOf(0)));
+        assertEquals(rint(0), rtype(Integer.valueOf(0)));
+        assertEquals(rstring("string"), rtype("string"));
+        long time = System.currentTimeMillis();
+        assertEquals(rtime(time), rtype(new Timestamp(time)));
+        rtype(new ImageI());
+        rtype(new JobParams());
+        rtype(new HashSet(Arrays.asList(rlong(1))));
+        rtype(Arrays.asList(rlong(2)));
+        rtype(new HashMap());
+        try {
+            rtype(new RType[] {});
+            fail("Shouldn't be able to handle this yet");
+        } catch (ClientError ce) {
+            // ok
+        }
+    }
+    
     @Test
     public void testObjectCreationEqualsAndHash() {
 

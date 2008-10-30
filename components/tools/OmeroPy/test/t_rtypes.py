@@ -15,21 +15,29 @@ ids = [rlong(1)]
 
 class TestModel(unittest.TestCase):
 
-    def testGetAttrWorks(self):
-        rbool(True).val
-        rdouble(0.0).val
-        rfloat(0.0).val
-        rint(0).val
-        rlong(0).val
-        rtime(0).val
-        rinternal(None).val
-        robject(None).val
-        rstring("").val
-        rclass("").val
-        rarray().val
-        rlist().val
-        rset().val
-        rmap().val
+    def testConversionMethod(self):
+        self.assertEquals(None, rtype(None))
+        self.assertEquals(rbool(True), rtype(True))
+        # Unsupported
+        # self.assertEquals(rdouble(0), rtype(Double.valueOf(0)))
+        self.assertEquals(rfloat(0), rtype(float(0)))
+        self.assertEquals(rlong(0), rtype(long(0)))
+        self.assertEquals(rint(0), rtype(int(0)))
+        self.assertEquals(rstring("string"), rtype("string"))
+        # Unsupported
+        # self.assertEquals(rtime(time), rtype(new Timestamp(time)))
+        rtype(omero.model.ImageI())
+        rtype(omero.grid.JobParams())
+        rtype(set([rlong(1)]))
+        rtype(list([rlong(2)]))
+        rtype({})
+        # Unsupported
+        # rtype(array)
+        try:
+            rtype(())
+            self.fail("Shouldn't be able to handle this yet")
+        except omero.ClientError:
+            pass
 
     def testObjectCreationEqualsAndHash(self):
 
@@ -163,7 +171,7 @@ class TestModel(unittest.TestCase):
         array_notnull1 = rarray(ids)
         array_notnull2 = rarray(ids)
         # Equals based on content
-        self.assert_(array_notnull1 !=  array_notnull2)
+        self.assert_(array_notnull1 ==  array_notnull2)
         # But content is copied!
         self.assert_(not array_notnull1.getValue() is array_notnull2.getValue())
 
@@ -172,16 +180,16 @@ class TestModel(unittest.TestCase):
         array_null3 = rarray(*[])
 
         # All different since the contents are mutable.
-        self.assert_(array_null1 !=  array_notnull1)
-        self.assert_(array_null1 !=  array_null2)
-        self.assert_(array_null1 !=  array_null3)
+        self.assert_(not array_null1 is  array_notnull1)
+        self.assert_(not array_null1 is  array_null2)
+        self.assert_(not array_null1 is  array_null3)
 
     def testListCreationEqualsHash(self):
 
         list_notnull1 = rlist(ids)
         list_notnull2 = rlist(ids)
         # Equals based on content
-        self.assert_(list_notnull1 !=  list_notnull2)
+        self.assert_(list_notnull1 ==  list_notnull2)
         # But content is copied!
         self.assert_(not list_notnull1.getValue() is list_notnull2.getValue())
 
@@ -190,16 +198,16 @@ class TestModel(unittest.TestCase):
         list_null3 = rlist(*[])
 
         # All different since the contents are mutable.
-        self.assert_(list_null1 !=  list_notnull1)
-        self.assert_(list_null1 !=  list_null2)
-        self.assert_(list_null1 !=  list_null3)
+        self.assert_(not list_null1 is  list_notnull1)
+        self.assert_(not list_null1 is  list_null2)
+        self.assert_(not list_null1 is  list_null3)
 
     def testSetCreationEqualsHash(self):
 
         set_notnull1 = rset(ids)
         set_notnull2 = rset(ids)
         # Equals based on content
-        self.assert_(set_notnull1 !=  set_notnull2)
+        self.assert_(set_notnull1 ==  set_notnull2)
         # But content is copied!
         self.assert_(not set_notnull1.getValue() is set_notnull2.getValue())
 
@@ -208,9 +216,9 @@ class TestModel(unittest.TestCase):
         set_null3 = rset(*[])
 
         # All different since the contents are mutable.
-        self.assert_(set_null1 !=  set_notnull1)
-        self.assert_(set_null1 !=  set_null2)
-        self.assert_(set_null1 !=  set_null3)
+        self.assert_(not set_null1 is  set_notnull1)
+        self.assert_(not set_null1 is  set_null2)
+        self.assert_(not set_null1 is  set_null3)
 
     def testMapCreationEqualsHash(self):
 
@@ -218,7 +226,7 @@ class TestModel(unittest.TestCase):
         map_notnull1 = rmap({"ids": id})
         map_notnull2 = rmap({"ids": id})
         # Equals based on content
-        self.assert_(map_notnull1 != map_notnull2)
+        self.assert_(map_notnull1 == map_notnull2)
 
         # But content is copied!
         self.assert_(not map_notnull1.getValue() is map_notnull2.getValue())
@@ -228,9 +236,113 @@ class TestModel(unittest.TestCase):
         map_null3 = rmap(**{})
 
         # All different since the contents are mutable.
-        self.assert_(map_null1 !=  map_notnull1)
-        self.assert_(map_null1 !=  map_null2) # TODO Different with maps
-        self.assert_(map_null1 !=  map_null3) # TODO Different with maps
+        self.assert_(not map_null1 is  map_notnull1)
+        self.assert_(not map_null1 is  map_null2) # TODO Different with maps
+        self.assert_(not map_null1 is  map_null3) # TODO Different with maps
+
+    #
+    # Python only
+    #
+
+    def testGetAttrWorks(self):
+        rbool(True).val
+        rdouble(0.0).val
+        rfloat(0.0).val
+        rint(0).val
+        rlong(0).val
+        rtime(0).val
+        rinternal(None).val
+        robject(None).val
+        rstring("").val
+        rclass("").val
+        rarray().val
+        rlist().val
+        rset().val
+        rmap().val
+
+    def testPassThroughNoneAndRTypes(self):
+        """
+        To prevent having to check for isintance(int,...) or isintance(RInt,...)
+        all over the place, the static methods automaticalyl check for acceptable
+        types and simply pass them through. Similarly, the primitive types all
+        check for None and return a null RType if necessary.
+        """
+        # Bool
+        self.assertEquals(None, rbool(None))
+        self.assertEquals(rbool(True), rbool(rbool(True)))
+        self.assertEquals(rbool(True), rbool(1))
+        self.assertEquals(rbool(False), rbool(0))
+        # Double
+        self.assertEquals(None, rdouble(None))
+        self.assertEquals(rdouble(0.0), rdouble(rdouble(0.0)))
+        self.assertEquals(rdouble(0.0), rdouble(rdouble(0)))
+        self.assertEquals(rdouble(0.0), rdouble(rdouble("0.0")))
+        self.assertRaises(ValueError, lambda : rdouble("string"))
+        # Float
+        self.assertEquals(None, rfloat(None))
+        self.assertEquals(rfloat(0.0), rfloat(rfloat(0.0)))
+        self.assertEquals(rfloat(0.0), rfloat(rfloat(0)))
+        self.assertEquals(rfloat(0.0), rfloat(rfloat("0.0")))
+        self.assertRaises(ValueError, lambda : rfloat("string"))
+        # Long
+        self.assertEquals(None, rlong(None))
+        self.assertEquals(rlong(0), rlong(rlong(0)))
+        self.assertEquals(rlong(0), rlong(rlong(0.0)))
+        self.assertEquals(rlong(0), rlong(rlong("0")))
+        self.assertRaises(ValueError, lambda : rlong("string"))
+        # Time
+        self.assertEquals(None, rtime(None))
+        self.assertEquals(rtime(0), rtime(rtime(0)))
+        self.assertEquals(rtime(0), rtime(rtime(0.0)))
+        self.assertEquals(rtime(0), rtime(rtime("0")))
+        self.assertRaises(ValueError, lambda : rtime("string"))
+        # Int
+        self.assertEquals(None, rint(None))
+        self.assertEquals(rint(0), rint(rint(0)))
+        self.assertEquals(rint(0), rint(rint(0.0)))
+        self.assertEquals(rint(0), rint(rint("0")))
+        self.assertRaises(ValueError, lambda : rint("string"))
+        #
+        # Starting here handling of null is different.
+        #
+        # String
+        self.assertEquals(rstring(""), rstring(None))
+        self.assertEquals(rstring("a"), rstring(rstring("a")))
+        self.assertRaises(ValueError, lambda : rstring(0))
+        # Class
+        self.assertEquals(rclass(""), rclass(None))
+        self.assertEquals(rclass("c"), rclass(rclass("c")))
+        self.assertRaises(ValueError, lambda : rclass(0))
+        # Internal
+        internal = omero.Internal()
+        self.assertEquals(rinternal(None), rinternal(None))
+        self.assertEquals(rinternal(internal), rinternal(rinternal(internal)))
+        self.assertRaises(ValueError, lambda : rinternal("string"))
+        # Object
+        obj = omero.model.ImageI()
+        self.assertEquals(robject(None), robject(None))
+        self.assertEquals(robject(obj), robject(robject(obj)))
+        self.assertRaises(ValueError, lambda : robject("string"))
+        #
+        # Same does not hold for collections
+        #
+        # Array
+        self.assertEquals(rarray([]), rarray(None))
+        ## self.assertEquals(rarray(obj), rarray(rarray(obj)))
+        ## self.assertRaises(ValueError, lambda : rarray("string"))
+        # List
+        self.assertEquals(rlist([]), rlist(None))
+        ## self.assertEquals(rlist(obj), rlist(rlist(obj)))
+        ## self.assertRaises(ValueError, lambda : rlist("string"))
+        # Set
+        self.assertEquals(rset([]), rset(None))
+        ## self.assertEquals(rset(obj), rset(rset(obj)))
+        ## self.assertRaises(ValueError, lambda : rset("string"))
+        # Map
+        self.assertEquals(rmap({}), rmap(None))
+        ## self.assertEquals(rmap(obj), rmap(rmap(obj)))
+        ## self.assertRaises(ValueError, lambda : rmap("string"))
+
 
 if __name__ == '__main__':
     unittest.main()

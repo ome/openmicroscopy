@@ -113,7 +113,7 @@ class PermissionsI(_omero_model.Permissions):
           vals.append(self.isWorldRead() and "r" or "-")
           vals.append(self.isWorldWrite() and "w" or "-")
           return "".join(vals)
-          
+
 _omero_model.PermissionsI = PermissionsI
 
 def _test():

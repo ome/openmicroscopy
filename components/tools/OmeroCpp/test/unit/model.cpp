@@ -204,10 +204,10 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
   user->setFirstName(rstring("test"));
   user->setLastName(rstring("user"));
   user->setOmeName(rstring("UUID"));
-  
+
   // possibly setOmeName() and setOmeName(string) ??
   // and then don't need omero/types.h
-  
+
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   // TODOuser->linkExperimenterGroup(group);
   GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
 
   DatasetIPtr d = new DatasetI();
   ImageIPtr   i = new ImageI();
-  
+
   d->linkImage(i);
   BOOST_CHECK( d->sizeOfImageLinks() == 1 );
   d->unlinkImage(i);

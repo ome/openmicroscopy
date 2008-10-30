@@ -8,15 +8,18 @@
 
 package omero.sys;
 
-import java.util.ArrayList;
+import static omero.rtypes.rint;
+import static omero.rtypes.rlist;
+import static omero.rtypes.rlong;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import omero.RInt;
 import omero.RList;
 import omero.RLong;
 import omero.RType;
-import static omero.rtypes.*;
 
 public class ParametersI extends omero.sys.Parameters {
 
@@ -28,6 +31,32 @@ public class ParametersI extends omero.sys.Parameters {
         this.map = map;
     }
 
+    //
+    // Parameters.theFilter
+    //
+    
+    public Parameters noPage() {
+        this.theFilter = null;
+        return this;
+    }
+    
+    public ParametersI page(int offset, int limit) {
+        return this.page(rint(offset), rint(limit));
+    }
+    
+    public ParametersI page(RInt offset, RInt limit) {
+        if (this.theFilter == null) {
+            this.theFilter = new Filter();
+        }
+        this.theFilter.limit = limit;
+        this.theFilter.offset = offset;
+        return this;
+    }
+    
+    //
+    // Parameters.map
+    //
+    
     public ParametersI add(String name, RType r) {
         this.map.put(name, r);
         return this;

@@ -17,6 +17,64 @@ class ParametersI(omero.sys.Parameters):
     def __init__(self, map = {}):
         self.map = map
 
+    #
+    # Parameters.theFilter
+    #
+
+    def noPage(self):
+        self.theFilter = None
+        return self
+
+    def page(self, offset, limit):
+        if not self.theFilter:
+            self.theFilter = Filter()
+        self.theFilter.limit = rint(limit)
+        self.theFilter.offset = rint(offset)
+        return self
+
+    #
+    # Parameters.map
+    #
+    
+    public ParametersI add(String name, RType r) {
+        this.map.put(name, r);
+        return this;
+    }
+
+    public ParametersI addId(long id) {
+        add("id", rlong(id));
+        return this;
+    }
+
+    public ParametersI addId(RLong id) {
+        add("id", id);
+        return this;
+    }
+
+    public ParametersI addIds(Collection<Long> longs) {
+        addLongs("ids", longs);
+        return this;
+    }
+
+    public ParametersI addLong(String name, long l) {
+        add(name, rlong(l));
+        return this;
+    }
+
+    public ParametersI addLong(String name, RLong l) {
+        add(name, l);
+        return this;
+    }
+
+    public ParametersI addLongs(String name, Collection<Long> longs) {
+        RList rlongs = rlist();
+        for (Long l : longs) {
+            rlongs.add( rlong(l) );
+        }
+        this.map.put(name, rlongs);
+        return this;
+    }
+
     def add(self, name, rtype):
         self.map[name] = rtype
         return self

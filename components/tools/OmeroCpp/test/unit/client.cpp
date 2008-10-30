@@ -31,12 +31,11 @@ BOOST_AUTO_TEST_CASE( ClientWithInitializationData )
 BOOST_AUTO_TEST_CASE( ClientWithInitializationData2 )
 {
   Fixture f;
-  int argc = 1;
+  int argc = 2;
   char* argv[] = {"program", "--omero.host=localhost",0};
   Ice::InitializationData id;
-  id.properties = Ice::createProperties(argc,argv); // #2
-  std::string s = id.properties->getProperty("omero.host");
+  id.properties = Ice::createProperties(argc, argv); // #2
+  omero::client c(id);
+  std::string s = c.getProperty("omero.host");
   BOOST_CHECK_MESSAGE( s == "localhost", s + " should be localhost" );
-  omero::client(argc,argv,id);
 }
-

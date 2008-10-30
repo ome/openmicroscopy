@@ -29,7 +29,7 @@ import Ice.Current;
  * static factory methods. Where possible, factory methods return cached values
  * (the fly-weight pattern) such that <code>rbool(true) == rbool(true)</code>
  * might hold true.
- *
+ * 
  * This class is fairly non-traditional Java and instead is more like a Python
  * module or static methods in C++ to keep the three language bindings fairly in
  * step.
@@ -37,6 +37,46 @@ import Ice.Current;
 public abstract class rtypes {
 
     // Static state at bottom
+
+    /**
+     * Attempts to dispatch to the other omero.rtypes.* static methods
+     * to create a proper {@link RType} subclass by checking the type
+     * of the input. If null is given, null is returned. Otherwise, where
+     * possible an {@link RType} is returned, else {@link ClientError} is
+     * thrown.
+     */
+    public static omero.RType rtype(Object obj) {
+        if (obj == null) {
+            return null;
+        } else if (obj instanceof Boolean) {
+            return rbool((Boolean) obj);
+        } else if (obj instanceof Double) {
+            return rdouble((Double) obj);
+        } else if (obj instanceof Float) {
+            return rfloat((Float) obj);
+        } else if (obj instanceof Long) {
+            return rlong((Long) obj);
+        } else if (obj instanceof Integer) {
+            return rint((Integer) obj);
+        } else if (obj instanceof String) {
+            return rstring((String) obj);
+        } else if (obj instanceof IObject) {
+            return robject((IObject) obj);
+        } else if (obj instanceof Internal) {
+            return rinternal((Internal) obj);
+        } else if (obj instanceof Date) {
+            return rtime(((Date) obj).getTime());
+        } else if (obj instanceof List) {
+            return rlist((List) obj);
+        } else if (obj instanceof Set) {
+            return rset((Set) obj);
+        } else if (obj instanceof Map) {
+            return rmap((Map) obj);
+        } else {
+            throw new ClientError("Cannot handle conversion from: "
+                    + obj.getClass());
+        }
+    }
 
     // Static factory methods (primitives)
     // =========================================================================
@@ -839,7 +879,7 @@ public abstract class rtypes {
         /**
          * Specifies the type that can be expected from the
          * {@link #convert(IceMapper)} method.
-         *
+         * 
          * @return
          */
         public Class<?> type();
@@ -847,7 +887,7 @@ public abstract class rtypes {
         /**
          * Convert the "val" field on the given RType instance to an ome.model.*
          * representation.
-         *
+         * 
          * @param mapper
          * @return
          * @throws ApiUsageException
