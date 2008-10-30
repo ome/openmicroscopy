@@ -17,6 +17,7 @@ public class DisablingTest extends AbstractManagedContextTest {
 
     @Test
     public void testSimpleDisabling() throws Exception {
+        loginRoot();
         loadSucceeds();
         securitySystem.disable("load");
         loadFails();
@@ -30,6 +31,7 @@ public class DisablingTest extends AbstractManagedContextTest {
      */
     @Test
     public void testDoesntGetsReset() throws Exception {
+        loginRoot();
         securitySystem.disable("load");
         loadFails(); // this implicitly resets
         assertTrue(securitySystem.isDisabled("load"));

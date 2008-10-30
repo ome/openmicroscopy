@@ -105,6 +105,11 @@ public interface SessionManager extends ApplicationListener {
      */
     int close(String uuid);
 
+    /**
+     * Close all sessions with checking for the necessary reference counts.
+     */
+    int closeAll();
+    
     // Security methods
     // =========================================================================
 

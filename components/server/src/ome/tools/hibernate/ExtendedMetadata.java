@@ -87,9 +87,13 @@ public class ExtendedMetadata implements ApplicationListener {
 
         ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
         ApplicationContext ctx = cre.getApplicationContext();
-        SessionFactory sessionFactory = (SessionFactory) ctx
-                .getBean("sessionFactory");
-        setSessionFactory(sessionFactory);
+        if (ctx.containsBean("sessionFactory")) {
+            SessionFactory sessionFactory = (SessionFactory) ctx
+                    .getBean("sessionFactory");
+            setSessionFactory(sessionFactory);
+        } else {
+            log.warn("No session factory found. Cannot initialize");
+        }
     }
 
     /**
@@ -150,9 +154,9 @@ public class ExtendedMetadata implements ApplicationListener {
     }
 
     /**
-     * walks the {@link IObject} argument <em>non-</em>recursively and
-     * gathers all attached {@link IObject} instances which may need to be
-     * locked by the creation or updating of the argument.
+     * walks the {@link IObject} argument <em>non-</em>recursively and gathers
+     * all attached {@link IObject} instances which may need to be locked by the
+     * creation or updating of the argument.
      * 
      * @param iObject
      *            A newly created or updated {@link IObject} instance which

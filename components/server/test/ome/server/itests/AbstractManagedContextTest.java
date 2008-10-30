@@ -152,6 +152,11 @@ public class AbstractManagedContextTest extends
         loginRoot();
 
     }
+    
+    @Override
+    protected void onTearDown() throws Exception {
+        sessionManager.closeAll();
+    }
 
     protected void loginRoot() {
 

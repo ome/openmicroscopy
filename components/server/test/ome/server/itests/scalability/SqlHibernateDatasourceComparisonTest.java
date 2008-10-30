@@ -27,17 +27,16 @@ import org.hibernate.stat.Statistics;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 
-@Test(groups = { "integration" })
+@Test(enabled = false, groups = { "integration" })
 public class SqlHibernateDatasourceComparisonTest extends TestCase {
 
-    static {
-        System.setProperty("dataSource", "dbcpDataSource");
-    }
     static final String select = "select p from Pixels p ";
     static final String idsin = "p.id in (220, 221, 222, 223, 224, 225, 226, 227, 228, 229)";
     static final String alone_q = select + "where " + idsin;
@@ -47,12 +46,28 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
     static final String channels_q = select
             + "left outer join fetch p.channels where " + idsin;
 
-    ManagedContextFixture fixture = new ManagedContextFixture();
-    DataSource ds = (DataSource) fixture.ctx.getBean("dataSource");
-    SessionFactory omesf = (SessionFactory) fixture.ctx
-            .getBean("sessionFactory");
-    SessionFactory rawsf = loadSessionFactory(ds);
-
+    String oldProperty;
+    ManagedContextFixture fixture;
+    DataSource ds;
+    SessionFactory omesf;
+    SessionFactory rawsf;
+    
+    @BeforeClass
+    public void setup() {
+        oldProperty = System.getProperty("dataSource");
+        System.setProperty("dataSource", "dbcpDataSource");
+        fixture = new ManagedContextFixture();
+        ds = (DataSource) fixture.ctx.getBean("dataSource");
+        omesf = (SessionFactory) fixture.ctx
+                .getBean("sessionFactory");
+        rawsf = loadSessionFactory(ds);
+    }
+    
+    @AfterClass
+    public void tearDown() {
+        System.setProperty("dataSource", oldProperty);
+    }
+    
     private SessionFactory loadSessionFactory(DataSource source) {
         Properties p = (Properties) fixture.ctx.getBean("hibernateProperties");
         FilterDefinitionFactoryBean fdfb = new FilterDefinitionFactoryBean();
