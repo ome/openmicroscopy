@@ -35,20 +35,20 @@ class PermissionsI(_omero_model.Permissions):
 
       def __init__(self, l = -1):
             super(PermissionsI, self).__init__()
-            self.perm1 = l
+            self._perm1 = l
             self.setGroupWrite(False)
             self.setWorldWrite(False)
             self.setLocked(False)
             pass
 
       def granted(self, mask, shift):
-            return (self.perm1 & (mask<<shift)) == (mask<<shift)
+            return (self._perm1 & (mask<<shift)) == (mask<<shift)
 
       def set(self, mask, shift, on):
             if on:
-                  self.perm1 = (self.perm1 | ( 0L | (mask<<shift)))
+                  self._perm1 = (self._perm1 | ( 0L | (mask<<shift)))
             else:
-                  self.perm1 = (self.perm1 & (-1L ^ (mask<<shift)))
+                  self._perm1 = (self._perm1 & (-1L ^ (mask<<shift)))
 
       # shift 8; mask 4
       def isUserRead(self):
@@ -98,10 +98,10 @@ class PermissionsI(_omero_model.Permissions):
       # Accessors; do not use
 
       def getPerm1(self):
-          return self.perm1
+          return self._perm1
 
       def setPerm1(self, _perm1):
-          self.perm1 = value
+          self._perm1 = _perm1
           pass
 
       def __str__(self):
@@ -113,6 +113,41 @@ class PermissionsI(_omero_model.Permissions):
           vals.append(self.isWorldRead() and "r" or "-")
           vals.append(self.isWorldWrite() and "w" or "-")
           return "".join(vals)
+
+
+      def ice_postUnmarshal(self):
+          """
+          Provides additional initialization once all data loaded
+          Required due to __getattr__ implementation.
+          """
+          pass # Currently unused
+
+
+      def ice_preMarshal(self):
+          """
+          Provides additional validation before data is sent
+          Required due to __getattr__ implementation.
+          """
+          pass # Currently unused
+
+      def __getattr__(self, attr):
+          if attr == "perm1":
+              return self.getPerm1()
+          else:
+              raise AttributeError(attr)
+
+      def  __setattr__(self, attr, value):
+        if attr.startswith("_"):
+            self.__dict__[attr] = value
+        else:
+            try:
+                object.__getattribute__(self, attr)
+                object.__setattr__(self, attr, value)
+            except AttributeError:
+                if attr == "perm1":
+                    return self.setPerm1(value)
+                else:
+                    raise
 
 _omero_model.PermissionsI = PermissionsI
 

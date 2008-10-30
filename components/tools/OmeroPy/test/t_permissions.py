@@ -27,7 +27,7 @@ class TestPermissions(unittest.TestCase):
         self.assert_( not  self.p.isLocked() ) # flags reversed
 
         # All off
-        self.p.perm1 = 0L
+        self.p._perm1 = 0L
         self.assert_( not  self.p.isUserRead() )
         self.assert_( not  self.p.isUserWrite() )
         self.assert_( not  self.p.isGroupRead() )
@@ -37,7 +37,7 @@ class TestPermissions(unittest.TestCase):
         self.assert_( self.p.isLocked() ) # flags reversed
 
         # All on
-        self.p.perm1 = -1L
+        self.p._perm1 = -1L
         self.assert_( self.p.isUserRead() )
         self.assert_( self.p.isUserWrite() )
         self.assert_( self.p.isGroupRead() )
