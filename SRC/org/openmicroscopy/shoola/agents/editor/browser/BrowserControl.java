@@ -307,17 +307,37 @@ public class BrowserControl
 	  }
 	
 	/**
-	 * Edits a field by creating and adding a new Parameter.
+	 * Edits a field by changing one parameter for another.
+	 * If param is null, this simply removes the param at defined index. 
 	 * 
 	 * @param field		The field to add a new parameter to.
-	 * @param paramType		A string defining the type of parameter to add.
-	 * @param tree			The JTree to refresh with undo/redo
+	 * @param param		The new parameter to add. 
+	 * @param index		The index of the parameters to swap. 
+	 * @param tree		The JTree to refresh with undo/redo
 	 * @param node		The node to highlight / refresh with undo/redo. 
 	 */
 	public void changeParam(IField field, IParam param, int index,
 			JTree tree, TreeNode node) {
 		
 		UndoableEdit edit = new ChangeParamEdit(param, field, index, 
+			 tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by changing one parameter for another.
+	 * If newParam is null, this simply removes the oldParam. 
+	 * 
+	 * @param newParam	The new parameter
+	 * @param oldParam 	The old parameter to replace.
+	 * @param field		The field to add a new parameter to.
+	 * @param tree		The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void changeParam(IParam newParam, IParam oldParam, IField field,
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new ChangeParamEdit(newParam, oldParam, field, 
 			 tree, node);
 		undoSupport.postEdit(edit);
 	}

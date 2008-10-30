@@ -72,7 +72,7 @@ public class TextFieldEditor
 	{
 		String value = getParameter().getAttribute(attributeName);
 		
-		textField = new CustomTextField(150);		// 150 width
+		textField = new CustomTextField();	
 		AttributeEditListeners.addListeners(textField, this, attributeName);
 		
 		textField.setText(value);

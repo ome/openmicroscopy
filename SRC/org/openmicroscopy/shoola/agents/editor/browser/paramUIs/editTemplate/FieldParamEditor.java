@@ -56,7 +56,6 @@ import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
-import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
@@ -66,7 +65,11 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
  * This is the UI Panel that is displayed on the right of the screen, for
  * editing the parameters of the currently selected field. 
  * Similar to {@link FieldContentEditor} except this class does not display
- * the text content of the field (descriptions); it only shows the parameters. 
+ * the text content of the field (descriptions); it only shows the parameters.
+ * 
+ * Each parameter is edited via a {@link ParamEditor}. This class is a
+ * {@link PropertyChangeListener}, listens for changes to {@link ParamEditor}s, 
+ * and manages the posting of parameter edits to the {@link BrowserControl}.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -154,7 +157,7 @@ public class FieldParamEditor
 		
 		// For each parameter of this field, add the components for
 		// editing their default or template values. 
-		addFieldContents();
+		addParameters();
 		
 		this.setLayout(new BorderLayout());
 		add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -164,42 +167,9 @@ public class FieldParamEditor
 	}
 
 	/**
-	 * Each parameter editing component is added here.
-	 * This class becomes a property change listener for each one.
-	 * 
-	 * @param defaultEdit	A component for editing the defaults of each param
+	 * Add additional UI components for editing the parameters of this field.
 	 */
-	private void addFieldComponent(IParam param) 
-	{
-		JComponent defaultEdit = ParamTemplateUIFactory.
-			getEditDefaultComponent(param);
-		
-		if (defaultEdit == null) return;
-		
-		attributeFieldsPanel.add(Box.createVerticalStrut(5));
-		attributeFieldsPanel.add(new JSeparator());
-		attributeFieldsPanel.add(Box.createVerticalStrut(3));
-		// add name field
-		AttributeEditLine nameEditor = new AttributeEditNoLabel
-			(param, AbstractParam.PARAM_NAME, "Parameter Name");
-		nameEditor.addPropertyChangeListener
-			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		attributeFieldsPanel.add(nameEditor);
-	
-		attributeFieldsPanel.add(defaultEdit);
-		defaultEdit.addPropertyChangeListener( 
-				ITreeEditComp.VALUE_CHANGED_PROPERTY, 
-				this);
-	}
-
-	/**
-	 * Add additional UI components for editing the value of this field.
-	 * This deals with "Additional" parameters, not the first one, which
-	 * is a special case (added earlier). 
-	 * Uses the {@link ParamTemplateUIFactory} to create the UI components,
-	 * depending on the value type
-	 */
-	private void addFieldContents() 
+	private void addParameters() 
 	{
 		attributeFieldsPanel.add(createParamsHeader());
 		
@@ -211,11 +181,29 @@ public class FieldParamEditor
 			if (content instanceof IParam) {
 				IParam param = (IParam)content;
 				
-				addFieldComponent(param);
+				addParam(param);
 			}
 		}
 	}
-	
+
+	/**
+	 * Each parameter editing component is added here.
+	 * An appropriate UI component is created for each type of Parameter. 
+	 * This class becomes a property change listener for each one.
+	 * 
+	 * @param param 	The parameter to add. 
+	 */
+	private void addParam(IParam param) 
+	{
+		ParamEditor pe = new ParamEditor(param, this);
+		
+		pe.addPropertyChangeListener(ParamEditor.PARAM_TYPE, this);
+		attributeFieldsPanel.add(Box.createVerticalStrut(10));
+		attributeFieldsPanel.add(new JSeparator());
+		attributeFieldsPanel.add(Box.createVerticalStrut(10));
+		attributeFieldsPanel.add(pe);
+	}
+
 	/**
 	 * Builds and returns the header for the list of parameters. 
 	 * Has a label, and a button for adding parameters. 
@@ -235,26 +223,6 @@ public class FieldParamEditor
 				new CustomLabel("Parameters:"), BorderLayout.WEST);
 		
 		return addParamsHeader;
-	}
-
-	/**
-	 * Changes the Parameter type of the first parameter of this field.
-	 * In future, it may be preferable to allow users to change the type
-	 * of other parameters of this field, depending on selection etc. 
-	 * 
-	 * @param newType	A String that defines the type of parameter selected
-	 */
-	private void paramTypeChanged(String newType) {
-		
-		int paramIndex = 0;
-		
-		IParam newParam = null;
-		if (newType != null) 
-			newParam = FieldParamsFactory.getFieldParam(newType);
-		
-		// if newParam is null, this will simply remove first parameter
-		controller.changeParam(field, newParam, paramIndex,
-				 tree, treeNode);
 	}
 
 	/**
@@ -287,7 +255,22 @@ public class FieldParamEditor
 		
 		String propName = evt.getPropertyName();
 		
-		//System.out.println("FieldEditorPanel propertyChanege: " + propName);
+		System.out.println("FieldParamEditor propertyChanege: " + propName);
+		
+		if (ParamEditor.PARAM_TYPE.equals(propName)) { 
+			if (evt.getSource() instanceof ParamEditor) {
+				
+				IParam oldParam = ((ParamEditor)evt.getSource()).getParameter();
+				IParam newParam = null;
+				String newType = evt.getNewValue().toString();
+				if (newType != null) 
+				newParam = FieldParamsFactory.getFieldParam(newType);
+				          
+				// if newParam is null, this will simply remove first parameter
+				controller.changeParam(newParam, oldParam, field, 
+								tree, treeNode);
+			}
+		}
 				
 		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(propName)) {
 			

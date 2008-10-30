@@ -115,6 +115,33 @@ public class ChangeParamEdit
 		}
 	}
 	
+	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param newParam		The new parameter to add
+	 * @param oldParam		The old parameter to replace
+	 * @param field			The field to change parameters
+	 * @param tree			The tree in which the field exists.
+	 * @param node			The treeNode in which the field exists.
+	 */
+	public ChangeParamEdit(IParam newParam, IParam oldParam, IField field, 
+			JTree tree, TreeNode node) 
+	{
+		super(tree);
+		
+		this.field = field;
+		
+		this.newParam = newParam;
+		
+		this.node = node;
+		
+		this.oldParam = oldParam;
+		
+		doEdit();
+	}
+	
+	
 	/**
 	 * Creates an instance.
 	 * 
@@ -136,6 +163,8 @@ public class ChangeParamEdit
 		this.paramIndex = index;
 		
 		this.node = node;
+		
+		oldParam = field.getContentAt(paramIndex);
 		
 		doEdit();
 	}
@@ -167,8 +196,7 @@ public class ChangeParamEdit
 		if (!canDo()) return;
 		
 		if (field.getContentCount() > paramIndex) {
-			oldParam = field.getContentAt(paramIndex);
-			field.removeContent(oldParam);	
+			paramIndex = field.removeContent(oldParam);	
 		}
 		if (newParam != null)
 			field.addContent(paramIndex, newParam);
