@@ -22,10 +22,10 @@ import omero, Ice
 
 def rtype(val):
     """
-    Attempts to dispatch to the other omero.rtypes.* static methods
+    If None or an RType, return the argument itself. Otherwise,
+    attempts to dispatch to the other omero.rtypes.* static methods
     to create a proper {@link RType} subclass by checking the type
-    of the input. If null is given, null is returned. Otherwise, where
-    possible an {@link RType} is returned, else {@link ClientError} is
+    of the input. If no conversion is found, a {@link ClientError} is
     thrown.
 
     Note: unlike the statically typed languages, the rtype implementation
@@ -35,6 +35,8 @@ def rtype(val):
     """
     if val == None:
         return None
+    elif isinstance(val, omero.RType):
+        return val
     elif isinstance(val,bool):
         return rbool(val)
     elif isinstance(val, int):
@@ -246,7 +248,7 @@ class RBoolI(omero.RBool):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -302,7 +304,7 @@ class RDoubleI(omero.RDouble):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -357,7 +359,7 @@ class RFloatI(omero.RFloat):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -412,7 +414,7 @@ class RIntI(omero.RInt):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -467,7 +469,7 @@ class RLongI(omero.RLong):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -522,7 +524,7 @@ class RTimeI(omero.RTime):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -580,7 +582,7 @@ class RInternalI(omero.RInternal):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -635,7 +637,7 @@ class RObjectI(omero.RObject):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -690,7 +692,7 @@ class RStringI(omero.RString):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -745,7 +747,7 @@ class RClassI(omero.RClass):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -830,7 +832,7 @@ class RArrayI(omero.RArray):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -913,7 +915,7 @@ class RListI(omero.RList):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -996,7 +998,7 @@ class RSetI(omero.RSet):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:
@@ -1072,7 +1074,7 @@ class RMapI(omero.RMap):
             raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
-        if attr == "val" or attr == "_val":
+        if attr == "val":
             if self.__dict__.has_key("_val"):
                 raise omero.ClientError("Cannot write to val")
             else:

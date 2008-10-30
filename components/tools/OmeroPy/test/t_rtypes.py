@@ -17,6 +17,7 @@ class TestModel(unittest.TestCase):
 
     def testConversionMethod(self):
         self.assertEquals(None, rtype(None))
+        self.assertEquals(rlong(1), rtype(rlong(1))) # Returns self
         self.assertEquals(rbool(True), rtype(True))
         # Unsupported
         # self.assertEquals(rdouble(0), rtype(Double.valueOf(0)))

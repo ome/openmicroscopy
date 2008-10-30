@@ -48,6 +48,8 @@ public abstract class rtypes {
     public static omero.RType rtype(Object obj) {
         if (obj == null) {
             return null;
+	} else if (obj instanceof omero.RType) {
+	    return (omero.RType) obj;
         } else if (obj instanceof Boolean) {
             return rbool((Boolean) obj);
         } else if (obj instanceof Double) {

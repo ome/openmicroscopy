@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( AddBasicInt )
     BOOST_CHECK_EQUAL(rint(1), p->map["int"]);
 }
 
-BOOST_AUTO_TEST_CASE( AddIntRaw )
+BOOST_AUTO_TEST_CASE( AddIdRaw )
 {
     ParametersIPtr p = new ParametersI();
     p->addId(1);

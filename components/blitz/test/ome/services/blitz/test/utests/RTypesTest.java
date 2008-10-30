@@ -45,6 +45,7 @@ public class RTypesTest{
     @Test
     public void testConversionMethod() {
         assertNull(rtype(null));
+	assertEquals(rlong(1), rtype(rlong(1))); // Returns self
         assertEquals(rbool(true), rtype(Boolean.valueOf(true)));
         assertEquals(rdouble(0), rtype(Double.valueOf(0)));
         assertEquals(rfloat(0), rtype(Float.valueOf(0)));
