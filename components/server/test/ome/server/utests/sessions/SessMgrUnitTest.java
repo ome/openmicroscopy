@@ -14,8 +14,10 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.AuthenticationException;
+import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -37,6 +39,7 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
+import org.springframework.context.event.ApplicationEventMulticaster;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -68,8 +71,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         }
     }
 
-    private final OmeroContext oc = new OmeroContext(
-            "classpath:ome/testing/empty.xml");
+    private OmeroContext ctx;
+    private ApplicationEventMulticaster multicaster;
     private final MockServiceFactory sf = new MockServiceFactory();
     private Mock exMock;
     private TestManager mgr;
@@ -88,6 +91,10 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @BeforeTest
     public void config() {
 
+        ctx = new OmeroContext("classpath:ome/services/messaging.xml");
+        multicaster = (ApplicationEventMulticaster) ctx
+                .getBean("applicationEventMulticaster");
+
         exMock = mock(Executor.class);
         sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockUpdate = mock(LocalUpdate.class);
@@ -95,12 +102,13 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         cache = new SessionCache();
         cache.setCacheManager(CacheManager.getInstance());
+        cache.setApplicationContext(ctx);
 
         mgr = new TestManager();
         mgr.setRoles(new Roles());
         mgr.setSessionCache(cache);
         mgr.setExecutor((Executor) exMock.proxy());
-        mgr.setApplicationContext(oc);
+        mgr.setApplicationContext(ctx);
         mgr.setDefaultTimeToIdle(100 * 1000L);
         mgr.setDefaultTimeToLive(300 * 1000L);
 
@@ -249,16 +257,30 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     @Test
     public void testThatTimedOutSessionsAreMarkedAsSuch() throws Exception {
-        // With a restricted cache something should get push out.
-        // mgr.setCache(new TestCache("quick", 1, 0, 0, null));
+
+        // Create a session cache which checks frequently for stale keys
+        cache = new SessionCache();
+        cache.setUpdateInterval(10);
+        cache.setCacheManager(CacheManager.getInstance());
+        cache.setApplicationContext(ctx);
 
         prepareSessionCreation();
         Session s1 = mgr.create(principal, credentials);
-
-        prepareSessionCreation();
-        Session s2 = mgr.create(principal, credentials);
-        assertTrue(mgr.find(s1.getUuid()) == null
-                || mgr.find(s2.getUuid()) == null);
+        s1.setTimeToIdle(2000L);
+        mgr.update(s1);
+        Thread.sleep(3000L);
+        try {
+            mgr.find(s1.getUuid());
+            fail("This should throw on the lookup and not before");
+        } catch (SessionTimeoutException ste) {
+            // ok
+        }
+        try {
+            assertNull(mgr.find(s1.getUuid()));
+            fail("This should also throw");
+        } catch (RemovedSessionException rse) {
+            // ok
+        }
     }
 
     @Test
@@ -277,7 +299,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         };
         sf.mockUpdate.expects(once()).method("saveObject").with(closedSession);
         mgr.close(session.getUuid());
-        assertNull(mgr.find(session.getUuid()));
+        try {
+            mgr.find(session.getUuid());
+            fail("Should throw");
+        } catch (RemovedSessionException rse) {
+            // ok
+        }
 
     }
 

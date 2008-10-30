@@ -216,7 +216,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         SessionContext ctx = currentDatabaseShapshot(principal, session);
 
         // This the publishEvent returns successfully, then we will have to
-        // handle rolling back this addition our selvces
+        // handle rolling back this addition our selves
         cache.putSession(session.getUuid(), ctx);
         try {
             context.publishEvent(new CreateSessionMessage(this, session
@@ -343,24 +343,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         if (refCount < 1) {
 
             final Session s = ctx.getSession();
-            final DestroySessionMessage destroy = new DestroySessionMessage(
-                    this, s.getUuid());
 
             try {
-                // Publishing event before we close the session so that any
-                // listeners can do necessary work.
-                context.publishEvent(destroy);
-            } catch (RuntimeException re) {
-                log.warn("Session destruction cancelled by event listener", re);
-                throw re;
+                s.setClosed(new Timestamp(System.currentTimeMillis()));
+                update(s);
+            } catch (Exception e) {
+                log.error("FAILED TO CLOSE SESSION IN DATABASE: " + uuid);
+            } finally {
+                // Guaranteed to not throw; publishes a Message
+                cache.removeSession(uuid);
             }
-
-            // If this publishEvent returns successfully, then we update our
-            // cache since ehcache is not tx-friendly.
-            s.setClosed(new Timestamp(System.currentTimeMillis()));
-            update(s);
-            cache.removeSession(uuid);
-
+            
             return -2;
         } else {
             return refCount;

@@ -68,6 +68,7 @@
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
     <property name="cacheManager"  ref="cacheManager"/>
+    <property name="updateInterval" value="1800000"/><!-- ms -->
   </bean>
 
   <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"

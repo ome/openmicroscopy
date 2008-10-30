@@ -18,13 +18,19 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.conditions.InternalException;
 import ome.conditions.SessionException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
+import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.system.OmeroContext;
 
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ApplicationEventMulticaster;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -35,6 +41,7 @@ import org.testng.annotations.Test;
 @Test(groups = "sessions")
 public class SessionCacheTest extends TestCase {
 
+    OmeroContext ctx = new OmeroContext(new String[]{"classpath:ome/services/messaging.xml"});
     SessionCache cache;
     final boolean[] called = new boolean[2];
 
@@ -46,7 +53,17 @@ public class SessionCacheTest extends TestCase {
 
     private void initCache(int timeToIdle) {
         cache = new SessionCache();
+        cache.setUpdateInterval(10000L);
+        cache.setApplicationContext(ctx);
         cache.setCacheManager(CacheManager.getInstance());
+        // Waiting a second to let the fresh cache cool down.
+        while (cache.getLastUpdated() == System.currentTimeMillis()) {
+            try {
+                Thread.sleep(10L);
+            } catch (InterruptedException e) {
+                // ok
+            }
+        }
     }
 
     public void testSimpleListener() {
@@ -67,18 +84,17 @@ public class SessionCacheTest extends TestCase {
 
         cache.setStaleCacheListener(doesSomething);
         before = cache.getLastUpdated();
-        cache.setNeedsUpdate(true);
+        cache.updateEvent(new UserGroupUpdateEvent(this));
         cache.getIds();
         after = cache.getLastUpdated();
         assertTrue(called[0]);
         assertTrue(after > before);
-        assertFalse(cache.getNeedsUpdate());
 
         cache.setStaleCacheListener(doesNothing);
 
         before = cache.getLastUpdated();
         try {
-            cache.setNeedsUpdate(true);
+            cache.updateEvent(new UserGroupUpdateEvent(this));
             fail("This should fail");
         } catch (InternalException e) {
             // ok
@@ -86,8 +102,7 @@ public class SessionCacheTest extends TestCase {
 
         after = cache.getLastUpdated();
         assertTrue(called[0]);
-        assertEquals(after, before);
-        assertTrue(cache.getNeedsUpdate());
+        assertEquals(0, after); // Time gets reset to force constant retrying.
     }
 
     List<Long> ids = Arrays.asList(1L);
@@ -140,7 +155,7 @@ public class SessionCacheTest extends TestCase {
     public void testNoSuccessfulListenersThrowsExceptionOnUpdate() {
         initCache(1000);
         try {
-            cache.setNeedsUpdate(true);
+            cache.updateEvent(new UserGroupUpdateEvent(this));
             fail("Should throw internal exception");
         } catch (InternalException ie) {
             // ok
@@ -185,7 +200,7 @@ public class SessionCacheTest extends TestCase {
         });
 
         try {
-            cache.setNeedsUpdate(true);
+            cache.updateEvent(new UserGroupUpdateEvent(this));
             cache.getIds();
             fail("throw!");
         } catch (InternalException ie) {
@@ -207,7 +222,7 @@ public class SessionCacheTest extends TestCase {
         final Session s = sess();
         cache.putSession(s.getUuid(), sc(s));
         try {
-            cache.setNeedsUpdate(true);
+            cache.updateEvent(new UserGroupUpdateEvent(this));
             fail("throw!");
         } catch (InternalException ie) {
             // ok.
@@ -268,6 +283,90 @@ public class SessionCacheTest extends TestCase {
 
     }
 
+    @Test
+    public void testMessageShouldBeRaisedOnRemoveSession() throws Exception {
+        
+        class Listener implements ApplicationListener {
+            boolean called = false;
+            public void onApplicationEvent(ApplicationEvent arg0) {
+                    called = true;
+            }
+        }
+        
+        String uuid = UUID.randomUUID().toString();
+        Listener listener = new Listener();
+        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        multicaster.addApplicationListener(listener);
+        Session s = sess();
+        cache.putSession(uuid, sc(s));
+        cache.removeSession(uuid);
+        assertTrue(listener.called);
+    }
+    
+    @Test
+    public void testMessageShouldBeRaisedOnTimeout() throws Exception {
+        
+        class Listener implements ApplicationListener {
+            boolean called = false;
+            public void onApplicationEvent(ApplicationEvent arg0) {
+                    called = true;
+            }
+        }
+        
+        String uuid = UUID.randomUUID().toString();
+        Listener listener = new Listener();
+        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        multicaster.addApplicationListener(listener);
+        Session s = sess();
+        s.setTimeToLive(1L);
+        cache.putSession(uuid, sc(s));
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 1000L) {
+            Thread.sleep(200L);
+        }
+        try {
+            cache.getSessionContext(uuid);
+            fail("Should throw");
+        } catch (SessionTimeoutException ste) {
+            // ok;
+        }
+        assertTrue(listener.called);
+    }
+    
+    @Test
+    public void testMessageShouldBeRaisedOnUpdateNeeded() throws Exception {
+        
+        class Listener implements ApplicationListener {
+            boolean called = false;
+            public void onApplicationEvent(ApplicationEvent arg0) {
+                    called = true;
+            }
+        }
+        
+        StaleCacheListener stale = new StaleCacheListener() {
+
+            public SessionContext reload(SessionContext context) {
+                return context;
+            }
+            
+        };
+        cache.setStaleCacheListener(stale);
+        
+        String uuid = UUID.randomUUID().toString();
+        Listener listener = new Listener();
+        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        multicaster.addApplicationListener(listener);
+        Session s = sess();
+        s.setTimeToLive(1L);
+        cache.putSession(uuid, sc(s));
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 1000L) {
+            Thread.sleep(200L);
+        }
+        cache.updateEvent(new UserGroupUpdateEvent(this));
+        assertTrue(listener.called);
+    }
+    
     // Helpers
     // ====================
 

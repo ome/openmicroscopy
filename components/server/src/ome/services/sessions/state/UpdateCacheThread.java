@@ -8,6 +8,7 @@
 package ome.services.sessions.state;
 
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -40,7 +41,7 @@ public class UpdateCacheThread extends ExecutionThread {
 
         public Object doWork(TransactionStatus status,
                 org.hibernate.Session session, ServiceFactory sf) {
-            cache.doUpdate();
+            cache.updateEvent(new UserGroupUpdateEvent(this));
             return null;
         }
     }

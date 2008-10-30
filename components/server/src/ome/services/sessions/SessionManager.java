@@ -11,6 +11,7 @@ import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
 import ome.conditions.RemovedSessionException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.services.util.Executor;
@@ -86,7 +87,13 @@ public interface SessionManager extends ApplicationListener {
 
     /**
      * @param sessionId
-     * @return A current session. Null if the session id is not found.
+     * @return A current session.
+     * @throws SessionTimeoutException
+     *             if the session has timed out during this call. It will then
+     *             be removed and subsequent calls will throw a
+     *             {@link RemovedSessionException}
+     * @throws RemovedSessionException
+     *             if a previous call already excised this session
      */
     Session find(String uuid);
 
