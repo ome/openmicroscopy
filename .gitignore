@@ -34,3 +34,8 @@ config.log
 *generated*
 test-output
 temp-testng-customsuite.xml
+
+# Scons output files
+.sconsign.dblite
+*.dylib
+*.os

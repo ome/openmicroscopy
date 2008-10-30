@@ -12,6 +12,7 @@
 using namespace std;
 using namespace omero::api;
 using namespace omero::model;
+using namespace omero::rtypes;
 using namespace omero::sys;
 
 BOOST_AUTO_TEST_CASE( Counts )
@@ -19,8 +20,8 @@ BOOST_AUTO_TEST_CASE( Counts )
     try {
         Fixture f;
 
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
+	const omero::client_ptr client = f.login();
+	ServiceFactoryPrx sf = client->getSession();
 	IAdminPrx admin = sf->getAdminService();
 	IQueryPrx query = sf->getQueryService();
 	IUpdatePrx update = sf->getUpdateService();
@@ -28,7 +29,7 @@ BOOST_AUTO_TEST_CASE( Counts )
 	long usr = admin->getEventContext()->userId;
 
 	ImageIPtr img = new ImageI();
-        img->setName( new omero::RString("name") );
+        img->setName( rstring("name") );
 	TagAnnotationIPtr tag = new TagAnnotationI();
 	img->linkAnnotation( tag );
 	img = ImageIPtr::dynamicCast( update->saveAndReturnObject( img ) );
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE( Counts )
         q << "select img from Image img ";
         q << "join fetch img.annotationLinksCountPerOwner ";
         q << "where img.id = ";
-        q << img->getId()->val;
+        q << img->getId()->getValue();
 	img = ImageIPtr::dynamicCast( query->findByQuery(q.str(), 0) );
 
 	BOOST_CHECK( img->getAnnotationLinksCountPerOwner()[usr] > 0 );

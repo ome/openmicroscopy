@@ -12,6 +12,8 @@
 #include <omero/API.h>
 #include <omero/System.h>
 
+using namespace omero::rtypes;
+
 // DISABLED
 
 BOOST_AUTO_TEST_CASE( VectorArgs )
@@ -20,7 +22,7 @@ BOOST_AUTO_TEST_CASE( VectorArgs )
   omero::sys::LongList idList(ids,ids+3);
   copy(idList.begin(), idList.end(), std::ostream_iterator<Ice::Long>(std::cout, "\n"));
   omero::sys::ParamMap pm;
-  pm["user"] = new omero::CLong(1L);
+  pm["user"] = rlong(1L);
 
   // Need a way to mock
   //omero::api::IPojosPrx pojoPrx();

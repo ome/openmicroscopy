@@ -29,7 +29,7 @@ import Ice.Current;
  * static factory methods. Where possible, factory methods return cached values
  * (the fly-weight pattern) such that <code>rbool(true) == rbool(true)</code>
  * might hold true.
- * 
+ *
  * This class is fairly non-traditional Java and instead is more like a Python
  * module or static methods in C++ to keep the three language bindings fairly in
  * step.
@@ -160,10 +160,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Boolean.class;
         }
@@ -201,10 +201,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Double.class;
         }
@@ -241,10 +241,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Float.class;
         }
@@ -280,10 +280,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Integer.class;
         }
@@ -319,10 +319,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Long.class;
         }
@@ -358,10 +358,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Timestamp.class;
         }
@@ -399,8 +399,8 @@ public abstract class rtypes {
         public omero.Internal getValue(Current __current) {
             return val;
         }
-        
-        public int compare(RType rhs, Ice.Current current) { 
+
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
 
@@ -443,10 +443,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return IObject.class;
         }
@@ -482,10 +482,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return String.class;
         }
@@ -521,10 +521,10 @@ public abstract class rtypes {
             return val;
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Class.class;
         }
@@ -574,10 +574,10 @@ public abstract class rtypes {
             }
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return RType[].class; // FIXME not exactly correct.
         }
@@ -655,10 +655,10 @@ public abstract class rtypes {
             }
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return List.class;
         }
@@ -721,8 +721,8 @@ public abstract class rtypes {
                 val = new ArrayList<RType>(arg);
             }
         }
-        
-        public int compare(RType rhs, Ice.Current current) { 
+
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
 
@@ -782,10 +782,10 @@ public abstract class rtypes {
             }
         }
 
-        public int compare(RType rhs, Ice.Current current) { 
+        public int compare(RType rhs, Ice.Current current) {
             throw new UnsupportedOperationException();
         }
-        
+
         public Class<?> type() {
             return Map.class;
         }
@@ -839,7 +839,7 @@ public abstract class rtypes {
         /**
          * Specifies the type that can be expected from the
          * {@link #convert(IceMapper)} method.
-         * 
+         *
          * @return
          */
         public Class<?> type();
@@ -847,7 +847,7 @@ public abstract class rtypes {
         /**
          * Convert the "val" field on the given RType instance to an ome.model.*
          * representation.
-         * 
+         *
          * @param mapper
          * @return
          * @throws ApiUsageException
@@ -901,9 +901,9 @@ public abstract class rtypes {
 
     // Object factories
     // =========================================================================
-    
+
     public final static Map<Class, ObjectFactory> ObjectFactories;
-    
+
     static {
         Map<Class, ObjectFactory> factories = new HashMap<Class, ObjectFactory>();
         factories.put(RBool.class, new ObjectFactory(RBool.ice_staticId()) {

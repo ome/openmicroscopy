@@ -24,6 +24,7 @@ using namespace std;
 using namespace omero;
 using namespace omero::api;
 using namespace omero::model;
+using namespace omero::rtypes;
 using namespace omero::sys;
 
 void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
@@ -55,7 +56,7 @@ StringSet stringSet(string s, string s2){
 class SearchFixture {
     string _name;
     Fixture f;
-    const omero::client* client;
+    omero::client_ptr client;
     ServiceFactoryPrx sf;
 public:
     SearchFixture() {
@@ -100,9 +101,9 @@ public:
     }
     ExperimenterIPtr newUser() {
 	ExperimenterIPtr e = new ExperimenterI();
-	e->setOmeName( new omero::RString(uuid()) );
-	e->setFirstName( new omero::RString("name") );
-	e->setLastName( new omero::RString("name") );
+	e->setOmeName( rstring(uuid()) );
+	e->setFirstName( rstring("name") );
+	e->setLastName( rstring("name") );
 	long id = admin()->createUser(e, "default");
 	return ExperimenterIPtr::dynamicCast(query()->get("Experimenter",id));
     }
@@ -166,7 +167,7 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 
 	string uuid = f.uuid();
         ImageIPtr i = new ImageI();
-        i->setName(new omero::RString(uuid));
+        i->setName(rstring(uuid));
 	i = ImageIPtr::dynamicCast( update->saveAndReturnObject(i) );
 
 	/*
@@ -203,7 +204,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
 	string uuid = f.uuid();
 	ImageIPtr i = new ImageI();
-        i->setName( new omero::RString(uuid) );
+        i->setName( rstring(uuid) );
 
         IObjectPtr obj =  f.update()->saveAndReturnObject(i);
         root.update()->indexObject(obj);
@@ -217,7 +218,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
         // Add id filter
         omero::sys::LongList ids;
-        ids.push_back(obj->getId()->val);
+        ids.push_back(obj->getId()->getValue());
         search->onlyIds(ids);
         search->byFullText(uuid);
         assertResults(1, search);
@@ -235,7 +236,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
         // Add user filter
         DetailsIPtr rootonly = new DetailsI();
-        rootonly->owner = new ExperimenterI(0L, false);
+        rootonly->setOwner( new ExperimenterI(0L, false) );
         search->onlyOwnedBy( rootonly );
         search->byFullText( uuid );
         assertResults(0, search);
@@ -270,10 +271,10 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     string tagStr = f.uuid();;
 
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(tagStr));
+    tag->setTextValue(rstring(tagStr));
 
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(groupStr));
+    grp->setTextValue(rstring(groupStr));
 
     tag->linkAnnotation(grp);
     tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
@@ -302,13 +303,13 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
 
     long oldUser = f.admin()->getEventContext()->userId;
     DetailsIPtr d = new DetailsI();
-    d->setOwner(new ExperimenterI(new omero::RLong(oldUser), false));
+    d->setOwner(new ExperimenterI(rlong(oldUser), false));
 
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f2(e->getOmeName()->val);
+    SearchFixture f2(e->getOmeName()->getValue());
     grp = new TagAnnotationI();
     groupStr = f2.uuid();;
-    grp->setTextValue(new omero::RString(groupStr));
+    grp->setTextValue(rstring(groupStr));
     tag->linkAnnotation(grp);
     tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
@@ -336,10 +337,10 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
     string tagStr = f.uuid();;
 
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(tagStr));
+    tag->setTextValue(rstring(tagStr));
 
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(groupStr));
+    grp->setTextValue(rstring(groupStr));
 
     tag->linkAnnotation(grp);
     tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
@@ -368,14 +369,14 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
 
     long oldUser = f.admin()->getEventContext()->userId;
     DetailsIPtr d = new DetailsI();
-    d->setOwner(new ExperimenterI(new omero::RLong(oldUser), false));
+    d->setOwner(new ExperimenterI(rlong(oldUser), false));
 
     SearchFixture root("root");
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f2(e->getOmeName()->val);
+    SearchFixture f2(e->getOmeName()->getValue());
     tag = new TagAnnotationI();
     tagStr = f2.uuid();;
-    tag->setTextValue(new omero::RString(tagStr));
+    tag->setTextValue(rstring(tagStr));
     tag->linkAnnotation(new TagAnnotationI(grp->getId(), false));
     tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
@@ -403,14 +404,14 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     SearchFixture f;
     SearchFixture root("root");
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(f.uuid()));
+    i->setName(rstring(f.uuid()));
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
-    search->byFullText(i->getName()->val);
+    search->byFullText(i->getName()->getValue());
     int count = 0;
     IObjectPtr obj;
     while (search->hasNext()) {
@@ -422,7 +423,7 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     search->close();
 
     search->onlyType("Image");
-    search->byFullText(i->getName()->val);
+    search->byFullText(i->getName()->getValue());
     assertResults(1, search);
 
     search->close();
@@ -447,7 +448,7 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
     SearchFixture root("root");
 
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString("abc def ghi"));
+    i->setName(rstring("abc def ghi"));
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     root.update()->indexObject(i);
 
@@ -576,9 +577,9 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     SearchFixture root("root");
     string uuid = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(uuid));
+    i->setName(rstring(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
     i->linkAnnotation(tag);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     root.update()->indexObject(i);
@@ -586,7 +587,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     SearchPrx search = f.search();
     search->onlyType("Image");
     TagAnnotationIPtr example = new TagAnnotationI();
-    example->setTextValue(new omero::RString(uuid));
+    example->setTextValue(rstring(uuid));
     byAnnotatedWith(search, example);
 
     assertResults(1, search);
@@ -616,7 +617,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
 
     // Finding by superclass
     TextAnnotationIPtr txtAnn = new TextAnnotationI();
-    txtAnn->setTextValue(new omero::RString(uuid));
+    txtAnn->setTextValue(rstring(uuid));
     byAnnotatedWith(search, txtAnn);
     assertResults(1, search);
 }
@@ -627,14 +628,14 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
     ImageIPtr i1 = new ImageI();
-    i1->setName( new omero::RString("i1") );
+    i1->setName( rstring("i1") );
     ImageIPtr i2 = new ImageI();
-    i2->setName( new omero::RString("i2") );
+    i2->setName( rstring("i2") );
 
     SearchFixture f;
     string uuid = f.uuid();;
     TagAnnotationIPtr ta = new TagAnnotationI();
-    ta->setTextValue(new omero::RString(uuid));
+    ta->setTextValue(rstring(uuid));
     BooleanAnnotationIPtr ba = new BooleanAnnotationI();
     ba->setBoolValue(false);
     i1->linkAnnotation(ta);
@@ -645,7 +646,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
     i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
 
     ta = new TagAnnotationI();
-    ta->setTextValue(new omero::RString(uuid));
+    ta->setTextValue(rstring(uuid));
     ba = new BooleanAnnotationI();
     ba->setBoolValue(false);
 
@@ -680,17 +681,17 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     SearchFixture root("root");
     string uuid = f.uuid();;
     ImageIPtr i1 = new ImageI();
-    i1->setName( new omero::RString(uuid) );
+    i1->setName( rstring(uuid) );
     ImageIPtr i2 = new ImageI();
-    i2->setName(new omero::RString(uuid));
+    i2->setName(rstring(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
     i1->linkAnnotation(tag);
     i2->linkAnnotation(tag);
     i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
     i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
     root.update()->indexObject(i1);
     root.update()->indexObject(i2);
 
@@ -746,27 +747,27 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
 
     SearchFixture root("root");
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f(e->getOmeName()->val);
+    SearchFixture f(e->getOmeName()->getValue());
     DetailsIPtr user = new DetailsI();
     user->setOwner(e);
 
     string name = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->setName( new omero::RString(name) );
+    i->setName( rstring(name) );
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     i->linkAnnotation(tag);
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(name));
+    grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     // Recreating instance as example
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
     long id = f.admin()->getEventContext()->userId;
-    ExperimenterIPtr self = new ExperimenterI(new omero::RLong(id), false);
+    ExperimenterIPtr self = new ExperimenterI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setOwner(self);
 
@@ -856,30 +857,30 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     
     SearchFixture root("root");
     ExperimenterIPtr e = root.newUser();
-    SearchFixture f(e->getOmeName()->val);
+    SearchFixture f(e->getOmeName()->getValue());
     ExperimenterGroupIPtr g = new ExperimenterGroupI
-	(new omero::RLong(f.admin()->getEventContext()->groupId), false);
+	(rlong(f.admin()->getEventContext()->groupId), false);
     
     DetailsIPtr user = new DetailsI();
-    user->group = g;
+    user->setGroup( g );
     
     string name = f.uuid();
     ImageIPtr i = new ImageI();
-    i->setName( new omero::RString(name) );
+    i->setName( rstring(name) );
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     i->linkAnnotation(tag);
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(name));
+    grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     // Recreating instance as example
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
     long id = f.admin()->getEventContext()->groupId;
-    ExperimenterGroupIPtr self = new ExperimenterGroupI(new omero::RLong(id), false);
+    ExperimenterGroupIPtr self = new ExperimenterGroupI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setGroup(self);
 
@@ -970,7 +971,7 @@ omero::RTimePtr oneHourAgo() {
     tm* mn = localtime(&start);
     mn->tm_hour = mn->tm_hour - 1;
     Ice::Long millis = mktime(mn) * 1000;
-    return new omero::RTime(millis);
+    return rtime(millis);
 }
 
 omero::RTimePtr inOneHour() {
@@ -978,14 +979,14 @@ omero::RTimePtr inOneHour() {
     tm* mn = localtime(&start);
     mn->tm_hour = mn->tm_hour + 1;
     Ice::Long millis = mktime(mn) * 1000;
-    return new omero::RTime(millis);
+    return rtime(millis);
 }
 
 omero::RTimePtr now() {
     time_t start = time (NULL);
     tm* mn = localtime(&start);
     Ice::Long millis = mktime(mn) * 1000;
-    return new omero::RTime(millis);
+    return rtime(millis);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
@@ -993,16 +994,16 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     SearchFixture root("root");
     string name = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(name));
+    i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     i->linkAnnotation(tag);
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(name));
+    grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -1107,16 +1108,16 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     SearchFixture root("root");
     string name = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(name));
+    i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     i->linkAnnotation(tag);
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(name));
+    grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -1218,16 +1219,16 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     SearchFixture root("root");
     string name = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(name));
+    i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     i->linkAnnotation(tag);
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(name));
+    grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(name));
+    tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -1330,16 +1331,16 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
     string name = f.uuid();
     string tag = f.uuid();
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(name));
+    i->setName(rstring(name));
     TagAnnotationIPtr t = new TagAnnotationI();
-    t->setTextValue(new omero::RString(tag));
+    t->setTextValue(rstring(tag));
     i->linkAnnotation(t);
     TagAnnotationIPtr grp = new TagAnnotationI();
-    grp->setTextValue(new omero::RString(tag));
+    grp->setTextValue(rstring(tag));
     t->linkAnnotation(grp);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     t = new TagAnnotationI();
-    t->setTextValue(new omero::RString(tag));
+    t->setTextValue(rstring(tag));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -1404,7 +1405,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     SearchFixture root("root");
     string name = f.uuid();
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(name));
+    i->setName(rstring(name));
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
     root.update()->indexObject(i);
@@ -1425,7 +1426,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
 
     // Now let's tag it and see if it shows up
     TagAnnotationIPtr t = new TagAnnotationI();
-    t->setTextValue(new omero::RString(f.uuid()));
+    t->setTextValue(rstring(f.uuid()));
     t = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(t));
 
     ImageAnnotationLinkIPtr link = new ImageAnnotationLinkI();
@@ -1452,16 +1453,16 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
     
     string name = f.uuid();;
     ImageIPtr onlyTag = new ImageI();
-    onlyTag->setName( new omero::RString(name) );
+    onlyTag->setName( rstring(name) );
     ImageIPtr onlyBool = new ImageI();
-    onlyBool->setName( new omero::RString(name) );
+    onlyBool->setName( rstring(name) );
     ImageIPtr both = new ImageI();
-    both->setName( new omero::RString(name) );
+    both->setName( rstring(name) );
 
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString("tag"));
+    tag->setTextValue(rstring("tag"));
     BooleanAnnotationIPtr b = new BooleanAnnotationI();
-    b->setBoolValue(new omero::RBool(false));
+    b->setBoolValue(rbool(false));
 
     onlyTag->linkAnnotation(tag);
     both->linkAnnotation(tag);
@@ -1505,9 +1506,9 @@ BOOST_AUTO_TEST_CASE( testMergedBatches ) {
     string uuid1 = f.uuid();
     string uuid2 = f.uuid();
     ImageIPtr i1 = new ImageI();
-    i1->setName( new omero::RString(uuid1) );
+    i1->setName( rstring(uuid1) );
     ImageIPtr i2 = new ImageI();
-    i2->setName( new omero::RString(uuid2) );
+    i2->setName( rstring(uuid2) );
     i1 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i1) );
     i2 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i2) );
     root.update()->indexObject(i1);
@@ -1538,14 +1539,14 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     SearchFixture root("root");
     string uuid = f.uuid();
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
     ImageIPtr i1 = new ImageI();
-    i1->setName(new omero::RString(uuid));
-    i1->setDescription(new omero::RString("a"));
+    i1->setName(rstring(uuid));
+    i1->setDescription(rstring("a"));
     i1->linkAnnotation(tag);
     ImageIPtr i2 = new ImageI();
-    i2->setName(new omero::RString(uuid));
-    i2->setDescription(new omero::RString("b"));
+    i2->setName(rstring(uuid));
+    i2->setDescription(rstring("b"));
     i2->linkAnnotation(tag);
     i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
     // FIXME Thread.sleep(2000L); // Waiting to test creation time ordering better
@@ -1553,7 +1554,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     root.update()->indexObject(i1);
     root.update()->indexObject(i2);
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1564,8 +1565,8 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     // full text
     search->byFullText(uuid);
     StringSet desc;
-    desc.push_back(i2->getDescription()->val);
-    desc.push_back(i1->getDescription()->val);
+    desc.push_back(i2->getDescription()->getValue());
+    desc.push_back(i1->getDescription()->getValue());
     while (search->hasNext()) {
 	BOOST_CHECK_EQUAL(desc.remove(0), ((Image) search->next())
 		     .getDescription());
@@ -1667,14 +1668,14 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     // description if we reverse the id order
 
     Image i3 = new ImageI();
-    i3->setName(new omero::RString(uuid));
+    i3->setName(rstring(uuid));
     i3->setDescription("a");
     i3->linkAnnotation(tag);
     i3 = f.update()->saveAndReturnObject(i3);
     root.update()->indexObject(i3);
     loginRoot();
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
 
     // multi-ordering
     search->unordered();
@@ -1707,19 +1708,19 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     SearchFixture root("root");
     string uuid = f.uuid();;
     ImageIPtr i = new ImageI();
-    i->setName(new omero::RString(uuid));
+    i->setName(rstring(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
     LongAnnotationIPtr la = new LongAnnotationI();
-    la->setLongValue(new omero::RLong(1L));
+    la->setLongValue(rlong(1L));
     DoubleAnnotationIPtr da = new DoubleAnnotationI();
-    da->setDoubleValue(new omero::RDouble(0.0));
+    da->setDoubleValue(rdouble(0.0));
     i->linkAnnotation(tag);
     i->linkAnnotation(la);
     i->linkAnnotation(da);
     i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
-    tag->setTextValue(new omero::RString(uuid));
+    tag->setTextValue(rstring(uuid));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -1804,7 +1805,7 @@ BOOST_AUTO_TEST_CASE( testTextAnnotationDoesntTryToLoadUpdateEvent ) {
     SearchFixture root("root");
     string uuid = f.uuid();;
     TextAnnotationIPtr ta = new TextAnnotationI();
-    ta->setTextValue(new omero::RString(uuid));
+    ta->setTextValue(rstring(uuid));
     ta = TextAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(ta));
     root.update()->indexObject(ta);
 

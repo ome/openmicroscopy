@@ -10,12 +10,9 @@
 #define OMERO_CLIENT_H
 
 #include <omero/API.h>
-#include <omero/api/Gateway.h>
-#include <omero/api/IScript.h>
 #include <omero/ClientErrors.h>
 #include <omero/Collections.h>
 #include <omero/Constants.h>
-#include <omero/CTypes.h>
 #include <omero/ObjectFactoryRegistrar.h>
 #include <omero/ServerErrors.h>
 #include <omero/System.h>
@@ -44,7 +41,7 @@ namespace omero {
      *    https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign
      *
      */
-    class client : IceUtil::Shared {
+    class client : public IceUtil::Shared {
 
 	// Preventing copy-construction and assigning by value.
     private:

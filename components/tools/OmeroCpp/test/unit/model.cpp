@@ -16,6 +16,7 @@
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/GroupExperimenterMapI.h>
 
+using namespace omero::rtypes;
 using namespace omero::model;
 using namespace omero;
 using namespace std;
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE( SimpleCtor )
 BOOST_AUTO_TEST_CASE( UnloadedCtor )
 {
   Fixture f;
-  ImageIPtr img = new ImageI(new omero::CLong(1),false);
+  ImageIPtr img = new ImageI(rlong(1),false);
   BOOST_CHECK( !(img->isLoaded()) );
   BOOST_CHECK_THROW( img->sizeOfDatasetLinks(), omero::UnloadedEntityException );
 }
@@ -94,17 +95,17 @@ BOOST_AUTO_TEST_CASE( Sequences )
 BOOST_AUTO_TEST_CASE( Accessors )
 {
   Fixture f;
-  RStringPtr name = new CString("name");
+  RStringPtr name = rstring("name");
   ImageIPtr img = new ImageI();
   BOOST_CHECK( !img->getName() );
   img->setName( name );
   BOOST_CHECK( img->getName() );
   RStringPtr str = img->getName();
-  BOOST_CHECK( str->val == "name" );
+  BOOST_CHECK( str->getValue() == "name" );
   BOOST_CHECK( str == name );
 
-  img->setName(new RString("name2"));
-  BOOST_CHECK( img->getName()->val == "name2" );
+  img->setName(rstring("name2"));
+  BOOST_CHECK( img->getName()->getValue() == "name2" );
   BOOST_CHECK( img->getName() );
 
   img->unload();
@@ -115,7 +116,7 @@ BOOST_AUTO_TEST_CASE( Accessors )
 BOOST_AUTO_TEST_CASE( UnloadedAccessThrows )
 {
   Fixture f;
-  ImageIPtr unloaded = new ImageI(new omero::CLong(1),false);
+  ImageIPtr unloaded = new ImageI(rlong(1),false);
   BOOST_CHECK_THROW( unloaded->getName(), omero::UnloadedEntityException );
 }
 
@@ -180,7 +181,7 @@ BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
 
-  map->setId( new omero::CLong(1) );
+  map->setId( rlong(1) );
   map->link(group,user);
   user->addGroupExperimenterMap2( map, false );
   group->addGroupExperimenterMap2( map, false );
@@ -200,9 +201,9 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
 {
   Fixture f;
   ExperimenterIPtr user = new ExperimenterI();
-  user->setFirstName(new omero::CString("test"));
-  user->setLastName(new omero::CString("user"));
-  user->setOmeName(new omero::CString("UUID"));
+  user->setFirstName(rstring("test"));
+  user->setLastName(rstring("user"));
+  user->setOmeName(rstring("UUID"));
   
   // possibly setOmeName() and setOmeName(string) ??
   // and then don't need omero/types.h

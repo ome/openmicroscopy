@@ -7,6 +7,8 @@
  */
 
 #include <omero/sys/ParametersI.h>
+#include <omero/RTypesI.h>
+using omero::rtypes::rlong;
 
 namespace omero {
 
@@ -19,7 +21,7 @@ namespace omero {
         }
 
         ParametersIPtr ParametersI::addId(Ice::Long id, const Ice::Current& current) {
-            map["id"] = new omero::RLong(id);
+            map["id"] = rlong(id);
             return this;
         }
 

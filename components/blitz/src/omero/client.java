@@ -7,6 +7,7 @@
 package omero;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -160,7 +161,7 @@ public class client {
      */
     public client(String[] args, Ice.InitializationData id) {
         if (id.properties == null) {
-            id.properties = Ice.Util.createProperties();
+            id.properties = Ice.Util.createProperties(new String[]{});
         }
         args = id.properties.parseIceCommandLineOptions(args);
         args = id.properties.parseCommandLineOptions("omero", args);
@@ -172,7 +173,7 @@ public class client {
      */
     public client(File... files) {
         Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties();
+        id.properties = Ice.Util.createProperties(new String[]{});
         for (File file : files) {
             id.properties.load(file.getAbsolutePath());
         }
@@ -187,7 +188,7 @@ public class client {
      */
     public client(Map p) {
         Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties();
+        id.properties = Ice.Util.createProperties(new String[]{});
         if (p != null) {
             for (Object key : p.keySet()) {
                 id.properties
@@ -210,7 +211,7 @@ public class client {
         }
 
         if (id.properties == null) {
-            id.properties = Ice.Util.createProperties();
+            id.properties = Ice.Util.createProperties(new String[]{});
         }
 
         // Strictly necessary for this class to work
@@ -248,6 +249,17 @@ public class client {
         router = router.replaceAll("@omero.host@", host);
         id.properties.setProperty("Ice.Default.Router", router);
 
+        // Dump properties
+        String dump = id.properties.getProperty("omero.dump");
+        if (dump != null && dump.length() > 0) {
+            for (String prefix : Arrays.asList("omero", "Ice")) {
+                Map<String, String> prefixed = id.properties.getPropertiesForPrefix(prefix);
+                for (String key : prefixed.keySet()) {
+                    System.out.println(String.format("%s=%s", key, prefixed.get(key)));
+                }
+            }
+        }
+        
         synchronized (lock) {
 
             if (__ic != null) {

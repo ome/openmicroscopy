@@ -11,7 +11,11 @@
 
 // domain
 #include <omero/client.h>
+#include <omero/RTypesI.h>
+#include <omero/ClientErrors.h>
+#include <omero/ServerErrors.h>
 #include <omero/model/ExperimenterI.h>
+
 // boost
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_log.hpp>
@@ -47,10 +51,10 @@ struct Fixture
         b_ut::unit_test_log_t& log();
         bool passed();
         std::string uuid();
-        const omero::client* login(
+        omero::client_ptr login(
                 const std::string& username = std::string(),
                 const std::string& password = std::string());
-        const omero::client* root_login();
+        omero::client_ptr root_login();
 };
 
 //

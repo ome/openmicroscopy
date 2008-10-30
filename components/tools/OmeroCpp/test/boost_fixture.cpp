@@ -40,18 +40,8 @@ Fixture::~Fixture()
     //    results_reporter::detailed_report();
     //    printUnexpected();
     //    show_stackframe();
-    std::vector<omero::client*>::iterator beg = clients.begin();
-    std::vector<omero::client*>::iterator end = clients.end();
-    while (beg != end) {
-        try {
-            omero::client* client = *beg;
-            delete client;
-            beg++;
-        } catch (const std::exception& ex) {
-            std::cout << "Error while closing clients: " << ex.what() << std::endl;
-        }
-    }
 }
+
 
 void Fixture::show_stackframe() {
 #ifdef LINUX
@@ -95,14 +85,17 @@ b_ut::unit_test_log_t& Fixture::log() {
   return b_ut::unit_test_log;
 }
 
-const omero::client* Fixture::login(const std::string& username, const std::string& password) {
+omero::client_ptr Fixture::login(const std::string& username, const std::string& password) {
     try {
-        int argc = 0;
-        char** argv = new char*[0];
-        omero::client* client = new omero::client(argc, argv);
+	// Here we are passing a reference to the top-level
+	// ice.config since boost seems (Oct.2008) to be unable
+	// to pass that information, whether from the command-line
+	// or the environment.
+	int argc = 1;
+	char* argv[] = {"--Ice.Config=../../../etc/ice.config"};
+        omero::client_ptr client = new omero::client(argc, argv);
         client->createSession(username, password);
-        //  client->getSession()->closeOnDestroy(); Default.
-        clients.push_back(client);
+        client->getSession()->closeOnDestroy();
         return client;
     } catch (const Glacier2::CannotCreateSessionException& ccse) {
         BOOST_FAIL("Threw CannotCreateSessionException:" + ccse.reason);
@@ -110,10 +103,8 @@ const omero::client* Fixture::login(const std::string& username, const std::stri
     }
 }
 
-const omero::client* Fixture::root_login() {
-    const omero::client* tmp = login();
-    std::string rootpass = (*tmp).getProperty("omero.rootpass");
+omero::client_ptr Fixture::root_login() {
+    const omero::client_ptr tmp = login();
+    std::string rootpass = tmp->getProperty("omero.rootpass");
     return login("root", rootpass);
 }
-
-

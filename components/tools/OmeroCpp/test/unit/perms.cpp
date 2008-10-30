@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   BOOST_CHECK( ! p->isLocked() ); // flags reversed
 
   // All off
-  p->perm1 = 0L;
+  p->setPerm1( 0L );
   BOOST_CHECK( ! p->isUserRead() );
   BOOST_CHECK( ! p->isUserWrite() );
   BOOST_CHECK( ! p->isGroupRead() );
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   BOOST_CHECK( p->isLocked() ); // flags reversed
   
   // All on
-  p->perm1 = -1L;
+  p->setPerm1( -1L );
   BOOST_CHECK( p->isUserRead() );
   BOOST_CHECK( p->isUserWrite() );
   BOOST_CHECK( p->isGroupRead() );
@@ -60,5 +60,3 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   BOOST_CHECK( !p->isLocked() );
 
 }
-
-

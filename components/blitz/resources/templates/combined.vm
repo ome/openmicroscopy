@@ -73,11 +73,13 @@ DECLARATION BLOCK:
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
 #end
+[$hdr] \#include <omero/RTypes.h>
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
 [$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/model/${Pojo}.h>
 [$hdr] \#include <omero/templates.h>
+
 
 [$ice] module omero {
 [$ice]   module model {
@@ -97,7 +99,6 @@ DECLARATION BLOCK:
 #end##link
 #end##ome
 #end##foreach
-
 
 [$jav] package omero.model;
 [$jav] import java.util.*;
@@ -121,6 +122,8 @@ Note how the whitespace for the python definitions is important.
 [$hdr]     class ${PojoI} : virtual public ${Pojo} { 
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
+[$cpp] \#include <omero/RTypesI.h>
+[$cpp] using omero::rtypes::rlong;
 [$cpp] namespace omero { 
 [$cpp]   namespace model {
 

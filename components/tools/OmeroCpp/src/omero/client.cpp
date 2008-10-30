@@ -9,6 +9,7 @@
 #include <iosfwd>
 #include <sstream>
 #include <omero/client.h>
+#include <omero/RTypesI.h>
 #include <omero/Constants.h>
 
 using namespace std;
@@ -21,7 +22,9 @@ namespace omero {
 	Ice::InitializationData id(data);
 
 	if (!id.properties) {
-	    id.properties = Ice::createProperties();
+	    int argc = 0;
+	    char* argv[] = {0};
+	    id.properties = Ice::createProperties(argc, argv);
 	}
 
 	// Strictly necessary for this class to work
@@ -55,6 +58,7 @@ namespace omero {
 	    stringstream ssport;
 	    ssport << omero::constants::GLACIER2PORT;
 	    id.properties->setProperty("omero.port", ssport.str());
+	    port = ssport.str();
 	}
 
 	// Default Router, set a default and then replace
@@ -70,12 +74,30 @@ namespace omero {
 	if (found != string::npos) {
 	    router.replace(found, h_.length(), host);
 	}
-
 	found = router.rfind(p_);
 	if (found != string::npos) {
-	    router.replace(found, p_.length(), router);
+	    router.replace(found, p_.length(), port);
 	}
+	id.properties->setProperty("Ice.Default.Router", router);
 
+	// Dump properties
+	std::string dump = id.properties->getProperty("omero.dump");
+	if ( dump.length() != 0 ) {
+	    Ice::PropertyDict omeroProperties = id.properties->getPropertiesForPrefix("omero");
+	    Ice::PropertyDict::const_iterator beg = omeroProperties.begin();
+	    Ice::PropertyDict::const_iterator end = omeroProperties.end();
+	    while (beg != end) {
+		std::cout << (*beg).first << "=" << (*beg).second << std::endl;
+		beg++;
+	    }
+	    Ice::PropertyDict iceProperties = id.properties->getPropertiesForPrefix("Ice");
+	    beg = iceProperties.begin();
+	    end = iceProperties.end();
+	    while (beg != end) {
+		std::cout << (*beg).first << "=" << (*beg).second << std::endl;
+		beg++;
+	    }
+	}
 
 	// Synchronization
 	IceUtil::RecMutex::Lock lock(mutex);
@@ -91,8 +113,12 @@ namespace omero {
 	}
 
 	// Register Object Factory
-	ObjectFactoryPtr of = new ObjectFactory();
-	of->registerObjectFactory(ic);
+	omero::registerObjectFactory(ic);
+	map<std::string, omero::rtypes::ObjectFactoryPtr> factories = omero::rtypes::objectFactories();
+	map<std::string, omero::rtypes::ObjectFactoryPtr>::iterator itr;
+	for(itr = factories.begin(); itr != factories.end(); itr++) {
+	    (*itr).second->register_(ic);
+	}
 
 	// Define our unique identifier (used during close/detach)
 	Ice::ImplicitContextPtr ctx = ic->getImplicitContext();
@@ -117,7 +143,10 @@ namespace omero {
 	Ice::InitializationData id(data);
 
 	if ( ! id.properties ) {
-	    id.properties = Ice::createProperties();
+	    // Dummy properties to be passed in.
+	    int _argc = 0;
+	    char* _argv[] = {0};
+	    id.properties = Ice::createProperties(_argc, _argv);
 	}
 
 	Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
@@ -138,11 +167,12 @@ namespace omero {
     // --------------------------------------------------------------------
 
     client::client(const std::string& host, int port) {
-
+	int argc = 0;
+	char* argv[] = {0};
 	stringstream ss;
 	ss << port;
 	Ice::InitializationData id;
-	id.properties = Ice::createProperties();
+	id.properties = Ice::createProperties(argc, argv);
 	id.properties->setProperty("omero.host", host);
 	id.properties->setProperty("omero.port", ss.str());
 	init(id);
@@ -228,7 +258,7 @@ namespace omero {
 
 	// Checking state
 
-	if ( ! sf ) {
+	if ( sf ) {
 	    throw new ClientError(__FILE__, __LINE__,
 				  "Session already active. Create a new omero.client or closeSession()");
 	}
@@ -419,7 +449,12 @@ ostream& operator<<(ostream& os, const omero::model::IObjectPtr ptr) {
     if (!ptr->getId()) {
       os << "null_id";
     } else {
-      os << ptr->getId();
+	omero::RLongPtr id = ptr->getId();
+	if (id) {
+	    os << "null";
+	} else {
+	    os << id->getValue();
+	}
     }
   }
   return os;

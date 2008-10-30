@@ -35,7 +35,7 @@ if not env.GetOption('clean'):
     has_boost = conf.CheckBoost()
     conf.Finish()
 else:
-    has_boost = False
+    has_boost = True
 
 #
 # Build the library
@@ -66,7 +66,7 @@ if has_boost:
     def define_test(dir):
         test =  tenv.Program("test/%s.exe" % dir,
             [main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
-            LIBS=["Ice","Glacier2","IceUtil","omero_client","boost_unit_test_framework-mt"]) # -d
+            LIBS=["Ice","Glacier2","IceUtil","omero_client","boost_unit_test_framework-mt-d"]) # -d
         return test
 
     unit = define_test("unit")

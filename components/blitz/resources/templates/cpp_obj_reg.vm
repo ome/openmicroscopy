@@ -25,26 +25,66 @@
 #end
 
 namespace omero {
-
-    ObjectFactory::ObjectFactory() : Ice::ObjectFactory() {}
-
-    ObjectFactory::~ObjectFactory() {}
-
-    Ice::ObjectPtr ObjectFactory::create(const std::string& type) {
+    
 #foreach($type in $types)
 #if(!$type.abstract)
-    if (0==type.compare("::omero::model::${type.shortname}")) {
-      return new omero::model::${type.shortname}I();
-    }
+#set( $ObjFac = "${type.shortname}ObjectFactory" )
+    class ${ObjFac} : virtual public Ice::ObjectFactory {
+    protected:
+	std::string id;
+    public:
+	${ObjFac}() : Ice::ObjectFactory() {
+	    this->id = omero::model::${type.shortname}I::ice_staticId();
+	}
+
+	~${ObjFac}() {}
+
+	Ice::ObjectPtr create(const std::string& type) {
+	    return new omero::model::${type.shortname}I();
+        }
+
+	void destroy() {}
+    };
 #end
 #end
-    throw "Unknown type" + type;
 
-  }
+    class PermissionsObjectFactory : virtual public Ice::ObjectFactory {
+    protected:
+	std::string id;
+    public:
+	PermissionsObjectFactory() : Ice::ObjectFactory() {
+	    this->id = omero::model::PermissionsI::ice_staticId();
+	}
 
-  void ObjectFactory::destroy() {}
+	~PermissionsObjectFactory() {}
+	
+	Ice::ObjectPtr create(const std::string& type) {
+	    return new omero::model::PermissionsI();	    
+	}
 
-  void ObjectFactory::conditionalAdd(const std::string& name, const Ice::CommunicatorPtr& ic, const Ice::ObjectFactoryPtr& of) {
+	void destroy() {}
+
+    };
+
+    class DetailsObjectFactory : virtual public Ice::ObjectFactory {
+    protected:
+	std::string id;
+    public:
+	DetailsObjectFactory() : Ice::ObjectFactory() {
+	    this->id = omero::model::DetailsI::ice_staticId();
+	}
+
+	~DetailsObjectFactory() {}
+	
+	Ice::ObjectPtr create(const std::string& type) {
+	    return new omero::model::DetailsI();	    
+	}
+
+	void destroy() {}
+
+    };
+
+  void conditionalAdd(const std::string& name, const Ice::CommunicatorPtr& ic, const Ice::ObjectFactoryPtr& of) {
 
     if (0==ic->findObjectFactory(name)) {
       ic->addObjectFactory(of, name);
@@ -52,13 +92,12 @@ namespace omero {
 
   }
 
-  void ObjectFactory::registerObjectFactory(const Ice::CommunicatorPtr ic) {
-    Ice::ObjectFactoryPtr _factory = this;
-    conditionalAdd("::omero::model::Permissions", ic, _factory);
-    conditionalAdd("::omero::model::Details", ic, _factory);
+  void registerObjectFactory(const Ice::CommunicatorPtr ic) {
+    conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
+    conditionalAdd("::omero::model::Details", ic, new DetailsObjectFactory());
 #foreach($type in $types)
 #if(!$type.abstract)
-    conditionalAdd("::omero::model::${type.shortname}", ic,  _factory);
+    conditionalAdd("::omero::model::${type.shortname}", ic,  new ${type.shortname}ObjectFactory());
 #end
 #end
   }

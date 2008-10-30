@@ -17,8 +17,8 @@ BOOST_AUTO_TEST_CASE( GuestLogin )
     try {
         Fixture f;
 
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
+	const omero::client_ptr client = f.login();
+	ServiceFactoryPrx sf = client->getSession();
 
 	sf->getQueryService()->findAll("Experimenter",0);
 

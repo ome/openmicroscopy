@@ -22,23 +22,24 @@ using namespace std;
 using namespace omero::api;
 using namespace omero::model;
 using namespace omero::sys;
+using namespace omero::rtypes;
 
 BOOST_AUTO_TEST_CASE( tagAnnotation )
 {
     try {
 
 	Fixture f;
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
+	const omero::client_ptr client = f.login();
+	ServiceFactoryPrx sf = client->getSession();
 	IQueryPrx q = sf->getQueryService();
 	IUpdatePrx u = sf->getUpdateService();
 
 	TagAnnotationIPtr tag = new TagAnnotationI();
-	tag->setTextValue(new omero::RString("my-first-tag"));
+	tag->setTextValue(rstring("my-first-tag"));
 
 	string uuid = IceUtil::generateUUID();
 	ImageIPtr i = new ImageI();
-	i->setName(new omero::RString(uuid));
+	i->setName(rstring(uuid));
 	i->linkAnnotation(tag);
 	u->saveObject(i);
 
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE( tagAnnotation )
 	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
 	AnnotationPtr a = link->getChild();
 	tag = TagAnnotationIPtr::dynamicCast(a);
-	BOOST_CHECK_EQUAL( "my-first-tag", tag->getTextValue()->val );
+	BOOST_CHECK_EQUAL( "my-first-tag", tag->getTextValue()->getValue() );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;
@@ -63,8 +64,8 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
     try {
 
 	Fixture f;
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
+	const omero::client_ptr client = f.login();
+	ServiceFactoryPrx sf = client->getSession();
 	IQueryPrx q = sf->getQueryService();
 	IUpdatePrx u = sf->getUpdateService();
 
@@ -100,18 +101,18 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 
 	// Create file object
 	FormatIPtr format = new FormatI();
-	format->setValue(new omero::RString("text/xml"));
+	format->setValue(rstring("text/xml"));
 	OriginalFileIPtr file = new OriginalFileI();
 	file->setFormat(format);
-	file->setName(new omero::RString("my-file.xml"));
-	file->setPath(new omero::RString("/tmp"));
-	file->setSha1(new omero::RString("foo"));
-	file->setSize(new omero::RLong(size));
+	file->setName(rstring("my-file.xml"));
+	file->setPath(rstring("/tmp"));
+	file->setSha1(rstring("foo"));
+	file->setSize(rlong(size));
 	file = OriginalFileIPtr::dynamicCast(u->saveAndReturnObject(file));
 
 	// Upload file
 	RawFileStorePrx rfs = sf->createRawFileStore();
-	rfs->setFileId(file->getId()->val);
+	rfs->setFileId(file->getId()->getValue());
 	rfs->write(buf, 0, buf.size());
 	rfs->close();
 
@@ -120,7 +121,7 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 
 	string uuid = IceUtil::generateUUID();
 	ImageIPtr i = new ImageI();
-	i->setName(new omero::RString(uuid));
+	i->setName(rstring(uuid));
 	i->linkAnnotation(attachment);
 	u->saveObject(i);
 
@@ -145,33 +146,33 @@ BOOST_AUTO_TEST_CASE( annotationImmutability )
     try {
 
 	Fixture f;
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
+	const omero::client_ptr client = f.login();
+	ServiceFactoryPrx sf = client->getSession();
 	IQueryPrx q = sf->getQueryService();
 	IUpdatePrx u = sf->getUpdateService();
 
 	TagAnnotationIPtr tag = new TagAnnotationI();
-	tag->setTextValue(new omero::RString("immutable-tag"));
+	tag->setTextValue(rstring("immutable-tag"));
 
 	ImageIPtr i = new ImageI();
-	i->setName(new omero::RString("tagged-image"));
+	i->setName(rstring("tagged-image"));
 	i->linkAnnotation(tag);
 	i = ImageIPtr::dynamicCast( u->saveAndReturnObject(i) );
 	tag = TagAnnotationIPtr::dynamicCast( i->copyAnnotationLinks()[0]->getChild() );
 
-	tag->setTextValue( new omero::RString("modified-tag") );
+	tag->setTextValue( rstring("modified-tag") );
 	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->val) );
+	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->getValue()) );
 
-	BOOST_CHECK_MESSAGE( tag->getTextValue()->val == "immutable-tag", tag->getTextValue()->val );
+	BOOST_CHECK_MESSAGE( tag->getTextValue()->getValue() == "immutable-tag", tag->getTextValue()->getValue() );
 
 	// See #878
         // Annotation.ns is currently modifiable.
-	tag->setNs( new omero::RString("modified-name") );
+	tag->setNs( rstring("modified-name") );
 	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->val) );
+	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->getValue()) );
 
-	BOOST_CHECK_MESSAGE( tag->getNs()->val == "modified-name", tag->getNs() );
+	BOOST_CHECK_MESSAGE( tag->getNs()->getValue() == "modified-name", tag->getNs() );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;

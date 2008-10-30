@@ -173,6 +173,13 @@ class client(object):
         router = router.replace("@omero.host@", str(host))
         id.properties.setProperty("Ice.Default.Router", router)
 
+        # Dump properties
+        dump = id.properties.getProperty("omero.dump")
+        if len(dump) > 0:
+            for prefix in ["omero","Ice"]:
+                for k,v in id.properties.getPropertiesForPrefix(prefix).items():
+                    print "%s=%s" % (k,v)
+
         self.__lock.acquire()
         try:
             if self.__ic:
