@@ -143,10 +143,13 @@ class SoftwareUpdateDialog
 			}
 		
 		});
-        p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(Color.WHITE);
         p.setOpaque(true);
-        content.add(new JLabel(icon), "0, 0");
+        JLabel l = new JLabel(icon);
+        l.setBackground(Color.WHITE);
+        content.setBackground(Color.WHITE);
+        content.add(l, "0, 0");
         content.add(p, "1, 0, 2, 0");
        
         JPanel c = new JPanel();

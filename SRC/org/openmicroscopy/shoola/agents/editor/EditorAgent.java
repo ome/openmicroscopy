@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.editor;
 
 
 //Java imports
-import java.io.File;
 import java.util.Map;
 import java.util.Set;
 

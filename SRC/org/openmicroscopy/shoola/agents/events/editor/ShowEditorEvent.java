@@ -22,17 +22,16 @@
  */
 package org.openmicroscopy.shoola.agents.events.editor;
 
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Posting this event simply requests that OMERO.editor agent becomes 
- * active. 
+ * Requests that OMERO.editor agent becomes active. 
  * If any instances of it are already open, they will become activated,
  * otherwise, a blank editor window will open. 
  *
@@ -48,11 +47,8 @@ public class ShowEditorEvent
 	extends RequestEvent
 {
 	
-	/**
-	 * Creates a new instance.
-	 */
-	public ShowEditorEvent()
-	{}
+	/** Creates a new instance. */
+	public ShowEditorEvent() {}
 	
 } 
 

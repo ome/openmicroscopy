@@ -326,6 +326,7 @@ class MetadataViewerModel
 	{
 		DataSaver loader = new DataSaver(component, data, toAdd, toRemove);
 		loader.load();
+		state = MetadataViewer.SAVING;
 	}
 	
 	/**
@@ -337,6 +338,7 @@ class MetadataViewerModel
 	{
 		ExperimenterEditor loader = new ExperimenterEditor(component, data);
 		loader.load();
+		state = MetadataViewer.SAVING;
 	}
 	
 	/**

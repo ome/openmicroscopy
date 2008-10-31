@@ -156,7 +156,9 @@ class MetadataViewerControl
 				UIUtilities.centerAndShow(loadingWindow);
 				break;
 			case MetadataViewer.LOADING_METADATA:
+			case MetadataViewer.SAVING:
 				model.setStatus(true);
+				break;
 		}
 	}
 

@@ -30,14 +30,6 @@ package org.openmicroscopy.shoola.env.data.model;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RDouble;
-import omero.RFloat;
-import omero.RInt;
-import omero.RString;
-import omero.model.Channel;
-import omero.model.LogicalChannel;
-import omero.model.StatsInfo;
-import pojos.ChannelData;
 
 /** 
  * Helper class used to map core object to 

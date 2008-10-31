@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import javax.swing.Action;
 
 
 //Third-party libraries
@@ -34,7 +33,6 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Brings up on screen the {@link Editor}.

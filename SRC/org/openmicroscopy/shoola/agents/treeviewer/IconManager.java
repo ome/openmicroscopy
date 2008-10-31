@@ -296,11 +296,14 @@ public class IconManager
     /** The <code>Plate Annotated</code> icon. */
     public static int           PLATE_ANNOTATED = 80;
     
+    /** The <code>Plate Annotated</code> icon. */
+    public static int           EDITOR = 81;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 80;
+    private static int          MAX_ID = 81;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -390,6 +393,7 @@ public class IconManager
         	"nuvola_folder_blue_open_modified_screen_annotated16.png";
         relPaths[PLATE_ANNOTATED] ="plate_annotated16.png";
         relPaths[PLATE] ="plate16.png";
+        relPaths[EDITOR] ="plate16.png";
     }
     
     /** The sole instance. */

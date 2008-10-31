@@ -215,6 +215,10 @@ class ChannelAcquisitionComponent
             	if (value instanceof Number) {
             		area = UIUtilities.createComponent(
              				 NumericalTextField.class, null);
+            		if (value instanceof Double) 
+                		((NumericalTextField) area).setNumberType(Double.class);
+                	else if (value instanceof Float) 
+            			((NumericalTextField) area).setNumberType(Float.class);
              		 ((NumericalTextField) area).setText(""+value);
              		((NumericalTextField) area).setEditedColor(
              				UIUtilities.EDITED_COLOR);

@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CutAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
@@ -258,6 +259,9 @@ class TreeViewerControl
 	/** Identifies the <code>Create project</code> in the File menu. */
 	static final Integer    NEW_OBJECT = new Integer(42);
 	
+	/** Identifies the <code>Launch Editor</code> in the menu. */
+	static final Integer    EDITOR = new Integer(43);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -333,6 +337,7 @@ class TreeViewerControl
 						CreateTopContainerAction.SCREEN));
 		actionsMap.put(VIEW, new ViewImageAction(model));
 		actionsMap.put(NEW_OBJECT, new NewObjectAction(model));
+		actionsMap.put(EDITOR, new EditorAction(model));
 	}
 
 	/** 

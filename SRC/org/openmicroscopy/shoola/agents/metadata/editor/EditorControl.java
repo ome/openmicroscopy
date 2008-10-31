@@ -167,7 +167,8 @@ class EditorControl
 			view.setDataToSave(view.hasDataToSave());
 		} else if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
 			view.saveData();
-		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name)) {
+		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name) ||
+				MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)) {
 			view.clearData();
 		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
 			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());

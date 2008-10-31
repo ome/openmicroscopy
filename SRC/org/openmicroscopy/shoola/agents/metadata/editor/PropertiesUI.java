@@ -25,12 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +39,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-
 
 //Third-party libraries
 import layout.TableLayout;
@@ -222,36 +215,6 @@ class PropertiesUI
     	pane.setWrapStyleWord(true);
     	pane.setOpaque(false);
     	pane.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	pane.addMouseListener(new MouseAdapter() {
-		
-			/**
-			 * Sets the border of the component when the mouse is pressed.
-			 */
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-				super.mousePressed(e);
-				Object src = e.getSource();
-				if (src instanceof JTextArea) {
-					((JTextArea) src).setBorder(
-							BorderFactory.createLineBorder(Color.GRAY));
-				}
-			}
-		
-		});
-    	pane.addFocusListener(new FocusAdapter() {
-		
-    		/**
-			 * Sets the border of the component to <code>null</code>.
-			 */
-			public void focusLost(FocusEvent e) {
-				// TODO Auto-generated method stub
-				super.focusLost(e);
-				Object src = e.getSource();
-				if (src instanceof JTextArea) {
-					((JTextArea) src).setBorder(null);
-				}
-			}
-		});
     	return pane;
     }
 
@@ -503,12 +466,12 @@ class PropertiesUI
 	 */
 	protected void clearData()
 	{
-		namePane.getDocument().removeDocumentListener(this);
-		descriptionPane.getDocument().removeDocumentListener(this);
+		//namePane.getDocument().removeDocumentListener(this);
+		//descriptionPane.getDocument().removeDocumentListener(this);
 		namePane.setText(model.getRefObjectName());
 		descriptionPane.setText(model.getRefObjectDescription());
-		namePane.getDocument().addDocumentListener(this);
-		descriptionPane.getDocument().addDocumentListener(this);
+		//namePane.getDocument().addDocumentListener(this);
+		//descriptionPane.getDocument().addDocumentListener(this);
 		originalName = namePane.getText();
 		originalDescription = descriptionPane.getText();
 		channelsArea.setText("");

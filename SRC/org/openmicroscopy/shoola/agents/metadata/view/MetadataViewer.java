@@ -107,6 +107,9 @@ public interface MetadataViewer
 	/** Flag to denote the <i>Batch Saving</i> state. */
 	public static final int 	BATCH_SAVING = 5;
 	
+	/** Flag to denote the <i>Batch Saving</i> state. */
+	public static final int 	SAVING = 6;
+	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
 	 * and puts the window on screen.

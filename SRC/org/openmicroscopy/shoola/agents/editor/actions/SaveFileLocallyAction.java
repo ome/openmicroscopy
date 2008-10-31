@@ -23,14 +23,12 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -61,75 +59,76 @@ public class SaveFileLocallyAction
 	extends EditorAction
 	implements PropertyChangeListener
 {
+
 	/** The description of the action. */
-    private static final String 	NAME = "Open File";
-    
-	 /** The description of the action. */
-    private static final String 	DESCRIPTION = 
-    								"Open a Local File on your computer";
-    
-    /** Collection of supported file formats. */
+	private static final String 	NAME = "Open File";
+
+	/** The description of the action. */
+	private static final String 	DESCRIPTION = 
+		"Open a Local File on your computer";
+
+	/** Collection of supported file formats. */
 	private List<FileFilter>		filters;
 
-    /** Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-   public SaveFileLocallyAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.SAVE_ICON);
-       
-       filters = new ArrayList<FileFilter>();
-       filters.add(new EditorFileFilter());
-       filters.add(new HTMLFilter());
-   }
-   
-   
-   /**
-    * Brings up on screen the {@link FileChooser}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
+	/** Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public SaveFileLocallyAction(Editor model)
+	{
+		super(model);
+		setEnabled(true);
+		setName(NAME);
+		setDescription(DESCRIPTION);
+		setIcon(IconManager.SAVE_ICON);
+
+		filters = new ArrayList<FileFilter>();
+		filters.add(new EditorFileFilter());
+		filters.add(new HTMLFilter());
+	}
+
+	/**
+	 * Brings up on screen the {@link FileChooser}.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) 
+	{
+		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
 				"Save File", "Choose a location and name to save the file", 
 				filters);
-	   File startDir = UIUtilities.getDefaultFolder();
-	   if (startDir != null)
-		   chooser.setCurrentDirectory(startDir);
-	   chooser.addPropertyChangeListener(
+		File startDir = UIUtilities.getDefaultFolder();
+		if (startDir != null)
+			chooser.setCurrentDirectory(startDir);
+		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
-	   UIUtilities.centerAndShow(chooser);
-   }
+		UIUtilities.centerAndShow(chooser);
+	}
 
-   /**
-    * Responds to the user choosing a file to save.
-    * Calls {@link XMLexport#export(javax.swing.tree.TreeModel, File)
-    * 
-    * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-    */
-   public void propertyChange(PropertyChangeEvent evt) 
-   {
-	   String name = evt.getPropertyName();
+	/**
+	 * Responds to the user choosing a file to save.
+	 * Calls {@link XMLexport#export(javax.swing.tree.TreeModel, File)}
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) 
+	{
+		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File f = (File) evt.getNewValue();
-			
+
 			// if file exists, get user to confirm. Otherwise exit! 
 			if (f.exists()) {
 				String title = "File Exists";
 				String message = "File Exists.\nOverwrite Existing File?";
 				if (! org.openmicroscopy.shoola.agents.editor.uiComponents.
-					UIUtilities.showConfirmDialog(title, message)) {
+						UIUtilities.showConfirmDialog(title, message)) {
 					return;
 				}
 			}
-			
+
 			XMLexport xmlExport = new XMLexport();
 			xmlExport.export(model.getBrowser().getTreeModel(), f);
 		}
-   }
+	}
+	
 }

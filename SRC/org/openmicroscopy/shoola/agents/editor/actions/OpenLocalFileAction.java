@@ -23,14 +23,12 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -102,7 +100,7 @@ public class OpenLocalFileAction
 
    /**
     * Responds to the user choosing a file to open.
-    * Calls {@link Editor#openLocalFile(File)
+    * Calls {@link Editor#openLocalFile(File)}
     * 
     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
     */

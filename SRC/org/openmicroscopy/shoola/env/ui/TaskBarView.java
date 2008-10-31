@@ -173,6 +173,9 @@ class TaskBarView
     /** The original menu bar. */
     private JMenuBar			originalBar;
     
+	/** Reference to the manager. */
+	private TaskBarManager 		manager;
+	
 	/**
 	 * Helper method to create all menu items for the various menus within
 	 * the menu bar.
@@ -191,7 +194,8 @@ class TaskBarView
 									iconManager.getIcon(IconManager.HELP));
 		buttons[HOWTO_MI] = new JMenuItem("How To...",
 									iconManager.getIcon(IconManager.HOW_TO));
-		buttons[UPDATES_MI] = new JMenuItem("About OMERO.insight...",
+		String aboutName = "About "+manager.getSoftwareName()+"...";
+		buttons[UPDATES_MI] = new JMenuItem(aboutName,
 								iconManager.getIcon(IconManager.SW_UPDATES));
 		buttons[ABOUT_MI] = new JMenuItem("About OME",
 												IconManager.getOMEIcon());
@@ -434,9 +438,6 @@ class TaskBarView
 		
 		return bar;
 	}
-	
-	/** Reference to the manager. */
-	private TaskBarManager manager;
 	
 	/**
 	 * Creates a new instance.

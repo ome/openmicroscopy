@@ -550,6 +550,17 @@ public class TaskBarManager
 	 */
 	TaskBar getView() { return view; }
 	
+	/** 
+	 * Returns the name of the software.
+	 * 
+	 * @return See above.
+	 */
+	String getSoftwareName()
+	{ 
+		return (String) container.getRegistry().lookup(
+				LookupNames.SOFTWARE_NAME);
+	}
+	
 	/**
 	 * Intercepts {@link ServiceActivationResponse} events in order to keep
 	 * the connection-related buttons in synch with the actual state of the

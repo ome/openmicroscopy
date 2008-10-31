@@ -102,9 +102,7 @@ public abstract class EditorAction
     /**
      * Sets the Small Icon of the Action. 
      * 
-     * @param iconID	 The IconManager static ID for the Icon. 
-     * 
-     * @see IconManager.getIcon(int)
+     * @param iconID The IconManager static ID for the Icon. 
      */
     protected void setIcon(int iconID) 
     {

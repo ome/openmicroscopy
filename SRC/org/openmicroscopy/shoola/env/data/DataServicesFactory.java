@@ -66,9 +66,6 @@ import pojos.GroupData;
 public class DataServicesFactory
 {
 	
-	/** The name of the Ice configuration file in the config directory. */
-	private static final String		ICE_CONFIG_FILE = "ice.config";
-	
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
@@ -111,25 +108,6 @@ public class DataServicesFactory
 
 	/** The metadata service adapter. */
 	private OmeroMetadataService 	ms;
-    
-	/**
-	 * Reads in the specified file as a property object.
-	 * 
-	 * @param file	Absolute pathname to the file.
-	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occured.
-	 */
-	private Properties loadConfig(String file)
-	{
-		Properties config = new Properties();
-		try { 
-			FileInputStream fis = new FileInputStream(file);
-			config.load(fis);
-		} catch (Exception e) {
-			return null;
-		}
-		return config;
-	}
 	
 	/**
 	 * Attempts to create a new instance.
@@ -320,6 +298,8 @@ public class DataServicesFactory
 			agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS, 
 									groups);
 			agentInfo.getRegistry().bind(LookupNames.USERS_DETAILS, exps);
+			//agentInfo.getRegistry().bind(
+			//        LookupNames.USER_CREDENTIALS, uc);
 		}
 	}
 	

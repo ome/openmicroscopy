@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Toolkit;
-import java.util.regex.Pattern;
-
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -224,13 +222,17 @@ public class NumericalTextField
 			try {
 				if (Integer.class.equals(numberType)) {
 					int val = Integer.parseInt(str);
-		            if (min <= val && val <= max) return true;
+					int m = (int) min;
+					int mx = (int) max;
+		            if (m <= val && val <= mx) return true;
 				} else if (Double.class.equals(numberType)) {
 					double val = Double.parseDouble(str);
 		            if (min <= val && val <= max) return true;
 				} else if (Float.class.equals(numberType)) {
 					float val = Float.parseFloat(str);
-		            if (min <= val && val <= max) return true;
+					float m = (float) min;
+					float mx = (float) max;
+		            if (m <= val && val <= mx) return true;
 				}
 	        } catch(NumberFormatException nfe) {}
 	       return false;
@@ -270,12 +272,13 @@ public class NumericalTextField
 		public void insertString(int offset, String str, AttributeSet a)
 		{
 			try {
-				System.err.println(numberType);
+				
 				if (str == null) return;
 				for (int i = 0; i < str.length(); i++) {
 		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1)
 		                return;
 		        }
+				
 				if (accepted.equals(FLOAT) ||
 				   (accepted.equals(FLOAT+"-") && negativeAccepted)) {
 					if (str.indexOf(".") != -1) {
@@ -283,31 +286,13 @@ public class NumericalTextField
 							return;
 					}
 				}
-
 				if (negativeAccepted && str.indexOf("-") != -1) {
 					if (str.indexOf("-") != 0 || offset != 0 ) {
 						return;
 					}
 				}
-				//if (isInRange(str))
+				if (isInRange(str))
 					super.insertString(offset, str, a);
-				/*
-				if (!Character.isISOControl(str.charAt(0))) {
-					int length = getLength();
-					String text = getText(0, length);
-					//if (isNumber(str)) {
-						switch (length) {
-							case 0:
-								super.insertString(offset, str, a);
-								break;
-							default:
-								if (isInRange(text)) {
-									super.insertString(offset, str, a);
-								}
-						}
-					//} else Toolkit.getDefaultToolkit().beep();
-		    	} else Toolkit.getDefaultToolkit().beep();
-		    	*/
 			} catch (Exception e) {
 				Toolkit.getDefaultToolkit().beep();
 			}

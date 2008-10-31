@@ -57,7 +57,7 @@ public class SwitchUserAction
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Select another " +
-			"user and view his/her data";
+			"user and view his/her data.";
 	
     /** 
      * Enables the action if the browser is not ready.
@@ -85,12 +85,9 @@ public class SwitchUserAction
 	}
 	
     /**
-     * Brings up the swicth user dialog.
+     * Brings up the switch user dialog.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-        model.retrieveUserGroups();
-    }
+    public void actionPerformed(ActionEvent e) { model.retrieveUserGroups(); }
     
 }
