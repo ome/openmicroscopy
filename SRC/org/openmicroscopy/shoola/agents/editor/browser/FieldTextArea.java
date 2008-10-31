@@ -49,7 +49,6 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.CaretListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -82,6 +81,8 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 /** 
  * This Text Area is represents a "Field" (or a node) of the data model tree,
  * when it is displayed in the "Text Document" view (rather than a JTree view).
+ * The text is displayed using a {@link HtmlContentEditor}, but the editing
+ * is managed by this class. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -141,6 +142,13 @@ public class FieldTextArea
 	/** Button to add a parameter into this field. */
 	private JButton 				addParamButton;
 
+	/** Icon for the add-parameter button */
+	private Icon 					addParamIcon;
+	
+	/** Icon for the add-parameter button, to "hide" button without changing
+	 * it's size */
+	private Icon 					blankIcon;
+	
 	/**
 	 * The HTML tag id to use for displaying the Field Name.
 	 * This needs to be all lower case, since the styleSheet text in the
@@ -180,6 +188,9 @@ public class FieldTextArea
 		lb = BorderFactory.createLineBorder(Color.white);
 		unselectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		
+		addParamIcon = IconManager.getInstance().getIcon(IconManager.ADD_NUMBER);
+		blankIcon = IconManager.getInstance().getIcon(IconManager.SPACER);
+		
 		Document d = htmlEditor.getDocument();
 		AbstractDocument doc;
 		if (d instanceof AbstractDocument) {
@@ -201,8 +212,7 @@ public class FieldTextArea
 		
 		add(htmlEditor, BorderLayout.CENTER);
 		
-		Icon addParam = IconManager.getInstance().getIcon(IconManager.ADD_NUMBER);
-		addParamButton = new CustomButton(addParam);
+		addParamButton = new CustomButton(addParamIcon);
 		addParamButton.addActionListener(this);
 
 		JPanel buttonContainer = new JPanel(new BorderLayout());
@@ -210,9 +220,7 @@ public class FieldTextArea
 		buttonContainer.add(addParamButton, BorderLayout.NORTH);
 		add(buttonContainer, BorderLayout.EAST);
 		
-		//setSelected(false);
-		setBorder(unselectedBorder);
-		addParamButton.setVisible(false);
+		setSelected(false);
 	}
 
 	
@@ -500,8 +508,9 @@ public class FieldTextArea
     private void setSelected(boolean selected)
 	{
 		setBorder(selected ? selectedBorder : unselectedBorder);
-		addParamButton.setVisible(selected);
-
+		// don't want to hide the button, or the text will expand to fill! 
+		addParamButton.setIcon(selected ? addParamIcon : blankIcon);
+		addParamButton.setEnabled(selected);
 	}
     
     /**

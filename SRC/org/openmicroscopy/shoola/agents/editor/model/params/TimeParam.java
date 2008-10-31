@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
 import java.sql.Date;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
@@ -133,13 +134,34 @@ public class TimeParam
 		String seconds = getAttribute(SECONDS);
 		if (seconds != null)
 		{
-			Long millis = new Long(seconds) * 1000;
-			Date t = new Date(millis);
-			SimpleDateFormat timeF = new SimpleDateFormat("HH:mm:ss");
-			time = timeF.format(t);
+			int secs = Integer.parseInt(seconds);
+			
+			time = secsToString(secs);
+
 		} else {
 			time = time + " Time not set";
 		}
+		
+		return time;
+	}
+	
+	/**
+	 * Returns a string representation of the seconds, in the form
+	 * HH:MM:SS
+	 * 
+	 * @param secs	number of seconds. 
+	 * @return	see above. 
+	 */
+	public static String secsToString(int secs) 
+	{
+		int hrs = secs/ 3600;
+		secs = secs - (hrs * 3600);
+		int mins = secs / 60;
+		secs = secs - (mins * 60);
+		
+		String time = (hrs < 10 ? "0"+hrs : hrs)  + ":" +
+		(mins < 10 ? "0"+mins : mins)  + ":" +
+		(secs < 10 ? "0"+secs : secs);
 		
 		return time;
 	}

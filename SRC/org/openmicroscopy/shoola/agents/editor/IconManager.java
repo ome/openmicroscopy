@@ -245,12 +245,15 @@ public class IconManager
     /** The <code>Up-Down</code> icon. */
     public  static int			UP_DOWN = 59;
     
+    /** The <code>Spacer-16</code> icon. */
+    public  static int			SPACER = 60;
+    
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 59;
+    private static int          MAX_ID = 60;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -322,6 +325,7 @@ public class IconManager
         relPaths[OMERO_EDITOR] = "omeroEditor16.png";
         relPaths[SAVE_ICON] = "nuvola_filesave16.png";
         relPaths[UP_DOWN] = "upDown.png";
+        relPaths[SPACER] = "spacer16.png";
     }
     
     

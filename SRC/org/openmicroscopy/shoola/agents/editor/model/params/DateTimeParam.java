@@ -161,11 +161,9 @@ public class DateTimeParam
 		String timeSecs = getAttribute(TIME_ATTRIBUTE);
 		if (timeSecs != null)
 		{
-			Long millis = new Long(timeSecs) * 1000;
-			Date time = new Date();
-			time.setTime(millis);
-			SimpleDateFormat timeF = new SimpleDateFormat("h:mm a");
-			text = text + " at " + timeF.format(time);
+			int secs = Integer.parseInt(timeSecs);
+			String time = TimeParam.secsToString(secs);
+			text = text + " at " + time;
 		}
 		return text;
 	}

@@ -84,7 +84,7 @@ public class ContiguousChildSelectionModel
      */
    public void setSelectionPaths(TreePath[] pPaths) 
    { 
-	   if (pPaths.length > 0) {
+	   if ((pPaths != null) && (pPaths.length > 0)) {
 		   TreePath firstPathParent = pPaths[0].getParentPath();
 		   
 		   // If parentPath is null, then the first path is the root.
