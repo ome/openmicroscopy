@@ -322,7 +322,7 @@ public class IconManager
         relPaths[INDENT_LEFT] = "nuvola_indent_left16.png";
         relPaths[TEMPLATE_LOCK] = "nuvola_encrypted16.png";
         relPaths[FULL_LOCK] = "nuvola_encrypted_red16.png";
-        relPaths[OMERO_EDITOR] = "omeroEditor16.png";
+        relPaths[OMERO_EDITOR] = "omeroEditorLink16.png";
         relPaths[SAVE_ICON] = "nuvola_filesave16.png";
         relPaths[UP_DOWN] = "upDown.png";
         relPaths[SPACER] = "spacer16.png";

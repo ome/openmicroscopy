@@ -89,7 +89,7 @@ public class CreateCmd
             case PROJECT: return new ProjectData();
             case DATASET: return new DatasetData(); 
             case SCREEN: return new ScreenData(); 
-            case TAG:  return new TagAnnotationData("");
+            case TAG: return new TagAnnotationData("foo");
             default:
                 throw new IllegalArgumentException("Type not supported");
         }

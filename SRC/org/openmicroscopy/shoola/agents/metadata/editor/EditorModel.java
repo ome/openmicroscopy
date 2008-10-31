@@ -553,25 +553,38 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the rating done by the current user.
+	 * Returns the rating annotation related to the logged in user,
+	 * or <code>null</code> if no annotation.
 	 * 
-	 * @return See above
+	 * @return See above.
 	 */
-	int getUserRating()
+	RatingAnnotationData getUserRatingAnnotation()
 	{
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return 0;
+		if (data == null) return null;
 		Collection ratings = data.getRatings();
-		if (ratings == null || ratings.size() == 0) return 0;
+		if (ratings == null || ratings.size() == 0) return null;
 		Iterator i = ratings.iterator();
 		RatingAnnotationData rate;
 		long id = MetadataViewerAgent.getUserDetails().getId();
 		while (i.hasNext()) {
 			rate = (RatingAnnotationData) i.next();
 			if (rate.getOwner().getId() == id)
-				return rate.getRating();
+				return rate;
 		}
-		return 0;
+		return null;
+	}
+	
+	/**
+	 * Returns the rating done by the current user.
+	 * 
+	 * @return See above
+	 */
+	int getUserRating()
+	{
+		RatingAnnotationData data  = getUserRatingAnnotation();
+		if (data == null) return 0;
+		return data.getRating();
 	}
 	
 	/** 

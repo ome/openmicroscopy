@@ -28,6 +28,10 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -46,11 +50,14 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -61,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.AnnotationData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
@@ -82,7 +90,7 @@ import pojos.URLAnnotationData;
  */
 class AnnotationDataUI
 	extends AnnotationUI
-	implements PropertyChangeListener
+	implements DocumentListener, PropertyChangeListener
 {
 
 	/** Component used to rate the object. */
@@ -133,12 +141,20 @@ class AnnotationDataUI
 	/** Flag indicating that documents have been added or removed. */
 	private boolean							docFlag;
 	
+	/** The collection of tags. */
+	private List<String> 					tagNames;
+	
+	/** The collection of existing tags. */
+	private Map<String, TagAnnotationData>	existingTags;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		urlFlag = false;
 		tagFlag = false;
 		docFlag = false;
+		tagNames = new ArrayList<String>();
+		existingTags = new HashMap<String, TagAnnotationData>();
 		IconManager icons = IconManager.getInstance();
 		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS));
 		UIUtilities.unifiedButtonLookAndFeel(addTagsButton);
@@ -161,6 +177,45 @@ class AnnotationDataUI
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		tagsPane = new JTextPane();
+		tagsPane.getDocument().addDocumentListener(this);
+		tagsPane.addKeyListener(new KeyAdapter() {
+
+            /** Finds the phrase. */
+            public void keyPressed(KeyEvent e)
+            {
+            	Object source = e.getSource();
+            	if (source != tagsPane) return;
+            	/*
+            	switch (e.getKeyCode()) {
+					case KeyEvent.VK_ENTER:
+						handleEnter();
+						break;
+					case KeyEvent.VK_UP:
+						if (historyDialog != null && historyDialog.isVisible())
+							historyDialog.setSelectedIndex(false);
+						break;
+					case KeyEvent.VK_DOWN:
+						if (historyDialog != null && historyDialog.isVisible())
+							historyDialog.setSelectedIndex(true);
+						break;
+				}
+                */
+            }
+        });
+		tagsPane.addMouseListener(new MouseAdapter() {
+    		
+			/**
+			 * Displays the description of the tag 
+			 * @see MouseAdapter#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e) {
+				//handleMousePressed(e.getPoint());
+			}
+		
+		});
+		
+		
+		
 		//tagsPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		tagsPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		tagsPane.setText(DEFAULT_TEXT);
@@ -205,11 +260,13 @@ class AnnotationDataUI
 		
 		content.add(p, "0, "+i+", l, t");
 		content.add(tagsPane, "2, "+i);
+		/*
 		i++;
 		layout.insertRow(i, TableLayout.PREFERRED);
 		content.add(UIUtilities.setTextFont("url", Font.BOLD, size), 
 				"0, "+i+", l, t");
 		content.add(urlPane, "2, "+i);
+		*/
 		i++;
 		layout.insertRow(i, TableLayout.PREFERRED);
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -361,12 +418,48 @@ class AnnotationDataUI
 			}
 		}
 		if (!exist) {
+			existingTags.put(tag.getTagValue(), tag);
 			tagFlag = true;
 			values.add(tagValue);
 			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 					Boolean.TRUE);
 		}
 		layoutTags(values);
+	}
+	
+	/** Handles the text removal. */
+	private void handleTextRemoval()
+	{
+		String value = tagsPane.getText();
+		String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
+		int existing = 0;
+		int newTag = 0;
+		String v;
+		for (int i = 0; i < names.length; i++) {
+			v = names[i];
+			v = v.trim();
+			if (v.length() > 0) {
+				if (!v.equals(DEFAULT_TEXT)) {
+					if (tagNames.contains(names[i])) existing++;
+					else newTag++;
+				}
+			}
+		}
+		if (existing != tagNames.size()) {
+			docFlag = true;
+			return;
+		}
+		docFlag = newTag > 0;
+	}
+	
+	private void attachTagPaneListeners()
+	{
+		
+	}
+	
+	private void removeTagPaneListeners()
+	{
+		
 	}
 	
 	/**
@@ -394,7 +487,9 @@ class AnnotationDataUI
 			else value = value+", "+tag;
 		}
 		buffer.append(value);
+		tagsPane.getDocument().removeDocumentListener(this);
 		tagsPane.setText(buffer.toString());
+		tagsPane.getDocument().addDocumentListener(this);
 	}
 	
 	/** 
@@ -467,6 +562,15 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
+		Collection tags = model.getTags();
+		
+		if (tags != null) {
+			Iterator i = tags.iterator();
+			while (i.hasNext()) {
+				tagNames.add(((TagAnnotationData) i.next()).getTagValue());
+			}
+		}
+		
 		selectedValue = 0;
 		if (!model.isMultiSelection()) 
 		    selectedValue = model.getUserRating();
@@ -517,7 +621,6 @@ class AnnotationDataUI
 	void setExistingTags()
 	{
 		showSelectionWizard();
-		
 	}	
 	
 	/**
@@ -545,9 +648,12 @@ class AnnotationDataUI
 			}
 		}
 		if (!exist) {
+			docFlag = true;
 			doc = new DocComponent(file, model);
 			doc.addPropertyChangeListener(controller);
 			list.add(doc);
+			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+					Boolean.TRUE);
 		}
 		layoutAttachments(list);
 	}
@@ -562,6 +668,7 @@ class AnnotationDataUI
 		Component[] components = docPane.getComponents();
 		List<DocComponent> list = new ArrayList<DocComponent>();
 		DocComponent doc;
+		int count = 0;
 		if (components != null && components.length > 0) {
 			File f;
 			for (int i = 0; i < components.length; i++) {
@@ -569,12 +676,17 @@ class AnnotationDataUI
 					doc = (DocComponent) components[i];
 					if (doc.getData() instanceof File) {
 						f = (File) doc.getData();
-						if (!f.equals(file)) 
+						if (!f.equals(file)) {
+							count++;
 							list.add(doc);
+						}
 					}
 				}
 			}
 		}
+		docFlag = (count != 0);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
 		layoutAttachments(list);
 	}
 	
@@ -588,7 +700,55 @@ class AnnotationDataUI
 	 * Returns the collection of rating to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove() { return null; }
+	protected List<AnnotationData> getAnnotationToRemove()
+	{ 
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		RatingAnnotationData data = model.getUserRatingAnnotation();
+		if (data != null && selectedValue == 0)
+			l.add(data);
+		tagFlag = true;
+		System.err.println(tagFlag);
+		if (tagFlag) {
+			String value = tagsPane.getText();
+			String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
+			String v;
+			List<String> values = new ArrayList<String>();
+			Map<String, TagAnnotationData> 
+				tags = new HashMap<String, TagAnnotationData>();
+			Collection col = model.getTags();
+			if (col != null) {
+				Iterator j = col.iterator();
+				TagAnnotationData tag;
+				while (j.hasNext()) {
+					tag = (TagAnnotationData) j.next();
+					tags.put(tag.getTagValue(), tag);
+				}
+			}
+			
+			for (int i = 0; i < names.length; i++) {
+				v = names[i];
+				v = v.trim();
+				if (v.length() > 0) {
+					if (!v.equals(DEFAULT_TEXT)) {
+						if (tagNames.contains(names[i])) {
+							values.add(v);
+						}
+					}
+				}
+			}
+			if (values.size() != tags.size()) {
+				Iterator<String> k = values.iterator();
+				while (k.hasNext()) {
+					tags.remove(k.next());
+				}
+				k = tags.keySet().iterator();
+				while (k.hasNext()) {
+					l.add(tags.get(k.next()));
+				}
+			}
+		}
+		return l; 
+	}
 
 	/**
 	 * Returns the collection of urls to add.
@@ -597,8 +757,67 @@ class AnnotationDataUI
 	protected List<AnnotationData> getAnnotationToSave()
 	{
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		//int value = model.getRatingAverage();
-		//if (selectedValue != value)
+		if (tagFlag) {
+			String value = tagsPane.getText();
+			String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
+			String v;
+			List<String> values = new ArrayList<String>();
+			for (int i = 0; i < names.length; i++) {
+				v = names[i];
+				v = v.trim();
+				if (v.length() > 0) {
+					if (!v.equals(DEFAULT_TEXT)) {
+						if (!tagNames.contains(names[i])) {
+							if (existingTags.containsKey(v)) 
+								l.add(existingTags.get(v));
+							else values.add(v);
+						}
+					}
+				}
+			}
+			if (values.size() > 0) {
+				Iterator<String> i = values.iterator();
+				while (i.hasNext()) {
+					l.add(new TagAnnotationData(i.next()));
+				}
+			}
+		}
+		
+		if (docFlag) {
+			DocComponent doc;
+			List<File> notSupported = new ArrayList<File>();
+			FileAnnotationData data = null;
+			File f;
+			Component[] components = docPane.getComponents();
+			if (components != null && components.length > 0) {
+				for (int i = 0; i < components.length; i++) {
+					if (components[i] instanceof DocComponent) {
+						doc = (DocComponent) components[i];
+						if (doc.getData() instanceof File) {
+							f = (File) doc.getData();
+							try {
+								data = new FileAnnotationData(f);
+							} catch (Exception e) {
+								notSupported.add(f);
+								data = null;
+							}
+							if (data != null) l.add(data);
+						}
+					}
+				}
+			}
+			if (notSupported.size() > 0) {
+				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+				Iterator<File> k = notSupported.iterator();
+				String s = "";
+				while (k.hasNext()) {
+					s += (k.next()).getName();
+					s += " ";
+				}
+				un.notifyInfo("Attach", 
+						"The following files cannot be attached: \n"+s);
+			}
+		}
 		if (selectedValue != initialValue)
 			l.add(new RatingAnnotationData(selectedValue));
 		return l;
@@ -620,6 +839,8 @@ class AnnotationDataUI
 	 */
 	protected void clearData()
 	{
+		tagNames.clear();
+		existingTags.clear();
 		selectedValue = 0;
 		if (!model.isMultiSelection())
 		    selectedValue = model.getUserRating();
@@ -672,5 +893,34 @@ class AnnotationDataUI
 	    		handleTagEnter((TagAnnotationData) i.next());
 		}
 	}
+	
+	/**
+	 * Synchronizes controls when new text values are entered in the
+	 * {@link #tagsPane}.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		//Auto complete
+	}
+
+	/**
+	 * Synchronizes controls when new text values are entered in the
+	 * {@link #tagsPane}.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		handleTextRemoval();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

@@ -275,19 +275,6 @@ class GeneralPaneUI
 	 */
 	boolean hasDataToSave()
 	{
-		/*
-		if (saved) return false;
-		Object ref = model.getRefObject();
-		if (!(ref instanceof DataObject)) return false;
-		
-		if (model.isMultiSelection()) {
-			if (!propertiesUI.isNameValid()) {
-				setDataToSave(false);
-				return false;
-			}
-		}
-		*/
-		//setDataToSave(true);
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;
 		AnnotationUI ui;

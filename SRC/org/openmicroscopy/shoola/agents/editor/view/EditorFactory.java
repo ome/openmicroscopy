@@ -83,8 +83,8 @@ public class EditorFactory
 	 */
 	public static Editor getEditor(File file)
 	{
+		if (file == null) return getEditor();
 		EditorModel model = new EditorModel(file);
-		
 		return singleton.getEditor(model);
 	}
 	
@@ -105,7 +105,7 @@ public class EditorFactory
 			editor.setStatus("", true);
 		} else {
 			Editor e = singleton.editors.iterator().next();
-			model = ((EditorComponent)e).getModel();
+			model = ((EditorComponent) e).getModel();
 			editor = singleton.getEditor(model);
 		}
 		return editor;

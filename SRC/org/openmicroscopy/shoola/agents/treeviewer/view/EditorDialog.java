@@ -313,6 +313,7 @@ class EditorDialog
     	if (object instanceof ProjectData) return;
     	if (object instanceof DatasetData) return;
     	if (object instanceof ScreenData) return;
+    	if (object instanceof TagAnnotationData) return;
     	throw new IllegalArgumentException("Object not supported.");
     }
     

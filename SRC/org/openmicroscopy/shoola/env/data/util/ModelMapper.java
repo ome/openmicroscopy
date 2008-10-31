@@ -309,6 +309,12 @@ public class ModelMapper
         	model.setName(omero.rtypes.rstring(data.getName()));
         	model.setDescription(omero.rtypes.rstring(data.getDescription()));
             return model;
+        } else if (child instanceof TagAnnotationData) {
+        	TagAnnotationData data = (TagAnnotationData) child;
+        	TagAnnotation model = new TagAnnotationI();
+        	model.setTextValue(omero.rtypes.rstring(data.getTagValue()));
+        	//model.setDescription(omero.rtypes.rstring(data.getTagDescription()));
+            return model;
         }
         throw new IllegalArgumentException("Child and parent are not " +
         		"compatible.");

@@ -293,18 +293,12 @@ class TextualAnnotationsUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		/*
-		if (model.getRefObject() instanceof TagAnnotationData) return false;
-		List<AnnotationData> l = getAnnotationToRemove();
-		if (l.size() > 0) return true;
 		String text = commentArea.getText();
 		if (text == null) return false;
 		text = text.trim();
 		if (text.length() == 0) return false;
 		if (text.equals(originalText)) return false;
 		return true;
-		*/
-		return false;
 	}
 	
 	/**

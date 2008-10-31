@@ -604,6 +604,8 @@ public class TreeViewerTranslator
             		((ScreenData) object).getPlates(), userID, groupID);
         else if (object instanceof PlateData)
             return transformPlate((PlateData) object, userID, groupID);
+        else if (object instanceof TagAnnotationData)
+            return transformTag((TagAnnotationData) object, userID, groupID);
         throw new IllegalArgumentException("Data Type not supported.");
     }
     

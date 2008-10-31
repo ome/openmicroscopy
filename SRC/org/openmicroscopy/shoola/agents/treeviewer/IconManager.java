@@ -393,7 +393,7 @@ public class IconManager
         	"nuvola_folder_blue_open_modified_screen_annotated16.png";
         relPaths[PLATE_ANNOTATED] ="plate_annotated16.png";
         relPaths[PLATE] ="plate16.png";
-        relPaths[EDITOR] ="plate16.png";
+        relPaths[EDITOR] ="omeroEditorLink16.png";
     }
     
     /** The sole instance. */
