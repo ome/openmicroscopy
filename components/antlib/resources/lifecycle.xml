@@ -84,7 +84,6 @@
 		<copyResource file="${root.dir}/etc/omero.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
 		<copyResource file="${root.dir}/etc/jndi.properties"/>
-		<copyResource file="${root.dir}/etc/c3p0.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.xml"/>
 		<!-- Used (at least) by server.xml and omero.xml -->
 		<presetdef name="sql_run">
@@ -299,9 +298,10 @@
 			pathsep=" " dirsep="/">
 			<flattenmapper/>
 		</pathconvert>
+                <property name="mf.classpath.and.jars" value="${mf.classpath} services.jar extensions.jar"/>
 		<jar destfile="${target.dir}/${ivy.module}.jar">
 			<manifest>
-				<attribute name="Class-Path" value="${mf.classpath} services.jar extensions.jar"/>
+				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
 				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>
 			<fileset dir="${classes.dir}">
@@ -408,6 +408,11 @@
             <ivy:retrieve conf="@{conf}" pattern="@{dir}/@{pattern}" log="quiet"/>
             <copy file="${target.dir}/${ivy.module}.jar" tofile="@{jar}"/>
             <jar update="true" destfile="@{jar}">
+		<manifest>
+			<!-- This is a copy of the classpath used under package but includes ../etc/ to allow
+                        reading from dist/etc on startup -->
+			<attribute name="Class-Path" value="../etc/ ${mf.classpath.and.jars}"/>
+		</manifest>
                 <fileset dir="${resrc.dir}">
                     <include name="**/config.*"/>
                     <include name="**/*.config"/>

@@ -47,6 +47,7 @@
                 <property name="locations">
                     <list>
                             <!-- Note: later properties overwrite earlier ones -->
+                            <value>c3p0.properties</value>
                             <value>hibernate.properties</value>
                             <value>omero.properties</value>
                             <!-- Once ticket:800 is complete, local.properties
