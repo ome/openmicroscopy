@@ -280,6 +280,7 @@ public class Factory
         g.dispose();
         bimg.flush();
         rescaleBuff.flush();
+        System.gc();
         return rescaleBuff;
     }   
     

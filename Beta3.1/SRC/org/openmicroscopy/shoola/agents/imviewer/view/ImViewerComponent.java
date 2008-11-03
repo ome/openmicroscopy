@@ -572,6 +572,10 @@ class ImViewerComponent
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			logger.debug(this, "Cannot zoom image. Magnification: "+factor);
 			model.setZoomFactor(factor, true);
+		} catch (Error err) {
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			logger.debug(this, "Cannot zoom image. Magnification: "+factor);
+			model.setZoomFactor(factor, true);
 		}
 		model.setZoomFitToWindow(factor == -1);
 		view.setZoomFactor(factor, zoomIndex);
