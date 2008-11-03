@@ -264,7 +264,7 @@ class TextualAnnotationsUI
 		int index = 0;
 		while (i.hasNext()) {
 			data = (TextualAnnotationData) i.next();
-			if (!toRemove.contains(data)) {
+			if (!toRemove.contains(data) && !data.getText().equals(originalText)) {
 				comp = new TextualAnnotationComponent(this, model, data);
 				layout.insertRow(index, TableLayout.PREFERRED);
 				datePane.add(comp, "0, "+index+", f, c");
@@ -414,7 +414,7 @@ class TextualAnnotationsUI
 			setAreaText(data.getText());
 			originalText = area.getText();
 		}
-		
+
 		if (!hasPreviousTextualAnnotations()) return;
 		add(previousTree);
 		layoutPreviousNodes();

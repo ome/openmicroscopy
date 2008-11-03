@@ -42,7 +42,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
-import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -601,8 +600,8 @@ class EditorModel
 	 */
 	List getTextualAnnotationsByDate()
 	{
-		if (textualAnnotationsByDate != null)
-			return textualAnnotationsByDate;
+		//if (textualAnnotationsByDate != null && textualAnnotationsByUsers.size() > 0)
+		//	return textualAnnotationsByDate;
 		textualAnnotationsByDate = (List) getTextualAnnotations();
 		sortAnnotationByDate(textualAnnotationsByDate);
 		return textualAnnotationsByDate;
@@ -615,9 +614,9 @@ class EditorModel
 	 */
 	Map<Long, List> getTextualAnnotationByOwner()
 	{
-		if (textualAnnotationsByUsers != null 
-			&& textualAnnotationsByUsers.size() > 0)
-			return textualAnnotationsByUsers;
+		//if (textualAnnotationsByUsers != null 
+		//	&& textualAnnotationsByUsers.size() > 0)
+		//	return textualAnnotationsByUsers;
 		textualAnnotationsByUsers = new HashMap<Long, List>();
 		Collection original = getTextualAnnotations();
 		if (original == null) return textualAnnotationsByUsers;
@@ -677,13 +676,23 @@ class EditorModel
 	void setRootObject(Object refObject)
 	{ 
 		this.refObject = refObject; 
-		thumbnails = null;
-		existingTags = null;
+		
+		if (textualAnnotationsByUsers != null)
+			textualAnnotationsByUsers.clear();
+		if (textualAnnotationsByDate != null) 
+			textualAnnotationsByDate.clear();
+		if (thumbnails != null) thumbnails.clear();
+		if (existingAttachments != null) existingAttachments.clear();
+		if (existingURLs != null) existingURLs.clear();
+		if (emissionsWavelengths != null) emissionsWavelengths.clear();
+		if (existingTags != null) existingTags.clear();
 		textualAnnotationsByUsers = null;
 		textualAnnotationsByDate = null;
 	    existingAttachments = null;
 	    existingURLs = null;
 	    emissionsWavelengths = null;
+	    thumbnails = null;
+		existingTags = null;
 	}
 
 	/**
