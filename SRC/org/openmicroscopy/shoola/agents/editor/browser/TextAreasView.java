@@ -246,8 +246,9 @@ public class TextAreasView
 
 	/**
 	 * Implemented as specified by the {@link TreeModelListener} interface.
-	 * Calls {@link #refreshSelection()} to refresh the text within each
-	 * existing node / field.
+	 * Attempts to refresh the nodes affected by the event, identifying the
+	 * nodes within the {@link #textAreas} map by their {@link TreePath} and 
+	 * calling {@link FieldTextArea#refreshText()} to update their text. 
 	 * 
 	 * @see TreeModelListener#treeNodesChanged(TreeModelEvent)
 	 */
@@ -256,12 +257,24 @@ public class TextAreasView
 		Object[] children = e.getChildren();
 		
 		TreePath path;
+		FieldTextArea ta;
+		
+		if (children == null)	{ 
+			// Usually means that the root of the tree has changed;
+			DefaultMutableTreeNode root = 
+								(DefaultMutableTreeNode)treeModel.getRoot();
+			path = new TreePath(root.getPath());
+			ta = textAreas.get(path);
+			ta.refreshText();
+			return;
+		}
+		
 		DefaultMutableTreeNode node;
 		for(int i=0; i<children.length; i++) {
 			if (children[i] instanceof DefaultMutableTreeNode) {
 				node = (DefaultMutableTreeNode)children[i];
 				path = new TreePath(node.getPath());
-				FieldTextArea ta = textAreas.get(path);
+				ta = textAreas.get(path);
 				ta.refreshText();
 			}
 		}

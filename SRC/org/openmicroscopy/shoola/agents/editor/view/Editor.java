@@ -126,4 +126,14 @@ public interface Editor
 	 * @param file		The file to open in a new Editor window. 
 	 */
 	public void openLocalFile(File file);
+	
+	/**
+	 * Creates and opens a new editor with a blank file for user to start editing
+	 */
+	public void newBlankFile();
+	
+	/**
+	 * Tells this editor to display a new blank file for user to start editing
+	 */
+	public void setBlankFile();
 }

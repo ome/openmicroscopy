@@ -248,12 +248,15 @@ public class IconManager
     /** The <code>Spacer-16</code> icon. */
     public  static int			SPACER = 60;
     
+    /** The <code>New Blank File</code> icon. */
+    public  static int			NEW_FILE_ICON = 61;
+    
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 60;
+    private static int          MAX_ID = 61;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -326,6 +329,7 @@ public class IconManager
         relPaths[SAVE_ICON] = "nuvola_filesave16.png";
         relPaths[UP_DOWN] = "upDown.png";
         relPaths[SPACER] = "spacer16.png";
+        relPaths[NEW_FILE_ICON] = "nuvola_filenew16.png";
     }
     
     

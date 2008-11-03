@@ -67,7 +67,7 @@ class EditorModel
 	/** The name of the file to edit. */
 	private String  		fileName;
 	
-	/** The id of the file to edit. */
+	/** The id of the file to edit. Will not be set if editing local file */
 	private long 			fileID;
 	
 	/** The size of the file to edit. */
@@ -127,12 +127,13 @@ class EditorModel
 	EditorModel() 
 	{
 		state = Editor.NEW;
-		this.fileName = "";
+		this.fileName = EditorFactory.BLANK_MODEL;
 	}
 	
 	/**
 	 * Called by the <code>Editor</code> after creation to allow this
-	 * object to store a back reference to the embedding component.
+	 * object to store a back reference to the embedding component, and to 
+	 * create a browser. 
 	 * 
 	 * @param component The embedding component.
 	 */
@@ -217,6 +218,16 @@ class EditorModel
 		state = Editor.READY;
 	}
 	
+	/**
+	 * Creates a new blank file and opens it in the browser.
+	 */
+	void setBlankFile() 
+	{
+		fileName = "New Blank File";
+		TreeModel treeModel = TreeModelFactory.getTree();
+		browser.setTreeModel(treeModel);
+		state = Editor.READY;
+	}
 	
 	/**
 	 * Returns the browser component.

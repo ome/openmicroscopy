@@ -43,6 +43,7 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
+import org.openmicroscopy.shoola.agents.editor.actions.NewBlankFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction;
 
@@ -72,6 +73,9 @@ class EditorControl
 	/** Identifies the <code>Save File Locally</code> Action. */
 	static final Integer	SAVE_FILE_LOCALLY = new Integer(3);
 	
+	/** Identifies the <code>New Blank File</code> Action. */
+	static final Integer	NEW_BLANK_FILE = new Integer(4);
+	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
 	 * is regarded as the Model.
@@ -90,6 +94,7 @@ class EditorControl
 		actionsMap.put(CLOSE_EDITOR, new CloseEditorAction(model));
 		actionsMap.put(OPEN_LOCAL_FILE, new OpenLocalFileAction(model));
 		actionsMap.put(SAVE_FILE_LOCALLY, new SaveFileLocallyAction(model));
+		actionsMap.put(NEW_BLANK_FILE, new NewBlankFileAction(model));
 	}
 	
 	/** 

@@ -31,12 +31,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.tree.TreeModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -61,6 +63,8 @@ public class EditorFactory
 	/** The sole instance. */
 	private static final EditorFactory  singleton = new EditorFactory();
 
+	public static final String BLANK_MODEL = "No File Open";
+	
 	/**
 	 * Returns the {@link Editor}.
 	 * 
@@ -76,22 +80,34 @@ public class EditorFactory
 	}
 	
 	/**
-	 * Returns the {@link Editor}.
+	 * Returns the {@link Editor} created to display a particular file. 
+	 * 
 	 * 
 	 * @param file 		The file to open in Editor. 
 	 * @return See above.
 	 */
 	public static Editor getEditor(File file)
 	{
-		if (file == null) return getEditor();
+		if (file == null) return getEditor();	// just in case. Never used! 
+		
 		EditorModel model = new EditorModel(file);
+		// if a "blank" editor is open, with a "blank" model, this is returned
+		// or, if the model matches the model in an existing editor, return this,
+		// or, create a new editor with this new model.
 		return singleton.getEditor(model);
 	}
+	
+	
+
+	
 	
 	/**
 	 * If no editors exist, this returns a new {@link Editor}, 
 	 * with an {@link EditorModel} that has no file.
 	 * Otherwise, it simply returns the first editor in the {@link #editors} list. 
+	 * 
+	 * This provides the functionality for handling a "show editor", where 
+	 * it doesn't matter which editor/file you show.
 	 * 
 	 * @return See above.
 	 */
@@ -100,14 +116,29 @@ public class EditorFactory
 		EditorModel model;
 		Editor editor;
 		if (singleton.editors.isEmpty()) {
-			model = new EditorModel();
-			editor = singleton.getEditor(model);
-			editor.setStatus("", true);
+			editor = getNewBlankEditor();
 		} else {
 			Editor e = singleton.editors.iterator().next();
 			model = ((EditorComponent) e).getModel();
 			editor = singleton.getEditor(model);
 		}
+		return editor;
+	}
+	
+	/**
+	 * This has a similar functionality to {@link getEditor()}, except this
+	 * method always returns a new editor (never an existing editor);
+	 * 	
+	 * @return		A new Editor, with a new EditorModel 
+	 */
+	public static Editor getNewBlankEditor() {
+		
+		EditorModel model = new EditorModel();
+		 // this will return any existing editors with a 'blank' model, or
+		// create an editor with the blank model above, if none exist. 
+		Editor editor = singleton.getEditor(model);
+		editor.setStatus("", true);
+		
 		return editor;
 	}
 	
@@ -166,6 +197,7 @@ public class EditorFactory
 	/**
 	 * Creates or recycles a viewer component for the specified 
 	 * <code>model</code>.
+	 * Returns the first existing editor where the model matches the 
 	 * 
 	 * @param model The component's Model.
 	 * @return A {@link Editor} for the specified <code>model</code>.  
@@ -179,7 +211,7 @@ public class EditorFactory
 			if ((comp.getModel().getFileID() == model.getFileID()) && 
 					(comp.getModel().getFileName().equals(model.getFileName())))
 				return comp;
-			if (comp.getModel().getFileName().equals("")) {
+			if (comp.getModel().getFileName().equals(BLANK_MODEL)) {
 				return comp;
 			}
 		}

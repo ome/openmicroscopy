@@ -419,6 +419,21 @@ public class TreeModelFactory
 	}
 	
 	/**
+	 * Creates a new 'blank file' TreeModel, for users to start editing. 
+	 * Contains only a root field, with no attributes set, no parameters etc. 
+	 * 
+	 * @return			A new TreeModel 
+	 */
+	public static TreeModel getTree() {
+		
+		IField rootField = new Field();
+		 
+		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
+		
+		return new DefaultTreeModel(rootNode);
+	}
+	
+	/**
 	 * Convenience method for converting html-formatted strings to tag-free
 	 * strings.
 	 * Beta-3.0 used HTML for formatting the text of Field name, and

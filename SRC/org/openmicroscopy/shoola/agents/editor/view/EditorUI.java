@@ -149,11 +149,14 @@ class EditorUI
         statusBar.setProgress(hide);
     }
     
+    /**
+     * Displays the browser by adding it to this UI. 
+     */
     void displayFile()
     {
-    	//model.getBrowser().addChangeListener(controller);
-    	
     	add(model.getBrowser().getUI(), BorderLayout.CENTER);
+    	
+    	setTitle(model.getFileName());
     	
     	validate();
     	repaint();

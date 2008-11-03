@@ -205,13 +205,53 @@ class EditorComponent
 	 */
 	public void openLocalFile(File file) {
 		
+		// gets a blank editor (one that has been created with a 'blank' model), 
+		// OR an existing editor if one has the same 
+		// file ID (will be 0 if editor file is local) and same file name, OR
+		// creates a new editor model and editor with this new file. 
 		Editor editor = EditorFactory.getEditor(file);
 	
+		// activates the editor
+		// if the editor is 'blank' or has just been created (above), 
+		// need to set the file
 		if (editor != null) {
 			if (editor.getState() == Editor.NEW)
 				editor.setFileToEdit(file);
 			
+			// this simply brings the editor to the front / de-iconifies it.
 			editor.activate();
 		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * Creates and opens a new blank file in the browser, for a user to 
+	 * begin editing. 
+	 * 
+	 * @see Editor#newBlankFile()
+	 */
+	public void newBlankFile() {
+		// gets a new editor
+		Editor editor = EditorFactory.getNewBlankEditor();
+		
+		// primes the editor to open new file and activates the editor
+		if (editor != null) {
+			editor.setBlankFile();
+			
+			// this simply brings the editor to the front / deiconifies it.
+			editor.activate();
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * Primes the model to display a blank file, and updates the view. 
+	 * 
+	 * @see Editor#setBlankFile()
+	 */
+	public void setBlankFile() {
+		model.setBlankFile();
+		view.displayFile();
+		fireStateChange();
 	}
 }
