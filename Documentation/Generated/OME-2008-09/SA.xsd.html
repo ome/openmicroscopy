@@ -1,0 +1,2512 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>Documentation for OME Schemas - SA.xsd</title>
+      <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
+      <style type="text/css">
+@import url(auto-gen-doc.css);
+</style>
+      <script type="text/javascript">
+<!--
+          /* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('element_StructuredAnnotations_xibox', 'type_CommonAnnotation_xibox', 'element_Link_xibox', 'type_AnnotationID_xibox', 'element_FileAnnotation_xibox', 'element_XmlAnnotation_xibox', 'element_ListAnnotation_xibox', 'element_StringAnnotation_xibox', 'element_LongAnnotation_xibox', 'element_DoubleAnnotation_xibox', 'element_BooleanAnnotation_xibox', 'element_TimestampAnnotation_xibox');
+/* IDs of diagram boxes */
+var diagramBoxes = new Array('element_StructuredAnnotations_diagram', 'type_CommonAnnotation_diagram', 'element_Link_diagram', 'type_AnnotationID_diagram', 'element_FileAnnotation_diagram', 'element_XmlAnnotation_diagram', 'element_ListAnnotation_diagram', 'element_StringAnnotation_diagram', 'element_LongAnnotation_diagram', 'element_DoubleAnnotation_diagram', 'element_BooleanAnnotation_diagram', 'element_TimestampAnnotation_diagram');
+/* IDs of logical diagram boxes */
+var logicalDiagramBoxes = new Array('element_StructuredAnnotations_logicalDiagram', 'element_Link_logicalDiagram', 'element_FileAnnotation_logicalDiagram', 'element_XmlAnnotation_logicalDiagram', 'element_ListAnnotation_logicalDiagram', 'element_StringAnnotation_logicalDiagram', 'element_LongAnnotation_logicalDiagram', 'element_DoubleAnnotation_logicalDiagram', 'element_BooleanAnnotation_logicalDiagram', 'element_TimestampAnnotation_logicalDiagram');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'element_StructuredAnnotations_scbox', 'type_CommonAnnotation_scbox', 'element_Link_scbox', 'type_AnnotationID_scbox', 'element_FileAnnotation_scbox', 'element_XmlAnnotation_scbox', 'element_ListAnnotation_scbox', 'element_StringAnnotation_scbox', 'element_LongAnnotation_scbox', 'element_DoubleAnnotation_scbox', 'element_BooleanAnnotation_scbox', 'element_TimestampAnnotation_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+
+/**
+ * Returns an element in the current HTML document.
+ * 
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}             
+
+/**
+ * Closes a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button 
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ * 
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ * 
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise, 
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all diagrams
+        expandAll(diagramBoxes);
+        // Expand all logical diagrams
+        expandAll(logicalDiagramBoxes);        
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(diagramBoxes);
+        hideControlButtons(logicalDiagramBoxes);
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all diagram boxes
+        expandAll(diagramBoxes);
+        // Collapse all logical diagram boxes.
+        collapseAll(logicalDiagramBoxes);
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(diagramBoxes);
+        viewControlButtons(logicalDiagramBoxes);
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+
+
+// -->
+</script>
+      <script type="text/javascript">
+<!--
+          
+         
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+         
+/**
+ * Opens up a window displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ * 
+ * @param compDesc      Description of schema component 
+ * @param compName      Name of schema component 
+ * @param docTextArray Array containing the paragraphs 
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docTextArray) {
+  var width = 400;
+  var height = 200;
+  var locX = 100;
+  var locY = 200;
+
+  /* Generate content */
+  var actualText = "<html>";
+  actualText += "<head><title>";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": " + compName;
+  }
+  actualText += "</title></head>";
+  actualText += "<body bgcolor=\"#FFFFEE\">";
+  // Title
+  actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing:1px;\">";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": <span style=\"color:#006699\">" + compName + "</span>";
+  }
+  actualText += "</p>";
+  // Documentation
+  var idx;
+  for (idx = 0; idx < docTextArray.length; idx++) {
+     actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 10pt;\">" + docTextArray[idx] + "</p>";
+  }
+  // Link to close window
+  actualText += "<a href=\"javascript:void(0)\" onclick=\"window.close();\" style=\"font-family: Arial, sans-serif; font-size: 8pt;\">Close</a>";
+  actualText += "</body></html>";
+
+  /* Display window */
+  windowCount++;
+  var docWindow = window.open("", "documentation"+windowCount, "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable,alwaysRaised,dependent,titlebar=no,width="+width+",height="+height+",screenX="+locX+",left="+locX+",screenY="+locY+",top="+locY);
+  docWindow.document.write(actualText);
+}         
+      
+// -->
+</script>
+   </head>
+   <body>
+      <h1>
+         <a name="top">Documentation for OME Schemas</a>
+      </h1>
+      <div style="float: right;">
+         <div id="printerControls" style="display:none;">
+            <input type="checkbox" onclick="displayMode(this.checked)"/>Printer-friendly Version</div>
+         <script type="text/javascript">
+<!--
+          
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+         <div id="globalControls" style="display:none">
+            <strong>Logical Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(logicalDiagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(logicalDiagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>XML Instance Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(diagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(diagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Schema Component Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+      </div>
+      <h2>Table of Contents</h2>
+      <ul>
+         <li>
+            <a href="#SchemaProperties">Schema Document Properties</a>
+         </li>
+         <li>
+            <a href="#SchemaDeclarations">Global Declarations</a>
+            <ul>
+               <li>
+                  <a href="#element_BooleanAnnotation">Element: <strong>BooleanAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_DoubleAnnotation">Element: <strong>DoubleAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_FileAnnotation">Element: <strong>FileAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Link">Element: <strong>Link</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_ListAnnotation">Element: <strong>ListAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_LongAnnotation">Element: <strong>LongAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_StringAnnotation">Element: <strong>StringAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_StructuredAnnotations">Element: <strong>StructuredAnnotations</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_TimestampAnnotation">Element: <strong>TimestampAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_XmlAnnotation">Element: <strong>XmlAnnotation</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#SchemaDefinitions">Global Definitions</a>
+            <ul>
+               <li>
+                  <a href="#type_CommonAnnotation">Complex Type: <strong>CommonAnnotation</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_AnnotationID">Simple Type: <strong>AnnotationID</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <ul id="legendTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Legend">Legend</a>
+         </li>
+      </ul>
+      <ul id="glossaryTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Glossary">Glossary</a>
+         </li>
+      </ul>
+      <h4>Master schema documentation file: 
+            <a href="ome.xsd.html">ome.xsd.html</a>
+      </h4>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaProperties">Schema Document Properties</a>
+      </h2>
+      <table class="properties">
+         <tr>
+            <th>
+               <a title="Look up 'Target Namespace' in glossary" href="SA.xsd.html#term_TargetNS">Target Namespace</a>
+            </th>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/SA/2008-09</span>
+            </td>
+         </tr>
+         <tr>
+            <th>Version</th>
+            <td>1</td>
+         </tr>
+         <tr>
+            <th>Element and Attribute Namespaces</th>
+            <td>
+               <ul>
+                  <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+                  <li>By default, local element declarations belong to this schema's target namespace.</li>
+                  <li>By default, local attribute declarations have no namespace.</li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Schema Composition</th>
+            <td>
+               <ul>
+                  <li>This schema imports schema(s) from the following namespace(s):<ul>
+                        <li>
+                           <em>http://www.openmicroscopy.org/Schemas/OME/2008-09</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/Schemas/OME/2008-09/ome.xsd'."
+                              href="ome.xsd.html">http://www.openmicroscopy.org/Schemas/OME/2008-09/ome.xsd</a>)</li>
+                        <li>
+                           <em>http://www.openmicroscopy.org/Schemas/BinaryFile/2008-09</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/Schemas/BinaryFile/2008-09/BinaryFile.xsd'."
+                              href="BinaryFile.xsd.html">http://www.openmicroscopy.org/Schemas/BinaryFile/2008-09/BinaryFile.xsd</a>)</li>
+                     </ul>
+                  </li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <h3>Declared Namespaces</h3>
+      <table class="namespaces">
+         <tr>
+            <th>Prefix</th>
+            <th>Namespace</th>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_">Default namespace</a>
+            </td>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/SA/2008-09</span>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_Bin">Bin</a>
+            </td>
+            <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2008-09</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xml">xml</a>
+            </td>
+            <td>http://www.w3.org/XML/1998/namespace</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xsd">xsd</a>
+            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_OME">OME</a>
+            </td>
+            <td>http://www.openmicroscopy.org/Schemas/OME/2008-09</td>
+         </tr>
+      </table>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="schema_scbox_button" class="control"
+                   onclick="switchState('schema_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="schema_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:schema</span> 
+               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/SA/2008-09</span>" <span class="scTag">version</span>="<span class="scContent">1</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/OME/2008-09</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/OME/2008-09/ome.xsd</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/BinaryFile/2008-09</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/BinaryFile/2008-09/BinaryFile.xsd</span>"/&gt;</div>
+               <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">xsd:schema</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('schema_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDeclarations">Global Declarations</a>
+      </h2>
+      <h3>Element: <a name="element_BooleanAnnotation" class="name">BooleanAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>BooleanAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BooleanAnnotation_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_BooleanAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_BooleanAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BooleanAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BooleanAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_BooleanAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_BooleanAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;BooleanAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;Value&gt; <span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:boolean</span> &lt;/Value&gt; <span class="occurs">[1]</span>
+               </div>&lt;/BooleanAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BooleanAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BooleanAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_BooleanAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_BooleanAnnotation_diagram" class="contents">
+            <img usemap="#element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_BooleanAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BooleanAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_BooleanAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_BooleanAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_BooleanAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">BooleanAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">type</span>="<span class="scContent">
+                                 <span class="type">
+                                    <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:boolean</span>
+                              </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BooleanAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_DoubleAnnotation" class="name">DoubleAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>DoubleAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_DoubleAnnotation_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_DoubleAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_DoubleAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_DoubleAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_DoubleAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_DoubleAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_DoubleAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;DoubleAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;Value&gt; <span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:double</span> &lt;/Value&gt; <span class="occurs">[1]</span>
+               </div>&lt;/DoubleAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_DoubleAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_DoubleAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_DoubleAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_DoubleAnnotation_diagram" class="contents">
+            <img usemap="#element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_DoubleAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_DoubleAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_DoubleAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_DoubleAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_DoubleAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">DoubleAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">type</span>="<span class="scContent">
+                                 <span class="type">
+                                    <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:double</span>
+                              </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_DoubleAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_FileAnnotation" class="name">FileAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>FileAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FileAnnotation_logicalDiagram_button" class="control"
+                   onclick="switchState('element_FileAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_FileAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FileAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FileAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_FileAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_FileAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;FileAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;FileName&gt; ... &lt;/FileName&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;MimeType&gt; <span class="type">
+                     <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;MIMEtype&#34; type definition(located in external schema documentation)."
+                        href="ome.xsd.html#type_MIMEtype"
+                        class="externalLink">MIMEtype</a>
+                  </span> &lt;/MimeType&gt; <span class="occurs">[0..1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="SA.xsd.html#term_Choice">Choice</a> 
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <div style="margin-left: 3em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration(located in external schema documentation)."
+                     href="BinaryFile.xsd.html#element_BinData"
+                     class="externalLink">BinData</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration(located in external schema documentation)."
+                     href="BinaryFile.xsd.html#element_BinData"
+                     class="externalLink">BinData</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;ExternalFile&gt; <span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/ExternalFile&gt; <span class="occurs">[1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>&lt;/FileAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FileAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FileAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_FileAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_FileAnnotation_diagram" class="contents">
+            <img usemap="#element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_FileAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FileAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_FileAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_FileAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_FileAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">FileAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">FileName</span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">MimeType</span>" <span class="scTag">type</span>="<span class="scContent">
+                                 <span class="type">
+                                    <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;MIMEtype&#34; type definition(located in external schema documentation)."
+                                       href="ome.xsd.html#type_MIMEtype"
+                                       class="externalLink">MIMEtype</a>
+                                 </span>
+                              </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:choice</span> 
+                              <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                                 <span class="scTag">ref</span>="<span class="scContent">
+                                    <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration(located in external schema documentation)."
+                                       href="BinaryFile.xsd.html#element_BinData"
+                                       class="externalLink">BinData</a>
+                                 </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                              <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                                 <span class="scTag">name</span>="<span class="scContent">ExternalFile</span>" <span class="scTag">type</span>="<span class="scContent">
+                                    <span class="type">
+                                       <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                                 </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:choice</span>&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FileAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Link" class="name">Link</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Link</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Complex Type <b>
+                  <a href="#type_CommonAnnotation">CommonAnnotation</a>
+               </b>, Element <b>
+                  <a href="#element_ListAnnotation">ListAnnotation</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined simple type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Link_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Link_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Link_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Link_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_Link_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_Link_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_Link_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Link_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Link_xibox_button" class="control"
+                   onclick="switchState('element_Link_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Link_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Link&gt; <span class="constraint">
+                  <span class="type">
+                     <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                        href="ome.xsd.html#type_LSID"
+                        class="externalLink">LSID</a>
+                  </span>
+               </span> &lt;/Link&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Link_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Link_diagram_button" class="control"
+                   onclick="switchState('element_Link_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Link_diagram" class="contents">
+            <img usemap="#element_Link_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_Link_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_Link_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_Link_httpwww.openmicroscopy.orgSchemasSA200809">
+               <area shape="rect" alt="type_LSID" coords="156,0,369,26" href="SA.xsd.html#type_LSID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Link_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Link_scbox_button" class="control"
+                   onclick="switchState('element_Link_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Link_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Link</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                     <span class="scTag">base</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                              href="ome.xsd.html#type_LSID"
+                              class="externalLink">LSID</a>
+                        </span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Link_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_ListAnnotation" class="name">ListAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ListAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ListAnnotation_logicalDiagram_button" class="control"
+                   onclick="switchState('element_ListAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_ListAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ListAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ListAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_ListAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_ListAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ListAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;List&gt;  <span class="occurs">[1]</span> 
+                  <br/>
+                  <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+                  </div>&lt;/List&gt;</div>&lt;/ListAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ListAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ListAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_ListAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_ListAnnotation_diagram" class="contents">
+            <img usemap="#element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_ListAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ListAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_ListAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_ListAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_ListAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ListAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">List</span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                                       <span class="scTag">ref</span>="<span class="scContent">
+                                          <a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>
+                                       </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ListAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_LongAnnotation" class="name">LongAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>LongAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_LongAnnotation_logicalDiagram_button" class="control"
+                   onclick="switchState('element_LongAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_LongAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LongAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_LongAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_LongAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_LongAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;LongAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;Value&gt; <span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:long</span> &lt;/Value&gt; <span class="occurs">[1]</span>
+               </div>&lt;/LongAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LongAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_LongAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_LongAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_LongAnnotation_diagram" class="contents">
+            <img usemap="#element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_LongAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LongAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_LongAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_LongAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_LongAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">LongAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">type</span>="<span class="scContent">
+                                 <span class="type">
+                                    <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:long</span>
+                              </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LongAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_StringAnnotation" class="name">StringAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>StringAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_StringAnnotation_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_StringAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_StringAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StringAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_StringAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_StringAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_StringAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;StringAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;Value&gt; <span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/Value&gt; <span class="occurs">[1]</span>
+               </div>&lt;/StringAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StringAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_StringAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_StringAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_StringAnnotation_diagram" class="contents">
+            <img usemap="#element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_StringAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StringAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_StringAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_StringAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_StringAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">StringAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">type</span>="<span class="scContent">
+                                 <span class="type">
+                                    <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                              </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StringAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_StructuredAnnotations" class="name">StructuredAnnotations</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>StructuredAnnotations</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_StructuredAnnotations_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_StructuredAnnotations_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_StructuredAnnotations_logicalDiagram" class="contents">
+            <img usemap="#logical_element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809">
+               <area shape="rect" alt="element_XmlAnnotation" coords="416,0,760,43"
+                     href="SA.xsd.html#element_XmlAnnotation"/>
+
+               <area shape="rect" alt="element_FileAnnotation" coords="416,53,760,96"
+                     href="SA.xsd.html#element_FileAnnotation"/>
+
+               <area shape="rect" alt="element_ListAnnotation" coords="416,106,760,149"
+                     href="SA.xsd.html#element_ListAnnotation"/>
+
+               <area shape="rect" alt="element_LongAnnotation" coords="416,159,760,202"
+                     href="SA.xsd.html#element_LongAnnotation"/>
+
+               <area shape="rect" alt="element_DoubleAnnotation" coords="416,212,760,255"
+                     href="SA.xsd.html#element_DoubleAnnotation"/>
+
+               <area shape="rect" alt="element_StringAnnotation" coords="416,265,760,308"
+                     href="SA.xsd.html#element_StringAnnotation"/>
+
+               <area shape="rect" alt="element_BooleanAnnotation" coords="416,318,760,361"
+                     href="SA.xsd.html#element_BooleanAnnotation"/>
+
+               <area shape="rect" alt="element_TimestampAnnotation" coords="416,371,760,414"
+                     href="SA.xsd.html#element_TimestampAnnotation"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StructuredAnnotations_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_StructuredAnnotations_xibox_button" class="control"
+                   onclick="switchState('element_StructuredAnnotations_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_StructuredAnnotations_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;StructuredAnnotations&gt; <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="SA.xsd.html#term_Choice">Choice</a> 
+                  <span class="occurs">[0..*]</span>
+               </span>
+               <br/>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;XmlAnnotation&#34; element declaration."
+                     href="#element_XmlAnnotation">XmlAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;XmlAnnotation&#34; element declaration."
+                     href="#element_XmlAnnotation">XmlAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;FileAnnotation&#34; element declaration."
+                     href="#element_FileAnnotation">FileAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;FileAnnotation&#34; element declaration."
+                     href="#element_FileAnnotation">FileAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;ListAnnotation&#34; element declaration."
+                     href="#element_ListAnnotation">ListAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;ListAnnotation&#34; element declaration."
+                     href="#element_ListAnnotation">ListAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;LongAnnotation&#34; element declaration."
+                     href="#element_LongAnnotation">LongAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;LongAnnotation&#34; element declaration."
+                     href="#element_LongAnnotation">LongAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;DoubleAnnotation&#34; element declaration."
+                     href="#element_DoubleAnnotation">DoubleAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;DoubleAnnotation&#34; element declaration."
+                     href="#element_DoubleAnnotation">DoubleAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;StringAnnotation&#34; element declaration."
+                     href="#element_StringAnnotation">StringAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;StringAnnotation&#34; element declaration."
+                     href="#element_StringAnnotation">StringAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;BooleanAnnotation&#34; element declaration."
+                     href="#element_BooleanAnnotation">BooleanAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;BooleanAnnotation&#34; element declaration."
+                     href="#element_BooleanAnnotation">BooleanAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a title="Jump to &#34;TimestampAnnotation&#34; element declaration."
+                     href="#element_TimestampAnnotation">TimestampAnnotation</a>&gt; ... &lt;/<a title="Jump to &#34;TimestampAnnotation&#34; element declaration."
+                     href="#element_TimestampAnnotation">TimestampAnnotation</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>&lt;/StructuredAnnotations&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StructuredAnnotations_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_StructuredAnnotations_diagram_button" class="control"
+                   onclick="switchState('element_StructuredAnnotations_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_StructuredAnnotations_diagram" class="contents">
+            <img usemap="#element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_StructuredAnnotations_httpwww.openmicroscopy.orgSchemasSA200809">
+               <area shape="rect" alt="element_XmlAnnotation" coords="347,0,494,26"
+                     href="SA.xsd.html#element_XmlAnnotation"/>
+
+               <area shape="rect" alt="element_FileAnnotation" coords="347,36,501,62"
+                     href="SA.xsd.html#element_FileAnnotation"/>
+
+               <area shape="rect" alt="element_ListAnnotation" coords="347,72,501,98"
+                     href="SA.xsd.html#element_ListAnnotation"/>
+
+               <area shape="rect" alt="element_LongAnnotation" coords="347,108,501,134"
+                     href="SA.xsd.html#element_LongAnnotation"/>
+
+               <area shape="rect" alt="element_DoubleAnnotation" coords="347,144,515,170"
+                     href="SA.xsd.html#element_DoubleAnnotation"/>
+
+               <area shape="rect" alt="element_StringAnnotation" coords="347,180,515,206"
+                     href="SA.xsd.html#element_StringAnnotation"/>
+
+               <area shape="rect" alt="element_BooleanAnnotation" coords="347,216,522,242"
+                     href="SA.xsd.html#element_BooleanAnnotation"/>
+
+               <area shape="rect" alt="element_TimestampAnnotation" coords="347,252,536,278"
+                     href="SA.xsd.html#element_TimestampAnnotation"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StructuredAnnotations_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_StructuredAnnotations_scbox_button" class="control"
+                   onclick="switchState('element_StructuredAnnotations_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_StructuredAnnotations_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">StructuredAnnotations</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:choice</span> 
+                     <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;XmlAnnotation&#34; element declaration."
+                              href="#element_XmlAnnotation">XmlAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;FileAnnotation&#34; element declaration."
+                              href="#element_FileAnnotation">FileAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ListAnnotation&#34; element declaration."
+                              href="#element_ListAnnotation">ListAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;LongAnnotation&#34; element declaration."
+                              href="#element_LongAnnotation">LongAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;DoubleAnnotation&#34; element declaration."
+                              href="#element_DoubleAnnotation">DoubleAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;StringAnnotation&#34; element declaration."
+                              href="#element_StringAnnotation">StringAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;BooleanAnnotation&#34; element declaration."
+                              href="#element_BooleanAnnotation">BooleanAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;TimestampAnnotation&#34; element declaration."
+                              href="#element_TimestampAnnotation">TimestampAnnotation</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:choice</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_StructuredAnnotations_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_TimestampAnnotation" class="name">TimestampAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>TimestampAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_TimestampAnnotation_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_TimestampAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_TimestampAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_TimestampAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_TimestampAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_TimestampAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_TimestampAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;TimestampAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;Value&gt; <span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> &lt;/Value&gt; <span class="occurs">[1]</span>
+               </div>&lt;/TimestampAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_TimestampAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_TimestampAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_TimestampAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_TimestampAnnotation_diagram" class="contents">
+            <img usemap="#element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_TimestampAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_TimestampAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_TimestampAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_TimestampAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_TimestampAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">TimestampAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">type</span>="<span class="scContent">
+                                 <span class="type">
+                                    <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span>
+                              </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_TimestampAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_XmlAnnotation" class="name">XmlAnnotation</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>XmlAnnotation</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_StructuredAnnotations">StructuredAnnotations</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SA.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_XmlAnnotation_logicalDiagram_button" class="control"
+                   onclick="switchState('element_XmlAnnotation_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_XmlAnnotation_logicalDiagram" class="contents">
+            <img usemap="#logical_element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/logical_element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/logical_element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="logical_element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_XmlAnnotation_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_XmlAnnotation_xibox_button" class="control"
+                   onclick="switchState('element_XmlAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_XmlAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;XmlAnnotation<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;Value&gt;  <span class="occurs">[1]</span> 
+                  <br/>
+                  <div class="other" style="margin-left: 1.5em">Allow any elements from any namespace (lax validation). <span class="occurs">[0..*]</span>
+                  </div>&lt;/Value&gt;</div>&lt;/XmlAnnotation&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_XmlAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_XmlAnnotation_diagram_button" class="control"
+                   onclick="switchState('element_XmlAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_XmlAnnotation_diagram" class="contents">
+            <img usemap="#element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="element_XmlAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_XmlAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_XmlAnnotation_scbox_button" class="control"
+                   onclick="switchState('element_XmlAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_XmlAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">XmlAnnotation</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- top level definition --&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a title="Jump to &#34;CommonAnnotation&#34; type definition."
+                                 href="#type_CommonAnnotation">CommonAnnotation</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                              <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:any</span> 
+                                       <span class="scTag">processContents</span>="<span class="scContent">lax</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_XmlAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDefinitions">Global Definitions</a>
+      </h2>
+      <h3>Complex Type: <a name="type_CommonAnnotation" class="name">CommonAnnotation</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>None</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>CommonAnnotation</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>yes</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_CommonAnnotation_xibox_button" class="control"
+                   onclick="switchState('type_CommonAnnotation_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="type_CommonAnnotation_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;...<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Namespace="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; ... &lt;/<a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>&gt; <span class="occurs">[1..*]</span>
+               </div>&lt;/...&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_CommonAnnotation_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_CommonAnnotation_diagram_button" class="control"
+                   onclick="switchState('type_CommonAnnotation_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_CommonAnnotation_diagram" class="contents">
+            <img usemap="#type_CommonAnnotation_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/type_CommonAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/type_CommonAnnotation_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="type_CommonAnnotation_httpwww.openmicroscopy.orgSchemasSA200809">
+               <area shape="rect" alt="element_Link" coords="278,0,362,42"
+                     href="SA.xsd.html#element_Link"/>
+
+               <area shape="rect" alt="type_AnnotationID" coords="192,52,286,78"
+                     href="SA.xsd.html#type_AnnotationID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_CommonAnnotation_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_CommonAnnotation_scbox_button" class="control"
+                   onclick="switchState('type_CommonAnnotation_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_CommonAnnotation_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> 
+               <span class="scTag">name</span>="<span class="scContent">CommonAnnotation</span>" <span class="scTag">abstract</span>="<span class="scContent">true</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                     <span class="scTag">ref</span>="<span class="scContent">
+                        <a title="Jump to &#34;Link&#34; element declaration." href="#element_Link">Link</a>
+                     </span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                  <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">
+                        <a title="Jump to &#34;AnnotationID&#34; type definition." href="#type_AnnotationID">AnnotationID</a>
+                     </span>
+                  </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                  <span class="scTag">name</span>="<span class="scContent">Namespace</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span>
+                  </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_CommonAnnotation_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_AnnotationID" class="name">AnnotationID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>AnnotationID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>AnnotationID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Complex Type <b>
+                  <a href="#type_CommonAnnotation">CommonAnnotation</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Annotation:\S+)|(Annotation:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_AnnotationID_diagram_button" class="control"
+                   onclick="switchState('type_AnnotationID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_AnnotationID_diagram" class="contents">
+            <img usemap="#type_AnnotationID_httpwww.openmicroscopy.orgSchemasSA200809"
+                 src="schemaDiagrams/type_AnnotationID_httpwww.openmicroscopy.orgSchemasSA200809.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Desktop/Schema//schemaDiagrams/type_AnnotationID_httpwww.openmicroscopy.orgSchemasSA200809.map--><map name="type_AnnotationID_httpwww.openmicroscopy.orgSchemasSA200809">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_AnnotationID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_AnnotationID_scbox_button" class="control"
+                   onclick="switchState('type_AnnotationID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_AnnotationID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">AnnotationID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Annotation:\S+)|(Annotation:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_AnnotationID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <div id="legend">
+         <h2>
+            <a name="Legend">Legend</a>
+         </h2>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">Complex Type:</h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Type</div>
+         </div>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">
+               <span class="name">AusAddress</span>
+            </h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Name</div>
+         </div>
+         <table class="hierarchy" style="clear : both">
+            <tr>
+               <th>Super-types:</th>
+               <td>
+                  <span class="type" style="color: #0000FF; text-decoration:underline;">Address</span> &lt; <span class="current">AusAddress</span> (by extension)</td>
+            </tr>
+            <tr>
+               <th>Sub-types:</th>
+               <td>
+                  <ul>
+                     <li>
+                        <span class="type" style="color: #0000FF; text-decoration:underline;">QLDAddress</span> (by restriction)</li>
+                  </ul>
+               </td>
+            </tr>
+         </table>
+         <div class="hint">If this schema component is a type definition, its type hierarchy is shown in a gray-bordered box.</div>
+         <table class="properties">
+            <tr>
+               <th>Name</th>
+               <td>AusAddress</td>
+            </tr>
+            <tr>
+               <th>
+                  <a title="Look up 'Abstract' in glossary" href="SA.xsd.html#term_Abstract">Abstract</a>
+               </th>
+               <td>no</td>
+            </tr>
+         </table>
+         <div class="hint">The table above displays the properties of this schema component.</div>
+         <div class="sample box">
+            <div>
+               <span class="caption">XML Instance Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;...</span>
+               <span class="newFields">
+                  <span> country="<span class="fixed">Australia</span>"</span>
+               </span>&gt; <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;unitNo&gt; <span class="type">string</span> &lt;/unitNo&gt; <span class="occurs">[0..1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;houseNo&gt; <span class="type">string</span> &lt;/houseNo&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;street&gt; <span class="type">string</span> &lt;/street&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a>
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;city&gt; <span class="type">string</span> &lt;/city&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;town&gt; <span class="type">string</span> &lt;/town&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>
+               <span class="newFields">
+                  <span style="margin-left: 1.5em">&lt;state&gt; <span class="type" style="text-decoration:underline;">AusStates</span> &lt;/state&gt; <span class="occurs">[1]</span>
+                  </span>
+                  <br/>
+                  <span style="margin-left: 1.5em">&lt;postcode&gt; <span class="constraint">string &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;</span> &lt;/postcode&gt; <span class="occurs">[1]</span>
+                     <a href="javascript:void(0)" title="View Documentation" class="documentation"
+                        onclick="docArray = new Array('Post code must be a four-digit number.'); viewDocumentation('Element', 'postcode', docArray);">?</a>
+                  </span>
+                  <br/>
+               </span>
+               <span style="margin-left: 0em">&lt;/...&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">
+            <p>The XML Instance Representation table above shows the schema component's content as an XML instance.</p>
+            <ul>
+               <li>The minimum and maximum occurrence of elements and attributes are provided in square brackets, e.g. [0..1].</li>
+               <li>Model group information are shown in gray, e.g. Start Choice ... End Choice.</li>
+               <li>For type derivations, the elements and attributes that have been added to or changed from the base type's content are shown in <span style="font-weight: bold">bold</span>.</li>
+               <li>If an element/attribute has a fixed value, the fixed value is shown in green, e.g. country="Australia".</li>
+               <li>Otherwise, the type of the element/attribute is displayed.
+               <ul>
+                     <li>If the element/attribute's type is in the schema, a link is provided to it.</li>
+                     <li>For local simple type definitions, the constraints are displayed in angle brackets, e.g. &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;.</li>
+                  </ul>
+               </li>
+               <li>If a local element/attribute has documentation, it will be displayed in a window that pops up when the question mark inside the attribute or next to the element is clicked, e.g. &lt;postcode&gt;.</li>
+            </ul>
+         </div>
+         <div class="schemaComponent box">
+            <div>
+               <span class="caption">Schema Component Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;<span class="scTag">complexType</span>
+                  <span class="scTag">name</span>="<span class="scContent">AusAddress</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;<span class="scTag">extension</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">Address</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">state</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">AusStates</span>
+                  </span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">postcode</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;<span class="scTag">restriction</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 10.5em">&lt;<span class="scTag">pattern</span>
+                  <span class="scTag">value</span>="<span class="scContent">[1-9][0-9]{3}</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;/<span class="scTag">restriction</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;/<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;/<span class="scTag">element</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;/<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">attribute</span>
+                  <span class="scTag">name</span>="<span class="scContent">country</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>" <span class="scTag">fixed</span>="<span class="scContent">Australia</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;/<span class="scTag">extension</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;/<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 0em">&lt;/<span class="scTag">complexType</span>&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">The Schema Component Representation table above displays the underlying XML representation of the schema component. (Annotations are not shown.)</div>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <div id="glossary">
+         <h2>
+            <a name="Glossary">Glossary</a>
+         </h2>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Abstract">Abstract</a> 
+            </span>(Applies to complex type definitions and element declarations). An abstract element or complex type cannot used to validate an element instance. If there is a reference to an abstract element, only element declarations that can substitute the abstract element can be used to validate the instance. For references to abstract type definitions, only derived types can be used.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_All">All Model Group</a> 
+            </span>Child elements can be provided <em>in any order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-all"
+               href="http://www.w3.org/TR/xmlschema-1/#element-all">http://www.w3.org/TR/xmlschema-1/#element-all</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Choice">Choice Model Group</a> 
+            </span>
+            <em>Only one</em> from the list of child elements and model groups can be provided in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-choice"
+               href="http://www.w3.org/TR/xmlschema-1/#element-choice">http://www.w3.org/TR/xmlschema-1/#element-choice</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_CollapseWS">Collapse Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32). Then, collapse contiguous sequences of space characters into single space character, and remove leading and trailing space characters.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemBlock">Disallowed Substitutions</a> 
+            </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary"
+               href="SA.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Key">Key Constraint</a> 
+            </span>Like <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="SA.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_KeyRef">Key Reference Constraint</a> 
+            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary" href="SA.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="SA.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ModelGroup">Model Group</a> 
+            </span>Groups together element content, specifying the order in which the element content can occur and the number of times the group of element content may be repeated. See: <a title="http://www.w3.org/TR/xmlschema-1/#Model_Groups"
+               href="http://www.w3.org/TR/xmlschema-1/#Model_Groups">http://www.w3.org/TR/xmlschema-1/#Model_Groups</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Nillable">Nillable</a> 
+            </span>(Applies to element declarations). If an element declaration is nillable, instances can use the <code>xsi:nil</code> attribute. The <code>xsi:nil</code> attribute is the boolean attribute, <em>nil</em>, from the <em>http://www.w3.org/2001/XMLSchema-instance</em> namespace. If an element instance has an <code>xsi:nil</code> attribute set to true, it can be left empty, even though its element declaration may have required content.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Notation">Notation</a> 
+            </span>A notation is used to identify the format of a piece of data. Values of elements and attributes that are of type, NOTATION, must come from the names of declared notations. See: <a title="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations"
+               href="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations">http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_PreserveWS">Preserve Whitespace Policy</a> 
+            </span>Preserve whitespaces exactly as they appear in instances.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeFinal">Prohibited Derivations</a> 
+            </span>(Applies to type definitions). Derivation methods that cannot be used to create sub-types from a given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeBlock">Prohibited Substitutions</a> 
+            </span>(Applies to complex type definitions). Prevents sub-types that have been derived using the specified derivation methods from validating element instances in place of the given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ReplaceWS">Replace Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32).</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Sequence">Sequence Model Group</a> 
+            </span>Child elements and model groups must be provided <em>in the specified order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-sequence"
+               href="http://www.w3.org/TR/xmlschema-1/#element-sequence">http://www.w3.org/TR/xmlschema-1/#element-sequence</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_SubGroup">Substitution Group</a> 
+            </span>Elements that are <em>members</em> of a substitution group can be used wherever the <em>head</em> element of the substitution group is referenced.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemFinal">Substitution Group Exclusions</a> 
+            </span>(Applies to element declarations). Prohibits element declarations from nominating themselves as being able to substitute a given element declaration, if they have types that are derived from the original element's type using the specified derivation methods.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TargetNS">Target Namespace</a> 
+            </span>The target namespace identifies the namespace that components in this schema belongs to. If no target namespace is provided, then the schema components do not belong to any namespace.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Unique">Uniqueness Constraint</a> 
+            </span>Ensures uniqueness of an element/attribute value, or a combination of values, within a specified scope. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <p class="footer">Generated by <a href="http://www.oxygenxml.com">&lt;oXygen/&gt; XML Editor</a> using a modified version of <a href="http://titanium.dstc.edu.au/xml/xs3p">xs3p</a> that adds schema diagrams and chunking support. Last modified: <script type="text/javascript">
+<!--
+          document.write(document.lastModified);
+// -->
+</script>
+      </p>
+   </body>
+</html>

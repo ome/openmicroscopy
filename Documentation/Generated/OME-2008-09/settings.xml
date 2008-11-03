@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialized>
+  <map>
+    <entry>
+      <String xml:space="preserve">xml.schema.documentation.configuration</String>
+      <xmlSchemaDocumentationConfiguration>
+        <field name="inputURL">
+          <String xml:space="preserve">http://www.openmicroscopy.org/Schemas/OME/2008-09/ome.xsd</String>
+        </field>
+        <field name="outputFolder">
+          <String xml:space="preserve">/Users/andrew/Desktop/Schema</String>
+        </field>
+        <field name="outputFileName">
+          <String xml:space="preserve">ome.xsd.html</String>
+        </field>
+        <field name="title">
+          <String xml:space="preserve">Documentation for OME Schemas</String>
+        </field>
+        <field name="sortByComponent">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="useJavaScript">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="printAllSuperTypes">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="printAllSubTypes">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="printLegend">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="printGlossary">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="printNSPrefixes">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="searchIncludedSchemas">
+          <Boolean xml:space="preserve">false</Boolean>
+        </field>
+        <field name="searchImportedSchemas">
+          <Boolean xml:space="preserve">false</Boolean>
+        </field>
+        <field name="linksURL">
+          <null></null>
+        </field>
+        <field name="cssURL">
+          <String xml:space="preserve">auto-gen-doc.css</String>
+        </field>
+        <field name="generateFullModelDiagrams">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="generateLogicalModelDiagrams">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="imagesFolder">
+          <String xml:space="preserve">schemaDiagrams</String>
+        </field>
+        <field name="generateForImportIncludeSchemas">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="openInBrowser">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="generateChunks">
+          <Boolean xml:space="preserve">false</Boolean>
+        </field>
+        <field name="generatePNGImages">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="useHashCodes">
+          <Boolean xml:space="preserve">false</Boolean>
+        </field>
+        <field name="hideComments">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="hideAnnotation">
+          <Boolean xml:space="preserve">true</Boolean>
+        </field>
+        <field name="customXS3PStylesheetURL">
+          <String xml:space="preserve"></String>
+        </field>
+      </xmlSchemaDocumentationConfiguration>
+    </entry>
+  </map>
+</serialized>
