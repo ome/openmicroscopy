@@ -106,14 +106,12 @@ public abstract class AbstractParam
 	}
 	
 	/**
-	 * This method returns a list of the names of attributes. 
-	 * These attributes represent the experimental "value" of this
-	 * parameter (rather than other attributes such as name or default
-	 * values that represent the "template" part of the parameter. 
-	 * This method is used for eg. clearing the value of a parameter by 
-	 * setting all value attributes to null. 
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * This method should return a list of the names of attributes. 
+	 * 
+	 * @see IParam#getParamAttributes()
 	 */
-	public abstract String[] getValueAttributes();
+	public abstract String[] getParamAttributes();
 
 	/**
 	 * Unless specified by subclasses, parameter has no default values.

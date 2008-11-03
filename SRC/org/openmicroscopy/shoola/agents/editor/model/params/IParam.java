@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
  * retrieve data from a Parameter (the data object that models 
  * experimental variables within a Field). 
  * A Parameter has one or move experimental values, stored in attributes
- * defined by {@link #getValueAttributes()} and may also have default values
+ * defined by {@link #getParamAttributes()} and may also have default values
  * and other attributes (e.g. drop-down options).   
  * 
  * Data is saved and retrieved using methods of the {@link IAttributes}
@@ -71,14 +71,10 @@ public interface IParam
 	public boolean isParamFilled();
 	
 	/**
-	 * This method returns a list of the names of attributes. 
-	 * These attributes represent the experimental "value" of this
-	 * parameter (rather than other attributes such as name or default
-	 * values that represent the "template" part of the parameter. 
-	 * This method is used for eg. clearing the value of a parameter by 
-	 * setting all value attributes to null. 
+	 * This method returns a list of the names of parameter attributes. 
+	 * Used for saving this Parameter to XML and vice-versa 
 	 */
-	public String[] getValueAttributes();
+	public String[] getParamAttributes();
 	
 	/**
 	 * Unless specified by subclasses, parameter has no default values.

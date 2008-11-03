@@ -82,9 +82,10 @@ public class ImageParam
 	/**
 	 * @see AbstractParam#getValueAttributes()
 	 */
-	public String[] getValueAttributes() 
+	public String[] getParamAttributes() 
 	{
-		return new String[] {ABSOLUTE_IMAGE_PATH, RELATIVE_IMAGE_PATH};
+		return new String[] {ABSOLUTE_IMAGE_PATH, RELATIVE_IMAGE_PATH,
+				IMAGE_ZOOM};
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class ImageParam
 	 */
 	public boolean isParamFilled() 
 	{
-		String[] attributes = getValueAttributes();
+		String[] attributes = getParamAttributes();
 		for (int i=0; i<attributes.length; i++) {
 			// if any attribute is not null, then this field is filled. 
 			if (getAttribute(attributes[i]) != null)

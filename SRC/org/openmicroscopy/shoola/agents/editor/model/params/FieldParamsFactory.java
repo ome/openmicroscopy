@@ -48,9 +48,9 @@ public class FieldParamsFactory {
 	public static final String[] PARAM_TYPES = 
 	{NO_PARAMS, SingleParam.TEXT_LINE_PARAM,
 		SingleParam.TEXT_BOX_PARAM, 
-		SingleParam.ENUM_PARAM, 
-		SingleParam.BOOLEAN_PARAM, 
-		SingleParam.NUMBER_PARAM, 
+		EnumParam.ENUM_PARAM, 
+		BooleanParam.BOOLEAN_PARAM, 
+		NumberParam.NUMBER_PARAM, 
 		DateTimeParam.DATE_TIME_PARAM,
 		TimeParam.TIME_PARAM, 
 		LinkParam.LINK_PARAM, 
@@ -95,20 +95,20 @@ public class FieldParamsFactory {
 		else if (paramType.equals(SingleParam.TEXT_BOX_PARAM)) {
 			fieldValue = new SingleParam(SingleParam.TEXT_BOX_PARAM);
 		}
-		else if (paramType.equals(SingleParam.NUMBER_PARAM)) {
-			fieldValue = new SingleParam(SingleParam.NUMBER_PARAM);
+		else if (paramType.equals(NumberParam.NUMBER_PARAM)) {
+			fieldValue = new NumberParam();
 		}
-		else if (paramType.equals(SingleParam.ENUM_PARAM)) {
-			fieldValue = new SingleParam(SingleParam.ENUM_PARAM);
+		else if (paramType.equals(EnumParam.ENUM_PARAM)) {
+			fieldValue = new SingleParam(EnumParam.ENUM_PARAM);
 		}
-		else if (paramType.equals(SingleParam.BOOLEAN_PARAM)) {
-			fieldValue = new SingleParam(SingleParam.BOOLEAN_PARAM);
+		else if (paramType.equals(BooleanParam.BOOLEAN_PARAM)) {
+			fieldValue = new BooleanParam();
 		}
 		else if (paramType.equals(TimeParam.TIME_PARAM)) {
-			fieldValue = new TimeParam(TimeParam.TIME_PARAM);
+			fieldValue = new TimeParam();
 		}
 		else if (paramType.equals(DateTimeParam.DATE_TIME_PARAM)) {
-			fieldValue = new DateTimeParam(DateTimeParam.DATE_TIME_PARAM);
+			fieldValue = new DateTimeParam();
 		}
 		else if (paramType.equals(ImageParam.IMAGE_PARAM)) {
 			fieldValue = new ImageParam(ImageParam.IMAGE_PARAM);

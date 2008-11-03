@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.EnumEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
@@ -78,7 +79,7 @@ public class EnumTemplate
 		
 		// A text box to display and edit the list of options
 		optionsFieldEditor = new AttributeEditArea(param, 
-					SingleParam.ENUM_OPTIONS, 
+					EnumParam.ENUM_OPTIONS, 
 					"Drop-down options: separate with commas");
 		optionsFieldEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
@@ -166,7 +167,7 @@ public class EnumTemplate
 					new HashMap<String,String>();
 				newAttributes.put(SingleParam.DEFAULT_VALUE, defaultValue);
 				newAttributes.put(SingleParam.PARAM_VALUE, paramValue);
-				newAttributes.put(SingleParam.ENUM_OPTIONS, newOptions);
+				newAttributes.put(EnumParam.ENUM_OPTIONS, newOptions);
 				attributeEdited("Drop-down options", newAttributes);
 				
 			}

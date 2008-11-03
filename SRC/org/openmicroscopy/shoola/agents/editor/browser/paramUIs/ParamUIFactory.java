@@ -35,10 +35,13 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.ParamTemplateUIFactory;
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
@@ -106,15 +109,15 @@ public class ParamUIFactory
 			return new TextBoxEditor(paramObject);
 		}
 		
-		if (inputType.equals(SingleParam.NUMBER_PARAM)) {
+		if (inputType.equals(NumberParam.NUMBER_PARAM)) {
 			return new NumberEditor(paramObject);
 		}
 		
-		if (inputType.equals(SingleParam.ENUM_PARAM)) {
+		if (inputType.equals(EnumParam.ENUM_PARAM)) {
 			return new EnumEditor(paramObject);
 		}
 		
-		if (inputType.equals(SingleParam.BOOLEAN_PARAM)) {
+		if (inputType.equals(BooleanParam.BOOLEAN_PARAM)) {
 			return new BooleanEditor(paramObject);
 		}
 		

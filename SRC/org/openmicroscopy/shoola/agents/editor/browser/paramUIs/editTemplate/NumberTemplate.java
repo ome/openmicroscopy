@@ -36,6 +36,7 @@ import javax.swing.Box;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 
 /** 
@@ -73,7 +74,7 @@ public class NumberTemplate
 		
 		// Units: Label and text box
 		AttributeEditLine unitsEditor = new AttributeEditLine
-			(getParameter(), SingleParam.PARAM_UNITS, "Units");
+			(getParameter(), NumberParam.PARAM_UNITS, "Units");
 		unitsEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		add(unitsEditor);

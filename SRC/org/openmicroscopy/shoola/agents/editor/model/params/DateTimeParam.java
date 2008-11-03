@@ -96,19 +96,17 @@ public class DateTimeParam
 	
 	/**
 	 * Creates an instance. 
-	 * 
-	 * @param fieldType		The String defining the field type
-	 */
-	public DateTimeParam(String fieldType) {
-		super(fieldType);
+	  */
+	public DateTimeParam() {
+		super(DATE_TIME_PARAM);
 	}
 	
 	/**
-	 * This parameter stores its value in several possible attributes. 
+	 * Implemented as specified by the {@link IParam} interface. 
 	 * 
-	 * @see IParam#getValueAttributes()
+	 * @see IParam#getParamAttributes()
 	 */
-	public String[] getValueAttributes() {
+	public String[] getParamAttributes() {
 		
 		return new String[] {DATE_ATTRIBUTE, REL_DATE_ATTRIBUTE,
 				IS_RELATIVE_DATE, TIME_ATTRIBUTE, ALARM_SECONDS};

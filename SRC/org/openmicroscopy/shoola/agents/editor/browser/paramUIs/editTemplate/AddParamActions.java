@@ -42,6 +42,8 @@ import javax.swing.tree.TreeNode;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 
@@ -222,7 +224,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, SingleParam.NUMBER_PARAM, 
+			controller.addParamToField(field, NumberParam.NUMBER_PARAM, 
 					tree, node);
 		}
 	
@@ -255,7 +257,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, SingleParam.BOOLEAN_PARAM, 
+			controller.addParamToField(field, BooleanParam.BOOLEAN_PARAM, 
 					tree, node);
 		}
 		

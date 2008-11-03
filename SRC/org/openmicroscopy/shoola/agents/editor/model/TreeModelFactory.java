@@ -46,11 +46,14 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
@@ -245,24 +248,24 @@ public class TreeModelFactory
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.NUMBER_ENTRY_STEP)) {
-			 param = new SingleParam(SingleParam.NUMBER_PARAM);
+			 param = new SingleParam(NumberParam.NUMBER_PARAM);
 			 setValueAndDefault(allAttributes, param);
 			 String units = allAttributes.get(DataFieldConstants.UNITS);
-			 param.setAttribute(SingleParam.PARAM_UNITS, units);
+			 param.setAttribute(NumberParam.PARAM_UNITS, units);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DROPDOWN_MENU_STEP)) {
-			 param = new SingleParam(SingleParam.ENUM_PARAM);
+			 param = new SingleParam(EnumParam.ENUM_PARAM);
 			 setValueAndDefault(allAttributes, param);
 			 String ddOptions = allAttributes.get(
 					 DataFieldConstants.DROPDOWN_OPTIONS);
-			 param.setAttribute(SingleParam.ENUM_OPTIONS, ddOptions);
+			 param.setAttribute(EnumParam.ENUM_OPTIONS, ddOptions);
 		 }
 		 else if (paramType.equals(DataFieldConstants.CHECKBOX_STEP)) {
-			 param = new SingleParam(SingleParam.BOOLEAN_PARAM);
+			 param = new SingleParam(BooleanParam.BOOLEAN_PARAM);
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.TIME_FIELD)) {
-			 param = new TimeParam(TimeParam.TIME_PARAM);
+			 param = new TimeParam();
 			 // old (pre 7th March 08) use the old value "hh:mm:ss" and default
 			 setValueAndDefault(allAttributes, param);
 			 // newer XML uses SECONDS attribute for timeInSecs. 
@@ -271,7 +274,7 @@ public class TreeModelFactory
 			 
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			 param = new DateTimeParam(DateTimeParam.DATE_TIME_PARAM);
+			 param = new DateTimeParam();
 			 String millisecs = allAttributes.get(DataFieldConstants.UTC_MILLISECS);
 			 if (millisecs != null) {
 				// create a test calendar (see below).

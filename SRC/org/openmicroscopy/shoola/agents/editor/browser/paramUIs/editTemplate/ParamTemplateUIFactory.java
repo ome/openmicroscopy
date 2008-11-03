@@ -33,8 +33,11 @@ import javax.swing.JComponent;
 
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
@@ -64,12 +67,12 @@ public class ParamTemplateUIFactory {
 	{
 		
 		if (paramObject == null) {
-			return null;
+			throw new NullPointerException("No parameter.");
 		}
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 
 		if (inputType == null) {
-			return null;
+			throw new NullPointerException("No input type.");
 		}
 		
 		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
@@ -77,11 +80,11 @@ public class ParamTemplateUIFactory {
 					SingleParam.DEFAULT_VALUE, "Default Text");
 		} 
 		
-		if (inputType.equals(SingleParam.ENUM_PARAM)) {
+		if (inputType.equals(EnumParam.ENUM_PARAM)) {
 			return new EnumTemplate(paramObject);
 		}
 		
-		if (inputType.equals(SingleParam.BOOLEAN_PARAM)) {
+		if (inputType.equals(BooleanParam.BOOLEAN_PARAM)) {
 			return new BooleanTemplate(paramObject);
 		}
 		
@@ -97,19 +100,17 @@ public class ParamTemplateUIFactory {
 			return new TimerTemplate(paramObject);
 		}
 		
-		if (inputType.equals(SingleParam.NUMBER_PARAM)) {
+		if (inputType.equals(NumberParam.NUMBER_PARAM)) {
 			return new NumberTemplate(paramObject);
 		}
-		
-		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			return null;
-		} 
 		
 		if (inputType.equals(SingleParam.TEXT_BOX_PARAM)) {
 			return new AttributeEditArea(paramObject,
 					SingleParam.DEFAULT_VALUE, "Text-box Default");
 		}
 		
+		System.err.println("ParamTemplateUIFactory No UI created for '" +
+				inputType + "'. Return null!");
 		return null;
 	}
 }

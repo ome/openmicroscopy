@@ -34,6 +34,7 @@ import javax.swing.Box;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
@@ -72,7 +73,7 @@ public class NumberEditor
 		
 		add(Box.createHorizontalStrut(10));
 		
-		String units = getParameter().getAttribute(SingleParam.PARAM_UNITS);
+		String units = getParameter().getAttribute(NumberParam.PARAM_UNITS);
 		add(new CustomLabel(units));
 	}
 	

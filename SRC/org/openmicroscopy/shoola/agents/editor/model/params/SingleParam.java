@@ -65,44 +65,6 @@ public class SingleParam
 	public static final String 		TEXT_BOX_PARAM = "textBoxParam";
 	
 	/**
-	 * This defines a parameter that is a number. 
-	 * Could be integer or float.
-	 * Additional attributes are "units"
-	 * Equivalent to the "NumberField" of Beta 3.0
-	 */
-	public static final String 		NUMBER_PARAM = "numberParam";
-	
-	/**
-	 * This defines a string parameter that is an enumeration of
-	 * a fixed number of values. 
-	 * Additional attributes define the possible values.
-	 * Equivalent to the "DropDownMenu" of Beta 3.0
-	 */
-	public static final String 		ENUM_PARAM = "enumParam";
-	
-	/**
-	 * This defines a parameter that is a boolean.
-	 * Equivalent to the "CheckBoxField" of Beta 3.0
-	 */
-	public static final String 		BOOLEAN_PARAM = "booleanParam";
-	
-	
-	// Additional attributes required by some of these parameters. 
-	
-	/**
-	 * An attribute to describe the units of a NUMBER_PARAM.
-	 * eg "%" or "grams"
-	 */
-	public static final String 		PARAM_UNITS = "paramUnits";
-	
-	/**
-	 * An attribute used by the ENUM_PARAM to store a comma-delimited
-	 * set of options. 
-	 * Equivalent to the "dropdownOptions" of Beta 3.0
-	 */
-	public static final String 		ENUM_OPTIONS = "enumOptions";
-	
-	/**
 	 * Creates an instance. 
 	 * 
 	 * @param fieldType		The String defining the field type
@@ -118,9 +80,12 @@ public class SingleParam
 	 * If this is filled, then the parameter is filled.
 	 * If the field is cleared, this attribute is cleared etc.
 	 * 
-	 * @see AbstractParam#getValueAttributes()
+	 * @see AbstractParam#getParamAttributes()
 	 */
-	public String[] getValueAttributes() { return new String[] {PARAM_VALUE}; }
+	public String[] getParamAttributes() { 
+		
+		return new String[] {PARAM_VALUE, DEFAULT_VALUE}; 
+		}
 	
 	/**
 	 * Returns a single attribute name that identifies the default value
@@ -162,7 +127,7 @@ public class SingleParam
 			text = text + "Value not set";
 		}
 		
-		String units = getAttribute(PARAM_UNITS);
+		String units = getAttribute(NumberParam.PARAM_UNITS);
 		if (units != null) { text = text + " " + units; }
 		
 		return text;

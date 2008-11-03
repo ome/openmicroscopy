@@ -74,8 +74,8 @@ public class TimeParam
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public TimeParam(String fieldType) {
-		super(fieldType);
+	public TimeParam() {
+		super(TIME_PARAM);
 	}
 	
 	/**
@@ -101,7 +101,7 @@ public class TimeParam
 	/**
 	 * Returns the single attribute: SECONDS
 	 */
-	public String[] getValueAttributes() {
+	public String[] getParamAttributes() {
 		return new String[] {SECONDS};
 	}
 

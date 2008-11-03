@@ -262,8 +262,16 @@ public class XMLexport {
 				addClassAttribute(contentElement, paramClass);
 				// content is string representation of parameter
 				contentElement.setContent(param.toString());
-				// all other attributes are saved as attributes
-				// TODO attributes
+				
+				// all parameter attributes are saved as attributes
+				String[] paramAts = param.getParamAttributes();
+				String attValue;
+				for (int a=0; a<paramAts.length; a++){
+					attValue = param.getAttribute(paramAts[a]);
+					if (attValue != null)
+					contentElement.setAttribute(paramAts[a], attValue);
+				}
+				
 				content.addChild(contentElement);
 				
 				contentElement = content.createPCDataElement();

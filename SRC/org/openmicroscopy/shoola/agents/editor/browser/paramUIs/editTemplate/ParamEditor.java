@@ -113,9 +113,6 @@ public class ParamEditor
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(null);
 		
-		JComponent defaultEdit = ParamTemplateUIFactory.
-								getEditDefaultComponent(parameter);
-
 		// add name field
 		AttributeEditLine nameEditor = new AttributeEditNoLabel
 			(parameter, AbstractParam.PARAM_NAME, "Parameter Name");
@@ -138,12 +135,16 @@ public class ParamEditor
 		add(nameAndTypeContainer);
 		
 		// add the parameter editing component
-		add(defaultEdit);
-		defaultEdit.addPropertyChangeListener( 
+		JComponent defaultEdit = ParamTemplateUIFactory.
+		getEditDefaultComponent(parameter);
+		if (defaultEdit != null) {
+			add(defaultEdit);
+			defaultEdit.addPropertyChangeListener( 
 				ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				parent);
-		defaultEdit.addPropertyChangeListener
+			defaultEdit.addPropertyChangeListener
 				(FieldPanel.UPDATE_EDITING_PROPERTY, this);
+		}
 	}
 	
 	/**

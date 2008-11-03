@@ -1,5 +1,5 @@
  /*
- * treeModel.fields.TableParam 
+ * org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,15 +24,12 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 
 //Java imports
 
-import javax.swing.table.TableModel;
-
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * This is a Parameter that holds table data.
- * It delegates the table data itself to a {@link TableModel}. 
+ * A class for modeling a boolean parameter
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -42,72 +39,44 @@ import javax.swing.table.TableModel;
  * </small>
  * @since OME3.0
  */
-public class TableParam 
-	extends AbstractParam {
-	
+public class BooleanParam 
+	extends AbstractParam 
+{
+
 	/**
-	 * The table model that holds the data. 
+	 * This defines a parameter that is a boolean.
+	 * Equivalent to the "CheckBoxField" of Beta 3.0
 	 */
-	private TableModel 				tableModel;
-	
-	/**
-	 * A String to define the table parameter
-	 */
-	public static final String 		TABLE_PARAM = "tableParam";
-	
+	public static final String 		BOOLEAN_PARAM = "booleanParam";
+
 	/**
 	 * Creates an instance. 
-	 * Instantiates the table model.
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public TableParam(String fieldType) 
+	public BooleanParam() 
 	{
-		super(fieldType);
-		
-		tableModel = new MutableTableModel();
+		super(BOOLEAN_PARAM);
 	}
 	
 	/**
-	 * Gets a reference to the table model.
+	 * Implemented as specified by the {@link IParam} interface. 
 	 * 
-	 * @return		see above.
+	 * @see IParam#getParamAttributes()
 	 */
-	public TableModel getTableModel() { return tableModel; }
-
-	/**
-	 * Returns an empty array. No value attributes. 
-	 * 
-	 * @see AbstractParam#getParamAttributes()
-	 */
-	public String[] getParamAttributes() { return new String[0]; }
-
-	/**
-	 * Returns true if there is at least one row of table data.
-	 * 
-	 * @see AbstractParam#isParamFilled()
-	 */
-	public boolean isParamFilled() {
-		return tableModel.getRowCount() > 0;
-	}
-	
-	/**
-	 * Returns a comma-delimited list of the column names. 
-	 * 
-	 * @see Object#toString()
-	 */
-	public String toString() 
+	public String[] getParamAttributes() 
 	{
-		String text = "";
-		int cols = tableModel.getColumnCount();
-		
-		for (int c=0; c<cols; c++) 
-		{
-			if (c >0) text = text + ", ";
-			text = text + tableModel.getColumnName(c);
-		}
-		
-		return text;
+		return new String[] {SingleParam.PARAM_VALUE, SingleParam.DEFAULT_VALUE};
+	}
+
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
+	 * @see IParam#isParamFilled()
+	 */
+	public boolean isParamFilled() 
+	{
+		return (getAttribute(SingleParam.PARAM_VALUE) != null);
 	}
 
 }

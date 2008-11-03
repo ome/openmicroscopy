@@ -35,6 +35,7 @@ import javax.swing.JComboBox;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 
@@ -132,7 +133,7 @@ public class EnumEditor
 		comboBox = new CustomComboBox(150);
 		
 		String dropDownOptions = getParameter()
-						.getAttribute(SingleParam.ENUM_OPTIONS);
+						.getAttribute(EnumParam.ENUM_OPTIONS);
 		/* set the options and value */
 		setDropDownOptions(dropDownOptions);
 		comboBox.addActionListener(this);
