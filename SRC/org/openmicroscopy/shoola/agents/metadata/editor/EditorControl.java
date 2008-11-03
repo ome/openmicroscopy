@@ -156,6 +156,13 @@ class EditorControl
 	/** Loads the image acquisition data. */
 	void loadImageAcquisitionData() { model.loadImageAcquisitionData(); }
 	
+	/** Loads the existing Tags. */
+	void loadExistingTags()
+	{
+		view.onTagsLoading(true);
+		model.loadExistingTags();
+	}
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -201,8 +208,7 @@ class EditorControl
 				//model.download();
 				break;
 			case ADD_TAGS:
-				view.onTagsLoading(true);
-				model.loadExistingTags();
+				loadExistingTags();
 		}
 		
 	}

@@ -48,6 +48,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
@@ -57,6 +58,8 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import org.jdesktop.swingx.autocomplete.ListAdaptor;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -146,6 +149,9 @@ class AnnotationDataUI
 	
 	/** The collection of existing tags. */
 	private Map<String, TagAnnotationData>	existingTags;
+	
+	/** Flag indicating that the tags are loaded for autocomplete. */
+	private boolean							autoComplete;
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -445,21 +451,18 @@ class AnnotationDataUI
 				}
 			}
 		}
-		if (existing != tagNames.size()) {
-			docFlag = true;
-			return;
+		if (existing != tagNames.size()) tagFlag = true;
+		else tagFlag = newTag > 0;
+	}
+	
+	/** Handles tag insert, autocomplete if fast connection. */
+	private void handleTextInsert()
+	{
+		Collection tags = model.getExistingTags();
+		if (tags == null) {
+			autoComplete = true;
+			controller.loadExistingTags();
 		}
-		docFlag = newTag > 0;
-	}
-	
-	private void attachTagPaneListeners()
-	{
-		
-	}
-	
-	private void removeTagPaneListeners()
-	{
-		
 	}
 	
 	/**
@@ -620,7 +623,25 @@ class AnnotationDataUI
 	 */
 	void setExistingTags()
 	{
-		showSelectionWizard();
+		if (!autoComplete) {
+			showSelectionWizard();
+		} else {
+			Collection l = model.getExistingTags();
+			if (l != null) {
+				/*
+				Iterator i = l.iterator();
+				Object[] values = new Object[l.size()];
+				int j = 0;
+				while (i.hasNext()) {
+					values[j] = ((TagAnnotationData) i.next()).getTagValue();
+				}
+				JList list = new JList(values);
+				//ListAdaptor adaptor = new ListAdaptor(list, tagsPane);
+				AutoCompleteDecorator.decorate(list, tagsPane);
+				*/
+			}
+			
+		}
 	}	
 	
 	/**
@@ -703,11 +724,10 @@ class AnnotationDataUI
 	protected List<AnnotationData> getAnnotationToRemove()
 	{ 
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		RatingAnnotationData data = model.getUserRatingAnnotation();
-		if (data != null && selectedValue == 0)
-			l.add(data);
-		tagFlag = true;
-		System.err.println(tagFlag);
+		if (selectedValue != initialValue && selectedValue == 0) {
+			RatingAnnotationData rating = model.getUserRatingAnnotation();
+			if (rating != null) l.add(rating);
+		}
 		if (tagFlag) {
 			String value = tagsPane.getText();
 			String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
@@ -849,7 +869,9 @@ class AnnotationDataUI
 				this);
 		rating.setValue(selectedValue);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+		tagsPane.getDocument().removeDocumentListener(this);
 		tagsPane.setText(DEFAULT_TEXT);
+		tagsPane.getDocument().addDocumentListener(this);
 		urlPane.removeAll();
 		urlPane.add(new URLComponent(null, model));
 		docPane.removeAll();
@@ -901,7 +923,7 @@ class AnnotationDataUI
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-		//Auto complete
+		handleTextInsert();
 	}
 
 	/**

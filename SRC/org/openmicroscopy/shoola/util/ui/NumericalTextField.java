@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -51,7 +54,7 @@ import javax.swing.text.PlainDocument;
  */
 public class NumericalTextField 
 	extends JTextField
-	implements DocumentListener
+	implements DocumentListener, FocusListener
 {
 
 	/** Accepted value if integer. */
@@ -121,6 +124,7 @@ public class NumericalTextField
 		originalText = null;
 		editedColor = null;
 		document.addDocumentListener(this);
+		addFocusListener(this);
 		numberType = Integer.class;
 		accepted = NUMERIC;
 		negativeAccepted = false;
@@ -189,6 +193,20 @@ public class NumericalTextField
      */
 	public void removeUpdate(DocumentEvent e) { updateForeGround(); }
 	
+	/**
+	 * Adds a <code>0</code> if the value of the field ends up with a
+	 * <code>.</code>
+	 *  @see FocusListener#focusLost(FocusEvent)
+	 */
+	public void focusLost(FocusEvent e)
+	{
+		String s = getText();
+		if (s != null && s.endsWith(".")) {
+			s += "0";
+			setText(s);
+		}
+	}
+
     /**
      * Required by the {@link DocumentListener} I/F but no-op implementation
      * in our case.
@@ -196,6 +214,13 @@ public class NumericalTextField
      */
 	public void changedUpdate(DocumentEvent e) {}
 
+	/**
+     * Required by the {@link FocusListener} I/F but no-op implementation
+     * in our case.
+     * @see FocusListener#focusGained(FocusEvent)
+     */
+	public void focusGained(FocusEvent e) {}
+	
 	/**
 	 * Inner class to make sure that we can only enter numerical value.
 	 */
@@ -230,9 +255,7 @@ public class NumericalTextField
 		            if (min <= val && val <= max) return true;
 				} else if (Float.class.equals(numberType)) {
 					float val = Float.parseFloat(str);
-					float m = (float) min;
-					float mx = (float) max;
-		            if (m <= val && val <= mx) return true;
+		            if (min <= val && val <= max) return true;
 				}
 	        } catch(NumberFormatException nfe) {}
 	       return false;
@@ -291,12 +314,18 @@ public class NumericalTextField
 						return;
 					}
 				}
-				if (isInRange(str))
+				if (str.equals(".") && accepted.equals(FLOAT)) {
 					super.insertString(offset, str, a);
+				} else {
+					String s = this.getText(0, this.getLength());
+					s += str;
+					if (isInRange(s))
+						super.insertString(offset, str, a);
+				}
 			} catch (Exception e) {
 				Toolkit.getDefaultToolkit().beep();
 			}
     	}
 	}
-
+	
 }
