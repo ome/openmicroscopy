@@ -1,0 +1,11 @@
+[
+  {
+    "model": "webadmin.gateway",
+    "pk": 1,
+    "fields": {
+      "base_path": "omero",
+      "server": "localhost",
+      "port": 4063
+    }
+  }
+]
