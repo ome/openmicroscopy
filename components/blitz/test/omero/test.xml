@@ -23,25 +23,25 @@
    <constructor-arg>
      <map>
        <entry key="ome.api.IAdmin" value="ome.api.local.LocalAdmin"/>
-       <entry key="ome.api.IConfig" value=""/>
-       <entry key="ome.api.IDelete" value=""/>
-       <entry key="ome.api.ILdap" value=""/>
-       <entry key="ome.api.IPixels" value=""/>
-       <entry key="ome.api.IPojos" value=""/>
+       <entry key="ome.api.IConfig"><null/></entry>
+       <entry key="ome.api.IDelete"><null/></entry>
+       <entry key="ome.api.ILdap"><null/></entry>
+       <entry key="ome.api.IPixels"><null/></entry>
+       <entry key="ome.api.IPojos"><null/></entry>
        <entry key="ome.api.IQuery" value="ome.api.local.LocalQuery"/>
-       <entry key="ome.api.IRenderingSettings" value=""/>
-       <entry key="ome.api.IRepositoryInfo" value=""/>
-       <entry key="ome.api.ISession" value=""/>
-       <entry key="ome.api.IShare" value=""/>
-       <entry key="ome.api.ITypes" value=""/>
+       <entry key="ome.api.IRenderingSettings"><null/></entry>
+       <entry key="ome.api.IRepositoryInfo"><null/></entry>
+       <entry key="ome.api.ISession"><null/></entry>
+       <entry key="ome.api.IShare"><null/></entry>
+       <entry key="ome.api.ITypes"><null/></entry>
        <entry key="ome.api.IUpdate" value="ome.api.local.LocalUpdate"/>
        <!-- Stateful -->
-       <entry key="ome.api.JobHandle" value=""/>
-       <entry key="ome.api.RawFileStore" value=""/>
-       <entry key="ome.api.RawPixelsStore" value=""/>
-       <entry key="omeis.providers.re.RenderingEngine" value=""/>
-       <entry key="ome.api.Search" value=""/>
-       <entry key="ome.api.ThumbnailStore" value=""/>
+       <entry key="ome.api.JobHandle"><list><value>ome.api.JobHandle</value><value>ome.api.local.Destroy</value></list></entry>
+       <entry key="ome.api.RawFileStore"><list><value>ome.api.RawFileStore</value><value>ome.api.local.Destroy</value></list></entry>
+       <entry key="ome.api.RawPixelsStore"><list><value>ome.api.RawPixelsStore</value><value>ome.api.local.Destroy</value></list></entry>
+       <entry key="omeis.providers.re.RenderingEngine"><list><value>omeis.providers.re.RenderingEngine</value><value>ome.api.local.Destroy</value></list></entry>
+       <entry key="ome.api.Search"><list><value>ome.api.Search</value><value>ome.api.local.Destroy</value></list></entry>
+       <entry key="ome.api.ThumbnailStore"><list><value>ome.api.ThumbnailStore</value><value>ome.api.local.Destroy</value></list></entry>
        <!-- Blitz only
        <entry key="ome.api.Gateway" value=""/>
        <entry key="ome.api.IScript" value=""/>

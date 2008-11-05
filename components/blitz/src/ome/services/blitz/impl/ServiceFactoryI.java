@@ -226,7 +226,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
-
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
         return IConfigPrxHelper.uncheckedCast(getByName(CONFIGSERVICE.value,
                 current));
@@ -407,12 +406,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         final JobHandle handle = sf.createJobHandle();
                         try {
                             JobStatus status = new JobStatusI();
-                            status
-                                    .setValue(omero.rtypes.rstring(
-                                            JobHandle.WAITING));
+                            status.setValue(omero.rtypes
+                                    .rstring(JobHandle.WAITING));
                             submittedJob.setStatus(status);
-                            submittedJob.setMessage(omero.rtypes.rstring(
-                                    "Interactive job. Waiting."));
+                            submittedJob.setMessage(omero.rtypes
+                                    .rstring("Interactive job. Waiting."));
 
                             handle.submit((ome.model.jobs.Job) mapper
                                     .reverse(submittedJob));
@@ -538,12 +536,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         } catch (SessionException rse) {
             // If the session has already been removed or has timed out,
             // then we should do everything we can to clean up.
-            String msg = "Session already removed. Most likely session timed out\n"
-                    + "before router session was destroyed. This can happen on  \n"
-                    + "laptop hibernation or if \"session-timeout\" in the      \n"
-                    + "application descriptor is greater than the OMERO config  \n"
-                    + "\"omero.sessions.timeout\".";
-            log.warn(msg);
+            log.info("Session already removed. Cleaning up blitz state.");
             ref = 0;
             doClose = true;
         }
@@ -571,6 +564,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // there's not much we can do.
         try {
             adapter.remove(sessionId());
+        } catch (Ice.ObjectAdapterDeactivatedException oade) {
+            log.warn("Adapter already deactivated. Cannot remove: "+sessionId());
         } catch (Throwable t) {
             // FIXME
             log.error("Possible memory leak: can't remove service factory", t);
@@ -585,8 +580,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * router, even when a client has just died, we have this internal method
      * for handling the actual closing of resources.
      * 
-     * This method must take precautions to not throw a {@link SessionException}.
-     * See {@link #destroy(Current)} for more information.
+     * This method must take precautions to not throw a {@link SessionException}
+     * . See {@link #destroy(Current)} for more information.
      */
     public void doDestroy() {
 
@@ -596,85 +591,98 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // Cleaning up resources
         // =================================================
-        List<String> servants = holder.getServantList();
-        for (final String key : servants) {
-            final Ice.Object servantOrTie = holder.get(key);
-            final Ice.Identity id = getIdentity(key);
+        holder.acquireLock("*"); // Protects all the servants on destruction
+        try {
+            List<String> servants = holder.getServantList();
+            for (final String key : servants) {
+                final Ice.Object servantOrTie = holder.get(key);
+                final Ice.Identity id = getIdentity(key);
 
-            // All errors are ignored within the loop.
-            try {
-                Object servant;
-                if (servantOrTie instanceof Ice.TieBase) {
-                    servant = ((Ice.TieBase) servantOrTie).ice_delegate();
-                } else {
-                    servant = servantOrTie;
+                if (servantOrTie == null) {
+                    log.warn("Servant already removed: " + key);
+                    // But calling unregister just in case
+                    unregisterServant(id);
+                    continue; // LOOP.
                 }
 
-                // Now that we have the servant instance, we do what we can
-                // to clean it up. Stateful services must use the callback
-                // mechanism of IceMethodInvoker. InteractiveProcessors must
-                // be stopped and unregistered. Stateless must only be
-                // unregistered.
-                //
-                // TODO: put all of this in the AbstractAmdServant class.
-                if (servant instanceof _StatefulServiceInterfaceOperations) {
-
-                    // Cleanup stateful
-                    // ----------------
-                    // Here we call the "close()" method on all methods which
-                    // require that logic, allowing the IceMethodInvoker to
-                    // raise the UnregisterServantEvent, otherwise there is a
-                    // recursive call back to close
-                    final _StatefulServiceInterfaceOperations stateful = (_StatefulServiceInterfaceOperations) servant;
-                    final Ice.Current __curr = new Ice.Current();
-                    __curr.id = id;
-                    __curr.adapter = adapter;
-                    __curr.operation = "close";
-                    __curr.ctx = new HashMap<String, String>();
-                    __curr.ctx.put(CLIENTUUID.value, clientId);
-                    // We have to be more intelligent about this. The call
-                    // should really happen in the same thread so that it's
-                    // complete before the service factory is removed.
-                    stateful.close_async(
-                            new AMD_StatefulServiceInterface_close() {
-                                public void ice_exception(Exception ex) {
-                                    log.error("Error on close callback: " + key
-                                            + "=" + stateful);
-                                }
-
-                                public void ice_response() {
-                                    // Ok.
-                                }
-
-                            }, __curr);
-
-                } else {
-                    if (servant instanceof InteractiveProcessorI) {
-                        // Cleanup interactive processors
-                        // ------------------------------
-                        InteractiveProcessorI ip = (InteractiveProcessorI) servant;
-                        ip.stop();
-                    } else if (servant instanceof _ServiceInterfaceOperations) {
-                        // Cleanup stateless
-                        // -----------------
-                        // Do nothing.
+                // All errors are ignored within the loop.
+                try {
+                    Object servant;
+                    if (servantOrTie instanceof Ice.TieBase) {
+                        servant = ((Ice.TieBase) servantOrTie).ice_delegate();
                     } else {
-                        throw new ome.conditions.InternalException(
-                                "Unknown servant type: " + servant);
+                        servant = servantOrTie;
                     }
-                }
-            } catch (Exception e) {
-                log.error("Error destroying servant: " + key + "="
-                        + servantOrTie, e);
-            } finally {
-                // Now we will again try to remove the servant, which may
-                // have already been done, after the method call, though, it
-                // is guaranteed to no longer be active.
-                unregisterServant(id);
-                log.info("Removed servant from adapter: " + key);
-            }
-        }
 
+                    // Now that we have the servant instance, we do what we can
+                    // to clean it up. Stateful services must use the callback
+                    // mechanism of IceMethodInvoker. InteractiveProcessors must
+                    // be stopped and unregistered. Stateless must only be
+                    // unregistered.
+                    //
+                    // TODO: put all of this in the AbstractAmdServant class.
+                    if (servant instanceof _StatefulServiceInterfaceOperations) {
+
+                        // Cleanup stateful
+                        // ----------------
+                        // Here we call the "close()" method on all methods
+                        // which
+                        // require that logic, allowing the IceMethodInvoker to
+                        // raise the UnregisterServantEvent, otherwise there is
+                        // a
+                        // recursive call back to close
+                        final _StatefulServiceInterfaceOperations stateful = (_StatefulServiceInterfaceOperations) servant;
+                        final Ice.Current __curr = new Ice.Current();
+                        __curr.id = id;
+                        __curr.adapter = adapter;
+                        __curr.operation = "close";
+                        __curr.ctx = new HashMap<String, String>();
+                        __curr.ctx.put(CLIENTUUID.value, clientId);
+                        // We have to be more intelligent about this. The call
+                        // should really happen in the same thread so that it's
+                        // complete before the service factory is removed.
+                        stateful.close_async(
+                                new AMD_StatefulServiceInterface_close() {
+                                    public void ice_exception(Exception ex) {
+                                        log.error("Error on close callback: "
+                                                + key + "=" + stateful);
+                                    }
+
+                                    public void ice_response() {
+                                        // Ok.
+                                    }
+
+                                }, __curr);
+
+                    } else {
+                        if (servant instanceof InteractiveProcessorI) {
+                            // Cleanup interactive processors
+                            // ------------------------------
+                            InteractiveProcessorI ip = (InteractiveProcessorI) servant;
+                            ip.stop();
+                        } else if (servant instanceof _ServiceInterfaceOperations) {
+                            // Cleanup stateless
+                            // -----------------
+                            // Do nothing.
+                        } else {
+                            throw new ome.conditions.InternalException(
+                                    "Unknown servant type: " + servant);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Error destroying servant: " + key + "="
+                            + servantOrTie, e);
+                } finally {
+                    // Now we will again try to remove the servant, which may
+                    // have already been done, after the method call, though, it
+                    // is guaranteed to no longer be active.
+                    unregisterServant(id);
+                    log.info("Removed servant from adapter: " + key);
+                }
+            }
+        } finally {
+            holder.releaseLock("*");
+        }
     }
 
     public List<String> activeServices(Current __current) {

@@ -14,6 +14,8 @@ import net.sf.ehcache.CacheManager;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.security.basic.CurrentDetails;
+import ome.services.ThumbnailBean;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.messages.GlobalMulticaster;
 import ome.services.sessions.SessionManagerImpl;
@@ -23,8 +25,11 @@ import ome.services.util.Executor;
 import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -42,7 +47,9 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
     @AfterMethod
     public void shutdownFixture() {
-        fixture.tearDown();
+        if (fixture != null) {
+            fixture.tearDown();
+        }
     }
 
     @Test
@@ -151,6 +158,50 @@ public class SessionDestructionTest extends MockObjectTestCase {
     }
 
     @Test
+    public void testSessionClosesStatefulService() throws Exception {
+        fixture = new MockFixture(this);
+        Session s = fixture.session();
+        ServiceFactoryPrx sf = fixture.createServiceFactory();
+        sf.createThumbnailStore();
+
+        //
+        // Here we want to set up a proxy around a real ThumbnailBean
+        // rather than a mock, in order to test that IceMethodInvoker
+        // unwraps proxies.
+        //
+        HotSwappableTargetSource swap = (HotSwappableTargetSource) 
+            fixture.getContext().getBean("swappable-ome.api.ThumbnailStore");
+        final boolean called[] = new boolean[]{false};
+        ThumbnailBean bean = new ThumbnailBean() {
+            @Override
+            public void destroy() {
+                called[0] = true;
+            }
+        };
+        ProxyFactory proxy = new ProxyFactory(bean);
+        proxy.addAdvice(new MethodInterceptor(){
+            public Object invoke(MethodInvocation arg0) throws Throwable {
+                if (arg0.getMethod().getName().equals("destroy")) {
+                    fail("Should not be called");
+                }
+                return null;
+            }
+            
+        });
+        swap.swap(proxy.getProxy());
+        
+        fixture.getSessionManager().onApplicationEvent(
+                new DestroySessionMessage(this, "my-session-uuid"));
+        
+        assertTrue(called[0]);
+    }
+
+    @Test
+    public void testTwoSessionsClosedConcurrently() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
     @SuppressWarnings( { "unchecked" })
     public void testSessionTimeoutWithRealSessionCache() throws Exception {
 
@@ -168,6 +219,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
         manager.setRoles(new Roles());
         manager.setDefaultTimeToLive(1000L); // Only lives one second.
         manager.setSessionCache(cache);
+        manager.setPrincipalHolder(new CurrentDetails());
 
         // Now insert that into our context
         HotSwappableTargetSource ts = (HotSwappableTargetSource) fixture

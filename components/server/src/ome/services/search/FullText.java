@@ -90,7 +90,7 @@ public class FullText extends SearchAction {
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
             final String msg = queryStr + " caused a parse exception.";
-            log.error(msg, pe);
+            // No longer logging these, since it's a simple user error
             ApiUsageException aue = new ApiUsageException(msg);
             throw aue;
         } catch (InstantiationException e) {
