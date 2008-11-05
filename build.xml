@@ -137,20 +137,20 @@ build-* targets.
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-webadmin" description="Build WebAdmin and copy to dist">
+    <target name="build-webadmin" description="Build WebAdmin and copy to dist" depends="init">
         <antcall target="build-ear" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="WebAdmin.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-importer" description="Build importer and copy to dist/client">
+    <target name="build-importer" description="Build importer and copy to dist/client" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-web" description="Build OmeroWeb and copy to dist">
+    <target name="build-web" description="Build OmeroWeb and copy to dist" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -162,13 +162,13 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-java" description="Build OmeroJava bindings and copy to dist/client">
+    <target name="build-java" description="Build OmeroJava bindings and copy to dist/client" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-py" description="Build OmeroPy bindings and copy to dist/lib">
+    <target name="build-py" description="Build OmeroPy bindings and copy to dist/lib" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <!-- Currently has no logic, since build-blitz requires all of this -->
     </target>
@@ -180,7 +180,7 @@ build-* targets.
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
     </target>
 
-    <target name="build-model" depends="check-scons" description="Generate model code for all language bindings">
+    <target name="build-model" description="Generate model code for all language bindings" depends="init">
         <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
     </target>
 
