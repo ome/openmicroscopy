@@ -238,11 +238,14 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
         List<DatasetImageLink> links = iQuery.findAllByQuery(
                 "select link from DatasetImageLink link "
+                        + "left outer join fetch link.parent "
+                        + "left outer join fetch link.child "
                         + "where link.parent.id = :id", new Parameters()
                         .addId(datasetId));
         Set<Long> ids = new HashSet<Long>();
         for (DatasetImageLink link : links) {
             ids.add(link.child().getId());
+            link.child().unlinkDataset(link.parent());
             iUpdate.deleteObject(link);
         }
         deleteImages(ids, force);

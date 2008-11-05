@@ -35,6 +35,8 @@ import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
+import omero.api.IDeletePrx;
+import omero.api.IDeletePrxHelper;
 import omero.api.ILdapPrx;
 import omero.api.ILdapPrxHelper;
 import omero.api.IPixelsPrx;
@@ -79,6 +81,7 @@ import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
+import omero.constants.DELETESERVICE;
 import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
@@ -228,6 +231,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
         return IConfigPrxHelper.uncheckedCast(getByName(CONFIGSERVICE.value,
+                current));
+    }
+    
+    public IDeletePrx getDeleteService(Ice.Current current) throws ServerError {
+        return IDeletePrxHelper.uncheckedCast(getByName(DELETESERVICE.value,
                 current));
     }
 

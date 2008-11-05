@@ -137,7 +137,7 @@ module omero {
 	    omero::api::IObjectList previewImageDelete(long id, bool force) throws ServerError;
 	    void deleteImage(long id, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	    void deleteImages(LongList ids, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
-	    void deleteImageByDataset(long datasetId, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
+	    void deleteImagesByDataset(long datasetId, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	};
 
 	["ami", "amd"] interface ILdap extends ServiceInterface
@@ -608,6 +608,7 @@ module omero {
 	    // Central OMERO.blitz stateless services.
 	    IAdmin*    getAdminService() throws ServerError;
 	    IConfig*   getConfigService() throws ServerError;
+	    IDelete*   getDeleteService() throws ServerError;
 	    IPixels*   getPixelsService() throws ServerError;
 	    IPojos*    getPojosService() throws ServerError;
 	    IProjection* getProjectionService() throws ServerError;
