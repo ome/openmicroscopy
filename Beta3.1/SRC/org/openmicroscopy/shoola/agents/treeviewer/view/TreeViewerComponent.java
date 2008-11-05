@@ -1701,6 +1701,7 @@ class TreeViewerComponent
 		}
 		if (image == null) return;
 		long pixelsID = image.getDefaultPixels().getId();
+		//model.setRndSettings(pixelsID);
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new CopyRndSettings(pixelsID));
 	}

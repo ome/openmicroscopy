@@ -417,20 +417,6 @@ class TreeViewerControl
 
 		});
 	}
-
-	/**
-	 * Resets the selected node. 
-	 * 
-	 * @param d The node to reset.
-	 */
-	private void resetSelectedDisplay(TreeImageDisplay d)
-	{
-		Browser b = model.getSelectedBrowser();
-		if (b != null) {
-			//b.setSelectedDisplay(null);
-			b.setSelectedDisplay(d);
-		}
-	}
 	
 	/**
 	 * Creates a new instance.

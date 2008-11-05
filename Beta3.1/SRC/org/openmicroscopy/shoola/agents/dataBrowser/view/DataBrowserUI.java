@@ -45,11 +45,14 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * The {@link DataBrowser}'s View. Embeds the <code>Browser</code>'s UI.
@@ -419,6 +422,16 @@ class DataBrowserUI
 				comp = model.getTableView();
 		}
     	if (comp != null) popupMenu.show(comp, p.x, p.y); 
+    }
+    
+    /** Views the selected node only if it is an image. */
+    void viewSelectedNode()
+    {
+    	ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
+    	if (!(node instanceof ImageNode)) return;
+    	ImageData data = (ImageData) node.getHierarchyObject();
+    	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
+    	bus.post(new ViewImage(data, null));
     }
     
     /**

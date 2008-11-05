@@ -66,6 +66,12 @@ class ImageTableView
 	/** Bound property indicating to display a popup menu. */
 	static final String TABLE_SELECTION_MENU_PROPERTY = "tableSelectionMenu";
 	
+	/** 
+	 * Bound property indicating to view the last selected node if 
+	 * it is an image.
+	 */
+	static final String TABLE_SELECTION_VIEW_PROPERTY = "tableSelectionView";
+	
 	/** Reference to the table displaying the nodes. */
 	private ImageTable 			table;
 	
@@ -145,5 +151,14 @@ class ImageTableView
 	{
 		table.setSelectedNodes(objects);
 	}
-
+	
+	/** 
+	 * Fires a property change to view the last selected node if it is an image.
+	 */
+	void viewSelectedNode()
+	{
+		firePropertyChange(TABLE_SELECTION_VIEW_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+	}
+	
 }

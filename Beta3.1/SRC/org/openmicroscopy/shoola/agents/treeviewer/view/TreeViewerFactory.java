@@ -127,7 +127,7 @@ public class TreeViewerFactory
 		TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
 		return singleton.getTreeViewer(model, null);
 	}
-
+	
 	/**
 	 * Stored the id of the pixels set.
 	 * 

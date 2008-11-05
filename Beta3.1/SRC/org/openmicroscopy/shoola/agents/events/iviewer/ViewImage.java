@@ -85,7 +85,7 @@ public class ViewImage
         this.image = image;
         requesterBounds = bounds;
         selectedUserID = -1;
-    }
+	}
     
     /**
      * Sets the parent of the image.
