@@ -110,7 +110,7 @@ public class SingleParam
 	}
 	
 	/**
-	 * Returns the value of the parameter (and units, if any). 
+	 * Returns the value of the parameter. 
 	 * 
 	 * @see Object#toString()
 	 */
@@ -120,11 +120,11 @@ public class SingleParam
 		String value = getAttribute (PARAM_VALUE);
 		String def = getAttribute (DEFAULT_VALUE);
 		if (value != null) { 
-			text = text + value; 
+			text = value; 
 		} else if (def != null) {
-			text = text + "Default: " + def;
+			text = "Default: " + def;
 		} else {
-			text = text + "Value not set";
+			text = "Value not set";
 		}
 		
 		String units = getAttribute(NumberParam.PARAM_UNITS);

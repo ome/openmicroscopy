@@ -69,6 +69,30 @@ public class EnumParam
 	}
 	
 	/**
+	 * Returns the value of the parameter. 
+	 * 
+	 * @see Object#toString()
+	 */
+	public String toString() {
+		String text = "";
+		
+		String value = getAttribute (SingleParam.PARAM_VALUE);
+		String def = getAttribute (SingleParam.DEFAULT_VALUE);
+		if (value != null) { 
+			text = value; 
+		} else if (def != null) {
+			text = "Default: " + def;
+		} else {
+			text = "Value not set";
+		}
+		
+		String units = getAttribute(NumberParam.PARAM_UNITS);
+		if (units != null) { text = text + " " + units; }
+		
+		return text;
+	}
+	
+	/**
 	 * Implemented as specified by the {@link IParam} interface. 
 	 * 
 	 * @see IParam#getParamAttributes()

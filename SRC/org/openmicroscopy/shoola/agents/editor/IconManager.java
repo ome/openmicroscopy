@@ -251,12 +251,14 @@ public class IconManager
     /** The <code>New Blank File</code> icon. */
     public  static int			NEW_FILE_ICON = 61;
     
+    /** The <code>Edit XML</code> icon. */
+    public  static int			EDIT_XML_ICON = 62;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 61;
+    private static int          MAX_ID = 62;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -330,6 +332,7 @@ public class IconManager
         relPaths[UP_DOWN] = "upDown.png";
         relPaths[SPACER] = "spacer16.png";
         relPaths[NEW_FILE_ICON] = "nuvola_filenew16.png";
+        relPaths[EDIT_XML_ICON] = "nuvola_kwrite16.png";
     }
     
     

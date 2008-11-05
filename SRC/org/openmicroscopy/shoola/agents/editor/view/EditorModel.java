@@ -213,7 +213,7 @@ class EditorModel
 	{
 		fileToEdit = file;
 		fileName = file.getName();
-		TreeModel treeModel = TreeModelFactory.getTree(file);
+		TreeModel treeModel = TreeModelFactory.getTreeB3(file);
 		browser.setTreeModel(treeModel);
 		state = Editor.READY;
 	}

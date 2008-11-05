@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamUIFactory;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TableEditor;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.XMLParamButton;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
@@ -64,14 +65,13 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.Lock;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.editor.model.XMLFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 import org.openmicroscopy.shoola.agents.editor.util.BareBonesBrowserLaunch;
-
-import com.sun.org.apache.regexp.internal.recompile;
 
 /**
  * This is the UI component that represents a field in the JTree.
@@ -340,15 +340,20 @@ public class FieldPanel
 	private void buildParamComponents() 
 	{
 		int paramCount = field.getContentCount();
-		
+		JComponent edit;
 		for (int i=0; i<paramCount; i++) {
 			IFieldContent content = field.getContentAt(i);
 			if (content instanceof IParam) {
 				IParam param = (IParam)content;
-					JComponent edit = ParamUIFactory.getEditingComponent(param);
+				edit = ParamUIFactory.getEditingComponent(param);
 				if (edit != null) {
 					addFieldComponent(edit);
 				}
+			} else 
+			// if this is a 'custom' XML element, add button to show dialog
+			if (content instanceof XMLFieldContent) {
+				edit = new XMLParamButton(content, this);
+				addFieldComponent(edit);
 			}
 		}
 	}
