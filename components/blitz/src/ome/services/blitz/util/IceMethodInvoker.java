@@ -14,12 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.api.ServiceInterface;
+import ome.api.local.Destroy;
 import ome.system.OmeroContext;
 import omero.ServerError;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 
 /**
@@ -260,13 +262,18 @@ public class IceMethodInvoker {
         Object retVal = null;
         if ("close".equals(info.method.getName())) {
             Method destroy = null;
-            try {
-                destroy = obj.getClass().getMethod("destroy");
-            } catch (Exception e) {
-                log.warn("Could not call destroy:", e);
+            int tries = 10;
+            while (obj instanceof Advised) {
+                Advised advised = (Advised) obj;
+                obj = advised.getTargetSource().getTarget();
+                tries--;
+                if (tries == 0) {
+                    throw new RuntimeException("More than 10 layers of AOP");
+                }
             }
-            if (destroy != null) {
+            if (obj instanceof Destroy) {
                 try {
+                    destroy = Destroy.class.getMethod("destroy");
                     destroy.invoke(obj);
                 } catch (Exception ex) {
                     log.error("Exception on service.destroy()", ex);

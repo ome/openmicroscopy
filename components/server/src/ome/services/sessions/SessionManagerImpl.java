@@ -569,11 +569,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // ticket:404 -- preventing users from logging into "user" group
         else if (roles.getUserGroupName().equals(p.getGroup())) {
             // Throws an exception if no properly defined default group
-            group = executeDefaultGroup(p.getName()).getName();
-            if (group == null) {
+            ExperimenterGroup g = executeDefaultGroup(p.getName());
+            if (g == null) {
                 throw new ApiUsageException("Can't find default group for "
                         + p.getName());
             }
+            group = g.getName();
         }
         Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
@@ -811,7 +812,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                             sSession.update(s);
                         } catch (Exception e) {
                             log.error("FAILED TO CLOSE SESSION IN DATABASE: "
-                                    + uuid);
+                                    + uuid, e);
                         }
                         return null;
                     }

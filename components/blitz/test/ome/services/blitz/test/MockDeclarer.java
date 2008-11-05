@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.jmock.Mock;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -18,9 +19,9 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 
 public class MockDeclarer implements BeanFactoryPostProcessor {
 
-    private final Map<Class<?>, Class<?>> interfaces;
+    private final Map<Class<?>, List<Class<?>>> interfaces;
 
-    public MockDeclarer(Map<Class<?>, Class<?>> interfaces) {
+    public MockDeclarer(Map<Class<?>, List<Class<?>>> interfaces) {
         this.interfaces = interfaces;
     }
 
@@ -29,20 +30,24 @@ public class MockDeclarer implements BeanFactoryPostProcessor {
 
         final BeanDefinitionRegistry registry = ((BeanDefinitionRegistry) context);
 
-        for (Class<?> iface : interfaces.keySet()) {
-            String mockname = "mock-" + iface.getName();
-            String hidden = "hidden-" + iface.getName();
-            String internal = "internal-" + iface.getName();
-            String managed = "managed-" + iface.getName();
+        for (Class<?> key : interfaces.keySet()) {
+            String mockname = "mock-" + key.getName();
+            String hidden = "hidden-" + key.getName();
+            String swappable = "swappable-" + key.getName();
+            String internal = "internal-" + key.getName();
+            String managed = "managed-" + key.getName();
 
             // Now replace the iface used as name with the subclass if present
-            if (interfaces.get(iface) != null) {
-                iface = interfaces.get(iface);
+            List ifaces;
+            if (interfaces.get(key) != null && interfaces.get(key).size() > 0) {
+                ifaces = interfaces.get(key);
+            } else {
+                ifaces = Arrays.asList(key);
             }
 
             // mock-
             ConstructorArgumentValues ctor = new ConstructorArgumentValues();
-            ctor.addGenericArgumentValue(iface);
+            ctor.addGenericArgumentValue(ifaces.get(0));
             BeanDefinition mock = new RootBeanDefinition(Mock.class, ctor, null);
             registry.registerBeanDefinition(mockname, mock);
 
@@ -52,12 +57,17 @@ public class MockDeclarer implements BeanFactoryPostProcessor {
             factory.setFactoryMethodName("proxy");
             registry.registerBeanDefinition(hidden, factory);
 
+            // Add swappable container for more accurate testing
+            ConstructorArgumentValues values = new ConstructorArgumentValues();
+            values.addGenericArgumentValue(new RuntimeBeanReference(hidden));
+            BeanDefinition swapper = new RootBeanDefinition(HotSwappableTargetSource.class, values, null);
+            registry.registerBeanDefinition(swappable, swapper);
+            
             // internal- with a spring proxy
-            List i = Arrays.asList(iface);
             MutablePropertyValues properties = new MutablePropertyValues();
-            properties.addPropertyValue("proxyInterfaces", i);
-            properties.addPropertyValue("target", new RuntimeBeanReference(
-                    hidden));
+            properties.addPropertyValue("proxyInterfaces", ifaces);
+            properties.addPropertyValue("targetSource", new RuntimeBeanReference(
+                    swappable));
             BeanDefinition spring = new RootBeanDefinition(
                     ProxyFactoryBean.class, null, properties);
             registry.registerBeanDefinition(internal, spring);
