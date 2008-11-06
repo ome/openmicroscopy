@@ -58,7 +58,7 @@ public class NodesFinder
 
 	/** The collection of found nodes. */
 	private List<ImageDisplay> 	foundNodes;
-	
+
 	/** The collection of <code>DataObject</code>s to find. */
 	private List<DataObject>	nodes;
 	
@@ -80,7 +80,7 @@ public class NodesFinder
 			if (k.equals(object.getClass()) && id == object.getId()) {
 				foundNodes.add(node);
 				break;
-			}
+			} 
 		}
 	}
 	

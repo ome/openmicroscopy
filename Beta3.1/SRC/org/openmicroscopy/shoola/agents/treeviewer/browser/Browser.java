@@ -144,9 +144,7 @@ public interface Browser
     /** Bound property indicating that the data have been refreshed. */
     public static final String		DATA_REFRESHED_PROPERTY = "dataRefreshed";
     
-    /** 
-     * Bound property name indicating a new node is selected. 
-     */
+    /** Bound property name indicating a new node is selected. */
     public static final String  	SELECTED_DISPLAY_PROPERTY = 
         								"selectedDisplay";
     

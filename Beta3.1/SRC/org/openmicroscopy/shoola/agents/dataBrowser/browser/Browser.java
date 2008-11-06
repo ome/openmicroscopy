@@ -122,15 +122,6 @@ public interface Browser
 	public void setSelectedDisplay(ImageDisplay node);
 	
 	/**
-	 * Sets the specified <code>nodes</code> to be the currently selected
-	 * node in the visualization tree.
-	 * Sets it to <code>null</code> to indicate no node is currently selected.
-	 *  
-	 * @param nodes The nodes to become the currently selected nodes.
-	 */
-	public void setSelectedDisplays(ImageDisplay[] nodes);
-	
-	/**
 	 * Returns the node, if any, that is currently selected in the 
 	 * visualization tree.
 	 * 

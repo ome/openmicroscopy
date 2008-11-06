@@ -160,8 +160,8 @@ class TreeViewerComponent
       				  				parent.getUserObject());
       		  if (db != null) {
       			  db.setComponentTitle("");
-              	  view.removeAllFromWorkingPane();
-              	  view.addComponent(db.getUI());
+              	  //view.removeAllFromWorkingPane();
+              	  //view.addComponent(db.getUI());
               	  List<DataObject> nodes = 
               		  model.getSelectedBrowser().getSelectedDataObjects();
               	  //List<DataObject> nodes = new ArrayList<DataObject>();

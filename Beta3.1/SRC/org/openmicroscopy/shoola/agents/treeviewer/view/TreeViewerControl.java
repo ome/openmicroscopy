@@ -84,7 +84,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
