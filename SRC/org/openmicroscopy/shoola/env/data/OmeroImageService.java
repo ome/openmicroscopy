@@ -388,4 +388,18 @@ public interface OmeroImageService
 	public Object loadAcquisitionData(Object refObject)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Loads the acquisition metadata for an image or a given channel.
+	 * 
+	 * @param refObject Either an <code>ImageAcquisitionData</code> or 
+     * 					<code>ChannelAcquisitionData</code> node.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object saveAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

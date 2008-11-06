@@ -158,6 +158,7 @@ class OmeroMetadataServiceImpl
 		TagAnnotationData tag;
 		IObject link = null;
 		Map map = (new PojoOptionsI()).map();
+		DataObject data;
 		while (i.hasNext()) {
 			ann = (AnnotationData) i.next();
 			if (ann.getId() < 0) {
@@ -179,8 +180,9 @@ class OmeroMetadataServiceImpl
 							if (link != null) 
 								gateway.createObject(link, map);
 						}
-						annotations.add(
-								(AnnotationData) PojoMapper.asDataObject(r));
+						data = PojoMapper.asDataObject(r);
+						if (data != null)
+							annotations.add((AnnotationData) data);
 					} else 
 						iobject = ModelMapper.createAnnotation(ann);
 				} 

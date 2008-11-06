@@ -205,7 +205,13 @@ class BrowserModel
 	    if (node != null) selectedDisplays.add(node);
 	    if (fireProperty)
 	    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
-	    else onNodeSelected(node, oldValue);
+	    //else onNodeSelected(node, oldValue);
+	    else {
+	    	if (multiSelection) {
+	    		Colors colors = Colors.getInstance();
+	    		node.setHighlight(colors.getSelectedHighLight(node));
+	    	} else onNodeSelected(node, oldValue);
+	    }
 	}
 	
 	/**
@@ -328,16 +334,6 @@ class BrowserModel
 	public void setSelectedDisplay(ImageDisplay node)
 	{
 	    setSelectedDisplay(node, false, true);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setSelectedDisplays(ImageDisplay[])
-	 */
-	public void setSelectedDisplays(ImageDisplay[] nodes)
-	{
-		for (int i = 0; i < nodes.length; i++) 
-			setSelectedDisplay(nodes[i], true, true);
 	}
 	
 	/**
@@ -650,9 +646,13 @@ class BrowserModel
 	public void removeSelectedDisplay(ImageDisplay node)
 	{
 		if (node == null) return;
+		Colors colors = Colors.getInstance();
+		node.setHighlight(colors.getDeselectedHighLight(node));
+		/*
 		List<ImageDisplay> nodes = new ArrayList<ImageDisplay>(1);
 		nodes.add(node);
 		setNodesColor(getSelectedDisplays(), nodes);
+		*/
 		selectedDisplays.remove(node);
 		firePropertyChange(UNSELECTED_DISPLAY_PROPERTY, null, node);
 	}

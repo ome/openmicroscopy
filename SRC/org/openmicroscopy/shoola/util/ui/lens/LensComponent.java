@@ -63,10 +63,7 @@ public class LensComponent
   
 	/** Default width of a lens */
 	final static int		LENS_DEFAULT_WIDTH	= 50;
-	
-	/** Default height of a lens */
-	//final static int		LENS_DEFAULT_HEIGHT	= 50;
-	
+
 	/** Default magnification of lens. */
 	final static float		DEFAULT_ZOOM = 2.0f;
 	
@@ -162,11 +159,11 @@ public class LensComponent
 	}
 	
 	/**
-	 * Creates the lenscomponent which is the container for the lens 
+	 * Creates a new instance which is the container for the lens 
 	 * infrastructure.
 	 * 
-   * @param parent    parent JFrame of ZoomWindowUI. 
-	 * @param planeImage Image being displayed by the viewer.
+     * @param parent   		The parent of the Dialog.
+	 * @param planeImage 	The image being displayed by the viewer.
 	 */
 	public LensComponent(JFrame parent, BufferedImage planeImage)
 	{
@@ -185,15 +182,12 @@ public class LensComponent
 	}
 	
 	/**
-	 * Creates the lenscomponent which is the container for the lens 
+	 * Creates a new instance which is the container for the lens 
 	 * infrastructure.
 	 * 
-	 * @param parent parent JFrame of ZoomWindowUI. 
+     * @param parent   		The parent of the Dialog.
 	 */
-	public LensComponent(JFrame parent)
-	{
-		this(parent, null);
-	}
+	public LensComponent(JFrame parent) { this(parent, null); }
 	
 	/**
 	 * Sets the colour of the lens to better contrast with the 
@@ -213,7 +207,7 @@ public class LensComponent
 	
 	/**
 	 * Sets the mapping from pixel size to microns along the x and y axis. 
-   * 
+	 * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
@@ -278,15 +272,15 @@ public class LensComponent
 	public BufferedImage getZoomedImage() { return lensModel.getZoomedImage(); }
 	
 	/**
-	 * Returns the lens UI. 
+	 * Returns the lens UI (a JPanel).
 	 * 
-	 * @return the lensUI. (a JPanel).
+	 * @return See above. 
 	 */
 	public LensUI getLensUI() { return lens; }
 	
 	/**
 	 * Returns <code>true</code> if the lens and zoomWindow are visible,
-   * <code>false</code> otherwise.
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -394,9 +388,6 @@ public class LensComponent
 	}
 	
 	/** Indicates to reset the zoomed buffer to <code>null</code>*/
-	public void resetDataBuffered()
-	{
-		lensModel.resetDataBuffer();
-	}
+	public void resetDataBuffered() { lensModel.resetDataBuffer(); }
 	
 }

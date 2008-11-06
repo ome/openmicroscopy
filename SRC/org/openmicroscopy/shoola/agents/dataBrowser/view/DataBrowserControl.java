@@ -320,7 +320,10 @@ class DataBrowserControl
         } else if (Browser.POPUP_POINT_PROPERTY.equals(name)) {
 			Point p = (Point) evt.getNewValue();
             if (p != null) view.showPopup(p);
-		} 
+		} else if (ImageTableView.TABLE_SELECTION_VIEW_PROPERTY.equals(name)) {
+			Boolean b = (Boolean) evt.getNewValue();
+			if (b) view.viewSelectedNode();
+		}
 	}
 
 }

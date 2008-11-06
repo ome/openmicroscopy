@@ -226,6 +226,10 @@ public class BrowserControl
     		return;
     	}
     	if (b) { //multi selection
+    		ImageDisplay previous = model.getLastSelectedDisplay();
+    		Class ref = previous.getHierarchyObject().getClass();
+    		if (!ref.equals(d.getHierarchyObject().getClass())) return;
+    		
     		Collection nodes = model.getSelectedDisplays();
     		Iterator i = nodes.iterator();
     		ImageDisplay node;
@@ -243,17 +247,6 @@ public class BrowserControl
     		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) 
     			model.setSelectedDisplay(d);
     	}
-
-
-        /*
-        if (!(d.equals(previousDisplay))) {
-            if (d instanceof ImageNode) {
-                if (!(previousDisplay instanceof ImageNode)) b = false;
-                if (isSelectionValid((ImageNode) d))
-                	model.setSelectedDisplay(d, b);
-            } else model.setSelectedDisplay(d);
-        }
-     */
         if (me.isPopupTrigger()) popupTrigger = true;
     }
 

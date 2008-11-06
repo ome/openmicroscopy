@@ -554,7 +554,8 @@ class DataBrowserComponent
 			ImageData img = (ImageData) o;
 			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, null, img);
 		} else {
-			firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, null);
+			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, Boolean.FALSE, null);
+			//firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, null);
 		}
 	}
 

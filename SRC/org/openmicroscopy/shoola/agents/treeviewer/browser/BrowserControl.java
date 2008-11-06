@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Action;
@@ -220,80 +221,54 @@ class BrowserControl
      */
     void showPopupMenu(int index) { model.showPopupMenu(index); }
     
-    /** Reacts to click events in the tree. */
-    void onClick()
+    /** 
+     * Reacts to click events in the tree.
+     * 
+     *  @param added The collection of added paths.
+     */
+    void onClick(List<TreePath> added)
     {
-        Object pathComponent;
-        JTree tree = view.getTreeDisplay();
+    	JTree tree = view.getTreeDisplay();
         TreePath[] paths = tree.getSelectionPaths();
-        if (paths == null) return;
-        int n = paths.length;
-        if (n == 0) return;
-        pathComponent = paths[0].getLastPathComponent();
-        //Check if alls node are of the same type.
-        if (!(pathComponent instanceof TreeImageDisplay)) return;
-        TreeImageDisplay node = (TreeImageDisplay) pathComponent;
-        ArrayList<TreePath> pathsToRemove = new ArrayList<TreePath>();
-        TreeImageDisplay no;
-        Object o;
-        ArrayList<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
-        l.add(node);
-       
-        Object ho = node.getUserObject();
-        if (ho instanceof ImageData) {
-        	ImageData img = (ImageData) ho;
-    		try {
-    			img.getDefaultPixels();
-    		} catch (Exception e) {
-    			UserNotifier un = 
-    				TreeViewerAgent.getRegistry().getUserNotifier();
-    			un.notifyInfo("Image Not valid", 
-    					"The selected image is not valid");
-    			pathsToRemove.add(paths[0]);
-    			
-    			view.removeTreePaths(pathsToRemove);
-    			view.setFoundNode(model.getSelectedDisplays());
-    			return;
-    		}
+        TreeImageDisplay node;
+        TreePath path;
+        if (paths.length == 1) {
+        	node = (TreeImageDisplay) paths[0].getLastPathComponent();
+        	model.setSelectedDisplay(node);
+    		return;
         }
-        Object uo;
-        Class nodeClass = ho.getClass();
-        for (int i = 1; i < n; i++) {
-            o = paths[i].getLastPathComponent();
-            if (o instanceof TreeImageDisplay) {
-                no = (TreeImageDisplay) o;
-                uo = no.getUserObject();
-                if (uo instanceof ExperimenterData) {
-                	pathsToRemove.add(paths[i]);
-                } else {
-                	 if (uo.getClass().equals(nodeClass)) {
-                         l.add(no);
-                     } else {
-                     	pathsToRemove.add(paths[i]);
-                     }
-                }
-            }
-        }
-
-        if (l.size() != n) {
-        	String text = "";
-        	if (ImageData.class.equals(nodeClass)) text = "images";
-        	else if (ProjectData.class.equals(nodeClass)) text = "projects";
-        	else if (DatasetData.class.equals(nodeClass)) text = "datasets";
-        	else if (TagAnnotationData.class.equals(nodeClass)) text = "tags";
-        	
-            UserNotifier un = 
-                TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Tree selection", "You can only select "+text);
-            view.removeTreePaths(pathsToRemove);
-            view.setFoundNode(model.getSelectedDisplays());
-            //model.setSelectedDisplay(null);
-            //return;
-        }
-        if (l.size() == 0) return;
-        //Pass TreeImageDisplay array
-        TreeImageDisplay[] nodes = l.toArray(new TreeImageDisplay[l.size()]);
-        model.setSelectedDisplays(nodes);
+     	//more than one node selected.
+    	TreeImageDisplay previous = model.getLastSelectedDisplay();
+    	Class ref = previous.getUserObject().getClass();
+    	Iterator<TreePath> i = added.iterator();
+    	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
+    	List<TreePath> toRemove = new ArrayList<TreePath>();
+    	while (i.hasNext()) {
+			path = i.next();
+			node = (TreeImageDisplay) path.getLastPathComponent();
+			if (node.getUserObject().getClass().equals(ref)) 
+				l.add(node);
+			else toRemove.add(path);
+		}
+    	
+    	if (toRemove.size() > 0) {
+    		String text = "";
+        	if (ImageData.class.equals(ref)) text = "images.";
+        	else if (ProjectData.class.equals(ref)) text = "projects.";
+        	else if (DatasetData.class.equals(ref)) text = "datasets.";
+        	else if (TagAnnotationData.class.equals(ref)) text = "tags.";
+        	 UserNotifier un = 
+                 TreeViewerAgent.getRegistry().getUserNotifier();
+             un.notifyInfo("Tree selection", "You can only select "+text);
+             view.removeTreePaths(toRemove);
+    	}
+    	paths = tree.getSelectionPaths();
+    	
+    	TreeImageDisplay[] nodes = new TreeImageDisplay[paths.length];
+    	for (int j = 0; j < paths.length; j++) {
+			nodes[j] = (TreeImageDisplay) paths[j].getLastPathComponent();
+		}
+    	model.setSelectedDisplays(nodes);
     }
     
     /**

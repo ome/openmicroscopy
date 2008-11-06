@@ -283,7 +283,12 @@ class ImageTable
 	 */
 	protected void onMouseReleased(MouseEvent e)
 	{
-		if (e.isPopupTrigger()) view.showMenu(e.getPoint());
+		int count = e.getClickCount();
+		if (count == 2) {
+			view.viewSelectedNode();
+		} else {
+			if (e.isPopupTrigger()) view.showMenu(e.getPoint());
+		}
 	}
 	
 }

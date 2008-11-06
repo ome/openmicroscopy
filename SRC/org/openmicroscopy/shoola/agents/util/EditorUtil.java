@@ -51,6 +51,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -138,6 +139,9 @@ public class EditorUtil
     /** String to represent the micron symbol. */
     public static final String 	MICRONS = "(in \u00B5m)";
     
+    /** String to represent the micron symbol. */
+    public static final String 	CELCIUS = "(\u2103)";
+    
     /** Identifies the <code>SizeX</code> field. */
     public static final String 	SIZE_X = "Size X";
     
@@ -220,7 +224,7 @@ public class EditorUtil
 	public static final String	REFRACTIVE_INDEX = "Refractive index";
 
 	/** Identifies the Environment <code>temperature</code> field. */
-	public static final String	TEMPERATURE = "Temperature";
+	public static final String	TEMPERATURE = "Temperature "+CELCIUS;
 	
 	/** Identifies the Environment <code>Air pressure</code> field. */
 	public static final String	AIR_PRESSURE = "Air Pressure";
@@ -808,72 +812,107 @@ public class EditorUtil
     /**
      * Transforms the passed objective.
      * 
-     * @param objective The value to convert.
+     * @param data The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformObjective(Object objective)
+    public static Map<String, Object> transformObjective(
+    		ImageAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
     			details = new LinkedHashMap<String, Object>(8);
-    	details.put(MODEL, "");
-    	details.put(MANUFACTURER, "");
-    	details.put(SERIAL_NUMBER, "");
-    	details.put(MAGNIFICATION, new Double(0));
-        details.put(LENSNA, new Float(0));
-        details.put(IMMERSION, "");
-        details.put(COATING, "");
-        details.put(WORKING_DISTANCE, new Float(0));
+    	if (data == null) {
+    		details.put(MODEL, "");
+        	details.put(MANUFACTURER, "");
+        	details.put(SERIAL_NUMBER, "");
+        	details.put(MAGNIFICATION, new Double(0));
+            details.put(LENSNA, new Float(0));
+            details.put(IMMERSION, "");
+            details.put(COATING, "");
+            details.put(WORKING_DISTANCE, new Float(0));
+    	} else {
+    		details.put(MODEL, "");
+        	details.put(MANUFACTURER, "");
+        	details.put(SERIAL_NUMBER, "");
+        	details.put(MAGNIFICATION, data.getMagnification());
+            details.put(LENSNA, data.getLensNA());
+            details.put(IMMERSION, data.getImmersion());
+            details.put(COATING, data.getCoating());
+            details.put(WORKING_DISTANCE, data.getWorkingDistance());
+    	}
         return details;
     }
     
     /**
      * Transforms the passed objective.
      * 
-     * @param settings The value to convert.
+     * @param data The value to convert.
      * @return See above.
      */
     public static Map<String, Object> transformObjectiveSettings(
-    								Object settings)
+    		ImageAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
     			details = new LinkedHashMap<String, Object>(3);
-    	details.put(CORRECTION_COLLAR, new Float(0));
-    	details.put(MEDIUM, "");
-    	details.put(REFRACTIVE_INDEX, new Float(0));
+    	if (data == null) {
+    		details.put(CORRECTION_COLLAR, new Float(0));
+        	details.put(MEDIUM, "");
+        	details.put(REFRACTIVE_INDEX, new Float(0));
+    	} else {
+    		details.put(CORRECTION_COLLAR, data.getCorrectionCollar());
+        	details.put(MEDIUM, data.getMedium());
+        	details.put(REFRACTIVE_INDEX, data.getRefractiveIndex());
+    	}
         return details;
     }
     
     /**
-     * Transforms the passed imaging environment.
+     * Transforms the acquisition's condition.
      * 
-     * @param env The value to convert.
+     * @param data The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformImageEnvironment(Object env)
+    public static Map<String, Object> transformImageEnvironment(
+    		ImageAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
-    	details.put(TEMPERATURE, new Float(0));
-    	details.put(AIR_PRESSURE, new Float(0));
-    	details.put(HUMIDITY, new Float(0));
-    	details.put(CO2_PERCENT, new Float(0));
+    	if (data == null) {
+    		details.put(TEMPERATURE, new Float(0));
+        	details.put(AIR_PRESSURE, new Float(0));
+        	details.put(HUMIDITY, new Float(0));
+        	details.put(CO2_PERCENT, new Float(0));
+    	} else {
+    		details.put(TEMPERATURE, data.getTemperature());
+        	details.put(AIR_PRESSURE, data.getAirPressure());
+        	details.put(HUMIDITY, data.getHumidity());
+        	details.put(CO2_PERCENT, data.getCo2Percent());
+    	}
     	return details;
     }
     
     /**
-     * Transforms the passed stage label.
+     * Transforms the position of the image in the microscope's frame.
      * 
-     * @param label The value to convert.
+     * @param data The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformStageLabel(Object label)
+    public static Map<String, Object> transformStageLabel(
+    		ImageAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
-    	details.put(NAME, "");
-    	details.put(POSITION_X, new Float(0));
-    	details.put(POSITION_Y, new Float(0));
-    	details.put(POSITION_Z, new Float(0));
+    	if (data == null) {
+    		details.put(NAME, "");
+        	details.put(POSITION_X, new Float(0));
+        	details.put(POSITION_Y, new Float(0));
+        	details.put(POSITION_Z, new Float(0));
+    	} else {
+    		details.put(NAME, data.getLabelName());
+        	details.put(POSITION_X, data.getPositionX());
+        	details.put(POSITION_Y, data.getPositionY());
+        	details.put(POSITION_Z, data.getPositionZ());
+    	}
+    	
     	return details;
     }
     

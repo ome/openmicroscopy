@@ -34,10 +34,9 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.AnnotationData;
+import pojos.ImageAcquisitionData;
 
 /** 
  * 
@@ -201,9 +200,9 @@ public interface Editor
 	/**
 	 * Sets the image acquisition data.
 	 * 
-	 * @param map The value to set.
+	 * @param data The value to set.
 	 */
-	public void setImageAcquisitionData(Map map);
+	public void setImageAcquisitionData(ImageAcquisitionData data);
 
 	/** Loads the image acquisition data. */
 	public void loadImageAcquisitionData();

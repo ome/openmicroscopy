@@ -28,11 +28,9 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Map;
-
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
 /** 
@@ -78,7 +76,7 @@ public class AcquisitionDataLoader
      */
     public void load()
     {
-    	handle = imView.loadAcquisitionDat(refObject, this);
+    	handle = imView.loadAcquisitionData(refObject, this);
     }
     
     /** 
@@ -94,7 +92,7 @@ public class AcquisitionDataLoader
     public void handleResult(Object result) 
     {
   		if (refObject instanceof ImageData) {
-  			viewer.setImageAcquisitionData((Map) result);
+  			viewer.setImageAcquisitionData((ImageAcquisitionData) result);
   		}
     }
     

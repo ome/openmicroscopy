@@ -252,4 +252,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#saveAcquisitionData(Object)
+     */
+	public Object saveAcquisitionData(Object refObject) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

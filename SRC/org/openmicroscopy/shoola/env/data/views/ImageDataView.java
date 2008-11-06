@@ -190,7 +190,18 @@ public interface ImageDataView
      * @param observer	Callback handler.
      * @return See above.
      */
-    public CallHandle loadAcquisitionDat(Object refObject, 
+    public CallHandle loadAcquisitionData(Object refObject, 
+    		AgentEventListener observer);
+    
+    /**
+     * Saves the acquisition metadata related to an image or a given channel.
+     * 
+     * @param refObject Object hosting the metadata for either an image or
+     * 					a channel.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle saveAcquisitionData(Object refObject, 
     		AgentEventListener observer);
     
 }

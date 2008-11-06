@@ -109,9 +109,6 @@ public interface Browser
 	/** Bound property indicating to magnify the node when moused over. */
 	public static final String  ROLL_OVER_PROPERTY = "rollOver";
 	
-	/** Bound property indicating the visible nodes. */
-	//public static final String  VISIBLE_NODES_PROPERTY = "visibleNodes";
-	
 	/**
 	 * Sets the specified <code>node</code> to be the currently selected
 	 * node in the visualization tree.
@@ -120,15 +117,6 @@ public interface Browser
 	 * @param node The node to become the currently selected node.
 	 */
 	public void setSelectedDisplay(ImageDisplay node);
-	
-	/**
-	 * Sets the specified <code>nodes</code> to be the currently selected
-	 * node in the visualization tree.
-	 * Sets it to <code>null</code> to indicate no node is currently selected.
-	 *  
-	 * @param nodes The nodes to become the currently selected nodes.
-	 */
-	public void setSelectedDisplays(ImageDisplay[] nodes);
 	
 	/**
 	 * Returns the node, if any, that is currently selected in the 

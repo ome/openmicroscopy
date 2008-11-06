@@ -54,10 +54,7 @@ import omero.AuthenticationException;
 import omero.DataAccessException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
-import omero.RInt;
-import omero.RLong;
-import omero.RString;
-import omero.RTime;
+import omero.RObject;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -65,6 +62,7 @@ import omero.SessionException;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
+import omero.api.IPixels;
 import omero.api.IPixelsPrx;
 import omero.api.IPojosPrx;
 import omero.api.IProjectionPrx;
@@ -95,9 +93,7 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.ImagingEnvironment;
 import omero.model.LongAnnotation;
-import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -108,7 +104,6 @@ import omero.model.Project;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
-import omero.model.StageLabel;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
@@ -130,6 +125,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.PixelsData;
@@ -206,7 +202,7 @@ class OMEROGateway
 	 * The entry point provided by the connection library to access the various
 	 * <i>OMERO</i> services.
 	 */
-	private ServiceFactoryPrx entry;
+	private ServiceFactoryPrx 		entry;
 
 	/** The thumbnail service. */
 	private ThumbnailStorePrx		thumbnailService;
@@ -1026,6 +1022,7 @@ class OMEROGateway
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
+			blitzClient.getProperties().setProperty("Ice.Override.Timeout", ""+5000);
 			connected = true;
 			return getUserDetails(userName);
 		} catch (Throwable e) {
@@ -1063,7 +1060,7 @@ class OMEROGateway
 		} 
 	}
 
-	/** Log out. */
+	/** Logs out. */
 	void logout()
 	{
 		connected = false;
@@ -3870,63 +3867,117 @@ class OMEROGateway
 		return new HashSet();
 	}
 	
-	Object loadImageAcquisitionData(Image image)
+	/**
+	 * Loads the acquisition object related to the passed image.
+	 * 
+	 * @param imageID The id of image object to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object loadImageAcquisitionData(long imageID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//stage Label
+		isSessionAlive();
 		IQueryPrx service = getQueryService();
 		StringBuilder sb;
 		ParametersI param;
-		//Objective settings and objective
-		IObject o = image.getPosition();
-		Map<Class, IObject> results =new HashMap<Class, IObject>();
-		try {
-			if (o != null) {
-				sb = new StringBuilder();
-				param = new ParametersI();
-				sb.append("select label from StageLabel label ");
-				sb.append("where id = :id");
-	        	param.addLong("id", o.getId());
-	        	results.put(StageLabel.class, 
-	        			service.findByQuery(sb.toString(), param));
-			}
-			o = image.getCondition();
-			if (o != null) {
-				sb = new StringBuilder();
-				param = new ParametersI();
-				sb.append("select condition from ImagingEnvironment condition");
-				sb.append(" where id = :id");
-	        	param.addLong("id", o.getId());
-	        	results.put(ImagingEnvironment.class, 
-	        			service.findByQuery(sb.toString(), param));
-			}
-			o = image.getObjectiveSettings();
-			if (o != null) {
-				sb = new StringBuilder();
-				param = new ParametersI();
-				sb.append("select settings from ObjectiveSettings settings ");
-				sb.append("left outer join fetch settings.objective ");
-				sb.append("where id = :id");
-	        	param.addLong("id", o.getId());
-	        	results.put(ObjectiveSettings.class, 
-	        			service.findByQuery(sb.toString(), param));
-			}
+		sb = new StringBuilder();
+		param = new ParametersI();
+		sb.append("select img from Image as img ");
+		sb.append("left outer join fetch img.position as position ");
+        sb.append("left outer join fetch img.condition as condition ");
+        sb.append("left outer join fetch img.objectiveSettings as os ");
+        sb.append("left outer join fetch os.objective as objective ");
+        sb.append("where img.id = :id");
+        param.addLong("id", imageID);
+        try {
+        	 IObject r = service.findByQuery(sb.toString(), param);
+             return new ImageAcquisitionData((Image) r);
 		} catch (Exception e) {
 			handleException(e, "Cannot load image acquisition data.");
 		}
-		return results;
+       return null;
 	}
 	
-	Object loadChannelAcquisitionData()
+	
+	/**
+	 * Loads the acquisition metadata related to the specified channel.
+	 * 
+	 * @param channelID The id of the channel.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object loadChannelAcquisitionData(long channelID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//stage Label
+		isSessionAlive();
 		IQueryPrx service = getQueryService();
 		StringBuilder sb;
 		ParametersI param;
-		List<IObject> results = new ArrayList<IObject>();
-		return results;
+		try {
+			
+		} catch (Exception e) {
+			handleException(e, "Cannot load image acquisition data.");
+		}
+		return null;
 	}
 	
+	/**
+	 * Returns the enumeration corresponding to the passed string or 
+	 * <code>null</code> if none found.
+	 * 
+	 * @param klass The class the enumeration is for.
+	 * @param value The value of the enumeration.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	IObject getEnumeration(Class klass, String value)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			//IPixelsPrx service = getPixelsService();
+			IQueryPrx service = getQueryService();
+			return service.findByString(klass.getName(), "value", value);
+			//return service.getEnumeration(klass.getName(), value);
+		} catch (Exception e) {
+			handleException(e, "Cannot find the enumeration's value.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the enumerations corresponding to the passed type or 
+	 * <code>null</code> if none found.
+	 * 
+	 * @param klass The class the enumeration is for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<IObject> getEnumerations(Class klass)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IPixelsPrx service = getPixelsService();
+			return service.getAllEnumerations(klass.getName());
+		} catch (Exception e) {
+			handleException(e, "Cannot find the enumeration's value.");
+		}
+		return new ArrayList<IObject>();
+	}
 	
 }

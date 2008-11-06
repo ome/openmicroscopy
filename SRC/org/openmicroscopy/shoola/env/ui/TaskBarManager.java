@@ -397,7 +397,6 @@ public class TaskBarManager
 					f.shutdown();
 				CacheServiceFactory.shutdown(container);
 			} catch (Exception e) {}
-			
 			container.exit();
 		}
     }

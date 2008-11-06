@@ -544,9 +544,11 @@ class OmeroDataServiceImpl
 		}
 		List<DataObject> results = new ArrayList<DataObject>(objects.length);
 		//TODO review that code.
+		DataObject data;
 		for (int j = 0; j < objects.length; j++) {
-			results.add(PojoMapper.asDataObject(
-					ModelMapper.getAnnotatedObject(objects[j])));
+			data = PojoMapper.asDataObject(
+					ModelMapper.getAnnotatedObject(objects[j]));
+			results.add(data);
 		}
 		return results;
 	}
@@ -872,6 +874,7 @@ class OmeroDataServiceImpl
 			Iterator i = links.iterator();
 			Set<DataObject> nodes = new HashSet<DataObject>();
 			IObject object, parent = null;
+			DataObject data;
 			while (i.hasNext()) {
 				if (parentClass.equals(Project.class))
 					parent = ((ProjectDatasetLink) i.next()).getParent();
@@ -881,7 +884,8 @@ class OmeroDataServiceImpl
 					parent = ((ScreenPlateLink) i.next()).getParent();
 				object = gateway.findIObject(parent.getClass().getName(), 
 						parent.getId().getValue());
-				nodes.add(PojoMapper.asDataObject(object));
+				data = PojoMapper.asDataObject(object);
+				nodes.add(data);
 			}
 			return nodes;
 		} catch (Exception e) {

@@ -801,23 +801,24 @@ class BrowserComponent
      */
     public void setSelectedDisplays(TreeImageDisplay[] nodes)
     {
+    	/*
         if (nodes.length == 0) return;
         boolean b = nodes.length == 1;
         for (int i = 0; i < nodes.length; i++) {
         	setSelectedDisplay(nodes[i], b);
 		}
-        /*
-        TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
-        TreeImageDisplay display = nodes[nodes.length-1];
-        System.err.println("display :"+display.getUserObject());
-        if (oldDisplay != null && oldDisplay.equals(nodes[nodes.length-1])) return;
-        if (oldDisplay != null && oldDisplay.equals(nodes[0])) return;
-        //if (!hasDataToSave(display)) {
-        	// if (oldDisplay != null && oldDisplay.equals(display)) return;
-             model.setSelectedDisplays(nodes);
-             firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, nodes);
-       // }
-        */
+		*/
+        if (nodes.length == 0) return;
+        if (nodes.length == 1) setSelectedDisplay(nodes[0], true);
+        TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
+        boolean flush = false;
+        if (oldNodes.length >= nodes.length) flush = true;
+        int n = nodes.length;
+        for (int i = 0; i < n; i++) {
+        	if (i == 0) model.setSelectedDisplay(nodes[i], flush);
+        	else model.setSelectedDisplay(nodes[i], false);
+		}
+        firePropertyChange(SELECTED_DISPLAY_PROPERTY, null, nodes[n-1]);
     }
 
     /**

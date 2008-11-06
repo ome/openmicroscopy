@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
@@ -66,6 +67,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -338,7 +340,7 @@ class ImViewerComponent
 		if (option == MessageBox.YES_OPTION) {
 			if (rndBox != null && rndBox.isSelected()) {
 				try {
-					model.saveRndSettings();
+					saveRndSettings();
 				} catch (Exception e) {
 					LogMessage logMsg = new LogMessage();
 					logMsg.println("Cannot save rendering settings. ");
@@ -2265,6 +2267,10 @@ class ImViewerComponent
     	try {
     		model.saveRndSettings();
     		rndToSave = false;
+    		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+    		List<Long> l = new ArrayList<Long>();
+    		l.add(model.getImageID());
+    		bus.post(new RndSettingsCopied(l));
 		} catch (Exception ex) {
 			reload(ex);
 		}

@@ -102,7 +102,6 @@ public class PojoMapper
         if (value instanceof IObject) return asDataObject((IObject) value);
         else if (value instanceof Collection) 
         	return asDataObjects((Collection) value);
-        //else if (value instanceof Set) return asDataObjects((Set) value);
         else if (value instanceof Map) return asDataObjects((Map) value);
         else return null;
     }
@@ -162,8 +161,9 @@ public class PojoMapper
         	return new WellData((Well) object);
         else if (object instanceof WellSample)
         	return new WellSampleData((WellSample) object);
-        throw new IllegalArgumentException("Unknown IObject type: "+
-                object.getClass().getName());
+        return null;
+        //throw new IllegalArgumentException("Unknown IObject type: "+
+        //       object.getClass().getName());
     }
     
     /**
@@ -181,8 +181,11 @@ public class PojoMapper
             throw new IllegalArgumentException("The set cannot be null.");
         HashSet<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
-        while (i.hasNext())
-            set.add(asDataObject((IObject) i.next()));
+        DataObject data;
+        while (i.hasNext()) {
+        	data = asDataObject((IObject) i.next());
+        	if (data != null)  set.add(data);
+        }
         return set;
     }
     
@@ -199,10 +202,13 @@ public class PojoMapper
     {
         if (objects == null) 
             throw new IllegalArgumentException("The set cannot be null.");
-        HashSet<DataObject> set = new HashSet<DataObject>(objects.size());
+        Set<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
-        while (i.hasNext())
-            set.add(asDataObject((IObject) i.next()));
+        DataObject data;
+        while (i.hasNext()) {
+        	data = asDataObject((IObject) i.next());
+            set.add(data);
+        }
         return set;
     }
     
@@ -219,9 +225,12 @@ public class PojoMapper
     {
     	if (objects == null) 
             throw new IllegalArgumentException("The array cannot be null.");
-    	HashSet<DataObject> set = new HashSet<DataObject>(objects.length);
-        for (int i = 0; i < objects.length; i++)
-        	set.add(asDataObject(objects[i]));
+    	Set<DataObject> set = new HashSet<DataObject>();
+    	DataObject data;
+        for (int i = 0; i < objects.length; i++) {
+        	data = asDataObject(objects[i]);
+        	set.add(data);
+        }
         return set;
     }
     

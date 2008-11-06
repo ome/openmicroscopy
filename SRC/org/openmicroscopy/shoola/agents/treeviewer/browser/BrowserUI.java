@@ -412,7 +412,12 @@ class BrowserUI
         
             public void valueChanged(TreeSelectionEvent e)
             {
-                controller.onClick();
+            	TreePath[] paths = e.getPaths();
+            	List<TreePath> added = new ArrayList<TreePath>();
+            	for (int i = 0; i < paths.length; i++) {
+            		if (e.isAddedPath(paths[i])) added.add(paths[i]);
+				}
+                controller.onClick(added);
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);

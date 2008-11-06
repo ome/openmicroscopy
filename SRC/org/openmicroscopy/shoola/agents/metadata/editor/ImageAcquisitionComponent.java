@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ImageAcquisitionData;
+
 /** 
  * Displays the acquisition metadata related to the image itself.
  *
@@ -375,15 +377,12 @@ class ImageAcquisitionComponent
 	private void buildGUI()
 	{
 		fields.clear();
-		add(buildObjective(EditorUtil.transformObjective(
-				model.getObjective())));
-		add(buildObjectiveSetting(EditorUtil.transformObjectiveSettings(
-				model.getObjectiveSettings())));
+		ImageAcquisitionData data = model.getImageAcquisitionData();
+		add(buildObjective(EditorUtil.transformObjective(data)));
+		add(buildObjectiveSetting(EditorUtil.transformObjectiveSettings(data)));
 		add(buildImagingEnvironment(
-				EditorUtil.transformImageEnvironment(
-						model.getImagingEnvironment())));
-		add(buildStageLabel(EditorUtil.transformStageLabel(
-				model.getStageLabel())));
+				EditorUtil.transformImageEnvironment(data)));
+		add(buildStageLabel(EditorUtil.transformStageLabel(data)));
 	}
 	
 	/**

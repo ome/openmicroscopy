@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.AnnotationData;
 import pojos.FileAnnotationData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.URLAnnotationData;
 
@@ -358,9 +359,9 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#setImageAcquisitionData(Map)
+	 * @see Editor#setImageAcquisitionData(ImageAcquisitionData)
 	 */
-	public void setImageAcquisitionData(Map map)
+	public void setImageAcquisitionData(ImageAcquisitionData map)
 	{
 		if (map == null) return;
 		model.setImageAcquisitionData(map);
@@ -374,7 +375,7 @@ class EditorComponent
 	 */
 	public void loadImageAcquisitionData()
 	{
-		Map data = model.getImageAcquisitionData();
+		Object data = model.getImageAcquisitionData();
 		if (data != null) return;
 		if (!(model.getRefObject() instanceof ImageData)) return;
 		model.fireImagAcquisitionDataLoading();
