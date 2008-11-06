@@ -450,6 +450,52 @@ public class TreeModelFactory
 	}
 	
 	/**
+	 * Stub for creating a tree from XML file of several types. 
+	 * 
+	 * @param xHtmlFile
+	 * @return
+	 */
+	public static TreeModel getTree(File xHtmlFile) {
+		
+		IXMLElement root = null;
+		
+		try {
+			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
+
+			IXMLReader reader = StdXMLReader.fileReader(xHtmlFile.getAbsolutePath());
+
+			parser.setReader(reader);
+			
+			root = (IXMLElement) parser.parse();
+		} catch (XMLException e1) {
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//TODO handle failure of file to open. 
+		if (root == null) return null;
+		
+		String rootName = root.getFullName();
+		if ("protocol-archive".equals(rootName))
+			return UpeXmlReader.getTreeUPE(root);
+		
+		if ("ProtocolTitle".equals(rootName))
+			return getTreeB3(root);
+		
+		return null;
+	}
+	
+	
+	/**
 	 * Creates a TreeModel from a Beta-3.0 OMERO.editor XML document.
 	 * The tree model contains one XML element per node. 
 	 * Each node/field is created from an XML element using the 
@@ -458,41 +504,7 @@ public class TreeModelFactory
 	 * @param xmlFile	The Beta-3.0 XML file to convert.
 	 * @return			A TreeModel, containing 
 	 */
-	public static TreeModel getTreeB3(File xmlFile) {
-		
-		
-		IXMLElement root = null;
-		
-		try {
-			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
-
-			IXMLReader reader = StdXMLReader.fileReader(xmlFile.getAbsolutePath());
-
-			parser.setReader(reader);
-			
-			root = (IXMLElement) parser.parse();
-		} catch (XMLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if (root == null) return null;
-		
+	public static TreeModel getTreeB3(IXMLElement root) {
 		
 		IField rootField = createField(root);
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);

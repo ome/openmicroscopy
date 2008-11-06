@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.editor.FileLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
+import org.openmicroscopy.shoola.agents.editor.model.UpeXmlReader;
 
 /** 
  * The Model component in the <code>Editor</code> MVC triad.
@@ -213,7 +214,7 @@ class EditorModel
 	{
 		fileToEdit = file;
 		fileName = file.getName();
-		TreeModel treeModel = TreeModelFactory.getTreeB3(file);
+		TreeModel treeModel = TreeModelFactory.getTree(file);
 		browser.setTreeModel(treeModel);
 		state = Editor.READY;
 	}
