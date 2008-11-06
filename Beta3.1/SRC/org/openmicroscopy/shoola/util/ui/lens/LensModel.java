@@ -109,8 +109,15 @@ class LensModel
 	 * Size of the zoomedDatabuffer, used to see if a new Buffer 
 	 * will exceed the size of the current buffer. 
 	 */
-	private int            zoomedDataBufferSize = DEFAULT_SIZE;
+	private int            zoomedDataBufferSize;
 
+	/** Flushes the data buffer. */
+	private void flushDataBuffer()
+	{
+		System.gc();
+		zoomedDataBuffer = null;
+	}
+	
 	/**
 	 * Returns a writable raster to the {@link #scaleBufferedImage} method.
 	 * This method will allocate a new databuffer only if the new raster is
@@ -129,14 +136,15 @@ class LensModel
 		//reset dataBuffer 
 		switch (dataBufferType) {
 			case DataBuffer.TYPE_INT:
-				if (zoomedDataBuffer instanceof DataBufferByte)
-					zoomedDataBuffer = null;
+				if (zoomedDataBuffer instanceof DataBufferByte) 
+					flushDataBuffer();
 				break;
 			case DataBuffer.TYPE_BYTE:
 				if (zoomedDataBuffer instanceof DataBufferInt)
-					zoomedDataBuffer = null;
+					flushDataBuffer();
 		}
 		if (zoomedDataBufferSize < height*width*f) {
+			flushDataBuffer();
 			switch (dataBufferType) {
 				case DataBuffer.TYPE_INT:
 					zoomedDataBuffer = new DataBufferInt((int)(150*150*f), 1);
@@ -148,7 +156,7 @@ class LensModel
 		} else {
 			if (zoomedDataBuffer != null && 
 				zoomedDataBuffer.getSize() !=  DEFAULT_SIZE)
-				zoomedDataBuffer = null;
+				flushDataBuffer();
 		}
 		
 		if (zoomedDataBuffer == null) {
@@ -193,6 +201,7 @@ class LensModel
    
         graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
         graphics2D.dispose();
+        System.gc();
         return thumbImage;
     }
     
@@ -207,6 +216,7 @@ class LensModel
 		this.planeImage = planeImage;
 		x = 0;
 		y = 0;
+		zoomedDataBufferSize = DEFAULT_SIZE;
 	}
 
 	/** 
@@ -334,7 +344,8 @@ class LensModel
     	Graphics2D graphics2D = thumbImage.createGraphics();
 
     	graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
-
+    	graphics2D.dispose();
+    	System.gc();
 		return thumbImage;
 	}
 	
@@ -546,7 +557,7 @@ class LensModel
     /** Resets the data buffer. */
     void resetDataBuffer()
     { 
-    	zoomedDataBuffer = null; 
+    	flushDataBuffer();
     	zoomedDataBufferSize = DEFAULT_SIZE;
     }
     
