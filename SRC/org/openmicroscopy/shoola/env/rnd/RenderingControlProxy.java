@@ -101,7 +101,7 @@ class RenderingControlProxy
     private int						cacheID;
     
     /** The channel metadata. */
-    private ChannelData[]       metadata;
+    private ChannelData[]       	metadata;
     
     /** Local copy of the rendering settings used to speed-up the client. */
     private RndProxyDef             rndDef;
@@ -236,7 +236,6 @@ class RenderingControlProxy
     		cacheID = context.getCacheService().createCache(
 					CacheService.IN_MEMORY, cacheSize/imageSize);
     	}
-    		
     }
   
     /**
@@ -697,7 +696,7 @@ class RenderingControlProxy
 	void setCacheSize(int size)
 	{
 		if (imageSize == 0) imageSize = 1;
-		context.getCacheService().setCacheSize(cacheID, size/imageSize);
+		context.getCacheService().setCacheEntries(cacheID, size/imageSize);
 	}
 	
     /** 

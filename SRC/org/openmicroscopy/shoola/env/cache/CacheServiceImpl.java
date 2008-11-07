@@ -173,15 +173,29 @@ class CacheServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link CacheService}.
-	 * @see CacheService#setCacheSize(int, int)
+	 * @see CacheService#clearAllCaches()
 	 */
-	public void setCacheSize(int cacheID, int size)
+	public void clearAllCaches() 
+	{
+		String[] names = manager.getCacheNames();
+		if (names == null) return;
+		Cache cache;
+		for (int i = 0; i < names.length; i++) {
+			cache = manager.getCache(names[i]);
+			if (cache != null) cache.removeAll();
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link CacheService}.
+	 * @see CacheService#setCacheEntries(int, int)
+	 */
+	public void setCacheEntries(int cacheID, int size)
 	{
 		Cache cache = manager.getCache(""+cacheID);
 		if (cache == null) return;
 		cache.flush();
 		cache.getCacheConfiguration().setMaxElementsInMemory(size);
-		
 	}
 	
 }

@@ -114,7 +114,8 @@ public class CacheServiceFactory
 			public Object getElement(int cacheID, Object key) { return null; }
 			public void removeCache(int cacheID) {}
 			public void clearCache(int cacheID) {}
-			public void setCacheSize(int cacheID, int size) {}
+			public void setCacheEntries(int cacheID, int size) {}
+			public void clearAllCaches() {}
 		};
 	}
 	

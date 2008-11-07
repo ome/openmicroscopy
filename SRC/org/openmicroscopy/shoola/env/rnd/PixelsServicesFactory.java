@@ -251,10 +251,9 @@ public class PixelsServicesFactory
 			throw new IllegalArgumentException("Not allow to access method.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(new Long(pixelsID));
-		if (proxy != null) {
+		if (proxy != null) 
 			proxy.resetRenderingEngine(re, convert(def));
-		}
-			
+		
 		return proxy;
 	}
 	
@@ -330,11 +329,10 @@ public class PixelsServicesFactory
 		if (singleton.pixelsSource != null && 
 				singleton.pixelsSource.isSame(pixels.getId()))
 			return singleton.pixelsSource;
+		registry.getCacheService().clearAllCaches(); 
 		int size = getCacheSize();
-		boolean cacheInMemory = true;
-		if (size <= 0) cacheInMemory = false;
-		singleton.pixelsSource = DataSink.makeNew(pixels, registry, 
-												cacheInMemory);
+		if (size <= 0) size = 0;
+		singleton.pixelsSource = DataSink.makeNew(pixels, registry, size);
 		return singleton.pixelsSource;
 	}
 

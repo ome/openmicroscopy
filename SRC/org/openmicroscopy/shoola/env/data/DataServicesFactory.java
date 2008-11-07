@@ -24,13 +24,13 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 //Third-party libraries
 
@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -65,6 +64,12 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
+	
+	/**
+	 * The default amount of time, in milliseconds, that the 
+	 * application should wait before exiting if the server is not responding. 
+	 */
+	private static final int				EXIT_TIMEOUT = 30000;
 	
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
@@ -109,6 +114,20 @@ public class DataServicesFactory
 	/** The metadata service adapter. */
 	private OmeroMetadataService 	ms;
 	
+    /** 
+     * The timer used to establish disconner from an <code>OMERO</code>
+     * server.
+     */
+    private Timer 					timer;
+    
+    /** Initiliazes the timer. */
+    private void initTimer()
+    {
+    	if (timer != null) return;
+    	timer = new Timer();
+    	timer.schedule(new ExitTask(), EXIT_TIMEOUT);
+    }
+    
 	/**
 	 * Attempts to create a new instance.
      * 
@@ -180,23 +199,26 @@ public class DataServicesFactory
     						"the session.");
         msg.setYesText("Reconnect");
         msg.setNoText("Exit");
-        if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
-        	shutdown();
-    		container.exit();
-        } else {
-        	try {
-        		UserCredentials uc = (UserCredentials) 
-        			container.getRegistry().lookup(LookupNames.USER_CREDENTIALS);
-        		((OmeroImageServiceImpl) is).shutDown();
-        		omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
-			} catch (Exception e) {
-				UserNotifier un = registry.getUserNotifier();
-				un.notifyInfo("Reconnect", "An error while trying to " +
-						"reconnect.\n The application will now exit. ");
-				shutdown();
-	    		container.exit();
-			}
-        }
+        try {
+        	if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
+        		exitApplication();
+            } else {
+            	try {
+            		UserCredentials uc = (UserCredentials) 
+        				container.getRegistry().lookup(
+        						LookupNames.USER_CREDENTIALS);
+            		initTimer();
+        			((OmeroImageServiceImpl) is).shutDown();
+        			omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
+        			timer.cancel();
+    			} catch (Exception e) {
+    				UserNotifier un = registry.getUserNotifier();
+    				un.notifyInfo("Reconnect", "An error while trying to " +
+    						"reconnect.\n The application will now exit. ");
+    				exitApplication();
+    			}
+            }
+		} catch (Exception e) {}
 	}
 	
 	/**
@@ -318,6 +340,27 @@ public class DataServicesFactory
     { 
         ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 
+    }
+	
+	/** Shuts the services down and exits the application. */
+	public void exitApplication()
+	{
+		initTimer();
+		shutdown();
+		container.exit();
+	}
+	
+	 /** Helper inner class. */
+	class ExitTask 
+		extends TimerTask {
+    	
+		/** 
+		 * Sets the {@link #connAttempt} flag.
+		 * @see TimerTask#run()
+		 */
+    	public void run() {
+    		System.exit(0);
+    	}
     }
 	
 }

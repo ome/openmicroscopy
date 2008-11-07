@@ -123,12 +123,15 @@ public interface CacheService
 	public void clearCache(int cacheID);
 	
 	/**
-	 * Resets the size (number of items in memory) of the cache, 
+	 * Resets the number of items in memory of the cache, 
 	 * when a new cache is created or deleted.
 	 * 
 	 * @param cacheID	The id of the cache.
-	 * @param size		The size of the cache.
+	 * @param entries	The number of entries.
 	 */
-	public void setCacheSize(int cacheID, int size);
+	public void setCacheEntries(int cacheID, int entries);
+	
+	/** Clears all the caches. */
+	public void clearAllCaches();
 	
 }

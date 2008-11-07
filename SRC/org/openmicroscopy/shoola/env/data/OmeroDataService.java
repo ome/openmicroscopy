@@ -562,6 +562,17 @@ public interface OmeroDataService
 	public Collection findContainerPaths(Class type, long id, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Returns the collection of original files corresponding to the passed
+	 * pixels set.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	public Collection getOriginalFiles(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 

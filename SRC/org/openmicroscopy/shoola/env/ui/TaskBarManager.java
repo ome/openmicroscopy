@@ -391,13 +391,11 @@ public class TaskBarManager
         int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			try {
-				DataServicesFactory f = 
-								DataServicesFactory.getInstance(container);
-				if (f.isConnected())
-					f.shutdown();
 				CacheServiceFactory.shutdown(container);
+				DataServicesFactory f = 
+					DataServicesFactory.getInstance(container);
+				f.exitApplication();
 			} catch (Exception e) {}
-			container.exit();
 		}
     }
 

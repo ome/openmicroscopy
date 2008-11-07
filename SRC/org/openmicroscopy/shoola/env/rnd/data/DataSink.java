@@ -83,21 +83,19 @@ public class DataSink
 	 * Factory method to create a new <code>DataSink</code> to handle
 	 * access to the metadata associated with the specified pixels set.
 	 * 
-	 * @param source		The pixels set. Mustn't be <code>null</code>.
-	 * @param context		The container's registry. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param cacheInMemory	Pass <code>true</code> if the data can be cached 
-	 * 						in memory, <code>false</code> .
+	 * @param source	The pixels set. Mustn't be <code>null</code>.
+	 * @param context	The container's registry. Mustn't be <code>null</code>.
+	 * @param cacheSize	The size of the cache.
 	 * @return See above.
 	 */
 	public static DataSink makeNew(PixelsData source, Registry context, 
-			boolean cacheInMemory)
+			int cacheSize)
 	{
 		if (source == null)
 			throw new NullPointerException("No pixels.");
 		if (context == null) 
 			throw new NullPointerException("No registry.");
-		return new DataSink(source, context, cacheInMemory);
+		return new DataSink(source, context, cacheSize);
 	}
 	
 	/** The data source. */
@@ -118,21 +116,20 @@ public class DataSink
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param source		The pixels set.
-	 * @param context		The container's registry.
-	 * @param cacheInMemory	Pass <code>true</code> if the data can be cached 
-	 * 						in memory, <code>false</code> .
+	 * @param source	The pixels set.
+	 * @param context	The container's registry.
+	 * @param cacheSize	The size of the cache.
 	 */
-	private DataSink(PixelsData source, Registry context, boolean cacheInMemory)
+	private DataSink(PixelsData source, Registry context, int cacheSize)
 	{
 		this.source = source;
 		this.context = context;
 		String type = source.getPixelType();
 		bytesPerPixels = getBytesPerPixels(type);
-		int size = 1;
-		if (!cacheInMemory) size = 0;
+		int maxEntries =  
+			cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
 		cacheID = context.getCacheService().createCache(
-				CacheService.IN_MEMORY, size);
+				CacheService.IN_MEMORY, maxEntries);
 		strategy = BytesConverter.getConverter(type);
 	}
 	
@@ -256,8 +253,8 @@ public class DataSink
 	public void setCacheInMemory(boolean cacheInMemory)
 	{
 		clearCache();
-		if (cacheInMemory) context.getCacheService().setCacheSize(cacheID, 1);
-		else context.getCacheService().setCacheSize(cacheID, 0);
+		if (cacheInMemory) context.getCacheService().setCacheEntries(cacheID, 1);
+		else context.getCacheService().setCacheEntries(cacheID, 0);
 	}
 	
 	

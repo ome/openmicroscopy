@@ -201,6 +201,7 @@ class LensModel
    
         graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
         graphics2D.dispose();
+        System.gc();
         return thumbImage;
     }
     
@@ -296,33 +297,6 @@ class LensModel
 	BufferedImage createZoomedImage(BufferedImage image)
 	{
 		if (image == null) return null;
-		/*
-		ColorModel cm = image.getColorModel();
-		Raster r = image.getData().createChild(getX(), 
-				            getY(), getWidth(), getHeight(), 0, 0, null);
-		BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
-																	null);
-		int thumbHeight = (int) (img.getHeight()*zoomFactor);
-    	int thumbWidth  = (int) (img.getWidth()*zoomFactor);
-    	
-    	// Create the required compatible (thumbnail) buffered image to  
-    	// avoid potential errors from Java's ImagingLib.
-    	
-    	DataBufferInt buf = new DataBufferInt(DEFAULT_SIZE, 1)
-    	if (zoomedDataBufferSize < height*zoomFactor*width*zoomFactor)
-    		buf = new DataBufferInt((int)(150*150*zoomFactor*zoomFactor), 1);
-		SampleModel sm = cm.createCompatibleSampleModel(thumbWidth, thumbHeight);
-		WritableRaster wr = Raster.createWritableRaster(sm, buf, null);
-    	BufferedImage thumbImage = new BufferedImage(img.getColorModel(), 
-    											wr, false, null);
- 
-    	// Do the actual scaling and return the result
-        Graphics2D graphics2D = thumbImage.createGraphics();
-   
-        graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
-		
-        return thumbImage;
-        */
 		ColorModel cm = image.getColorModel();
 		Raster r = image.getData().createChild(getX(), 
 				            getY(), getWidth(), getHeight(), 0, 0, null);
@@ -343,7 +317,8 @@ class LensModel
     	Graphics2D graphics2D = thumbImage.createGraphics();
 
     	graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
-
+    	graphics2D.dispose();
+    	System.gc();
 		return thumbImage;
 	}
 	
