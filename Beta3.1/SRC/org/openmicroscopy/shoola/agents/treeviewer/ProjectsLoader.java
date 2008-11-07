@@ -31,8 +31,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
 
@@ -52,7 +52,7 @@ import pojos.ProjectData;
  * @since OME3.0
  */
 public class ProjectsLoader 
-	extends DataBrowserLoader
+	extends DataTreeViewerLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
@@ -69,7 +69,7 @@ public class ProjectsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      */
-    public ProjectsLoader(Browser viewer, TreeImageDisplay node)
+    public ProjectsLoader(TreeViewer viewer, TreeImageDisplay node)
 	{
 		super(viewer);
 		if (node == null)
@@ -79,7 +79,7 @@ public class ProjectsLoader
 	
 	 /**
      * Retrieves the data.
-     * @see DataBrowserLoader#load()
+     * @see DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -92,19 +92,20 @@ public class ProjectsLoader
 
     /**
      * Cancels the data loading.
-     * @see DataBrowserLoader#cancel()
+     * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /**
      * Feeds the result back to the viewer.
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
        // viewer.setLeaves((Set) result, timeNode, expNode); 
-        viewer.setHierarchyRoots((Set) result, node, false);
+        //viewer.setHierarchyRoots((Set) result, node, false);
+        viewer.browseHierarchyRoots(node, (Set) result);
     }
     
 }

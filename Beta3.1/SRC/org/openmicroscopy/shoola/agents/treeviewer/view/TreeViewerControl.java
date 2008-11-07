@@ -707,10 +707,14 @@ class TreeViewerControl
 	{
 		switch (model.getSelectedBrowser().getState()) {
 			case Browser.BROWING_DATA:
+				//view.setStatus(TreeViewer.LOADING_TITLE, false);
+				//view.setStatusIcon(false);
 				loadingWindow.setStatus(TreeViewer.LOADING_TITLE);
 				UIUtilities.centerAndShow(loadingWindow);
 				return;
 			case Browser.READY:
+				//view.setStatus(null, true);
+				//view.setStatusIcon(false);
 				loadingWindow.setVisible(false);
 				break;
 		}

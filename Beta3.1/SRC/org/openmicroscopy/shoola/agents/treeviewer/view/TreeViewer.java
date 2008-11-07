@@ -761,4 +761,11 @@ public interface TreeViewer
 
 	public void setWells(TreeImageSet parent, Set wells);
 
+	/**
+	 * Browses the passed node.
+	 * 
+	 * @param node The node to browse.
+	 */
+	public void browse(TreeImageDisplay node);
+	
 }

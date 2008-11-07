@@ -326,8 +326,8 @@ class BrowserModel
             int type = -1;
             int level = -1;
             if (ho instanceof PlateData) {
-            	currentLoader = new PlateWellsLoader(component, 
-    					(TreeImageSet) node, ((PlateData) ho).getId());
+            	//currentLoader = new PlateWellsLoader(component, 
+    			//		(TreeImageSet) node, ((PlateData) ho).getId());
             } else {
             	if (ho instanceof DatasetData) 
                 	type = ExperimenterDataLoader.DATASET;
@@ -635,8 +635,9 @@ class BrowserModel
 	 */
 	void browseProject(TreeImageDisplay node)
 	{
-		currentLoader = new ProjectsLoader(component, node);
-		currentLoader.load();
+		//state = Browser.BROWING_DATA;
+		//currentLoader = new ProjectsLoader(component, node);
+		//currentLoader.load();
 	}
 
 	/**
@@ -646,11 +647,11 @@ class BrowserModel
 	 */
 	void browsePlate(TreeImageDisplay node)
 	{
-		state = Browser.BROWING_DATA;
+		//state = Browser.BROWING_DATA;
 		Object ho = node.getUserObject();
-		currentLoader = new PlateWellsLoader(component, 
-				(TreeImageSet) node, ((PlateData) ho).getId());
-		currentLoader.load();
+		//currentLoader = new PlateWellsLoader(component, 
+		//		(TreeImageSet) node, ((PlateData) ho).getId());
+		//currentLoader.load();
 	}
 	
 	/**
@@ -660,8 +661,9 @@ class BrowserModel
 	 */
 	void browseTimeInterval(TreeImageTimeSet node)
 	{
-		currentLoader = new TimeIntervalsLoader(component, node);
-		currentLoader.load();
+		//state = Browser.BROWING_DATA;
+		//currentLoader = new TimeIntervalsLoader(component, node);
+		//currentLoader.load();
 	}
 	
 	/**
@@ -671,8 +673,9 @@ class BrowserModel
 	 */
 	void browseTagset(TreeImageDisplay node)
 	{
-		currentLoader = new TagSetsLoader(component, node);
-		currentLoader.load();
+		//state = Browser.BROWING_DATA;
+		//currentLoader = new TagSetsLoader(component, node);
+		//currentLoader.load();
 	}
 	
 	/**

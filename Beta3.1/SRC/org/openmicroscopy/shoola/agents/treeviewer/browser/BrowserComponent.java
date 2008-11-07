@@ -1242,20 +1242,33 @@ class BrowserComponent
 	public void browse(TreeImageDisplay node)
 	{
 		if (node == null) return;
+		model.getParentModel().browse(node);
+		/*
 		Object uo = node.getUserObject();
-		if (uo instanceof ProjectData) 
+		boolean b = false;
+		if (uo instanceof ProjectData) {
 			model.browseProject(node);
-		else if (uo instanceof TagAnnotationData) {
+			b = true;
+		} else if (uo instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) uo;
 			Set tags = tag.getTags();
-			if (tags != null && tags.size() > 0) 
+			if (tags != null && tags.size() > 0) {
 				model.browseTagset(node);
+				b = true;
+			}
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
+			b = true;
 		} else if (uo instanceof PlateData) {
 			model.browsePlate(node);
+			b = true;
 		}
-		fireStateChange();
+		if (b) 
+			model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, 
+					false);
+		//fireStateChange();
+		 *
+		 */
 	}
 
 	/**

@@ -80,6 +80,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
@@ -1611,6 +1612,8 @@ class TreeViewerComponent
 				view.addComponent(db.getUI());
 			}
 		}
+		model.setState(READY);
+		fireStateChange();
 	}
 
 	/**
@@ -1877,6 +1880,8 @@ class TreeViewerComponent
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();
 		view.addComponent(dataBrowser.getUI());
+		model.setState(READY);
+		fireStateChange();
 	}
 
 	/**
@@ -1895,6 +1900,30 @@ class TreeViewerComponent
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();
 		view.addComponent(dataBrowser.getUI());
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#browse(Object)
+	 */
+	public void browse(TreeImageDisplay node)
+	{
+		if (node == null) return;
+		Object uo = node.getUserObject();
+		if (uo instanceof ProjectData) {
+			model.browseProject(node);
+		} else if (uo instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) uo;
+			Set tags = tag.getTags();
+			if (tags != null && tags.size() > 0) {
+				model.browseTagset(node);
+			}
+		} else if (node instanceof TreeImageTimeSet) {
+			model.browseTimeInterval((TreeImageTimeSet) node);
+		} else if (uo instanceof PlateData) {
+			model.browsePlate(node);
+		}
+		fireStateChange();
 	}
 	
 }
