@@ -27,16 +27,13 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -465,7 +462,6 @@ public class MeasureEllipseFigure
 	{
 		if (shape==null) return;
 		AnnotationKeys.AREA.set(shape, getArea());
-		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
 		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
 		AnnotationKeys.PERIMETER.set(shape, getPerimeter());

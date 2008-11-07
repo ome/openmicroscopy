@@ -432,6 +432,37 @@ class IntensityView
 		IconManager icons = IconManager.getInstance();
 		return icons.getIcon(IconManager.INTENSITYVIEW);
 	}
+	
+	/** 
+	 * clear the maps just incase the data is not being reassigned.
+	 */
+	private void clearMaps()
+	{
+		if(shapeStatsList!=null)
+			shapeStatsList.clear();
+		shapeStatsList = null;
+		if(pixelStats!=null)
+			pixelStats.clear();
+		pixelStats = null;
+		if(shapeMap!=null)
+			shapeMap.clear();
+		shapeMap = null;
+		if(maxStats!=null)
+			maxStats.clear();
+		maxStats = null;
+		if(meanStats!=null)
+			meanStats.clear();
+		meanStats = null;
+		if(minStats!=null)
+			minStats.clear();
+		minStats = null;
+		if(sumStats!=null)
+			sumStats.clear();
+		sumStats = null;
+		if(stdDevStats!=null)
+			stdDevStats.clear();	
+		stdDevStats = null;
+	}
 
 	/**
 	 * Get the analysis results from the model and convert to the 
@@ -447,6 +478,7 @@ class IntensityView
 			return;
 		state = State.ANALYSING;
 		
+		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
 		pixelStats = new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
 		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
@@ -620,7 +652,6 @@ class IntensityView
 		statNames.add("Sum");
 		statNames.add("Mean");
 		statNames.add("Std Dev.");
-		statNames.add("Area");
 		statNames.add("NumPixels");
 		if(areaFigure(fig))
 			addAreaStats(statNames);
@@ -681,12 +712,13 @@ class IntensityView
 	 */
 	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
-		data[count][6] = fig.getBounds().getX();
-		data[count][7] = fig.getBounds().getY();
-		data[count][8] = AnnotationKeys.WIDTH.get(shape);
-		data[count][9] = AnnotationKeys.HEIGHT.get(shape);
-		data[count][10] = AnnotationKeys.CENTREX.get(shape);
-		data[count][11] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = AnnotationKeys.AREA.get(fig.getROIShape());
+		data[count][7] = fig.getBounds().getX();
+		data[count][8] = fig.getBounds().getY();
+		data[count][9] = AnnotationKeys.WIDTH.get(fig.getROIShape());
+		data[count][10] = AnnotationKeys.HEIGHT.get(fig.getROIShape());
+		data[count][11] = AnnotationKeys.CENTREX.get(fig.getROIShape());
+		data[count][12] = AnnotationKeys.CENTREY.get(fig.getROIShape());
 	}
 	
 	/**
@@ -726,6 +758,7 @@ class IntensityView
 	 */
 	private void addAreaStats(ArrayList<String> statNames)
 	{
+		statNames.add("Area");
 		statNames.add("X Coord");
 		statNames.add("Y Coord");
 		statNames.add("Width");
