@@ -27,8 +27,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -59,7 +62,6 @@ import javax.swing.filechooser.FileFilter;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -100,6 +102,7 @@ class IntensityView
 	extends JPanel 
 	implements ActionListener, TabPaneInterface, ChangeListener
 {
+	
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INTENSITY_INDEX;
 
@@ -117,8 +120,7 @@ class IntensityView
 	
 	/** The intial size of the intensity table dialog. */
 	private Dimension intensityTableSize = new Dimension(300,300);
-	
-	
+
 	/** The state of the Intensity View. */
 	static enum State 
 	{
@@ -217,46 +219,54 @@ class IntensityView
 	private TreeMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 
 	/** Map of the pixel intensity values to coord. */
-	TreeMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>> pixelStats;
+	private TreeMap<Coord3D, Map<Integer, Map<Point, Double>>> pixelStats;
 	
 	/** Map of the min channel intensity values to coord. */
-	TreeMap<Coord3D, Map<Integer, Double>> minStats;
+	private TreeMap<Coord3D, Map<Integer, Double>> minStats;
 
 	/** Map of the max channel intensity values to coord. */
-	TreeMap<Coord3D, Map<Integer, Double>> maxStats;
+	private TreeMap<Coord3D, Map<Integer, Double>> maxStats;
 
 	/** Map of the mean channel intensity values to coord. */
-	TreeMap<Coord3D, Map<Integer, Double>> meanStats;
+	private TreeMap<Coord3D, Map<Integer, Double>> meanStats;
 	
 	/** Map of the std dev channel intensity values to coord. */
-	TreeMap<Coord3D, Map<Integer, Double>> stdDevStats;
+	private TreeMap<Coord3D, Map<Integer, Double>> stdDevStats;
 	
 	/** Map of the sum channel intensity values to coord. */
-	TreeMap<Coord3D, Map<Integer, Double>> sumStats;
+	private TreeMap<Coord3D, Map<Integer, Double>> sumStats;
 	
 	/** Map of the coord to a shape. */
-	TreeMap<Coord3D, ROIShape> shapeMap;
+	private TreeMap<Coord3D, ROIShape> shapeMap;
 	
 	/** The current coord of the ROI being depicted in the slider. */
-	Coord3D coord;
+	private Coord3D 				coord;
 	
 	/** Button for the calling of the intensity table. */
-	JButton showIntensityTable;
+	private JButton 				showIntensityTable;
 	
 	/** Current ROIShape. */
-	private 	ROIShape shape;
+	private ROIShape 				shape;
 	
 	/** Dialog showing the intensity values for the selected channel. */
-	private IntensityValuesDialog intensityDialog;
+	private IntensityValuesDialog 	intensityDialog;
 	
 	/** Table Model. */
-	private IntensityModel				tableModel;
+	private IntensityModel			tableModel;
 
 	/**
 	 * overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index.
 	 */
 	public int getIndex() {return INDEX; }
+	
+	/**
+	 * The slider has changed value and the mouse button released. 
+	 */
+	private void handleSliderReleased()
+	{
+		stateChanged(null);
+	}
 	
 	/** Initializes the component composing the display. */
 	private void initComponents()
@@ -289,7 +299,13 @@ class IntensityView
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		zSlider.addChangeListener(this);
+		zSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");
@@ -300,7 +316,13 @@ class IntensityView
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addChangeListener(this);
+		tSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);	
 		tSlider.setEndLabel("T");
@@ -410,6 +432,37 @@ class IntensityView
 		IconManager icons = IconManager.getInstance();
 		return icons.getIcon(IconManager.INTENSITYVIEW);
 	}
+	
+	/** 
+	 * clear the maps just incase the data is not being reassigned.
+	 */
+	private void clearMaps()
+	{
+		if(shapeStatsList!=null)
+			shapeStatsList.clear();
+		shapeStatsList = null;
+		if(pixelStats!=null)
+			pixelStats.clear();
+		pixelStats = null;
+		if(shapeMap!=null)
+			shapeMap.clear();
+		shapeMap = null;
+		if(maxStats!=null)
+			maxStats.clear();
+		maxStats = null;
+		if(meanStats!=null)
+			meanStats.clear();
+		meanStats = null;
+		if(minStats!=null)
+			minStats.clear();
+		minStats = null;
+		if(sumStats!=null)
+			sumStats.clear();
+		sumStats = null;
+		if(stdDevStats!=null)
+			stdDevStats.clear();	
+		stdDevStats = null;
+	}
 
 	/**
 	 * Get the analysis results from the model and convert to the 
@@ -425,8 +478,9 @@ class IntensityView
 			return;
 		state = State.ANALYSING;
 		
+		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
-		pixelStats = new TreeMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>(new Coord3D());
+		pixelStats = new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
 		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
@@ -598,7 +652,6 @@ class IntensityView
 		statNames.add("Sum");
 		statNames.add("Mean");
 		statNames.add("Std Dev.");
-		statNames.add("Area");
 		statNames.add("NumPixels");
 		if(areaFigure(fig))
 			addAreaStats(statNames);
@@ -633,7 +686,8 @@ class IntensityView
 	 * @param channel see above.
 	 * @param count the column the data is being placed in.
 	 */
-	private void populateSummaryColumn(ROIFigure fig, Double data[][], int channel, int count)
+	private void populateSummaryColumn(ROIFigure fig, Double data[][], 
+			int channel, int count)
 	{
 		data[count][0] = channelMin.get(channel);
 		data[count][1] = channelMax.get(channel);
@@ -658,12 +712,13 @@ class IntensityView
 	 */
 	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
-		data[count][6] = fig.getBounds().getX();
-		data[count][7] = fig.getBounds().getY();
-		data[count][8] = AnnotationKeys.WIDTH.get(shape);
-		data[count][9] = AnnotationKeys.HEIGHT.get(shape);
-		data[count][10] = AnnotationKeys.CENTREX.get(shape);
-		data[count][11] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = AnnotationKeys.AREA.get(fig.getROIShape());
+		data[count][7] = fig.getBounds().getX();
+		data[count][8] = fig.getBounds().getY();
+		data[count][9] = AnnotationKeys.WIDTH.get(fig.getROIShape());
+		data[count][10] = AnnotationKeys.HEIGHT.get(fig.getROIShape());
+		data[count][11] = AnnotationKeys.CENTREX.get(fig.getROIShape());
+		data[count][12] = AnnotationKeys.CENTREY.get(fig.getROIShape());
 	}
 	
 	/**
@@ -703,6 +758,7 @@ class IntensityView
 	 */
 	private void addAreaStats(ArrayList<String> statNames)
 	{
+		statNames.add("Area");
 		statNames.add("X Coord");
 		statNames.add("Y Coord");
 		statNames.add("Width");
@@ -744,48 +800,49 @@ class IntensityView
 	 */
 	private void interpretResults(Coord3D coord, int channel)
 	{
-		Map<PlanePoint2D, Double> pixels=pixelStats.get(coord).get(channel);
+		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
 		if (pixels==null) return;
-		Iterator<PlanePoint2D> pixelIterator=pixels.keySet().iterator();
+		Iterator<Point> pixelIterator = pixels.keySet().iterator();
 		double minX, maxX, minY, maxY;
 		if (!pixelIterator.hasNext()) return;
-		PlanePoint2D point=pixelIterator.next();
-		minX=(point.getX());
-		maxX=(point.getX());
-		minY=(point.getY());
-		maxY=(point.getY());
+		Point point = pixelIterator.next();
+		minX = (point.getX());
+		maxX = (point.getX());
+		minY = (point.getY());
+		maxY = (point.getY());
 		while (pixelIterator.hasNext())
 		{
-			point=pixelIterator.next();
-			minX=Math.min(minX, point.getX());
-			maxX=Math.max(maxX, point.getX());
-			minY=Math.min(minY, point.getY());
-			maxY=Math.max(maxY, point.getY());
+			point = pixelIterator.next();
+			minX = Math.min(minX, point.getX());
+			maxX = Math.max(maxX, point.getX());
+			minY = Math.min(minY, point.getY());
+			maxY = Math.max(maxY, point.getY());
 		}
 		int sizeX, sizeY;
-		sizeX=(int) (maxX-minX)+1;
-		sizeY=(int) ((maxY-minY)+1);
-		Double[][] data=new Double[sizeX][sizeY];
-		pixelIterator=pixels.keySet().iterator();
+		sizeX = (int) (maxX-minX)+1;
+		sizeY = (int) ((maxY-minY)+1);
+		Double[][] data = new Double[sizeX][sizeY];
+		pixelIterator = pixels.keySet().iterator();
 		int x, y;
+		Double value;
 		while (pixelIterator.hasNext())
 		{
-			point=pixelIterator.next();
-			x=(int) (point.getX()-minX);
-			y=(int) (point.getY()-minY);
-			if (x>=sizeX||y>=sizeY) continue;
-			Double value;
-			if (pixels.containsKey(point)) value=pixels.get(point);
-			else value=new Double(0);
-			data[x][y]=value;
+			point = pixelIterator.next();
+			x = (int) (point.getX()-minX);
+			y = (int) (point.getY()-minY);
+			if (x >= sizeX || y >= sizeY) continue;
+			
+			if (pixels.containsKey(point)) value = pixels.get(point);
+			else value = new Double(0);
+			data[x][y] = value;
 		}
-		channelMin=minStats.get(coord);
-		channelMax=maxStats.get(coord);
-		channelMean=meanStats.get(coord);
-		channelStdDev=stdDevStats.get(coord);
-		channelSum=sumStats.get(coord);
-		tableModel=new IntensityModel(data);
-		shape=shapeMap.get(coord);
+		channelMin = minStats.get(coord);
+		channelMax = maxStats.get(coord);
+		channelMean = meanStats.get(coord);
+		channelStdDev = stdDevStats.get(coord);
+		channelSum = sumStats.get(coord);
+		tableModel = new IntensityModel(data);
+		shape = shapeMap.get(coord);
 		intensityDialog.setModel(tableModel);
 	}
 		
