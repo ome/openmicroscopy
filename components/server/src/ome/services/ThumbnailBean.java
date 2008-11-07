@@ -159,7 +159,25 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * Thumbnail objects have the same UpdateEvent and a Hibernate save of one
      * unloads the UpdateEvent of the other.
      */
-    private Timestamp lastUpdated;
+    private Timestamp metadataLastUpdated;
+    
+    /**
+     * The last time the rendering settings were updated. We're storing this as 
+     * an instance variable due to the possibility that an UpdateEvent will be
+     * lost during an IUpdate save. This is particularly evident when two
+     * Thumbnail objects have the same UpdateEvent and a Hibernate save of one
+     * unloads the UpdateEvent of the other.
+     */
+    private Timestamp settingsLastUpdated;
+    
+    /**
+     * The user Id of the current set of settings. We're storing this as 
+     * an instance variable due to the possibility that an UpdateEvent will be
+     * lost during an IUpdate save. This is particularly evident when two
+     * Thumbnail objects have the same UpdateEvent and a Hibernate save of one
+     * unloads the UpdateEvent of the other.
+     */
+    private Long settingsUserId;
 
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
@@ -274,7 +292,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// shallow load of the RenderingDef and its details.
     	if (settings == null)
     	{
-            Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
+            Long userId = getCurrentUserId();
             Parameters params = new Parameters();
             params.addLong("p_id", id);
             params.addLong("o_id", userId);
@@ -287,6 +305,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		{
     			return false;
     		}
+    		settingsLastUpdated = 
+    			settings.getDetails().getUpdateEvent().getTime();
+    		settingsUserId = settings.getDetails().getOwner().getId();
     	}
     	return true;
     }
@@ -488,12 +509,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *         not exist.
      */
     private Thumbnail getThumbnailMetadata(Dimension dimensions) {
-        Long userId = settings.getDetails().getOwner().getId();
         Parameters params = new Parameters();
         params.addId(pixels.getId());
         params.addInteger("x", (int) dimensions.getWidth());
         params.addInteger("y", (int) dimensions.getHeight());
-        params.addLong("o_id", userId);
+        params.addLong("o_id", settingsUserId);
 
         Thumbnail thumb = iQuery.findByQuery(
         	"select t from Thumbnail as t "+
@@ -511,11 +531,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *         not exist.
      */
     private List<Thumbnail> getThumbnailMetadata() {
-        Long userId = settings.getDetails().getOwner().getId();
         List<Thumbnail> thumbs = iQuery.findAllByQuery(
                 "select t from Thumbnail as t where t.pixels.id = :id and " +
                 "t.details.owner.id = :ownerid", new Parameters().
-                addId(pixels.getId()).addLong("ownerid", userId));
+                addId(pixels.getId()).addLong("ownerid", getCurrentUserId()));
         return thumbs;
     }
     
@@ -548,18 +567,16 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private boolean isThumbnailCached(Dimension dimension)
     {
-        Timestamp settingsTime = 
-            settings.getDetails().getUpdateEvent().getTime();
         if (log.isDebugEnabled())
         {
-        	log.debug("Thumb time: " + lastUpdated);
-        	log.debug("Settings time: " + settingsTime);
+        	log.debug("Thumb time: " + metadataLastUpdated);
+        	log.debug("Settings time: " + settingsLastUpdated);
         }
         
         try
         {
-            if (metadata != null && lastUpdated != null
-                && !settingsTime.after(lastUpdated)
+            if (metadata != null && metadataLastUpdated != null
+                && !settingsLastUpdated.after(metadataLastUpdated)
                 && ioService.getThumbnailExists(metadata))
             {
                 return true;
@@ -740,7 +757,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         settings = null;
         dirty = true;
         metadata = null;
-        lastUpdated = null;
+        metadataLastUpdated = null;
     }
     
     protected void errorIfInvalidState()
@@ -825,7 +842,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         // Pixels above. If we do not, Pixels will be unloaded and we will hit
         // IllegalStateException's when checking update events.
         metadata = iUpdate.saveAndReturnObject(metadata);
-        lastUpdated = metadata.getDetails().getUpdateEvent().getTime();
+        metadataLastUpdated = metadata.getDetails().getUpdateEvent().getTime();
         
         BufferedImage image = createScaledImage(dimensions, null, null);
         try {
@@ -896,15 +913,22 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         // which is used elsewhere doesn't wipe out our timestamp. Also,
         // populating a pixels hash map so that we can easily determine which
         // Pixels Id's were retrieved above.
-        Map<Long, Timestamp> timestampMap = new HashMap<Long, Timestamp>();
+        Map<Long, Timestamp> metadataTimeMap = new HashMap<Long, Timestamp>();
+        Map<Long, Timestamp> settingsTimeMap = new HashMap<Long, Timestamp>();
+        Map<Long, Long> settingsUserMap = new HashMap<Long, Long>();
         Map<Long, Pixels> pixelsMap = new HashMap<Long, Pixels>();
+        Details details;
         for (Pixels pixels : pixelsList)
         {
-            pixelsMap.put(pixels.getId(), pixels);
+        	Long pId = pixels.getId();
+            pixelsMap.put(pId, pixels);
             if (pixels.sizeOfThumbnails() > 0)
             {
-                Details d = pixels.iterateThumbnails().next().getDetails();
-                timestampMap.put(pixels.getId(), d.getUpdateEvent().getTime());
+                details = pixels.iterateThumbnails().next().getDetails();
+                metadataTimeMap.put(pId, details.getUpdateEvent().getTime());
+                details = pixels.iterateSettings().next().getDetails();
+                settingsTimeMap.put(pId, details.getUpdateEvent().getTime());
+                settingsUserMap.put(pId, details.getOwner().getId());
             }
         }
                 
@@ -918,7 +942,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                     pixels = pixelsMap.get(pixelsId);
                     settings = pixels.iterateSettings().next();
                     metadata = pixels.iterateThumbnails().next();
-                    lastUpdated = timestampMap.get(pixelsId);
+                    metadataLastUpdated = metadataTimeMap.get(pixelsId);
+                    settingsLastUpdated = settingsTimeMap.get(pixelsId);
+                    settingsUserId = settingsUserMap.get(pixelsId);
                 }
                 else
                 {
@@ -941,6 +967,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	return toReturn;
     }
     
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideSet(java.lang.Integer, java.util.Set)
+     */
     /* (non-Javadoc)
      * @see ome.api.ThumbnailStore#getThumbnailByLongestSideSet(java.lang.Integer, java.util.Set)
      */
@@ -970,11 +999,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	Map<Long, Thumbnail> metadataMap = new HashMap<Long, Thumbnail>();
     	Map<Dimension, Set<Long>> dimensionPools =
     		new HashMap<Dimension, Set<Long>>();
-    	Map<Long, Timestamp> timestampMap = new HashMap<Long, Timestamp>();
+    	Map<Long, Timestamp> settingsTimeMap = new HashMap<Long, Timestamp>();
+    	Map<Long, Long> settingsUserMap = new HashMap<Long, Long>();
     	for (RenderingDef def : settingsList)
     	{
     	    Pixels p = def.getPixels();
-    		settingsMap.put(p.getId(), def);
+    	    Long pId = p.getId();
+    	    Details d = def.getDetails();
+    	    Timestamp t = d.getUpdateEvent().getTime();
+    		settingsMap.put(pId, def);
+    		settingsTimeMap.put(pId, t);
+    		settingsUserMap.put(pId, d.getOwner().getId());
     		addToDimensionPool(dimensionPools, p,
     		                   (int) checkedDimensions.getWidth());
     	}
@@ -983,6 +1018,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// metadata based on our dimension pools above. At worst, the result
     	// of maintaining the aspect ratio (calculating the new XY widths) is
     	// that we have to retrieve each thumbnail object separately.
+    	Map<Long, Timestamp> metadataTimeMap = new HashMap<Long, Timestamp>();
     	for (Dimension dimensions : dimensionPools.keySet())
     	{
     		Set<Long> pool = dimensionPools.get(dimensions);
@@ -1002,7 +1038,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         	    Long pixelsId = metadata.getPixels().getId();
         	    Timestamp t = metadata.getDetails().getUpdateEvent().getTime();
         		metadataMap.put(pixelsId, metadata);
-        		timestampMap.put(pixelsId, t);
+        		metadataTimeMap.put(pixelsId, t);
         	}
     	}
     	
@@ -1019,10 +1055,12 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	        {
     	            pixels = settingsMap.get(pixelsId).getPixels();
     	            settings = settingsMap.get(pixelsId);
+    	            settingsLastUpdated = settingsTimeMap.get(pixelsId);
+    	            settingsUserId = settingsUserMap.get(pixelsId);
     	            if (metadataMap.containsKey(pixelsId))
     	            {
     	                metadata = metadataMap.get(pixelsId);
-    	                lastUpdated = timestampMap.get(pixelsId);
+    	                metadataLastUpdated = metadataTimeMap.get(pixelsId);
     	            }
     	        }
     	        else
@@ -1064,7 +1102,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             metadata = getThumbnailMetadata(dimensions);
             if (metadata != null)
             {
-                lastUpdated = metadata.getDetails().getUpdateEvent().getTime();
+                metadataLastUpdated = 
+                	metadata.getDetails().getUpdateEvent().getTime();
             }
         }
         try
