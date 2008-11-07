@@ -55,7 +55,7 @@ class CacheServiceImpl
 	private CacheManager manager;
 	
 	/** The id of the last created cache. */
-	private int 		cacheID;
+	private int 		count;
 	
 	/**
 	 * Creates a new instance.
@@ -65,7 +65,7 @@ class CacheServiceImpl
 	CacheServiceImpl(InputStream stream)
 	{
 		manager = new CacheManager(stream);
-		cacheID = -1;
+		count = -1;
 	}
 
 	/** Shuts down the cache manager. */
@@ -90,23 +90,36 @@ class CacheServiceImpl
 	 */
 	public int createCache(int type) 
 	{
+		return createCache(type, CACHE_SIZE);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link CacheService}.
+	 * @see CacheService#createCache(int, int)
+	 */
+	public int createCache(int type, int size) 
+	{
 		Cache cache;
+		if (size < 0) size = 0;
 		switch (type) {
 			case PERSISTENCE_ON_DISK:
+				//TODO: implement.
 				return -1;
-			case IN_MEMORY_ONLY:
-				cacheID++;
-				cache = new Cache(""+cacheID, 10000, false, false, 300, 600);
+			case IN_MEMORY:
+				count++;
+				//name, maximum number of elements, overflow to disk, eternal
+				//time to Idle, time to live
+				cache = new Cache(""+count, size, true, false, 300, 600);
 				manager.addCache(cache);
 				break;
 			case DEFAULT:
-				cacheID++;
-				manager.addCache(""+cacheID);
+				count++;
+				manager.addCache(""+count);
 				break;
 			default:
 				return -1;
 		}
-		return cacheID;
+		return count;
 	}
 
 	/** 
@@ -152,6 +165,33 @@ class CacheServiceImpl
 		Cache cache = manager.getCache(""+cacheID);
 		if (cache == null) return;
 		cache.removeAll();
+	}
+	
+	/** 
+	 * Implemented as specified by {@link CacheService}.
+	 * @see CacheService#clearAllCaches()
+	 */
+	public void clearAllCaches() 
+	{
+		String[] names = manager.getCacheNames();
+		if (names == null) return;
+		Cache cache;
+		for (int i = 0; i < names.length; i++) {
+			cache = manager.getCache(names[i]);
+			if (cache != null) cache.removeAll();
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link CacheService}.
+	 * @see CacheService#setCacheSize(int, int)
+	 */
+	public void setCacheSize(int cacheID, int size)
+	{
+		Cache cache = manager.getCache(""+cacheID);
+		if (cache == null) return;
+		cache.flush();
+		cache.getCacheConfiguration().setMaxElementsInMemory(size);
 	}
 
 }

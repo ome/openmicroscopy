@@ -84,16 +84,17 @@ public class DataSink
 	 * 
 	 * @param source	The pixels set. Mustn't be <code>null</code>.
 	 * @param context	The container's registry.  Mustn't be <code>null</code>.
-	 * @param size		The size of the cache.
+	 * @param cacheSize	The size of the cache.
 	 * @return See above.
 	 */
-	public static DataSink makeNew(Pixels source, Registry context)
+	public static DataSink makeNew(Pixels source, Registry context, 
+			int cacheSize)
 	{
 		if (source == null)
 			throw new NullPointerException("No pixels.");
 		if (context == null) 
 			throw new NullPointerException("No registry.");
-		return new DataSink(source, context);
+		return new DataSink(source, context, cacheSize);
 	}
 	
 	/** The data source. */
@@ -119,14 +120,18 @@ public class DataSink
 	 * 
 	 * @param source	The pixels set.
 	 * @param context	The container's registry.
+	 * @param cacheSize The size of the cache.
 	 */
-	private DataSink(Pixels source, Registry context)
+	private DataSink(Pixels source, Registry context, int cacheSize)
 	{
 		this.source = source;
 		this.context = context;
 		String type = source.getPixelsType().getValue();
 		bytesPerPixels = getBytesPerPixels(type);
-		cacheID = context.getCacheService().createCache();
+		int maxEntries =  
+			cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
+		cacheID = context.getCacheService().createCache(CacheService.IN_MEMORY, 
+				maxEntries);
 		/*
 		cache = CachingService.createPixelsCache(source.getId(), 
 				source.getSizeX()*source.getSizeY()*bytesPerPixels);

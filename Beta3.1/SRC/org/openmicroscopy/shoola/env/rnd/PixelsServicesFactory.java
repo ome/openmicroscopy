@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,12 +71,21 @@ import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 public class PixelsServicesFactory
 {
 
+	/** The percentage of memory used for caching. */
+	private static final double		RATIO = 0.10;
+	
+	/** Values used to determine the size of a cache. */
+	private static final int		FACTOR = 1024*1024;
+	
 	/** The sole instance. */
 	private static PixelsServicesFactory 	singleton;
 
 	/** Reference to the container registry. */
 	private static Registry                 registry;
 
+	/** The maximum amount of memory in bytes used for caching. */
+	private static int						maxSize;
+	
 	/**
 	 * Converts the {@link RenderingDef} into a {@link RndProxyDef}.
 	 * 
@@ -301,7 +312,11 @@ public class PixelsServicesFactory
 		if (singleton.pixelsSource != null && 
 				singleton.pixelsSource.isSame(pixels.getId().longValue()))
 			return singleton.pixelsSource;
-		singleton.pixelsSource = DataSink.makeNew(pixels, registry);
+		registry.getCacheService().clearAllCaches(); 
+		int size = getCacheSize();
+		if (size <= 0) size = 0;
+		//else size = 1;
+		singleton.pixelsSource = DataSink.makeNew(pixels, registry, size);
 		return singleton.pixelsSource;
 	}
 
@@ -439,9 +454,51 @@ public class PixelsServicesFactory
 		if (rnd != null) return rnd;
 		RndProxyDef proxyDef = convert(def);
 		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
-										compression, proxyDef);
+										compression, proxyDef, getCacheSize());
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;
 	}
 
+	/**
+	 * Returns the size of the cache.
+	 * 
+	 * @return See above.
+	 */
+	private static int getCacheSize()
+	{
+		MemoryUsage usage = 
+			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		//percentage of memory used for caching.
+		maxSize = (int) (RATIO*(usage.getMax()-usage.getUsed()))/FACTOR; 
+		int m = singleton.rndSvcProxies.size();
+		int n = 0;
+		int sizeCache = 0;
+		RenderingControlProxy proxy;
+		if (singleton.pixelsSource != null) n = 1;
+		if (n == 0 && m == 0) return maxSize*FACTOR;
+		else if (n == 0 && m > 0) {
+			sizeCache = (maxSize/(m+1))*FACTOR;
+			//reset all the image caches.
+			Iterator i = singleton.rndSvcProxies.keySet().iterator();
+			while (i.hasNext()) {
+				proxy = (RenderingControlProxy)
+							singleton.rndSvcProxies.get(i.next());
+				proxy.setCacheSize(sizeCache);
+			}
+			return sizeCache;
+		} else if (m == 0 && n > 0) {
+			sizeCache = (maxSize/(n+1))*FACTOR;
+			return sizeCache;
+		}
+		sizeCache = (maxSize/(m+n+1))*FACTOR;
+		//reset all the image caches.
+		Iterator i = singleton.rndSvcProxies.keySet().iterator();
+		while (i.hasNext()) {
+			proxy = (RenderingControlProxy)
+						singleton.rndSvcProxies.get(i.next());
+			proxy.setCacheSize(sizeCache);
+		}
+		return sizeCache;
+	}
+	
 }
