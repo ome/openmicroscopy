@@ -950,11 +950,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                 {
                     if (!setPixelsId(pixelsId))
                     {
-                        resetDefaults();
+                        _resetDefaults();
                         setPixelsId(pixelsId);
                     }
                 }
-    	        byte[] thumbnail = getThumbnail(sizeX, sizeY);
+    	        byte[] thumbnail = _getThumbnail(sizeX, sizeY);
     	        toReturn.put(pixelsId, thumbnail);
     	    }
             catch (Throwable t)
@@ -964,6 +964,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                 toReturn.put(pixelsId, null);
             }
     	}
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+        iUpdate.flush();
+        iUpdate.commit();
     	return toReturn;
     }
     
@@ -1067,11 +1072,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	        {
     	            if (!setPixelsId(pixelsId))
     	            {
-    	                resetDefaults();
+    	                _resetDefaults();
     	                setPixelsId(pixelsId);
     	            }
     	        }
-    	        byte[] thumbnail = getThumbnailByLongestSide(size);
+    	        byte[] thumbnail = _getThumbnailByLongestSide(size);
     	        toReturn.put(pixelsId, thumbnail);
     	    }
     	    catch (Throwable t)
@@ -1081,6 +1086,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	        toReturn.put(pixelsId, null);
     	    }
     	}
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+        iUpdate.flush();
+        iUpdate.commit();
     	return toReturn;
     }
 
@@ -1094,6 +1104,15 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
+        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // left around in the Hibernate session cache.
+    	
+        iQuery.clear();
+        return _getThumbnail(sizeX, sizeY);
+    }
+    
+    /** Actually does the work specified by {@link getThumbnail()}.*/
+    private byte[] _getThumbnail(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
 
@@ -1124,10 +1143,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             	}
             	metadata = _createThumbnail(dimensions);
             }
-            // Ensure that we do not have "dirty" pixels or rendering settings 
-            // left around in the Hibernate session cache.
-            iQuery.clear();
-            
             byte[] thumbnail = ioService.getThumbnail(metadata);
             return thumbnail;
         }
@@ -1147,39 +1162,23 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public byte[] getThumbnailByLongestSide(Integer size) {
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+    	return _getThumbnailByLongestSide(size);
+    }
+    
+    /** Actually does the work specified by {@link _getThumbnailByLongestSide()}.*/
+    private byte[] _getThumbnailByLongestSide(Integer size) {
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(size, size);
         dimensions = calculateXYWidths((int) dimensions.getWidth());
-        return getThumbnail((int) dimensions.getWidth(),
-                            (int) dimensions.getHeight());
+        byte[] thumbnail = 
+        	_getThumbnail((int) dimensions.getWidth(),
+                          (int) dimensions.getHeight());
+    	return thumbnail;
     }
     
-    /** Actually does the work specified by {@link getThumbnailDirect()}.*/
-    private byte[] _getThumbnailDirect(Integer sizeX, Integer sizeY,
-                                       Integer theZ, Integer theT)
-    {
-    	// Set defaults and sanity check thumbnail sizes
-    	Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
-
-    	BufferedImage image = createScaledImage(dimensions, theZ, theT);
-    	ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    	try {
-    		compressionService.compressToStream(image, byteStream);
-    		byte[] thumbnail = byteStream.toByteArray();
-    		return thumbnail;
-    	} catch (IOException e) {
-    		log.error("Could not obtain thumbnail direct.", e);
-    		throw new ResourceError(e.getMessage());
-    	} finally {
-    		try {
-    			byteStream.close();
-    		} catch (IOException e) {
-    			log.error("Could not close byte stream.", e);
-    			throw new ResourceError(e.getMessage());
-    		}
-    	}
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -1196,7 +1195,33 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	return _getThumbnailDirect(sizeX, sizeY, null, null);
     }
     
-    /* (non-Javadoc)
+    /** Actually does the work specified by {@link getThumbnailDirect()}.*/
+	private byte[] _getThumbnailDirect(Integer sizeX, Integer sizeY,
+	                                   Integer theZ, Integer theT)
+	{
+		// Set defaults and sanity check thumbnail sizes
+		Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
+	
+		BufferedImage image = createScaledImage(dimensions, theZ, theT);
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		try {
+			compressionService.compressToStream(image, byteStream);
+			byte[] thumbnail = byteStream.toByteArray();
+			return thumbnail;
+		} catch (IOException e) {
+			log.error("Could not obtain thumbnail direct.", e);
+			throw new ResourceError(e.getMessage());
+		} finally {
+			try {
+				byteStream.close();
+			} catch (IOException e) {
+				log.error("Could not close byte stream.", e);
+				throw new ResourceError(e.getMessage());
+			}
+		}
+	}
+
+	/* (non-Javadoc)
      * @see ome.api.ThumbnailStore#getThumbnailForSectionDirect(int, int, java.lang.Integer, java.lang.Integer)
      */
     @RolesAllowed("user")
@@ -1275,6 +1300,14 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @Transactional(readOnly = false)
     public void resetDefaults()
     {
+    	_resetDefaults();
+        iUpdate.flush();
+        iUpdate.commit();
+    }
+    
+    /** Actually does the work specified by {@link resetDefaults()}.*/
+    private void _resetDefaults()
+    {
         // Ensure that setPixelsId() has been called first.
         errorIfNullPixels();
         
@@ -1296,8 +1329,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         
         RenderingDef def = settingsService.createNewRenderingDef(pixels);
         settingsService.resetDefaults(def, pixels);
-        iUpdate.flush();
-        iUpdate.commit();
     }
 
 	public boolean isDiskSpaceChecking() {
