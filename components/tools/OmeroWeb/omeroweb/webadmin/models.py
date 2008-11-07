@@ -102,9 +102,6 @@ class ExperimenterForm(forms.Form):
     
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
     confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
-
-    def clean_default_group(self):
-        print "aaa"
     
     def clean_omename(self):
         if self.name_check:
