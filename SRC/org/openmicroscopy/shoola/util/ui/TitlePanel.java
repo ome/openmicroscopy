@@ -94,7 +94,8 @@ public class TitlePanel
     	MattePainter veil = new MattePainter(bgToTranslucent);
     	veil.setPaintStretched(true);
     	Painter backgroundPainter = new RectanglePainter(Color.white, null);
-    	Painter p = new CompoundPainter(backgroundPainter, veil, new GlossPainter());
+    	Painter p = new CompoundPainter(backgroundPainter, veil, 
+    			new GlossPainter());
     	setBackgroundPainter(p);
     }
     

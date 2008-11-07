@@ -27,12 +27,10 @@ import java.io.File;
 import java.util.Collection;
 import javax.swing.Icon;
 
-import omero.model.OriginalFile;
-import pojos.FileAnnotationData;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.FileAnnotationData;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 

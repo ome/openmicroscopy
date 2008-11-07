@@ -1248,22 +1248,7 @@ class BrowserComponent
 	public void browse(TreeImageDisplay node)
 	{
 		if (node == null) return;
-		Object uo = node.getUserObject();
-		if (uo instanceof ProjectData) 
-			model.browseProject(node);
-		else if (uo instanceof TagAnnotationData) {
-			TagAnnotationData tag = (TagAnnotationData) uo;
-			Set tags = tag.getTags();
-			if (tags != null && tags.size() > 0) 
-				model.browseTagset(node);
-		} else if (node instanceof TreeImageTimeSet) {
-			model.browseTimeInterval((TreeImageTimeSet) node);
-		} else if (uo instanceof PlateData) {
-			model.browsePlate(node);
-		} else if (uo instanceof ImageData) {
-			model.viewImage(node);
-		}
-		fireStateChange();
+		model.getParentModel().browse(node);
 	}
 
 	/**

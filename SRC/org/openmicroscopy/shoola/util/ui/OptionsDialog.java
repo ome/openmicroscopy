@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,17 +33,18 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
 //Third-party libraries
-import layout.TableLayout;
+import org.jdesktop.swingx.JXHeader;
+import org.jdesktop.swingx.JXHeader.IconPosition;
+import org.jdesktop.swingx.painter.RectanglePainter;
 
 //Application-internal dependencies
 
@@ -82,7 +82,7 @@ public class OptionsDialog
 	 * All other widgets are added to this panel, which, in turn, is then 
 	 * added to the dialog's content pane.
 	 */
-	private JPanel			contentPanel;
+	private JXHeader		contentPanel;
 	
 	/** Controls to ask a confirmation question */
 	private JButton			noButton;
@@ -98,6 +98,9 @@ public class OptionsDialog
 	
 	/** Panel hosting the UI buttons. */
 	private JPanel 			controlPanel;
+	
+	/** The component hosting added components. */
+	private JPanel			body;
 	
     /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()
@@ -123,9 +126,12 @@ public class OptionsDialog
     /** Creates the various UI components that make up the dialog. */
     private void createComponents()
     {
+    	body = new JPanel();
+    	//body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
+    	body.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	mainPanel = new JPanel();
     	controlPanel = new JPanel();
-        contentPanel = new JPanel();
+        contentPanel = new JXHeader();
         noButton = new JButton("No");
         yesButton = new JButton("Yes");
         getRootPane().setDefaultButton(yesButton);
@@ -165,22 +171,12 @@ public class OptionsDialog
 	 */
 	private JPanel buildCommentPanel(String instructions, Icon icon)
 	{
-        int iconSpace = 0;
-        int height = 20;
-        if (icon != null) iconSpace = icon.getIconWidth()+20;
-        if (icon != null) height = icon.getIconHeight();
-        double tableSize[][] =  
-        		{{iconSpace, TableLayout.PREFERRED, TableLayout.FILL}, // columns
-                {TableLayout.PREFERRED, height, TableLayout.PREFERRED}}; // rows
-        TableLayout layout = new TableLayout(tableSize);
-        contentPanel.setLayout(layout);  
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        if (icon != null)
-        	contentPanel.add(new JLabel(icon), "0, 0, 0, 2");
-        JComponent c = UIUtilities.buildTextPane(instructions);
-        c.setBackground(Color.BLUE);
-        contentPanel.add(c, "1, 0, 2, 0");
+    	contentPanel.setBackgroundPainter(
+    			new RectanglePainter(UIUtilities.WINDOW_BACKGROUND_COLOR, 
+    					null));
+		contentPanel.setDescription(instructions);
+		contentPanel.setIcon(icon);
+		contentPanel.setIconPosition(IconPosition.LEFT);
 		return contentPanel;
 	}
 	
@@ -191,12 +187,15 @@ public class OptionsDialog
 	 */
 	private JPanel buildControlPanel()
 	{
+		controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlPanel.setBorder(null);
 		controlPanel.add(yesButton);
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		controlPanel.add(noButton);
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		return UIUtilities.buildComponentPanelRight(controlPanel);
+		JPanel p = UIUtilities.buildComponentPanelRight(controlPanel);
+		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		return p;
 	}
 	
     /**
@@ -208,15 +207,12 @@ public class OptionsDialog
      */
     private void buildGUI(String message, Icon icon)
     {
-    	
-		mainPanel.setOpaque(false);
-		double tableSize[][] = {{TableLayout.FILL}, // columns
-								{TableLayout.FILL, 40}}; // rows
-        TableLayout layout = new TableLayout(tableSize);
-        mainPanel.setLayout(layout);       
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        mainPanel.add(buildCommentPanel(message, icon), "0, 0");
-        mainPanel.add(buildControlPanel(), "0, 1");
+    	mainPanel.setOpaque(false);
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		mainPanel.add(buildCommentPanel(message, icon));
+		mainPanel.add(body);
+		mainPanel.add(buildControlPanel());
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
     
@@ -228,6 +224,7 @@ public class OptionsDialog
      */
     private void initialize(String message, Icon messageIcon)
     {
+    	setResizable(false);
     	createComponents();
 		attachListeners();
 		buildGUI(message, messageIcon);
@@ -275,7 +272,8 @@ public class OptionsDialog
 	 */
 	public void addBodyComponent(JComponent c) 
 	{
-		contentPanel.add(c, "1, 2, l, t");
+		c.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		body.add(c);
 		pack();
 	}
 	

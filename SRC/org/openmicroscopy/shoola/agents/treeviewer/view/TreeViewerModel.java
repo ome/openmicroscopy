@@ -44,11 +44,17 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
@@ -833,6 +839,57 @@ class TreeViewerModel
 			advancedFinder = FinderFactory.getAdvancedFinder(
 							TreeViewerAgent.getRegistry());
 		return advancedFinder; 
+	}
+	
+
+	/**
+	 * Browses the node hosting the project to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browseProject(TreeImageDisplay node)
+	{
+		state = TreeViewer.LOADING_DATA;
+		currentLoader = new ProjectsLoader(component, node);
+		currentLoader.load();
+	}
+
+	/**
+	 * Browses the node hosting the project to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browsePlate(TreeImageDisplay node)
+	{
+		state = TreeViewer.LOADING_DATA;
+		Object ho = node.getUserObject();
+		currentLoader = new PlateWellsLoader(component, 
+				(TreeImageSet) node, ((PlateData) ho).getId());
+		currentLoader.load();
+	}
+	
+	/**
+	 * Browses the node hosting the time interval to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browseTimeInterval(TreeImageTimeSet node)
+	{
+		state = TreeViewer.LOADING_DATA;
+		currentLoader = new TimeIntervalsLoader(component, node);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Browses the node hosting the tag linked to tags to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browseTagset(TreeImageDisplay node)
+	{
+		state = TreeViewer.LOADING_DATA;
+		currentLoader = new TagSetsLoader(component, node);
+		currentLoader.load();
 	}
 
 }

@@ -44,12 +44,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -329,8 +326,8 @@ class BrowserModel
             int type = -1;
             int level = -1;
             if (ho instanceof PlateData) {
-            	currentLoader = new PlateWellsLoader(component, 
-    					(TreeImageSet) node, ((PlateData) ho).getId());
+            	//currentLoader = new PlateWellsLoader(getParentModel(), 
+    			//		(TreeImageSet) node, ((PlateData) ho).getId());
             } else {
             	if (ho instanceof DatasetData) 
                 	type = ExperimenterDataLoader.DATASET;
@@ -623,53 +620,6 @@ class BrowserModel
 		return false;
 	}
 
-	/**
-	 * Browses the node hosting the project to browse.
-	 * 
-	 * @param node The node to browse
-	 */
-	void browseProject(TreeImageDisplay node)
-	{
-		currentLoader = new ProjectsLoader(component, node);
-		currentLoader.load();
-	}
-
-	/**
-	 * Browses the node hosting the project to browse.
-	 * 
-	 * @param node The node to browse
-	 */
-	void browsePlate(TreeImageDisplay node)
-	{
-		state = Browser.BROWING_DATA;
-		Object ho = node.getUserObject();
-		currentLoader = new PlateWellsLoader(component, 
-				(TreeImageSet) node, ((PlateData) ho).getId());
-		currentLoader.load();
-	}
-	
-	/**
-	 * Browses the node hosting the time interval to browse.
-	 * 
-	 * @param node The node to browse
-	 */
-	void browseTimeInterval(TreeImageTimeSet node)
-	{
-		currentLoader = new TimeIntervalsLoader(component, node);
-		currentLoader.load();
-	}
-	
-	/**
-	 * Browses the node hosting the tag linked to tags to browse.
-	 * 
-	 * @param node The node to browse
-	 */
-	void browseTagset(TreeImageDisplay node)
-	{
-		currentLoader = new TagSetsLoader(component, node);
-		currentLoader.load();
-	}
-	
 	/**
 	 * Removes the passed node.
 	 * 

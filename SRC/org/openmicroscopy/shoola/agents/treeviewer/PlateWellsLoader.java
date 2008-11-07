@@ -23,16 +23,14 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
 //Java imports
 import java.util.Set;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
@@ -52,7 +50,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @since 3.0-Beta3
  */
 public class PlateWellsLoader 	
-	extends DataBrowserLoader
+	extends DataTreeViewerLoader
 {
     
     /** The parent the nodes to retrieve are for. */
@@ -74,7 +72,7 @@ public class PlateWellsLoader
      * @param parent  The parent the nodes are for.
      * @param plateID The id of the plate.
      */
-	public PlateWellsLoader(Browser viewer, TreeImageSet parent, long plateID)
+	public PlateWellsLoader(TreeViewer viewer, TreeImageSet parent, long plateID)
 	{
 		super(viewer);
 		this.parent = parent;
@@ -83,7 +81,7 @@ public class PlateWellsLoader
 	
 	 /**
      * Retrieves the data.
-     * @see DataBrowserLoader#load()
+     * @see DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -92,18 +90,18 @@ public class PlateWellsLoader
 
     /**
      * Cancels the data loading.
-     * @see DataBrowserLoader#cancel()
+     * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /**
      * Feeds the result back to the viewer.
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setWells((Set) result, parent);
+        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        viewer.setWells(parent, (Set) result);
     }
-
+    
 }

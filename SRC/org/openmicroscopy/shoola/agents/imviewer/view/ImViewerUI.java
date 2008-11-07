@@ -311,7 +311,6 @@ class ImViewerUI
 		//pane.setOneTouchExpandable(true);
 		pane.setContinuousLayout(true);
 		pane.setResizeWeight(1.0);
-		
 		return pane;
 	}
 

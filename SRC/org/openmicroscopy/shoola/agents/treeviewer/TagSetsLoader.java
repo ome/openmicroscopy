@@ -30,6 +30,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -48,7 +49,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @since OME3.0
  */
 public class TagSetsLoader 
-	extends DataBrowserLoader
+extends DataTreeViewerLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
@@ -65,7 +66,7 @@ public class TagSetsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      */
-    public TagSetsLoader(Browser viewer, TreeImageDisplay node)
+    public TagSetsLoader(TreeViewer viewer, TreeImageDisplay node)
 	{
 		super(viewer);
 		if (node == null)
@@ -75,7 +76,7 @@ public class TagSetsLoader
 	
     /**
      * Retrieves the data.
-     * @see DataBrowserLoader#load()
+     * @see DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -85,18 +86,18 @@ public class TagSetsLoader
 
     /**
      * Cancels the data loading.
-     * @see DataBrowserLoader#cancel()
+     * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /**
      * Feeds the result back to the viewer.
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setHierarchyRoots((Set) result, node, false);
+        viewer.browseHierarchyRoots(node, (Set) result);
     }
     
 }

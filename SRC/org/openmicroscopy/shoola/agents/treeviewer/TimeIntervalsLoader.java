@@ -28,8 +28,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @since OME3.0
  */
 public class TimeIntervalsLoader 
-	extends DataBrowserLoader
+extends DataTreeViewerLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
@@ -66,7 +66,7 @@ public class TimeIntervalsLoader
      * @param node   The node hosting the time interval to browse.
      *               Mustn't be <code>null</code>.
      */
-    public TimeIntervalsLoader(Browser viewer, TreeImageTimeSet node)
+    public TimeIntervalsLoader(TreeViewer viewer, TreeImageTimeSet node)
 	{
 		super(viewer);
 		if (node == null)
@@ -76,7 +76,7 @@ public class TimeIntervalsLoader
     
     /**
      * Retrieves the data.
-     * @see DataBrowserLoader#load()
+     * @see DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -87,18 +87,18 @@ public class TimeIntervalsLoader
 
     /**
      * Cancels the data loading.
-     * @see DataBrowserLoader#cancel()
+     * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /**
      * Feeds the result back to the viewer.
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setTimeIntervalImages((Set) result, node);
+        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        viewer.browseTimeInterval(node, (Set) result);
     }
     
 }
