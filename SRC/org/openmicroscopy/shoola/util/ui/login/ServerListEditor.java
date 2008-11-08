@@ -29,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -37,9 +36,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableCellEditor;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 
 /** 
  * Customized editor to indent the text when a new row is added to the 
@@ -63,6 +64,14 @@ public class ServerListEditor
 	/** The component handling the editing of the cell value. */
 	private JTextField 		component;
 
+	/** The component handling the editing of the cell value. */
+	private JTextField 		textComponent;
+	
+	/** 
+	 * The component handling the editing of the cell value for numerical value.
+	 */
+	private JTextField 		numericalcomponent;
+	
 	/** The table this editor is for. */
 	private ServerTable		table;
 	
@@ -95,15 +104,18 @@ public class ServerListEditor
 		if (table == null)
 			throw new IllegalArgumentException("No table.");
 		this.table = table;
-		component = new JTextField();
-		component.addActionListener(this);
-		component.getDocument().addDocumentListener(this);
-		component.addKeyListener(new KeyAdapter() {
+		numericalcomponent = new NumericalTextField(ServerEditor.MIN_PORT, 
+				ServerEditor.MAX_PORT);
+		textComponent = new JTextField();
+		textComponent.addActionListener(this);
+		textComponent.getDocument().addDocumentListener(this);
+		textComponent.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER)
 					handleKeyEnter();
 			}
 		});
+		component = textComponent;
 	}
 	
     /**
@@ -112,9 +124,11 @@ public class ServerListEditor
      * 													 int, int)
      */
     public Component getTableCellEditorComponent(JTable table, Object value,
-            boolean isSelected, int rowIndex, int vColIndex) 
+            boolean isSelected, int rowIndex, int colIndex) 
     {
-    	//Invokdes when a cell value is edited by the user.
+    	//Invokes when a cell value is edited by the user.
+    	if (colIndex == 2) component = numericalcomponent;
+    	else component = textComponent;
         if (value != null) {
         	String v = (String) value;
         	if (v == null || v.trim().length() == 0) v = " ";

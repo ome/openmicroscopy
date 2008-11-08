@@ -87,10 +87,9 @@ class ServerTable
 		if (editor != null) editor.stopCellEditing();
 		
 		if (clickCount == 2) {
-			parent.requesFocusOnEditedCell(getSelectedRow(), getSelectedColumn());
-			parent.setEditing(true);
-			//editCellAt(getSelectedRow(), getSelectedColumn());
-			//repaint();
+				parent.requesFocusOnEditedCell(getSelectedRow(), 
+						getSelectedColumn());
+				parent.setEditing(true);
 		} 
 	}
 	

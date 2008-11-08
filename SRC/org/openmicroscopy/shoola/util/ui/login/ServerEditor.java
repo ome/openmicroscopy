@@ -97,6 +97,12 @@ public class ServerEditor
 	/** Separator used when storing various servers. */
     static final String			SERVER_PORT_SEPARATOR = ":";
     
+    /** The minimum port value. */
+    static final int			MIN_PORT = 0;
+    
+    /** The minimum port value. */
+    static final int			MAX_PORT = 64000;
+    
     /** The message displayed when the entered server address already exists. */
     private static final String	EMPTY_MSG = "Server address already " +
     												"exists.";
