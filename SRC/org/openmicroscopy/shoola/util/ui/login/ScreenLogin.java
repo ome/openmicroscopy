@@ -39,7 +39,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -163,6 +164,9 @@ public class ScreenLogin
 	/** The selected connection speed. */
 	private int					speedIndex;
 	
+	/** The port value. */
+	private int					selectedPort;
+	
 	/** Indicates to show or hide the connection speed option. */
 	private boolean				connectionSpeed;
 	
@@ -184,7 +188,8 @@ public class ScreenLogin
 		String s = serverText.getText();
 		if (s != null) s = s.trim();
 		setControlsEnabled(false);
-		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex);
+		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex, 
+				selectedPort);
 		setUserName(usr);
 		setControlsEnabled(false);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
@@ -316,9 +321,27 @@ public class ScreenLogin
 		pass = new JPasswordField();
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
-		List<String> servers = editor.getServers();
-		if (servers == null || servers.size() == 0) serverName = DEFAULT_SERVER;
-		else serverName = servers.get(servers.size()-1);
+		Map<String, String> servers = editor.getServers();
+		if (servers == null || servers.size() == 0) 
+			serverName = DEFAULT_SERVER;
+		else {
+			int n = servers.size()-1;
+			Iterator<String> i = servers.keySet().iterator();
+			int k = 0;
+			String value;
+			while (i.hasNext()) {
+				if (k == n) {
+					serverName = i.next();
+					value = servers.get(serverName);
+					if (value != null) {
+						try {
+							selectedPort = Integer.parseInt(value);
+						} catch (Exception e) {}
+					}	
+				}
+				k++;
+			}
+		}
 		connectionSpeedText = new JLabel(getConnectionSpeed());
 		connectionSpeedText.setForeground(TEXT_COLOR);
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
@@ -447,6 +470,13 @@ public class ScreenLogin
 	private void setNewServer(String s)
 	{
 		if (s == null || s.length() == 0) s = DEFAULT_SERVER;
+		String[] values = s.split(ServerEditor.SERVER_PORT_SEPARATOR, 0);
+		s = values[0];
+		if (values.length == 2) {
+			try {
+				selectedPort = Integer.parseInt(values[1]);
+			} catch (Exception e) {}
+		}
 		serverText.setText(s);
 		//serverText.validate();
 		//serverText.repaint();
@@ -520,22 +550,25 @@ public class ScreenLogin
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param title		The frame's title.
-	 * @param logo		The frame's background logo. 
-	 * 					Mustn't be <code>null</code>.
-	 * @param frameIcon The image icon for the window.
-	 * @param version	The version of the software.
+	 * @param title		 The frame's title.
+	 * @param logo		 The frame's background logo. 
+	 * 					 Mustn't be <code>null</code>.
+	 * @param frameIcon  The image icon for the window.
+	 * @param version	 The version of the software.
+	 * @param defaultPort The default port.
 	 */
-	public ScreenLogin(String title, Icon logo, Image frameIcon, String version)
+	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
+			String defaultPort)
 	{
 		super();
+		selectedPort = -1;
 		setTitle(title);
 		if (logo == null)
 			throw new NullPointerException("No Frame icon.");
 		Dimension d = new Dimension(logo.getIconWidth(), logo.getIconHeight());
 		setSize(d);
 		setPreferredSize(d);
-		editor = new ServerEditor();
+		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		connectionSpeed = false;
 		speedIndex = retrieveConnectionSpeed();
@@ -569,7 +602,7 @@ public class ScreenLogin
 	 */
 	public ScreenLogin(String title, Icon logo, Image frameIcon)
 	{
-		this(title, logo, frameIcon, null);
+		this(title, logo, frameIcon, null, null);
 	}
 
 	/**
@@ -582,7 +615,7 @@ public class ScreenLogin
 	 */
 	public ScreenLogin(Icon logo, Image frameIcon, String version)
 	{
-		this(null, logo, frameIcon, version);
+		this(null, logo, frameIcon, version, null);
 	}
 
 	/**
@@ -594,7 +627,7 @@ public class ScreenLogin
 	 */
 	public ScreenLogin(Icon logo, Image frameIcon)
 	{
-		this(null, logo, frameIcon, null);
+		this(null, logo, frameIcon, null, null);
 	}
 
 	/** 

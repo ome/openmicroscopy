@@ -31,13 +31,14 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 
@@ -74,7 +75,7 @@ class ServerTable
 	
 	/** Reference to the parent. */
 	private ServerEditor 	parent;
-	
+
 	/**
 	 * Handles the mouse pressed event.
 	 * 
@@ -84,8 +85,9 @@ class ServerTable
 	{
 		TableCellEditor editor = getCellEditor();
 		if (editor != null) editor.stopCellEditing();
+		
 		if (clickCount == 2) {
-			parent.requesFocusOnEditedCell(getSelectedRow());
+			parent.requesFocusOnEditedCell(getSelectedRow(), getSelectedColumn());
 			parent.setEditing(true);
 			//editCellAt(getSelectedRow(), getSelectedColumn());
 			//repaint();
@@ -93,34 +95,33 @@ class ServerTable
 	}
 	
 	/**
-	 * Creates a new instance.
+	 * Initializes the table.
 	 * 
-	 * @param parent	Reference to the model. Mustn't be <code>null</code>.
-	 * @param servers 	Collection of servers.
-	 * @param icon		The icon to display next to the server's name.
+	 * @param servers   The existing servers.
+	 * @param icon		The icon used.
 	 */
-	ServerTable(ServerEditor parent, List servers, Icon icon)
-	{	
-		if (parent == null)
-			throw new IllegalArgumentException("No model");
-		this.parent = parent;
-		previousRow = -1;
-		String[] columnNames = {"", ""};
+	private void initComponents(Map<String, String> servers, Icon icon)
+	{
+		String[] columnNames = {"", "", ""};
 		final Object[][] objects;
 		Boolean focus = Boolean.TRUE;
 		if (servers == null || servers.size() == 0) {
-			objects = new Object[1][2];
+			objects = new Object[1][3];
 			objects[0][0] = icon;
 			objects[0][1] = "";
+			objects[0][2] = parent.getDefaultPort();
 			//editCellAt(0, 1);
 			focus = Boolean.FALSE;
 		} else {
-			objects = new Object[servers.size()][2];
-			Iterator i = servers.iterator();
+			objects = new Object[servers.size()][3];
+			Iterator<String> i = servers.keySet().iterator();
 			int j = 0;
+			String s;
 			while (i.hasNext()) {
+				s = i.next();
 				objects[j][0] = icon;
-				objects[j][1] = i.next();
+				objects[j][1] = s;
+				objects[j][2] = servers.get(s);
 				j++;
 			}
 		}
@@ -134,7 +135,8 @@ class ServerTable
 		putClientProperty("terminateEditOnFocusLost", focus);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setModel(new ServerTableModel(objects, columnNames));
-		setDefaultRenderer(Object.class, new ServerListRenderer());
+		ServerListRenderer rnd = new ServerListRenderer();
+		setDefaultRenderer(Object.class, rnd);
 		setRowHeight(h+INDENT);
 		setShowHorizontalLines(true);
 		setShowVerticalLines(false);
@@ -142,12 +144,13 @@ class ServerTable
 		setGridColor(LINE_COLOR);
 		Dimension d = getIntercellSpacing();
 		setIntercellSpacing(new Dimension(0, d.height));
-		TableColumn column = getColumnModel().getColumn(0);
+		TableColumnModel tcm = getColumnModel();
+		TableColumn column = tcm.getColumn(0);
 		int n = w+INDENT;
 		column.setMaxWidth(n);
 		column.setMinWidth(n);
-		TableColumn col = getColumnModel().getColumn(1);
-	    col.setCellEditor(new ServerListEditor(this));
+		column = tcm.getColumn(1);
+		column.setCellEditor(new ServerListEditor(this));
 		addMouseListener(new MouseAdapter() {
 		
 			/**
@@ -160,6 +163,28 @@ class ServerTable
 				handleClickCount(e.getClickCount());
 			}
 		});
+		int width = rnd.getFontMetrics(rnd.getFont()).stringWidth("64000");
+		width+=width/2;
+		column = tcm.getColumn(2);
+		column.setMaxWidth(width);
+		column.setMinWidth(width);
+		column.setCellEditor(new ServerListEditor(this));
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param parent	Reference to the model. Mustn't be <code>null</code>.
+	 * @param servers 	Collection of servers.
+	 * @param icon		The icon to display next to the server's name.
+	 */
+	ServerTable(ServerEditor parent, Map<String, String> servers, Icon icon)
+	{	
+		if (parent == null)
+			throw new IllegalArgumentException("No model");
+		this.parent = parent;
+		previousRow = -1;
+		initComponents(servers, icon);
 	}
 	
 	/** 
@@ -232,13 +257,13 @@ class ServerTable
 		DefaultTableModel model= ((DefaultTableModel) getModel());
 		if (row != previousRow && row >= 0 && previousRow != -1) {
 			
-			if (model.getColumnCount() < 2) return; 
+			if (model.getColumnCount() < 3) return; 
 			v = (String) model.getValueAt(previousRow, 1);
 			TableCellEditor editor = getCellEditor();
 			if (editor != null) editor.stopCellEditing();
 			if (v == null || v.trim().length() == 0) v = null;
 		}
-		if (row >= 0 && model.getColumnCount() == 2)
+		if (row >= 0 && model.getColumnCount() == 3)
 			handleTextModification((String) model.getValueAt(row, 1));
 		parent.changeSelection(row, previousRow, v);
 		previousRow = row;

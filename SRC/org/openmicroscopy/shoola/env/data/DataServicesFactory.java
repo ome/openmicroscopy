@@ -69,7 +69,7 @@ public class DataServicesFactory
 	 * The default amount of time, in milliseconds, that the 
 	 * application should wait before exiting if the server is not responding. 
 	 */
-	private static final int				EXIT_TIMEOUT = 30000;
+	private static final int				EXIT_TIMEOUT = 10000;
 	
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
@@ -276,6 +276,7 @@ public class DataServicesFactory
 	{
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
+		omeroGateway.setPort(uc.getPort());
         ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
                 									uc.getPassword(),
                                                     uc.getHostName(),

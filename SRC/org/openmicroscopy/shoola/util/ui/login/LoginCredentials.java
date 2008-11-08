@@ -73,6 +73,9 @@ public class LoginCredentials
     /** The connection speed level. */
     private int 	speedLevel;
     
+    /** The port used. */
+    private int		port;
+    
     /** 
      * Controls if the passed speed index is supported.
      * 
@@ -102,17 +105,19 @@ public class LoginCredentials
      *                   it was created in the DB.
      * @param hostName 	 The name of the selected server.
      * @param speedLevel The connection speed.
+     * @param port		 The port used.
      * @throws IllegalArgumentException If the user name and/or the password is
      *                 <code>null</code> or has <code>0</code>-length.
      */
     public LoginCredentials(String userName, String password, String hostName,
-    						int speedLevel)
+    						int speedLevel, int port)
     {
     	checkSpeedLevel(speedLevel);
     	this.speedLevel = speedLevel;
         this.userName = userName;
         this.password = password;
         this.hostName = hostName;
+        this.port = port;
     }
     
     /**
@@ -150,6 +155,14 @@ public class LoginCredentials
      * @return See above.
      */
     public int getSpeedLevel() { return speedLevel; }
+    
+    /**
+     * Returns the selected port.
+     * 
+     * @return See above.
+     */
+    public int getPort() { return port; }
+    
     
     /**
      * Formats user name and password.

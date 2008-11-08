@@ -34,7 +34,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -71,9 +73,6 @@ public class ServerEditor
 	extends JPanel
 {
 	
-	/** The default height of the <code>TitlePanel</code>. */
-   // public static final int		TITLE_HEIGHT = 70;
-    
 	/** Bound property indicating to remove the warning message. */
 	public static final String	REMOVE_MESSAGE_PROPERTY = "removeMessage";
 	
@@ -95,6 +94,9 @@ public class ServerEditor
 	/** Bound property indicating to apply the selection. */
 	static final String 		APPLY_SERVER_PROPERTY = "applyServer";
 	
+	/** Separator used when storing various servers. */
+    static final String			SERVER_PORT_SEPARATOR = ":";
+    
     /** The message displayed when the entered server address already exists. */
     private static final String	EMPTY_MSG = "Server address already " +
     												"exists.";
@@ -103,8 +105,13 @@ public class ServerEditor
     private static final String	EXAMPLE = "(e.g. test.openmicroscopy.org " +
     										"or 134.20.12.33)";
     
+    /** The header of the table. */
+    private static final String HEADER = "Server Address and Port";
+    
     /** Separator used when storing various servers. */
     private static final String	SERVER_NAME_SEPARATOR = ",";
+    
+    
     
     /** The property name for the host to connect to <i>OMERO</i>. */
     private static final String	OMERO_SERVER = "omeroServer";
@@ -142,6 +149,12 @@ public class ServerEditor
 	 */
 	private String			activeServer;
 	
+    /** The port used to connect to the active server. */
+	private String			activePort;
+	
+	/** The default port value. */
+	private String			defaultPort;
+	
 	/** 
 	 * Removes the selected server from the list. 
 	 * 
@@ -170,7 +183,7 @@ public class ServerEditor
 		if (editor != null) editor.stopCellEditing();
 		
 		if (model.getRowCount() == 0) setEditing(false);
-		handleServers(activeServer);
+		handleServers(activeServer, activePort);
 		editing = false;
 		fireEditProperty(model.getRowCount() != 0);
 		firePropertyChange(REMOVE_PROPERTY, oldValue, newValue);
@@ -181,17 +194,17 @@ public class ServerEditor
 	{
 		if (editing) return;
 		addButton.setEnabled(false);
-		//table.putClientProperty("terminateEditOnFocusLost", Boolean.FALSE);
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
 		//First check if we already have
 		//finishButton.setEnabled(true);
 		int m = model.getRowCount();
-		Object[] newRow = new Object[2];
+		Object[] newRow = new Object[3];
 		newRow[0] = icons.getIcon(IconManager.SERVER);
 		newRow[1] = "";
+		newRow[2] = defaultPort;
 		model.insertRow(m, newRow);
 		model.fireTableDataChanged();
-		requesFocusOnEditedCell(m);
+		requesFocusOnEditedCell(m, 1);
 		setEditing(true);
 	}
 	
@@ -200,7 +213,7 @@ public class ServerEditor
 	 * 
 	 * @param servers Collection of servers to display.
 	 */
-	private void initComponents(List servers)
+	private void initComponents(Map<String, String> servers)
 	{
 		table = new ServerTable(this, servers, 
 				icons.getIcon(IconManager.SERVER));
@@ -228,8 +241,6 @@ public class ServerEditor
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        //setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         JPanel labels = new JPanel();
         labels.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         labels.setLayout(new GridBagLayout());
@@ -242,11 +253,11 @@ public class ServerEditor
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
-		JLabel label = UIUtilities.setTextFont("Server Address");
+		JLabel label = UIUtilities.setTextFont(HEADER);
         labels.add(label, c);  
         label = new JLabel(EXAMPLE);
         label.setFont(FONT);
-        c.gridx = 1;
+        c.gridy++;// = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         //c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
@@ -264,7 +275,8 @@ public class ServerEditor
             //c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
             c.gridx = 1;
-            labels.add(new JLabel(activeServer), c); 
+            label = new JLabel(activeServer+SERVER_PORT_SEPARATOR+activePort);
+            labels.add(label, c); 
         }
         JPanel p = new JPanel();
         p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
@@ -350,6 +362,13 @@ public class ServerEditor
         //emptyMessagePanel.setBounds(2, TITLE_HEIGHT-h-1, 3*w/2, h);
     }
     
+    /**
+     * Returns the default port value.
+     * 
+     * @return See above.
+     */
+    String getDefaultPort() { return defaultPort; }
+    
 	/**
 	 * Sets the editing mode.
 	 * 
@@ -373,16 +392,18 @@ public class ServerEditor
 	/**
 	 * Requests the focus on the edited cell.
 	 * 
-	 * @param m The row of the edited cell.
+	 * @param row The selected row.
+	 * @param col The selected column.
 	 */
-	void requesFocusOnEditedCell(int m)
+	void requesFocusOnEditedCell(int row, int col)
 	{
+		if (col == 0) return;
 		if (table.getColumnCount() > 1) {
 			//editing = true;
 			TableCellEditor editor = table.getCellEditor();
 			if (editor != null) editor.stopCellEditing();
-			table.editCellAt(m, 1);
-			table.changeSelection(m, 1, false, false);
+			table.editCellAt(row, col);
+			table.changeSelection(row, col, false, false);
 		}
 	}
 	
@@ -415,7 +436,7 @@ public class ServerEditor
 				break;
 			}
 		}
-		handleServers(activeServer);
+		handleServers(activeServer, activePort);
 		if (found || text == null) {
 			removeRow(previousRow);
 			showMessagePanel(false);
@@ -464,7 +485,7 @@ public class ServerEditor
 			showMessagePanel(false);
 			return;
 		}
-		handleServers(activeServer);
+		handleServers(activeServer, activePort);
 	}
 	
 	/** Stops the cell editing. */
@@ -486,6 +507,22 @@ public class ServerEditor
 		if (row == -1) return null;
 		String v = (String) table.getValueAt(row, 1);
 		if (v == null) return null;
+		String trim = v.trim();
+		if (trim.length() == 0) return null;
+		return trim;
+	}
+	
+	/**
+	 * Returns the value of the selected port.
+	 * 
+	 * @return See above.
+	 */
+	String getSelectedPort()
+	{
+		int row = table.getSelectedRow();
+		if (row == -1) return null;
+		String v = (String) table.getValueAt(row, 2);
+		if (v == null) return null;
 		return v.trim();
 	}
 	
@@ -497,11 +534,18 @@ public class ServerEditor
 	String getActiveServer() { return activeServer; }
 	
 	/**
+	 * Returns the value of the active port.
+	 * 
+	 * @return See above.
+	 */
+	String getActivePort() { return activePort; }
+	
+	/**
 	 * Returns the list of existing servers.
 	 * 
 	 * @return See above.
 	 */
-	List<String> getServers()
+	Map<String, String> getServers()
 	{
     	Preferences prefs = Preferences.userNodeForPackage(ServerEditor.class);
         String servers = prefs.get(OMERO_SERVER, null);
@@ -509,77 +553,103 @@ public class ServerEditor
         String[] l = servers.split(SERVER_NAME_SEPARATOR, 0);
         
         if (l == null) return null;
-        List<String> listOfServers = new ArrayList<String>();
+        Map<String, String> listOfServers = new LinkedHashMap<String, String>();
         int index;
         String server;
+        String name, p;
+        String[] values;
         for (index = 0; index < l.length; index++) {
         	server = l[index].trim();
-        	if (!server.equals(activeServer))
-        		listOfServers.add(server);
+        	values = server.split(SERVER_PORT_SEPARATOR, 0);
+        	name = values[0];
+        	if (values.length > 1) p = values[1];
+        	else p = defaultPort;
+        	if (!name.equals(activeServer))
+        		listOfServers.put(name, p);
         }	
         return listOfServers; 
 	}
 	
-	/** Saves the collection of servers. 
+	/** 
+	 * Saves the collection of servers. 
 	 * 
 	 * @param serverName 	The name of the server which has to be added at 
 	 * 						the end of the list.
+	 * @param port
 	 */
-	void handleServers(String serverName)
+	void handleServers(String serverName, String port)
 	{
-		List<String> l = new ArrayList<String>();
+		Map<String, String> l = new LinkedHashMap<String, String>();
 		for (int i = 0; i < table.getRowCount(); i++) 
-			l.add((String) table.getValueAt(i, 1)); 
-		if (activeServer != null && !l.contains(activeServer)) 
-			l.add(activeServer);
+			l.put((String) table.getValueAt(i, 1), 
+				(String) table.getValueAt(i, 2)); 
+		if (activeServer != null && l.get(activeServer) == null) 
+			l.put(activeServer, activePort);
 		
 		
 		Preferences prefs = Preferences.userNodeForPackage(ServerEditor.class);
 		if (l == null || l.size() == 0) {
+		//if (l != null) {
 			prefs.put(OMERO_SERVER, "");
 			return;
 		}
-		ArrayList<String> servers = new ArrayList<String>(l.size());
-		Iterator i = l.iterator();
+		Map<String, String> 
+		servers = new LinkedHashMap<String, String>(l.size());
+		Iterator<String> i = l.keySet().iterator();
 		String name;
 		while (i.hasNext()) {
-			name = (String) i.next();
+			name = i.next();
 			if (!name.equals(serverName))
-				servers.add(name);
+				servers.put(name, l.get(name));
 			//if (name != null && name.trim().length() != 0)
 			
 		}
 		if (serverName != null && serverName.length() != 0)
-			servers.add(serverName);
-		i = servers.iterator();
+			servers.put(serverName, port);
+		i = servers.keySet().iterator();
 		int n = servers.size()-1;
 		int index = 0;
 		String list = "";
+		String value;
 		while (i.hasNext()) {
-			list += (String) i.next();
+			value = i.next();
+			list += value;
+			list += SERVER_PORT_SEPARATOR;
+			if (servers.get(value) != null)
+				list += servers.get(value);
 			if (index != n)  list += SERVER_NAME_SEPARATOR;
 			index++;
 		}
 		if (list.length() != 0) prefs.put(OMERO_SERVER, list);
 	}
 	
-	/** Creates a new instance. */
-	ServerEditor()
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param defaultPort The default port to use.
+	 */
+	ServerEditor(String defaultPort)
 	{
-		this(null);
+		this(null, null, defaultPort);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param activeServer The server the user is currently connected to.
+	 * @param activeServer  The server the user is currently connected to.
+	 * @param activePort	The port used by the server.
+	 * @param defaultPort	The default port to use.
 	 */
-	ServerEditor(String activeServer)
+	ServerEditor(String activeServer, String activePort, String defaultPort)
 	{
 		icons = IconManager.getInstance();
 		this.activeServer = activeServer;
+		if (defaultPort == null) defaultPort = "";
+		this.defaultPort = defaultPort;
+		if (activePort == null || activePort.trim().length() == 0)
+			activePort = defaultPort;
 		int n = 0; 
-		List servers = getServers();
+		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
 		initComponents(servers);
 		setEditing(n == 0);
@@ -590,10 +660,10 @@ public class ServerEditor
 	void initFocus()
 	{
 		int n = 0;
-		List servers = getServers();
+		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
 		if (n == 0) {
-			requesFocusOnEditedCell(table.getRowCount()-1);
+			requesFocusOnEditedCell(table.getRowCount()-1, 1);
 		}
 	}
 

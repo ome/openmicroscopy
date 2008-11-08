@@ -76,6 +76,9 @@ public class UserCredentials
     /** The connection speed level. */
     private int 	speedLevel;
     
+    /** The value of the port. */
+    private int 	port;
+    
     /** 
      * Controls if the passed speed index is supported.
      * 
@@ -122,7 +125,15 @@ public class UserCredentials
         this.userName = userName;
         this.password = password;
         this.hostName = hostName;
+        port = -1;
     }
+    
+    /**
+     * Sets the port.
+     * 
+     * @param port The value to set.
+     */
+    public void setPort(int port) { this.port = port; }
     
     /**
      * Resets the password.
@@ -135,6 +146,14 @@ public class UserCredentials
              throw new IllegalArgumentException("Please specify a password.");
     	 this.password = password;
     }
+    
+    /**
+     * Returns the port used, if <code>-1</code>, the port is the value set
+     * in the configuration file
+     * 
+     * @return See above.
+     */
+    public int getPort() { return port; }
     
     /**
      * Returns the name of the <i>OMERO</i> server.

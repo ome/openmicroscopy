@@ -26,13 +26,10 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -73,7 +70,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ServerDialog 
 	extends JDialog
-	implements ActionListener, ComponentListener, PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating the selected connection speed is selected. */
@@ -158,8 +155,10 @@ class ServerDialog
 		editor.stopEdition();
 		String server = editor.getSelectedServer();
 		if (server != null) {
-			editor.handleServers(server);
-			firePropertyChange(SERVER_PROPERTY, null, server);
+			String port = editor.getSelectedPort();
+			editor.handleServers(server, editor.getSelectedPort());
+			String value = server+ServerEditor.SERVER_PORT_SEPARATOR+port;
+			firePropertyChange(SERVER_PROPERTY, null, value);
 		}
 		if (buttonsGroup != null) {
 			Enumeration en = buttonsGroup.getElements();
@@ -209,7 +208,6 @@ class ServerDialog
         	public void windowClosing(WindowEvent e) { close(); }
         	public void windowOpened(WindowEvent e) { editor.initFocus(); } 
         });
-		addComponentListener(this);
 	}
 	
 	/** Initializes the UI components. */
@@ -366,27 +364,6 @@ class ServerDialog
 		this(frame, editor, -1);
 	}
 
-	
-	
-	/** 
-     * Resizes the layered pane hosting the title when the window is resized.
-     * @see ComponentListener#componentResized(ComponentEvent)
-     */
-	public void componentResized(ComponentEvent e) 
-	{
-		/*
-		Rectangle r = getBounds();
-		if (titleLayer == null) return;
-		Dimension d  = new Dimension(r.width, ServerEditor.TITLE_HEIGHT);
-	    titlePanel.setSize(d);
-	    titlePanel.setPreferredSize(d);
-	    titleLayer.setSize(d);
-	    titleLayer.setPreferredSize(d);
-	    titleLayer.validate();
-	    titleLayer.repaint();
-	    */
-	}
-
 	/**
 	 * Reacts to property changes fired by the{@link ServerEditor}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -426,28 +403,5 @@ class ServerDialog
 				finishButton.setEnabled(true);
 		}
 	}
-	
-	/** 
-     * Required by {@link ComponentListener} interface but no-op implementation 
-     * in our case. 
-     * @see ComponentListener#componentShown(ComponentEvent)
-     */
-	public void componentShown(ComponentEvent e) {}
-	
-	/** 
-     * Required by {@link ComponentListener} interface but no-op implementation 
-     * in our case. 
-     * @see ComponentListener#componentHidden(ComponentEvent)
-     */
-	public void componentHidden(ComponentEvent e) {}
 
-	/** 
-     * Required by {@link ComponentListener} interface but no-op implementation 
-     * in our case. 
-     * @see ComponentListener#componentMoved(ComponentEvent)
-     */
-	public void componentMoved(ComponentEvent e) {}
-
-	
-    
 }

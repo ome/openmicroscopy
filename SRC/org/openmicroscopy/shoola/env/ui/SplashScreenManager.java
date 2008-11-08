@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -122,6 +123,8 @@ class SplashScreenManager
 			//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
+			uc.setPort(lc.getPort());
+			System.err.println(uc.getPort());
 			userCredentials.set(uc);
 			//view.setControlsEnabled(true);
 		} catch (Exception e) {
@@ -164,7 +167,11 @@ class SplashScreenManager
     	String v = "";
     	if (version != null && version instanceof String)
     		v = (String) version;
-    	view = new ScreenLogin(TITLE, splashLogin, img, v);
+    	OMEROInfo omeroInfo = 
+    		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
+        
+    	String port = ""+omeroInfo.getPort();
+    	view = new ScreenLogin(TITLE, splashLogin, img, v, port);
 		view.showConnectionSpeed(true);
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();

@@ -54,7 +54,6 @@ import omero.AuthenticationException;
 import omero.DataAccessException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
-import omero.RObject;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -62,7 +61,6 @@ import omero.SessionException;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
-import omero.api.IPixels;
 import omero.api.IPixelsPrx;
 import omero.api.IPojosPrx;
 import omero.api.IProjectionPrx;
@@ -865,6 +863,16 @@ class OMEROGateway
 		this.dsFactory = dsFactory;
 		this.port = port;
 		thumbRetrieval = 0;
+	}
+	
+	/**
+	 * Sets the port value.
+	 * 
+	 * @param port The value to set.
+	 */
+	void setPort(int port)
+	{
+		if (this.port != port) this.port = port;
 	}
 	
 	/**
