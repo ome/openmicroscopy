@@ -235,6 +235,7 @@ class BrowserControl
         TreePath path;
         if (paths.length == 1) {
         	node = (TreeImageDisplay) paths[0].getLastPathComponent();
+        	if (node.getUserObject() instanceof String) return;
         	model.setSelectedDisplay(node);
     		return;
         }

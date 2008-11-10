@@ -279,6 +279,7 @@ public class ProjectionDialog
         Iterator<ChannelButton> i = channelButtons.iterator();
         while (i.hasNext()) {
 			button = i.next();
+			button.setRightClickSupported(false);
 			button.addPropertyChangeListener(controller);
 			p.add(button);
             p.add(Box.createRigidArea(VBOX));
@@ -507,8 +508,13 @@ public class ProjectionDialog
 			String pixelsType, boolean applySettings)
 	{
 		fillProjectionRef();
-		ref.setImageDescription("Projection type: "+
-				PROJECTIONS.get(ref.getType()));
+		StringBuffer buf = new StringBuffer();
+		buf.append("Projection type: "+PROJECTIONS.get(ref.getType()));
+		buf.append("\n");
+		buf.append("z-sections: "+(ref.getStartZ()+1)+"-"+(ref.getEndZ()+1));
+		buf.append("\n");
+		buf.append("timepoints: "+(startT+1)+"-"+(endT+1));
+		ref.setImageDescription(buf.toString());
 		ref.setDatasets(datasets);
 		ref.setImageName(name);
 		ref.setTInterval(startT, endT);
