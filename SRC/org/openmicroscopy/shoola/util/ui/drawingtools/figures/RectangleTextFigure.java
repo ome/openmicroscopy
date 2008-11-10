@@ -166,6 +166,11 @@ public class RectangleTextFigure
 			double textHeight = fm.getAscent();
 			double x = rectangle.x+rectangle.width/2-textWidth/2;
 			double y = rectangle.y+textHeight/2+rectangle.height/2;
+			
+			Font font = AttributeKeys.FONT_FACE.get(this);
+			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
+			g.setFont(viewFont);
+			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
 			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);
 			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
 		}	

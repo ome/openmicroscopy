@@ -177,10 +177,10 @@ class ObjectInspector
 		ArrayList<Double> fRange = new ArrayList<Double>();
 		fRange.add(new Double(4));
 		fRange.add(new Double(8));
-		fRange.add(new Double(9));
 		fRange.add(new Double(10));
 		fRange.add(new Double(12));
-		fRange.add(new Double(14));
+		fRange.add(new Double(16));
+		fRange.add(new Double(24));
 		return fRange;
 	}
 	
