@@ -124,7 +124,6 @@ class SplashScreenManager
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 			uc.setPort(lc.getPort());
-			System.err.println(uc.getPort());
 			userCredentials.set(uc);
 			//view.setControlsEnabled(true);
 		} catch (Exception e) {
@@ -344,7 +343,6 @@ class SplashScreenManager
 		if (doneTasks == totalTasks) {
 			viewTop.setStatusVisible(false);
 			initializedView();
-
 			view.setVisible(true);
 		}
 	}

@@ -230,6 +230,7 @@ class BrowserControl
     {
     	JTree tree = view.getTreeDisplay();
         TreePath[] paths = tree.getSelectionPaths();
+        if (paths == null) return;
         TreeImageDisplay node;
         TreePath path;
         if (paths.length == 1) {
@@ -240,16 +241,19 @@ class BrowserControl
      	//more than one node selected.
     	TreeImageDisplay previous = model.getLastSelectedDisplay();
     	Class ref = previous.getUserObject().getClass();
-    	Iterator<TreePath> i = added.iterator();
+    	
     	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
     	List<TreePath> toRemove = new ArrayList<TreePath>();
-    	while (i.hasNext()) {
-			path = i.next();
-			node = (TreeImageDisplay) path.getLastPathComponent();
-			if (node.getUserObject().getClass().equals(ref)) 
-				l.add(node);
-			else toRemove.add(path);
-		}
+    	if (added != null) {
+    		Iterator<TreePath> i = added.iterator();
+        	while (i.hasNext()) {
+    			path = i.next();
+    			node = (TreeImageDisplay) path.getLastPathComponent();
+    			if (node.getUserObject().getClass().equals(ref)) 
+    				l.add(node);
+    			else toRemove.add(path);
+    		}
+    	}
     	
     	if (toRemove.size() > 0) {
     		String text = "";

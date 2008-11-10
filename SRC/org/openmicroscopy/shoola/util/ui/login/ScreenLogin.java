@@ -290,7 +290,7 @@ public class ScreenLogin
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
 		cancel.setMnemonic('Q');
-		cancel.setToolTipText("Quit the Application");
+		cancel.setToolTipText("Quit the Application.");
 		setButtonDefault(cancel);
 		UIUtilities.opacityCheck(cancel);
 		configButton = new JButton();
@@ -325,10 +325,11 @@ public class ScreenLogin
 		if (servers == null || servers.size() == 0) 
 			serverName = DEFAULT_SERVER;
 		else {
-			int n = servers.size()-1;
+			int n = servers.size();
 			Iterator<String> i = servers.keySet().iterator();
 			int k = 0;
 			String value;
+			System.err.println(servers.keySet().size());
 			while (i.hasNext()) {
 				if (k == n) {
 					serverName = i.next();
@@ -337,7 +338,8 @@ public class ScreenLogin
 						try {
 							selectedPort = Integer.parseInt(value);
 						} catch (Exception e) {}
-					}	
+					}
+					break;
 				}
 				k++;
 			}
