@@ -30,6 +30,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -214,8 +215,7 @@ class MeasurementViewerControl
     			model.analyseShapeList(shapeList);
     		return;
 		}
-    	
-		if (figure.getStatus() != ROIFigure.IDLE) return;
+ 		if (figure.getStatus() != ROIFigure.IDLE) return;
 		figure.calculateMeasurements();
 		view.refreshResultsTable();
 		model.setDataChanged();
@@ -226,7 +226,10 @@ class MeasurementViewerControl
 		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
 		while (shapeIterator.hasNext())
-			shapeList.add(shapeMap.get(shapeIterator.next()));
+		{
+			ROIShape thisShape =shapeMap.get(shapeIterator.next()); 
+			shapeList.add(thisShape);
+		}
 		
 		if (shapeList.size() != 0)
 			model.analyseShapeList(shapeList);
@@ -235,8 +238,8 @@ class MeasurementViewerControl
     /**
      * Creates a new instance.
      * The {@link #initialize(MeasurementViewer, MeasurementViewerUI) initialize} 
-     * method should be called straigh 
-     * after to link this Controller to the other MVC components.
+     * method should be called straight after to link this Controller 
+     * to the other MVC components.
      */
     MeasurementViewerControl() {}
     
@@ -283,15 +286,22 @@ class MeasurementViewerControl
     			
  			public void mouseReleased(MouseEvent e)
  			{
+ 				
  				setROIFigureStatus(ROIFigure.IDLE);
  			}
  		
- 			public void mousePressed(MouseEvent e)
- 			{
- 				setROIFigureStatus(ROIFigure.MOVING);
- 			}
- 		
  		});
+    	 
+    	 view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
+		{
+			
+			@Override
+			public void mouseDragged(MouseEvent e)
+			{
+				setROIFigureStatus(ROIFigure.MOVING);
+			}
+			
+		});
     }
     
     /** 
