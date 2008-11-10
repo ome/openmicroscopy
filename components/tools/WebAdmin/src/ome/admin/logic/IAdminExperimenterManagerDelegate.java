@@ -251,9 +251,12 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
         Experimenter exp = db.getExperimenter(id);
         User mexp = new User();
         mexp.setExperimenter(exp);
-        mexp
-                .setDefaultGroup(db.getDefaultGroup(exp.getId()).getId()
-                        .toString());
+        try {
+            mexp.setDefaultGroup(db.getDefaultGroup(exp.getId()).getId()
+                    .toString());
+        } catch (Exception e) {
+            mexp.setDefaultGroup(mexp.DEFAULT_GROUP);
+        }
         mexp.setSelectedGroups(db.containedGroupsListString(exp.getId()));
         mexp.setAdminRole(db.isAdmin(exp.getId()));
         mexp.setUserRole(db.isUser(exp.getId()));
