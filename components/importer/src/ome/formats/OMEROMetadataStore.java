@@ -124,7 +124,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private ServiceFactory sf;
 
     /** OMERO raw pixels service */
-    private RawPixelsStore pservice;
+    private RawPixelsStore pixelsStore;
 
     /** OMERO query service */
     private IQuery         iQuery;
@@ -280,11 +280,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         // Now initialize all our services
         iQuery = sf.getQueryService();
         iUpdate = sf.getUpdateService();
-        pservice = sf.createRawPixelsStore();
+        pixelsStore = sf.createRawPixelsStore();
         rawFileStore = sf.createRawFileStore();
         iInfo = sf.getRepositoryInfoService();
     }
 
+    
+    private RawPixelsStore getPixelsStore()
+    {
+    	if (pixelsStore == null)
+    		pixelsStore = sf.createRawPixelsStore();
+    	return pixelsStore;
+    }
 
     /*
      * (non-Javadoc)
@@ -441,9 +448,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void setPlane(Long id, byte[] pixels, int theZ, int theC, int theT)
     {
-        if (pservice == null) pservice = sf.createRawPixelsStore();
+        pixelsStore = getPixelsStore();
 
-        pservice.setPlane(pixels, theZ, theC, theT);
+        pixelsStore.setPlane(pixels, theZ, theC, theT);
     }
 
 
@@ -454,9 +461,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void setPixelsId(Long id)
     {
-        if (pservice == null) pservice = sf.createRawPixelsStore();
+    	pixelsStore = getPixelsStore();
 
-        pservice.setPixelsId(id);
+        pixelsStore.setPixelsId(id);
     }
 
     /**
@@ -469,10 +476,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void setStack(Long id, byte[] pixels, int theC, int theT)
     {
-        if (pservice == null) pservice = sf.createRawPixelsStore();
+    	pixelsStore = getPixelsStore();
 
-        pservice.setPixelsId(id);
-        pservice.setStack(pixels, theT, theC, theT);
+    	pixelsStore.setPixelsId(id);
+    	pixelsStore.setStack(pixels, theT, theC, theT);
     }
 
     /**
@@ -3361,4 +3368,53 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         "ignoring setImageInstrumentRef"));
     }    
     // Bio-formats also needs a way to link OTF to Logical Channel
+
+	public void setExperimentDescription(String description, int experimentIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setExperimentID(String id, int experimentIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setExperimentType(String type, int experimentIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setExperimenterMembershipGroup(String group,
+			int experimenterIndex, int groupRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setImageDefaultPixels(String defaultPixels, int imageIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setLogicalChannelOTF(String otf, int imageIndex,
+			int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setLogicalChannelPinholeSize(Float pinholeSize, int imageIndex,
+			int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setOTFObjective(String objective, int instrumentIndex,
+			int otfIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void close() {
+		pixelsStore.close();
+		pixelsStore = null;
+	}
 }

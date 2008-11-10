@@ -28,8 +28,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.common.DataTools;
 import loci.formats.FormatException;
-import loci.formats.DataTools;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.annotations.BooleanAnnotation;
@@ -261,12 +261,14 @@ public class ImportLibrary implements IObservable
                 Pixels pix = (Pixels) image.getPixels(x);
 
                 String name = imageName;
-                String seriesName = reader.getImageName(series);
+                String seriesName = reader.getSeriesName(series);
+                int seriesCount = reader.getSeriesCount();
+                int imageNumber = series + 1;
                 
                 if (reader.getImageReader().isRGB() || reader.getImageReader().isIndexed())
                 {
                     log.debug("Setting color channels to RGB format.");
-                    if (pix.sizeOfChannels() == 3)
+                    if (pix.sizeOfChannels() >= 3)
                     {
                         Color red = new Color();
                         red.setRed(255);
@@ -294,9 +296,12 @@ public class ImportLibrary implements IObservable
                 }
 
                 if (seriesName != null && seriesName.length() != 0)
-                    name += " [" + seriesName + "]";
-
-                pix.getImage().setName(name);
+                    name = seriesName;
+                else if (seriesCount > 1)
+                	name += " [" + imageNumber + " of " + seriesCount + "]";
+                
+                pix.getImage().setName(name);                
+                
                 if (pix.getPixelsDimensions() == null)
                 {  
                     log.debug(String.format("Failsafe check: " +
@@ -448,6 +453,8 @@ public class ImportLibrary implements IObservable
         }
         
         notifyObservers(Actions.IMPORT_DONE, args);
+        
+        store.close();
         
         return pixList;
         

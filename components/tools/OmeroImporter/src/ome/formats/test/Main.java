@@ -12,7 +12,7 @@ import ome.model.core.Pixels;
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
-import loci.formats.DataTools;
+import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
@@ -69,6 +69,11 @@ public class Main
             System.err.println("SizeC: " + reader.getSizeC());
             System.err.println("SizeZ: " + reader.getSizeZ());            
             //pixels = (Pixels) store.getRoot();
+            
+            for (int i = 0; i < reader.getSeriesCount(); i ++)
+            {
+            	System.err.println("Series " + i + " name: ");
+            }
             
             //calculateCTXYZ();
             //setOffsetInfo();

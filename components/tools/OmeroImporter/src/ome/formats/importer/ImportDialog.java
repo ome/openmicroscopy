@@ -101,7 +101,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public boolean    cancelled = true;
     
-    private boolean ARCHIVE_ENABLED = false;
+    private boolean ARCHIVE_ENABLED = true;
 
     /** Logger for this class. */
     @SuppressWarnings("unused")

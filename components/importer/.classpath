@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="target/generated/resources"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="resources"/>
@@ -16,7 +15,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dsl.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma_ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/findbugs-ant.jar"/>
@@ -39,15 +37,16 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity-tools-generic.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/LOCI Software"/>
-	<classpathentry kind="lib" path="target/libs/client.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bio-formats"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ome-xml"/>
+	<classpathentry kind="lib" path="/Users/TheBrain/Documents/LOCI Software/artifacts/loci-common.jar"/>
+	<classpathentry kind="lib" path="/Users/TheBrain/Documents/LOCI Software/artifacts/poi-loci.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

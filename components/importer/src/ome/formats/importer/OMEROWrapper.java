@@ -6,6 +6,9 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
@@ -13,14 +16,17 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.in.APNGReader;
 import loci.formats.in.LeicaReader;
 import ome.formats.OMEROMetadataStore;
 import ome.model.core.Channel;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 
 public class OMEROWrapper extends MinMaxCalculator
 {
+    /** Logger for this class. */
+    private static Log     log    = LogFactory.getLog(OMEROWrapper.class);
+   
     private ChannelSeparator separator;
     private ChannelFiller filler;
     public Boolean minMaxSet = null; 
@@ -96,16 +102,17 @@ public class OMEROWrapper extends MinMaxCalculator
             return false;
     } 
     
-    public String getImageName(int series)
+    public String getSeriesName(int series)
     {
         if (reader.getSeriesCount() > 1)
         {
-            List<Pixels> p = (List<Pixels>)iReader.getMetadataStoreRoot();
+            List<Image> i = (List<Image>)iReader.getMetadataStoreRoot();
             try {
-                String name = p.get(series).getImage().getName(); 
-                return name == null ? "" + series : name;
+                String name = i.get(series).getName(); 
+                return name == null || name.length() == 0 ? "" : name;
             } catch (Exception e)
             {
+            	 log.debug(String.format("ERROR getting series name."));
                 return "";            
             }
 
