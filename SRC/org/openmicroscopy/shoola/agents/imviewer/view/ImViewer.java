@@ -142,11 +142,11 @@ public interface ImViewer
 	public static final String  HSB_MODEL = RenderingControl.HSB;
 
 	/** Bound Property name indicating that a channel colour has changed. */
-	public static final String	CHANNEL_COLOR_CHANGE_PROPERTY = 
+	public static final String	CHANNEL_COLOR_CHANGED_PROPERTY = 
 									"channelColorChanged";
 
 	/** Bound Property name indicating that the colour model has changed. */
-	public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
+	public static final String  COLOR_MODEL_CHANGED_PROPERTY = 
 										"colorModelChanged";
 
 	/** Bound Property name indicating rendering settings are set. */

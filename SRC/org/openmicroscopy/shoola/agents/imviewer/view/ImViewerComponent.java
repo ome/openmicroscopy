@@ -666,7 +666,7 @@ class ImViewerComponent
 					"supported");
 			}
 			//need
-			firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), 
+			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, new Integer(1), 
 					new Integer(-1));
 			view.setColorModel(key);
 			renderXYPlane();
@@ -855,9 +855,10 @@ class ImViewerComponent
 					"Cannot set the color of channel "+index, e);
 		}
 
+		Map<Integer, Color> colors = new HashMap<Integer, Color>(1);
+		colors.put(index, c);
 		//view.setChannelColor(index, c);
-		firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
-				new Integer(index));
+		firePropertyChange(CHANNEL_COLOR_CHANGED_PROPERTY, null, colors);
 		postActiveChannelSelection(ChannelSelection.COLOR_SELECTION);
 		//if (model.isChannelActive(index)) renderXYPlane();
 	}
@@ -2463,6 +2464,7 @@ class ImViewerComponent
 									model.getImageName());
 			projection.initialize(w, h, view.createChannelButtons());
 			projection.addPropertyChangeListener(controller);
+			projection.registerObservableComponent(this);
 			UIUtilities.incrementRelativeToAndShow(view.getBounds(), 
 					projection);
 		} else {
