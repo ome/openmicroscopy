@@ -59,7 +59,7 @@ public class ProjectsLoader
     private CallHandle  		handle;
     
     /** Reference to the node hosting the project to browse. */
-    private TreeImageDisplay 		node;
+    private TreeImageDisplay 	node;
     
     /**
      * Creates a new instance.
