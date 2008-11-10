@@ -29,6 +29,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -280,15 +281,22 @@ class MeasurementViewerControl
  			
   			public void mouseReleased(MouseEvent e)
   			{
+  				
   				setROIFigureStatus(ROIFigure.IDLE);
   			}
   		
-  			public void mousePressed(MouseEvent e)
-  			{
-  				setROIFigureStatus(ROIFigure.MOVING);
-  			}
-  		
   		});
+     	 
+     	view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
+ 		{
+ 			
+ 			@Override
+ 			public void mouseDragged(MouseEvent e)
+ 			{
+ 				setROIFigureStatus(ROIFigure.MOVING);
+ 			}
+ 			
+ 		});
     	 
     }
     
