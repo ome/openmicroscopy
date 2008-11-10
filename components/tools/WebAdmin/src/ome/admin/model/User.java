@@ -25,6 +25,7 @@ import ome.model.meta.Experimenter;
 
 public class User {
 
+    public static final String DEFAULT_GROUP = "-1";
     /**
      * {@link ome.model.meta.Experimenter}
      */
@@ -33,7 +34,7 @@ public class User {
     /**
      * String provides defult group
      */
-    private String defaultGroup = "-1";
+    private String defaultGroup = DEFAULT_GROUP;
 
     /**
      * List of Strings provides groups where user belonges to.

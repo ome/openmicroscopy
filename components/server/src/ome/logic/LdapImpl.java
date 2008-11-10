@@ -491,11 +491,22 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         // Valid user's password
         boolean access = validatePassword(dn.toString(), password);
 
+        ExperimenterGroup defaultGroup = new ExperimenterGroup();
         if (access) {
             // If validation is successful create new user in DB
-
-            long id = adminService.createExperimenter(exp, adminService
-                    .lookupGroup("default"), adminService.lookupGroup("user"));
+            try {
+                defaultGroup = adminService.lookupGroup("default");
+            } catch (Exception e) {
+                // Group "default" doesn't exist, has to be created
+                ExperimenterGroup newGr = new ExperimenterGroup();
+                newGr.setName("default");
+                newGr.setDescription("This group was created for users authenticated by LDAP.");
+                long idg = adminService.createGroup(newGr);
+                defaultGroup.setId(idg);
+            }
+            
+            ExperimenterGroup u_group = adminService.lookupGroup("user");
+            long id = adminService.createExperimenter(exp, defaultGroup, u_group);
 
             // Set user's DN in PASSWORD table (add sufix on the beginning)
             setDN(id, dn.toString());
