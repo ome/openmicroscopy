@@ -231,11 +231,13 @@ class BrowserControl
     {
     	JTree tree = view.getTreeDisplay();
         TreePath[] paths = tree.getSelectionPaths();
+        
         if (paths == null) return;
         TreeImageDisplay node;
         TreePath path;
         if (paths.length == 1) {
         	node = (TreeImageDisplay) paths[0].getLastPathComponent();
+        	System.err.println("single "+node);
         	model.setSelectedDisplay(node);
     		return;
         }

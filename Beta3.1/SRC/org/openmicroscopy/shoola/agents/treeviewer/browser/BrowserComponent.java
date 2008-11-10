@@ -54,10 +54,8 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality

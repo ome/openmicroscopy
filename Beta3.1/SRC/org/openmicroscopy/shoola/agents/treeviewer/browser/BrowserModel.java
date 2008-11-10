@@ -237,8 +237,8 @@ class BrowserModel
     {
     	if (single) {
     		selectedNodes.removeAll(selectedNodes);
-            if (display == null) return;
-            selectedNodes.add(display);
+            if (display != null)
+            	selectedNodes.add(display);
     	} else {
     		if (!selectedNodes.contains(display) && display != null)
     			selectedNodes.add(display);
