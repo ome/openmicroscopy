@@ -234,8 +234,10 @@ class BrowserControl
         TreeImageDisplay node;
         TreePath path;
         if (paths.length == 1) {
-        	node = (TreeImageDisplay) paths[0].getLastPathComponent();
-        	if (node.getUserObject() instanceof String) return;
+        	Object p = paths[0].getLastPathComponent();
+        	if (!(p instanceof TreeImageDisplay))
+        		return;
+        	node = (TreeImageDisplay) p;
         	model.setSelectedDisplay(node);
     		return;
         }
