@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -37,6 +38,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
  * The projection controller.
@@ -109,6 +111,18 @@ class ProjectionDialogControl
 				index = (Integer) i.next();
 				model.selectChannel(index.intValue(), 
 						((Boolean) map.get(index)).booleanValue());
+			}
+		} else if (ImViewer.CHANNEL_ACTIVE_PROPERTY.equals(name)) {
+			int index = (Integer) evt.getNewValue();
+			model.selectChannel(index);
+		} else if (ImViewer.CHANNEL_COLOR_CHANGE_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Iterator i = m.keySet().iterator();
+			int index;
+			while (i.hasNext()) {
+				index = (Integer) i.next();
+				model.setChannelColor(index, (Color) m.get(index));
 			}
 		}
 	}

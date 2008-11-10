@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.DatasetData;
 
@@ -280,6 +281,7 @@ public class ProjectionDialog
         Iterator<ChannelButton> i = channelButtons.iterator();
         while (i.hasNext()) {
 			button = i.next();
+			button.setRightClickSupported(false);
 			button.addPropertyChangeListener(controller);
 			p.add(button);
             p.add(Box.createRigidArea(VBOX));
@@ -444,6 +446,41 @@ public class ProjectionDialog
 	}
 	
 	/**
+	 * Sets the color of the specified channel.
+	 * 
+	 * @param index The channel's index.
+	 * @param color The color to set.
+	 */
+	void setChannelColor(int index, Color color)
+	{
+		Iterator<ChannelButton> i = channelButtons.iterator();
+		ChannelButton button;
+		while (i.hasNext()) {
+			button = i.next();
+			if (button.getChannelIndex() == index) 
+				button.setColor(color);
+		}
+		if (preview && isVisible()) preview();
+	}
+	
+	/**
+	 * Selects or deselects the passed channel depending on its status.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void selectChannel(int index)
+	{
+		Iterator<ChannelButton> i = channelButtons.iterator();
+		ChannelButton button;
+		while (i.hasNext()) {
+			button = i.next();
+			if (button.getChannelIndex() == index) 
+				button.setSelected(!button.isSelected());
+		}
+		if (preview && isVisible()) preview();
+	}
+	
+	/**
 	 * Updates the controls when a new channel is selected or deselected.
 	 * 
 	 * @param index The index of the channel.
@@ -507,8 +544,13 @@ public class ProjectionDialog
 			String pixelsType, boolean applySettings)
 	{
 		fillProjectionRef();
-		ref.setImageDescription("Projection type: "+
-				PROJECTIONS.get(ref.getType()));
+		StringBuffer buf = new StringBuffer();
+		buf.append("Projection type: "+PROJECTIONS.get(ref.getType()));
+		buf.append("\n");
+		buf.append("z-sections: "+(ref.getStartZ()+1)+"-"+(ref.getEndZ()+1));
+		buf.append("\n");
+		buf.append("timepoints: "+(startT+1)+"-"+(endT+1));
+		ref.setImageDescription(buf.toString());
 		ref.setDatasets(datasets);
 		ref.setImageName(name);
 		ref.setTInterval(startT, endT);
@@ -549,6 +591,17 @@ public class ProjectionDialog
 		statusLabel.setText("");
 		uiDelegate.setProjectedImage(image);
 		setModal(false);
+	}
+	
+	/**
+	 * Registers the passed observable.
+	 * 
+	 * @param observable The value to register.
+	 */
+	public void registerObservableComponent(ObservableComponent observable)
+	{
+		if (observable != null)
+			observable.addPropertyChangeListener(controller);
 	}
 	
 	/**

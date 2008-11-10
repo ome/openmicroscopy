@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.swing.Action;
 
@@ -265,8 +266,11 @@ class RendererControl
             view.setInputInterval();
         } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGE_PROPERTY)) {
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
-    	  	int newValue =  ((Integer) evt.getNewValue()).intValue();
-      	  model.setChannelButtonColor(newValue);
+        	Map m = (Map) evt.getNewValue();
+        	if (m == null || m.size() != 1) return;
+        	Iterator i = m.keySet().iterator();
+        	while (i.hasNext()) 
+				model.setChannelButtonColor((Integer) i.next());
         } else if (name.equals(ImViewer.COLOR_MODEL_CHANGE_PROPERTY)) {
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
         	model.setColorModelChanged();

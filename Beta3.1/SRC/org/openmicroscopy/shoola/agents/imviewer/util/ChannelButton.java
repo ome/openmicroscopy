@@ -84,6 +84,9 @@ public class ChannelButton
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
     
+    /** Flag indicating if right-click are supported. */
+    private boolean					rightClickSupported;
+    
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
@@ -129,7 +132,7 @@ public class ChannelButton
      */
     private void onReleased(MouseEvent e)
     {
-    	if (e.isPopupTrigger()) {
+    	if (e.isPopupTrigger() && rightClickSupported) {
             if (popupMenu == null) 
                 popupMenu = new ChannelButtonPopupMenu(this);
             popupMenu.show(this, e.getX(), e.getY());
@@ -151,6 +154,7 @@ public class ChannelButton
     public ChannelButton(String text, Color color, int index, boolean selected)
     {
         super(text, color);
+        rightClickSupported = true;
         this.index = index;
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
@@ -192,6 +196,17 @@ public class ChannelButton
      * @return See above.
      */
     public int getChannelIndex() { return index; }
+    
+    /**
+     * Sets to <code>true</code> if right clicks are supported, 
+     * <code>false</code> otherwise.
+     * 
+     * @param value The value to set.
+     */
+    public void setRightClickSupported(boolean value)
+    {
+    	rightClickSupported = value;
+    }
     
     /**
      * Overridden to set the border of the button.

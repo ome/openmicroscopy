@@ -119,7 +119,6 @@ class BrowserComponent
     private void createNodes(List nodes, TreeImageDisplay display, 
                             TreeImageDisplay parentDisplay)
     {
-    	System.err.println(display+" "+parentDisplay);
         setSelectedDisplay(display);
         display.setChildrenLoaded(Boolean.FALSE);
         view.createNodes(nodes, display, parentDisplay);
