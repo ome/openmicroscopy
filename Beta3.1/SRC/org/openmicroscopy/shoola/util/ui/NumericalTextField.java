@@ -87,7 +87,7 @@ public class NumericalTextField
 	 * 
 	 * @param max The value to set.
 	 */
-	public void setMaximum(int max) { document.setMinimum(max); }
+	public void setMaximum(int max) { document.setMaximum(max); }
 	
 	/**
 	 * Inner class to make sure that we can only enter numerical value.
