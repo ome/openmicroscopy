@@ -26,10 +26,6 @@
 	<classpathentry kind="src" path="components/romio/resources"/>
 	<classpathentry kind="src" path="components/romio/src"/>
 	<classpathentry kind="src" path="components/romio/test"/>
-	<classpathentry kind="src" path="components/tools/licenses/target/generated/src"/>
-	<classpathentry kind="src" path="components/tools/licenses/test"/>
-	<classpathentry kind="src" path="components/tools/licenses/resources"/>
-	<classpathentry kind="src" path="components/tools/licenses/src"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/resources"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/test"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/src"/>
@@ -63,7 +59,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-pool.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dom4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma_ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma.jar"/>
@@ -96,11 +91,8 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/rendering.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar" sourcepath="/Users/josh/lib/spring-framework-2.5"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity-tools-generic.jar"/>
