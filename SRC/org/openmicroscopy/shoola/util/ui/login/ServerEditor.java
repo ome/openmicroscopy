@@ -108,17 +108,18 @@ public class ServerEditor
     												"exists.";
     
     /** Example of a new server. */
-    private static final String	EXAMPLE = "(e.g. test.openmicroscopy.org " +
-    										"or 134.20.12.33)";
+    private static final String	EXAMPLE = "e.g. test.openmicroscopy.org " +
+    										"or 134.20.12.33";
+    
+    /** The note. */
+    private static final String NOTE = "You should not have to modify the port.";
     
     /** The header of the table. */
     private static final String HEADER = "Server Address and Port";
     
     /** Separator used when storing various servers. */
     private static final String	SERVER_NAME_SEPARATOR = ",";
-    
-    
-    
+
     /** The property name for the host to connect to <i>OMERO</i>. */
     private static final String	OMERO_SERVER = "omeroServer";
     
@@ -268,7 +269,13 @@ public class ServerEditor
         //c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         labels.add(label, c); 
-        
+        label = new JLabel(NOTE);
+        label.setFont(FONT);
+        c.gridy++;// = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        //c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        labels.add(label, c); 
         if (activeServer != null) {
         	c.gridx = 0;
     		c.gridy++;
@@ -623,6 +630,8 @@ public class ServerEditor
 			list += SERVER_PORT_SEPARATOR;
 			if (servers.get(value) != null)
 				list += servers.get(value);
+			else list += defaultPort;
+			
 			if (index != n)  list += SERVER_NAME_SEPARATOR;
 			index++;
 		}

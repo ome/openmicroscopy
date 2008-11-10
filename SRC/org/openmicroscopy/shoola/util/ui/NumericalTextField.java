@@ -169,7 +169,7 @@ public class NumericalTextField
 	 * 
 	 * @param max The value to set.
 	 */
-	public void setMaximum(double max) { document.setMinimum(max); }
+	public void setMaximum(double max) { document.setMaximum(max); }
 	
 	/**
 	 * Sets the edited color. 
@@ -295,7 +295,6 @@ public class NumericalTextField
 		public void insertString(int offset, String str, AttributeSet a)
 		{
 			try {
-				
 				if (str == null) return;
 				for (int i = 0; i < str.length(); i++) {
 		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1)

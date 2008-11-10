@@ -325,21 +325,19 @@ public class ScreenLogin
 		if (servers == null || servers.size() == 0) 
 			serverName = DEFAULT_SERVER;
 		else {
-			int n = servers.size();
+			int n = servers.size()-1;
 			Iterator<String> i = servers.keySet().iterator();
 			int k = 0;
 			String value;
-			System.err.println(servers.keySet().size());
 			while (i.hasNext()) {
+				serverName = i.next();
 				if (k == n) {
-					serverName = i.next();
 					value = servers.get(serverName);
 					if (value != null) {
 						try {
 							selectedPort = Integer.parseInt(value);
 						} catch (Exception e) {}
 					}
-					break;
 				}
 				k++;
 			}
