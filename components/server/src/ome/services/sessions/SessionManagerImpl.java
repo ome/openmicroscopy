@@ -703,7 +703,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 return ((LocalAdmin) sf.getAdminService()).checkPassword(
                         _principal.getName(), credentials);
             }
-        }, true);
+        }, false);
         return ok;
     }
 
