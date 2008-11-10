@@ -48,6 +48,7 @@ public class LoadingUnloadingTest extends TestCase {
         p.getId();
         p.setId(null);
         try_and_fail(p.fields());
+/* ajp - Why should this throw an exception? */
 
     }
 

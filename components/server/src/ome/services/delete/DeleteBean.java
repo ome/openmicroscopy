@@ -81,7 +81,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     /**
      * Loads an {@link Image} graph including: Pixels, Channel, LogicalChannel,
      * StatsInfo, PlaneInfo, Thumbnails, file maps, OriginalFiles,
-     * PixelDimension, and Settings
+     * and Settings
      */
     public final static String IMAGE_QUERY = "select i from Image as i "
             + "left outer join fetch i.pixels as p "
@@ -92,7 +92,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             + "left outer join fetch p.thumbnails as thumb "
             + "left outer join fetch p.pixelsFileMaps as map "
             + "left outer join fetch map.parent as ofile "
-            + "left outer join fetch p.pixelsDimensions as dim "
             + "left outer join fetch p.settings as setting "
             + "where i.id = :id";
 
@@ -301,7 +300,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
                 p.collectThumbnails(delete);
 
-                // Why do we set chanell to null here and not waveRendering
+                // Why do we set channel to null here and not waveRendering
                 // above?
                 List<Channel> channels = p
                         .collectChannels((CBlock<Channel>) null);
@@ -309,7 +308,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                     Channel channel = channels.set(i, null);
                     delete.call(channel);
                     delete.call(channel.getStatsInfo());
-                    delete.call(channel.getColorComponent());
                     delete.call(channel.getLogicalChannel());
                     LogicalChannel lc = channel.getLogicalChannel();
                     // delete.call(lc.getLightSource());
@@ -323,7 +321,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 }
 
                 delete.call(p);
-                delete.call(p.getPixelsDimensions());
 
                 return null;
             }

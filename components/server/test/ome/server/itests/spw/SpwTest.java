@@ -33,7 +33,8 @@ public class SpwTest extends AbstractManagedContextTest {
         Screen s = new Screen("s");
         Plate p = new Plate("p");
         Well w = new Well();
-        Image i = new Image("i");
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image i = new Image(testTimestamp, "i");
         Reagent r = new Reagent();
         r.setName("r");
         ScreenAcquisition sa = new ScreenAcquisition(s);
@@ -79,7 +80,9 @@ public class SpwTest extends AbstractManagedContextTest {
         sa = new ScreenAcquisition(s);
         sa = iUpdate.saveAndReturnObject(sa);
 
-        i = new Image("i");
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+
+        i = new Image(testTimestamp, "i");
 
         WellSample ws = new WellSample();
         ws.linkScreenAcquisition(sa);
@@ -98,7 +101,8 @@ public class SpwTest extends AbstractManagedContextTest {
         Plate plate = new Plate("plate");
         Well well = new Well();
         WellSample sample = new WellSample();
-        Image image = new Image("image");
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image image = new Image(testTimestamp, "image");
         plate.addWell(well);
         well.addWellSample(sample);
         sample.setImage(image);

@@ -24,7 +24,6 @@ import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
@@ -193,9 +192,8 @@ public class Renderer {
     	
     	for (ChannelBinding channelBinding : channelBindings)
     	{
-    		Color color = channelBinding.getColor();
     		boolean isActive = channelBinding.getActive();
-    		if (isActive && color.getAlpha() != 255)
+    		if (isActive && channelBinding.getAlpha() != 255)
     		{
     			log.info("Disabling alphaless rendering and " +
     					"PriColor rendering.");
@@ -222,9 +220,8 @@ public class Renderer {
     		}
     		
 			// Now we ensure the color is "primary" (Red, Green or Blue).
-			Color channelColor = channelBinding.getColor();
 			boolean isPrimary = false;
-			int[] colorArray = getColorArray(channelColor);
+			int[] colorArray = getColorArray(channelBinding);
 			if (isEndColor(colorArray)) {
 				optimizations.setPrimaryColorEnabled(false);
 				return;
@@ -261,7 +258,7 @@ public class Renderer {
     				continue;
     			
     			int[] otherColorArray =
-    				getColorArray(otherChannelBinding.getColor());
+    				getColorArray(otherChannelBinding);
     			for (int i = 0; i < colorArray.length; i++)
     			{
     				if (colorArray[i] == otherColorArray[i]
@@ -719,11 +716,10 @@ public class Renderer {
      */
     public void setRGBA(int w, int red, int green, int blue, int alpha) {
         ChannelBinding[] cb = getChannelBindings();
-        Color c = cb[w].getColor();
-        c.setRed(Integer.valueOf(red));
-        c.setGreen(Integer.valueOf(green));
-        c.setBlue(Integer.valueOf(blue));
-        c.setAlpha(Integer.valueOf(alpha));
+        cb[w].setRed(Integer.valueOf(red));
+        cb[w].setGreen(Integer.valueOf(green));
+        cb[w].setBlue(Integer.valueOf(blue));
+        cb[w].setAlpha(Integer.valueOf(alpha));
         checkOptimizations();
     }
     
@@ -774,12 +770,12 @@ public class Renderer {
      * @param color the color to decompose into an array.
      * @return See above.
      */
-    public static int[] getColorArray(Color color)
+    public static int[] getColorArray(ChannelBinding channel)
     {
     	int[] colors = new int[3];
-    	colors[0] = color.getRed();
-    	colors[1] = color.getGreen();
-    	colors[2] = color.getBlue();
+    	colors[0] = channel.getRed();
+    	colors[1] = channel.getGreen();
+    	colors[2] = channel.getBlue();
     	return colors;
     }
 

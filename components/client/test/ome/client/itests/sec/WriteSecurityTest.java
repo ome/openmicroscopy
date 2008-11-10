@@ -813,7 +813,6 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
 
         Filter filter = new Filter();
-        filter.setCustomized(Boolean.FALSE);
         instr.addFilter(filter);
 
         try {

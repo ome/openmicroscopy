@@ -29,7 +29,7 @@ import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
+import ome.model.display.ColorFix;
 
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
@@ -165,13 +165,18 @@ class HSBStrategy extends RenderingStrategy {
      * 
      * @return the active channel color data.
      */
-    private List<Color> getColors() {
+    private List<ColorFix> getColors() {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
-        ArrayList<Color> colors = new ArrayList<Color>();
+        ArrayList<ColorFix> colors = new ArrayList<ColorFix>();
 
         for (int w = 0; w < channelBindings.length; w++) {
             if (channelBindings[w].getActive()) {
-                colors.add(channelBindings[w].getColor());
+                ColorFix theNewColor = new ColorFix();
+                theNewColor.setRed(channelBindings[w].getRed());
+                theNewColor.setGreen(channelBindings[w].getGreen());
+                theNewColor.setBlue(channelBindings[w].getBlue());
+                theNewColor.setAlpha(channelBindings[w].getAlpha());
+                colors.add(theNewColor);
             }
         }
         return colors;
@@ -212,7 +217,7 @@ class HSBStrategy extends RenderingStrategy {
         CodomainChain cc = renderer.getCodomainChain();
         RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
-        List<Color> colors = getColors();
+        List<ColorFix> colors = getColors();
         List<QuantumStrategy> strategies = getStrategies();
 
         // Create a number of rendering tasks.

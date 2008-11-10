@@ -155,7 +155,7 @@ public class SearchBeanTest extends MockObjectTestCase {
     @Test
     public void testCanSearchForObjectsWhichArentAnnotated() {
         bean = new SearchBean(executor, analyzer);
-        bean.onlyAnnotatedWith(null);
+        bean.onlyAnnotatedWith((java.lang.Class[])null);
     }
 
     // ==============================================

@@ -8,7 +8,6 @@ package ome.server.itests.update;
 
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.testing.ObjectFactory;
 
@@ -33,8 +32,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         super.onSetUp();
 
         example = ObjectFactory.createPixelGraph(null);
-        assertNotNull("need to start off with acq. ctx", example
-                .getPixelsDimensions());
+
         example = iUpdate.saveAndReturnObject(example);
 
         p = ObjectFactory.createPixelGraph(example);
@@ -82,6 +80,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
     }
 
+/*
+	// This test is now out of date
     @Test
     public void testNewEntityFieldOnDetachedPixels() throws Exception {
         // PREPARE ----------------------------------------------
@@ -98,7 +98,10 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
                 && p.getPixelsDimensions().getId().longValue() > 0);
 
     }
+*/
 
+/*
+	// This test is now out of date
     @Test
     public void testUnloadedEntityFieldOnDetachedPixels() throws Exception {
         // PREPARE -------------------------------------------------
@@ -114,6 +117,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         assertTrue("and it should have a valid id.", p.getPixelsDimensions()
                 .getId().longValue() > 0);
     }
+*/
 
     @Test
     public void testNulledCollectionFieldOnDetachedPixels() throws Exception {

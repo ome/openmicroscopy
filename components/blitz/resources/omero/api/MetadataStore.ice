@@ -63,7 +63,7 @@ module omero {
 		void setPlaneTimingExposureTime(RFloat exposureTime, int imageIndex, int pixelsIndex, int planeIndex)  throws ServerError;
 		void setLogicalChannelName(RString name, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setLogicalChannelIlluminationType(RString illuminationType, int imageIndex, int logicalChannelIndex) throws ServerError;
-		void setLogicalChannelPinholeSize(RInt pinholeSize, int imageIndex, int logicalChannelIndex) throws ServerError;
+		void setLogicalChannelPinholeSize(RFloat pinholeSize, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setLogicalChannelPhotometricInterpretation(RString photometricInterpretation, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setLogicalChannelMode(RString mode, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setLogicalChannelContrastMethod(RString contrastMethod, int imageIndex, int logicalChannelIndex) throws ServerError;

@@ -1629,7 +1629,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     public void setLogicalChannelPinholeSize_async(
             final AMD_MetadataStore_setLogicalChannelPinholeSize __cb,
-            final RInt pinholeSize, final int imageIndex,
+            final RFloat pinholeSize, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
 

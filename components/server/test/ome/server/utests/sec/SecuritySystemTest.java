@@ -264,7 +264,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // can handle nulls
         sec.isSystemType(null);
         sec.copyToken(null, null);
-        sec.enable(null);
+        sec.enable((java.lang.String[])null);
 
         // uses Springs assert
         try {
@@ -292,7 +292,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }
         ;
         try {
-            sec.doAction(null, null);
+            sec.doAction(null, (IObject[])null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
@@ -361,7 +361,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }
         ;
         try {
-            sec.disable(null);
+            sec.disable((java.lang.String[])null);
             fail("Should throw ApiUSage");
         } catch (ApiUsageException api) {
         }

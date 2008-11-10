@@ -43,7 +43,6 @@ import omero.RInt;
 import omero.RString;
 import omero.ServerError;
 import omero.model.BooleanAnnotationI;
-import omero.model.ColorI;
 import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -275,27 +274,23 @@ public class ImportLibrary implements IObservable
                     log.debug("Setting color channels to RGB format.");
                     if (pix.sizeOfChannels() == 3)
                     {
-                        ColorI red = new ColorI();
-                        red.setRed(rint(255));
-                        red.setGreen(rint(0));
-                        red.setBlue(rint(0));
-                        red.setAlpha(rint(255));
+                        // red
+                        pix.getChannel(0).setRed(rint(255));
+                        pix.getChannel(0).setGreen(rint(0));
+                        pix.getChannel(0).setBlue(rint(0));
+                        pix.getChannel(0).setAlpha(rint(255));
                         
-                        ColorI green = new ColorI();
-                        green.setGreen(rint(255));
-                        green.setRed(rint(0));
-                        green.setBlue(rint(0));
-                        green.setAlpha(rint(255)); 
+                        // green
+                        pix.getChannel(1).setGreen(rint(255));
+                        pix.getChannel(1).setRed(rint(0));
+                        pix.getChannel(1).setBlue(rint(0));
+                        pix.getChannel(1).setAlpha(rint(255)); 
                         
-                        ColorI blue = new ColorI();
-                        blue.setBlue(rint(255));
-                        blue.setGreen(rint(0));
-                        blue.setRed(rint(0));
-                        blue.setAlpha(rint(255));            
-                        
-                        pix.getChannel(0).setColorComponent(red);
-                        pix.getChannel(1).setColorComponent(green);
-                        pix.getChannel(2).setColorComponent(blue);
+                        // blue
+                        pix.getChannel(2).setBlue(rint(255));
+                        pix.getChannel(2).setGreen(rint(0));
+                        pix.getChannel(2).setRed(rint(0));
+                        pix.getChannel(2).setAlpha(rint(255));            
                     }
                 }
 
@@ -303,32 +298,14 @@ public class ImportLibrary implements IObservable
                     name += " [" + seriesName + "]";
 
                 store.setImageName(name, series);
-                if (pix.getPixelsDimensions() == null)
-                {  
-                    log.debug(String.format("Failsafe check: " +
-                            "null PixelDimensions found, setting sizeX,Y,Z to 1.0f"));
-                    
+
+                if (pix.getPhysicalSizeX() == null)
                     store.setDimensionsPhysicalSizeX(1.0f, series, x);
+                if (pix.getPhysicalSizeY() == null)
                     store.setDimensionsPhysicalSizeY(1.0f, series, x);
+                if (pix.getPhysicalSizeZ() == null)
                     store.setDimensionsPhysicalSizeZ(1.0f, series, x);
-                    //PixelsDimensionsI pixDims = new PixelsDimensionsI();
-                    //pixDims.setSizeX(new RFloat(1.0f));
-                    //pixDims.setSizeY(new RFloat(1.0f));
-                    //pixDims.setSizeZ(new RFloat(1.0f));
-                    //pix.setPixelsDimensions(pixDims);
-                } else {   
-                    log.debug(String.format("Failsafe check: " +
-                            "PixelDimensions found with null sizes, setting sizeX,Y,Z to 1.0f"));
-                    if (pix.getPixelsDimensions().getSizeX() == null)
-                        store.setDimensionsPhysicalSizeX(1.0f, series, x);
-                        //pix.getPixelsDimensions().setSizeX(new RFloat(1.0f));
-                    if (pix.getPixelsDimensions().getSizeY() == null)
-                        store.setDimensionsPhysicalSizeY(1.0f, series, x);
-                        //pix.getPixelsDimensions().setSizeY(new RFloat(1.0f));
-                    if (pix.getPixelsDimensions().getSizeZ() == null)
-                        store.setDimensionsPhysicalSizeZ(1.0f, series, x);
-                        //pix.getPixelsDimensions().setSizeZ(new RFloat(1.0f));
-                }
+
             }
             series++;
         }

@@ -262,7 +262,8 @@ public class FullTextTest extends AbstractTest {
 
         ome.model.containers.Project p = new ome.model.containers.Project();
         Dataset d = new Dataset("middle");
-        Image i = new Image(before);
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image i = new Image(testTimestamp, before);
 
         // Save the project and the image should be found
         p.setName("bridged");
@@ -342,7 +343,8 @@ public class FullTextTest extends AbstractTest {
             // when run in the server
         }
 
-        Image i = new Image(str);
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image i = new Image(testTimestamp, str);
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));
         i.linkAnnotation(fa);
@@ -384,7 +386,8 @@ public class FullTextTest extends AbstractTest {
             // when run in the server
         }
 
-        Image i = new Image(name + "_links.txt");
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image i = new Image(testTimestamp, name + "_links.txt");
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));
         i.linkAnnotation(fa);

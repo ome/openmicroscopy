@@ -9,7 +9,6 @@ package pojos;
 
 import static omero.rtypes.*;
 import omero.model.Pixels;
-import omero.model.PixelsDimensions;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
 
@@ -223,12 +222,9 @@ public class PixelsData extends DataObject {
      * @param pixelSizeX
      *            The dimension of a pixel along the X-axis.
      */
-    public void setPixelSizeX(double pixelSizeX) {
+    public void setPixelSizeX(float pixelSizeX) {
         setDirty(true);
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null) {
-            dims.setSizeX(rfloat((float) pixelSizeX)); // FIXME
-        }
+        asPixels().setPhysicalSizeX(rfloat(pixelSizeX));
     }
 
     /**
@@ -237,9 +233,8 @@ public class PixelsData extends DataObject {
      * 
      * @return See above.
      */
-    public double getPixelSizeX() {
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeX());
+    public float getPixelSizeX() {
+        return nullSafe(asPixels().getPhysicalSizeX());
     }
 
     /**
@@ -248,12 +243,9 @@ public class PixelsData extends DataObject {
      * @param pixelSizeY
      *            The dimension of a pixel along the Y-axis.
      */
-    public void setPixelSizeY(double pixelSizeY) {
+    public void setPixelSizeY(float pixelSizeY) {
         setDirty(true);
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null) {
-            dims.setSizeY(rfloat((float) pixelSizeY)); // FIXME
-        }
+        asPixels().setPhysicalSizeY(rfloat(pixelSizeY));
     }
 
     /**
@@ -262,9 +254,8 @@ public class PixelsData extends DataObject {
      * 
      * @return See above.
      */
-    public double getPixelSizeY() {
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeY());
+    public float getPixelSizeY() {
+        return nullSafe(asPixels().getPhysicalSizeY());
     }
 
     /**
@@ -273,12 +264,9 @@ public class PixelsData extends DataObject {
      * @param pixelSizeZ
      *            The dimension of a pixel along the Z-axis.
      */
-    public void setPixelSizeZ(double pixelSizeZ) {
+    public void setPixelSizeZ(float pixelSizeZ) {
         setDirty(true);
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null) {
-            dims.setSizeZ(rfloat((float) pixelSizeZ)); // FIXME
-        }
+        asPixels().setPhysicalSizeZ(rfloat(pixelSizeZ));
     }
 
     /**
@@ -287,9 +275,8 @@ public class PixelsData extends DataObject {
      * 
      * @return See above.
      */
-    public double getPixelSizeZ() {
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeZ());
+    public float getPixelSizeZ() {
+        return nullSafe(asPixels().getPhysicalSizeZ());
     }
 
     /**

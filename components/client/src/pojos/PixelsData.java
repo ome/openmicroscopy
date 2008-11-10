@@ -13,7 +13,6 @@ package pojos;
 
 // Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.enums.PixelsType;
 
 /**
@@ -228,10 +227,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null) {
-            dims.setSizeX(new Float(pixelSizeX));
-        }
+        asPixels().setPhysicalSizeX(new Float(pixelSizeX));
     }
 
     /**
@@ -241,8 +237,7 @@ public class PixelsData extends DataObject {
      * @return See above.
      */
     public double getPixelSizeX() {
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeX());
+        return nullSafe(asPixels().getPhysicalSizeX());
     }
 
     /**
@@ -253,10 +248,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null) {
-            dims.setSizeY(new Float(pixelSizeY));
-        }
+        asPixels().setPhysicalSizeY(new Float(pixelSizeY));
     }
 
     /**
@@ -266,8 +258,7 @@ public class PixelsData extends DataObject {
      * @return See above.
      */
     public double getPixelSizeY() {
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeY());
+        return nullSafe(asPixels().getPhysicalSizeY());
     }
 
     /**
@@ -278,10 +269,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null) {
-            dims.setSizeZ(new Float(pixelSizeZ));
-        }
+        asPixels().setPhysicalSizeZ(new Float(pixelSizeZ));
     }
 
     /**
@@ -291,8 +279,7 @@ public class PixelsData extends DataObject {
      * @return See above.
      */
     public double getPixelSizeZ() {
-        PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeZ());
+        return nullSafe(asPixels().getPhysicalSizeZ());
     }
 
     /**

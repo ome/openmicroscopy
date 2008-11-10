@@ -36,8 +36,6 @@ import ome.model.annotations.BooleanAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import ome.model.display.Color;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -268,27 +266,23 @@ public class ImportLibrary implements IObservable
                     log.debug("Setting color channels to RGB format.");
                     if (pix.sizeOfChannels() == 3)
                     {
-                        Color red = new Color();
-                        red.setRed(255);
-                        red.setGreen(0);
-                        red.setBlue(0);
-                        red.setAlpha(255);
+                        // red
+                        pix.getChannel(0).setRed(255);
+                        pix.getChannel(0).setGreen(0);
+                        pix.getChannel(0).setBlue(0);
+                        pix.getChannel(0).setAlpha(255);
                         
-                        Color green = new Color();
-                        green.setGreen(255);
-                        green.setRed(0);
-                        green.setBlue(0);
-                        green.setAlpha(255); 
+                        // green
+                        pix.getChannel(1).setGreen(255);
+                        pix.getChannel(1).setRed(0);
+                        pix.getChannel(1).setBlue(0);
+                        pix.getChannel(1).setAlpha(255); 
                         
-                        Color blue = new Color();
-                        blue.setBlue(255);
-                        blue.setGreen(0);
-                        blue.setRed(0);
-                        blue.setAlpha(255);            
-                        
-                        pix.getChannel(0).setColorComponent(red);
-                        pix.getChannel(1).setColorComponent(green);
-                        pix.getChannel(2).setColorComponent(blue);
+                        // blue
+                        pix.getChannel(2).setBlue(255);
+                        pix.getChannel(2).setGreen(0);
+                        pix.getChannel(2).setRed(0);
+                        pix.getChannel(2).setAlpha(255);            
                     }
                     
                 }
@@ -297,25 +291,14 @@ public class ImportLibrary implements IObservable
                     name += " [" + seriesName + "]";
 
                 pix.getImage().setName(name);
-                if (pix.getPixelsDimensions() == null)
-                {  
-                    log.debug(String.format("Failsafe check: " +
-                            "null PixelDimensions found, setting sizeX,Y,Z to 1.0f"));
-                    PixelsDimensions pixDims = new PixelsDimensions();
-                    pixDims.setSizeX(1.0f);
-                    pixDims.setSizeY(1.0f);
-                    pixDims.setSizeZ(1.0f);
-                    pix.setPixelsDimensions(pixDims);
-                } else {   
-                    log.debug(String.format("Failsafe check: " +
-                            "PixelDimensions found with null sizes, setting sizeX,Y,Z to 1.0f"));
-                    if (pix.getPixelsDimensions().getSizeX() == null)
-                        pix.getPixelsDimensions().setSizeX(1.0f);
-                    if (pix.getPixelsDimensions().getSizeY() == null)
-                        pix.getPixelsDimensions().setSizeY(1.0f);
-                    if (pix.getPixelsDimensions().getSizeZ() == null)
-                        pix.getPixelsDimensions().setSizeZ(1.0f);
-                }
+                log.debug(String.format("Failsafe check: " +
+                        "PixelDimensions found with null sizes, setting sizeX,Y,Z to 1.0f"));
+                if (pix.getPhysicalSizeX() == null)
+                    pix.setPhysicalSizeX(1.0f);
+                if (pix.getPhysicalSizeY() == null)
+                    pix.setPhysicalSizeY(1.0f);
+                if (pix.getPhysicalSizeZ() == null)
+                    pix.setPhysicalSizeZ(1.0f);
             }
 
             series++;

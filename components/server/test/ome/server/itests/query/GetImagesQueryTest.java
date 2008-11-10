@@ -415,7 +415,6 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image test = (Image) iQuery.execute(q);
         assertNotNull(test);
         assertNotNull(test.getPrimaryPixels());
-        assertNotNull(test.getPrimaryPixels().getPixelsDimensions());
         assertNotNull(test.getPrimaryPixels().getPixelsType());
     }
 

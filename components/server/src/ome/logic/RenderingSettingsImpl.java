@@ -56,7 +56,7 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
+import ome.model.display.ColorFix;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
@@ -375,16 +375,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             }
     
             // Handle updating or recreating a color for this channel.
-            Color defaultColor = ColorsFactory.getColor(i, channel);
-            if (channelBinding.getColor() == null) {
-                channelBinding.setColor(ColorsFactory.getColor(i, channel));
-            } else {
-                Color color = channelBinding.getColor();
-                color.setRed(defaultColor.getRed());
-                color.setGreen(defaultColor.getGreen());
-                color.setBlue(defaultColor.getBlue());
-                color.setAlpha(defaultColor.getAlpha());
-            }
+            ColorFix defaultColor = ColorsFactory.getColor(i, channel);
+            channelBinding.setRed(defaultColor.getRed());
+            channelBinding.setGreen(defaultColor.getGreen());
+            channelBinding.setBlue(defaultColor.getBlue());
+            channelBinding.setAlpha(defaultColor.getAlpha());
+
             channelBinding.setNoiseReduction(false);
             i++;
         }
@@ -462,12 +458,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      *            the pixels set to create channel bindings based upon.
      * @return a new set of blank channel bindings.
      */
-    private List<ChannelBinding> createNewChannelBindings(Pixels p) {
+    private List<ChannelBinding> createNewChannelBindings(Pixels p)
+    {
         List<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
         ChannelBinding binding;
         for (int i = 0; i < p.getSizeC(); i++) {
             binding = new ChannelBinding();
-            binding.setColor(new Color());
             cbs.add(binding);
         }
         return cbs;
@@ -698,7 +694,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         Iterator<ChannelBinding> i = rdFrom.iterateWaveRendering();
         Iterator<ChannelBinding> iTo = rdTo.iterateWaveRendering();
         ChannelBinding binding, bindingTo;
-        Color cFrom, cTo;
+
         while (i.hasNext()) {
             binding = i.next();
             bindingTo = iTo.next();
@@ -716,12 +712,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // turn on or off the noise reduction algo.
             bindingTo.setNoiseReduction(binding.getNoiseReduction());
             // color used
-            cFrom = binding.getColor();
-            cTo = bindingTo.getColor();
-            cTo.setAlpha(cFrom.getAlpha());
-            cTo.setBlue(cFrom.getBlue());
-            cTo.setGreen(cFrom.getGreen());
-            cTo.setRed(cFrom.getRed());
+            bindingTo.setAlpha(binding.getAlpha());
+            bindingTo.setBlue(binding.getBlue());
+            bindingTo.setGreen(binding.getGreen());
+            bindingTo.setRed(binding.getRed());
         }
         
         // Increment the version of the rendering settings so that we 

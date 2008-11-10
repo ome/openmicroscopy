@@ -120,9 +120,9 @@ public class TestEngine
                             Integer sizeT = store.getPixels(series).getSizeT().getValue();
                             PixelsType pixelType = store.getPixels(series).getPixelsType();
                             DimensionOrder dimOrder = store.getPixels(series).getDimensionOrder();
-                            Float pixelSizeX = store.getPixels(series).getPixelsDimensions().getSizeX().getValue();
-                            Float pixelSizeY = store.getPixels(series).getPixelsDimensions().getSizeY().getValue();
-                            Float pixelSizeZ = store.getPixels(series).getPixelsDimensions().getSizeZ().getValue();
+                            Float pixelSizeX = store.getPixels(series).getPhysicalSizeX().getValue();
+                            Float pixelSizeY = store.getPixels(series).getPhysicalSizeY().getValue();
+                            Float pixelSizeZ = store.getPixels(series).getPhysicalSizeZ().getValue();
 
                             // Compare
                             testValue(fileList[j], "s" + series + "_SHA1", sha1);

@@ -69,7 +69,6 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.ArcType;
@@ -78,7 +77,6 @@ import ome.model.enums.DetectorType;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.FilamentType;
 import ome.model.enums.Format;
-import ome.model.enums.FrequencyMultiplication;
 import ome.model.enums.Illumination;
 import ome.model.enums.Immersion;
 import ome.model.enums.LaserMedium;
@@ -1144,27 +1142,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         p.setDimensionOrder(order);
     }
 
-    /* ---- PixelsDimensions --- */
-
-    /**
-     * Retrieve PixelDimenions for p, or create one if needed
-     * @param p
-     * @return PixelsDimensions
-     */
-    private PixelsDimensions getPixelsDimensions (Pixels p)
-    {
-        PixelsDimensions dims = p.getPixelsDimensions();
-        if (dims == null)
-        {
-            dims = new PixelsDimensions();
-            dims.setSizeX(0.0f);
-            dims.setSizeY(0.0f);
-            dims.setSizeZ(0.0f);
-            p.setPixelsDimensions(dims);
-        }
-        return dims;       
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Float, int, int)
      */
@@ -1181,8 +1158,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
 
         Pixels p = getPixels(imageIndex, pixelsIndex);
-        PixelsDimensions dims = getPixelsDimensions(p);
-        dims.setSizeX(physicalSizeX);
+        p.setPhysicalSizeX(physicalSizeX);
     }
 
     /* (non-Javadoc)
@@ -1201,8 +1177,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
 
         Pixels p = getPixels(imageIndex, pixelsIndex);
-        PixelsDimensions dims = getPixelsDimensions(p);
-        dims.setSizeY(physicalSizeY);
+        p.setPhysicalSizeY(physicalSizeY);
     }
 
     /* (non-Javadoc)
@@ -1221,8 +1196,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
 
         Pixels p = getPixels(imageIndex, pixelsIndex);
-        PixelsDimensions dims = getPixelsDimensions(p);
-        dims.setSizeZ(physicalSizeZ);
+        p.setPhysicalSizeZ(physicalSizeZ);
     }
 
     /* ---- Imaging Environment (OMERO Image.Condition) ---- */    
@@ -1411,9 +1385,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Float, int, int)
      */
-    public void setLogicalChannelPinholeSize(Integer pinholeSize,
+    public void setLogicalChannelPinholeSize(Float pinholeSize,
             int imageIndex, int logicalChannelIndex)
     {
         Image image = getImage(imageIndex);
@@ -1959,8 +1933,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         Laser laser = getLaser(instrumentIndex, lightSourceIndex);  
         if (frequencyMultiplication != null && laser != null)
         {
-            laser.setFrequencyMultiplication((FrequencyMultiplication)
-                    getEnumeration(FrequencyMultiplication.class, frequencyMultiplication + "x"));
+            laser.setFrequencyMultiplication(frequencyMultiplication);
         } else if (laser != null) {
             laser.setFrequencyMultiplication(null);        
         }
@@ -2284,7 +2257,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         
         Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null && calibratedMagnification != null) // fix for older ome formats
-            objective.setMagnificiation(calibratedMagnification.doubleValue());
+            objective.setCalibratedMagnification(calibratedMagnification.floatValue());
     }
 
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
@@ -2340,7 +2313,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         
         Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
-            objective.setMagnificiation(nominalMagnification.doubleValue());
+            objective.setNominalMagnification(nominalMagnification);
     }
 
     public void setObjectiveSerialNumber(String serialNumber,
@@ -3417,10 +3390,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         throw new RuntimeException("Not implemented yet.");
     }
 
+/*
     public void setLogicalChannelPinholeSize(Float arg0, int arg1, int arg2)
     {
         // TODO Auto-generated method stub
         //
         throw new RuntimeException("Not implemented yet.");
     }
+*/
 }

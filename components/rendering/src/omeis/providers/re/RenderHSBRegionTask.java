@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.io.nio.PixelData;
-import ome.model.display.Color;
+import ome.model.display.ColorFix;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.QuantizationException;
@@ -52,7 +52,7 @@ class RenderHSBRegionTask implements RenderingTask {
      * The color components used when mapping a quantized value onto the color
      * space.
      */
-    private List<Color> colors;
+    private List<ColorFix> colors;
 
     /** The <i>X1/<i>-axis start */
     private int x1Start;
@@ -94,7 +94,7 @@ class RenderHSBRegionTask implements RenderingTask {
      */
     RenderHSBRegionTask(RGBBuffer dataBuffer, List<Plane2D> wData,
             List<QuantumStrategy> strategies, CodomainChain cc,
-            List<Color> colors, Optimizations optimizations,
+            List<ColorFix> colors, Optimizations optimizations,
             int x1Start, int x1End, int x2Start, int x2End) {
         this.dataBuffer = dataBuffer;
         this.wData = wData;
@@ -140,7 +140,7 @@ class RenderHSBRegionTask implements RenderingTask {
         byte[] g = dataBuffer.getGreenBand();
         byte[] b = dataBuffer.getBlueBand();
         for (Plane2D plane : wData) {
-            Color color = colors.get(i);
+            ColorFix color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
             int rColor = color.getRed();
             int gColor = color.getGreen();
@@ -203,7 +203,7 @@ class RenderHSBRegionTask implements RenderingTask {
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
         for (Plane2D plane : wData) {
-            Color color = colors.get(i);
+            ColorFix color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
             redRatio = color.getRed() > 0? color.getRed() / 255.0 : 0.0;
             greenRatio = color.getGreen() > 0? color.getGreen() / 255.0 : 0.0;
@@ -295,7 +295,7 @@ class RenderHSBRegionTask implements RenderingTask {
      * @param color the color to check.
      * @return an integer color offset in bits.
      */
-    private int getColorOffset(Color color)
+    private int getColorOffset(ColorFix color)
     {
     	if (color.getRed() == 255)
     		return 16;

@@ -163,7 +163,6 @@ public class DeleteUnitTest extends MockObjectTestCase {
         List<IObject> deletes = new ArrayList<IObject>();
         deletes.add(i);
         deletes.add(p);
-        deletes.add(p.getPixelsDimensions());
         deletes.addAll(p.linkedOriginalFileList());
         deletes.addAll(p.collectPlaneInfo((CBlock<PlaneInfo>) null));
         deletes.addAll(p.collectSettings((CBlock<RenderingDef>) null));

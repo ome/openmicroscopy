@@ -161,11 +161,11 @@ public class ChannelData
      * 
      * @return See above
      */
-    public int getPinholeSize()
+    public float getPinholeSize()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return 0;
-    	RInt value = lc.getPinHoleSize();
+    	RFloat value = lc.getPinHoleSize();
     	if (value != null) return value.getValue();
     	return 0; 
     }

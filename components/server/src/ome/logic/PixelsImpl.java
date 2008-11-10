@@ -36,7 +36,6 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
@@ -96,7 +95,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         Pixels p = iQuery.findByQuery("select p from Pixels as p "
                 + "left outer join fetch p.pixelsType as pt "
                 + "left outer join fetch p.channels as c "
-                + "left outer join fetch p.pixelsDimensions "
                 + "left outer join fetch c.colorComponent "
                 + "left outer join fetch c.logicalChannel as lc "
                 + "left outer join fetch c.statsInfo "
@@ -152,7 +150,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         // Copy basic metadata
         to.setDimensionOrder(from.getDimensionOrder());
         to.setMethodology(methodology);
-        to.setPixelsDimensions(from.getPixelsDimensions());
+        to.setPhysicalSizeX(from.getPhysicalSizeX());
+        to.setPhysicalSizeY(from.getPhysicalSizeY());
+        to.setPhysicalSizeZ(from.getPhysicalSizeZ());
         to.setPixelsType(from.getPixelsType());
         to.setRelatedTo(from);
         to.setSizeX(sizeX != null? sizeX : from.getSizeX());
@@ -255,10 +255,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         // Create basic metadata
         // FIXME: Hack, when the model changes we'll want to remove this, it's
         // unreasonable.
-        PixelsDimensions dims = new PixelsDimensions();
-        dims.setSizeX(1F);
-        dims.setSizeY(1F);
-        dims.setSizeZ(1F);
+        pixels.setPhysicalSizeX(1F);
+        pixels.setPhysicalSizeY(1F);
+        pixels.setPhysicalSizeZ(1F);
         pixels.setPixelsType(pixelsType);
         pixels.setSizeX(sizeX);
         pixels.setSizeY(sizeY);
@@ -267,7 +266,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         pixels.setSizeT(sizeT);
         pixels.setSha1("Pending...");
         pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, "XYZCT")); 
-        pixels.setPixelsDimensions(dims);
         // Create channel data.
         List<Channel> channels = createChannels(channelList);
         pixels.addChannelSet(channels);
@@ -357,7 +355,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     {
        	Channel cFrom = from.getChannel(channel);
         Channel cTo = new Channel();
-        cTo.setColorComponent(cFrom.getColorComponent());
         cTo.setLogicalChannel(cFrom.getLogicalChannel());
         if (copyStats)
         {

@@ -11,10 +11,8 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
@@ -65,7 +63,6 @@ public class ObjectFactory {
         AcquisitionMode mode = new AcquisitionMode();
         PixelsType pt = new PixelsType();
         DimensionOrder dO = new DimensionOrder();
-        PixelsDimensions pd = new PixelsDimensions();
         Image i = new Image();
         Channel c = new Channel();
         LogicalChannel lc = new LogicalChannel();
@@ -81,8 +78,6 @@ public class ObjectFactory {
             pt.unload();
             dO.setId(example.getDimensionOrder().getId());
             dO.unload();
-            pd.setId(example.getPixelsDimensions().getId());
-            pd.unload();
             i.setId(example.getImage().getId());
             i.unload();
             c.setId(example.getChannel(0).getId());
@@ -101,9 +96,6 @@ public class ObjectFactory {
 
             dO.setValue("XYZTC");
 
-            pd.setSizeX(new Float(1.0));
-            pd.setSizeY(new Float(1.0));
-            pd.setSizeZ(new Float(1.0));
             c.setPixels(p);
             lc.setPhotometricInterpretation(pi);
 
@@ -129,7 +121,9 @@ public class ObjectFactory {
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setPixelsType(pt);
         p.setDimensionOrder(dO);
-        p.setPixelsDimensions(pd);
+        p.setPhysicalSizeX(new Float(1.0));
+        p.setPhysicalSizeY(new Float(1.0));
+        p.setPhysicalSizeZ(new Float(1.0));
         p.setImage(i);
 
         p.addChannel(c);
@@ -139,11 +133,6 @@ public class ObjectFactory {
 
     public static ChannelBinding createChannelBinding() {
         // Prereqs for binding
-        Color color = new Color();
-        color.setAlpha(new Integer(1));
-        color.setBlue(new Integer(1));
-        color.setGreen(new Integer(1));
-        color.setRed(new Integer(1));
 
         Family family = new Family();
         family.setValue("linear");
@@ -151,7 +140,10 @@ public class ObjectFactory {
         ChannelBinding binding = new ChannelBinding();
         binding.setActive(Boolean.FALSE);
         binding.setCoefficient(new Double(1));
-        binding.setColor(color);
+        binding.setAlpha(new Integer(1));
+        binding.setBlue(new Integer(1));
+        binding.setGreen(new Integer(1));
+        binding.setRed(new Integer(1));
         binding.setFamily(family);
         binding.setInputEnd(new Float(1.0));
         binding.setInputStart(new Float(1.0));

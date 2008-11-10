@@ -17,7 +17,6 @@ import ome.model.IObject;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.display.Color;
 
 /**
  * tests of model objects for validity.
@@ -44,7 +43,6 @@ public abstract class Validator {
          * model? Do null tests count?
          */
         // Pixels pixels = channel.getPixels (need inverse)
-        Color color = channel.getColorComponent();
         String piType =
         	channel.getLogicalChannel().
         	        getPhotometricInterpretation().getValue(); // TODO
@@ -52,8 +50,8 @@ public abstract class Validator {
         // Safe?
         if (piType.equals("RGB") || piType.equals("ARGB")
                 || piType.equals("CMYK") || piType.equals("HSV")) {
-            if (color == null) {
-                v.invalidate("Channel.color cannot be null if PiType == " +
+            if (channel.getRed() == null || channel.getGreen() == null || channel.getBlue() == null || channel.getAlpha() == null) {
+                v.invalidate("Channel colors  cannot be null if PiType == " +
                 		"{RGB|ARGB|CMYK|HSV}");
             }
         }

@@ -10,23 +10,16 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 <types>
-
-    <type id="ome.model.display.Roi" discriminator="roi">
-        <properties>
-            <required name="pixels" type="ome.model.core.Pixels"/>
-            <required name="visible" type="boolean"/>
-            <optional name="xml" type="text"/>
-            <optional name="z" type="int"/>
-            <optional name="t" type="int"/>
-            <optional name="c" type="int"/>
-        </properties>
-    </type>
-
-    <link id="ome.model.display.RoiLink" annotated="true">
-        <properties>
-            <from_parent type="ome.model.display.Roi"/>
-            <to_child type="ome.model.display.Roi"/>
-        </properties>
-    </link>
-
+	<type id="ome.model.display.Roi" discriminator="roi">
+		<properties>
+			<!-- TODO: rewrite all ROI -->
+		</properties>
+		<manyone name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
+	</type>
+	<link id="ome.model.display.RoiLink" annotated="true">
+		<properties>
+			<from_parent type="ome.model.display.Roi"/>
+			<to_child type="ome.model.display.Roi"/>
+		</properties>
+	</link>
 </types>

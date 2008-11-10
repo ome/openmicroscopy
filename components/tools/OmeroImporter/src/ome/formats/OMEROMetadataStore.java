@@ -894,12 +894,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
     }
 
-    public void setLogicalChannelPinholeSize(Integer pinholeSize,
+    public void setLogicalChannelPinholeSize(Float pinholeSize,
             int imageIndex, int logicalChannelIndex)
     {
         try
         {
-            delegate.setLogicalChannelPinholeSize(rint(pinholeSize), imageIndex, logicalChannelIndex);
+            delegate.setLogicalChannelPinholeSize(rfloat(pinholeSize), imageIndex, logicalChannelIndex);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -2334,10 +2334,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         throw new RuntimeException("Not implemented yet.");
     }
     
+/*
     public void setLogicalChannelPinholeSize(Float a, int b, int c)
     {
         // TODO Auto-generated method stub
         //
         throw new RuntimeException("Not implemented yet.");
     }
+*/
 }

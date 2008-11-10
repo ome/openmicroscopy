@@ -903,10 +903,10 @@ public class RenderingBean extends AbstractLevel2Service implements
             ChannelBinding[] cb = renderer.getChannelBindings();
             // NOTE: The rgba is supposed to be read-only; however we make a
             // copy to be on the safe side.
-            rgba[0] = cb[w].getColor().getRed().intValue();
-            rgba[1] = cb[w].getColor().getGreen().intValue();
-            rgba[2] = cb[w].getColor().getBlue().intValue();
-            rgba[3] = cb[w].getColor().getAlpha().intValue();
+            rgba[0] = cb[w].getRed().intValue();
+            rgba[1] = cb[w].getGreen().intValue();
+            rgba[2] = cb[w].getBlue().intValue();
+            rgba[3] = cb[w].getAlpha().intValue();
             return rgba;
         } finally {
             rwl.readLock().unlock();
@@ -1385,8 +1385,6 @@ public class RenderingBean extends AbstractLevel2Service implements
         Pixels newPixels = new ShallowCopy().copy(pixels);
         newPixels.putAt(Pixels.CHANNELS, new ArrayList<Channel>());
         copyChannels(pixels, newPixels);
-        newPixels.setPixelsDimensions(new ShallowCopy().copy(pixels
-                .getPixelsDimensions()));
         newPixels.setPixelsType(new ShallowCopy().copy(pixels.getPixelsType()));
         return newPixels;
     }

@@ -14,7 +14,6 @@ import ome.api.IPixels;
 import ome.api.IUpdate;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
@@ -149,10 +148,11 @@ public class RenderingEngineTest extends TestCase {
     private void testPixelsFilled(Pixels t) {
         // assertTrue( t.sizeOfPlaneInfo() >= 0 );
 
+/*
         PixelsDimensions pd = t.getPixelsDimensions();
         assertNotNull(pd);
         assertNotNull(pd.getSizeX());
-
+*/
         Collection<Channel> c = t.unmodifiableChannels();
         assertNotNull(c);
         assertTrue(c.size() > 0);

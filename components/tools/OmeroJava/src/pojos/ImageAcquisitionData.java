@@ -30,6 +30,7 @@ package pojos;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.RFloat;
+import omero.RInt;
 import omero.model.Coating;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
@@ -251,22 +252,37 @@ public class ImageAcquisitionData
 	}
 	
 	/**
-	 * Returns the objective's magnification factor.
+	 * Returns the objective's calibrated magnification factor.
 	 * 
 	 * @return See above.
 	 */
-	public double getMagnification()
+	public float getCalibratedMagnification()
 	{
-		if (objective == null) return 0.0;
+		if (objective == null) return 0f;
 		Objective obj = objective.getObjective();
-		if (obj == null) return 0.0;
-		RDouble value = obj.getMagnificiation();
-		if (value == null) return 0.0;
+		if (obj == null) return 0f;
+		RFloat value = obj.getCalibratedMagnification();
+		if (value == null) return 0f;
 		return value.getValue();
 	}
 	
 	/**
-	 * Returns the objective's magnification factor.
+	 * Returns the objective's nominal magnification factor.
+	 * 
+	 * @return See above.
+	 */
+	public int getNominalMagnification()
+	{
+		if (objective == null) return 0;
+		Objective obj = objective.getObjective();
+		if (obj == null) return 0;
+		RInt value = obj.getNominalMagnification();
+		if (value == null) return 0;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the objective's LensNA.
 	 * 
 	 * @return See above.
 	 */
@@ -544,12 +560,25 @@ public class ImageAcquisitionData
 	 * 
 	 * @param factor The value to set.
 	 */
-	public void setMagnification(double factor)
+	public void setCalibratedMagnification(float factor)
 	{
 		objectiveDirty = true;
 		Objective ob = objective.getObjective();
 		if (ob == null) ob = new ObjectiveI();
-		ob.setMagnificiation(omero.rtypes.rdouble(factor));
+		ob.setCalibratedMagnification(omero.rtypes.rfloat(factor));
+	}
+	
+	/**
+	 * Sets the magnification factor of the objective.
+	 * 
+	 * @param factor The value to set.
+	 */
+	public void setNominalMagnification(int factor)
+	{
+		objectiveDirty = true;
+		Objective ob = objective.getObjective();
+		if (ob == null) ob = new ObjectiveI();
+		ob.setNominalMagnification(omero.rtypes.rint(factor));
 	}
 	
 	/**

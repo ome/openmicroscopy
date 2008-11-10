@@ -13,7 +13,6 @@
 #include <omero/model/LogicalChannelI.h>
 #include <omero/model/PhotometricInterpretationI.h>
 #include <omero/model/PixelsI.h>
-#include <omero/model/PixelsDimensionsI.h>
 #include <omero/model/PixelsTypeI.h>
 #include <omero/model/PlaneInfoI.h>
 #include <omero/model/StatsInfoI.h>
@@ -31,7 +30,6 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
 
     PixelsIPtr pix = new PixelsI();
     PixelsTypePtr pt = new PixelsTypeI();
-    PixelsDimensionsIPtr pd = new PixelsDimensionsI();
     PhotometricInterpretationIPtr pi = new PhotometricInterpretationI();
     ImageIPtr i = new ImageI();
     AcquisitionModeIPtr mode = new AcquisitionModeI();
@@ -59,7 +57,9 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     pix->setSha1 (rstring("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356") ); // for "pixels"
     pix->setPixelsType( pt );
     pix->setDimensionOrder( d0 );
-    pix->setPixelsDimensions( pd );
+    pix->setPhysicalSizeX( rfloat(1.0) );
+    pix->setPhysicalSizeY( rfloat(1.0) );
+    pix->setPhysicalSizeZ( rfloat(1.0) );
 
     pix->addChannel( c );
 

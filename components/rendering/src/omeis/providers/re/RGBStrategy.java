@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
+import ome.model.display.ColorFix;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
@@ -93,7 +93,7 @@ class RGBStrategy extends RenderingStrategy {
      *            The color settings of a given wavelength.
      * @return Returns the color band selected in <code>color</code>.
      */
-    private int getColorBand(Color color) {
+    private int getColorBand(ColorFix color) { // This function is not used 
         if (color.getGreen().intValue() == 255) {
             return RGBBuffer.G_BAND;
         } else if (color.getBlue().intValue() == 255) {

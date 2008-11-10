@@ -101,21 +101,21 @@ public class AdminTest extends AbstractManagedContextTest {
     @Test
     @ExpectedExceptions(ApiUsageException.class)
     public void testExperimenterAccountCreationWithAllNulls() throws Exception {
-        iAdmin.createExperimenter(null, null, null);
+        iAdmin.createExperimenter(null, null, (ome.model.meta.ExperimenterGroup[])null);
     }
 
     @Test
     @ExpectedExceptions(ApiUsageException.class)
     public void testExperimenterAccountCreationWithEmpty() throws Exception {
         Experimenter e = new Experimenter();
-        iAdmin.createExperimenter(e, null, null);
+        iAdmin.createExperimenter(e, null, (ome.model.meta.ExperimenterGroup[])null);
     }
 
     @Test
     public void testExperimenterAccountCreation() throws Exception {
         Experimenter e = testExperimenter();
         e = iAdmin.getExperimenter(iAdmin.createExperimenter(e,
-                new ExperimenterGroup(0L, false), null));
+                new ExperimenterGroup(0L, false), (ome.model.meta.ExperimenterGroup[])null));
         assertNotNull(e.getEmail());
         assertNotNull(e.getOmeName());
         assertNotNull(e.getFirstName());
@@ -576,7 +576,8 @@ public class AdminTest extends AbstractManagedContextTest {
 
         // Now make something
         loginUser(e1.getOmeName());
-        iUpdate.saveObject(new Image("name"));
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        iUpdate.saveObject(new Image(testTimestamp, "name"));
 
         loginRoot();
         iAdmin.deleteExperimenter(new Experimenter(uid, false));

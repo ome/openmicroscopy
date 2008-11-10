@@ -132,7 +132,8 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
     private Dataset createDataset() {
         Dataset d = new Dataset("name");
-        Image i = new Image("name");
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image i = new Image(testTimestamp, "name");
         TextAnnotation t = new TextAnnotation();
         t.setNs("");
         t.setTextValue("t");

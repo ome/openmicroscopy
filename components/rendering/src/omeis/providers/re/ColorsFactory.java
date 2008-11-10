@@ -14,7 +14,7 @@ package omeis.providers.re;
 // Application-internal dependencies
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
-import ome.model.display.Color;
+import ome.model.display.ColorFix;
 
 /**
  * Utility class to determine the color usually associated to a specified
@@ -112,11 +112,10 @@ public class ColorsFactory {
      * @param channel The channel to determine the color for.
      * @return A color.
      */
-    private static Color getColor(Channel channel) {
+    private static ColorFix getColor(Channel channel) {
     	LogicalChannel lc = channel.getLogicalChannel();
     	if (lc == null) return null;
         Integer emWave = lc.getEmissionWave();
-        Color explicitColor = channel.getColorComponent();
         String pi = null;
         if (lc.getPhotometricInterpretation() != null)
         	pi = lc.getPhotometricInterpretation().getValue();
@@ -141,16 +140,16 @@ public class ColorsFactory {
                 return newRedColor();
             }
         }
-        else if (explicitColor != null)
+        else if (channel.getRed() != null && channel.getGreen() != null && channel.getBlue() != null && channel.getAlpha() != null)
         {
         	// We've got a color image of some type that has explicitly
         	// specified which channel is Red, Green, Blue or some other wacky
         	// color.
-        	Color c = new Color();
-        	c.setRed(explicitColor.getRed());
-        	c.setGreen(explicitColor.getGreen());
-        	c.setBlue(explicitColor.getBlue());
-        	c.setAlpha(explicitColor.getAlpha());
+        	ColorFix c = new ColorFix();
+        	c.setRed(channel.getRed());
+        	c.setGreen(channel.getGreen());
+        	c.setBlue(channel.getBlue());
+        	c.setAlpha(channel.getAlpha());
         	return c;
         }
         return null;
@@ -166,8 +165,8 @@ public class ColorsFactory {
      *            The channel to determine the color for.
      * @return A color.
      */
-    public static Color getColor(int index, Channel channel) {
-        Color c = ColorsFactory.getColor(channel);
+    public static ColorFix getColor(int index, Channel channel) {
+        ColorFix c = ColorsFactory.getColor(channel);
         if (c != null) {
             return c;
         }
@@ -186,8 +185,8 @@ public class ColorsFactory {
      * 
      * @return a color object.
      */
-    public static Color newRedColor() {
-        Color c = new Color();
+    public static ColorFix newRedColor() {
+        ColorFix c = new ColorFix();
         c.setRed(255);
         c.setGreen(0);
         c.setBlue(0);
@@ -200,8 +199,8 @@ public class ColorsFactory {
      * 
      * @return a color object.
      */
-    public static Color newGreenColor() {
-        Color c = new Color();
+    public static ColorFix newGreenColor() {
+        ColorFix c = new ColorFix();
         c.setRed(0);
         c.setGreen(255);
         c.setBlue(0);
@@ -214,8 +213,8 @@ public class ColorsFactory {
      * 
      * @return a color object.
      */
-    public static Color newBlueColor() {
-        Color c = new Color();
+    public static ColorFix newBlueColor() {
+        ColorFix c = new ColorFix();
         c.setRed(0);
         c.setGreen(0);
         c.setBlue(255);

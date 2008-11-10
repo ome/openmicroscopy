@@ -16,7 +16,6 @@ import ome.api.RawPixelsStore;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.RenderingModel;
@@ -130,10 +129,6 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
 
     private void testPixelsFilled(Pixels t) {
         // assertTrue( t.sizeOfPlaneInfo() >= 0 );
-
-        PixelsDimensions pd = t.getPixelsDimensions();
-        assertNotNull(pd);
-        assertNotNull(pd.getSizeX());
 
         Collection<Channel> c = t.unmodifiableChannels();
         assertNotNull(c);

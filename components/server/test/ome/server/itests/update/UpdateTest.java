@@ -47,8 +47,6 @@ public class UpdateTest extends AbstractUpdateTest {
 
         assertTrue("channel ids differ", equalCollections(p
                 .unmodifiableChannels(), check.unmodifiableChannels()));
-        assertTrue("pixels dims differ", p.getPixelsDimensions().getId()
-                .equals(check.getPixelsDimensions().getId()));
     }
 
     @Test
@@ -342,7 +340,8 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // This creates a user in a new group
         Experimenter e = loginNewUser();
-        Image i = new Image("rootCanDeleteObjectFromOtherGroup");
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        Image i = new Image(testTimestamp, "rootCanDeleteObjectFromOtherGroup");
         i = this.iUpdate.saveAndReturnObject(i);
 
         loginRoot();

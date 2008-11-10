@@ -272,7 +272,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         current.operation = "XXXXXXXXXXXXXXXXXXXXXXXX";
         IceMethodInvoker imi = new IceMethodInvoker(c, ctx);
-        imi.invoke(prx, current, new IceMapper(), null);
+        imi.invoke(prx, current, new IceMapper(), (java.lang.Object[])null);
 
     }
 

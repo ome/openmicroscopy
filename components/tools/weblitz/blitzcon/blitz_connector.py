@@ -593,8 +593,6 @@ class ImageWrapper (BlitzObjectWrapper):
         if not self._obj.pixelsLoaded:
             param = omero.sys.Parameters() # TODO: What can I use this for?
             pixels = self._conn.getQueryService().findAllByQuery("from Pixels as p where p.image.id=%i" % self._oid, param)
-            for p in pixels:
-                p.setPixelsDimensions(self._conn.getQueryService().find('PixelsDimensions', p.pixelsDimensions.id.val))
             self._obj.pixelsLoaded = True
             self._obj.addPixelsSet(pixels)
 
@@ -759,15 +757,15 @@ class ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPixelSizeX (self):
-        return self._obj.pixels[0].pixelsDimensions.sizeX.val
+        return self._obj.pixels[0].physicalSizeX.val
 
     @assert_pixels
     def getPixelSizeY (self):
-        return self._obj.pixels[0].pixelsDimensions.sizeY.val
+        return self._obj.pixels[0].physicalSizeY.val
 
     @assert_pixels
     def getPixelSizeZ (self):
-        return self._obj.pixels[0].pixelsDimensions.sizeZ.val
+        return self._obj.pixels[0].physicalSizeZ.val
 
     @assert_pixels
     def getWidth (self):

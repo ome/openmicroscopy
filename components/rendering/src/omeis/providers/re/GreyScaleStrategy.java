@@ -108,7 +108,7 @@ class GreyScaleStrategy extends RenderingStrategy {
         RGBBuffer buf = getRgbBuffer();
         
         byte value;
-        float alpha = channelBinding.getColor().getAlpha().floatValue() / 255;
+        float alpha = channelBinding.getAlpha().floatValue() / 255;
 
         int x1, x2, discreteValue, pixelIndex;
         byte[] r = buf.getRedBand();
@@ -176,7 +176,7 @@ class GreyScaleStrategy extends RenderingStrategy {
 	    initAxesSize(planeDef, metadata);
 	    RGBIntBuffer dataBuf = getIntBuffer();
 	    
-        int alpha = channelBinding.getColor().getAlpha();
+        int alpha = channelBinding.getAlpha();
         int[] buf = ((RGBIntBuffer) dataBuf).getDataBuffer();
         int x1, x2, discreteValue, pixelIndex;
         if (plane.isXYPlanar())
