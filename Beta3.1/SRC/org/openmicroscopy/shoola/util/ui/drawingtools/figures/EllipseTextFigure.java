@@ -172,6 +172,7 @@ public class EllipseTextFigure
 		drawText(g);
 	}
 
+
 	/**
 	 * Overridden to draw the text.
 	 * @see EllipseFigure#drawText(Graphics2D)
@@ -187,10 +188,15 @@ public class EllipseTextFigure
 			Rectangle r = getTransformedShape().getBounds();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+			
 			double textWith = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
 			double x = r.x+r.width/2-textWith/2;
 			double y = r.y+r.height/2+textHeight/2;
+			Font font = AttributeKeys.FONT_FACE.get(this);
+			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
+			g.setFont(viewFont);
+			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
 			textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
 			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
 		}	
