@@ -102,6 +102,31 @@ public class DateTimeParam
 	}
 	
 	/**
+	 * Returns the absolute date as a String in the format YYYYMMDD
+	 * If relative date, or no date set, returns ""
+	 * 
+	 * @return		see above
+	 */
+	public String getYYYYMMDD() 
+	{
+		if (isAttributeTrue(IS_RELATIVE_DATE)) {
+			return "";
+		}
+			
+		String dateMillis = getAttribute(DATE_ATTRIBUTE);
+		if (dateMillis != null) 
+		{
+			long millis = new Long(dateMillis);
+			Date date = new Date();
+			date.setTime(millis);
+			SimpleDateFormat dateF = new SimpleDateFormat("yyyyMMdd");
+			return dateF.format(date);
+		} else {
+			return "";
+		}
+	}
+	
+	/**
 	 * Implemented as specified by the {@link IParam} interface. 
 	 * 
 	 * @see IParam#getParamAttributes()

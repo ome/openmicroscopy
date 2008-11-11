@@ -99,7 +99,7 @@ public class FieldParamsFactory {
 			fieldValue = new NumberParam();
 		}
 		else if (paramType.equals(EnumParam.ENUM_PARAM)) {
-			fieldValue = new SingleParam(EnumParam.ENUM_PARAM);
+			fieldValue = new EnumParam();;
 		}
 		else if (paramType.equals(BooleanParam.BOOLEAN_PARAM)) {
 			fieldValue = new BooleanParam();

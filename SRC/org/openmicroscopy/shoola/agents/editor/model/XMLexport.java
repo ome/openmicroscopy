@@ -258,22 +258,10 @@ public class XMLexport {
 			else 
 			if (fieldContent instanceof IParam) {
 				param = (IParam)fieldContent;
-				contentElement = new XMLElement(paramTag);
-				addClassAttribute(contentElement, paramClass);
-				// content is string representation of parameter
-				contentElement.setContent(param.toString());
-				
-				// all parameter attributes are saved as attributes
-				String[] paramAts = param.getParamAttributes();
-				String attValue;
-				for (int a=0; a<paramAts.length; a++){
-					attValue = param.getAttribute(paramAts[a]);
-					if (attValue != null)
-					contentElement.setAttribute(paramAts[a], attValue);
-				}
-				
+				contentElement = createParamElement(param);
 				content.addChild(contentElement);
 				
+				// add a space to the HTML
 				contentElement = content.createPCDataElement();
 				contentElement.setContent(" ");
 				content.addChild(contentElement);
@@ -281,6 +269,31 @@ public class XMLexport {
 		}
 		
 		return content;
+	}
+	
+	/**
+	 * Handles the creation of an XHTML element for a parameter.
+	 * 
+	 * @param param
+	 * @return
+	 */
+	IXMLElement createParamElement(IParam param) 
+	{
+		IXMLElement contentElement = new XMLElement(paramTag);
+		addClassAttribute(contentElement, paramClass);
+		// content is string representation of parameter
+		contentElement.setContent(param.toString());
+		
+		// all parameter attributes are saved as attributes
+		String[] paramAts = param.getParamAttributes();
+		String attValue;
+		for (int a=0; a<paramAts.length; a++){
+			attValue = param.getAttribute(paramAts[a]);
+			if (attValue != null)
+			contentElement.setAttribute(paramAts[a], attValue);
+		}
+		
+		return contentElement;
 	}
 	
 	/**
