@@ -58,6 +58,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
@@ -66,6 +68,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -105,7 +108,7 @@ class MeasurementResults
 	private static final String				NAME = "Results";
 	
 	/** Collection of column names. */
-	private List<String>					columnNames;
+	private ArrayList<KeyDescription>		columnNames;
 	
 	/** Collection of column names. */
 	private List<AnnotationField>			fields;
@@ -163,7 +166,7 @@ class MeasurementResults
 		createDefaultFields();
 		results = new ResultsTable();
 		results.getTableHeader().setReorderingAllowed(false);
-		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
+		MeasurementTableModel tm = new MeasurementTableModel(columnNames, model.getMeasurementUnits());
 		results.setModel(tm);
 		results.setSelectionMode(
 				ListSelectionModel.SINGLE_SELECTION);
@@ -311,13 +314,18 @@ class MeasurementResults
 		fields.add(new AnnotationField(AnnotationKeys.ANGLE, 
 			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
 			false)); 
-		columnNames = new ArrayList<String>();
-		columnNames.add(AnnotationDescription.ROIID_STRING);
-		columnNames.add(AnnotationDescription.TIME_STRING);
-		columnNames.add(AnnotationDescription.ZSECTION_STRING);
-		columnNames.add(AnnotationDescription.SHAPE_STRING);
+		columnNames = new ArrayList<KeyDescription>();
+		columnNames.add(new KeyDescription(	AnnotationDescription.ROIID_STRING,
+											AnnotationDescription.ROIID_STRING));
+		columnNames.add(new KeyDescription( AnnotationDescription.TIME_STRING,
+											AnnotationDescription.TIME_STRING));
+		columnNames.add(new KeyDescription( AnnotationDescription.ZSECTION_STRING,
+											AnnotationDescription.ZSECTION_STRING));
+		columnNames.add(new KeyDescription( AnnotationDescription.SHAPE_STRING,
+											AnnotationDescription.SHAPE_STRING));
 		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(fields.get(i).getName());
+			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
+												fields.get(i).getName()));
 	}
 	
 	/**
@@ -393,10 +401,6 @@ class MeasurementResults
 	private void writeHeader(BufferedWriter out) 
 		throws IOException
 	{
-		//out.write("Project , "+model.getProjectName());
-		//out.newLine();
-		//out.write("Dataset , "+model.getDatasetName());
-		//out.newLine();
 		out.write("Image , "+model.getImageName());
 		out.newLine();
 	}
@@ -446,6 +450,21 @@ class MeasurementResults
 		return "";
 	}
 	
+	class KeyDescription
+	{
+		String key;
+		String description;
+		
+		public KeyDescription(String key, String description)
+		{
+			this.key = key;
+			this.description = description;
+		}
+		
+		public String getKey() { return key;}
+		public String getDescription() {return description;}
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -481,7 +500,7 @@ class MeasurementResults
 		ROIFigure figure;
 		MeasurementObject row;
 		AnnotationKey key;
-		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
+		MeasurementTableModel tm = new MeasurementTableModel(columnNames, model.getMeasurementUnits());
 		
 		while (i.hasNext()) {
 			roi = (ROI) map.get(i.next());
@@ -604,13 +623,18 @@ class MeasurementResults
 		resultsWizard.pack();
 		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
 		columnNames.clear();
-		columnNames = new ArrayList<String>();
-		columnNames.add(AnnotationDescription.ROIID_STRING);
-		columnNames.add(AnnotationDescription.TIME_STRING);
-		columnNames.add(AnnotationDescription.ZSECTION_STRING);
-		columnNames.add(AnnotationDescription.SHAPE_STRING);
+		columnNames = new ArrayList<KeyDescription>();
+		columnNames.add(new KeyDescription(	AnnotationDescription.ROIID_STRING,
+											AnnotationDescription.ROIID_STRING));
+		columnNames.add(new KeyDescription( AnnotationDescription.TIME_STRING,
+											AnnotationDescription.TIME_STRING));
+		columnNames.add(new KeyDescription( AnnotationDescription.ZSECTION_STRING,
+											AnnotationDescription.ZSECTION_STRING));
+		columnNames.add(new KeyDescription( AnnotationDescription.SHAPE_STRING,
+											AnnotationDescription.SHAPE_STRING));
 		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(fields.get(i).getName());
+			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
+												fields.get(i).getName()));
 		populate();
 		results.repaint();
 	}
@@ -630,7 +654,7 @@ class MeasurementResults
 			int w;
 			for(int i = 0 ; i < getColumnCount(); i++)
 			{
-				w =  metrics.stringWidth(columnNames.get(i));
+				w =  metrics.stringWidth(getColumnName(i));
 				columnWidth = Math.max(w, COLUMNWIDTH);
 				TableColumn col;
 				col = getColumnModel().getColumn(i);
@@ -655,8 +679,10 @@ class MeasurementResults
 		extends AbstractTableModel
 	{
 	
+		private MeasurementUnits				unitsType;
+		
 		/** The collection of column's names. */
-		private List<String>			columnNames;
+		private List<KeyDescription>			columnNames;
 		
 		/** Collection of <code>Object</code>s hosted by this model. */
 		private List<MeasurementObject>	values;
@@ -664,16 +690,17 @@ class MeasurementResults
 		/**
 		 * Creates a new instance.
 		 * 
-		 * @param columnNames	The collection of column's names.
+		 * @param columnNames2	The collection of column's names.
 		 * 						Mustn't be <code>null</code>.
 		 */
-		MeasurementTableModel(List<String> columnNames)
+		MeasurementTableModel(ArrayList<KeyDescription> colNames, MeasurementUnits units)
 		{
-			if (columnNames == null)
+			if (colNames == null)
 				throw new IllegalArgumentException("No column's names " +
 													"specified.");
-			this.columnNames = columnNames;
+			this.columnNames = colNames;
 			this.values = new ArrayList<MeasurementObject>();
+			this.unitsType = units;
 		}
 		
 		/** 
@@ -725,7 +752,13 @@ class MeasurementResults
 		 * Overridden to return the name of the specified column.
 		 * @see AbstractTableModel#getColumnName(int)
 		 */
-		public String getColumnName(int col) { return columnNames.get(col); }
+		public String getColumnName(int col) 
+		{
+			if(AttributeUnits.getUnits(columnNames.get(col).getKey(),unitsType).equals(""))
+				return columnNames.get(col).getDescription();
+			else
+				return columnNames.get(col).getDescription()+
+			" (" + AttributeUnits.getUnits(columnNames.get(col).getKey(),unitsType)+")"; }
 	    
 	    /**
 		 * Overridden to return the number of columns.
