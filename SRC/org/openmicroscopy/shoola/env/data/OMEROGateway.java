@@ -95,7 +95,6 @@ import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
-import omero.model.PixelsDimensions;
 import omero.model.PixelsType;
 import omero.model.Plate;
 import omero.model.Project;
@@ -1509,30 +1508,6 @@ class OMEROGateway
 			//return service.updateDataObjects(objects, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
-		}
-		return null;
-	}
-
-	/**
-	 * Retrieves the dimensions in microns of the specified pixels set.
-	 * 
-	 * @param pixelsID  The pixels set ID.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	PixelsDimensions getPixelsDimensions(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			Pixels pixs = getPixels(pixelsID);
-			if (pixs == null) return null;
-			return pixs.getPixelsDimensions();
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the dimension of " +
-								"the pixels set.");
 		}
 		return null;
 	}

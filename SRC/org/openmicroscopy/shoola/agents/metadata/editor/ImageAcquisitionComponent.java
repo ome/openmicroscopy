@@ -103,7 +103,7 @@ class ImageAcquisitionComponent
 	{
 		JPanel content = new JPanel();
 		content.setBorder(
-				BorderFactory.createTitledBorder("Stage Label"));
+				BorderFactory.createTitledBorder("Position"));
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -230,7 +230,8 @@ class ImageAcquisitionComponent
 	 * @param details The data to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildObjective(Map<String, Object> details)
+	private JPanel buildObjective(Map<String, Object> details, 
+			Map<String, Object> detailsSettings)
 	{
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createTitledBorder("Objective"));
@@ -261,7 +262,7 @@ class ImageAcquisitionComponent
             content.add(label, c);
             if (key.equals(EditorUtil.IMMERSION)) {
             	area = immersionBox;	
-            } else if (key.equals(EditorUtil.COATING)) {
+            } else if (key.equals(EditorUtil.CORRECTION)) {
             	area = coatingBox;
             } else {
             	if (value instanceof Number) {
@@ -282,6 +283,43 @@ class ImageAcquisitionComponent
                      ((OMETextArea) area).setEditedColor(
                 			 UIUtilities.EDITED_COLOR);
             	}
+            }
+           
+            label.setLabelFor(area);
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(area, c);  
+
+            fields.put(key, area);
+        }
+        i = detailsSettings.keySet().iterator();
+        while (i.hasNext()) {
+            ++c.gridy;
+            c.gridx = 0;
+            key = (String) i.next();
+            value = detailsSettings.get(key);
+            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+            label.setBackground(UIUtilities.BACKGROUND_COLOR);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            if (key.equals(EditorUtil.MEDIUM)) {
+            	area = mediumBox;
+            } else {
+            	 area = UIUtilities.createComponent(NumericalTextField.class, 
+            			 null);
+            	 if (value instanceof Double) 
+            		 ((NumericalTextField) area).setNumberType(Double.class);
+            	 else if (value instanceof Float) 
+            		 ((NumericalTextField) area).setNumberType(Float.class);
+                 ((NumericalTextField) area).setText(""+value);
+                 ((NumericalTextField) area).setEditedColor(
+                		 UIUtilities.EDITED_COLOR);
             }
            
             label.setLabelFor(area);
@@ -378,8 +416,8 @@ class ImageAcquisitionComponent
 	{
 		fields.clear();
 		ImageAcquisitionData data = model.getImageAcquisitionData();
-		add(buildObjective(EditorUtil.transformObjective(data)));
-		add(buildObjectiveSetting(EditorUtil.transformObjectiveSettings(data)));
+		add(buildObjective(EditorUtil.transformObjective(data), 
+				EditorUtil.transformObjectiveSettings(data)));
 		add(buildImagingEnvironment(
 				EditorUtil.transformImageEnvironment(data)));
 		add(buildStageLabel(EditorUtil.transformStageLabel(data)));

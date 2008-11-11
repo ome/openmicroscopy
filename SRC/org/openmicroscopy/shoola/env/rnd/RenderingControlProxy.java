@@ -44,7 +44,6 @@ import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.model.Family;
 import omero.model.Pixels;
-import omero.model.PixelsDimensions;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
@@ -81,9 +80,6 @@ class RenderingControlProxy
 	/** Default error message. */
 	private static final String	ERROR = "An error occured while trying to " +
 										"set the ";
-	
-    /** The dimensions in microns of a pixel. */
-    private final PixelsDimensions  pixDims;
     
     /** List of supported families. */
     private List              		families;
@@ -546,7 +542,6 @@ class RenderingControlProxy
         this.context = context;
         servant = re;
         pixs = pixels;//servant.getPixels();
-        this.pixDims = pixels.getPixelsDimensions();
         families = null;
         models = null;
         try {
@@ -1053,8 +1048,8 @@ class RenderingControlProxy
      */
     public float getPixelsSizeX()
     {
-        if (pixDims.getSizeX() == null) return 1;
-        return pixDims.getSizeX().getValue();
+        if (pixs.getPhysicalSizeX() == null) return 1;
+        return pixs.getPhysicalSizeX().getValue();
     }
 
     /** 
@@ -1063,8 +1058,8 @@ class RenderingControlProxy
      */
     public float getPixelsSizeY()
     {
-        if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeY().getValue();
+        if (pixs.getPhysicalSizeY() == null) return 1;
+        return pixs.getPhysicalSizeY().getValue();
     }
 
     /** 
@@ -1073,8 +1068,8 @@ class RenderingControlProxy
      */
     public float getPixelsSizeZ()
     {
-        if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeZ().getValue();
+        if (pixs.getPhysicalSizeZ() == null) return 1;
+        return pixs.getPhysicalSizeZ().getValue();
     }
 
     /** 

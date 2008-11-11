@@ -33,7 +33,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
-import omero.model.PixelsDimensions;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -187,19 +186,6 @@ public interface OmeroImageService
 	 */
 	public RenderingControl resetRenderingService(long pixelsID)
 		throws DSAccessException, RenderingServiceException;
-
-	/**
-	 * Loads the dimensions in microns of the pixels set.
-	 * 
-	 * @param pixelsID The id of the pixels set.
-	 * @return See above
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public PixelsDimensions loadPixelsDimensions(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Loads the pixels set.

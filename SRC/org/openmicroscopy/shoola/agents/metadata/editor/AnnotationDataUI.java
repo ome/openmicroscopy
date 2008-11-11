@@ -28,10 +28,11 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.KeyAdapter;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -44,13 +45,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -58,19 +61,21 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
-import org.jdesktop.swingx.autocomplete.ListAdaptor;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
+import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.RatingAnnotationData;
@@ -93,7 +98,7 @@ import pojos.URLAnnotationData;
  */
 class AnnotationDataUI
 	extends AnnotationUI
-	implements DocumentListener, PropertyChangeListener
+	implements DocumentListener, FocusListener, PropertyChangeListener
 {
 
 	/** Component used to rate the object. */
@@ -153,6 +158,9 @@ class AnnotationDataUI
 	/** Flag indicating that the tags are loaded for autocomplete. */
 	private boolean							autoComplete;
 	
+	/** The dialog displaying the possible tags. */
+	private HistoryDialog					autoCompleteDialog;
+
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -183,48 +191,11 @@ class AnnotationDataUI
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		tagsPane = new JTextPane();
-		tagsPane.getDocument().addDocumentListener(this);
-		tagsPane.addKeyListener(new KeyAdapter() {
-
-            /** Finds the phrase. */
-            public void keyPressed(KeyEvent e)
-            {
-            	Object source = e.getSource();
-            	if (source != tagsPane) return;
-            	/*
-            	switch (e.getKeyCode()) {
-					case KeyEvent.VK_ENTER:
-						handleEnter();
-						break;
-					case KeyEvent.VK_UP:
-						if (historyDialog != null && historyDialog.isVisible())
-							historyDialog.setSelectedIndex(false);
-						break;
-					case KeyEvent.VK_DOWN:
-						if (historyDialog != null && historyDialog.isVisible())
-							historyDialog.setSelectedIndex(true);
-						break;
-				}
-                */
-            }
-        });
-		tagsPane.addMouseListener(new MouseAdapter() {
-    		
-			/**
-			 * Displays the description of the tag 
-			 * @see MouseAdapter#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e) {
-				//handleMousePressed(e.getPoint());
-			}
-		
-		});
-		
-		
-		
-		//tagsPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		tagsPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		tagsPane.setText(DEFAULT_TEXT);
+		tagsPane.addFocusListener(this);
+		tagsPane.getDocument().addDocumentListener(this);
+		
 		urlPane = new JPanel();
 		urlPane.setLayout(new BoxLayout(urlPane, BoxLayout.Y_AXIS));
 		urlPane.add(new URLComponent(null, model));
@@ -236,6 +207,70 @@ class AnnotationDataUI
 		viewedByPane.setLayout(new BoxLayout(viewedByPane, BoxLayout.Y_AXIS));
 		viewedByPane.setOpaque(false);
 		viewedByPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		Action a = createEnterAction();
+		Object key = a.getValue(Action.NAME);
+		tagsPane.getInputMap().put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), key);
+		tagsPane.getActionMap().put(key, a);
+		a = createVKUpAction();
+		key = a.getValue(Action.NAME);
+		tagsPane.getInputMap().put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), key);
+		tagsPane.getActionMap().put(key, a);
+		a = createVKDownAction();
+		key = a.getValue(Action.NAME);
+		tagsPane.getInputMap().put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), key);
+		tagsPane.getActionMap().put(key, a);
+	}
+	
+	/**
+	 * Creates the action associated to the <code>Enter</code> key.
+	 * 
+	 * @return See above.
+	 */
+	private Action createEnterAction()
+	{
+		return new AbstractAction("enterPressed") {
+		
+			public void actionPerformed(ActionEvent e) {
+				handleKeyEnterPressed();
+			}
+		};
+	}
+	
+	/**
+	 * Creates the action associated to the <code>VK_UP</code> key.
+	 * 
+	 * @return See above.
+	 */
+	private Action createVKUpAction()
+	{
+		return new AbstractAction("enterVKUp") {
+		
+			public void actionPerformed(ActionEvent e) {
+				if (autoCompleteDialog != null && 
+						autoCompleteDialog.isVisible())
+					autoCompleteDialog.setSelectedIndex(false);
+			}
+		};
+	}
+	
+	/**
+	 * Creates the action associated to the <code>VK_UP</code> key.
+	 * 
+	 * @return See above.
+	 */
+	private Action createVKDownAction()
+	{
+		return new AbstractAction("enterVKUp") {
+		
+			public void actionPerformed(ActionEvent e) {
+				if (autoCompleteDialog != null && 
+						autoCompleteDialog.isVisible())
+					autoCompleteDialog.setSelectedIndex(true);
+			}
+		};
 	}
 	
 	/** Builds and lays out the UI. */
@@ -362,13 +397,65 @@ class AnnotationDataUI
 			if (width+comp.getPreferredSize().width >= COLUMN_WIDTH) {
 				viewedByPane.add(layoutRow(p));
 				p = initRow();
-			} 
+				width = 0;
+			} else {
+				width += comp.getPreferredSize().width;
+			}
 			p.add(comp);
 		}
 		if (p.getComponentCount() > 0)
 			viewedByPane.add(layoutRow(p));
 			
 		return true;
+	}
+	
+	/** 
+	 * Adds the selected tag when the <code>Enter</code> key is pressed.
+	 */
+	private void handleKeyEnterPressed()
+	{
+		if (autoCompleteDialog == null || !autoCompleteDialog.isVisible())
+			return;
+		String name = tagsPane.getText();
+		if (name == null) return;
+		TagItem o = (TagItem) autoCompleteDialog.getSelectedTextValue();
+		if (o == null) return;
+		DataObject ho = o.getDataObject();
+		tagsPane.getDocument().removeDocumentListener(this);
+		if (ho instanceof TagAnnotationData) 
+			handleAutoCompleteTagEnter((TagAnnotationData) ho);
+		
+	}
+	
+	/** Creates the dialog displaying the available tags. */
+	private void startAutoComplete()
+	{
+		if (autoCompleteDialog != null) return;
+		Rectangle r = tagsPane.getBounds();
+		Object[] data = null;
+		Collection l = model.getExistingTags();
+		if (l != null && l.size() > 0) {
+			data = new Object[l.size()];
+			Iterator j = l.iterator();
+			DataObject object;
+			Collection usedTags = model.getTags();
+			
+			TagItem item;
+			int i = 0;
+			while (j.hasNext()) {
+				object = (DataObject) j.next();
+				item = new TagItem(object);
+				if (usedTags != null && usedTags.contains(object)) 
+					item.setAvailable(false);
+				data[i] = item;
+				i++;
+			}
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			autoCompleteDialog = new HistoryDialog(data, r.width);
+			autoCompleteDialog.setListCellRenderer(new TagCellRenderer(id));
+			autoCompleteDialog.addPropertyChangeListener(
+					HistoryDialog.SELECTION_PROPERTY, this);
+		}
 	}
 	
 	/** Shows the collection of existing tags. */
@@ -402,6 +489,26 @@ class AnnotationDataUI
 				icons.getIcon(IconManager.TAGS_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
+	}
+	
+	/**
+	 * Removes the latest text entry and adds the tag.
+	 * 
+	 * @param tag Teh tag to add.
+	 */
+	private void handleAutoCompleteTagEnter(TagAnnotationData tag)
+	{
+    	String[] names = tagsPane.getText().split(SearchUtil.COMMA_SEPARATOR);
+    	String value = "";
+    	int n = names.length-1;
+    	for (int i = 0; i < n; i++) {
+    		value += names[i];
+    		if (i != n-1) value += SearchUtil.COMMA_SEPARATOR;
+		}
+    	tagsPane.getDocument().removeDocumentListener(this);
+    	tagsPane.setText(value);
+    	tagsPane.getDocument().addDocumentListener(this);
+    	handleTagEnter(tag);
 	}
 	
 	/**
@@ -458,13 +565,50 @@ class AnnotationDataUI
 	/** Handles tag insert, autocomplete if fast connection. */
 	private void handleTextInsert()
 	{
+		//Check if fast connection.
 		Collection tags = model.getExistingTags();
 		if (tags == null) {
 			autoComplete = true;
 			controller.loadExistingTags();
 		}
+		startAutoComplete();
+		String name = tagsPane.getText();
+		setSelectedTextValue(name.split(SearchUtil.COMMA_SEPARATOR));
 	}
 	
+	/**
+	 * Sets the selected value in the history list.
+	 * 
+	 * @param names The names already set.
+	 */
+    private void setSelectedTextValue(String[] names)
+    {
+        if (autoCompleteDialog == null) return;
+        int l = names.length;
+        if (l > 0) {
+        	if (autoCompleteDialog.setSelectedTextValue(names[l-1].trim())) {
+        		setAutoCompleteVisible(true);
+        		tagsPane.requestFocus();
+        	} else setAutoCompleteVisible(false);
+        }	
+    }
+    
+    /**
+     * Shows or hides the autocomplete dialog. 
+     * 
+     * @param visible 	Pass <code>true</code> to show the window,
+     * 					<code>false</code> to hide it.
+     */
+    private void setAutoCompleteVisible(boolean visible)
+    {
+    	if (visible) {
+    		Rectangle r = tagsPane.getBounds();
+    		autoCompleteDialog.show(tagsPane, 0, r.height);
+    	} else {
+    		autoCompleteDialog.setVisible(false);
+    	}
+    }
+    
 	/**
 	 * Lays out the tags.
 	 * 
@@ -479,17 +623,21 @@ class AnnotationDataUI
 		String s;
 		while (i.hasNext()) {
 			tag = (String) i.next();
-			if (value.length() == 0) s = tag;
-			else s = value+", "+tag;
-			if (s.length() > COLUMN_WIDTH) {
-				buffer.append(value);
-				buffer.append("\n");
-				value = "";
+			if (tag != null && tag.trim().length() > 0) {
+				s = value+tag;
+				if (s.length() > COLUMN_WIDTH) {
+					buffer.append(value);
+					buffer.append("\n");
+					value = "";
+				} else {
+					if (value.length() == 0) value += tag;
+					else value = value+", "+tag;
+				}
 			}
-			if (value.length() == 0) value += tag;
-			else value = value+", "+tag;
 		}
-		buffer.append(value);
+		if (value.length() > 0) {
+			buffer.append(value);
+		}
 		tagsPane.getDocument().removeDocumentListener(this);
 		tagsPane.setText(buffer.toString());
 		tagsPane.getDocument().addDocumentListener(this);
@@ -626,22 +774,23 @@ class AnnotationDataUI
 		if (!autoComplete) {
 			showSelectionWizard();
 		} else {
+			
+			startAutoComplete();
+			String name = tagsPane.getText();
+			setSelectedTextValue(name.split(SearchUtil.COMMA_SEPARATOR));
+			/*
 			Collection l = model.getExistingTags();
 			if (l != null) {
-				/*
 				Iterator i = l.iterator();
-				Object[] values = new Object[l.size()];
-				int j = 0;
+				List<String> list = new ArrayList<String>(l.size());
 				while (i.hasNext()) {
-					values[j] = ((TagAnnotationData) i.next()).getTagValue();
+					list.add(((TagAnnotationData) i.next()).getTagValue());
+					
 				}
-				JList list = new JList(values);
-				//ListAdaptor adaptor = new ListAdaptor(list, tagsPane);
-				AutoCompleteDecorator.decorate(list, tagsPane);
-				*/
-			}
-			
+				AutoCompleteDecorator.decorate(tagsPane, list, false);
+			}*/
 		}
+		autoComplete = false;
 	}	
 	
 	/**
@@ -913,6 +1062,12 @@ class AnnotationDataUI
 			Iterator i = l.iterator();
 	    	while (i.hasNext()) 
 	    		handleTagEnter((TagAnnotationData) i.next());
+		} else if (HistoryDialog.SELECTION_PROPERTY.equals(name)) {
+			Object item = evt.getNewValue();
+			if (!(item instanceof TagItem)) return;
+			DataObject ho = ((TagItem) item).getDataObject();
+			if (ho instanceof TagAnnotationData) 
+				handleAutoCompleteTagEnter((TagAnnotationData) ho);
 		}
 	}
 	
@@ -939,10 +1094,36 @@ class AnnotationDataUI
 	}
 	
 	/**
+	 * Resets the default text of the text fields if <code>null</code> or
+	 * length <code>0</code>.
+	 * @see FocusListener#focusLost(FocusEvent)
+	 */
+	public void focusLost(FocusEvent e)
+	{
+		Object src = e.getSource();
+		String text;
+		if (src == tagsPane) {
+			text = tagsPane.getText();
+			if (text == null || text.length() == 0) {
+				tagsPane.getDocument().removeDocumentListener(this);
+				tagsPane.setText(DEFAULT_TEXT);
+				tagsPane.getDocument().addDocumentListener(this);
+			}
+		}
+	}
+	
+	/**
 	 * Required by the {@link DocumentListener} I/F but no-op implementation 
 	 * in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
-	
+
+	/**
+	 * Required by the {@link FocusListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see FocusListener#focusGained(FocusEvent)
+	 */
+	public void focusGained(FocusEvent e) {}
+
 }

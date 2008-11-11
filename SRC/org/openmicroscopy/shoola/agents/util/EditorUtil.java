@@ -137,10 +137,16 @@ public class EditorUtil
     public static final String	EMAIL = "E-mail";
     
     /** String to represent the micron symbol. */
-    public static final String 	MICRONS = "(in \u00B5m)";
+    public static final String 	MICRONS = "(\u00B5m)";
     
-    /** String to represent the micron symbol. */
+    /** String to represent the celcius symbol. */
     public static final String 	CELCIUS = "(\u2103)";
+    
+    /** String to represent the percent symbol. */
+    public static final String 	PERCENT = "(\u0025)";
+    
+    /** String to represent the millibars symbol. */
+    public static final String 	MILLIBARS = "(mb)";
     
     /** Identifies the <code>SizeX</code> field. */
     public static final String 	SIZE_X = "Size X";
@@ -199,8 +205,14 @@ public class EditorUtil
     /** Identifies the <code>Pockel Cell</code> field. */
     public static final String 	POCKEL_CELL_SETTINGS = "Pockel Cell";
     
-    /** Identifies the Objective's <code>Magnification</code> field. */
-	public static final String	MAGNIFICATION = "Magnification";
+    /** Identifies the Objective's <code>Nominal Magnification</code> field. */
+	public static final String	NOMINAL_MAGNIFICATION = "Nominal Magnification";
+	
+	/** 
+	 * Identifies the Objective's <code>Calibrated Magnification</code> field.
+	 */
+	public static final String	CALIBRATED_MAGNIFICATION = "Calibrated " +
+			"Magnification";
 	
 	/** Identifies the Objective's <code>Lens NA</code> field. */
 	public static final String	LENSNA = "Lens NA";
@@ -211,8 +223,8 @@ public class EditorUtil
 	/** Identifies the Objective's <code>Working distance</code> field. */
 	public static final String	IMMERSION = "Immersion";
 	
-	/** Identifies the Objective's <code>Coating</code> field. */
-	public static final String	COATING = "Coating";
+	/** Identifies the Objective's <code>Correction</code> field. */
+	public static final String	CORRECTION = "Correction";
 	
 	/** Identifies the <code>Correction Collar</code> field. */
 	public static final String	CORRECTION_COLLAR = "Correction Collar";
@@ -227,13 +239,13 @@ public class EditorUtil
 	public static final String	TEMPERATURE = "Temperature "+CELCIUS;
 	
 	/** Identifies the Environment <code>Air pressure</code> field. */
-	public static final String	AIR_PRESSURE = "Air Pressure";
+	public static final String	AIR_PRESSURE = "Air Pressure "+MILLIBARS;
 	
 	/** Identifies the Environment <code>Humidity</code> field. */
-	public static final String	HUMIDITY = "Humidy";
+	public static final String	HUMIDITY = "Humidy "+PERCENT;
 	
 	/** Identifies the Environment <code>CO2 Percent</code> field. */
-	public static final String	CO2_PERCENT = "CO2 Percent";
+	public static final String	CO2_PERCENT = "CO2 Percent "+PERCENT;
 	
 	/** Identifies the <code>Model</code> field. */
 	public static final String	MODEL = "Model";
@@ -787,8 +799,8 @@ public class EditorUtil
         	details.put(NAME, "");
             details.put(EM_WAVE, new Integer(0));
             details.put(EX_WAVE, new Integer(0));
-            details.put(ND_FILTER, new Integer(0));
-            details.put(PIN_HOLE_SIZE, new Integer(0));
+            details.put(ND_FILTER, new Float(0));
+            details.put(PIN_HOLE_SIZE, new Float(0));
             details.put(FLUOR, "");
             details.put(ILLUMINATION, "");
             details.put(CONTRAST_METHOD, "");
@@ -824,19 +836,22 @@ public class EditorUtil
     		details.put(MODEL, "");
         	details.put(MANUFACTURER, "");
         	details.put(SERIAL_NUMBER, "");
-        	details.put(MAGNIFICATION, new Double(0));
+        	details.put(NOMINAL_MAGNIFICATION, new Integer(0));
+        	details.put(CALIBRATED_MAGNIFICATION, new Float(0));
             details.put(LENSNA, new Float(0));
             details.put(IMMERSION, "");
-            details.put(COATING, "");
+            details.put(CORRECTION, "");
             details.put(WORKING_DISTANCE, new Float(0));
     	} else {
     		details.put(MODEL, "");
         	details.put(MANUFACTURER, "");
         	details.put(SERIAL_NUMBER, "");
-        	details.put(MAGNIFICATION, data.getMagnification());
+        	details.put(NOMINAL_MAGNIFICATION, data.getNominalMagnification());
+        	details.put(CALIBRATED_MAGNIFICATION, 
+        			data.getCalibratedMagnification());
             details.put(LENSNA, data.getLensNA());
             details.put(IMMERSION, data.getImmersion());
-            details.put(COATING, data.getCoating());
+            details.put(CORRECTION, data.getCoating());
             details.put(WORKING_DISTANCE, data.getWorkingDistance());
     	}
         return details;

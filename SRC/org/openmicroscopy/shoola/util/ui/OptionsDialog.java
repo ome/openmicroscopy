@@ -224,11 +224,11 @@ public class OptionsDialog
      */
     private void initialize(String message, Icon messageIcon)
     {
-    	setResizable(false);
     	createComponents();
 		attachListeners();
 		buildGUI(message, messageIcon);
 		pack();
+		setResizable(false);
     }
     
 	/**
@@ -274,6 +274,8 @@ public class OptionsDialog
 	{
 		c.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		body.add(c);
+		body.validate();
+		body.repaint();
 		pack();
 	}
 	

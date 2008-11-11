@@ -49,9 +49,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class PixelsDataLoader
 	extends BatchCallTree
 {
-
-	/** Flag indicating to load the dimension (in microns) of the pixels set. */
-	public static final int DIMENSION = 0;
 	
 	/** Flag indicating to load the pixels set. */
 	public static final int SET = 1;
@@ -64,23 +61,7 @@ public class PixelsDataLoader
     
     /** Loads the specified tree. */
     private BatchCall		loadCall;
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve dimension of the pixels set.
-     * 
-     * @return See above.
-     */
-    private BatchCall makeDimBatchCall()
-    {
-    	return new BatchCall("Loading pixels dimensions: ") {
-            public void doCall() throws Exception
-            {
-                OmeroImageService rds = context.getImageService();
-                result = rds.loadPixelsDimensions(pixelsID);
-            }
-        };
-    }
-    
+
     /**
      * Creates a {@link BatchCall} to retrieve dimension of the pixels set.
      * 
@@ -120,9 +101,6 @@ public class PixelsDataLoader
     {
     	this.pixelsID = pixelsID;
     	switch (index) {
-			case DIMENSION:
-				loadCall = makeDimBatchCall();
-				break;
 			case SET:
 				loadCall = makePixelsBatchCall();
 				break;

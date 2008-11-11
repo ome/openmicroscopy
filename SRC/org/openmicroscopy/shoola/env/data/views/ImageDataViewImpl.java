@@ -113,18 +113,6 @@ class ImageDataViewImpl
         return cmd.exec(observer);
     }
 
-    /**
-     * Implemented as specified by the view interface.
-     * @see ImageDataView#loadPixelsDimension(long, AgentEventListener)
-     */
-	public CallHandle loadPixelsDimension(long pixelsID, 
-							AgentEventListener observer) 
-	{
-		 BatchCallTree cmd = new PixelsDataLoader(pixelsID, 
-				 			PixelsDataLoader.DIMENSION);
-		 return cmd.exec(observer);
-	}
-
 	/**
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadPixels(long, AgentEventListener)

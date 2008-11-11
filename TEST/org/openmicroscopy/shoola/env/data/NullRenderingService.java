@@ -35,7 +35,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.PixelsDimensions;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -89,17 +88,7 @@ public class NullRenderingService
      * @see OmeroImageService#shutDown(long)
      */
     public void shutDown(long pixelsID) {}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#loadPixelsDimensions(long)
-     */
-	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
+    
 	/**
      * No-op implementation
      * @see OmeroImageService#loadPixels(long)

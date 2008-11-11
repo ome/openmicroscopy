@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +67,7 @@ import pojos.TextualAnnotationData;
  */
 class TextualAnnotationsUI 
 	extends AnnotationUI
-	implements ActionListener, DocumentListener
+	implements ActionListener, DocumentListener, FocusListener
 {
     
 	/** The default description. */
@@ -171,6 +173,7 @@ class TextualAnnotationsUI
 		hideComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		commentArea = new MultilineLabel();
+		commentArea.addFocusListener(this);
 		commentArea.setText(DEFAULT_TEXT);
 		commentArea.setEditable(true);
 		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -367,10 +370,36 @@ class TextualAnnotationsUI
 	}
 	
 	/**
+	 * Resets the default text of the text fields if <code>null</code> or
+	 * length <code>0</code>.
+	 * @see FocusListener#focusLost(FocusEvent)
+	 */
+	public void focusLost(FocusEvent e)
+	{
+		Object src = e.getSource();
+		String text;
+		if (src == commentArea) {
+			text = commentArea.getText();
+			if (text == null || text.length() == 0) {
+				commentArea.getDocument().removeDocumentListener(this);
+				commentArea.setText(DEFAULT_TEXT);
+				commentArea.getDocument().addDocumentListener(this);
+			}
+		}
+	}
+	
+	/**
 	 * Required by the {@link DocumentListener} I/F but no-op implementation
 	 * in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
+
+	/**
+	 * Required by the {@link FocusListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see FocusListener#focusGained(FocusEvent)
+	 */
+	public void focusGained(FocusEvent e) {}
 	
 }

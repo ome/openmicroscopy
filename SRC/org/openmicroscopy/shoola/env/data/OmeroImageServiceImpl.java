@@ -50,7 +50,6 @@ import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.Pixels;
-import omero.model.PixelsDimensions;
 import omero.model.RenderingDef;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
@@ -67,7 +66,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -314,18 +312,6 @@ class OmeroImageServiceImpl
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
 		}
-	}
-
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#loadPixelsDimensions(long)
-	 */
-	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (pixelsID < 0) 
-			throw new IllegalArgumentException("Pixels' ID not valid.");
-		return gateway.getPixelsDimensions(pixelsID);
 	}
 
 	/** 
@@ -592,8 +578,10 @@ class OmeroImageServiceImpl
 			objective.setManufacturer(
 					omero.rtypes.rstring(data.getManufacturer()));
 			objective.setLensNA(omero.rtypes.rfloat(data.getLensNA()));
-			objective.setMagnificiation(omero.rtypes.rdouble(
-					data.getMagnification()));
+			objective.setNominalMagnification(omero.rtypes.rint(
+					data.getNominalMagnification()));
+			objective.setCalibratedMagnification(omero.rtypes.rfloat(
+					data.getCalibratedMagnification()));
 			value = data.getImmersion();
 			if (value != null) {
 				object = gateway.getEnumeration(Immersion.class, value);

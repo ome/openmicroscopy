@@ -39,7 +39,6 @@ import java.util.Map;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
-import omero.model.Color;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
@@ -108,8 +107,6 @@ public class PixelsServicesFactory
 		
 		ChannelBinding c;
 		Collection bindings = rndDef.copyWaveRendering();
-		
-		Color color;
 		Iterator k = bindings.iterator();
 		int i = 0;
 		int[] rgba;
@@ -123,11 +120,10 @@ public class PixelsServicesFactory
 			}
 			if (c != null) {
 				rgba = new int[4];
-				color = c.getColor();
-				rgba[0] = color.getRed().getValue();
-				rgba[1] = color.getGreen().getValue();
-				rgba[2] = color.getBlue().getValue();
-				rgba[3] = color.getAlpha().getValue();
+				rgba[0] = c.getRed().getValue();
+				rgba[1] = c.getGreen().getValue();
+				rgba[2] = c.getBlue().getValue();
+				rgba[3] = c.getAlpha().getValue();
 				
 				
 				cb.setActive(c.getActive().getValue());

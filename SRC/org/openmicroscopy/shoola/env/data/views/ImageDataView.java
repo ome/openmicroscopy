@@ -98,16 +98,6 @@ public interface ImageDataView
                             AgentEventListener observer);
     
     /**
-     * Retrieves the dimensions in microns of the pixels set.
-     * 
-     * @param pixelsID	The id of the pixels set.
-     * @param observer	Callback handler.
-     * @return See above.
-     */
-    public CallHandle loadPixelsDimension(long pixelsID, 
-    					AgentEventListener observer);
-    
-    /**
      * Retrieves the pixels set.
      * 
      * @param pixelsID	The id of the pixels set.
