@@ -484,9 +484,11 @@ class MeasurementViewerControl
 	public void figureAttributeChanged(FigureEvent e)
 	{
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) {
+		if (f instanceof ROIFigure) 
+		{
 			ROIFigure fig = (ROIFigure) f;
 			view.onAttributeChanged(fig);
+			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
 			model.setDataChanged();
 		}
@@ -501,7 +503,8 @@ class MeasurementViewerControl
 	public void figureChanged(FigureEvent e)
 	{
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) {
+		if (f instanceof ROIFigure) 
+		{
 			ROIFigure roiFigure = (ROIFigure) f;
 			handleFigureChange(roiFigure);
 		}

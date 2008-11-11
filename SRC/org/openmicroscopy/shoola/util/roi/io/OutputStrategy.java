@@ -166,7 +166,7 @@ public class OutputStrategy
 			{
 				write(document, (ROI) iterator.next());
 			}
-			new XMLWriter(out).write(document);
+			new XMLWriter(out).write(document,true);
 		}
 		catch (Exception e)
 		{

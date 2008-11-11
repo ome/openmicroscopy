@@ -53,6 +53,14 @@ public class DrawingAttributes
 	public static final AttributeKey<Boolean> SHOWTEXT = 
 		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
 	
+	/** Attribute to define the height of the figure. */
+	public static final AttributeKey<Double> HEIGHT = 
+		new AttributeKey<Double>("figureHeight", 10.0);
+
+	/** Attribute to define the width of the figure. */
+	public static final AttributeKey<Double> WIDTH = 
+		new AttributeKey<Double>("figureWidth", 10.0);
+	
 	/**
 	 * Returns the sole instance.
 	 * @return See above.

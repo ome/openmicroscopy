@@ -32,6 +32,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 // Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.RectangleFigure;
 import org.jhotdraw.draw.TextHolderFigure;
@@ -41,6 +42,7 @@ import org.jhotdraw.geom.Insets2D;
 
 
 // Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
@@ -59,6 +61,8 @@ public class RectangleTextFigure
 	extends RectangleFigure 
 	implements TextHolderFigure
 {
+	
+	private boolean 				fromAttributeUpdate;
 	
 	/** Flag indicating if the figure is editable or not. */
 	private boolean 				editable;
@@ -117,6 +121,7 @@ public class RectangleTextFigure
 		textLayout = null;
 		textBounds = null;
 		editable = true;
+		fromAttributeUpdate = false;
 	}
 	
 	/** 
@@ -147,6 +152,48 @@ public class RectangleTextFigure
 		super.drawFill(g);
 		drawText(g);
 	}
+	
+	public void setAttribute(AttributeKey key, Object newValue) 
+	{
+		super.setAttribute(key, newValue);
+		if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+		{
+			double newHeight = MeasurementAttributes.HEIGHT.get(this);
+			Rectangle2D.Double bounds = getBounds();
+			double centreY = bounds.getCenterY();
+			double diffHeight = newHeight/2;
+			Rectangle2D.Double newBounds = new Rectangle2D.Double(
+				bounds.getX(), centreY-diffHeight, bounds.getWidth(),
+				newHeight);
+			fromAttributeUpdate = true;
+			this.setBounds(newBounds);
+			fromAttributeUpdate = false;
+		}
+		if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+		{
+			double newWidth = MeasurementAttributes.WIDTH.get(this);
+			Rectangle2D.Double bounds = getBounds();
+			double centreX = bounds.getCenterX();
+			double diffWidth = newWidth/2;
+			Rectangle2D.Double newBounds = new Rectangle2D.Double(
+				centreX-diffWidth, bounds.getY(), newWidth, 
+				bounds.getHeight());
+			fromAttributeUpdate = true;
+			this.setBounds(newBounds);
+			fromAttributeUpdate = false;
+		}
+	}
+		  
+	  public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
+		  super.setBounds(anchor, lead);
+		  if(!fromAttributeUpdate)
+		  {
+			  MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
+			  MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
+		  }
+	  }
+		  
+	
 	
 	/**
 	 * Overridden to draw the text.

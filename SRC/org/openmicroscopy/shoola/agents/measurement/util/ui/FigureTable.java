@@ -80,6 +80,12 @@ public class FigureTable
 				renderer.getTableCellRendererComponent(this,
 					getValueAt(row, col), false, false, row, col));
 		}
+		else if(tableModel.getValueAt(row, col) instanceof Double)
+		{
+			return new DefaultCellEditor((JTextField)renderer.
+				getTableCellRendererComponent(this,
+					getValueAt(row, col), false, false, row, col));
+		}
 		else if(tableModel.getValueAt(row, col) instanceof String)
 		{
 			return new DefaultCellEditor((JTextField)renderer.

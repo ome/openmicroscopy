@@ -46,6 +46,7 @@ import org.jhotdraw.draw.TransformHandleKit;
 import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
@@ -178,7 +179,7 @@ public class EllipseTextFigure
 	 */
 	protected void drawText(Graphics2D g) 
 	{
-		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
+		if (!(MeasurementAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
 		if (text != null || isEditable()) 
 		{	
@@ -188,15 +189,15 @@ public class EllipseTextFigure
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
 			
-			double textWith = fm.stringWidth(text);
+			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
-			double x = r.x+r.width/2-textWith/2;
-			double y = r.y+r.height/2+textHeight/2;
+			double x = this.getBounds().getCenterX()-textWidth/2;
+			double y = this.getBounds().getCenterY();
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
 			g.setFont(viewFont);
 			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
-			textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
+			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);
 			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
 		}	
 	}

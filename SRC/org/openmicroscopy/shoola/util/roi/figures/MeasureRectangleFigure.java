@@ -126,6 +126,10 @@ public class MeasureRectangleFigure
     							double height) 
     {
 		super(text, x, y, width, height);
+		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
+		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
+		setAttribute(MeasurementAttributes.WIDTH, width);
+		setAttribute(MeasurementAttributes.HEIGHT, height);
         shape = null;
 		roi = null;
 		status = IDLE;

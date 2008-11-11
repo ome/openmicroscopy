@@ -80,7 +80,25 @@ public class AttributeField
 		valueRange = range;
 		valueType = type;
 	}
-		
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param key	The key hosted by this class.
+	 * @param name	The name of the field.
+	 * @param editable	Pass <code>true</code> to edit the field, 
+	 * 					<code>false</code> otherwise.
+	 */
+	public AttributeField(AttributeKey key, String name, boolean editable, ValueType type)
+	{
+		this.key = key;
+		this.name = name;
+		this.editable = editable;
+		valueType = type;
+		valueRange = null;
+	}
+	
+
 	/**
 	 * Creates a new instance.
 	 * 

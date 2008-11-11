@@ -38,6 +38,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -66,6 +67,7 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
+	private boolean 				fromAttributeUpdate;
 
 	Rectangle2D bounds;
 	
@@ -100,9 +102,14 @@ public class MeasureEllipseFigure
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
-		shape=null;
+		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
+		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
+		setAttribute(MeasurementAttributes.WIDTH, width);
+		setAttribute(MeasurementAttributes.HEIGHT, height);
+      	shape=null;
 		roi=null;
 		status = IDLE;
+		fromAttributeUpdate = false;
 	}
 	
 	/** 
@@ -160,9 +167,7 @@ public class MeasureEllipseFigure
 		if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
 		return getWidth();
 	}
-	
-	
-	
+		
 	/** 
 	 * Get the height of the figure, convert to microns if isInMicrons set. 
 	 * 
@@ -173,9 +178,7 @@ public class MeasureEllipseFigure
 		if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
 		return getHeight();
 	}
-	
-	
-	
+		
 	/** 
 	 * Get the centre of the figure, convert to microns if isInMicrons set. 
 	 * 
@@ -189,9 +192,7 @@ public class MeasureEllipseFigure
 				*units.getMicronsPixelY());
 		return getCentre();
 	}
-	
-	
-	
+		
 	/** 
 	 * Get the x coord of the figure. 
 	 * @return see above.
@@ -209,8 +210,48 @@ public class MeasureEllipseFigure
 		return ellipse.getX();
 	}
 	
+	public void setAttribute(AttributeKey key, Object newValue) 
+	{
+		super.setAttribute(key, newValue);
+		if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+		{
+			double newHeight = MeasurementAttributes.HEIGHT.get(this);
+			Rectangle2D.Double bounds = getBounds();
+			double centreY = bounds.getCenterY();
+			double diffHeight = newHeight/2;
+			Rectangle2D.Double newBounds = new Rectangle2D.Double(
+				bounds.getX(), centreY-diffHeight, bounds.getWidth(),
+				newHeight);
+			fromAttributeUpdate = true;
+			this.setBounds(newBounds);
+			fromAttributeUpdate = false;
+		}
+		if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+		{
+			double newWidth = MeasurementAttributes.WIDTH.get(this);
+			Rectangle2D.Double bounds = getBounds();
+			double centreX = bounds.getCenterX();
+			double diffWidth = newWidth/2;
+			Rectangle2D.Double newBounds = new Rectangle2D.Double(
+				centreX-diffWidth, bounds.getY(), newWidth, 
+				bounds.getHeight());			
+			fromAttributeUpdate = true;
+			this.setBounds(newBounds);
+			fromAttributeUpdate = false;
+		}
+	}
 	
 	
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		super.setBounds(anchor, lead);
+		if(!fromAttributeUpdate)
+		{
+			MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
+			MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
+		}
+	}
+		  
 	/** 
 	 * Get the y coord of the figure. 
 	 * 
@@ -246,8 +287,6 @@ public class MeasureEllipseFigure
 		return ellipse.getCenterX();
 	}
 	
-	
-	
 	/** 
 	 * Get the y coord of the figure. 
 	 * 
@@ -265,7 +304,6 @@ public class MeasureEllipseFigure
 		}
 		return ellipse.getCenterY();
 	}
-	
 	
 	/** 
 	 * Get the width coord of the figure.
@@ -354,8 +392,6 @@ public class MeasureEllipseFigure
 		return newBounds;
 	}
 	
-	
-	
 	/**
 	 * Add units to the string.
 	 *  
@@ -369,7 +405,6 @@ public class MeasureEllipseFigure
 				+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
-	
 	
 	/**
 	 * Calculate the area of the figure. 

@@ -799,10 +799,12 @@ class MeasurementViewerUI
     {
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
+    	getDrawingView().repaint();
     	roiInspector.setModelData(figure);
     	roiManager.update();
     	roiResults.refreshResults();
     }
+	
     
     /**
      * Returns the drawing.
@@ -823,6 +825,9 @@ class MeasurementViewerUI
     
     /** Rebuilds the results table. */
     void refreshResultsTable() { roiResults.refreshResults(); }
+    
+    /** Rebuild the inspector table. */
+    void refreshInspectorTable() { roiInspector.repaint(); } 
     
     /** 
      * Saves the results table.
@@ -857,7 +862,9 @@ class MeasurementViewerUI
     		reg.getLogger().error(this, 
     						"Problem while handling ROI "+e.getMessage());
     		statusBar.setStatus(text);
-    	} else {
+    	} 
+    	else 
+    	{
     		String s = "An unexpected error occured while handling ROI ";
     		reg.getLogger().error(this, s+e.getMessage());
     		reg.getUserNotifier().notifyError("ROI", s, e);
@@ -951,10 +958,11 @@ class MeasurementViewerUI
 	 */
 	void deleteShape(ROIShape shape, int timePoint, int zSection) 
 	{
-		try {
+		try 
+		{
 			model.deleteShape(shape, timePoint, zSection);
-			
-		} catch (Exception e) {
+		} catch (Exception e) 
+		{
 			handleROIException(e, RETRIEVE_MSG);
 		}
 		setStatus(DEFAULT_MSG);
