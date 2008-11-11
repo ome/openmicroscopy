@@ -171,7 +171,8 @@ public class NumericalTextField
 			try {
 				if (!Character.isISOControl(str.charAt(0))) {
 					int length = getLength();
-					String text = getText(0, length);
+					String s = this.getText(0, this.getLength());
+					s += str;
 					if (isInteger(str)) {
 						switch (length) {
 							case 0:
@@ -179,7 +180,7 @@ public class NumericalTextField
 								super.insertString(offset, str, a);
 								break;
 							default:
-								if (isInRange(text)) 
+								if (isInRange(s)) 
 									super.insertString(offset, str, a);
 						}
 					} else Toolkit.getDefaultToolkit().beep();

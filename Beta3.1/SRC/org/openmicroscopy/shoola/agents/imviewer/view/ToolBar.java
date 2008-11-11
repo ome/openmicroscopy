@@ -87,7 +87,7 @@ class ToolBar
 	
 	/** Default text describing the compression check box.  */
     private static final String		COMPRESSED_DESCRIPTION = 
-    				"View your image has umcompressed or select " +
+    				"View your image has uncompressed or select " +
     				"the desired compression quality.";
     
     /** The compression option. */
