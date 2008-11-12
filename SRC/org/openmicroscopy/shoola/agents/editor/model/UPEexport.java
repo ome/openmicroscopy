@@ -65,6 +65,17 @@ import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
  */
 public class UPEexport {
 	
+	public static final String  	XML_HEADER = 
+							"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	
+	public static final String 		UPE_DTD = "<!DOCTYPE protocol-archive " +
+		"PUBLIC \"-//Universal Protocol Exchange Format//DTD upe 1.0//EN\" " +
+		"\"http://genome.tugraz.at/iLAP/upe/upe.dtd\">";
+
+	public static final String 		UPE_STYLESHEET ="<?xml-stylesheet " +
+		"href=\"http://genome.tugraz.at/iLAP/upe/upe2html.xsl\" " + 
+		"type=\"text/xsl\"?>";
+	
 	/**
 	 * The XML element that contains all the 'step' elements. 
 	 * Steps are added by the recursive treeModel processing, to form a 
@@ -254,10 +265,12 @@ public class UPEexport {
 			addChildContent(parameter, "param-type", "ENUMERATION");
 			String enumOptions = param.getAttribute(EnumParam.ENUM_OPTIONS);
 			if (enumOptions != null) {
+				IXMLElement enumList = new XMLElement("enum-list");
 				String[] options = enumOptions.split(",");
 				for (int i=0; i<options.length; i++) {
-					addChildContent(parameter, "enum", options[i].trim());
+					addChildContent(enumList, "enum", options[i].trim());
 				}
+				parameter.addChild(enumList);
 			}
 		} 
 		else {
@@ -363,8 +376,11 @@ public class UPEexport {
 		Writer output;
 		try {
 			output = new FileWriter(file);
+			output.write(XML_HEADER + "\n");
+			output.write(UPE_STYLESHEET + "\n");
+			output.write(UPE_DTD + "\n");
 			XMLWriter xmlwriter = new XMLWriter(output);
-			xmlwriter.write(protocolArchive);
+			xmlwriter.write(protocolArchive, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

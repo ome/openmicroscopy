@@ -78,7 +78,8 @@ public class XMLexport {
 	 * The URL (or relative file path) of a style-sheet, 
 	 * which is linked to from the XHTML document.
 	 */
-	protected String 				styleSheetUrl = "editorStyles.css";
+	protected String 				styleSheetUrl = 
+		"http://users.openmicroscopy.org.uk/~will/schemas/editorStyles.css";
 	
 	/**
 	 * The (HTML) element name of a "Field", which maps to a node of the 
@@ -146,6 +147,10 @@ public class XMLexport {
 	protected void addStyleSheetLink(IXMLElement head, String styleSheetRef) 
 	{
 		if (head == null) return;
+		
+		IXMLElement title = new XMLElement("title");
+		title.setContent("OMERO.editor Protocol");
+		head.addChild(title);
 		
 		IXMLElement link = new XMLElement("link");
 		link.setAttribute("rel", "stylesheet");
@@ -318,8 +323,11 @@ public class XMLexport {
 	{
 		// start with the root of the XHTML document
 		IXMLElement html = new XMLElement(rootElementName);
+		html.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+		html.setAttribute("xml:lang", "en");
+		html.setAttribute("lang", "en");
 		
-		// add head element, with stylesheet
+		// add head element, with stylesheet and title
 		IXMLElement head = new XMLElement(headElementName);
 		html.addChild(head);
 		addStyleSheetLink(head, styleSheetUrl);
@@ -339,8 +347,13 @@ public class XMLexport {
 		Writer output;
 		try {
 			output = new FileWriter(file);
+			output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			output.write("<!DOCTYPE html \n" +
+					"PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \n" +
+					"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> \n");
+
 			XMLWriter xmlwriter = new XMLWriter(output);
-			xmlwriter.write(html);
+			xmlwriter.write(html, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -36,6 +36,8 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.model.MicroFormatsExport;
+import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
 import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -61,11 +63,11 @@ public class SaveFileLocallyAction
 {
 
 	/** The description of the action. */
-	private static final String 	NAME = "Open File";
+	private static final String 	NAME = "Save File";
 
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = 
-		"Open a Local File on your computer";
+		"Save as Local File on your computer";
 
 	/** Collection of supported file formats. */
 	private List<FileFilter>		filters;
@@ -85,6 +87,12 @@ public class SaveFileLocallyAction
 		filters = new ArrayList<FileFilter>();
 		filters.add(new EditorFileFilter());
 		filters.add(new HTMLFilter());
+	}
+	
+	protected void doExport(File file) 
+	{
+		XMLexport xmlExport = new MicroFormatsExport();
+		xmlExport.export(model.getBrowser().getTreeModel(), file);
 	}
 
 	/**
@@ -114,10 +122,10 @@ public class SaveFileLocallyAction
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File f = (File) evt.getNewValue();
+			File file = (File) evt.getNewValue();
 
 			// if file exists, get user to confirm. Otherwise exit! 
-			if (f.exists()) {
+			if (file.exists()) {
 				String title = "File Exists";
 				String message = "File Exists.\nOverwrite Existing File?";
 				if (! org.openmicroscopy.shoola.agents.editor.uiComponents.
@@ -126,8 +134,7 @@ public class SaveFileLocallyAction
 				}
 			}
 
-			XMLexport xmlExport = new XMLexport();
-			xmlExport.export(model.getBrowser().getTreeModel(), f);
+			doExport(file);
 		}
 	}
 	
