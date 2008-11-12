@@ -1273,7 +1273,7 @@
         emissionWave int4,
         excitationWave int4,
         fluor varchar(255),
-        name varchar(255) not null,
+        name varchar(255),
         ndFilter double precision,
         pinHoleSize double precision,
         pockelCellSetting int4,
