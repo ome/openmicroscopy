@@ -255,8 +255,6 @@ public class FieldParamEditor
 		
 		String propName = evt.getPropertyName();
 		
-		System.out.println("FieldParamEditor propertyChanege: " + propName);
-		
 		if (ParamEditor.PARAM_TYPE.equals(propName)) { 
 			if (evt.getSource() instanceof ParamEditor) {
 				

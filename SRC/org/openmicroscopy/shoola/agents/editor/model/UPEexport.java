@@ -46,6 +46,7 @@ import net.n3.nanoxml.XMLWriter;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -168,7 +169,7 @@ public class UPEexport {
 	{
 		int stringLength = 3;
 		String indexString = index + "";
-		while (indexString.length() <= stringLength) {
+		while (indexString.length() < stringLength) {
 			indexString = "0" + indexString;
 		}
 		return indexString;
@@ -195,13 +196,28 @@ public class UPEexport {
 		if (name != null)
 			addChildContent(step, "name", name);
 		// description
+		addStepDescription(field, step);
+		
+		// deleteable = true
+		addChildContent(step, "deletable", "true");
+		
+		// add parameters
+		addParameters(field, step);
+		
+		return step;
+	}
+	
+	protected void addStepDescription(IField field, IXMLElement step) 
+	{
+		// description
 		if (field.getContentCount() >0) {
 			String desc = field.getContentAt(0).toString();
 			addChildContent(step, "description", desc);
 		}
-		
-		addChildContent(step, "deletable", "true");
-		
+	}
+	
+	protected void addParameters(IField field, IXMLElement step) 
+	{
 		// add parameters
 		int contentCount = field.getContentCount();
 		
@@ -220,21 +236,20 @@ public class UPEexport {
 		if (params.getChildrenCount() > 0) {
 			step.addChild(params);
 		}
-		
-		return step;
 	}
-	
 	
 	/**
 	 * Handles the creation of an XML element for a parameter.
 	 * If appropriate, the type of parameter will be NUMERIC or 
 	 * ENUMERATION, with the associated additional attributes. Otherwise
-	 * will be TEXT. No other types supported as yet. 
+	 * will be TEXT. No other types supported as yet by 'UPE'.
+	 * Need to use {@link UPEEditorExport#createParamElement(IParam)} which
+	 * will write parameter types not supported by 'UPE'.
 	 * 
 	 * @param param			The parameter object 
 	 * @return				A new XML Element that defines the parameter
 	 */
-	private IXMLElement createParamElement(IParam param) 
+	protected IXMLElement createParamElement(IParam param) 
 	{
 		IXMLElement parameter = new XMLElement("parameter");
 		
@@ -289,9 +304,16 @@ public class UPEexport {
 	 * @param childName			The name of the new Child element
 	 * @param childContent		The text content of the new child element
 	 */
-	private static void addChildContent(IXMLElement parent, 
+	protected static void addChildContent(IXMLElement parent, 
 									String childName, String childContent) 
 	{
+		// check not null
+		if (parent == null)		return;
+		if ((childName == null) || (childName.contains(" ")) || 
+				(childName.length() == 0))	return;
+		if (childContent == null)	return;
+		
+		// create child, with content, and add child to parent
 		IXMLElement child = new XMLElement(childName);
 		child.setContent(childContent);
 		parent.addChild(child);

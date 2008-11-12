@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.model;
 //Java imports
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,14 +36,11 @@ import javax.swing.tree.TreeModel;
 //Third-party libraries
 
 import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.IXMLParser;
-import net.n3.nanoxml.IXMLReader;
-import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLException;
-import net.n3.nanoxml.XMLParserFactory;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -55,6 +50,11 @@ import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 /** 
  * This class is used for reading 'UPE' Universal Protocol Exchange XML files,
  * and building a treeModel of 'Fields' and 'Parameters'.
+ * It reads most details that iLAP saves to 'UPE' 
+ * (except parameter description, parameter necessity, parameter deleteable).
+ * Also ignores 'STEP_GROUP' vv 'SPLIT_STEP' differences.
+ * It also reads some OMERO.editor specific info: putting the parameters
+ * in context with descriptions. 
  * 
  * @see #getTreeUPE(File)
  *
@@ -115,7 +115,6 @@ public class UpeXmlReader {
 	 */
 	private static IParam getParameter(IXMLElement upeParam) 
 	{
-	
 		String attributeValue;
 		
 		// need to have a param-type
@@ -146,11 +145,25 @@ public class UpeXmlReader {
 			param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
 			
 		} else 
+		if ("BOOLEAN".equals(attributeValue)) {
+			param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
+			setNameValueDefault(upeParam, param);
+		}
+		else
+		if ("DATE-TIME".equals(attributeValue)) {
+			param = FieldParamsFactory.getFieldParam(DateTimeParam.DATE_TIME_PARAM);
+			attributeValue = getChildContent(upeParam, "name");
+			param.setAttribute(SingleParam.PARAM_NAME, attributeValue);
+			attributeValue = getChildContent(upeParam, DateTimeParam.DATE_ATTRIBUTE);
+			param.setAttribute(DateTimeParam.DATE_ATTRIBUTE, attributeValue);
+		}
+		else
 		 //if ("TEXT".equals(attributeValue)) {
 		// at least make a text Param. 
-		param = FieldParamsFactory.getFieldParam(SingleParam.TEXT_LINE_PARAM);
-		setNameValueDefault(upeParam, param);
-		//}
+		{
+			param = FieldParamsFactory.getFieldParam(SingleParam.TEXT_LINE_PARAM);
+			setNameValueDefault(upeParam, param);
+		}
 		
 		return param;
 		
@@ -175,17 +188,29 @@ public class UpeXmlReader {
 		attributeValue = getChildContent(upeStep, "name");
 		field.setAttribute(Field.FIELD_NAME, attributeValue);
 		
+		// if the step has a 'description' add this to field content
+		// NB if UPE was created by Editor, step description not used. 
 		attributeValue = getChildContent(upeStep, "description");
-		field.addContent(new TextContent(attributeValue));
+		if (attributeValue != null)
+			field.addContent(new TextContent(attributeValue));
 		
 		IXMLElement stepAttribute = upeStep.getFirstChildNamed("parameters");
 		// if no parameters, return field.
 		if (stepAttribute == null) return field;
 		
 		// add parameters
-		List<IXMLElement> params = stepAttribute.getChildrenNamed("parameter");
+		List<IXMLElement> params = stepAttribute.getChildren();
 		for (IXMLElement param : params) {
-			field.addContent(getParameter(param));
+			if ("parameter".equals(param.getName())) {
+				field.addContent(getParameter(param));
+			} else 
+				
+			// there won't be any 'description' elements in strict UPE, but
+				// the OMERO.editor uses them to put parameters in context
+			if ("description".equals(param.getName())) {
+				String description = param.getContent();
+				field.addContent(new TextContent(description));
+			}
 		}
 		
 		return field;

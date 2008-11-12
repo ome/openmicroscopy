@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 import java.io.File;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.model.UPEEditorExport;
 import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
@@ -35,7 +36,8 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
 //Application-internal dependencies
 
 /** 
- * 
+ * This is the Action for Saving a 'UPE' Universal Protocol Exchange XML file 
+ * to the local machine. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -59,7 +61,7 @@ public class SaveUPEFileAction
 	
 	protected void doExport(File file) 
 	{
-		UPEexport xmlExport = new UPEexport();
+		UPEexport xmlExport = new UPEEditorExport();
 		xmlExport.export(model.getBrowser().getTreeModel(), file);
 	}
 	
