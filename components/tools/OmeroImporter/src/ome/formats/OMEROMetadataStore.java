@@ -11,7 +11,6 @@ import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
 import static omero.rtypes.*;
-import omero.ResourceError;
 import omero.RType;
 import omero.ServerError;
 import omero.client;
@@ -38,7 +37,6 @@ import omero.model.PixelsAnnotationLink;
 import omero.model.PixelsAnnotationLinkI;
 import omero.model.PixelsI;
 import omero.model.PlaneInfo;
-import omero.model.PlaneInfoI;
 import omero.model.ProjectI;
 import omero.model.Project;
 

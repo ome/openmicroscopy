@@ -41,9 +41,7 @@ import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.util.GuiCommonElements.WholeNumberField;
 
-import static omero.rtypes.*;
 import omero.RLong;
-import omero.RString;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Project;

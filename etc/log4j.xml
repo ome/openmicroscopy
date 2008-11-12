@@ -41,7 +41,7 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
 
 
     <!-- FOR JBOSS: If using a file, this might should be lower like WARN -->
-    <param name="Threshold" value="INFO"/>
+    <param name="Threshold" value="DEBUG"/>
 
     <param name="Target" value="System.out"/>
 
@@ -103,6 +103,10 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
 
   <category name="ome">
     <priority value="INFO"/>
+  </category>
+
+  <category name="ome.formats">
+    <priority value="DEBUG"/>
   </category>
 
   <category name="omero">

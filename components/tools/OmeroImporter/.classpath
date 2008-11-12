@@ -20,6 +20,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/omero-importer"/>
 	<classpathentry kind="lib" path="/Users/TheBrain/Documents/LOCI Software/artifacts/loci-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-codec.jar"/>
-	<classpathentry kind="lib" path="/Users/TheBrain/Documents/BlitzImporter/target/libs/omero_client-build77.jar"/>
+	<classpathentry kind="lib" path="target/libs/omero_client.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

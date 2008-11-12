@@ -53,6 +53,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.util.Actions;
+import ome.formats.importer.util.BareBonesBrowserLaunch;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.UpgradeCheck;
@@ -107,6 +108,7 @@ public class Main extends JFrame
     public static final String QUIT_ICON = "gfx/nuvola_exit16.png";
     public static final String LOGIN_ICON = "gfx/nuvola_login16.png";
     public static final String COMMENT_ICON = "gfx/nuvola_sendcomment16.png";
+    public static final String HOME_ICON = "gfx/nuvola_home16.png";
     public static final String ABOUT_ICON = "gfx/nuvola_about16.png";
     public static final String HISTORY_ICON = "gfx/nuvola_history16.png";
     public static final String CHOOSER_ICON = "gfx/nuvola_chooser16.png";
@@ -118,6 +120,8 @@ public class Main extends JFrame
     public static HistoryDB     db;
     public StatusBar            statusBar;
     private GuiCommonElements   gui;
+    private static final    String HOME_URL = 
+        "http://trac.openmicroscopy.org.uk/shoola/wiki/OmeroInsightGettingStarted";
     
     public ScreenLogin         view;
     public ScreenLogo          viewTop;
@@ -128,6 +132,7 @@ public class Main extends JFrame
     private JMenuItem           login;
     private JMenu               helpMenu;
     private JMenuItem           helpComment;
+    private JMenuItem           helpHome;
     private JMenuItem           helpAbout;
     
     public Boolean              loggedIn;
@@ -210,10 +215,14 @@ public class Main extends JFrame
         helpComment = new JMenuItem("Send a Comment...", gui.getImageIcon(COMMENT_ICON));
         helpComment.setActionCommand("comment");
         helpComment.addActionListener(this);
+        helpHome = new JMenuItem("Visit Importer Homepage...", gui.getImageIcon(HOME_ICON));
+        helpHome.setActionCommand("home");
+        helpHome.addActionListener(this);
         helpAbout = new JMenuItem("About the Importer...", gui.getImageIcon(ABOUT_ICON));
         helpAbout.setActionCommand("about");
         helpAbout.addActionListener(this);
         helpMenu.add(helpComment);
+        helpMenu.add(helpHome);
         helpMenu.add(helpAbout);
         setJMenuBar(menubar);
       
@@ -417,9 +426,6 @@ public class Main extends JFrame
             StyleConstants.setFontSize(style, 12);
             StyleConstants.setBold(style, false);
 
-            // set to blank before update, this will speed up inserts by 3
-            //StyledDocument blank = new DefaultStyledDocument();
-            //outputTextPane.setDocument(blank);
             doc.insertString(doc.getLength(), s, style);
             
             //trim the document size so it doesn't grow to big
@@ -455,9 +461,6 @@ public class Main extends JFrame
             StyleConstants.setFontSize(style, 12);
             StyleConstants.setBold(style, false);
 
-            // set to blank before update, this will speed up inserts by 3
-            //StyledDocument blank = new DefaultStyledDocument();
-            //debugTextPane.setDocument(blank);
             doc.insertString(doc.getLength(), s, style);
             
             //trim the document size so it doesn't grow to big
@@ -511,6 +514,10 @@ public class Main extends JFrame
         else if ("comment".equals(cmd))
         {
             new CommentMessenger(this, "OMERO.importer Comment Dialog", true);
+        }
+        else if ("home".equals(cmd))
+        {
+            BareBonesBrowserLaunch.openURL(HOME_URL);
         }
     }
 

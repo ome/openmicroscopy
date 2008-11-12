@@ -990,6 +990,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
                 java.util.Date date = sdf.parse(creationDate);
                 creationTimestamp = new Timestamp(date.getTime());
+                Image i = getImage(imageIndex);
+                i.setAcquisitionDate(creationTimestamp);
             }
             catch (ParseException pe)
             {
@@ -1016,19 +1018,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
-        /*
         Image image = getImage(imageIndex);
         Instrument instrument = getInstrument(imageIndex);
         log.debug(String.format(
                 "Setting ImageInstrumentRef[%d] image: '%d", instrumentRef, imageIndex));
         if (instrument != null)
         {
-            log.debug(String.format(
-                    " -- skipped till fixed."));
-            //image.setSetup(instrument);
+            image.setSetup(instrument);
         }
-        */ 
-        return;
     }
     
     /* ---- Pixels ---- */
@@ -1385,7 +1382,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Float, int, int)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
      */
     public void setLogicalChannelPinholeSize(Float pinholeSize,
             int imageIndex, int logicalChannelIndex)
@@ -1757,16 +1754,25 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // the database.
                 instrumentList.add(null);
             }
-            instrumentList.add(new Instrument());
+	    Instrument i = new Instrument();
+            instrumentList.add(i);
+	    // FIXME: Haxxor!
+	    Image image = getImage(instrumentIndex);
+	    image.setSetup(i);
         }
 
         // We're going to check to see if the instrument list has a null value and
         // update it as required.
         Instrument i = instrumentList.get(instrumentIndex);
+	log.error("Instrument: " + i);
         if (i == null)
         {
+	    log.error("Instrument is null, linking.");
             i = new Instrument();
             instrumentList.set(instrumentIndex, i);
+	    // FIXME: Haxxor!
+	    Image image = getImage(instrumentIndex);
+	    image.setSetup(i);
         }
         return i;
     }
@@ -2139,6 +2145,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if ((instrument.sizeOfDetector() - 1) < detectorIndex)
         {
             Detector detector = new Detector();
+            detector.setType((DetectorType) getEnumeration(DetectorType.class, "Unknown")); 
             lsidMap.put(currentLSID, detector);
             instrument.addDetector(detector);
         } 

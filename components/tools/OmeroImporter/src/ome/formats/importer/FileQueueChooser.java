@@ -39,9 +39,6 @@ import javax.swing.filechooser.FileFilter;
 import ome.formats.importer.util.Actions;
 
 import layout.TableLayout;
-import loci.formats.gui.ComboFileFilter;
-import loci.formats.gui.FormatFileFilter;
-import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 
 
