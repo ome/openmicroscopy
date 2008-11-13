@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static omero.rtypes.*;
+import omero.RTime;
 import omero.model.Annotation;
 import omero.model.CategoryImageLink;
 import omero.model.DatasetImageLink;
@@ -210,6 +211,18 @@ public class ImageData extends DataObject {
         return timeOfEvent(asImage().getDetails().getUpdateEvent());
     }
 
+    /**
+     * Returns the acquistion date.
+     * 
+     * @return See above.
+     */
+    public Timestamp getAcquisitionDate()
+    {
+    	RTime time = asImage().getAcquisitionDate();
+    	if (time == null) return null;
+    	return new Timestamp(time.getValue());
+    }
+    
     // Single-valued objects.
 
     /**
