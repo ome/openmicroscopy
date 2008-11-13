@@ -28,6 +28,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -67,9 +68,7 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
-	private boolean 				fromAttributeUpdate;
-
-	Rectangle2D bounds;
+	Rectangle2D measurementBounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected ROI				roi;
@@ -102,15 +101,10 @@ public class MeasureEllipseFigure
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
-		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
-		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
-		setAttribute(MeasurementAttributes.WIDTH, width);
-		setAttribute(MeasurementAttributes.HEIGHT, height);
-      	shape=null;
+	   	shape=null;
 		roi=null;
 		status = IDLE;
-		fromAttributeUpdate = false;
-	}
+		}
 	
 	/** 
 	 * Creates a new instance. 
@@ -120,6 +114,11 @@ public class MeasureEllipseFigure
 	public MeasureEllipseFigure(String text)
 	{
 		this(text, 0, 0, 0, 0);
+	}
+	
+	public Ellipse2D getEllipse()
+	{
+		return ellipse;
 	}
 	
 	/** 
@@ -210,48 +209,7 @@ public class MeasureEllipseFigure
 		return ellipse.getX();
 	}
 	
-	public void setAttribute(AttributeKey key, Object newValue) 
-	{
-		super.setAttribute(key, newValue);
-		if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
-		{
-			double newHeight = MeasurementAttributes.HEIGHT.get(this);
-			Rectangle2D.Double bounds = getBounds();
-			double centreY = bounds.getCenterY();
-			double diffHeight = newHeight/2;
-			Rectangle2D.Double newBounds = new Rectangle2D.Double(
-				bounds.getX(), centreY-diffHeight, bounds.getWidth(),
-				newHeight);
-			fromAttributeUpdate = true;
-			this.setBounds(newBounds);
-			fromAttributeUpdate = false;
-		}
-		if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
-		{
-			double newWidth = MeasurementAttributes.WIDTH.get(this);
-			Rectangle2D.Double bounds = getBounds();
-			double centreX = bounds.getCenterX();
-			double diffWidth = newWidth/2;
-			Rectangle2D.Double newBounds = new Rectangle2D.Double(
-				centreX-diffWidth, bounds.getY(), newWidth, 
-				bounds.getHeight());			
-			fromAttributeUpdate = true;
-			this.setBounds(newBounds);
-			fromAttributeUpdate = false;
-		}
-	}
-	
-	
-	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
-	{
-		super.setBounds(anchor, lead);
-		if(!fromAttributeUpdate)
-		{
-			MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
-			MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
-		}
-	}
-		  
+	  
 	/** 
 	 * Get the y coord of the figure. 
 	 * 
@@ -341,13 +299,13 @@ public class MeasureEllipseFigure
 			double sz=((Double) this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
 			Rectangle2D stringBoundsbounds= g.getFontMetrics().getStringBounds(ellipseArea, g);
-			bounds=
+			measurementBounds=
 					new Rectangle2D.Double(getCentreX()
 							-stringBoundsbounds.getWidth()/2, this.getCentreY()
 							+stringBoundsbounds.getHeight()/2, stringBoundsbounds.getWidth(), 
 							stringBoundsbounds.getHeight());
 			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(ellipseArea, (int) bounds.getX(), (int) bounds.getY());
+			g.drawString(ellipseArea, (int) measurementBounds.getX(), (int) measurementBounds.getY());
 		}
 	}
 	
@@ -358,33 +316,33 @@ public class MeasureEllipseFigure
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds=super.getDrawingArea();
-		if (bounds!=null)
+		if (measurementBounds!=null)
 		{
-			if (newBounds.getX()>bounds.getX())
+			if (newBounds.getX()>measurementBounds.getX())
 			{
-				double diff=newBounds.x-bounds.getX();
-				newBounds.x=bounds.getX();
+				double diff=newBounds.x-measurementBounds.getX();
+				newBounds.x=measurementBounds.getX();
 				newBounds.width=newBounds.width+diff;
 			}
-			if (newBounds.getY()>bounds.getY())
+			if (newBounds.getY()>measurementBounds.getY())
 			{
-				double diff=newBounds.y-bounds.getY();
-				newBounds.y=bounds.getY();
+				double diff=newBounds.y-measurementBounds.getY();
+				newBounds.y=measurementBounds.getY();
 				newBounds.height=newBounds.height+diff;
 			}
-			if (bounds.getX()+bounds.getWidth()>newBounds.getX()
+			if (measurementBounds.getX()+measurementBounds.getWidth()>newBounds.getX()
 					+newBounds.getWidth())
 			{
 				double diff=
-						bounds.getX()+bounds.getWidth()-newBounds.getX()
+					measurementBounds.getX()+measurementBounds.getWidth()-newBounds.getX()
 								+newBounds.getWidth();
 				newBounds.width=newBounds.width+diff;
 			}
-			if (bounds.getY()+bounds.getHeight()>newBounds.getY()
+			if (measurementBounds.getY()+measurementBounds.getHeight()>newBounds.getY()
 					+newBounds.getHeight())
 			{
 				double diff=
-						bounds.getY()+bounds.getHeight()-newBounds.getY()
+					measurementBounds.getY()+measurementBounds.getHeight()-newBounds.getY()
 								+newBounds.getHeight();
 				newBounds.height=newBounds.height+diff;
 			}

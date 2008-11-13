@@ -629,10 +629,10 @@ public class OutputStrategy
 		XMLElement ellipseElement=new XMLElement(IOConstants.ELLIPSE_TAG);
 		svgElement.addChild(ellipseElement);
 		
-		double rx=fig.getWidth()/2d;
-		double ry=fig.getHeight()/2d;
-		double cx=fig.getCentreX();
-		double cy=fig.getCentreY();
+		double rx=fig.getEllipse().getWidth()/2d;
+		double ry=fig.getEllipse().getHeight()/2d;
+		double cx=fig.getEllipse().getCenterX();
+		double cy=fig.getEllipse().getCenterY();
 		ellipseElement.setAttribute(IOConstants.CX_ATTRIBUTE, cx+"");
 		ellipseElement.setAttribute(IOConstants.CY_ATTRIBUTE, cy+"");
 		ellipseElement.setAttribute(IOConstants.RX_ATTRIBUTE, rx+"");

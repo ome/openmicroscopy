@@ -32,11 +32,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Handle;
@@ -67,6 +69,7 @@ public class EllipseTextFigure
 	extends RotateEllipseFigure
 	implements TextHolderFigure
 {
+	private boolean 				fromTransformUpdate;
 	
 	/** Flag indicating if the figure is editable or not. */
 	private boolean 							editable;
@@ -114,12 +117,65 @@ public class EllipseTextFigure
 	{
 		super(x, y, w, h);
     	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
+    	setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
+		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
+		setAttribute(MeasurementAttributes.WIDTH, w);
+		setAttribute(MeasurementAttributes.HEIGHT, h);
   		setAttribute(AttributeKeys.TEXT, t);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
+		fromTransformUpdate = false;
 	}
 	
+	
+	
+	public void setAttribute(AttributeKey key, Object newValue) 
+	{
+		super.setAttribute(key, newValue);
+		if(!fromTransformUpdate)
+		{
+			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+			{
+				double newHeight = MeasurementAttributes.HEIGHT.get(this);
+				Rectangle2D.Double bounds = getBounds();
+				double centreY = bounds.getCenterY();
+				double diffHeight = newHeight/2;
+				Rectangle2D.Double newBounds = new Rectangle2D.Double(
+					bounds.getX(), centreY-diffHeight, bounds.getWidth(),
+					newHeight);
+				this.setBounds(newBounds);
+			}
+			if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+			{
+				double newWidth = MeasurementAttributes.WIDTH.get(this);
+				Rectangle2D.Double bounds = getBounds();
+				double centreX = bounds.getCenterX();
+				double diffWidth = newWidth/2;
+				Rectangle2D.Double newBounds = new Rectangle2D.Double(
+					centreX-diffWidth, bounds.getY(), newWidth, 
+					bounds.getHeight());
+				this.setBounds(newBounds);
+			}
+		}
+	}
+	public void transform(AffineTransform tx)
+	{
+		super.transform(tx);
+		fromTransformUpdate = true;
+		MeasurementAttributes.HEIGHT.set(this, this.getTransformedShape().getBounds().getHeight());
+		MeasurementAttributes.WIDTH.set(this, this.getTransformedShape().getBounds().getWidth());
+		fromTransformUpdate = false;
+	}
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		super.setBounds(anchor, lead);
+		fromTransformUpdate = true;
+		MeasurementAttributes.HEIGHT.set(this, this.getTransformedShape().getBounds().getHeight());
+		MeasurementAttributes.WIDTH.set(this, this.getTransformedShape().getBounds().getWidth());
+		fromTransformUpdate = false;
+	}
+
 	@Override 
 	public LinkedList<Handle> createHandles(int detailLevel) 
 	{
@@ -173,6 +229,16 @@ public class EllipseTextFigure
 		drawText(g);
 	}
 
+	public double getHeight()
+	{
+		return getTransformedShape().getBounds().getHeight();
+	}
+
+	public double getWidth()
+	{
+		return getTransformedShape().getBounds().getWidth();
+	}
+	
 	/**
 	 * Overridden to draw the text.
 	 * @see EllipseFigure#drawText(Graphics2D)
@@ -185,7 +251,11 @@ public class EllipseTextFigure
 		{	
 			text = text.trim();
 			TextLayout layout = getTextLayout();
+			
 			Rectangle r = getTransformedShape().getBounds();
+			
+			// TODO: I BROKE THIS.
+			//Rectangle2D r = this.getBounds();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
 			

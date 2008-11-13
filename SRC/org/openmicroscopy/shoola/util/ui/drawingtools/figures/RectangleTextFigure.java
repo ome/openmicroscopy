@@ -186,8 +186,10 @@ public class RectangleTextFigure
 		  
 	  public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
 		  super.setBounds(anchor, lead);
+		 
 		  if(!fromAttributeUpdate)
 		  {
+			  
 			  MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
 			  MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
 		  }
