@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -42,6 +45,7 @@ import javax.swing.JDialog;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.XMLParamDialog.WindowListener;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
@@ -82,6 +86,9 @@ public class ParamEditorDialog
 		super();
 		setModal(false);
 		setUndecorated(true);
+		
+		// when focus is lost, dialog is closed. 
+		addWindowFocusListener(new WindowListener());
 		
 		Box horizontalBox = Box.createHorizontalBox();
 		
@@ -127,6 +134,22 @@ public class ParamEditorDialog
 		if (FieldPanel.UPDATE_EDITING_PROPERTY.equals(evt.getPropertyName())) {
 			pack();
 		}
+	}
+	
+	/**
+	 * A Window Listener that disposes the dialog when focus is lost. 
+	 * 
+	 * @author will
+	 *
+	 */
+	public class WindowListener extends WindowAdapter {
+		
+		/** 
+		 * Calls {@link dispose} when focus lost. 
+		 * 
+		 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+		 */
+		public void windowLostFocus(WindowEvent e) { dispose(); }
 	}
 	
 }

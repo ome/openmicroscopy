@@ -65,8 +65,8 @@ public class TextAreaFilter
 
 	/**
 	 * Returns true if the character indicated by <code>offset</code> 
-	 * is within (including after the last character of) the tag specified
-	 * in the constructor. 
+	 * is within the tag specified in the constructor. 
+	 * Also true if the offset is before the first character of the tag. 
 	 * 
 	 * @param offset	position within the document. 
 	 * @return			see above. 
@@ -136,7 +136,11 @@ public class TextAreaFilter
 			}
 			super.replace(fb, offs, length, str, a);
 		}
-		else
+		// if this is true, we are before the first character of tag.
+		else if (canEdit(offs - 1)){
+			// therefore, allow edit (won't affect tag).
+			super.replace(fb, offs, length, str, a);
+		}
 			Toolkit.getDefaultToolkit().beep();
 	}
 	
@@ -150,8 +154,11 @@ public class TextAreaFilter
 		
 		int end = offset + length;
 		
-		if (canEdit(offset) && canEdit(end)) {
-			super.remove(fb, offset, length);
+		if (canEdit(offset)) {
+			// if the end is right before the start of tag, allow edit
+			if (canEdit(end) || canEdit(end-1)) {
+				super.remove(fb, offset, length);
+			}
 		}
 		
 		else

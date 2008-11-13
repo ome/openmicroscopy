@@ -98,7 +98,7 @@ public class FieldTextArea
 	PropertyChangeListener,
 	ActionListener
 {
-	
+	/**  The text area that displays and allows users to edit the text */
 	private HtmlContentEditor		htmlEditor;
 	
 	/** The field that is represented by this UI component */
@@ -240,7 +240,9 @@ public class FieldTextArea
      * {@link IFieldContent}, including a new parameter object, which will be
      * added wherever a parameter tag has id="new"
      * 
-     * @return
+     * <code>newParam</code> can be null if not adding a new parameter. 
+     * 
+     * @return		a list of {@link IFieldContent} to represent the content
      */
     private List<IFieldContent> getNewContent(IFieldContent newParam) 
     {
@@ -265,12 +267,13 @@ public class FieldTextArea
     		for (TextToken param : tags) {
     			// is there any text between start of this tag and end of last?
 				description = d.getText(lastChar, param.getStart()-lastChar);
-				description = description.trim();
-				if (description.length() > 0) {
+				if (description.trim().length() > 0) {
 					// if so, add a new text content object to the list
+					// without trimming. 
 					contentList.add(new TextContent(description));
 				}
 				String tagId = param.getId();
+				// if the text references a "new" parameter, use newParam
 				if (("new".equals(tagId)) && (newParam != null)) {
 					contentList.add(newParam);
 				}
@@ -290,8 +293,8 @@ public class FieldTextArea
 				lastChar = param.getEnd();	// update the end of last element
 			}
     		// any text left over?
-    		description = d.getText(lastChar, d.getLength()-lastChar).trim();
-    		if (description.length() > 0) {
+    		description = d.getText(lastChar, d.getLength()-lastChar);
+    		if (description.trim().length() > 0) {
     			// if so, add another text content to the list
 				contentList.add(new TextContent(description));
 			}
@@ -372,6 +375,10 @@ public class FieldTextArea
 			return html + contentText;
 		}
 		
+		// flag used to insert space between parameter objects, so user can
+		// start typing and insert text between parameters. 
+		boolean includeSpacer = true;	
+		
 		// html for the field contents. 
 		for (int i=0; i<field.getContentCount(); i++) {
 			content = field.getContentAt(i);
@@ -381,21 +388,22 @@ public class FieldTextArea
 					contentString = "[param]";
 				// id attribute allows parameters to be linked to model
 				// eg for editing parameters. 
-				contentText = (i == 0 ? " " : "") + // space before first param
+				contentText = (includeSpacer ? " " : "") + // space before param
 						"<"+ FieldTextArea.PARAM_TAG + " href='#' " +
 				 		HTML.Attribute.ID + "='" + i + "'>" + 
 				 		contentString + 
 				 		"</"+ FieldTextArea.PARAM_TAG + ">";
-				
+				includeSpacer = true;
 			} else {
 				// don't need this ID attribute, but might be useful in future?
 				contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
-				HTML.Attribute.ID + 
-				"='" + i + "'>" + content.toString() 
-				+ " </"+ FieldTextArea.TEXT_TAG + ">";
+				HTML.Attribute.ID + "='" + i + "'>" + 
+				content.toString() 
+				+ "</"+ FieldTextArea.TEXT_TAG + ">";
+				includeSpacer = false;		// don't need a space after text
 			}
-			// add a space between each component. 
-			html = html + contentText + " ";
+			// add each component. 
+			html = html + contentText;
 		}
 		return html;
 	}
