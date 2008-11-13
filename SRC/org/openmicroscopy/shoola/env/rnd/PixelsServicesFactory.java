@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+
+import pojos.ChannelData;
 import pojos.PixelsData;
 
 
@@ -187,7 +189,7 @@ public class PixelsServicesFactory
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
-			RenderingEnginePrx re, Pixels pixels, List metadata, 
+			RenderingEnginePrx re, Pixels pixels, List<ChannelData> metadata, 
 			int compression, RenderingDef def)
 	{
 		if (!(context.equals(registry)))

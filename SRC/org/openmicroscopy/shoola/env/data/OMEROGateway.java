@@ -1526,59 +1526,13 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			
-			//TODO: need to push down
-			IQueryPrx service = getQueryService();
-			Parameters p = new ParametersI();
-			p.map = new HashMap<String, RType>();
-			p.map.put("id", omero.rtypes.rlong(pixelsID));
-
-			Pixels pixs = (Pixels) service.findByQuery(
-					"select p from Pixels as p " +
-					"left outer join fetch p.pixelsType as pt " +
-					"left outer join fetch p.pixelsDimensions " +
-					"where p.id = :id", p);
-
-			return pixs;
+			IPixelsPrx service = getPixelsService();
+			return service.retrievePixDescription(pixelsID);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the pixels set of "+
 			"the pixels set.");
 		}
 		return null;
-	}
-	
-	/**
-	 * Retrieves the channel information related to the given pixels set.
-	 * 
-	 * @param pixelsID  The id of the pixels set.
-	 * @return A list of <code>Channel</code> Objects.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	Collection getChannelsData(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			//TODO: need to push down
-			IQueryPrx service = getQueryService();
-			Parameters p = new ParametersI();
-			p.map = new HashMap<String, RType>();
-			p.map.put("id", omero.rtypes.rlong(pixelsID));
-			Pixels pixs = (Pixels) service.findByQuery(
-					"select p from Pixels as p " +
-					"left outer join fetch p.pixelsType as pt " +
-					"left outer join fetch p.channels as c " +
-					"left outer join fetch p.pixelsDimensions " +
-					"left outer join fetch c.logicalChannel as lc " +
-					"left outer join fetch c.statsInfo where p.id = :id", p);
-			return pixs.copyChannels();//pixs.getChannels();
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the channelsData for "+
-					"the pixels set "+pixelsID);
-		}
-		return new ArrayList();
 	}
 
 	/**
@@ -2491,6 +2445,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		
 		try {
 			String  sql = "select i from Image as i left outer join fetch " +
 			"i.details.creationEvent as c where " +
@@ -2710,7 +2665,6 @@ class OMEROGateway
                 + "left outer join fetch rdef.quantization "
                 + "left outer join fetch rdef.model "
                 + "left outer join fetch rdef.waveRendering as cb "
-                + "left outer join fetch cb.color "
                 + "left outer join fetch cb.family "
                 + "left outer join fetch rdef.spatialDomainEnhancement " 
                 + "left outer join fetch rdef.details.owner "
@@ -2759,7 +2713,6 @@ class OMEROGateway
                 + "left outer join fetch rdef.quantization "
                 + "left outer join fetch rdef.model "
                 + "left outer join fetch rdef.waveRendering as cb "
-                + "left outer join fetch cb.color "
                 + "left outer join fetch cb.family "
                 + "left outer join fetch rdef.spatialDomainEnhancement " 
                 + "left outer join fetch rdef.details.owner "
@@ -2777,7 +2730,6 @@ class OMEROGateway
 		return null;
 	}
 
-	
 	/**
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
@@ -3210,7 +3162,6 @@ class OMEROGateway
 				sb.append("left outer join fetch img.annotationLinks ail ");
 				sb.append("left outer join fetch img.pixels as pix ");
 	            sb.append("left outer join fetch pix.pixelsType as pt ");
-	            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 	            sb.append("where ail.child.id = :tagID");
 	            Set imgs = PojoMapper.asDataObjects(
 	            			service.findAllByQuery(sb.toString(), p));
@@ -3256,7 +3207,6 @@ class OMEROGateway
 				sb.append("left outer join fetch img.annotationLinks ail ");
 				sb.append("left outer join fetch img.pixels as pix ");
 	            sb.append("left outer join fetch pix.pixelsType as pt ");
-	            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 	            sb.append("where ail.child.id in (:ids)");
 	            if (ownerIds != null && ownerIds.size() > 0) {
 	            	sb.append(" and img.details.owner.id in (:ownerIds)");
@@ -3336,8 +3286,6 @@ class OMEROGateway
 								"ail ");
 						sb.append("left outer join fetch img.pixels as pix ");
 			            sb.append("left outer join fetch pix.pixelsType as pt ");
-			            sb.append("left outer join fetch pix.pixelsDimensions " +
-			            		"as pd ");
 			            sb.append("where ail.child.id = :id");
 			            param = new ParametersI();
 			            param.addLong("id", child.getId());
@@ -3374,8 +3322,6 @@ class OMEROGateway
 		try {
 			IQueryPrx service = getQueryService();
 			ParametersI param = new ParametersI();
-
-			
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("select img from Image as img ");
@@ -3639,14 +3585,8 @@ class OMEROGateway
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("select img from Image as img ");
-			/*
-			sb.append("left outer join fetch "
-	                + "img.annotationLinksCountPerOwner img_a_c ");
-			sb.append("left outer join fetch img.annotationLinks ail ");
-			*/
 			sb.append("left outer join fetch img.pixels as pix ");
 	        sb.append("left outer join fetch pix.pixelsType as pt ");
-	        sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 	        sb.append("where img.id = :id");
 	        ParametersI param = new ParametersI();
 			param.addLong("id", imageID);
@@ -3705,7 +3645,6 @@ class OMEROGateway
 			
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
-            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 			
             sb.append("where well.plate.id = :plateID");
             results = service.findAllByQuery(sb.toString(), param);

@@ -604,10 +604,6 @@ class TaskBarView
 		}
 	}
 
-	public void openURL(String url)
-	{
-		manager.openURL(url);
-	}
     /**
      * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#iconify()

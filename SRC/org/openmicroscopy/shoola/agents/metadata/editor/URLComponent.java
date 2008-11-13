@@ -30,25 +30,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.URLAnnotationData;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.URLAnnotationData;
 
 /** 
  * 
@@ -83,7 +76,8 @@ class URLComponent
 	private void browse()
 	{
 		if (data == null) return;
-		MetadataViewerAgent.getRegistry().getTaskBar().openURL(data.getURL());
+		BrowserLauncher launcher = new BrowserLauncher();
+		launcher.openURL(data.getURL());
 	}
 	
 	/** Initializes the components composing the display. */

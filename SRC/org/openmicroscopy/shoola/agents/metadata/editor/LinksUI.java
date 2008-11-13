@@ -53,7 +53,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -67,8 +66,8 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
 import pojos.URLAnnotationData;
 
@@ -176,7 +175,8 @@ class LinksUI
 	 */
 	private void browse(String url)
 	{
-		MetadataViewerAgent.getRegistry().getTaskBar().openURL(url);
+		BrowserLauncher launcher = new BrowserLauncher();
+		launcher.openURL(url);
 	}
 	
 	/**

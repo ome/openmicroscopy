@@ -44,6 +44,7 @@ import omero.model.DatasetImageLink;
 import omero.model.Event;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
@@ -502,7 +503,8 @@ class OmeroDataServiceImpl
 	public List getChannelsMetadata(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Collection l = gateway.getChannelsData(pixelsID);
+		Pixels pixels = gateway.getPixels(pixelsID);
+		Collection l = pixels.copyChannels();
 		Iterator i = l.iterator();
 		List<ChannelData> m = new ArrayList<ChannelData>(l.size());
 		int index = 0;

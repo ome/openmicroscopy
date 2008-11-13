@@ -38,6 +38,7 @@ import javax.swing.JTabbedPane;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Application-internal dependencies
 import pojos.DataObject;
@@ -86,6 +87,9 @@ public class EditorUI
     /** The tabbed pane hosting the metadata. */
     private JTabbedPane					tabbedPane;
     
+    /** The defaut empty component. */
+    private JPanel						empty;
+    
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -94,16 +98,14 @@ public class EditorUI
 		generalPane = new GeneralPaneUI(this, model, controller);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("General", null, generalPane, "General Information");
-		tabbedPane.addTab("Acquisition", null, acquisitionPane, 
-				"Acquisition Metadata");
+		empty = new JPanel();
+		empty.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
-		//mainPane.getViewport().add(generalPaneUI);
 		add(toolBar, BorderLayout.NORTH);
 		add(tabbedPane, BorderLayout.CENTER);
 	}
@@ -134,16 +136,22 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
+    	tabbedPane.removeAll();
     	if (model.getRefObject() instanceof ExperimenterData)  {
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
+    		tabbedPane.addTab("Profile", null, userUI, 
+			"User's profile");
     	} else {
     		setDataToSave(false);
         	toolBar.buildUI();
         	toolBar.setControls();
         	generalPane.layoutUI();
-        	
+        	tabbedPane.addTab("General", null, generalPane,
+			"General Information");
+			tabbedPane.addTab("Acquisition", null, acquisitionPane, 
+			"Acquisition Metadata");
     	}
     	revalidate();
     	repaint();

@@ -34,7 +34,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -59,6 +58,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -153,6 +153,11 @@ public class TaskBarManager
 	 */
 	void openURL(String url)
 	{
+		BrowserLauncher launcher = new BrowserLauncher(
+				AbstractIconManager.getOMEIcon());
+		launcher.openURL(url);
+		if (suDialog != null) suDialog.close();
+		/*
 		String osName = System.getProperty("os.name");
 		try {
 			if (osName.startsWith("Mac OS")) {
@@ -184,6 +189,7 @@ public class TaskBarManager
 			UserNotifier un = container.getRegistry().getUserNotifier();
 			un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
 		}
+		*/
 	}
 	
 	/**

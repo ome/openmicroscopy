@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import javax.imageio.ImageIO;
 
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
+import omero.model.Channel;
 import omero.model.Coating;
 import omero.model.IObject;
 import omero.model.Image;
@@ -166,11 +168,20 @@ class OmeroImageServiceImpl
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
-			Pixels pix = gateway.getPixels(pixelsID);
+			
+			Pixels pixels = gateway.getPixels(pixelsID);
 			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
-			List l = context.getDataService().getChannelsMetadata(pixelsID);
+			Collection l = pixels.copyChannels();
+			Iterator i = l.iterator();
+			List<ChannelData> m = new ArrayList<ChannelData>(l.size());
+			int index = 0;
+			while (i.hasNext()) {
+				m.add(new ChannelData(index, (Channel) i.next()));
+				index++;
+			}
+			
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pix, l, compressionLevel, def);
+					pixels, m, compressionLevel, def);
 		}
 		return proxy;
 	}
@@ -594,7 +605,7 @@ class OmeroImageServiceImpl
 				if (object != null)
 					objective.setCoating((Coating) object);
 			}
-			//objective.setWorkingDistance(omero.rtypes.rfloat(data.getWorkingDistance()));
+			objective.setWorkingDistance(omero.rtypes.rfloat(data.getWorkingDistance()));
 			//getEnumerations.
 			
 		}
