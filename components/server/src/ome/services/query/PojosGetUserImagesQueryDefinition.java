@@ -32,7 +32,7 @@ public class PojosGetUserImagesQueryDefinition extends Query {
 
         Criteria pix = c.createCriteria("pixels", LEFT_JOIN);
         pix.createCriteria("pixelsType", LEFT_JOIN);
-        pix.createCriteria("pixelsDimensions", LEFT_JOIN);
+        //pix.createCriteria("pixelsDimensions", LEFT_JOIN);
         // endTODO
 
         setCriteria(c);

@@ -86,7 +86,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
 
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
-            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+            //sb.append("left outer join fetch pix.pixelsDimensions as pd ");
         }
 
         // optional ids
