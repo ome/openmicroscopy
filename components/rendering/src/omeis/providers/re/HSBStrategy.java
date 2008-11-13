@@ -9,28 +9,24 @@ package omeis.providers.re;
 
 // Java imports
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
+
+// Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-// Third-party libraries
-
 // Application-internal dependencies
-
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.ColorFix;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;

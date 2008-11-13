@@ -19,9 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.conditions.ResourceError;
-import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
-import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -32,7 +30,6 @@ import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
-import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;

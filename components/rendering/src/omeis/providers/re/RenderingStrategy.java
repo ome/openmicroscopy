@@ -10,10 +10,9 @@ package omeis.providers.re;
 // Java imports
 import java.io.IOException;
 
+// Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Third-party libraries
 
 // Application-internal dependencies
 import ome.model.core.Pixels;
@@ -114,7 +113,8 @@ abstract class RenderingStrategy {
         } else if (value.equals(Renderer.MODEL_HSB)) {
             return new HSBStrategy();
         } else if (value.equals(Renderer.MODEL_RGB)) {
-            return new RGBStrategy();
+        	//return new RGBStrategy();
+        	return new HSBStrategy();
         }
         log.warn("WARNING: Unknown model '" + value + "' using greyscale.");
         return new GreyScaleStrategy();
