@@ -7,65 +7,57 @@
 
 package ome.services.util;
 
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Wrapper around a datasource which logs all connection failures.
+ * Produces a wrapper around a {@link DataSource} which logs all connection failures.
+ * This was intended to be an implementation, but due to breaking changes in JDBC4
+ * was instead chagned to a proxy {@link FactoryBean}
  * 
  * @author Josh Moore, josh at glencoesoftwarecom
  * @since Beta4
  */
-public class LoggingDataSource implements DataSource {
+public class LoggingDataSource implements FactoryBean {
 
     public final static Log log = LogFactory.getLog(LoggingDataSource.class);
 
-    private final DataSource delegate;
+    private final DataSource proxy;
     
     public LoggingDataSource(final DataSource dataSource) {
-        this.delegate = dataSource;
+        ProxyFactory factory = new ProxyFactory(dataSource);
+        factory.setInterfaces(new Class[]{DataSource.class});
+        factory.addAdvice(new MethodInterceptor(){
+
+            public Object invoke(MethodInvocation arg0) throws Throwable {
+                try {
+                    return arg0.proceed();
+                } catch (Throwable t) {
+                    if (arg0.getMethod().getName().equals("getConnection")) {
+                        log.error(t);
+                    }
+                    throw t;
+                }
+            }});
+        proxy = (DataSource) factory.getProxy();
     }
 
-    public Connection getConnection() throws SQLException {
-        try {
-            return delegate.getConnection();
-        } catch (SQLException e) {
-            log.error(e);
-            throw e;
-        }
+    public Object getObject() throws Exception {
+        return proxy;
     }
 
-    public Connection getConnection(String username, String password)
-            throws SQLException {
-        try {
-            return delegate.getConnection(username, password);
-        } catch (SQLException e) {
-            log.error(e);
-            throw e;
-        }
+    public Class getObjectType() {
+        return DataSource.class;
     }
 
-    public int getLoginTimeout() throws SQLException {
-        return delegate.getLoginTimeout();
+    public boolean isSingleton() {
+        return true;
     }
-
-    public PrintWriter getLogWriter() throws SQLException {
-        return delegate.getLogWriter();
-    }
-
-    public void setLoginTimeout(int seconds) throws SQLException {
-        delegate.setLoginTimeout(seconds);
-    }
-
-    public void setLogWriter(PrintWriter out) throws SQLException {
-        delegate.setLogWriter(out);
-    }
-
     
 }
