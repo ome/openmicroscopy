@@ -6,12 +6,15 @@
 
 package ome.services.blitz;
 
+import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.springframework.util.ResourceUtils;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
@@ -25,9 +28,10 @@ public class Entry {
     private final static Log log = LogFactory.getLog(Entry.class);
 
     /**
-     * Return code status
+     * Return code status. Initially -1. On successful start, 0. > 1 on
+     * exception.
      */
-    int status = 0;
+    int status = -1;
 
     /**
      * Name of the {@link OmeroContext} to
@@ -58,6 +62,7 @@ public class Entry {
      * 
      */
     public static void main(final String[] args) {
+        configureLogging();
         String name = "OMERO.blitz";
         if (args != null && args.length > 0) {
             if ("-s".equals(args[0])) {
@@ -89,7 +94,7 @@ public class Entry {
                 instance.lock.lock();
                 try {
                     instance.status = sig.getNumber();
-                    instance.shutdown();
+                    instance.shutdown(true);
                 } finally {
                     // As with the try/finally block around shutdown in the
                     // start method, execution should never reach this point.
@@ -114,13 +119,27 @@ public class Entry {
         this.name = name;
     }
 
+    public static void configureLogging() {
+        try {
+            String log4j_xml = System.getProperty("log4j.configuration", "");
+            if (log4j_xml.length() == 0) {
+                File file = ResourceUtils.getFile("classpath:log4j.xml");
+                log4j_xml = file.getAbsolutePath();
+            }
+            DOMConfigurator.configureAndWatch(log4j_xml);
+        } catch (Exception e) {
+            String msg = "CANNOT INITIALIZE LOGGING";
+            throw new RuntimeException(msg, e);
+        }
+    }
+
     /**
      * Obtains the {@link #name named} {@link OmeroContext}, creating it if
      * necessary, and then delegates to
      * {@link Ice.Communicator#waitForShutdown()} until either it is externally
      * shutdown, or until a signal is caught.
      */
-    void start() {
+    public void start() {
         try {
             log.info("Creating " + name + ". Please wait...");
             ctx = OmeroContext.getInstance(name);
@@ -139,7 +158,7 @@ public class Entry {
         System.err.flush();
         lock.lock();
         try {
-            shutdown();
+            shutdown(true);
         } finally {
             // This will never be called since System.exit is called in
             // shutdown where no exception can be thrown, but just in case
@@ -149,13 +168,20 @@ public class Entry {
         }
     }
 
+    public int status() {
+        return status;
+    }
+
     /**
      * Calls {@link OmeroContext#closeAll()} to recursively close all
      * OMERO.blitz resources in the reverse order that they were created.
      * 
      * Throws no exceptions.
+     * 
+     * If true is passed for callSystemExit, then {@link System#exit(int)} will
+     * be called with the current status.
      */
-    void shutdown() {
+    public void shutdown(final boolean callSystemExit) {
 
         // Finally shutdown the whole context
         if (ctx != null) {
@@ -169,6 +195,9 @@ public class Entry {
                 status = 3;
             }
         }
-        System.exit(status);
+        
+        if (callSystemExit) {
+            System.exit(status);
+        }
     }
 }

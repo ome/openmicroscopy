@@ -74,7 +74,20 @@
   a configuration file, or directly in your tests via System.setProperty() *before*
   creating the Spring application context. -->
   <!--alias name="${dataSource}" alias="dataSource"/-->
-  <alias name="c3p0DataSource" alias="dataSource"/>
+  <alias name="loggingDataSource" alias="dataSource"/>
+  
+  <bean id="loggingDataSource" class="ome.services.util.LoggingDataSource">
+    <description>
+    Scope: private
+    
+    Under extreme conditions, c3p0 can run out of connections at which time the
+    server can come to a stand still. To catch this situation, the logging
+    data source will now print to a special category which can be detected by
+    log4j appenders and handled appropriately (sending email, etc.)
+    </description>
+    <constructor-arg ref="c3p0DataSource"/>
+  </bean>
+  
   <bean id="c3p0DataSource" lazy-init="true"
      class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     <description>

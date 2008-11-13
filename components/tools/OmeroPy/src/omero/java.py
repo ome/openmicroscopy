@@ -41,7 +41,7 @@ def run(args,\
 
     # Add our logging configuration early
     # so that it can be overwritten by xargs
-    java += [ "-Dlog4j.configuration=file:etc/log4j.xml" ]
+    java += [ "-Dlog4j.configuration=etc/log4j.xml" ]
 
     # Preapre arguments
     if xargs == None:
