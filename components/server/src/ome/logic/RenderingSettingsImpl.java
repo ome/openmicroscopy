@@ -304,7 +304,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         if (pixels.sizeOfChannels() > 1) {
             for (RenderingModel model : renderingModels)
             {
-                if (model.getValue().equals(Renderer.MODEL_HSB))
+                if (model.getValue().equals(Renderer.MODEL_RGB))
                     defaultModel = model;
             }
         } else {

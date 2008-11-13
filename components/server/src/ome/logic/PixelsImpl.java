@@ -83,7 +83,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         "left outer join fetch rdef.quantization " + 
         "left outer join fetch rdef.model " +
         "left outer join fetch rdef.waveRendering as cb " +
-        "left outer join fetch cb.color " +
+        //"left outer join fetch cb.color " +
         "left outer join fetch cb.family " +
         "left outer join fetch rdef.spatialDomainEnhancement where ";
     
@@ -95,7 +95,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         Pixels p = iQuery.findByQuery("select p from Pixels as p "
                 + "left outer join fetch p.pixelsType as pt "
                 + "left outer join fetch p.channels as c "
-                + "left outer join fetch c.colorComponent "
+                //+ "left outer join fetch c.colorComponent "
                 + "left outer join fetch c.logicalChannel as lc "
                 + "left outer join fetch c.statsInfo "
                 + "left outer join fetch lc.photometricInterpretation "
