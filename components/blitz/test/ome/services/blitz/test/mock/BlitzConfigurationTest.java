@@ -43,14 +43,5 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
         config = new BlitzConfiguration(id, sm, ss, ex);
         config.destroy();
     }
-    
-    @Test
-    public void testCreationAndDestruction() throws Exception {
-        Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties();
-        id.properties.setProperty("BlitzAdapter.Endpoints", "default -h 127.0.0.1");
-        config = new BlitzConfiguration(id, sm, ss, ex);
-        config.destroy();
-    }
 
 }
