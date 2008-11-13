@@ -221,6 +221,80 @@ public class TreeModelMethods {
 	}
 	
 	/**
+	 * Moves the list of nodes (which should be contiguous siblings) to a 
+	 * lower index (Up the page). Only possible if the first node has a 
+	 * previous sibling, which is then moved to be after the last node. 
+	 * 
+	 * @param nodes			The list of contiguous sibling nodes to move
+	 * @param treeModel		The tree model to notify of structure change.
+	 */
+	public static void moveFieldsUp(List<DefaultMutableTreeNode> nodes,
+			DefaultTreeModel treeModel)
+	{
+		if (nodes == null)		return;
+		if (nodes.isEmpty())	return;
+		
+		int nodeCount = nodes.size();
+		
+		// assume all nodes are siblings of same parent, and first in 
+		// list is the first sibling. 
+		DefaultMutableTreeNode firstNode = nodes.get(0);
+		DefaultMutableTreeNode parent = (DefaultMutableTreeNode)
+													firstNode.getParent();
+		
+		int firstNodeIndex = parent.getIndex(firstNode);
+		DefaultMutableTreeNode previousSibling = firstNode.getPreviousSibling();
+		
+		if (previousSibling == null)		return;
+		
+		// remove previous sibling and insert after the last node
+		parent.remove(previousSibling);
+		int indexToInsert = firstNodeIndex + nodeCount -1;
+		if (indexToInsert <= parent.getChildCount()) {	// just check!
+			parent.insert(previousSibling, indexToInsert);
+		}
+		
+		treeModel.nodeStructureChanged(parent);
+	}
+	
+	/**
+	 * Moves the list of nodes (which should be contiguous siblings) to a 
+	 * higher index (Down the page). Only possible if the last node has a 
+	 * next sibling, which is then moved to be before the first node. 
+	 * 
+	 * @param nodes			The list of contiguous sibling nodes to move
+	 * @param treeModel		The tree model to notify of structure change.
+	 */
+	public static void moveFieldsDown(List<DefaultMutableTreeNode> nodes,
+			DefaultTreeModel treeModel)
+	{
+		if (nodes == null)		return;
+		if (nodes.isEmpty())	return;
+		
+		int nodeCount = nodes.size();
+		
+		// assume all nodes are siblings of same parent, and last in 
+		// list is the last sibling. 
+		DefaultMutableTreeNode lastNode = nodes.get(nodes.size()-1);
+		DefaultMutableTreeNode parent = (DefaultMutableTreeNode)
+													lastNode.getParent();
+		
+		int lastNodeIndex = parent.getIndex(lastNode);
+		DefaultMutableTreeNode nextSibling = lastNode.getNextSibling();
+		
+		if (nextSibling == null)		return;
+		
+		// remove next sibling and insert before first node
+		parent.remove(nextSibling);
+		int indexToInsert = lastNodeIndex - nodeCount + 1;	// should be >= 0 
+		if (indexToInsert >= 0) {
+			parent.insert(nextSibling, indexToInsert);
+		}
+		
+		treeModel.nodeStructureChanged(parent);
+	}
+	
+	/**
 	 * Indents nodes to the left in the tree structure (move to a higher level).
 	 * Nodes become siblings of their parent.
 	 * Siblings of the nodes stay at the same level in the tree:

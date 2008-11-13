@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsActio
 import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentLeftAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentRightAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveDownAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveUpAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
@@ -100,6 +102,12 @@ public class BrowserControl
 	/** Identifies the <code>Indent Left</code> action. */
 	static final Integer    INDENT_LEFT_ACTION = new Integer(6);
 	
+	/** Identifies the <code>Move Up</code> action. */
+	static final Integer    MOVE_UP_ACTION = new Integer(7);
+	
+	/** Identifies the <code>Move Down</code> action. */
+	static final Integer    MOVE_DOWN_ACTION = new Integer(8);
+	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -139,6 +147,8 @@ public class BrowserControl
     		   (undoSupport, model));
        actionsMap.put(INDENT_LEFT_ACTION, new IndentLeftAction
     		   (undoSupport, model));
+       actionsMap.put(MOVE_UP_ACTION, new MoveUpAction(undoSupport, model));
+       actionsMap.put(MOVE_DOWN_ACTION, new MoveDownAction(undoSupport, model));
     }
     
     /**
