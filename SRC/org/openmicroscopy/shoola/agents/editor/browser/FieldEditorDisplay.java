@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -149,6 +150,7 @@ public class FieldEditorDisplay
 		setLayout(new BorderLayout());
 		scrollPane = new JScrollPane();
 		scrollPane.setBackground(Color.white);
+		setMinimumSize(new Dimension(220, 220));
 		
 		add(scrollPane, BorderLayout.CENTER);
 	}

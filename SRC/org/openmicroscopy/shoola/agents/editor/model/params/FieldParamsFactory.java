@@ -63,7 +63,7 @@ public class FieldParamsFactory {
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", 
+	{ "DELETE Parameter", 
 		"Text  (single line)", 
 		"Text Box  (multi-line)", 
 		"Drop-down Menu", 

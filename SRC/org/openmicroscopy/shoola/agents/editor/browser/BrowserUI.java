@@ -212,6 +212,7 @@ class BrowserUI
     	treeDisplay.setModel(tm);
     	
     	tm.addTreeModelListener(editorPanel);
+    	
     }
     
     /**

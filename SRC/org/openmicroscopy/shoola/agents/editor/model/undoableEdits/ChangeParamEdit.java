@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 /** 
  * This is an {@link AbstractUndoableEdit} subclass that changes the 
  * Parameter of field for a new Parameter. eg Change a Check-box to a 
- * Number parameter.  
+ * Number parameter, OR delete a parameter (newParam == null).
  * References to the old and new Parameters are kept, to allow undo & redo.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -145,7 +145,7 @@ public class ChangeParamEdit
 	/**
 	 * Creates an instance.
 	 * 
-	 * @param newParam		The new paremeter to add
+	 * @param newParam		The new parameter to add
 	 * @param field			The field to change parameters
 	 * @param index			The index of the parameter to change
 	 * @param tree			The tree in which the field exists.
@@ -250,7 +250,11 @@ public class ChangeParamEdit
 	 * @see AbstractUndoableEdit#getPresentationName()
 	 */
 	public String getPresentationName() {
-		     return "Change Parameter";
+		if (newParam == null) {
+			return "Delete Paramter";
+		}
+		
+		return "Change Parameter";
 	}
 	
 	/**

@@ -86,6 +86,7 @@ public class CustomPopupMenu extends JPopupMenu {
 		for (int i=0; i<items.length; i++) {
 			
 			menuItem = new JCheckBoxMenuItem(items[i]);
+			menuItem.setFont(CustomLabel.CUSTOM_FONT);
 			menuItem.addActionListener(itemListener);
 			add(menuItem);
 		}

@@ -66,7 +66,7 @@ public class BrowserFactory
      * @return 		A browser component. 
      */
     public static Browser createBrowser() {
-    	return createBrowser(Browser.TREE_DISPLAY);
+    	return createBrowser(Browser.TREE_EDIT);
     }
     
 }
