@@ -1534,7 +1534,7 @@ class OMEROGateway
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieves the thumbnail for the passed set of pixels.
 	 * 
@@ -3898,6 +3898,38 @@ class OMEROGateway
 			return service.getAllEnumerations(klass.getName());
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
+		}
+		return new ArrayList<IObject>();
+	}
+	
+	/**
+	 * Returns the collection of plane info object related to the specified
+	 * pixels set.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<IObject> loadPlaneInfo(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IQueryPrx service = getQueryService();
+		StringBuilder sb;
+		ParametersI param;
+		sb = new StringBuilder();
+		param = new ParametersI();
+		sb.append("select info from PlaneInfo as info ");
+        sb.append("where pixels.id = :id");
+        param.addLong("id", pixelsID);
+        try {
+        	return service.findAllByQuery(sb.toString(), param);
+		} catch (Exception e) {
+			handleException(e, 
+					"Cannot load the plane info for pixels: "+pixelsID);
 		}
 		return new ArrayList<IObject>();
 	}

@@ -79,7 +79,7 @@ class ImageTable
 	static final String					NAME =  "Name";
 	
 	/** The texf of the {@link #DATE_COL}. */
-	static final String					DATE =  "Date Imported";
+	static final String					DATE =  "Acquisition Date";
 	
 	/** The texf of the {@link #ANNOTATED_COL}. */
 	static final String					ANNOTATED =  "Annotated";

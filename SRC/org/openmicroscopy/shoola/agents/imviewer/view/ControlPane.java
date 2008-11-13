@@ -240,8 +240,6 @@ class ControlPane
             return ColorModelAction.DESCRIPTION_GREY_SCALE;
         else if (model.equals(ImViewer.RGB_MODEL))
         	return ColorModelAction.DESCRIPTION_RGB;
-        else if (model.equals(ImViewer.HSB_MODEL))
-        	return ColorModelAction.DESCRIPTION_RGB;
         return null;
     }
     
@@ -256,8 +254,6 @@ class ControlPane
         if (model.equals(ImViewer.GREY_SCALE_MODEL))
             return icons.getIcon(IconManager.GRAYSCALE);
         else if (model.equals(ImViewer.RGB_MODEL))
-            return icons.getIcon(IconManager.RGB);
-        else if (model.equals(ImViewer.HSB_MODEL))
             return icons.getIcon(IconManager.RGB);
         return null;
     }

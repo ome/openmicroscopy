@@ -95,9 +95,10 @@ public class ImageTableNode
 				return node.toString();
 			case ImageTable.DATE_COL:
 				if (ho instanceof ImageData) {
-					Timestamp time = EditorUtil.getCreationTime((ImageData) ho);
+					Timestamp time = 
+						EditorUtil.getAcquisitionTime((ImageData) ho);
 					if (time == null) return "--";
-					return UIUtilities.formatShortDateTime(time);
+					return UIUtilities.formatWDMYDate(time);
 				}
 				return "--";
 			case ImageTable.ANNOTATED_COL:

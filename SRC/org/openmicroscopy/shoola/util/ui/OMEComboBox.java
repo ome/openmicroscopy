@@ -27,9 +27,6 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
 import javax.swing.JComboBox;
 
 //Third-party libraries
@@ -81,7 +78,7 @@ public class OMEComboBox
 	 * 
 	 * @param values An array of objects to insert into the combo box.
 	 */
-	public OMEComboBox(String[] values)
+	public OMEComboBox(Object[] values)
 	{
 		this(values, null);
 	}
@@ -92,7 +89,7 @@ public class OMEComboBox
 	 * @param values 		An array of objects to insert into the combo box.
 	 * @param editedColor 	The foreground when the value is modified.
 	 */
-	public OMEComboBox(String[] values, Color editedColor)
+	public OMEComboBox(Object[] values, Color editedColor)
 	{
 		super(values);
 		setEditedColor(editedColor);

@@ -98,10 +98,7 @@ public interface RenderingControl
     
     /** Identifies the <code>RGB</code> color model. */
     public static final String  RGB = "rgb";
-    
-    /** Identifies the <code>HSB</code> color model. */
-    public static final String  HSB = "hsb";
-    
+
     /** Identifies the <code>Grey scale</code> color model. */
     public static final String  GREY_SCALE = "greyscale";
     

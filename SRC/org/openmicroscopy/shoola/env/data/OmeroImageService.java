@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -386,6 +387,19 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the plane info objects related to the passed pixels set.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadPlaneInfo(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

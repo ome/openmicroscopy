@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,7 +50,6 @@ import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -129,7 +132,7 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(passwordConfirm.getPassword());
         String confirm = buf.toString();
-        
+
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
@@ -157,14 +160,18 @@ class UserProfile
     {
     	boolean isOwner = model.isCurrentUserOwner(model.getRefObject());
     	passwordButton =  new JButton("Change password");
+    	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  
             	changePassword(); 
             }
         });
     	passwordNew = new JPasswordField();
+    	passwordNew.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordConfirm = new JPasswordField();
+    	passwordConfirm.setBackground(UIUtilities.BACKGROUND_COLOR);
     	oldPassword = new JPasswordField();
+    	oldPassword.setBackground(UIUtilities.BACKGROUND_COLOR);
     	items = new HashMap<String, JTextField>();
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	List userGroups = user.getGroups();
@@ -193,7 +200,7 @@ class UserProfile
 		}
 		selectedIndex = originalIndex;
 		//sort by name
-		groups = new JComboBox(groupData);
+		groups = EditorUtil.createComboBox(groupData, 0);
 		groups.setRenderer(new GroupsRenderer());
 		if (groupData.length != 0)
 			groups.setSelectedIndex(selectedIndex);
@@ -214,26 +221,22 @@ class UserProfile
     	boolean editable = model.isCurrentUserOwner(user);
     	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        double[] columns = {150, 200};
-        double[] rows =  new double[2*(details.size()+2)];
-        for (int i = 0; i < rows.length; i++) {
-        	if (i%2 == 0) rows[i] = 5;
-        	else rows[i] = TableLayout.FILL;
-		}
-        
-        TableLayout layout = new TableLayout();
-        layout.setColumn(columns);
-        layout.setRow(rows);
-        content.setLayout(layout);
-        Iterator i = details.keySet().iterator();
+        content.setBorder(
+				BorderFactory.createTitledBorder("Profile"));
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	
+    	Iterator i = details.keySet().iterator();
         JLabel label;
         JTextField area;
         String key, value;
-        int index = 1;
-        int j;
-        boolean isOwner = model.isCurrentUserOwner(model.getRefObject());
+        content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
         while (i.hasNext()) {
+            ++c.gridy;
+            c.gridx = 0;
             key = (String) i.next();
             value = (String) details.get(key);
             if (key.equals(EditorUtil.LAST_NAME) || 
@@ -242,29 +245,48 @@ class UserProfile
             			key+EditorUtil.MANDATORY_SYMBOL);
             else label = UIUtilities.setTextFont(key);
             area = new JTextField(value);
-            
-            j = index-1;
-            content.add(new JLabel(""), "0, "+j+", 1, "+j);
-            content.add(label, "0, "+index);
+            area.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (editable) {
-            	 area.setEditable(editable);
-            	 area.getDocument().addDocumentListener(this);
+            	area.setEditable(editable);
+            	area.getDocument().addDocumentListener(this);
             }
-            area.setEnabled(isOwner);
-            label.setLabelFor(area);
-            content.add(area, "1, "+index);
             items.put(key, area);
-            index = index+2;
+            label.setBackground(UIUtilities.BACKGROUND_COLOR);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            label.setLabelFor(area);
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(area, c);  
         }
+        c.gridx = 0;
+        c.gridy++;
         label = UIUtilities.setTextFont(EditorUtil.DEFAULT_GROUP);
-        j = index-1;
-        content.add(new JLabel(""), "0, "+j+", 1, "+j);
-        content.add(label, "0, "+index);
-        content.add(groups, "1, "+index);
-        index = index+2;
-        content.add(new JLabel(""), "0, "+j+", 1, "+j);
-        content.add(UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
-        		Font.ITALIC), "0, "+index+", 1, "+index);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(groups, c);  
+        c.gridx = 0;
+        c.gridy++;
+        content.add(Box.createHorizontalStrut(10), c); 
+        c.gridy++;
+        label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
+        		Font.ITALIC);
+        c.weightx = 0.0;  
+        content.add(label, c);
         return content;
     }
     
@@ -277,34 +299,56 @@ class UserProfile
     private JPanel buildPasswordPanel()
     {
     	JPanel content = new JPanel();
-    	content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-    	double[][] tl = {{150, 5, 100}, //columns
-				{TableLayout.FILL, 5, TableLayout.FILL, 5, TableLayout.FILL} };
-    	//rows
-    	content.setLayout(new TableLayout(tl));
-    	JLabel label =  UIUtilities.setTextFont(PASSWORD_OLD);
-    	content.add(label, "0, 0, f, t");
-    	label = new JLabel();
-    	content.add(label, "1, 0");
-    	content.add(oldPassword, "2, 0");
-    	label = new JLabel();
-    	content.add(label, "0, 1, 2, 1");
-    	label = UIUtilities.setTextFont(PASSWORD_NEW);
-    	content.add(label, "0, 2, f, t");
-    	label = new JLabel();
-    	content.add(label, "1, 2");
-    	content.add(passwordNew, "2, 2");
-    	label = new JLabel();
-    	content.add(label, "0, 3, 2, 3");
-    	label = UIUtilities.setTextFont(PASSWORD_CONFIRMATION);
-    	content.add(label, "0, 4, f, t");
-    	label = new JLabel();
-    	content.add(label, "1, 4");
-    	content.add(passwordConfirm, "2, 4");
+    	content.setBorder(
+				BorderFactory.createTitledBorder("Change Password"));
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+		content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.weightx = 0.0;  
+    	content.add(UIUtilities.setTextFont(PASSWORD_OLD), c);
+    	c.gridx++;
+    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+    	c.fill = GridBagConstraints.HORIZONTAL;
+    	c.weightx = 1.0;
+    	content.add(oldPassword, c);
+    	c.gridy++;
+    	c.gridx = 0;
+    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.weightx = 0.0;  
+    	content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
+    	c.gridx++;
+    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+    	c.fill = GridBagConstraints.HORIZONTAL;
+    	c.weightx = 1.0;
+    	content.add(passwordNew, c);
+    	c.gridy++;
+    	c.gridx = 0;
+    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.weightx = 0.0;  
+    	content.add(UIUtilities.setTextFont(PASSWORD_CONFIRMATION), c);
+    	c.gridx++;
+    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+    	c.fill = GridBagConstraints.HORIZONTAL;
+    	c.weightx = 1.0;
+    	content.add(passwordConfirm, c);
+    	c.gridy++;
+    	c.gridx = 0;
     	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
     	p.add(content);
-    	p.add(UIUtilities.buildComponentPanel(passwordButton));
+    	JPanel buttonPanel = UIUtilities.buildComponentPanel(passwordButton);
+    	buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.add(buttonPanel);
     	return p;
     }
 
@@ -328,6 +372,7 @@ class UserProfile
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
  
 	/**
@@ -338,14 +383,22 @@ class UserProfile
     {
     	removeAll();
     	initComponents();
-    	//setBorder(new EtchedBorder());
-    	JPanel contentPanel = buildContentPanel();
-    	double[][] tl = {{TableLayout.FILL}, 
-    					{TableLayout.PREFERRED, TableLayout.PREFERRED}}; 
-    	setLayout(new TableLayout(tl));
-    	add(contentPanel, "0, 0, f, t");
-    	if (model.isCurrentUserOwner(model.getRefObject()))
-    			add(buildPasswordPanel(), "0, 1, f, t");
+    	setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+    	c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.weightx = 1.0;  
+    	add(buildContentPanel(), c);
+    	if (model.isCurrentUserOwner(model.getRefObject())) {
+    		c.gridy++;
+    		add(Box.createVerticalStrut(5), c); 
+    		c.gridy++;
+    		add(buildPasswordPanel(), c);
+    	}
     }
     
 	/** Clears the password fields. */
@@ -374,10 +427,14 @@ class UserProfile
 		while (i.hasNext()) {
 			key = (String) i.next();
 			field = items.get(key);
-			v = field.getText().trim();
-			value = (String) details.get(key);
-			if (value != null && !v.equals(value))
-				return true;
+			v = field.getText();
+			if (v != null) {
+				v = v.trim();
+				value = (String) details.get(key);
+				if (value != null && !v.equals(value))
+					return true;
+			}
+			
 		}
 		return false;
 	}

@@ -115,7 +115,8 @@ public class ImageNode
         	canvas = new ThumbnailCanvas(this);
             getInternalDesktop().add(canvas, new Integer(0));
             setCanvasSize(t.getWidth(), t.getHeight());
-            setCanvasToolTip(getNodeName());
+            //setCanvasToolTip(getNodeName());
+            setCanvasToolTip(getTitle());
         }
     }
     
@@ -192,7 +193,7 @@ public class ImageNode
     {
     	Timestamp t = null;
     	try {
-    		t = ((ImageData) getHierarchyObject()).getInserted();
+    		t = ((ImageData) getHierarchyObject()).getAcquisitionDate();
     	} catch (Exception e) {}
     	if (t == null) t = new Timestamp(new Date().getTime());
     	return t;

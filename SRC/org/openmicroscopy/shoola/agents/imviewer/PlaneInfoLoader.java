@@ -26,17 +26,18 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads the plane info associated to the currently displayed planes.
- * This class calls <code></code> method in the
+ * Loads the plane info related to a given pixels set.
+ * This class calls <code>loadPlaneInfo</code> method in the
  * <code>ImViewerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -75,30 +76,28 @@ public class PlaneInfoLoader
     }
 
     /**
-     * Retrieves the information on the plane currently displayed i.e.
-     * depending on z-section, timepoint and selected channels.
-     * @see DataBrowserLoader#load()
+     * Loads the plane information
+     * @see DataLoader#load()
      */
     public void load()
     {
-        // TODO Auto-generated method stub
-        
+       handle = ivView.loadPlaneInfo(pixelsID, this);
     }
 
     /**
      * Cancels the ongoing data retrieval.
-     * @see DataBrowserLoader#cancel()
+     * @see DataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        //viewer.setChannelMetadata((Set) result);
+        viewer.setPlaneInfo((Collection) result);
     }
     
 }

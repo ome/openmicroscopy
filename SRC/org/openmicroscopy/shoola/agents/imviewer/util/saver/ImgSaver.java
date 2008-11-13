@@ -159,7 +159,7 @@ public class ImgSaver
             	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
                 mainImage = model.getDisplayedImage();
                 imageComponents = model.getImageComponents(
-                						ImViewer.HSB_MODEL);
+                						ImViewer.RGB_MODEL);
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS_GREY:
             	type = ImgSaverUI.IMAGE_AND_COMPONENTS;

@@ -127,7 +127,6 @@ public class OptionsDialog
     private void createComponents()
     {
     	body = new JPanel();
-    	//body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
     	body.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	mainPanel = new JPanel();
     	controlPanel = new JPanel();

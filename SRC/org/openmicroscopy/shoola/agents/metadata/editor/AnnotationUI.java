@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.util.List;
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -87,6 +89,7 @@ abstract class AnnotationUI
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 
 	/** Builds and lays out the UI. */

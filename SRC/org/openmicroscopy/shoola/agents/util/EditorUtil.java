@@ -474,7 +474,7 @@ public class EditorUtil
             }
         }
         details.put(WAVELENGTHS, ""); 
-        Timestamp date = getCreationTime(image);
+        Timestamp date = getAcquisitionTime(image);
         if (date == null) 
         	details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
         else 
@@ -488,11 +488,12 @@ public class EditorUtil
      * @param image The image to handle.
      * @return See above.
      */
-    public static Timestamp getCreationTime(ImageData image)
+    public static Timestamp getAcquisitionTime(ImageData image)
     {
+    	if (image == null) return null;
     	Timestamp date = null;
         try {
-        	date = image.getInserted();
+        	date = image.getAcquisitionDate();
 		} catch (Exception e) {}
 		return date;
     }
@@ -973,17 +974,17 @@ public class EditorUtil
     /**
 	 * Initialises a <code>JComboBox</code>.
 	 * 
-	 * @param values The values to display.
+	 * @param values 	The values to display.
+	 * @param decrement The value by which the font size is reduced.
 	 * @return See above.
 	 */
-    public static JComboBox createComboBox(String[] values)
+    public static JComboBox createComboBox(Object[] values, int decrement)
 	{
     	OMEComboBox box = new OMEComboBox(values);
 		box.setBackground(UIUtilities.BACKGROUND_COLOR);
 		box.setSelectedIndex(0);
 		box.setUI(new BasicComboBoxUI() {
-			 
-			
+
 	        /**
 	         * Hides the arrow Button.
 	         */
@@ -997,14 +998,24 @@ public class EditorUtil
 	      });
 
 		Font f = box.getFont();
-		int size = f.getSize()-3;
+		int size = f.getSize()-decrement;
 		box.setBorder(null);
 		box.setFont(f.deriveFont(Font.ITALIC, size));
 		box.setEditedColor(UIUtilities.EDITED_COLOR);
 		return box;
 	}
     
-    
+    /**
+	 * Initialises a <code>JComboBox</code>.
+	 * 
+	 * @param values The values to display.
+	 * @return See above.
+	 */
+    public static JComboBox createComboBox(Object[] values)
+	{
+    	return createComboBox(values, 3);
+	}
+
 	/**
 	 * Initiliases a <code>JXTaskPane</code>.
 	 * 

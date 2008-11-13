@@ -504,6 +504,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Pixels pixels = gateway.getPixels(pixelsID);
+		
 		Collection l = pixels.copyChannels();
 		Iterator i = l.iterator();
 		List<ChannelData> m = new ArrayList<ChannelData>(l.size());

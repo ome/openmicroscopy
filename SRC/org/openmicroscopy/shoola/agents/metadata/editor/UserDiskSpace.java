@@ -70,6 +70,7 @@ class UserDiskSpace
 		this.view = view;
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(300, 200));
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 
 	/** Builds and lays out the GUI. */
@@ -88,9 +89,12 @@ class UserDiskSpace
 			add(new ChartPanel(freeChart), BorderLayout.CENTER);
 		} else {
 			JXBusyLabel busyLabel = new JXBusyLabel();
+			busyLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
 			busyLabel.setEnabled(true);
 			busyLabel.setBusy(true);
-			add(busyLabel, BorderLayout.NORTH);
+			JPanel p = UIUtilities.buildComponentPanelCenter(busyLabel);
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			add(p, BorderLayout.CENTER);
 		}
 		revalidate();
 		repaint();

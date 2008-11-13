@@ -39,11 +39,9 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.AnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
@@ -137,14 +135,17 @@ class EditorComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		/*
 		if ((refObject instanceof String) && 
 			(refObject instanceof TimeRefObject)) {
 			view.showEditor(false);
 		} else {
 			view.showEditor(true);
-			view.setRootObject();
+			
 			//model.loadUserThumbnail();
 		}
+		*/
+		view.setRootObject();
 	}
 
 	/** 

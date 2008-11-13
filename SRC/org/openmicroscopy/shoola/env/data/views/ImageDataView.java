@@ -194,4 +194,13 @@ public interface ImageDataView
     public CallHandle saveAcquisitionData(Object refObject, 
     		AgentEventListener observer);
     
+    /**
+     * Loads the plane info objects related to the passed pixels set.
+     * 
+     * @param pixelsID The id of the pixels set.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle loadPlaneInfo(long pixelsID, AgentEventListener observer);
+    
 }

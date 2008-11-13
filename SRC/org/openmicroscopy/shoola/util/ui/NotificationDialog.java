@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -37,12 +38,14 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
 //Third-party libraries
-import layout.TableLayout;
+import org.jdesktop.swingx.JXHeader;
+import org.jdesktop.swingx.JXHeader.IconPosition;
+import org.jdesktop.swingx.painter.RectanglePainter;
+
 
 //Application-internal dependencies
 
@@ -89,31 +92,33 @@ public class NotificationDialog
     /** Sets the default color of the panel. */
     protected static final Color        DEFAULT_COLOR = Color.WHITE;
     
-	/** 
+    /** 
 	 * The outmost container.  
 	 * All other widgets are added to this panel, which, in turn, is then 
 	 * added to the dialog's content pane.
 	 */
-	protected JPanel	contentPanel;
+	protected JXHeader	contentPanel;
 	
 	/** Contains the message and the message icon, if any. */
 	protected JPanel	messagePanel;
 	
 	/** Contains the {@link #okButton}. */
-	protected JPanel	buttonPanel;
+	protected JPanel	controlsPanel;
 	
 	/** Hides and disposes of the dialog. */
 	protected JButton	okButton;
 		
+	/** Panel hosting the UI components. */
+	private JPanel 		mainPanel;
+	
 	/** Creates the various UI components that make up the dialog. */
 	private void createComponents()
 	{
-		contentPanel = new JPanel();
-        contentPanel.setOpaque(true);
+		mainPanel = new JPanel();
+		contentPanel = new JXHeader();
 		messagePanel = new JPanel();
         messagePanel.setOpaque(true);
-		buttonPanel = new JPanel();
-        buttonPanel.setOpaque(true);
+		controlsPanel = new JPanel();
 		okButton = new JButton("OK");
 		getRootPane().setDefaultButton(okButton);
 	}
@@ -140,54 +145,39 @@ public class NotificationDialog
 	}
 	
 	/**
-	 * Builds and lays out the {@link #messagePanel}.
+	 * Builds and lays out the {@link #contentPanel}.
 	 * It will contain the notification message along with the message icon, 
 	 * if any.
 	 * 
 	 * @param msg		The notification message.
 	 * @param icon		The icon to display by the message.
+	 * @return See above.
 	 */
-	private void buildMessagePanel(String msg, Icon icon)
+	private JPanel buildCommentPanel(String msg, Icon icon)
 	{
-		 int iconSpace = 0;
-		 if (icon != null) iconSpace = icon.getIconWidth()+20;
-
-		 double tableSize[][] = {{iconSpace, (160 - iconSpace), 
-			 					TableLayout.FILL}, // columns
-			 					{TableLayout.FILL}}; // rows
-		 TableLayout layout = new TableLayout(tableSize);
-		 messagePanel.setLayout(layout);  
-		 messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 
-				 				10));
-
-		 if (icon != null)
-			 messagePanel.add(new JLabel(icon), "0, 0, l, c");
-		 messagePanel.add(UIUtilities.buildTextPane(msg), "1, 0, 2, 0");
-		 /*
-		messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
-		if (msgIcon != null) {
-			JLabel iconLabel = new JLabel(msgIcon);
-			iconLabel.setAlignmentY(TOP_ALIGNMENT);
-			messagePanel.add(iconLabel);
-			messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		}
-		MultilineLabel message = new MultilineLabel(msg);
-		message.setPreferredSize(MSG_AREA_SIZE);
-		message.setAlignmentY(TOP_ALIGNMENT);
-		messagePanel.add(message);
-		*/
+		contentPanel.setBackgroundPainter(
+    			new RectanglePainter(UIUtilities.WINDOW_BACKGROUND_COLOR, 
+    					null));
+		contentPanel.setDescription(msg);
+		contentPanel.setIcon(icon);
+		contentPanel.setIconPosition(IconPosition.LEFT);
+		return contentPanel;
 	}
 	
 	/**
-	 * Builds and lays out the {@link #buttonPanel}.
+	 * Builds and lays out the {@link #controlsPanel}.
 	 * The {@link #okButton} will be added to this panel.
+	 * 
+	 * @return See above.
 	 */
-	private void buildButtonPanel()
+	private JPanel buildControlPanel()
 	{
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		buttonPanel.add(Box.createHorizontalGlue());
-		buttonPanel.add(okButton);
-		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		controlsPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		controlsPanel.setBorder(null);
+		controlsPanel.add(Box.createHorizontalGlue());
+		controlsPanel.add(okButton);
+		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		return controlsPanel;
 	}
 	
 	/**
@@ -199,18 +189,12 @@ public class NotificationDialog
 	 */
 	private void buildGUI(String message, Icon messageIcon)
 	{
-		contentPanel.setBorder(BorderFactory.createCompoundBorder(
-								BorderFactory.createEtchedBorder(),
-								BorderFactory.createEmptyBorder(5, 5, 15, 10)));
-		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-		buildMessagePanel(message, messageIcon);
-		contentPanel.add(messagePanel);
-		JPanel vSpacer = new JPanel();
-		vSpacer.add(Box.createRigidArea(V_SPACER_SIZE));
-		contentPanel.add(vSpacer);
-		buildButtonPanel();
-		contentPanel.add(buttonPanel);
-		getContentPane().add(contentPanel);
+		mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		mainPanel.add(buildCommentPanel(message, messageIcon));
+		mainPanel.add(buildControlPanel());
+		getContentPane().add(mainPanel, BorderLayout.CENTER);
 	}
 	
 	/**

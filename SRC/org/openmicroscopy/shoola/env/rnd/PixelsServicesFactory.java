@@ -127,7 +127,6 @@ public class PixelsServicesFactory
 				rgba[2] = c.getBlue().getValue();
 				rgba[3] = c.getAlpha().getValue();
 				
-				
 				cb.setActive(c.getActive().getValue());
 				cb.setInterval(c.getInputStart().getValue(), 
 						c.getInputEnd().getValue());

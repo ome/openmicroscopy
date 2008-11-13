@@ -673,4 +673,15 @@ class OmeroImageServiceImpl
 		return null;
 	}
 	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadPlaneInfo(long)
+	 */
+	public Collection loadPlaneInfo(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Collection planes = gateway.loadPlaneInfo(pixelsID);
+		return null;
+	}
+	
 }

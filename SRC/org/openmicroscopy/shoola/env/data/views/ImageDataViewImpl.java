@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
@@ -204,6 +205,16 @@ class ImageDataViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new AcquisitionDataSaver(refObject);
+		return cmd.exec(observer);
+	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadPlaneInfo(long, AgentEventListener)
+     */
+	public CallHandle loadPlaneInfo(long pixelsID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new PlaneInfoLoader(pixelsID);
 		return cmd.exec(observer);
 	}
 	

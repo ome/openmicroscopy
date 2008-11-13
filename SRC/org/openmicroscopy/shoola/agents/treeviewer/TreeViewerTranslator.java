@@ -91,16 +91,14 @@ public class TreeViewerTranslator
         if (node == null) throw new IllegalArgumentException("No node");
         String toolTip = "";
         String title = null;
-        if (node.getUserObject() instanceof ImageData) {
-            Timestamp time = null;
-            try {
-                time = ((ImageData) node.getUserObject()).getInserted();
-            } catch (Exception e) {}
-            if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;//time = getDefaultTimestamp();
+        Object uo = node.getUserObject();
+        if (uo instanceof ImageData) {
+            Timestamp time = EditorUtil.getAcquisitionTime((ImageData) uo);
+            if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;
             else title = UIUtilities.formatTime(time); 
             toolTip = UIUtilities.formatToolTipText(title);
             //node.setToolTip(toolTip); 
-        } else if (node.getUserObject() instanceof WellData) {
+        } else if (uo instanceof WellData) {
         	toolTip = UIUtilities.formatToolTipText(
         		((WellData) node.getUserObject()).getExternalDescription());
         	node.setToolTip(toolTip);

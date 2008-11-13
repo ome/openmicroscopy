@@ -87,8 +87,11 @@ public class EditorUI
     /** The tabbed pane hosting the metadata. */
     private JTabbedPane					tabbedPane;
     
-    /** The defaut empty component. */
-    private JPanel						empty;
+    /** The component currently displayed.. */
+    private JComponent					component;
+    
+    /** The default component. */
+    private JPanel						defaultPane;
     
 	/** Initializes the UI components. */
 	private void initComponents()
@@ -98,8 +101,12 @@ public class EditorUI
 		generalPane = new GeneralPaneUI(this, model, controller);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
-		empty = new JPanel();
-		empty.setBackground(UIUtilities.BACKGROUND_COLOR);
+		tabbedPane.addTab("General", null, generalPane, "General Information");
+		tabbedPane.addTab("Acquisition", null, acquisitionPane, 
+			"Acquisition Metadata");
+		defaultPane = new JPanel();
+		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		component = defaultPane;
 	}
 	
 	/** Builds and lays out the components. */
@@ -107,7 +114,7 @@ public class EditorUI
 	{
 		setLayout(new BorderLayout(0, 0));
 		add(toolBar, BorderLayout.NORTH);
-		add(tabbedPane, BorderLayout.CENTER);
+		add(component, BorderLayout.CENTER);
 	}
 	
 	/** Creates a new instance. */
@@ -136,54 +143,39 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
-    	tabbedPane.removeAll();
-    	if (model.getRefObject() instanceof ExperimenterData)  {
+    	Object uo = model.getRefObject();
+    	remove(component);
+    	if (uo instanceof ExperimenterData)  {
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
-    		tabbedPane.addTab("Profile", null, userUI, 
-			"User's profile");
+    		component = userUI;
+    	} else if (!(uo instanceof DataObject)) {
+    		setDataToSave(false);
+    		component = defaultPane;
     	} else {
     		setDataToSave(false);
         	toolBar.buildUI();
         	toolBar.setControls();
         	generalPane.layoutUI();
-        	tabbedPane.addTab("General", null, generalPane,
-			"General Information");
-			tabbedPane.addTab("Acquisition", null, acquisitionPane, 
-			"Acquisition Metadata");
+        	component = tabbedPane;
     	}
+    	add(component, BorderLayout.CENTER);
     	revalidate();
-    	repaint();
-    }
-    
-    /**
-     * Shows or hides the editor.
-     * 
-     * @param show Pass <code>true</code> to show it, <code>false</code> to hide
-     * 			   it.
-     */
-    void showEditor(boolean show)
-    {
-    	/*
-    	Component comp = getComponent(0);
-    	if (show) {
-    		if (comp instanceof JScrollPane) return;
-    		removeAll();
-    		add(mainPane, BorderLayout.CENTER);
-    	} else {
-    		if (comp instanceof JPanel) return;
-    		removeAll();
-    		add(emptyPane, BorderLayout.CENTER);
-    	}
-    	*/
     	repaint();
     }
     
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{
-		generalPane.setRootObject();
+		Object uo = model.getRefObject();
+		if (!(uo instanceof DataObject)) {
+			component = defaultPane;
+			revalidate();
+	    	repaint();
+		} else if (uo instanceof ExperimenterData) 
+			layoutUI();
+		else generalPane.setRootObject();
 	}
 	
 	/**

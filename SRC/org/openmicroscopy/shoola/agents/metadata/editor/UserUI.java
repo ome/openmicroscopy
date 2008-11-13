@@ -27,9 +27,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
-
-
 
 //Third-party libraries
 import layout.TableLayout;
@@ -91,7 +90,7 @@ class UserUI
 		diskTask.setCollapsed(true);
 		diskTask.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
-		double[][] size = {{TableLayout.PREFERRED}, 
+		double[][] size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(profile, "0, 0");
@@ -181,13 +180,19 @@ class UserUI
 	 * No-op implementation in our case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove() { return null; }
+	protected List<AnnotationData> getAnnotationToRemove()
+	{ 
+		return new ArrayList<AnnotationData>();  
+	}
 
 	/**
 	 * No-op implementation in our case.
 	 * @see AnnotationUI#getAnnotationToSave()
 	 */
-	protected List<AnnotationData> getAnnotationToSave() { return null; }
+	protected List<AnnotationData> getAnnotationToSave()
+	{ 
+		return new ArrayList<AnnotationData>(); 
+	}
 
 	/**
 	 * Returns the title associated to this component.

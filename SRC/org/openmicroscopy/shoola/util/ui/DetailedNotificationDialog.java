@@ -196,9 +196,9 @@ public class DetailedNotificationDialog
 	 */
 	private void buildGUI(String explanation)
 	{
-		buttonPanel.add(detailsButton);
+		controlsPanel.add(detailsButton);
         //buttonPanel.add(sendButton);
-		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		buildExplanationPanel(explanation);
 	}
 	
@@ -211,8 +211,8 @@ public class DetailedNotificationDialog
 	 */
 	private void buildGUI(Component component)
     {
-		buttonPanel.add(detailsButton);
-		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		controlsPanel.add(detailsButton);
+		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		buildExplanationPanel(component);
 	}
 	

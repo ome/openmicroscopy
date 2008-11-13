@@ -638,8 +638,7 @@ class ImViewerComponent
 					}
 					break;
 				case ColorModelAction.RGB_MODEL:
-				case ColorModelAction.HSB_MODEL:
-					model.setColorModel(HSB_MODEL);
+					model.setColorModel(RGB_MODEL);
 					if (historyActiveChannels != null && 
 							historyActiveChannels.size() != 0) {
 						i = historyActiveChannels.iterator();
@@ -1300,7 +1299,7 @@ class ImViewerComponent
 					model.setChannelActive(index, true);
 				}
 				if (active.size() != 0) {
-					model.setColorModel(HSB_MODEL);
+					model.setColorModel(RGB_MODEL);
 					images.add(model.getSplitComponentImage());
 					model.setColorModel(GREY_SCALE_MODEL);
 				}
@@ -1371,7 +1370,7 @@ class ImViewerComponent
 				model.setChannelActive(index, true);
 			}
 			if (active.size() != 0) {
-				model.setColorModel(HSB_MODEL);
+				model.setColorModel(RGB_MODEL);
 				image = model.getSplitComponentImage();
 				model.setColorModel(GREY_SCALE_MODEL);
 			}
@@ -2594,18 +2593,24 @@ class ImViewerComponent
 		projection = null;
 	}
 
-	/**
-	 * Sets the context of the node.
-	 * 
-	 * @param parent		The parent of the image or <code>null</code> 
-	 * 						if no context specified.
-	 * @param grandParent   The grandparent of the image or <code>null</code> 
-	 * 						if no context specified.
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setContext(DataObject, DataObject)
 	 */
 	public void setContext(DataObject parent, DataObject grandParent)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setContext(parent, grandParent);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setPlaneInfo(Collection)
+	 */
+	public void setPlaneInfo(Collection collection)
+	{
+		// TODO Auto-generated method stub
+		
 	}
     
 }

@@ -138,9 +138,6 @@ public interface ImViewer
 	/** Identifies the RGB color model. */
 	public static final String  RGB_MODEL = RenderingControl.RGB;
 
-	/** Identifies the HSB color model. */
-	public static final String  HSB_MODEL = RenderingControl.HSB;
-
 	/** Bound Property name indicating that a channel colour has changed. */
 	public static final String	CHANNEL_COLOR_CHANGED_PROPERTY = 
 									"channelColorChanged";
@@ -910,5 +907,12 @@ public interface ImViewer
      * 						if no context specified.
      */
     public void setContext(DataObject parent, DataObject grandParent);
+
+    /**
+     * Sets the plane information related to the image.
+     * 
+     * @param collection The collection of plane info objects.
+     */
+	public void setPlaneInfo(Collection collection);
 	
 }

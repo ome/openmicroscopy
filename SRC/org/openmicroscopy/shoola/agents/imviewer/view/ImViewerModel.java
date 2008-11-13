@@ -671,9 +671,8 @@ class ImViewerModel
 	{
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
 			currentRndControl.setModel(colorModel);
-		else if (ImViewer.RGB_MODEL.equals(colorModel) ||
-				(ImViewer.HSB_MODEL.equals(colorModel)))
-			currentRndControl.setModel(ImViewer.HSB_MODEL);
+		else if (ImViewer.RGB_MODEL.equals(colorModel))
+			currentRndControl.setModel(ImViewer.RGB_MODEL);
 	}
 
 	/**

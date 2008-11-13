@@ -544,7 +544,9 @@ class RenderingControlProxy
         pixs = pixels;//servant.getPixels();
         families = null;
         models = null;
+        
         try {
+        	
         	families = servant.getAvailableFamilies(); 
             models = servant.getAvailableModels();
             cacheID = -1;
@@ -1033,7 +1035,7 @@ class RenderingControlProxy
     	DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
-    		 setModel(HSB);
+    		 setModel(RGB);
     		 invalidateCache();
     		 initialize();
     		 //tmpSolutionForNoiseReduction();
@@ -1358,7 +1360,7 @@ class RenderingControlProxy
 		DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
-    		 setModel(HSB);
+    		 setModel(RGB);
     		 List list = servant.getAvailableFamilies();
     		 ChannelData m;
     		 Iterator j;

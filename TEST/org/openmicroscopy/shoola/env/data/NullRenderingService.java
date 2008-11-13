@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -246,6 +247,16 @@ public class NullRenderingService
      * @see OmeroImageService#saveAcquisitionData(Object)
      */
 	public Object saveAcquisitionData(Object refObject) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadPlaneInfo(long)
+     */
+	public Collection loadPlaneInfo(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

@@ -584,8 +584,7 @@ class ImViewerUI
 		action = controller.getAction(ImViewerControl.RGB_MODEL);
 		item = new JCheckBoxMenuItem();
 		item.setAction(action);
-		item.setSelected(cm.equals(ImViewer.RGB_MODEL) || 
-				cm.equals(ImViewer.HSB_MODEL));
+		item.setSelected(cm.equals(ImViewer.RGB_MODEL));
 		colorModelGroup.add(item);
 		menu.add(item);
 		
