@@ -49,6 +49,8 @@ public class BlitzConfiguration {
 
     private final PermissionsVerifier blitzVerifier;
 
+    private final Ice.InitializationData id;
+
     /**
      * Single constructor which builds all Ice instances needed for the server
      * runtime based on arguments provided. Once the constructor is finished,
@@ -64,8 +66,29 @@ public class BlitzConfiguration {
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
+        this(createId(), sessionManager, securitySystem, executor);
+    }
+
+    /**
+     * Like
+     * {@link #BlitzConfiguration(ome.services.sessions.SessionManager, SecuritySystem, Executor)}
+     * but allows properties to be specified via an
+     * {@link Ice.InitializationData} instance.
+     * 
+     * @param id
+     * @param sessionManager
+     * @param securitySystem
+     * @param executor
+     * @throws RuntimeException
+     */
+    public BlitzConfiguration(Ice.InitializationData id,
+            ome.services.sessions.SessionManager sessionManager,
+            SecuritySystem securitySystem, Executor executor)
+            throws RuntimeException {
 
         logger.info("Initializing Ice.Communicator");
+        
+        this.id = id;
         communicator = createCommunicator();
 
         if (communicator == null) {
@@ -100,8 +123,6 @@ public class BlitzConfiguration {
         throwIfInitialized(communicator);
 
         Ice.Communicator ic;
-        Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties();
 
         String ICE_CONFIG = System.getProperty("ICE_CONFIG");
         if (ICE_CONFIG != null) {
@@ -290,6 +311,14 @@ public class BlitzConfiguration {
             throw new IllegalStateException("Verifier is null");
         }
         return blitzVerifier;
+    }
+
+    // Helpers
+
+    private static Ice.InitializationData createId() {
+        Ice.InitializationData iData = new Ice.InitializationData();
+        iData.properties = Ice.Util.createProperties();
+        return iData;
     }
 
 }

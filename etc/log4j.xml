@@ -203,6 +203,11 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
     <priority value="ERROR"/>
   </category>
 
+  <!-- Overly verbose message printed to server.log -->
+  <category name="org.hibernate.hql.PARSER">
+    <priority value="FATAL"/>
+  </category>
+
   <!-- Reactivating "Started In" -->
   <category name="org.jboss.system.server.Server">
     <priority value="INFO"/>
