@@ -83,10 +83,10 @@ public class Renderer {
     public static final String MODEL_GREYSCALE = "greyscale";
 
     /** Identifies the type used to store model values. */
-    public static final String MODEL_HSB = "hsb";
+    public static final String MODEL_RGB = "rgb";
 
     /** Identifies the type used to store model values. */
-    public static final String MODEL_RGB = "rgb";
+    public static final String MODEL_HSB = MODEL_RGB;
 
     /** Identifies the type used to store photometric interpretation values. */
     public static final String PHOTOMETRIC_MONOCHROME = "Monochrome";
