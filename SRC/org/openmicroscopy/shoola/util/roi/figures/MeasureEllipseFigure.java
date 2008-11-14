@@ -28,7 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -39,7 +38,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -114,11 +112,6 @@ public class MeasureEllipseFigure
 	public MeasureEllipseFigure(String text)
 	{
 		this(text, 0, 0, 0, 0);
-	}
-	
-	public Ellipse2D getEllipse()
-	{
-		return ellipse;
 	}
 	
 	/** 

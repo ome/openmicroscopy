@@ -25,21 +25,15 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 
 
 //Java imports
-import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
-import static org.jhotdraw.samples.svg.SVGAttributeKeys.OPACITY;
-
-import java.awt.AlphaComposite;
-import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.awt.image.BufferedImage;
+import java.awt.geom.Point2D.Double;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -57,6 +51,8 @@ import org.jhotdraw.draw.TransformHandleKit;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.samples.svg.Gradient;
 import org.jhotdraw.samples.svg.SVGAttributeKeys;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 
 /** 
  * 
@@ -88,9 +84,21 @@ public class RotateEllipseFigure
 	{
 		this(0, 0, 0, 0);
 	}
-	    
+	
 	/**
-	 * 
+	 * Create a new rotated Ellipse with position x, y and width and height
+	 * @param x see above.
+	 * @param y see above.
+	 * @param width see above.
+	 * @param height see above.
+	 */
+	public RotateEllipseFigure(double x, double y, double width, double height)
+	{
+		ellipse=new Ellipse2D.Double(x, y, width, height);
+	}
+		    
+	/**
+	 *  
 	 */
 	public void setAttribute(AttributeKey key, Object newValue)
 	{
@@ -99,105 +107,8 @@ public class RotateEllipseFigure
 	    	invalidate();
 	    }
         super.setAttribute(key, newValue);
-        
 	} 
 	    
-	/**
-	 * 
-	 */
-	public void draw(Graphics2D g)
-	{
-		double opacity=OPACITY.get(this);
-		opacity=Math.min(Math.max(0d, opacity), 1d);
-		if (opacity!=0d)
-		{
-			if (opacity!=1d)
-			{
-				Rectangle2D.Double drawingArea=getDrawingArea();
-				
-				Rectangle2D clipBounds=g.getClipBounds();
-				if (clipBounds!=null)
-				{
-					Rectangle2D.intersect(drawingArea, clipBounds, drawingArea);
-				}
-				
-				if (!drawingArea.isEmpty())
-				{
-					BufferedImage buf=
-							new BufferedImage((int) ((2+drawingArea.width)*g
-								.getTransform().getScaleX()),
-								(int) ((2+drawingArea.height)*g.getTransform()
-									.getScaleY()), BufferedImage.TYPE_INT_ARGB);
-					Graphics2D gr=buf.createGraphics();
-					gr.scale(g.getTransform().getScaleX(), g.getTransform()
-						.getScaleY());
-					gr.translate((int) -drawingArea.x, (int) -drawingArea.y);
-					gr.setRenderingHints(g.getRenderingHints());
-					drawFigure(gr);
-					gr.dispose();
-					Composite savedComposite=g.getComposite();
-					g.setComposite(AlphaComposite.getInstance(
-						AlphaComposite.SRC_OVER, (float) opacity));
-					g.drawImage(buf, (int) drawingArea.x, (int) drawingArea.y,
-						2+(int) drawingArea.width, 2+(int) drawingArea.height,
-						null);
-					g.setComposite(savedComposite);
-				}
-			}
-			else
-			{
-				drawFigure(g);
-			}
-		}
-	}
-	
-	/**
-	 * This method is invoked before the rendered image of the figure is
-	 * composited.
-	 */
-	public void drawFigure(Graphics2D g)
-	{
-		AffineTransform savedTransform=null;
-		if (TRANSFORM.get(this)!=null)
-		{
-			savedTransform=g.getTransform();
-			g.transform(TRANSFORM.get(this));
-		}
-		
-		Paint paint=SVGAttributeKeys.getFillPaint(this);
-		if (paint!=null)
-		{
-			g.setPaint(paint);
-			drawFill(g);
-		}
-		paint=SVGAttributeKeys.getStrokePaint(this);
-		if (paint!=null&&STROKE_WIDTH.get(this)>0)
-		{
-			g.setPaint(paint);
-			g.setStroke(SVGAttributeKeys.getStroke(this));
-			drawStroke(g);
-		}
-		if (TRANSFORM.get(this)!=null)
-		{
-			g.setTransform(savedTransform);
-		}
-	}
-	
-	public RotateEllipseFigure(double x, double y, double width, double height)
-	{
-		ellipse=new Ellipse2D.Double(x, y, width, height);
-	}
-	
-	// DRAWING
-	protected void drawFill(Graphics2D g)
-	{
-		g.fill(ellipse);
-	}
-	
-	protected void drawStroke(Graphics2D g)
-	{
-		g.draw(ellipse);
-	}
 		
 	public Rectangle2D.Double getBounds()
 	{
@@ -239,20 +150,66 @@ public class RotateEllipseFigure
 		return getTransformedShape().contains(p);
 	}
 	
+	public Ellipse2D.Double getTransformedEllipse()
+	{
+		Ellipse2D.Double e = new Ellipse2D.Double(0,0,0,0);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		Point2D.Double  startW = (Point2D.Double)t.transform(new Point2D.Double(0, ellipse.getCenterY()), null);
+		Point2D.Double  endW = (Point2D.Double)t.transform(new Point2D.Double(ellipse.getWidth(), ellipse.getCenterY()), null);
+		Point2D.Double  startH = (Point2D.Double)t.transform(new Point2D.Double(ellipse.getCenterX(),0), null);
+		Point2D.Double  endH = (Point2D.Double)t.transform(new Point2D.Double(ellipse.getCenterX(), ellipse.getHeight()), null);
+		Point2D.Double lead = (Point2D.Double)t.transform(new Point2D.Double(0,0), null);
+		e.width= Math.round(startW.distance(endW));
+		e.height= Math.round(startH.distance(endH));
+		e.x = Math.round(lead.getX());
+		e.y = Math.round(lead.getY());
+		return e;
+		
+	}
+	
 	protected Shape getTransformedShape()
 	{
-		if (cachedTransformedShape==null)
+		if (AttributeKeys.TRANSFORM.get(this)==null)
 		{
-			if (AttributeKeys.TRANSFORM.get(this)==null)
-			{
-				cachedTransformedShape=ellipse;
-			}
-			else
-			{
-				cachedTransformedShape= AttributeKeys.TRANSFORM.get(this).createTransformedShape(ellipse);
-			}
+			cachedTransformedShape=ellipse;
 		}
-		return cachedTransformedShape;
+		else
+		{
+			cachedTransformedShape= AttributeKeys.TRANSFORM.get(this).createTransformedShape(ellipse);
+		}
+		return cachedTransformedShape; 
+	}
+	
+	public Ellipse2D.Double getEllipse()
+	{
+		return ellipse;
+	}
+	
+	@Override
+	public Collection<Handle> createHandles(int detailLevel)
+	{
+		LinkedList<Handle> handles=new LinkedList<Handle>();
+		switch (detailLevel%2)
+		{
+			case 0:
+				ResizeHandleKit.addResizeHandles(this, handles);
+				break;
+			case 1:
+				TransformHandleKit.addTransformHandles(this, handles);
+				break;
+			default:
+				break;
+		}
+		return handles;
+	} 
+	
+	public void setEllipse(double x, double y, double width, double height)
+	{
+		ellipse.x = x;
+		ellipse.y = y;
+		ellipse.width = width;
+		ellipse.height = height;
+		invalidate();
 	}
 	
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
@@ -261,6 +218,7 @@ public class RotateEllipseFigure
 		ellipse.y=Math.min(anchor.y, lead.y);
 		ellipse.width=Math.max(0.1, Math.abs(lead.x-anchor.x));
 		ellipse.height=Math.max(0.1, Math.abs(lead.y-anchor.y));
+		invalidate();
 	}
 	
 	/**
@@ -270,44 +228,59 @@ public class RotateEllipseFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (AttributeKeys.TRANSFORM.get(this)!=null ||
-			(tx.getType()&(AffineTransform.TYPE_TRANSLATION)) != tx.getType())
+		if (AttributeKeys.TRANSFORM.get(this)==null)
 		{
-			if (AttributeKeys.TRANSFORM.get(this)==null)
-			{
-				AttributeKeys.TRANSFORM.basicSetClone(this, tx);
-			}
-			else
-			{
-				AffineTransform t=AttributeKeys.TRANSFORM.getClone(this);
-				t.preConcatenate(tx);
-				AttributeKeys.TRANSFORM.basicSet(this, t);
-			}
+			AttributeKeys.TRANSFORM.basicSetClone(this, tx);
 		}
 		else
 		{
-			Point2D.Double anchor=getStartPoint();
-			Point2D.Double lead=getEndPoint();
-			setBounds((Point2D.Double) tx.transform(anchor, anchor),
-				(Point2D.Double) tx.transform(lead, lead));
-			if (SVGAttributeKeys.FILL_GRADIENT.get(this)!=null
-				&&!SVGAttributeKeys.FILL_GRADIENT.get(this).isRelativeToFigureBounds())
-			{
-				Gradient g=SVGAttributeKeys.FILL_GRADIENT.getClone(this);
-				g.transform(tx);
-				SVGAttributeKeys.FILL_GRADIENT.basicSet(this, g);
-			}
-			if (SVGAttributeKeys.STROKE_GRADIENT.get(this)!=null
-					&&!SVGAttributeKeys.STROKE_GRADIENT.get(this).isRelativeToFigureBounds())
-			{
-				Gradient g=SVGAttributeKeys.STROKE_GRADIENT.getClone(this);
-				g.transform(tx);
-				SVGAttributeKeys.STROKE_GRADIENT.basicSet(this, g);
-			}
+			AffineTransform t=AttributeKeys.TRANSFORM.getClone(this);
+			t.preConcatenate(tx);
+			AttributeKeys.TRANSFORM.basicSet(this, t);
 		}
-		invalidate();
+		/*if (AttributeKeys.TRANSFORM.get(this)!=null ||
+				(tx.getType()&(AffineTransform.TYPE_TRANSLATION)) != tx.getType())
+			{
+				if (AttributeKeys.TRANSFORM.get(this)==null)
+				{
+					AttributeKeys.TRANSFORM.basicSetClone(this, tx);
+				}
+				else
+				{
+					AffineTransform t=AttributeKeys.TRANSFORM.getClone(this);
+					t.preConcatenate(tx);
+					AttributeKeys.TRANSFORM.basicSet(this, t);
+				}
+			}
+			else
+			{
+				Point2D.Double anchor=getStartPoint();
+				Point2D.Double lead=getEndPoint();
+				setBounds((Point2D.Double) tx.transform(anchor, anchor),
+					(Point2D.Double) tx.transform(lead, lead));
+				if (SVGAttributeKeys.FILL_GRADIENT.get(this)!=null
+					&&!SVGAttributeKeys.FILL_GRADIENT.get(this).isRelativeToFigureBounds())
+				{
+					Gradient g=SVGAttributeKeys.FILL_GRADIENT.getClone(this);
+					g.transform(tx);
+					SVGAttributeKeys.FILL_GRADIENT.basicSet(this, g);
+				}
+				if (SVGAttributeKeys.STROKE_GRADIENT.get(this)!=null
+						&&!SVGAttributeKeys.STROKE_GRADIENT.get(this).isRelativeToFigureBounds())
+				{
+					Gradient g=SVGAttributeKeys.STROKE_GRADIENT.getClone(this);
+					g.transform(tx);
+					SVGAttributeKeys.STROKE_GRADIENT.basicSet(this, g);
+				}
+			}
+			invalidate();*/
 	}
 	
+	
+	/*
+	 * UNDO/REDO methods.
+	 * @see org.jhotdraw.draw.Figure#restoreTransformTo(java.lang.Object)
+	 */
 	public void restoreTransformTo(Object geometry)
 	{
 		Object[] restoreData=(Object[]) geometry;
@@ -318,6 +291,10 @@ public class RotateEllipseFigure
 		invalidate();
 	}
 	
+	/*
+	 * UNDO/REDO methods.
+	 * @see org.jhotdraw.draw.Figure#getTransformRestoreData(java.lang.Object)
+	 */
 	public Object getTransformRestoreData()
 	{
 		return new Object[] 
@@ -329,27 +306,10 @@ public class RotateEllipseFigure
 		      };
 	}
 	
-
 	
-	// CONNECTING
-	public boolean canConnect()
-	{
-		return false; 
-	}
-	
-	public Connector findConnector(Point2D.Double p, ConnectionFigure prototype)
-	{
-		return null; 
-	}
-	
-	public Connector findCompatibleConnector(Connector c,
-			boolean isStartConnector)
-	{
-		return null; 
-	}
-	
-	// COMPOSITE FIGURES
-	// CLONING
+	/**
+	 * Clone the figure.
+	 */
 	public RotateEllipseFigure clone()
 	{
 		RotateEllipseFigure that=(RotateEllipseFigure) super.clone();
@@ -366,11 +326,97 @@ public class RotateEllipseFigure
 	}
 	
 	@Override
+	/**
+	 * Invalidate the figure and remove the cachedTransformedShape, this means
+	 * that the figures geometry has changed and it should be redrawn.
+	 */
 	public void invalidate()
 	{
 		super.invalidate();
 		cachedTransformedShape=null;
 	}
+	
+	/*
+	 * Drawing code.
+	 */
+	/**
+	 * Draw the figure 
+	 */
+	public void draw(Graphics2D g)
+	{
+		drawFigure(g);
+	}
+	
+	/**
+	 * This method is invoked before the rendered image of the figure is
+	 * a composite figure.
+	 */
+	public void drawFigure(Graphics2D g)
+	{
+		Paint paint=SVGAttributeKeys.getFillPaint(this);
+		if (paint!=null)
+		{
+			g.setPaint(paint);
+			drawFill(g);
+		}
+		paint=SVGAttributeKeys.getStrokePaint(this);
+		if (paint!=null&&STROKE_WIDTH.get(this)>0)
+		{
+			g.setPaint(paint);
+			g.setStroke(AttributeKeys.getStroke(this));
+			drawStroke(g);
+		}
+	}
+	
+	/**
+	 * Draw the fill of the ellipse.
+	 */
+	protected void drawFill(Graphics2D g)
+	{
+		g.fill(getTransformedShape());
+	}
+	
+	/**
+	 * Draw the stroke of the ellipse.
+	 */
+	protected void drawStroke(Graphics2D g)
+	{
+		
+		g.draw(getTransformedShape());
+	}
+
+	/*
+	 * Connecting to the figure. Since this figure does not allow connecitons
+	 * it will always return NULL.
+	 */
+	
+	/**
+	 * Return false as no connections can exist.
+	 */
+	public boolean canConnect()
+	{
+		return false; 
+	}
+	
+	/**
+	 * Return null as no connections can exist.
+	 */
+	public Connector findConnector(Point2D.Double p, ConnectionFigure prototype)
+	{
+		return null; 
+	}
+	
+	/**
+	 * Return null as no connections can exist.
+	 */
+	public Connector findCompatibleConnector(Connector c,
+			boolean isStartConnector)
+	{
+		return null; 
+	}
+
+	
+	
 }
 
 

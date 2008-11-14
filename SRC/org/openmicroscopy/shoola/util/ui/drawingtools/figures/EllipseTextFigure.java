@@ -33,6 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
@@ -126,9 +127,7 @@ public class EllipseTextFigure
 		textBounds = null;
 		editable = true;
 		fromTransformUpdate = false;
-	}
-	
-	
+	}	
 	
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
@@ -138,41 +137,44 @@ public class EllipseTextFigure
 			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
 			{
 				double newHeight = MeasurementAttributes.HEIGHT.get(this);
-				Rectangle2D.Double bounds = getBounds();
-				double centreY = bounds.getCenterY();
-				double diffHeight = newHeight/2;
-				Rectangle2D.Double newBounds = new Rectangle2D.Double(
-					bounds.getX(), centreY-diffHeight, bounds.getWidth(),
-					newHeight);
-				this.setBounds(newBounds);
+				Ellipse2D.Double newEllipse = getEllipse();
+				double x = newEllipse.getX();
+				double width = newEllipse.getWidth();
+				double y = newEllipse.getY();
+				double centreY = newEllipse.getCenterY();
+				double newY = centreY-newHeight/2;
+				this.setEllipse(x,newY,width,newHeight);	
 			}
 			if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
 			{
 				double newWidth = MeasurementAttributes.WIDTH.get(this);
-				Rectangle2D.Double bounds = getBounds();
-				double centreX = bounds.getCenterX();
-				double diffWidth = newWidth/2;
-				Rectangle2D.Double newBounds = new Rectangle2D.Double(
-					centreX-diffWidth, bounds.getY(), newWidth, 
-					bounds.getHeight());
-				this.setBounds(newBounds);
+				Ellipse2D.Double newEllipse = getEllipse();
+				double x = newEllipse.getX();
+				double height = newEllipse.getHeight();
+				double y = newEllipse.getY();
+				double centreX = newEllipse.getCenterX();
+				double newX = centreX-newWidth/2;
+				this.setEllipse(newX,y,newWidth,height);	
 			}
 		}
 	}
+	
+	
 	public void transform(AffineTransform tx)
 	{
 		super.transform(tx);
 		fromTransformUpdate = true;
-		MeasurementAttributes.HEIGHT.set(this, this.getTransformedShape().getBounds().getHeight());
-		MeasurementAttributes.WIDTH.set(this, this.getTransformedShape().getBounds().getWidth());
+		MeasurementAttributes.HEIGHT.set(this, getTransformedEllipse().getBounds2D().getHeight());
+		MeasurementAttributes.WIDTH.set(this, getTransformedEllipse().getBounds2D().getWidth());
 		fromTransformUpdate = false;
 	}
+	
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
 		super.setBounds(anchor, lead);
 		fromTransformUpdate = true;
-		MeasurementAttributes.HEIGHT.set(this, this.getTransformedShape().getBounds().getHeight());
-		MeasurementAttributes.WIDTH.set(this, this.getTransformedShape().getBounds().getWidth());
+		MeasurementAttributes.HEIGHT.set(this, getTransformedEllipse().getBounds2D().getHeight());
+		MeasurementAttributes.WIDTH.set(this, getTransformedEllipse().getBounds2D().getWidth());
 		fromTransformUpdate = false;
 	}
 
@@ -212,7 +214,8 @@ public class EllipseTextFigure
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
-		if (isEditable() && contains(p)) {
+		if (isEditable() && contains(p)) 
+		{
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
@@ -231,12 +234,12 @@ public class EllipseTextFigure
 
 	public double getHeight()
 	{
-		return getTransformedShape().getBounds().getHeight();
+		return getTransformedEllipse().getHeight();
 	}
 
 	public double getWidth()
 	{
-		return getTransformedShape().getBounds().getWidth();
+		return getTransformedEllipse().getWidth();
 	}
 	
 	/**

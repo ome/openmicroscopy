@@ -492,7 +492,6 @@ class MeasurementViewerControl
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
 			model.setDataChanged();
-			System.err.println(f.getAttribute(MeasurementAttributes.HEIGHT));
 		}
 	}
 

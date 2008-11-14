@@ -618,8 +618,7 @@ public class OutputStrategy
 		}
 		writeShapeAttributes(lineElement, fig.getAttributes());
 		writeTransformAttribute(lineElement, fig.getAttributes());
-	}
-	
+	}	
 	
 	private void writeMeasureEllipseFigure(XMLElement shapeElement,
 			MeasureEllipseFigure fig) throws ParsingException
@@ -640,8 +639,7 @@ public class OutputStrategy
 		writeShapeAttributes(ellipseElement, fig.getAttributes());
 		writeTransformAttribute(ellipseElement, fig.getAttributes());
 	}
-	
-	
+		
 	private void writeMeasurePointFigure(XMLElement shapeElement,
 			MeasurePointFigure fig) throws ParsingException
 	{
