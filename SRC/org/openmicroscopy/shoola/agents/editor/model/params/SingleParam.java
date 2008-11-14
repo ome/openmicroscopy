@@ -33,10 +33,9 @@ import java.util.HashMap;
 /** 
  * This is a Parameter that has a single value attribute, PARAM_VALUE.
  * Can be used as the data object for any parameter that has a single
- * value, Eg. Text-Line, Text-Box, Number, Boolean, Enum (drop-down)?
+ * value, Eg. Text-Line, Text-Box,
  * and a single default attribute DEFAULT_VALUE.
  * 
- *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0

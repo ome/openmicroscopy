@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.Lock;
+import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.XMLFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -456,19 +457,35 @@ public class FieldPanel
 	/**
 	 * Returns a String representation of the content of this field. 
 	 * This will be text, possibly interspersed with parameters. 
-	 *  //TODO Maybe this should not include the parameters, unless they are in
-	 * context with other description text? 
+	 * But, doesn't add parameters on the end, if not followed by text. 
 	 */
 	private String getDescription() 
 	{
 		if (field.getContentCount() == 0) return null;
 		
-		String content = "";
-		for (int i=0; i< field.getContentCount(); i++) {
-			if (i>0)content = content + " ";
-			content = content + field.getContentAt(i).toString();
+		int contentCount = field.getContentCount();
+		IFieldContent content;
+		String text = "";
+		for (int i=0; i< contentCount; i++) {
+			content = field.getContentAt(i);
+			// don't print parameters unless followed by text 
+			if (content instanceof IParam) {
+				boolean followedByText = false;
+				for (int c=i; c<contentCount; c++) {
+					if (field.getContentAt(c) instanceof TextContent) {
+						followedByText = true;
+						continue;
+					}
+				}
+				if (followedByText) {
+					text = text + "[parameter]";
+				}
+			} else {
+				text = text + content.toString();
+			}
 		}
-		return content;
+		if (text.length() == 0) 	return null;	// don't return blank string
+		return text;
 	}
 
 	/**
