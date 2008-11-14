@@ -54,7 +54,7 @@ extends AbstractParam
 	 * Additional attributes are "units"
 	 * Equivalent to the "NumberField" of Beta 3.0
 	 */
-	public static final String 		NUMBER_PARAM = "numberParam";
+	public static final String 		NUMBER_PARAM = "NUMERIC";
 
 	/**
 	 * Creates an instance. 

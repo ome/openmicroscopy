@@ -57,7 +57,7 @@ public class TimeParam
 	 * This defines a time parameter, in seconds. 
 	 * Equivalent to the "TimeField" of Beta 3.0
 	 */
-	public static final String TIME_PARAM = "timeParam";
+	public static final String TIME_PARAM = "TIME";
 	
 	/**
 	 * This is the attribute Name for the value of this field. 

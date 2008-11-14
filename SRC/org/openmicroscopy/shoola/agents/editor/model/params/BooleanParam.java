@@ -47,7 +47,7 @@ public class BooleanParam
 	 * This defines a parameter that is a boolean.
 	 * Equivalent to the "CheckBoxField" of Beta 3.0
 	 */
-	public static final String 		BOOLEAN_PARAM = "booleanParam";
+	public static final String 		BOOLEAN_PARAM = "BOOLEAN";
 
 	/**
 	 * Creates an instance. 

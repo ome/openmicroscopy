@@ -45,7 +45,7 @@ public class LinkParam
 	/**
 	 * The value of the parameter type attribute that defines this Parameter. 
 	 */
-	public static final String LINK_PARAM = "linkParam";
+	public static final String LINK_PARAM = "LINK";
 	
 	/**
 	 * Used by the LinkParameter to store an absolute file path to a local File. 

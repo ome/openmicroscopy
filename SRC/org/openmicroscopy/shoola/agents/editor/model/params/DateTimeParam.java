@@ -51,7 +51,7 @@ public class DateTimeParam
 	/**
 	 * A string to define the DateTimeParam type. 
 	 */
-	public static final String 		DATE_TIME_PARAM = "dateTimeParam";
+	public static final String 		DATE_TIME_PARAM = "DATETIME";
 	
 	/**
 	 * A property of this parameter. 

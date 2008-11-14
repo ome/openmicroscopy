@@ -53,7 +53,7 @@ public class TableParam
 	/**
 	 * A String to define the table parameter
 	 */
-	public static final String 		TABLE_PARAM = "tableParam";
+	public static final String 		TABLE_PARAM = "TABLE";
 	
 	/**
 	 * Creates an instance. 

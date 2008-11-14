@@ -48,21 +48,21 @@ import java.util.HashMap;
 public class SingleParam 
 	extends AbstractParam {
 
-	public static final String PARAM_VALUE = "paramValue";
+	public static final String PARAM_VALUE = "value";
 	
-	public static final String DEFAULT_VALUE = "defaultValue";
+	public static final String DEFAULT_VALUE = "default-value";
 	
 	/**
 	 * A parameter defined as a short text string. 
 	 * Equivalent to the "TextField" of Beta 3.0
 	 */
-	public static final String 		TEXT_LINE_PARAM = "textLineParam";
+	public static final String 		TEXT_LINE_PARAM = "TEXT";
 	
 	/**
 	 * This defines a parameter that is a longer piece of text.
 	 * Equivalent to the "TextBox" of Beta 3.0
 	 */
-	public static final String 		TEXT_BOX_PARAM = "textBoxParam";
+	public static final String 		TEXT_BOX_PARAM = "TEXTBOX";
 	
 	/**
 	 * Creates an instance. 

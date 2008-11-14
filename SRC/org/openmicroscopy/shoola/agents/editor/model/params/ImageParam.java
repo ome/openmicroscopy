@@ -46,7 +46,7 @@ public class ImageParam
 	/**
 	 * The value of the parameter type attribute that defines this Parameter. 
 	 */
-	public static final String 			IMAGE_PARAM = "imageParam";
+	public static final String 			IMAGE_PARAM = "IMAGE";
 	
 	/**
 	 * Used by the Image Parameter to store a file path to an image. 

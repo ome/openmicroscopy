@@ -267,6 +267,8 @@ public class FieldTextArea
     		for (TextToken param : tags) {
     			// is there any text between start of this tag and end of last?
 				description = d.getText(lastChar, param.getStart()-lastChar);
+				System.out.println("FieldTextArea getNewContent...");
+				System.out.println(description);
 				if (description.trim().length() > 0) {
 					// if so, add a new text content object to the list
 					// without trimming. 
@@ -284,7 +286,8 @@ public class FieldTextArea
 					// content, or DELETE parameters.
 					id = Integer.parseInt(param.getId());
 					// Simply copy a reference into the new list
-					contentList.add(field.getContentAt(id));
+					if (id < field.getContentCount())
+						contentList.add(field.getContentAt(id));
 				} catch (NumberFormatException ex) {
 					// ignore elements that do not have a valid (integer) id
 				}

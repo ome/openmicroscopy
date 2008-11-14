@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.editor.model;
 
 //Third-party libraries
 
+import javax.swing.table.TableModel;
+
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.XMLElement;
 
@@ -38,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 
 /** 
  * This class Saves a version of the 'UPE' file format that is suitable for 
@@ -104,17 +107,13 @@ public class UPEEditorExport
 	{
 		IXMLElement parameter = new XMLElement("parameter");
 		
+		String paramType = param.getAttribute(AbstractParam.PARAM_TYPE);
+		
 		// Add name, necessity, value and default-value, (nulls not added)
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
 		addChildContent(parameter, "name", name);
 		
 		addChildContent(parameter, "necessity", "OPTIONAL");
-		
-		String value = param.getAttribute(SingleParam.PARAM_VALUE);
-		addChildContent(parameter, "value", value);
-		
-		String defaultValue = param.getAttribute(SingleParam.DEFAULT_VALUE);
-		addChildContent(parameter, "default-value", defaultValue);
 		
 		// Depending on the type of parameter, set the param-type, 
 		// and add any additional attributes. 
@@ -136,19 +135,59 @@ public class UPEEditorExport
 				parameter.addChild(enumList);
 			}
 		} else
-		if (param instanceof BooleanParam) {
-			addChildContent(parameter, "param-type", "BOOLEAN");
-		} else
-		if (param instanceof DateTimeParam) {
-			addChildContent(parameter, "param-type", "DATE-TIME");
-			String UTCmillis = param.getAttribute(DateTimeParam.DATE_ATTRIBUTE);
-			addChildContent(parameter, DateTimeParam.DATE_ATTRIBUTE, UTCmillis);
-		}
-		else {
-			// default type is TEXT
-			addChildContent(parameter, "param-type", "TEXT");
+		if (param instanceof TableParam) {
+			addChildContent(parameter, "param-type", TableParam.TABLE_PARAM);
+			IXMLElement tableElement = getTableContent((TableParam)param);
+			parameter.addChild(tableElement);
+		} else {
+			addChildContent(parameter, "param-type", paramType);
+			// all parameter attributes are saved as attributes
+			String[] paramAts = param.getParamAttributes();
+			String attValue;
+			for (int a=0; a<paramAts.length; a++){
+				attValue = param.getAttribute(paramAts[a]);
+				addChildContent(parameter, paramAts[a], attValue);
+			}
 		}
 		
 		return parameter;
+	}
+	
+	private IXMLElement getTableContent(TableParam tableParam) 
+	{
+		IXMLElement tableElement = new XMLElement("table");
+		
+		TableModel tModel = tableParam.getTableModel();
+		int colCount = tModel.getColumnCount();
+		
+		IXMLElement rowElement;
+		IXMLElement dataElement;
+		// header
+		rowElement = new XMLElement("tr");
+		String cellData;
+		for (int c=0; c<colCount; c++) {
+			cellData = tModel.getColumnName(c);
+			dataElement = new XMLElement("th");
+			dataElement.setContent(cellData);
+			rowElement.addChild(dataElement);
+		}
+		tableElement.addChild(rowElement);
+		
+		// table-data
+		int rowCount = tModel.getRowCount();
+		for (int r=0; r<rowCount; r++) {
+			rowElement = new XMLElement("tr");
+			
+			for (int c=0; c<colCount; c++) {
+				cellData = tModel.getValueAt(r, c).toString();
+				dataElement = new XMLElement("td");
+				dataElement.setContent(cellData);
+				rowElement.addChild(dataElement);
+			}
+			tableElement.addChild(rowElement);
+		}
+		
+		return tableElement;
+		
 	}
 }

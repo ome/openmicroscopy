@@ -49,7 +49,7 @@ public class EnumParam
 	 * Additional attributes define the possible values.
 	 * Equivalent to the "DropDownMenu" of Beta 3.0
 	 */
-	public static final String 		ENUM_PARAM = "enumParam";
+	public static final String 		ENUM_PARAM = "ENUMERATION";
 	
 	/**
 	 * An attribute used by the ENUM_PARAM to store a comma-delimited

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -44,8 +45,10 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 
 /** 
  * This class is used for reading 'UPE' Universal Protocol Exchange XML files,
@@ -97,18 +100,35 @@ public class UpeXmlReader {
 	private static void setNameValueDefault(IXMLElement upeParam, 
 														IAttributes param) 
 	{
+		setName(upeParam, param);
 		String attributeValue;
-		attributeValue = getChildContent(upeParam, "name");
-		param.setAttribute(SingleParam.PARAM_NAME, attributeValue);
 		attributeValue = getChildContent(upeParam, "value");
 		param.setAttribute(SingleParam.PARAM_VALUE, attributeValue);
 		attributeValue = getChildContent(upeParam, "default-value");
 		param.setAttribute(SingleParam.DEFAULT_VALUE, attributeValue);
 	}
+	
+	/**
+	 * This copies the name of a 'parameter' element 
+	 * (from UPE XML file) to a {@link IAttributes} parameter
+	 * This is a convenience method, used after the creation of a parameter,
+	 * since these attributes are common to several parameter types. 
+	 * 
+	 * @param upeParam		The 'parameter' XML element, source of data
+	 * @param param			The new parameter object. Copies values to here. 
+	 */
+	private static void setName(IXMLElement upeParam, IAttributes param) 
+	{
+		String attributeValue;
+		attributeValue = getChildContent(upeParam, "name");
+		param.setAttribute(SingleParam.PARAM_NAME, attributeValue);
+	}
 
 	/**
 	 * This creates a {@link IParam} instance from a 'parameter' element of 
 	 * the UPE XML file. 
+	 * It reads elements that are standard 'UPE' (enumeration, number, text)
+	 * as well as others that are Editor-specific. 
 	 * 
 	 * @param upeParam		The 'parameter' element of the UPE XML file
 	 * @return				A new {@link IParam} parameter.
@@ -122,7 +142,7 @@ public class UpeXmlReader {
 		if (attributeValue == null) 	return null;
 		
 		IParam param;
-		if ("ENUMERATION".equals(attributeValue)) {
+		if (EnumParam.ENUM_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(EnumParam.ENUM_PARAM);
 			setNameValueDefault(upeParam, param);
 			// enumerations
@@ -137,7 +157,7 @@ public class UpeXmlReader {
 				param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
 			
 		} else  
-		if ("NUMERIC".equals(attributeValue)) {
+		if (NumberParam.NUMBER_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(NumberParam.NUMBER_PARAM);
 			setNameValueDefault(upeParam, param);
 			// units
@@ -145,28 +165,78 @@ public class UpeXmlReader {
 			param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
 			
 		} else 
-		if ("BOOLEAN".equals(attributeValue)) {
+		if (BooleanParam.BOOLEAN_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
 			setNameValueDefault(upeParam, param);
 		}
 		else
-		if ("DATE-TIME".equals(attributeValue)) {
-			param = FieldParamsFactory.getFieldParam(DateTimeParam.DATE_TIME_PARAM);
-			attributeValue = getChildContent(upeParam, "name");
-			param.setAttribute(SingleParam.PARAM_NAME, attributeValue);
-			attributeValue = getChildContent(upeParam, DateTimeParam.DATE_ATTRIBUTE);
-			param.setAttribute(DateTimeParam.DATE_ATTRIBUTE, attributeValue);
-		}
-		else
-		 //if ("TEXT".equals(attributeValue)) {
-		// at least make a text Param. 
-		{
+		if (SingleParam.TEXT_LINE_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(SingleParam.TEXT_LINE_PARAM);
 			setNameValueDefault(upeParam, param);
 		}
+		else
+		if (TableParam.TABLE_PARAM.equals(attributeValue)) {
+			param = FieldParamsFactory.getFieldParam(TableParam.TABLE_PARAM);
+			setName(upeParam, param);
+			
+			TableParam tParam = (TableParam)param;
+			MutableTableModel tModel = (MutableTableModel)tParam.getTableModel();
+			buildTableModel(upeParam, tModel);
+		}
+		else {
+			param = FieldParamsFactory.getFieldParam(attributeValue);
+			if (param == null) {	
+				// if paramType not recognised, return text text parameter
+				param = FieldParamsFactory.getFieldParam(SingleParam.TEXT_LINE_PARAM);
+				setNameValueDefault(upeParam, param);
+				return param;
+			}
+			setName(upeParam, param);
+			// all parameter attributes are saved as attributes
+			String[] paramAts = param.getParamAttributes();
+			String attValue;
+			for (int a=0; a<paramAts.length; a++){
+				attValue = getChildContent(upeParam, paramAts[a]);
+				param.setAttribute(paramAts[a], attValue);
+			}
+		}
 		
 		return param;
+	}
+	
+	private static void buildTableModel(IXMLElement upeParam, 
+												MutableTableModel tModel)
+	{
+		IXMLElement tableElement = upeParam.getFirstChildNamed("table");
 		
+		if (tableElement == null)		return;
+		
+		List <IXMLElement> tableData;	// list of tr elements
+		List <IXMLElement> tableRow;	// list of td elements
+		
+		tableData = tableElement.getChildrenNamed("tr");
+		if (tableData.isEmpty())		return;
+		
+		// first row has column headings
+		tableRow = tableData.get(0).getChildrenNamed("th");
+		for (IXMLElement th : tableRow) {
+			tModel.addEmptyColumn(th.getContent());
+		}
+		
+		// subsequent rows have table data
+		int colCount = tModel.getColumnCount();
+		int col;
+		for (int r=0; r<tableData.size()-1; r++) {
+			tableRow = tableData.get(r+1).getChildrenNamed("td");
+			tModel.addEmptyRow();
+			col = 0;
+			for (IXMLElement td : tableRow) {
+				if (col < colCount) {
+					tModel.setValueAt(td.getContent(), r, col);
+					col++;
+				}
+			}
+		}
 	}
 
 	/**
