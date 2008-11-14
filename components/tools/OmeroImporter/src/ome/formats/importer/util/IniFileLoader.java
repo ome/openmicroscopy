@@ -144,6 +144,11 @@ public class IniFileLoader
 
     //////////////// [General] Section ////////////////
     
+
+	public boolean getUseQuaqua() {
+		return staticPrefs.node("General").getBoolean("useQuaqua", true);
+	}
+    
     public String getAppTitle()
     {
         return staticPrefs.node("General").get("appTitle", "OMERO.importer");

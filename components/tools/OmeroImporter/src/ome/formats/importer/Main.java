@@ -75,7 +75,7 @@ public class Main extends JFrame
 {
     private static final long   serialVersionUID = 1228000122345370913L;
     
-    IniFileLoader   ini;
+    static IniFileLoader   ini;
     
     public static String        dbVersion = "300";
     
@@ -98,8 +98,7 @@ public class Main extends JFrame
    
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
-    private static boolean USE_QUAQUA = true;
-    
+    private static boolean USE_QUAQUA;
     
     //public final static String TITLE            = "OMERO.importer";
     
@@ -163,9 +162,6 @@ public class Main extends JFrame
         isUpgradeRequired();
         
         gui = new GuiCommonElements();
-        
-        // Load up the main ini file
-        ini = IniFileLoader.getIniFileLoader(args);
         
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -617,6 +613,12 @@ public class Main extends JFrame
     public static void main(String[] args)
     {  
 
+        // Load up the main ini file
+        ini = IniFileLoader.getIniFileLoader(args);
+        USE_QUAQUA = ini.getUseQuaqua();
+        
+        
+        
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
         //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
