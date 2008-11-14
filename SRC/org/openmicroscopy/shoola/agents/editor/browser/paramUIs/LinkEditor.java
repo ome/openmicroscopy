@@ -240,6 +240,12 @@ public class LinkEditor
 				// check if file exists (need to get full path first)!
 				File editorFile = null;	//TODO get reference to file!!
 				
+				if (editorFile == null)		{
+					linkType = BROKEN_LINK;
+					refreshLink();
+					return;
+				}
+				
 				URLlink = FilePathMethods.getAbsolutePathFromRelativePath
 					(editorFile, URLlink);
 				File linkedFile = new File(URLlink);

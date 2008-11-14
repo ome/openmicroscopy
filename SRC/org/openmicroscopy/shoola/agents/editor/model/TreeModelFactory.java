@@ -237,7 +237,6 @@ public class TreeModelFactory
 		 Field field = new Field();
 		 
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
-		 field.setAttribute(Field.FIELD_URL, url);
 		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
 		 
 		 field.addContent(new TextContent(description));
@@ -261,8 +260,16 @@ public class TreeModelFactory
 			 field.setLock(lock);
 		 }
 		 
-		 IParam param = getParameter(paramType, allAttributes);
+		 IParam param;
+		 // if there was a url set, add this as a link parameter. 
+		 if (url != null) {
+			 param = getFieldParam(LinkParam.LINK_PARAM);
+			 param.setAttribute(LinkParam.URL_LINK, url);
+			 field.addContent(param);
+		 }
 		 
+		 // parameter that represents the field 
+		 param = getParameter(paramType, allAttributes);
 		 if (param != null) {
 			 field.addContent(param);
 		 }

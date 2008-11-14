@@ -147,6 +147,8 @@ public class FilePathMethods {
 	public static String getAbsolutePathFromRelativePath(
 			File editorFile, String relativePath) 
 	{
+		if (editorFile == null)		return null;
+		
 		String editorDirectory = editorFile.getParent();
 		
 		if (editorDirectory == null) {

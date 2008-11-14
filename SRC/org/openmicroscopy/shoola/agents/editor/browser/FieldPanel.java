@@ -488,25 +488,6 @@ public class FieldPanel
 		return text;
 	}
 
-	/**
-	 * Called while building UI. Sets the visibility and tool tip text 
-	 * for the URL button. 
-	 * 
-	 * @param url	The new URL
-	 */
-	private void setURL(String url) 
-	{
-		if (url == null) {
-			urlButton.setVisible(false);
-			return;
-		}
-		if (url.length() > 0) {
-			urlButton.setVisible(true);
-			urlButton.setToolTipText(url);
-		} else {
-			urlButton.setVisible(false);
-		}
-	}
 
 	/**
 	 * Gets the {@link Field#BACKGROUND_COLOUR} attribute, converts it to 
@@ -616,7 +597,6 @@ public class FieldPanel
 		// Update components with the values from field
 		setNameText(field.getAttribute(Field.FIELD_NAME));
 		setDescriptionText();
-		setURL(field.getAttribute(Field.FIELD_URL));
 		
 		refreshBackgroundColour();
 		
@@ -716,11 +696,8 @@ public class FieldPanel
 	public void actionPerformed(ActionEvent e) {
 		
 		String cmd = e.getActionCommand();
-		if (OPEN_URL_CMD.equals(cmd)) {
-			BareBonesBrowserLaunch.openURL(field.getAttribute(Field.FIELD_URL));
-		}
-		
-		else if (TOGGLE_DESCRIPTION_CMD.equals(cmd)) {
+		 
+		if (TOGGLE_DESCRIPTION_CMD.equals(cmd)) {
 			treeNode.toggleDescriptionVisibility();
 			refreshEditingOfPanel();
 		}

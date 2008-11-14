@@ -61,11 +61,6 @@ public class Field
 	public static final String 		FIELD_NAME = "fieldName";
 	
 	/**
-	 * A property of this field. The attribute for an optional Url.
-	 */
-	public static final String 		FIELD_URL = "fieldUrl";
-	
-	/**
 	 * A property of this field. 
 	 * Stores a color as a string in the form "r:g:b";
 	 */
