@@ -26,10 +26,13 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -67,6 +70,9 @@ class StatusBar
     /** Displays the status message displayed on the rigth side. */
     private JLabel              rigthStatus;
     
+    /** Displays some of the plane information. */
+    private JPanel				centerStatus;
+    
     /** Button to display plane info. */
     private JButton				statusButton;
 
@@ -80,6 +86,7 @@ class StatusBar
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
         leftStatus = new JLabel();
         rigthStatus = new JLabel();
+        centerStatus = new JPanel();
     }
     
     /** Build and lay out the UI. */
@@ -88,8 +95,10 @@ class StatusBar
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder(BorderFactory.createEtchedBorder());
         add(statusButton);
-        add(Box.createRigidArea(HBOX));
+        add(Box.createHorizontalStrut(10));
         add(leftStatus);
+        add(Box.createRigidArea(HBOX));
+        add(centerStatus);
         add(UIUtilities.buildComponentPanelRight(rigthStatus));
         add(Box.createRigidArea(new Dimension(20, 5)));
     }
@@ -114,5 +123,20 @@ class StatusBar
      * @param s The message to display.
      */
     void setRigthStatus(String s) { rigthStatus.setText(s); }
+    
+    /** 
+     * Sets the comp displaying the plane information.
+     * 
+     * @param comp The message to display.
+     */
+    void setCenterStatus(JComponent comp)
+    { 
+    	centerStatus.removeAll();
+    	if (comp != null) {
+    		centerStatus.add(comp);
+    		revalidate();
+    		repaint();
+    	}
+    }
     
 }

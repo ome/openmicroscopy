@@ -154,27 +154,22 @@ public interface RenderingControl
      * 
      * @return See above.
      */
-    public float getPixelsSizeX();
+    public float getPixelsPhysicalSizeX();
     
     /**
      * The size in microns of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    public float getPixelsSizeY();
+    public float getPixelsPhysicalSizeY();
     
     /**
      * The size in microns of a pixel along the Z-axis.
      * 
      * @return See above.
      */
-    public float getPixelsSizeZ();
-    
-    //public PixelsStats getPixelsStats();
-    
-    
-    //public double[] getChannelStats(int w);
-    
+    public float getPixelsPhysicalSizeZ();
+
     /**
      * Specifies the model that dictates how transformed raw data has to be 
      * mapped onto a color space.

@@ -681,7 +681,7 @@ class OmeroImageServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Collection planes = gateway.loadPlaneInfo(pixelsID);
-		return null;
+		return planes;
 	}
 	
 }

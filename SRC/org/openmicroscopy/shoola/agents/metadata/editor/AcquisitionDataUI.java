@@ -87,6 +87,7 @@ class AcquisitionDataUI
 	{
 		channelAcquisitionPanes = new ArrayList<JXTaskPane>();
 		imageAcquisition = new ImageAcquisitionComponent(model);
+		imageAcquisition.addPropertyChangeListener(this);
 		imagePane = EditorUtil.createTaskPane("Image");
 		imagePane.add(imageAcquisition);
 		imagePane.addPropertyChangeListener(

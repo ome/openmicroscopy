@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.Icon;
@@ -59,18 +60,34 @@ public class ColourIcon
 	public static final int DEFAULT_HEIGHT = 16;
 	
     /** Colour of the icon */
-    private static  Color   colour;
+    private Color   colour;
     
 	/** The height of the icon. */
-	private int            height;
+	private int		height;
 	
 	/** The width of the icon. */	
-	private int            width;
+	private int		width;
 
 	/** Creates a default icon. */
 	public ColourIcon()
 	{
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
+	
+	/**
+	 * Creates a new intance. 
+	 * 
+	 * @param d The dimension of the icon.
+	 */
+	public ColourIcon(Dimension d)
+	{
+		if (d == null) {
+			width = DEFAULT_WIDTH;
+			height = DEFAULT_HEIGHT;
+		} else {
+			width = d.width;
+			height = d.height;
+		}
 	}
 	
 	/**
@@ -87,6 +104,40 @@ public class ColourIcon
 		this.height = height;
 	}
 
+	/**
+	 * Creates a new intance. 
+	 * 
+	 * @param width		The width of the icon.
+	 * @param height	The height of the icon.
+	 * @param color		The color to paint.
+	 */
+	public ColourIcon(int width, int height, Color color)
+	{
+		if (width <= 0) width = DEFAULT_WIDTH;
+		if (height <= 0) height = DEFAULT_HEIGHT;
+		this.width = width;
+		this.height = height;
+		setColour(color);
+	}
+	
+	/**
+	 * Creates a new intance. 
+	 * 
+	 * @param d 	The dimension of the icon.
+	 * @param color	The color to paint.
+	 */
+	public ColourIcon(Dimension d, Color color)
+	{
+		if (d == null) {
+			width = DEFAULT_WIDTH;
+			height = DEFAULT_HEIGHT;
+		} else {
+			width = d.width;
+			height = d.height;
+		}
+		setColour(color);
+	}
+	
 	/**
 	 * Sets the colour of the icon.
 	 * 
@@ -113,10 +164,12 @@ public class ColourIcon
 	public void paintIcon(Component c, Graphics g, int x, int y) 
 	{
 		Graphics2D g2D = (Graphics2D) g;
-		g2D.setColor(colour);
-		g2D.fillRect(4, 4, width-3, height-3);
-		g2D.setColor(colour.darker());
-		g2D.drawRect(4, 4, width-3, height-3);
+		if (colour != null) {
+			g2D.setColor(colour);
+			g2D.fillRect(4, 4, width-3, height-3);
+			g2D.setColor(colour.darker());
+			g2D.drawRect(4, 4, width-3, height-3);
+		}
 	}
 
 }

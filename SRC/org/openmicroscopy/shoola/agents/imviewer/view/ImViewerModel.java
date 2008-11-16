@@ -29,7 +29,9 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,11 +40,13 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
@@ -67,6 +71,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -236,6 +242,36 @@ class ImViewerModel
      * context specified. 
      */
     private DataObject					grandParent;
+    
+    /** The plane information. */
+    private Map<Integer, PlaneInfo>		planeInfos;
+    
+    /**
+	 * Transforms 3D coords into linear coords.
+	 * The returned value <code>L</code> is calculated as follows: 
+	 * <nobr><code>L = sizeZ*sizeW*t + sizeZ*w + z</code></nobr>.
+	 * 
+	 * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
+	 * @param c The w coord.  Must be in the range <code>[0, sizeW)</code>.
+	 * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
+	 * @return See above.
+	 */
+    private Integer linearize(int z, int c, int t)
+    {
+    	int sizeZ = currentRndControl.getPixelsDimensionsZ();
+		int sizeC = currentRndControl.getPixelsDimensionsC();
+		int sizeT = currentRndControl.getPixelsDimensionsT();
+		if (z < 0 || sizeZ <= z) 
+			throw new IllegalArgumentException(
+					"z out of range [0, "+sizeZ+"): "+z+".");
+		if (c < 0 || sizeC <= c) 
+			throw new IllegalArgumentException(
+					"w out of range [0, "+sizeC+"): "+c+".");
+		if (t < 0 || sizeT <= t) 
+			throw new IllegalArgumentException(
+					"t out of range [0, "+sizeT+"): "+t+".");
+		return new Integer(sizeZ*sizeC*t+sizeZ*c+z);
+    }
     
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
@@ -524,6 +560,16 @@ class ImViewerModel
 			loaders.get(RND).cancel();
 		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
+	}
+	
+	/**
+	 * Starts an asynchronous call to retrieve the plane info related
+	 * to the image. This method should only be invoked for fast connection.
+	 */
+	void firePlaneInfoRetrieval()
+	{
+		PlaneInfoLoader loader = new PlaneInfoLoader(component, getPixelsID());
+		loader.load();
 	}
 	
 	/** Fires an asynchronous retrieval of the rendered image. */
@@ -830,21 +876,21 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeX() { return currentRndControl.getPixelsSizeX(); }
+	float getPixelsSizeX() { return currentRndControl.getPixelsPhysicalSizeX(); }
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeY() { return currentRndControl.getPixelsSizeY(); }
+	float getPixelsSizeY() { return currentRndControl.getPixelsPhysicalSizeY(); }
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeZ() { return currentRndControl.getPixelsSizeZ(); }
+	float getPixelsSizeZ() { return currentRndControl.getPixelsPhysicalSizeZ(); }
 
 	/**
 	 * Returns <code>true</code> if the unit bar is painted on top of 
@@ -1019,7 +1065,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Map getActiveChannelsMap()
+	Map<Integer, Color> getActiveChannelsColorMap()
 	{
 		List l = getActiveChannels();
 		Map<Integer, Color> m = new HashMap<Integer, Color>(l.size());
@@ -1469,5 +1515,44 @@ class ImViewerModel
      */
     DataObject getGrandParent() { return grandParent; }
     
+    /**
+     * Sets the plane information.
+     * 
+     * @param objects The collection of <code>Plane Info</code> objects.
+     */
+    void setPlaneInfo(Collection objects)
+    {
+    	if (planeInfos == null) planeInfos = new HashMap<Integer, PlaneInfo>();
+    	else planeInfos.clear();
+    	Iterator i = objects.iterator();
+    	PlaneInfo object;
+    	Integer index;
+    	while (i.hasNext()) {
+			object = (PlaneInfo) i.next();
+			if (object != null) {
+				index = linearize(object.getTheZ().getValue(), 
+					object.getTheC().getValue(), object.getTheT().getValue());
+				planeInfos.put(index, object);
+			}
+		}
+    }
+    
+    /**
+     * Returns the <code>Plane Info</code> for the specified XY-plane.
+     * 
+     * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
+	 * @param c The w coord.  Must be in the range <code>[0, sizeW)</code>.
+	 * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
+     * @return See above.
+     */
+    PlaneInfo getPlane(int z, int c, int t)
+    {
+    	Integer index = null;
+    	try {
+			index = linearize(z, c, t);
+			return planeInfos.get(index);
+		} catch (Exception e) {}
+    	return null;
+    }
     
 }

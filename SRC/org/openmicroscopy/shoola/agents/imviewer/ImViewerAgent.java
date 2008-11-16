@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -87,7 +86,7 @@ public class ImViewerAgent
     public static Registry getRegistry() { return registry; }
     
     /**
-	 * Helper method returningthe current user's details.
+	 * Helper method returning the current user's details.
 	 * 
 	 * @return See above.
 	 */
@@ -95,6 +94,17 @@ public class ImViewerAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Helper method returning <code>true</code> if the connection is fast,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isFastConnection()
+	{
+		return (Boolean) registry.lookup(LookupNames.CONNECTION_SPEED);
 	}
 	
     /**

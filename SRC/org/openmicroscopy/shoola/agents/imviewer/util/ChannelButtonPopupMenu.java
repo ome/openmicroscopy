@@ -101,13 +101,14 @@ class ChannelButtonPopupMenu
     private void buildGUI()
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        add(infoItem);
+        //add(infoItem);
         add(colorPickerItem);
     }
     
     /**
+     * Creates a new instance.
      * 
-     * @param channelButton
+     * @param channelButton The button the menu is for.
      */
     ChannelButtonPopupMenu(ChannelButton channelButton)
     {

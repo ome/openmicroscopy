@@ -91,6 +91,7 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -117,6 +118,7 @@ import omero.sys.ParametersI;
 import omero.sys.PojoOptions;
 import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
+import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -3813,6 +3815,8 @@ class OMEROGateway
         sb.append("left outer join fetch img.condition as condition ");
         sb.append("left outer join fetch img.objectiveSettings as os ");
         sb.append("left outer join fetch os.objective as objective ");
+        sb.append("left outer join fetch img.setup as setup ");
+        sb.append("left outer join fetch setup.objective as obj ");
         sb.append("where img.id = :id");
         param.addLong("id", imageID);
         try {
@@ -3843,10 +3847,20 @@ class OMEROGateway
 		IQueryPrx service = getQueryService();
 		StringBuilder sb;
 		ParametersI param;
+		sb = new StringBuilder();
+		param = new ParametersI();
+		sb.append("select channel from LogicalChannel as channel ");
+		sb.append("left outer join fetch channel.detectorSettings as ds ");
+        sb.append("left outer join fetch channel.lightSourceSettings as lss ");
+        sb.append("left outer join fetch ds.detector as detector ");
+        sb.append("left outer join fetch lss.lightSource as lightSource ");
+        sb.append("where img.id = :id");
+        param.addLong("id", channelID);
 		try {
-			
+			IObject r = service.findByQuery(sb.toString(), param);
+            return new ChannelAcquisitionData((LogicalChannel) r);
 		} catch (Exception e) {
-			handleException(e, "Cannot load image acquisition data.");
+			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
 	}

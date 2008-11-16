@@ -82,6 +82,9 @@ public class LookupNames
     /** Field to access the users contained in the group. */
     public static final String USERS_DETAILS = "/users/details";
     
+    /** Field to indicate if the connection is fast or not. */
+    public static final String CONNECTION_SPEED = "/connection/speed";
+    
     /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";
     

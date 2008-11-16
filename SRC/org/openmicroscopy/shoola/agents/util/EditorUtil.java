@@ -43,6 +43,8 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.PlaneInfo;
+
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
@@ -188,7 +190,7 @@ public class EditorUtil
     public static final String  PIN_HOLE_SIZE = "Pin hole size";
     
     /** Identifies the <code>ND filter</code> field. */
-    public static final String  ND_FILTER = "ND Filter";
+    public static final String  ND_FILTER = "ND Filter "+PERCENT;
     
     /** Identifies the <code>Fluor</code> field. */
     public static final String 	FLUOR = "Fluor";
@@ -268,23 +270,29 @@ public class EditorUtil
 	/** Identifies the <code>Type</code> field. */
 	public static final String	TYPE = "Type";
 	
-	/** Identifies the  <code>Voltage</code> field. */
+	/** Identifies the <code>Voltage</code> field. */
 	public static final String	VOLTAGE = "Voltage";
 	
-	/** Identifies the  <code>Gain</code> field. */
+	/** Identifies the <code>Gain</code> field. */
 	public static final String	GAIN = "Gain";
 	
-	/** Identifies the  <code>Offset</code> field. */
+	/** Identifies the <code>Offset</code> field. */
 	public static final String	OFFSET = "Offset";
 	
-	/** Identifies the  <code>Read out rate</code> field. */
+	/** Identifies the <code>Read out rate</code> field. */
 	public static final String	READ_OUT_RATE = "Read out rate";
 	
-	/** Identifies the  <code>Binning</code> field. */
+	/** Identifies the <code>Binning</code> field. */
 	public static final String	BINNING = "Binnning";
 	
-	/** Identifies the  <code>Aplication</code> field. */
+	/** Identifies the <code>Aplication</code> field. */
 	public static final String	APLIFICATION = "Aplification";
+	
+	/** Identifies the <code>Exposure</code> field. */
+	public static final String	EXPOSURE_TIME = "Exposure Time";
+	
+	/** Identifies the <code>Delta</code> field. */
+	public static final String	DELTA_T = "DeltaT";
 	
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
@@ -811,7 +819,7 @@ public class EditorUtil
         	details.put(NAME, data.getName());
         	details.put(EM_WAVE, data.getEmissionWavelength());
         	details.put(EX_WAVE, data.getExcitationWavelength());
-            details.put(ND_FILTER, data.getNDFilter());
+            details.put(ND_FILTER, data.getNDFilter()*100);
             details.put(PIN_HOLE_SIZE, data.getPinholeSize());
             details.put(FLUOR, data.getFluor());
             details.put(ILLUMINATION, data.getIllumination());
@@ -900,8 +908,8 @@ public class EditorUtil
     	} else {
     		details.put(TEMPERATURE, data.getTemperature());
         	details.put(AIR_PRESSURE, data.getAirPressure());
-        	details.put(HUMIDITY, data.getHumidity());
-        	details.put(CO2_PERCENT, data.getCo2Percent());
+        	details.put(HUMIDITY, data.getHumidity()*100);
+        	details.put(CO2_PERCENT, data.getCo2Percent()*100);
     	}
     	return details;
     }
@@ -968,6 +976,42 @@ public class EditorUtil
     	details.put(VOLTAGE, "");
     	details.put(GAIN, "");
     	details.put(OFFSET, "");
+    	return details;
+    }
+    
+    /**
+     * Transforms the plane information.
+     * 
+     * @param plane The plane to transform.
+     * @return See above.
+     */
+    public static Map<String, Object> transformPlaneInfo(PlaneInfo plane)
+    {
+    	LinkedHashMap<String, Object> 
+		details = new LinkedHashMap<String, Object>(4);
+    	if (plane == null) {
+    		details.put(DELTA_T, "");
+    		details.put(EXPOSURE_TIME, "");
+    		details.put(POSITION_X, "");
+    		details.put(POSITION_Y, "");
+    		details.put(POSITION_Z, "");
+    	} else {
+    		Object o = plane.getTimestamp();
+    		if (o != null) 
+    			details.put(DELTA_T, plane.getTimestamp().getValue());
+    		o = plane.getExposureTime();
+    		if (o != null) 
+    			details.put(EXPOSURE_TIME, plane.getExposureTime().getValue());
+    		o = plane.getPositionX();
+    		if (o != null) 
+    			details.put(POSITION_X, plane.getPositionX().getValue());
+    		o = plane.getPositionY();
+    		if (o != null) 
+    			details.put(POSITION_Y, plane.getPositionY().getValue());
+    		o = plane.getPositionZ();
+    		if (o != null) 
+    			details.put(POSITION_Z, plane.getPositionZ().getValue());
+    	}
     	return details;
     }
     

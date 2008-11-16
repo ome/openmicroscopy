@@ -227,7 +227,7 @@ public class OptionsDialog
 		attachListeners();
 		buildGUI(message, messageIcon);
 		pack();
-		setResizable(false);
+		//setResizable(false);
     }
     
 	/**

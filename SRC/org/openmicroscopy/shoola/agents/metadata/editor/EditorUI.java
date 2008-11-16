@@ -87,6 +87,9 @@ public class EditorUI
     /** The tabbed pane hosting the metadata. */
     private JTabbedPane					tabbedPane;
     
+    /** The tabbed pane hosting the user's information. */
+    private JTabbedPane					userTabbedPane;
+    
     /** The component currently displayed.. */
     private JComponent					component;
     
@@ -101,12 +104,14 @@ public class EditorUI
 		generalPane = new GeneralPaneUI(this, model, controller);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("General", null, generalPane, "General Information");
+		tabbedPane.addTab("General", null, generalPane, "General Information.");
 		tabbedPane.addTab("Acquisition", null, acquisitionPane, 
-			"Acquisition Metadata");
+			"Acquisition Metadata.");
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		component = defaultPane;
+		userTabbedPane = new JTabbedPane();
+		userTabbedPane.addTab("Profile", null, userUI, "User's details.");
 	}
 	
 	/** Builds and lays out the components. */
@@ -149,7 +154,7 @@ public class EditorUI
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
-    		component = userUI;
+    		component = userTabbedPane;
     	} else if (!(uo instanceof DataObject)) {
     		setDataToSave(false);
     		component = defaultPane;

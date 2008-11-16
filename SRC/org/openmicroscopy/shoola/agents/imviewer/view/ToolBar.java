@@ -43,6 +43,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.PixelsData;
 
@@ -217,7 +218,8 @@ class ToolBar
             pixelsBox.addActionListener(this);
     	}
         
-    	compressionBox = new JComboBox(compression);
+    	compressionBox = EditorUtil.createComboBox(compression, 0);//new JComboBox(compression);
+    	compressionBox.setBackground(getBackground());
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
         createControlsBar();

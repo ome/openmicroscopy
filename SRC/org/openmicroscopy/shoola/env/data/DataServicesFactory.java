@@ -185,6 +185,25 @@ public class DataServicesFactory
 		}
 	}
 	
+	/**
+	 * Returns <code>true</code> if the connection is fast,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param connectionSpeed The connection speed.
+	 * @return See above.
+	 */
+	private boolean isFastConnection(int connectionSpeed)
+	{
+		switch (connectionSpeed) {
+			case UserCredentials.HIGH:
+				return true;
+			case UserCredentials.MEDIUM:
+			case UserCredentials.LOW:
+			default:
+				return false;
+		}
+	}
+	
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
@@ -282,7 +301,9 @@ public class DataServicesFactory
                                                     uc.getHostName(),
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
+        boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+        registry.bind(LookupNames.CONNECTION_SPEED, fastConnection);
         Map<GroupData, Set> groups;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
@@ -321,6 +342,8 @@ public class DataServicesFactory
 			agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS, 
 									groups);
 			agentInfo.getRegistry().bind(LookupNames.USERS_DETAILS, exps);
+			agentInfo.getRegistry().bind(LookupNames.CONNECTION_SPEED, 
+					fastConnection);
 			//agentInfo.getRegistry().bind(
 			//        LookupNames.USER_CREDENTIALS, uc);
 		}

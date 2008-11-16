@@ -62,6 +62,30 @@ public class PlaneInfoLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
+    /** The selected z-section or <code>-1</code>. */
+    private int			defaultZ;
+    
+    /** The selected timepoint or <code>-1</code>. */
+    private int 		defaultT;
+    
+    /**
+     * Creates a new instance
+     * 
+     * @param viewer    The view this loader is for.
+     *                  Mustn't be <code>null</code>.
+     * @param pixelsID  The id of pixels set.
+     * @param defaultZ  The z-section.
+     * @param defaultT  The timepoint.
+     */
+    public PlaneInfoLoader(ImViewer viewer, long pixelsID, 
+    		int defaultZ, int defaultT)
+    {
+        super(viewer);
+        this.pixelsID = pixelsID;
+        this.defaultZ = defaultZ;
+        this.defaultT = defaultT;
+    }
+    
     /**
      * Creates a new instance
      * 
@@ -71,8 +95,7 @@ public class PlaneInfoLoader
      */
     public PlaneInfoLoader(ImViewer viewer, long pixelsID)
     {
-        super(viewer);
-        this.pixelsID = pixelsID;
+       this(viewer, pixelsID, -1, -1);
     }
 
     /**
@@ -81,7 +104,8 @@ public class PlaneInfoLoader
      */
     public void load()
     {
-       handle = ivView.loadPlaneInfo(pixelsID, this);
+    	if (defaultT < 0 || defaultZ < 0)
+    		handle = ivView.loadPlaneInfo(pixelsID, this);
     }
 
     /**

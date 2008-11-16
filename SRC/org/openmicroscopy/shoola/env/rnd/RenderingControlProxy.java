@@ -1046,9 +1046,9 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#getPixelsSizeX()
+     * @see RenderingControl#getPixelsPhysicalSizeX()
      */
-    public float getPixelsSizeX()
+    public float getPixelsPhysicalSizeX()
     {
         if (pixs.getPhysicalSizeX() == null) return 1;
         return pixs.getPhysicalSizeX().getValue();
@@ -1056,9 +1056,9 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#getPixelsSizeY()
+     * @see RenderingControl#getPixelsPhysicalSizeY()
      */
-    public float getPixelsSizeY()
+    public float getPixelsPhysicalSizeY()
     {
         if (pixs.getPhysicalSizeY() == null) return 1;
         return pixs.getPhysicalSizeY().getValue();
@@ -1066,9 +1066,9 @@ class RenderingControlProxy
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#getPixelsSizeZ()
+     * @see RenderingControl#getPixelsPhysicalSizeZ()
      */
-    public float getPixelsSizeZ()
+    public float getPixelsPhysicalSizeZ()
     {
         if (pixs.getPhysicalSizeZ() == null) return 1;
         return pixs.getPhysicalSizeZ().getValue();

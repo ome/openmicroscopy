@@ -209,7 +209,7 @@ class ImViewerComponent
 	 * 
 	 * @return See above
 	 */
-	private String getStatusText()
+	private String getLeftStatusText()
 	{
 		String text = "";
 		text += "Z="+(model.getDefaultZ()+1)+"/"+(model.getMaxZ()+1);
@@ -254,8 +254,9 @@ class ImViewerComponent
 	{
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		ChannelSelection event = new ChannelSelection(model.getPixelsID(), 
-				model.getActiveChannelsMap(), index);
+				model.getActiveChannelsColorMap(), index);
 		bus.post(event);
+		view.setPlaneInfoStatus();
 	}
 
 	/**
@@ -553,7 +554,7 @@ class ImViewerComponent
 	public void setStatus(String description, int perc)
 	{
 		if (model.getState() == DISCARDED) return;
-		view.setStatus(description);
+		view.setLeftStatus(description);
 	}
 
 	/** 
@@ -738,7 +739,8 @@ class ImViewerComponent
 		if (!init) browser.setComponentsSize(model.getMaxX(), model.getMaxY());
 		
 		*/
-		view.setStatus(getStatusText());
+		view.setLeftStatus(getLeftStatusText());
+		view.setPlaneInfoStatus();
 		if (model.isPlayingChannelMovie())
 			model.setState(ImViewer.CHANNEL_MOVIE);
 		if (!model.isPlayingMovie()) {
@@ -947,13 +949,12 @@ class ImViewerComponent
 		//Register the renderer
 		model.getRenderer().addPropertyChangeListener(controller);
 		if (rnd == null) { //initial 
-			//LoadingWindow window = view.getLoadingWindow();
-			//window.setStatus("rendering settings. Loading: metadata");
-			//window.setProgress(50);
-			//User preference
 			view.buildComponents();
 			view.setOnScreen();
-			view.setStatus(getStatusText());
+			if (ImViewerAgent.isFastConnection())
+				model.firePlaneInfoRetrieval();
+			
+			view.setLeftStatus(getLeftStatusText());
 		} else {
 			//TODO
 			//clean history, reset UI element
@@ -1612,7 +1613,8 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("The method cannot be invoked in " +
 			"the DISCARDED state.");
-		view.setStatus(getStatusText());
+		view.setLeftStatus(getLeftStatusText());
+		view.setPlaneInfoStatus();
 		view.resetDefaults(); 
 	}
 
@@ -1996,7 +1998,7 @@ class ImViewerComponent
 		MeasurementTool request = new MeasurementTool(model.getImageID(), 
 				model.getPixelsID(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
-				model.getActiveChannelsMap(), model.getZoomFactor(), 
+				model.getActiveChannelsColorMap(), model.getZoomFactor(), 
 				view.getBounds());
 		request.setThumbnail(model.getImageIcon());
 		bus.post(request);
@@ -2609,8 +2611,9 @@ class ImViewerComponent
 	 */
 	public void setPlaneInfo(Collection collection)
 	{
-		// TODO Auto-generated method stub
-		
+		if (collection == null) return;
+		model.setPlaneInfo(collection);
+		view.setPlaneInfoStatus();
 	}
     
 }

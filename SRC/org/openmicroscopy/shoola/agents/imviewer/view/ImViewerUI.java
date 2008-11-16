@@ -42,6 +42,7 @@ import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,12 +50,15 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -64,6 +68,7 @@ import javax.swing.JTabbedPane;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -79,11 +84,13 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
+import org.openmicroscopy.shoola.util.ui.ColourIcon;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
@@ -147,6 +154,9 @@ class ImViewerUI
 	/** Identifies the <code>Violet</code> color. */
 	private static final Color  VIOLET = new Color(238, 130, 238);
 
+	/** The dimension of the icon. */
+	private static final Dimension ICON_DIMENSION = new Dimension(12, 12);
+	
 	/** The available colors for the unit bar. */
 	private static Map<Color, String>	colors;
 
@@ -1140,9 +1150,60 @@ class ImViewerUI
 	 * 
 	 * @param description   The text to display.
 	 */
-	void setStatus(String description)
+	void setLeftStatus(String description)
 	{
 		statusBar.setLeftStatus(description);
+	}
+	
+	/**
+	 * Displays the plane information.
+	 * 
+	 */
+	void setPlaneInfoStatus()
+	{
+		
+		int z = model.getDefaultZ();
+		int t = model.getDefaultT();
+		List<Integer> indexes = model.getActiveChannels();
+		if (indexes == null || indexes.size() == 0) 
+			statusBar.setCenterStatus(new JLabel());
+		Iterator<Integer> i = indexes.iterator();
+		int index;
+		PlaneInfo info;
+		String s, toolTipText;
+		JLabel l;
+		Map<Integer, Color> colors = model.getActiveChannelsColorMap();
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		Map<String, Object> details;
+		List<String> tips;
+		while (i.hasNext()) {
+			s = "";
+			toolTipText = "";
+			tips = new ArrayList<String>();
+			index = i.next();
+			info = model.getPlane(z, index, t);
+			if (info != null) {
+				details = EditorUtil.transformPlaneInfo(info);
+				l = new JLabel();
+				l.setIcon(new ColourIcon(ICON_DIMENSION, colors.get(index)));
+				s += details.get(EditorUtil.DELTA_T)+"s ";
+				toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+				toolTipText += details.get(EditorUtil.EXPOSURE_TIME)+"s";
+				tips.add(toolTipText);
+				toolTipText = "";
+				toolTipText += "Stage coordinates: ";
+				toolTipText += details.get(EditorUtil.POSITION_X)+", ";
+				toolTipText += details.get(EditorUtil.POSITION_Y)+", ";
+				toolTipText += details.get(EditorUtil.POSITION_Z)+" ";
+				tips.add(toolTipText);
+				l.setToolTipText(UIUtilities.formatToolTipText(tips));
+				l.setText(s);
+				panel.add(l);
+			}
+		}
+		statusBar.setCenterStatus(panel);
+		
 	}
 	
 	/**

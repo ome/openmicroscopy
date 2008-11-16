@@ -44,6 +44,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
@@ -57,8 +58,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -478,6 +477,33 @@ public class UIUtilities
 		buf.append("</font></body></html>");
 		return toolTipText;
 		//return buf.toString();
+	} 
+	
+	/** 
+	 * Builds a tool tip in a fixed font and color.
+	 * You pass the tool tip text and get back an <i>HTML</i> string to be
+	 * passed, in turn, to the <code>setToolTipText</code> method of a 
+	 * {@link javax.swing.JComponent}.
+	 *
+	 * @param toolTipText     The textual content of the tool tip.
+	 * @return An <i>HTML</i> fomatted string to be passed to 
+	 * 			<code>setToolTipText()</code>.
+	 */
+	public static String formatToolTipText(List<String> toolTipText) 
+	{
+		StringBuffer buf = new StringBuffer();
+		//buf.
+		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
+		buf.append("<font face=Arial size=2>");  
+		Iterator<String> i = toolTipText.iterator();
+		buf.append("<p>");
+		while (i.hasNext()) {
+			buf.append(i.next());
+			buf.append("<br>");
+		}
+		buf.append("</p>");
+		buf.append("</font></body></html>");
+		return buf.toString();
 	} 
 	
     /**
