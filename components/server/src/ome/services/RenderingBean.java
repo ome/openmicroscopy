@@ -529,12 +529,13 @@ public class RenderingBean extends AbstractLevel2Service implements
     public byte[] renderCompressed(PlaneDef pd) {
         rwl.writeLock().lock();
         
-        int[] buf = renderAsPackedInt(pd);
-        int sizeX = pixelsObj.getSizeX();
-        int sizeY = pixelsObj.getSizeY();
-        BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream byteStream = null;
         try {
+            int[] buf = renderAsPackedInt(pd);
+            int sizeX = pixelsObj.getSizeX();
+            int sizeY = pixelsObj.getSizeY();
+            BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+            byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
         } catch (IOException e) {
@@ -543,7 +544,9 @@ public class RenderingBean extends AbstractLevel2Service implements
         } finally {
             rwl.writeLock().unlock();
             try {
-                byteStream.close();
+                if (byteStream != null) {
+                    byteStream.close();
+                }
             } catch (IOException e) {
                 log.error("Could not close byte stream.", e);
                 throw new ResourceError(e.getMessage());
@@ -611,13 +614,14 @@ public class RenderingBean extends AbstractLevel2Service implements
                                             int stepping, int start, int end) {
         rwl.writeLock().lock();
         
-        int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
-                                               stepping, start, end);
-        int sizeX = pixelsObj.getSizeX();
-        int sizeY = pixelsObj.getSizeY();
-        BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream byteStream = null;
         try {
+            int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
+                                                   stepping, start, end);
+            int sizeX = pixelsObj.getSizeX();
+            int sizeY = pixelsObj.getSizeY();
+            BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+            byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
         } catch (IOException e) {
@@ -626,7 +630,9 @@ public class RenderingBean extends AbstractLevel2Service implements
         } finally {
             rwl.writeLock().unlock();
             try {
-                byteStream.close();
+                if (byteStream != null) {
+                    byteStream.close();
+                }
             } catch (IOException e) {
                 log.error("Could not close byte stream.", e);
                 throw new ResourceError(e.getMessage());
