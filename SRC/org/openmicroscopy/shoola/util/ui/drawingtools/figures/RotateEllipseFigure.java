@@ -30,10 +30,8 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D.Double;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -95,6 +93,9 @@ public class RotateEllipseFigure
 	public RotateEllipseFigure(double x, double y, double width, double height)
 	{
 		ellipse=new Ellipse2D.Double(x, y, width, height);
+		AffineTransform transform = new AffineTransform();
+		transform.setToIdentity();
+		AttributeKeys.TRANSFORM.set(this, transform);
 	}
 		    
 	/**
