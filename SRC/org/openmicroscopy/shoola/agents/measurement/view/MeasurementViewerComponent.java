@@ -534,6 +534,7 @@ class MeasurementViewerComponent
 	{
 		model.showMeasurementsInMicrons(inMicrons);
 		view.updateDrawingArea();
+		refreshResultsTable();
 	}
 
 	/** 
