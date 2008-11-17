@@ -72,11 +72,11 @@ public class OntologyLookUp {
 			Query qs = locator.getOntologyQuery();
 			metaDataMap = qs.getTermMetadata(termID, ontologyID);
 			
-			/*
+			
 			for (Iterator i = metaDataMap.keySet().iterator(); i.hasNext();){
 				String key = (String) i.next();
 				System.out.println(key + " - "+ metaDataMap.get(key));
-			} */
+			} 
 			
 		}catch (Exception e) {
 			e.printStackTrace();
