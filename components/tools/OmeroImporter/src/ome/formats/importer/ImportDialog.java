@@ -436,7 +436,7 @@ public class ImportDialog extends JDialog implements ActionListener
         if (e.getSource() == addDatasetBtn)
         {
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
-            new AddDatasetDialog(this, "Add a new Dataset to: " + project.getName(), true, project, store);
+            new AddDatasetDialog(this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
             refreshAndSetDataset(project);
         }
         

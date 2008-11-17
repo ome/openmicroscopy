@@ -329,6 +329,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         } catch (Exception e)
         {
             log.error("Login failure.", e);
+            e.printStackTrace();
             return false;
         }
         return true;

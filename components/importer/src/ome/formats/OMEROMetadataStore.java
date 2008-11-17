@@ -58,6 +58,7 @@ import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
+import ome.model.acquisition.ObjectiveSettings;
 import ome.model.acquisition.StageLabel;
 import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.PixelsAnnotationLink;
@@ -1693,44 +1694,80 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /* ---- Detector Settings ---- */
 
+    private void setDetectorSettingsID(String id, int imageIndex, int logicalChannelIndex)
+    {
+        currentLSID = "ome.formats.importer.detectorsettings." + imageIndex + "." + logicalChannelIndex;
+        mapLSID(currentLSID);    
+    }
+    
+    //FIXME: horribly hacked. This needs pixelsindex from melissa before it will return 
+    // the correct DS - for now it just returns the last one.
+    private DetectorSettings getDetectorSettings(int imageIndex, int logicalChannelIndex)
+    {
+    	setDetectorSettingsID(null, imageIndex, logicalChannelIndex);
+        
+        Image image = getImage(imageIndex);
+        
+    	Iterator <Pixels> pi = image.iteratePixels();
+     	while (pi.hasNext())
+    	{
+    		Pixels p = pi.next();
+    		Channel c = p.getChannel(logicalChannelIndex);
+    		LogicalChannel lc = c.getLogicalChannel();
+    		
+    		DetectorSettings ds;
+    		
+    		if (lc.getDetectorSettings() == null)
+    		{
+    			ds = new DetectorSettings();
+    			lc.setDetectorSettings(ds);
+        		lsidMap.put(currentLSID, ds);
+    		} else {
+    			ds = lc.getDetectorSettings();
+    		}
+    		
+    	}
+    	
+     	return (DetectorSettings) lsidMap.get(currentLSID);
+
+    }
+    
     public void setDetectorSettingsDetector(String detector, int imageIndex,
             int logicalChannelIndex)
     {
         log.debug(String.format(
                 "Ignoring setExperimenterID[%s] imageIndex[%d] logicalChannelIndex[%d]",
                 detector, imageIndex, logicalChannelIndex));
+        
+        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
+        if (ds != null)
+            ds.setDetector((Detector) getEnumeration(Detector.class, detector));
     }
 
     public void setDetectorSettingsGain(Float gain, int imageIndex,
-            int logicalChannelIndex) {       
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-                    "Detector Settings Gain: '%f'",
-                    imageIndex, p, logicalChannelIndex, gain));
-            DetectorSettings ds = p.getChannel(logicalChannelIndex).getLogicalChannel().getDetectorSettings();
+            int logicalChannelIndex) {  
+    	
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] " +
+                "Detector Settings Gain: '%f'",
+                imageIndex, logicalChannelIndex, gain));
+        
+        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
+        if (ds != null)
             ds.setGain(gain);
-        }
     }
 
     public void setDetectorSettingsOffset(Float offset, int imageIndex,
             int logicalChannelIndex) {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-                    "Detector Settings Offset: '%f'",
-                    imageIndex, p, logicalChannelIndex, offset));
-            DetectorSettings ds = p.getChannel(logicalChannelIndex).getLogicalChannel().getDetectorSettings();
+    	
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] " +
+                "Detector Settings Offset: '%f'",
+                imageIndex, logicalChannelIndex, offset));
+        
+        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
+        if (ds != null)
             ds.setOffsetValue(offset);
-        }
     }
 
     /* ---- Instrument-based Methods ---- */
@@ -2150,7 +2187,29 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             instrument.addDetector(detector);
         } 
 
-        return (Detector) lsidMap.get(currentLSID);
+        
+        //FIXME: This is a horrible hack until 
+        Detector detector = (Detector) lsidMap.get(currentLSID);
+        
+        for (Image i : imageList)
+        {
+        	Iterator <Pixels> pi = i.iteratePixels();
+         	while (pi.hasNext())
+        	{
+        		Pixels p = pi.next();
+        		Iterator <Channel> ci = p.iterateChannels();
+        		while (ci.hasNext())
+        		{
+        			Channel c = ci.next();
+        			LogicalChannel lc = c.getLogicalChannel();
+        			DetectorSettings ds = new DetectorSettings();
+        			ds.setDetector(detector);
+        			lc.setDetectorSettings(ds);
+        		}
+        	}
+        }
+        
+        return detector;
     }
     
     public void setDetectorGain(Float gain, int instrumentIndex,
@@ -2252,7 +2311,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             instrument.addObjective(objective);
         } 
 
-        return (Objective) lsidMap.get(currentLSID);
+        Objective o = (Objective) lsidMap.get(currentLSID);
+        
+        //FIXME: hack here.. objective settings needs to be properly set up
+        
+        for (Image i : imageList)
+        {
+        	if (i.getObjectiveSettings() == null)
+        	{
+	        	ObjectiveSettings os = new ObjectiveSettings();
+	        	os.setObjective(o);
+	        	i.setObjectiveSettings(os);
+        	}
+        }
+        
+        return o;
     }
     
     public void setObjectiveCalibratedMagnification(
