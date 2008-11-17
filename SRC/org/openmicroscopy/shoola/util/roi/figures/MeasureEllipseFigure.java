@@ -221,40 +221,7 @@ public class MeasureEllipseFigure
 		return ellipse.getY(); 
 	}
 	
-	/** 
-	 * Get the x coord of the figure. 
-	 * @return see above.
-	 */
-	public double getCentreX()
-	{
-		if(AttributeKeys.TRANSFORM.get(this)!=null)
-		{
-			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
-			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
-			Point2D dest = new Point2D.Double();
-			t.transform(src, dest);
-			return dest.getX();
-		}
-		return ellipse.getCenterX();
-	}
 	
-	/** 
-	 * Get the y coord of the figure. 
-	 * 
-	 * @return see above.
-	 */
-	public double getCentreY()
-	{
-		if(AttributeKeys.TRANSFORM.get(this)!=null)
-		{
-			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
-			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
-			Point2D dest = new Point2D.Double();
-			t.transform(src, dest);
-			return dest.getY();
-		}
-		return ellipse.getCenterY();
-	}
 	
 	/** 
 	 * Get the width coord of the figure.

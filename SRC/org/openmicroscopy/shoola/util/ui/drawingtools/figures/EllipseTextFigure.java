@@ -137,28 +137,15 @@ public class EllipseTextFigure
 			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
 			{
 				double newHeight = MeasurementAttributes.HEIGHT.get(this);
-				Ellipse2D.Double newEllipse = getEllipse();
-				double x = newEllipse.getX();
-				double width = newEllipse.getWidth();
-				double y = newEllipse.getY();
-				double centreY = newEllipse.getCenterY();
-				double newY = centreY-newHeight/2;
-				this.setEllipse(x,newY,width,newHeight);	
+				this.setHeight(newHeight);	
 			}
 			if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
 			{
 				double newWidth = MeasurementAttributes.WIDTH.get(this);
-				Ellipse2D.Double newEllipse = getEllipse();
-				double x = newEllipse.getX();
-				double height = newEllipse.getHeight();
-				double y = newEllipse.getY();
-				double centreX = newEllipse.getCenterX();
-				double newX = centreX-newWidth/2;
-				this.setEllipse(newX,y,newWidth,height);	
+				this.setWidth(newWidth);	
 			}
 		}
 	}
-	
 	
 	public void transform(AffineTransform tx)
 	{
@@ -232,16 +219,6 @@ public class EllipseTextFigure
 		drawText(g);
 	}
 
-	public double getHeight()
-	{
-		return getTransformedEllipse().getHeight();
-	}
-
-	public double getWidth()
-	{
-		return getTransformedEllipse().getWidth();
-	}
-	
 	/**
 	 * Overridden to draw the text.
 	 * @see EllipseFigure#drawText(Graphics2D)

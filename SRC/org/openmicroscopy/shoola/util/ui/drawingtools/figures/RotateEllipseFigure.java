@@ -152,6 +152,8 @@ public class RotateEllipseFigure
 	
 	public Ellipse2D.Double getTransformedEllipse()
 	{
+		if(AttributeKeys.TRANSFORM.get(this)==null)
+			return ellipse;
 		Ellipse2D.Double e = new Ellipse2D.Double(0,0,0,0);
 		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
 		Point2D.Double  startW = (Point2D.Double)t.transform(new Point2D.Double(0, ellipse.getCenterY()), null);
@@ -219,6 +221,125 @@ public class RotateEllipseFigure
 		ellipse.width=Math.max(0.1, Math.abs(lead.x-anchor.x));
 		ellipse.height=Math.max(0.1, Math.abs(lead.y-anchor.y));
 		invalidate();
+	}
+
+	public double getHeight()
+	{
+		return getTransformedEllipse().getHeight();
+	}
+
+	public double getWidth()
+	{
+		return getTransformedEllipse().getWidth();
+	}
+	
+	public void setWidth(double newWidth)
+	{
+		if(AttributeKeys.TRANSFORM.get(this)==null)
+			return;
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		double centreX = getCentreX();
+		double centreY = getCentreY();
+		double height = getHeight();
+		double[] matrix = new double[6];
+		t.getMatrix(matrix);
+		matrix[4] = 0;
+		matrix[5] = 0;
+		AffineTransform aT = new AffineTransform(matrix);
+		Point2D.Double a = (Point2D.Double)aT.transform(new Point2D.Double(1,0), null);
+		double theta = Math.asin(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
+		AffineTransform newT = new AffineTransform();
+		newT.setToRotation(theta);
+		
+		Ellipse2D.Double newEllipse = new Ellipse2D.Double(0,0,newWidth, height);
+		
+		Shape rotatedShape = newT.createTransformedShape(newEllipse);
+		double rotatedShapeCentreX = rotatedShape.getBounds2D().getCenterX();
+		double rotatedShapeCentreY = rotatedShape.getBounds2D().getCenterY();
+		
+		double diffX = centreX-rotatedShapeCentreX;
+		double diffY = centreY-rotatedShapeCentreY;
+	
+		Point2D.Double lead = new Point2D.Double(diffX, diffY);
+		
+		AffineTransform rT = AffineTransform.getTranslateInstance(lead.x, lead.y);
+		rT.concatenate(newT);
+		
+		ellipse = newEllipse;
+		AttributeKeys.TRANSFORM.set(this, rT);
+		invalidate();
+	}
+	
+	public void setHeight(double newHeight)
+	{
+		if(AttributeKeys.TRANSFORM.get(this)==null)
+			return;
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		double centreX = getCentreX();
+		double centreY = getCentreY();
+		double width = getWidth();
+		double[] matrix = new double[6];
+		t.getMatrix(matrix);
+		matrix[4] = 0;
+		matrix[5] = 0;
+		AffineTransform aT = new AffineTransform(matrix);
+		Point2D.Double a = (Point2D.Double)aT.transform(new Point2D.Double(1,0), null);
+		double theta = Math.asin(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
+		AffineTransform newT = new AffineTransform();
+		newT.setToRotation(theta);
+		
+		Ellipse2D.Double newEllipse = new Ellipse2D.Double(0,0,width, newHeight);
+		
+		Shape rotatedShape = newT.createTransformedShape(newEllipse);
+		double rotatedShapeCentreX = rotatedShape.getBounds2D().getCenterX();
+		double rotatedShapeCentreY = rotatedShape.getBounds2D().getCenterY();
+		
+		double diffX = centreX-rotatedShapeCentreX;
+		double diffY = centreY-rotatedShapeCentreY;
+	
+		Point2D.Double lead = new Point2D.Double(diffX, diffY);
+		
+		AffineTransform rT = AffineTransform.getTranslateInstance(lead.x, lead.y);
+		rT.concatenate(newT);
+		
+		ellipse = newEllipse;
+		AttributeKeys.TRANSFORM.set(this, rT);
+		invalidate();
+	}
+	
+	/** 
+	 * Get the x coord of the figure. 
+	 * @return see above.
+	 */
+	public double getCentreX()
+	{
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
+		{
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+			Point2D dest = new Point2D.Double();
+			t.transform(src, dest);
+			return dest.getX();
+		}
+		return ellipse.getCenterX();
+	}
+	
+	/** 
+	 * Get the y coord of the figure. 
+	 * 
+	 * @return see above.
+	 */
+	public double getCentreY()
+	{
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
+		{
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+			Point2D dest = new Point2D.Double();
+			t.transform(src, dest);
+			return dest.getY();
+		}
+		return ellipse.getCenterY();
 	}
 	
 	/**
