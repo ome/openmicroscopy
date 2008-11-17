@@ -352,7 +352,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		renderer.close();
     	}
     	pixels = iPixels.retrievePixDescription(pixels.getId());
-    	settings = iPixels.retrieveRndSettings(pixels.getId());
+    	settings = iPixels.loadRndSettings(settings.getId());
     	OriginalFileMetadataProvider metadataProvider =
     		new OmeroOriginalFileMetadataProvider(iQuery);
     	PixelBuffer buffer = 
@@ -384,6 +384,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                     "with pixels set " + pixels.getId());
         }
         settings = newSettings;
+        settingsLastUpdated = 
+                settings.getDetails().getUpdateEvent().getTime();
+        settingsUserId = settings.getDetails().getOwner().getId();
         if (log.isDebugEnabled())
         {
             log.debug("setRenderingDefId for RenderingDef=" + id
