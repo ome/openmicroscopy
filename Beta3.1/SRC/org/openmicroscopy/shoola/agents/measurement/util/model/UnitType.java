@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.util.ui.drawingtools.DrawingAttributes 
+ * org.openmicroscopy.shoola.agents.measurement.util.model.UnitType 
  *
- *------------------------------------------------------------------------------
+  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -20,20 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.drawingtools.attributes;
-
+package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 
 /** 
- * Defines AttributeKeys used by the Figures in this package as well as some
- * helper methods.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,36 +41,11 @@ import org.jhotdraw.draw.AttributeKeys;
  * </small>
  * @since OME3.0
  */
-public class DrawingAttributes  
-	extends AttributeKeys 
-{
-
-	/** Attribute to display or hide the text. */
-	public static final AttributeKey<Boolean> SHOWTEXT = 
-		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
-
-	/** Attribute to define the height of the figure. */
-	public static final AttributeKey<Double> HEIGHT = 
-		new AttributeKey<Double>("figureHeight", 10.0);
-
-	/** Attribute to define the width of the figure. */
-	public static final AttributeKey<Double> WIDTH = 
-		new AttributeKey<Double>("figureWidth", 10.0);
-	
-	/**
-	 * Returns the sole instance.
-	 * @return See above.
-	 */
-	public static DrawingAttributes get()
-	{	
-		 // it's ok, we can call this constructor
-		if (ref == null) ref = new DrawingAttributes();		
-		return ref;
-	}
-
-	/** The sole instance. */
-	private static DrawingAttributes ref;
-	
+public enum UnitType
+{	
+	PIXELS,
+	MICRONS,
+	DEGREES
 }
 
 

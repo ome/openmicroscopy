@@ -64,139 +64,144 @@ public class MeasureRectangleFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
-	 /**
-     * This is used to perform faster drawing and hit testing.
-     */
+	/**
+	 * This is used to perform faster drawing and hit testing.
+	 */
 	protected	Rectangle2D 		bounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
-
+	
 	/** The ROIFigure contains this Figure. */
 	protected 	ROIShape 			shape;
 	
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
-	   
+	
 	private int 					status;
 	
-    /** Creates a new instance. */
-    public MeasureRectangleFigure() 
-    {
-        this("Text", 0, 0, 0, 0);
-    }
-
-    /** 
-     * Creates a new instance.
-     * @param text text of the ellipse. 
-     * */
-    public MeasureRectangleFigure(String text) 
-    {
-        this(text, 0, 0, 0, 0);
-    }
-    
-    /** 
-     * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
-     * @param width of the figure. 
-     * @param height of the figure. 
-     * */
-    public MeasureRectangleFigure(double x, double y, double width, 
+	/** Creates a new instance. */
+	public MeasureRectangleFigure() 
+	{
+		this("Text", 0, 0, 0, 0);
+	}
+	
+	/** 
+	 * Creates a new instance.
+	 * @param text text of the ellipse. 
+	 * */
+	public MeasureRectangleFigure(String text) 
+	{
+		this(text, 0, 0, 0, 0);
+	}
+	
+	/** 
+	 * Creates a new instance.
+	 * @param x    coord of the figure. 
+	 * @param y    coord of the figure. 
+	 * @param width of the figure. 
+	 * @param height of the figure. 
+	 * */
+	public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
-    {
-    	this("Text", x, y, width, height);
-    }
-    
-    /** 
-     * Creates a new instance.
-     * @param text text of the ellipse. 
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
-     * @param width of the figure. 
-     * @param height of the figure. 
-     * */
-    public MeasureRectangleFigure(String text, double x, double y, double width, 
-    							double height) 
-    {
+	{
+		this("Text", x, y, width, height);
+	}
+	
+	/** 
+	 * Creates a new instance.
+	 * @param text text of the ellipse. 
+	 * @param x    coord of the figure. 
+	 * @param y    coord of the figure. 
+	 * @param width of the figure. 
+	 * @param height of the figure. 
+	 * */
+	public MeasureRectangleFigure(String text, double x, double y, double width, 
+			double height) 
+	{
 		super(text, x, y, width, height);
-        shape = null;
+		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
+		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
+		setAttribute(MeasurementAttributes.WIDTH, width);
+		setAttribute(MeasurementAttributes.HEIGHT, height);
+		shape = null;
 		roi = null;
-    }
-    
-    /** 
-     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementX() 
-    {
-    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
-    	return getX();
-    }
-    
-    /** 
-     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementY() 
-    {
-    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
-    	return getY();
-    }
-    
-    
-    /** 
-     * Get the width of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementWidth() 
-    {
-    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
-    	return getWidth();
-    }
-    
-    /** 
-     * Get the height of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementHeight() 
-    {
-    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
-    	return getHeight();
-    }
-    
-    /** 
-     * Get the x coord of the figure. 
-     * @return see above.
-     */
-    public double getX() { return rectangle.getX(); }
-    
-    /** 
-     * Get the y coord of the figure. 
-     * @return see above.
-     */
-    public double getY() { return rectangle.getY(); }
-    
-    /** 
-     * Get the width coord of the figure. 
-     * @return see above.
-     */
-    public double getWidth() { return rectangle.getWidth(); }
-    
-    /** 
-     * Get the height coord of the figure. 
-     * @return see above.
-     */
-    public double getHeight() { return rectangle.getHeight(); }
-    
-    /**
-     * Draw the figure on the graphics context.
-     * @param g the graphics context.
-     */
+		status = IDLE;
+	}
+	
+	/** 
+	 * Get the X Coord of the figure, convert to microns if isInMicrons set. 
+	 * 
+	 * @return see above.
+	 */
+	public double getMeasurementX() 
+	{
+		if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+		return getX();
+	}
+	
+	/** 
+	 * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
+	 * 
+	 * @return see above.
+	 */
+	public double getMeasurementY() 
+	{
+		if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+		return getY();
+	}
+	
+	
+	/** 
+	 * Get the width of the figure, convert to microns if isInMicrons set. 
+	 * 
+	 * @return see above.
+	 */
+	public double getMeasurementWidth() 
+	{
+		if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+		return getWidth();
+	}
+	
+	/** 
+	 * Get the height of the figure, convert to microns if isInMicrons set. 
+	 * 
+	 * @return see above.
+	 */
+	public double getMeasurementHeight() 
+	{
+		if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+		return getHeight();
+	}
+	
+	/** 
+	 * Get the x coord of the figure. 
+	 * @return see above.
+	 */
+	public double getX() { return rectangle.getX(); }
+	
+	/** 
+	 * Get the y coord of the figure. 
+	 * @return see above.
+	 */
+	public double getY() { return rectangle.getY(); }
+	
+	/** 
+	 * Get the width coord of the figure. 
+	 * @return see above.
+	 */
+	public double getWidth() { return rectangle.getWidth(); }
+	
+	/** 
+	 * Get the height coord of the figure. 
+	 * @return see above.
+	 */
+	public double getHeight() { return rectangle.getHeight(); }
+	
+	/**
+	 * Draw the figure on the graphics context.
+	 * @param g the graphics context.
+	 */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
@@ -210,16 +215,16 @@ public class MeasureRectangleFigure
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
-						getBounds().getCenterX()-bounds.getWidth()/2,
-						getBounds().getCenterY()+bounds.getHeight()/2,
-					bounds.getWidth(), bounds.getHeight());
+				getBounds().getCenterX()-bounds.getWidth()/2,
+				getBounds().getCenterY()+bounds.getHeight()/2,
+				bounds.getWidth(), bounds.getHeight());
 			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 			g.drawString(rectangleArea, (int) bounds.getX(), (int) 
-						bounds.getY()); 
-					
+				bounds.getY()); 
+			
 		}
 	}
-				
+	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 
 	 * @return see above.
@@ -242,24 +247,24 @@ public class MeasureRectangleFigure
 				newBounds.height = newBounds.height+diff;
 			}
 			if (bounds.getX()+bounds.getWidth() > 
-				newBounds.getX()+newBounds.getWidth())
+			newBounds.getX()+newBounds.getWidth())
 			{
 				double diff = bounds.getX()+bounds.getWidth()-
-							newBounds.getX()+newBounds.getWidth();
+				newBounds.getX()+newBounds.getWidth();
 				newBounds.width = newBounds.width+diff;
 			}
 			if (bounds.getY()+bounds.getHeight() >
-				newBounds.getY()+newBounds.getHeight())
+			newBounds.getY()+newBounds.getHeight())
 			{
 				double diff = bounds.getY()+bounds.getHeight()
-								-newBounds.getY()+newBounds.getHeight();
+				-newBounds.getY()+newBounds.getHeight();
 				newBounds.height = newBounds.height+diff;
 			}
 		}
 		return newBounds;
 	}
-	 
-
+	
+	
 	/**
 	 * Add units to the string 
 	 * @param str see above.
@@ -272,8 +277,8 @@ public class MeasureRectangleFigure
 			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
-
-
+	
+	
 	/**
 	 * Calculate the area of the figure. 
 	 * @return see above.
@@ -291,45 +296,45 @@ public class MeasureRectangleFigure
 	{
 		return getMeasurementWidth()*2+getMeasurementHeight()*2;
 	}
-
+	
 	/** 
 	 * Calculate the centre of the figure. 
 	 * @return see above.
 	 */
 	public Point2D getCentre()
 	{
-     	if (units.isInMicrons())
-    		return new Point2D.Double(
-    				rectangle.getCenterX()*units.getMicronsPixelX(), 
-    				rectangle.getCenterY()*units.getMicronsPixelY());
-    	return new Point2D.Double(rectangle.getCenterX(), 
-    							rectangle.getCenterY());
+		if (units.isInMicrons())
+			return new Point2D.Double(
+				rectangle.getCenterX()*units.getMicronsPixelX(), 
+				rectangle.getCenterY()*units.getMicronsPixelY());
+		return new Point2D.Double(rectangle.getCenterX(), 
+			rectangle.getCenterY());
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()
 	 */
 	public ROI getROI() { return roi; }
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROIShape()
 	 */
 	public ROIShape getROIShape() { return shape; }
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROI(ROI)
 	 */
 	public void setROI(ROI roi) { this.roi = roi; }
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROIShape(ROIShape)
 	 */
 	public void setROIShape(ROIShape shape) { this.shape = shape; }
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#calculateMeasurements()
@@ -344,13 +349,13 @@ public class MeasureRectangleFigure
 		AnnotationKeys.CENTREX.set(shape, getCentre().getX());
 		AnnotationKeys.CENTREY.set(shape, getCentre().getY());
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
 	public String getType() { return FigureUtil.RECTANGLE_TYPE; }
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
@@ -359,7 +364,7 @@ public class MeasureRectangleFigure
 	{
 		this.units = units;
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()

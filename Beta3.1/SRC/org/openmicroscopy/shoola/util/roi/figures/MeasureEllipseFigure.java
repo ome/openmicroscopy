@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -33,7 +32,6 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 //Third-party libraries
 
@@ -67,8 +65,7 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
-
-Rectangle2D					bounds;
+	Rectangle2D measurementBounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected ROI				roi;
@@ -79,7 +76,7 @@ Rectangle2D					bounds;
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits	units;
 	
-	private int					status;
+	private int 				status;
 	
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
@@ -87,19 +84,14 @@ Rectangle2D					bounds;
 		this("Text", 0, 0, 0, 0);
 	}
 	
-	/**
+	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param text
-	 *            text of the ellipse.
-	 * @param x
-	 *            coord of the figure.
-	 * @param y
-	 *            coord of the figure.
-	 * @param width
-	 *            of the figure.
-	 * @param height
-	 *            of the figure.
+	 * @param text text of the ellipse. 
+	 * @param x    coord of the figure. 
+	 * @param y    coord of the figure. 
+	 * @param width of the figure. 
+	 * @param height of the figure. 
 	 */
 	public MeasureEllipseFigure(String text, double x, double y, double width,
 			double height)
@@ -108,39 +100,34 @@ Rectangle2D					bounds;
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 		shape=null;
 		roi=null;
-		status=IDLE;
+		status = IDLE;
 	}
 	
-	/**
-	 * Creates a new instance.
+	/** 
+	 * Creates a new instance. 
 	 * 
-	 * @param text
-	 *            string shown in the ellipse.
+	 * @param text string shown in the ellipse.
 	 */
 	public MeasureEllipseFigure(String text)
 	{
 		this(text, 0, 0, 0, 0);
 	}
 	
-	/**
+	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param x
-	 *            coord of the figure.
-	 * @param y
-	 *            coord of the figure.
-	 * @param width
-	 *            of the figure.
-	 * @param height
-	 *            of the figure.
+	 * @param x    coord of the figure. 
+	 * @param y    coord of the figure. 
+	 * @param width of the figure. 
+	 * @param height of the figure. 
 	 */
 	public MeasureEllipseFigure(double x, double y, double width, double height)
 	{
 		this("Text", x, y, width, height);
 	}
 	
-	/**
-	 * Get the X Coord of the figure, convert to microns if isInMicrons set.
+	/** 
+	 * Get the X Coord of the figure, convert to microns if isInMicrons set. 
 	 * 
 	 * @return see above.
 	 */
@@ -150,8 +137,8 @@ Rectangle2D					bounds;
 		return getX();
 	}
 	
-	/**
-	 * Get the Y Coord of the figure, convert to microns if isInMicrons set.
+	/** 
+	 * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
 	 * 
 	 * @return see above.
 	 */
@@ -161,8 +148,8 @@ Rectangle2D					bounds;
 		return getY();
 	}
 	
-	/**
-	 * Get the width of the figure, convert to microns if isInMicrons set.
+	/** 
+	 * Get the width of the figure, convert to microns if isInMicrons set. 
 	 * 
 	 * @return see above.
 	 */
@@ -172,8 +159,8 @@ Rectangle2D					bounds;
 		return getWidth();
 	}
 	
-	/**
-	 * Get the height of the figure, convert to microns if isInMicrons set.
+	/** 
+	 * Get the height of the figure, convert to microns if isInMicrons set. 
 	 * 
 	 * @return see above.
 	 */
@@ -183,98 +170,61 @@ Rectangle2D					bounds;
 		return getHeight();
 	}
 	
-	/**
-	 * Get the centre of the figure, convert to microns if isInMicrons set.
+	/** 
+	 * Get the centre of the figure, convert to microns if isInMicrons set. 
 	 * 
 	 * @return see above.
 	 */
 	public Point2D getMeasurementCentre()
 	{
-		if (units.isInMicrons()) return new Point2D.Double(getCentre().getX()
+		if (units.isInMicrons()) 
+			return new Point2D.Double(getCentre().getX()
 				*units.getMicronsPixelX(), getCentre().getY()
 				*units.getMicronsPixelY());
 		return getCentre();
 	}
 	
-	/**
-	 * Get the x coord of the figure.
-	 * 
+	/** 
+	 * Get the x coord of the figure. 
 	 * @return see above.
 	 */
 	public double getX()
 	{
-		if (AttributeKeys.TRANSFORM.get(this)!=null)
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
 		{
-			AffineTransform t=AttributeKeys.TRANSFORM.get(this);
-			Point2D src=new Point2D.Double(ellipse.getX(), ellipse.getY());
-			Point2D dest=new Point2D.Double();
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getX(), ellipse.getY());
+			Point2D dest = new Point2D.Double();
 			t.transform(src, dest);
 			return dest.getX();
 		}
 		return ellipse.getX();
 	}
 	
-	/**
-	 * Get the y coord of the figure.
+	
+	/** 
+	 * Get the y coord of the figure. 
 	 * 
 	 * @return see above.
 	 */
-	public double getY()
+	public double getY() 
 	{
-		if (AttributeKeys.TRANSFORM.get(this)!=null)
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
 		{
-			AffineTransform t=AttributeKeys.TRANSFORM.get(this);
-			Point2D src=new Point2D.Double(ellipse.getX(), ellipse.getY());
-			Point2D dest=new Point2D.Double();
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getX(), ellipse.getY());
+			Point2D dest = new Point2D.Double();
 			t.transform(src, dest);
 			return dest.getY();
 		}
-		return ellipse.getY();
+		return ellipse.getY(); 
 	}
 	
-	/**
-	 * Get the x coord of the figure.
-	 * 
-	 * @return see above.
-	 */
-	public double getCentreX()
-	{
-		if (AttributeKeys.TRANSFORM.get(this)!=null)
-		{
-			AffineTransform t=AttributeKeys.TRANSFORM.get(this);
-			Point2D src=
-					new Point2D.Double(ellipse.getCenterX(), ellipse
-						.getCenterY());
-			Point2D dest=new Point2D.Double();
-			t.transform(src, dest);
-			return dest.getX();
-		}
-		return ellipse.getCenterX();
-	}
 	
-	/**
-	 * Get the y coord of the figure.
-	 * 
-	 * @return see above.
-	 */
-	public double getCentreY()
-	{
-		if (AttributeKeys.TRANSFORM.get(this)!=null)
-		{
-			AffineTransform t=AttributeKeys.TRANSFORM.get(this);
-			Point2D src=
-					new Point2D.Double(ellipse.getCenterX(), ellipse
-						.getCenterY());
-			Point2D dest=new Point2D.Double();
-			t.transform(src, dest);
-			return dest.getY();
-		}
-		return ellipse.getCenterY();
-	}
 	
-	/**
+	/** 
 	 * Get the width coord of the figure.
-	 * 
+	 *  
 	 * @return see above.
 	 */
 	public double getWidth()
@@ -282,9 +232,9 @@ Rectangle2D					bounds;
 		return super.getWidth();
 	}
 	
-	/**
+	/** 
 	 * Get the height coord of the figure.
-	 * 
+	 *  
 	 * @return see above.
 	 */
 	public double getHeight()
@@ -295,8 +245,7 @@ Rectangle2D					bounds;
 	/**
 	 * Draw the figure on the graphics context.
 	 * 
-	 * @param g
-	 *            the graphics context.
+	 * @param g the graphics context.
 	 */
 	public void draw(Graphics2D g)
 	{
@@ -306,60 +255,54 @@ Rectangle2D					bounds;
 			NumberFormat formatter=new DecimalFormat("###.#");
 			String ellipseArea=formatter.format(getArea());
 			ellipseArea=addUnits(ellipseArea);
-			double sz=
-					((Double) this
-						.getAttribute(MeasurementAttributes.FONT_SIZE));
+			double sz=((Double) this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
-			Rectangle2D stringBoundsbounds=
-					g.getFontMetrics().getStringBounds(ellipseArea, g);
-			bounds=
-					new Rectangle2D.Double(getCentreX()
-							-stringBoundsbounds.getWidth()/2, this.getCentreY()
-							+stringBoundsbounds.getHeight()/2,
-						stringBoundsbounds.getWidth(), stringBoundsbounds
-							.getHeight());
+			Rectangle2D stringBoundsbounds= g.getFontMetrics().getStringBounds(ellipseArea, g);
+			measurementBounds=
+				new Rectangle2D.Double(getCentreX()
+					-stringBoundsbounds.getWidth()/2, this.getCentreY()
+					+stringBoundsbounds.getHeight()/2, stringBoundsbounds.getWidth(), 
+					stringBoundsbounds.getHeight());
 			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(ellipseArea, (int) bounds.getX(), (int) bounds.getY());
+			g.drawString(ellipseArea, (int) measurementBounds.getX(), (int) measurementBounds.getY());
 		}
 	}
 	
 	/**
-	 * Calculates the bounds of the rendered figure, including the text
-	 * rendered.
-	 * 
+	 * Calculates the bounds of the rendered figure, including the text rendered. 
 	 * @return see above.
 	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds=super.getDrawingArea();
-		if (bounds!=null)
+		if (measurementBounds!=null)
 		{
-			if (newBounds.getX()>bounds.getX())
+			if (newBounds.getX()>measurementBounds.getX())
 			{
-				double diff=newBounds.x-bounds.getX();
-				newBounds.x=bounds.getX();
+				double diff=newBounds.x-measurementBounds.getX();
+				newBounds.x=measurementBounds.getX();
 				newBounds.width=newBounds.width+diff;
 			}
-			if (newBounds.getY()>bounds.getY())
+			if (newBounds.getY()>measurementBounds.getY())
 			{
-				double diff=newBounds.y-bounds.getY();
-				newBounds.y=bounds.getY();
+				double diff=newBounds.y-measurementBounds.getY();
+				newBounds.y=measurementBounds.getY();
 				newBounds.height=newBounds.height+diff;
 			}
-			if (bounds.getX()+bounds.getWidth()>newBounds.getX()
+			if (measurementBounds.getX()+measurementBounds.getWidth()>newBounds.getX()
 					+newBounds.getWidth())
 			{
 				double diff=
-						bounds.getX()+bounds.getWidth()-newBounds.getX()
-								+newBounds.getWidth();
+					measurementBounds.getX()+measurementBounds.getWidth()-newBounds.getX()
+					+newBounds.getWidth();
 				newBounds.width=newBounds.width+diff;
 			}
-			if (bounds.getY()+bounds.getHeight()>newBounds.getY()
+			if (measurementBounds.getY()+measurementBounds.getHeight()>newBounds.getY()
 					+newBounds.getHeight())
 			{
 				double diff=
-						bounds.getY()+bounds.getHeight()-newBounds.getY()
-								+newBounds.getHeight();
+					measurementBounds.getY()+measurementBounds.getHeight()-newBounds.getY()
+					+newBounds.getHeight();
 				newBounds.height=newBounds.height+diff;
 			}
 		}
@@ -368,22 +311,20 @@ Rectangle2D					bounds;
 	
 	/**
 	 * Add units to the string.
-	 * 
-	 * @param str
-	 *            see above.
-	 * @return returns the string with the units added.
+	 *  
+	 * @param str see above.
+	 * @return returns the string with the units added. 
 	 */
 	public String addUnits(String str)
 	{
 		if (shape==null) return str;
 		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL
-				+UIUtilities.SQUARED_SYMBOL;
+		+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
 	/**
-	 * Calculate the area of the figure.
-	 * 
+	 * Calculate the area of the figure. 
 	 * @return see above.
 	 */
 	public double getArea()
@@ -393,24 +334,24 @@ Rectangle2D					bounds;
 	}
 	
 	/**
-	 * Calculate the perimeter of the figure.
-	 * 
+	 * Calculate the perimeter of the figure. 
 	 * @return see above.
 	 */
 	public double getPerimeter()
 	{
 		if (getMeasurementWidth()==getMeasurementHeight()) return getMeasurementWidth()
-				*2*Math.PI;
+		*2*Math.PI;
 		
 		double a=Math.max(getMeasurementWidth(), getMeasurementHeight());
 		double b=Math.min(getMeasurementWidth(), getMeasurementHeight());
-		// approximation of c for ellipse.
+		// approximation of c for ellipse. 
 		return Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
 	}
 	
-	/**
-	 * Calculate the centre of the figure.
-	 * 
+	
+	
+	/** 
+	 * Calculate the centre of the figure. 
 	 * @return see above.
 	 */
 	public Point2D getCentre()
@@ -419,9 +360,10 @@ Rectangle2D					bounds;
 			.round(getCentreY()));
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#getROI()
 	 */
 	public ROI getROI()
@@ -429,9 +371,10 @@ Rectangle2D					bounds;
 		return roi;
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#getROIShape()
 	 */
 	public ROIShape getROIShape()
@@ -439,9 +382,10 @@ Rectangle2D					bounds;
 		return shape;
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#setROI(ROI)
 	 */
 	public void setROI(ROI roi)
@@ -449,9 +393,10 @@ Rectangle2D					bounds;
 		this.roi=roi;
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#setROIShape(ROIShape)
 	 */
 	public void setROIShape(ROIShape shape)
@@ -459,9 +404,10 @@ Rectangle2D					bounds;
 		this.shape=shape;
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#getType()
 	 */
 	public void calculateMeasurements()
@@ -469,16 +415,16 @@ Rectangle2D					bounds;
 		if (shape==null) return;
 		AnnotationKeys.AREA.set(shape, getArea());
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
-		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
 		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
 		AnnotationKeys.PERIMETER.set(shape, getPerimeter());
 		AnnotationKeys.CENTREX.set(shape, getMeasurementCentre().getX());
 		AnnotationKeys.CENTREY.set(shape, getMeasurementCentre().getY());
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#getType()
 	 */
 	public String getType()
@@ -486,9 +432,10 @@ Rectangle2D					bounds;
 		return FigureUtil.ELLIPSE_TYPE;
 	}
 	
+	
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * 
 	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
 	 */
 	public void setMeasurementUnits(MeasurementUnits units)
@@ -510,7 +457,7 @@ Rectangle2D					bounds;
 		for (y=r.y; y<yEnd; ++y)
 			for (x=r.x; x<xEnd; ++x)
 				if (this.getTransformedShape().contains(x, y)) vector
-					.add(new PlanePoint2D(x, y));
+				.add(new PlanePoint2D(x, y));
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}
 	

@@ -53,7 +53,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
  * @since OME3.0
  */
 public class FigureTable
-	extends JTable
+extends JTable
 {
 	/** The model for the table. */
 	private FigureTableModel tableModel;
@@ -78,6 +78,12 @@ public class FigureTable
 		{
 			return new DefaultCellEditor((JComboBox)
 				renderer.getTableCellRendererComponent(this,
+					getValueAt(row, col), false, false, row, col));
+		}
+		else if(tableModel.getValueAt(row, col) instanceof Double)
+		{
+			return new DefaultCellEditor((JTextField)renderer.
+				getTableCellRendererComponent(this,
 					getValueAt(row, col), false, false, row, col));
 		}
 		else if(tableModel.getValueAt(row, col) instanceof String)

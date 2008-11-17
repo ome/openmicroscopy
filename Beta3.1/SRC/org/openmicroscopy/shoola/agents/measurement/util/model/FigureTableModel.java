@@ -49,7 +49,7 @@ import org.jhotdraw.draw.Figure;
  * @since OME3.0
  */
 public 	class FigureTableModel 
-		extends AbstractTableModel
+extends AbstractTableModel
 {
 	
 	/** Identifies the <code>N/A</code> string. */
@@ -192,8 +192,13 @@ public 	class FigureTableModel
 	{
 		if (col==0) return;
 		AttributeKey key=keys.get(row);
-		if (figure.getAttribute(key) instanceof Double) figure.setAttribute(
-			keys.get(row), (Double)value);
+		if (figure.getAttribute(key) instanceof Double) 
+		{
+			if(value instanceof Double)
+				figure.setAttribute(keys.get(row), (Double)value);
+			if(value instanceof String)
+				figure.setAttribute(keys.get(row), new Double((String)value));
+		}
 		else if (figure.getAttribute(key) instanceof Boolean) figure
 			.setAttribute(keys.get(row), value);
 		else figure.setAttribute(keys.get(row), value);

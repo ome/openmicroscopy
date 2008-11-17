@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
@@ -994,6 +995,17 @@ class MeasurementViewerModel
 	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
 	{
 		component.analyseShapeList(shapeList);
+	}
+	
+	/** 
+	 * Show the measurements in the ROIFigures in microns. 
+	 * 
+	 * @param inMicrons show the measurement in microns if true.
+	 *
+	 */
+	MeasurementUnits getMeasurementUnits()
+	{
+		return roiComponent.getMeasurementUnits();
 	}
 	
 	/**

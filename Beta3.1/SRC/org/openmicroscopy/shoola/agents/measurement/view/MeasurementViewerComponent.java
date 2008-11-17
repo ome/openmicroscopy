@@ -524,6 +524,7 @@ class MeasurementViewerComponent
 		view.showROIAssistant(roi);
 	}
 	
+	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#showMeasurementsInMicrons(boolean)
@@ -532,6 +533,7 @@ class MeasurementViewerComponent
 	{
 		model.showMeasurementsInMicrons(inMicrons);
 		view.updateDrawingArea();
+		refreshResultsTable();
 	}
 
 	/** 

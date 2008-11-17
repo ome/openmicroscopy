@@ -800,6 +800,7 @@ class MeasurementViewerUI
     	roiInspector.setModelData(figure);
     	roiManager.update();
     	roiResults.refreshResults();
+    	getDrawingView().repaint(); 
     }
     
     /**
@@ -821,6 +822,9 @@ class MeasurementViewerUI
     
     /** Rebuilds the results table. */
     void refreshResultsTable() { roiResults.refreshResults(); }
+    
+    /** Rebuild the inspector table. */ 
+ 	void refreshInspectorTable() { roiInspector.repaint(); }  
     
     /** 
      * Saves the results table.

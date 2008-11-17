@@ -34,6 +34,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
 // Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.RectangleFigure;
@@ -44,6 +45,7 @@ import org.jhotdraw.geom.Insets2D;
 
 
 // Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
@@ -63,15 +65,17 @@ public class RectangleTextFigure
 	implements TextHolderFigure
 {
 	
+	private boolean 				fromAttributeUpdate;
+	
 	/** Flag indicating if the figure is editable or not. */
 	private boolean 				editable;
-
+	
 	/** Cache of the TextFigure's layout. */
 	transient private  	TextLayout	textLayout;
 	
 	/** The bounds of the text. */
 	private Rectangle2D.Double		textBounds;
-
+	
 	/**
 	 * Returns the layout used to lay out the text.
 	 * 
@@ -81,8 +85,8 @@ public class RectangleTextFigure
 	{
 		if (textLayout == null) 
 			textLayout = FigureUtil.createLayout(getText(), 
-								getFontRenderContext(), getFont(), 
-								AttributeKeys.FONT_UNDERLINE.get(this));
+				getFontRenderContext(), getFont(), 
+				AttributeKeys.FONT_UNDERLINE.get(this));
 		return textLayout;
 	}
 	
@@ -120,6 +124,7 @@ public class RectangleTextFigure
 		textLayout = null;
 		textBounds = null;
 		editable = true;
+		fromAttributeUpdate = false;
 	}
 	
 	/** 
@@ -151,6 +156,50 @@ public class RectangleTextFigure
 		drawText(g);
 	}
 	
+	public void setAttribute(AttributeKey key, Object newValue) 
+	{
+		super.setAttribute(key, newValue);
+		if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+		{
+			double newHeight = MeasurementAttributes.HEIGHT.get(this);
+			Rectangle2D.Double bounds = getBounds();
+			double centreY = bounds.getCenterY();
+			double diffHeight = newHeight/2;
+			Rectangle2D.Double newBounds = new Rectangle2D.Double(
+				bounds.getX(), centreY-diffHeight, bounds.getWidth(),
+				newHeight);
+			fromAttributeUpdate = true;
+			this.setBounds(newBounds);
+			fromAttributeUpdate = false;
+		}
+		if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+		{
+			double newWidth = MeasurementAttributes.WIDTH.get(this);
+			Rectangle2D.Double bounds = getBounds();
+			double centreX = bounds.getCenterX();
+			double diffWidth = newWidth/2;
+			Rectangle2D.Double newBounds = new Rectangle2D.Double(
+				centreX-diffWidth, bounds.getY(), newWidth, 
+				bounds.getHeight());
+			fromAttributeUpdate = true;
+			this.setBounds(newBounds);
+			fromAttributeUpdate = false;
+		}
+	}
+	
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
+		super.setBounds(anchor, lead);
+		
+		if(!fromAttributeUpdate)
+		{
+			
+			MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
+			MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
+		}
+	}
+	
+	
+	
 	/**
 	 * Overridden to draw the text.
 	 * @see RectangleFigure#drawText(Graphics2D)
@@ -164,7 +213,7 @@ public class RectangleTextFigure
 			text = text.trim();
 			TextLayout layout = getTextLayout();
 			FontMetrics fm = 
-					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+				g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
 			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
 			double x = rectangle.x+rectangle.width/2-textWidth/2;
@@ -201,7 +250,7 @@ public class RectangleTextFigure
 		super.invalidate();
 		textLayout = null;
 	}
-
+	
 	/** 
 	 * Overridden to set the layout to <code>null</code>.
 	 * @see RectangleFigure#validate()
@@ -224,7 +273,7 @@ public class RectangleTextFigure
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getText()
@@ -266,7 +315,7 @@ public class RectangleTextFigure
 	 * @see TextHolderFigure#getLabelFor()
 	 */
 	public TextHolderFigure getLabelFor() { return this; }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getInsets()
@@ -284,13 +333,13 @@ public class RectangleTextFigure
 	 * @see TextHolderFigure#getTextColor()
 	 */
 	public Color getTextColor() { return AttributeKeys.TEXT_COLOR.get(this); }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getFillColor()
 	 */
 	public Color getFillColor() { return AttributeKeys.FILL_COLOR.get(this); }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getFontSize()
@@ -312,7 +361,7 @@ public class RectangleTextFigure
 	 * @see TextHolderFigure#setFontSize(float)
 	 */
 	public void setFontSize(float size)  {}
-
+	
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
 	 */
@@ -322,5 +371,5 @@ public class RectangleTextFigure
 		return false;
 	}
 
-	
+
 }

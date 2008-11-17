@@ -32,11 +32,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Handle;
@@ -46,6 +48,7 @@ import org.jhotdraw.draw.TransformHandleKit;
 import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
@@ -66,16 +69,17 @@ public class EllipseTextFigure
 	extends RotateEllipseFigure
 	implements TextHolderFigure
 {
+	private boolean 				fromTransformUpdate;
 	
 	/** Flag indicating if the figure is editable or not. */
 	private boolean 							editable;
-
+	
 	/** Cache of the TextFigure's layout. */
 	transient private  	TextLayout 				textLayout;
 	
 	/** The bounds of the text. */
 	private				Rectangle2D.Double 		textBounds;
-
+	
 	/**
 	 * Returns the layout used to lay out the text.
 	 * 
@@ -85,11 +89,11 @@ public class EllipseTextFigure
 	{
 		if (textLayout == null) 
 			textLayout = FigureUtil.createLayout(getText(), 
-								getFontRenderContext(), getFont(), 
-								AttributeKeys.FONT_UNDERLINE.get(this));
+				getFontRenderContext(), getFont(), 
+				AttributeKeys.FONT_UNDERLINE.get(this));
 		return textLayout;
 	}
-
+	
 	/** 
 	 * Creates a default figure of dimension (0, 0) located at the Point (0,0).
 	 * 
@@ -99,9 +103,9 @@ public class EllipseTextFigure
 	{
 		this(text, 0, 0, 0, 0);
 	}
-
+	
 	/**
-	 * Creates a new intance.
+	 * Creates a new instance.
 	 * 
 	 * @param t 	The text to set.
 	 * @param x		The x-coordinate.
@@ -112,24 +116,66 @@ public class EllipseTextFigure
 	public EllipseTextFigure(String t, double x, double y, double w, double h) 
 	{
 		super(x, y, w, h);
-    	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
-  		setAttribute(AttributeKeys.TEXT, t);
+		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
+		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
+		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
+		setAttribute(MeasurementAttributes.WIDTH, w);
+		setAttribute(MeasurementAttributes.HEIGHT, h);
+		setAttribute(AttributeKeys.TEXT, t);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
+		fromTransformUpdate = false;
+	}	
+	
+	public void setAttribute(AttributeKey key, Object newValue) 
+	{
+		super.setAttribute(key, newValue);
+		
+		if(!fromTransformUpdate)
+		{
+			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+			{
+				double newHeight = MeasurementAttributes.HEIGHT.get(this);
+				this.setHeight(newHeight);	
+			}
+			if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+			{
+				double newWidth = MeasurementAttributes.WIDTH.get(this);
+				this.setWidth(newWidth);	
+			}
+		}
+	}
+	
+	public void transform(AffineTransform tx)
+	{
+		super.transform(tx);
+		fromTransformUpdate = true;
+		MeasurementAttributes.HEIGHT.set(this, getTransformedEllipse().getBounds2D().getHeight());
+		MeasurementAttributes.WIDTH.set(this, getTransformedEllipse().getBounds2D().getWidth());
+		fromTransformUpdate = false;
+	}
+	
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		super.setBounds(anchor, lead);
+		fromTransformUpdate = true;
+		MeasurementAttributes.HEIGHT.set(this, getTransformedEllipse().getBounds2D().getHeight());
+		MeasurementAttributes.WIDTH.set(this, getTransformedEllipse().getBounds2D().getWidth());
+		fromTransformUpdate = false;
 	}
 	
 	@Override 
 	public LinkedList<Handle> createHandles(int detailLevel) 
 	{
 		LinkedList<Handle> handles = new LinkedList<Handle>();
-	    if (detailLevel == 0) 
-	    {
-	            TransformHandleKit.addTransformHandles(this, handles);
-	    }
-	    return handles;
+		if (detailLevel == 0) 
+		{
+			TransformHandleKit.addTransformHandles(this, handles);
+		}
+		return handles;
 	}
-	   
+	
 	/** 
 	 * Returns the bounds of the text.
 	 * 
@@ -140,7 +186,7 @@ public class EllipseTextFigure
 		if (textBounds == null) return new Rectangle2D.Double(0, 0, 0, 0);
 		else return textBounds;
 	}
-
+	
 	/**
 	 * Sets the editable flag.
 	 * 
@@ -155,7 +201,8 @@ public class EllipseTextFigure
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
-		if (isEditable() && contains(p)) {
+		if (isEditable() && contains(p)) 
+		{
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
@@ -171,37 +218,40 @@ public class EllipseTextFigure
 		super.drawFill(g);
 		drawText(g);
 	}
-
-
+	
 	/**
 	 * Overridden to draw the text.
 	 * @see EllipseFigure#drawText(Graphics2D)
 	 */
 	protected void drawText(Graphics2D g) 
 	{
-		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
+		if (!(MeasurementAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
 		if (text != null || isEditable()) 
 		{	
 			text = text.trim();
 			TextLayout layout = getTextLayout();
-			Rectangle r = getTransformedShape().getBounds();
-			FontMetrics fm = 
-					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
 			
-			double textWith = fm.stringWidth(text);
+			Rectangle r = getTransformedShape().getBounds();
+			
+			// TODO: I BROKE THIS.
+			//Rectangle2D r = this.getBounds();
+			FontMetrics fm = 
+				g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+			
+			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
-			double x = r.x+r.width/2-textWith/2;
-			double y = r.y+r.height/2+textHeight/2;
+			double x = this.getBounds().getCenterX()-textWidth/2;
+			double y = this.getBounds().getCenterY();
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
 			g.setFont(viewFont);
 			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
-			textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
+			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);
 			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
 		}	
 	}
-
+	
 	/** 
 	 * Overridden to set the layout to <code>null</code>. 
 	 * @see EllipseFigure#invalidate()
@@ -211,7 +261,7 @@ public class EllipseTextFigure
 		super.invalidate();
 		textLayout = null;
 	}
-
+	
 	/** 
 	 * Overridden to set the layout to <code>null</code>. 
 	 * @see EllipseFigure#validate()
@@ -221,7 +271,7 @@ public class EllipseTextFigure
 		super.validate();
 		textLayout = null;
 	}
-
+	
 	/**
 	 * Overridden to return the bounds of the text area.
 	 * @see EllipseFigure#getDrawingArea()
@@ -232,7 +282,7 @@ public class EllipseTextFigure
 		r.add(getTextBounds());
 		return r;
 	}
-    
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getText()
@@ -241,7 +291,7 @@ public class EllipseTextFigure
 	{ 
 		return (String) getAttribute(AttributeKeys.TEXT);
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#setText(String)
@@ -251,7 +301,7 @@ public class EllipseTextFigure
 		setAttribute(DrawingAttributes.SHOWTEXT, true);
 		setAttribute(AttributeKeys.TEXT, newText);
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getTextColumns()
@@ -268,37 +318,37 @@ public class EllipseTextFigure
 	 * @see TextHolderFigure#getTabSize()
 	 */
 	public int getTabSize() { return FigureUtil.TAB_SIZE; }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getLabelFor()
 	 */
 	public TextHolderFigure getLabelFor() { return this; }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getInsets()
 	 */
 	public Insets2D.Double getInsets() { return new Insets2D.Double(); }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getFont()
 	 */
 	public Font getFont() { return AttributeKeys.getFont(this); }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getTextColor()
 	 */
 	public Color getTextColor() { return AttributeKeys.TEXT_COLOR.get(this); }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getFillColor()
 	 */
 	public Color getFillColor() { return AttributeKeys.FILL_COLOR.get(this); }
-
+	
 	/**
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#getFontSize()
@@ -320,7 +370,7 @@ public class EllipseTextFigure
 	 * @see TextHolderFigure#setFontSize(float)
 	 */
 	public void setFontSize(float size)  {}
-
+	
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
 	 */
@@ -330,5 +380,5 @@ public class EllipseTextFigure
 		return false;
 	}
 
-	
+
 }

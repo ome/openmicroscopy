@@ -66,7 +66,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
  * @since OME3.0
  */
 class ObjectInspector 
-	extends JPanel
+extends JPanel
 {
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
@@ -118,6 +118,8 @@ class ObjectInspector
 				false));
 		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
 				"Measurement Colour", false));
+		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
+		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
 		
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
