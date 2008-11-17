@@ -236,12 +236,15 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throws IOException, DimensionsOutOfBoundsException {
         PixelData plane = getPlane(z, c, t);
         Integer sizeY = getSizeY();
+        Integer sizeX = getSizeX();
         Integer colSize = getColSize();
         ByteBuffer buf = ByteBuffer.wrap(new byte[colSize]);
         PixelData column = new PixelData(pixels.getPixelsType(), buf);
+        int offset;
+        double value;
         for (int i = 0; i < sizeY; i++) {
-            int offset = (i * sizeY) + x;
-            double value = plane.getPixelValue(offset);
+            offset = (i * sizeX) + x;
+            value = plane.getPixelValue(offset);
             column.setPixelValue(i, value);
         }
         
@@ -263,11 +266,14 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
         PixelData plane = getPlane(z, c, t);
         Integer sizeY = getSizeY();
+        Integer sizeX = getSizeX();
         ByteBuffer buf = ByteBuffer.wrap(buffer);
         PixelData column = new PixelData(pixels.getPixelsType(), buf);
+        int offset;
+        double value;
         for (int i = 0; i < sizeY; i++) {
-            int offset = (i * sizeY) + x;
-            double value = plane.getPixelValue(offset);
+            offset = (i * sizeX) + x;
+            value = plane.getPixelValue(offset);
             column.setPixelValue(i, value);
         }
 
