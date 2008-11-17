@@ -459,6 +459,7 @@ public class LoginBean implements java.io.Serializable {
             message = new FacesMessage("Loged out.");
 
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             HttpSession session = (HttpSession) facesContext
                     .getExternalContext().getSession(false);
             if (session != null)
