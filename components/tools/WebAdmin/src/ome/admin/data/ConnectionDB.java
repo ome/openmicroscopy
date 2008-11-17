@@ -616,8 +616,7 @@ public class ConnectionDB {
     public ExperimenterGroup getGroup(String name) {
         logger.info("getGroup by String '" + name + "' by user ID: " + userid
                 + "'");
-        ExperimenterGroup exg = queryService.findByString(
-                ExperimenterGroup.class, "name", name);
+        ExperimenterGroup exg = adminService.lookupGroup(name);
         logger.info("Group details [id: '" + exg.getId() + "', name: '"
                 + exg.getName() + "'");
         return exg;
