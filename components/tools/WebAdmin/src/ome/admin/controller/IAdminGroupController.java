@@ -247,7 +247,10 @@ public class IAdminGroupController implements java.io.Serializable {
     public String editGroup() {
         FacesContext context = FacesContext.getCurrentInstance();
         try {
-            this.group = (ExperimenterGroup) groupModel.getRowData();
+            // this.group = (ExperimenterGroup) groupModel.getRowData();
+            this.group = (ExperimenterGroup) iadmin
+                    .getGroupById(((ExperimenterGroup) groupModel.getRowData())
+                            .getId());
             this.owner = this.group.getDetails().getOwner().getId().toString();
             if (!checkGroup(this.group.getName())) {
                 this.editMode = true;
