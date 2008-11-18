@@ -73,6 +73,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.ArcType;
+import ome.model.enums.Coating;
 import ome.model.enums.ContrastMethod;
 import ome.model.enums.DetectorType;
 import ome.model.enums.DimensionOrder;
@@ -1382,6 +1383,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
     }
 
+   
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
      */
@@ -2307,6 +2309,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if ((instrument.sizeOfObjective() - 1) < objectiveIndex)
         {
             Objective objective = new Objective();
+            objective.setImmersion((Immersion) getEnumeration(Immersion.class, "Unknown"));
             lsidMap.put(currentLSID, objective);
             instrument.addObjective(objective);
         } 
@@ -2408,6 +2411,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             objective.setSerialNumber(serialNumber);
     }
 
+    
+
+    public void setObjectiveCorrection(String correction, int instrumentIndex,
+            int objectiveIndex) 
+    {
+        log.debug(String.format(
+                "setObjectiveCorrection[%s] instrumentIndex[%d] detectorIndex[%d]",
+                correction, instrumentIndex, objectiveIndex));
+        
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
+        if (objective != null)
+            objective.setCoating((Coating) getEnumeration(Coating.class, correction));
+    }
+    
     public void setObjectiveWorkingDistance(Float workingDistance,
             int instrumentIndex, int objectiveIndex) {
         log.debug(String.format(
@@ -3365,19 +3382,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "FIXME: Ignoring setChannelComponentColorDomain[%s] imageIndex[%d] " +
                 "logicalChannelIndex [%d] channelComponentIndex[%d]",
                 colorDomain, imageIndex, logicalChannelIndex, channelComponentIndex));
-    }
-    
-
-    public void setObjectiveCorrection(String correction, int instrumentIndex,
-            int objectiveIndex) 
-    {
-        log.debug(String.format(
-                "setObjectiveCorrection[%s] instrumentIndex[%d] detectorIndex[%d]",
-                correction, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        //if (objective != null)
-            // needs to be added
     }
   
     /* ------ Reagent ------ */
