@@ -99,7 +99,10 @@ public class RotateEllipseFigure
 	}
 		    
 	/**
-	 *  
+	 *  Set the attribute key to the value newValue on the figure. If the 
+	 *  attribute is an AffineTransform then we need to redraw the image.
+	 *  @param key The attribute key.
+	 *  @param newValue The new value of the attribute. 
 	 */
 	public void setAttribute(AttributeKey key, Object newValue)
 	{
@@ -111,6 +114,10 @@ public class RotateEllipseFigure
 	} 
 	    
 		
+	/**
+	 * Get the bounds of the ellipse before applying the affinetransform.
+	 * @return see above. 
+	 */
 	public Rectangle2D.Double getBounds()
 	{
 		return new Rectangle2D.Double(ellipse.getBounds2D().getX(),
@@ -151,6 +158,12 @@ public class RotateEllipseFigure
 		return getTransformedShape().contains(p);
 	}
 	
+	/**
+	 * Return the ellipse after the affine transform has been applied to it.
+	 * This will return the ellipse with the correct width and height, but the 
+	 * x, y coords will be the lead.x, lead.y of the transformed shape.
+	 * @return see above.
+	 */
 	public Ellipse2D.Double getTransformedEllipse()
 	{
 		if(AttributeKeys.TRANSFORM.get(this)==null)
@@ -170,6 +183,10 @@ public class RotateEllipseFigure
 		
 	}
 	
+	/**
+	 * Return the Transformed ellipse as a transformedShape, of type Shape 
+	 * @return see above.
+	 */
 	protected Shape getTransformedShape()
 	{
 		if (AttributeKeys.TRANSFORM.get(this)==null)
@@ -183,6 +200,10 @@ public class RotateEllipseFigure
 		return cachedTransformedShape; 
 	}
 	
+	/**
+	 * Get the ellipse.
+	 * @return see above.
+	 */
 	public Ellipse2D.Double getEllipse()
 	{
 		return ellipse;
@@ -206,6 +227,13 @@ public class RotateEllipseFigure
 		return handles;
 	} 
 	
+	/**
+	 * Set the ellipse geometry.
+	 * @param x see above.
+	 * @param y see above.
+	 * @param width see above.
+	 * @param height see above.
+	 */
 	public void setEllipse(double x, double y, double width, double height)
 	{
 		ellipse.x = x;
@@ -215,6 +243,12 @@ public class RotateEllipseFigure
 		invalidate();
 	}
 	
+	/**
+	 * Set the bounds of the ellipse from the anchor to lead. 
+	 * @param anchor The start point of the drawing action.
+	 * @param lead The end point the drawing action.
+	 * 
+	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
 	{
 		ellipse.x=Math.min(anchor.x, lead.x);
@@ -224,16 +258,30 @@ public class RotateEllipseFigure
 		invalidate();
 	}
 
+	/**
+	 * Get the height of the transformed ellipse.
+	 * @return see above.
+	 */
 	public double getHeight()
 	{
 		return getTransformedEllipse().getHeight();
 	}
 
+	/**
+	 * Get the width of the transformed ellipse.
+	 * @return see above.
+	 */
 	public double getWidth()
 	{
 		return getTransformedEllipse().getWidth();
 	}
 	
+	/**
+	 * Set the width of the ellipse to the newWidth, the new ellipse will 
+	 * still be centred around the same point as the original ellipse.
+	 * 
+	 * @param newWidth see above.
+	 */
 	public void setWidth(double newWidth)
 	{
 		if(AttributeKeys.TRANSFORM.get(this)==null)
@@ -271,6 +319,12 @@ public class RotateEllipseFigure
 		invalidate();
 	}
 	
+	/**
+	 * Set the height of the ellipse to the newHieght, the new ellipse will 
+	 * still be centred around the same point as the original ellipse.
+	 * 
+	 * @param newHeight see above.
+	 */
 	public void setHeight(double newHeight)
 	{
 		if(AttributeKeys.TRANSFORM.get(this)==null)

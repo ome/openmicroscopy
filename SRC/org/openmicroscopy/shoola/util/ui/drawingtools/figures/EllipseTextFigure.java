@@ -33,7 +33,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
@@ -70,6 +69,7 @@ public class EllipseTextFigure
 	extends RotateEllipseFigure
 	implements TextHolderFigure
 {
+	/** Is the attribute update from a transform update. */
 	private boolean 				fromTransformUpdate;
 	
 	/** Flag indicating if the figure is editable or not. */
@@ -147,6 +147,11 @@ public class EllipseTextFigure
 		}
 	}
 	
+	/**
+	 * Transform the shape by the affineTransform, tx. This methods will  
+	 * scale, rotate and translate the ellipse.
+	 * @param tx see above.
+	 */
 	public void transform(AffineTransform tx)
 	{
 		super.transform(tx);
@@ -156,6 +161,12 @@ public class EllipseTextFigure
 		fromTransformUpdate = false;
 	}
 	
+	/**
+	 * Set the bounds of the ellipse from the anchor to lead. 
+	 * @param anchor The start point of the drawing action.
+	 * @param lead The end point the drawing action.
+	 * 
+	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
 		super.setBounds(anchor, lead);
