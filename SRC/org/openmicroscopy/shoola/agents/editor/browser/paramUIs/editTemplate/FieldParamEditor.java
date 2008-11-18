@@ -215,6 +215,12 @@ public class FieldParamEditor
 		addParamsHeader.setBackground(null);
 		JButton addParamsButton = new AddParamActions(field, tree, 
 				treeNode, controller).getButton();
+		
+		// don't allow addition of parameters to root. 
+		if(treeNode.isRoot()) {
+			addParamsButton.setEnabled(false);
+		}
+		
 		addParamsButton.addPropertyChangeListener(
 				AddParamActions.PARAM_ADDED_PROPERTY, this);
 		addParamsHeader.add(addParamsButton, BorderLayout.EAST);

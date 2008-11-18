@@ -121,7 +121,7 @@ public class DropDownMenu
 	 * @param i		The new index
 	 */
 	public void setSelectedIndex(int i) {
-		if ((i > 0 ) && (i < options.length-1)) {
+		if ((i >= 0 ) && (i < options.length)) {
 			setText(options[i]);
 			selectedIndex = i;
 		}

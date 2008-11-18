@@ -43,15 +43,22 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 
 
 /** 
  * This class consists of a button with a pop-up menu that allows users to 
  * add a parameter to a field. 
- * Multiple parameters allow fields to specify 2 variables. 
+ * Multiple parameters allow fields to specify 2 or more variables. 
  * eg Incubate at 4'C for 10 minutes. 
  * The only parameter types allowed by this UI are Text-Line, Number and
  * CheckBox(boolean). These are "atomic" parameters, which may be combined
@@ -124,8 +131,16 @@ public class AddParamActions
 		iM = IconManager.getInstance();
 		
 		Action[] actions = new Action[] {new AddTextParamAction(),
+				new AddTextBoxParamAction(),
 				new AddNumberParamAction(),
-				new AddBooleanParamAction() };
+				new AddBooleanParamAction(),
+				new AddEnumParamAction(),
+				new AddDateTimeParamAction(),
+				new AddTimeParamAction(),
+				new AddLinkParamAction(),
+				new AddImageParamAction(),
+				new AddTableParamAction(),
+				new AddOntologyParamAction()};
 		
 		Icon addIcon = iM.getIcon(IconManager.ADD_NUMBER);
 		
@@ -179,7 +194,7 @@ public class AddParamActions
 			putValue(Action.SHORT_DESCRIPTION,
 					"Add a text-line parameter to this field");
 			putValue(Action.SMALL_ICON, iM.getIcon(
-					IconManager.ADD_TEXT_LINE_ICON)); 
+					IconManager.TEXT_LINE_ICON)); 
 		}
 		
 		/** 
@@ -189,11 +204,74 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			// TODO 	implement this method in controller.
 			controller.addParamToField(field, SingleParam.TEXT_LINE_PARAM, 
 					tree, node);
 		}
 		
+	}
+	
+	/**
+	 * Action for adding a TextBox Parameter
+	 * 
+	 * @author will
+	 *
+	 */
+	public class AddTextBoxParamAction 
+		extends AbstractAction 
+	{
+
+		/**
+		 * Creates an instance. 
+		 */
+		public AddTextBoxParamAction() 
+		{
+			putValue(Action.NAME, "Add Text-Box Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a text-box parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.TEXT_BOX_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Text-Box Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, SingleParam.TEXT_BOX_PARAM, 
+					tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding an Enumeration Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddEnumParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddEnumParamAction() 
+		{
+			putValue(Action.NAME, "Add Drop-down Menu Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a number parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.DROP_DOWN)); 
+		}
+		
+		/** 
+	     * Adds a new Enumeration Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, EnumParam.ENUM_PARAM, 
+					tree, node);
+		}
 	}
 	
 	/**
@@ -214,7 +292,7 @@ public class AddParamActions
 			putValue(Action.NAME, "Add Number Parameter");
 			putValue(Action.SHORT_DESCRIPTION,
 					"Add a number parameter to this field");
-			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.ADD_NUMBER)); 
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.NUMBER)); 
 		}
 		
 		/** 
@@ -227,14 +305,12 @@ public class AddParamActions
 			controller.addParamToField(field, NumberParam.NUMBER_PARAM, 
 					tree, node);
 		}
-	
 	}
 	
 	/**
 	 * Action for adding a CheckBox Parameter
 	 * 
 	 * @author will
-	 *
 	 */
 	public class AddBooleanParamAction 
 		extends AbstractAction 
@@ -260,7 +336,190 @@ public class AddParamActions
 			controller.addParamToField(field, BooleanParam.BOOLEAN_PARAM, 
 					tree, node);
 		}
-		
 	}
 
+	/**
+	 * Action for adding a Date-Time Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddDateTimeParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddDateTimeParamAction() 
+		{
+			putValue(Action.NAME, "Add Date-Time Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a date-time parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.CALENDAR_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Date-Time Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, DateTimeParam.DATE_TIME_PARAM, 
+					tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding a Time Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddTimeParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddTimeParamAction() 
+		{
+			putValue(Action.NAME, "Add Time Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a timer parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.TIMER_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Time Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, TimeParam.TIME_PARAM, tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding a Link Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddLinkParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddLinkParamAction() 
+		{
+			putValue(Action.NAME, "Add Link Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a link parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.LINK_LOCAL_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Link Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, LinkParam.LINK_PARAM, 
+					tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding a Image Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddImageParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddImageParamAction() 
+		{
+			putValue(Action.NAME, "Add Image Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add an image parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.IMAGE_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Image Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, ImageParam.IMAGE_PARAM, 
+					tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding a Table Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddTableParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddTableParamAction() 
+		{
+			putValue(Action.NAME, "Add Table Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a table parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.TABLE_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Table Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, TableParam.TABLE_PARAM, 
+					tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding an Ontology Term Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddOntologyParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddOntologyParamAction() 
+		{
+			putValue(Action.NAME, "Add Ontology Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add an Ontology Term parameter to this field");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.ONTOLOGY_ICON)); 
+		}
+		
+		/** 
+	     * Adds a new Ontology Term Parameter
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, 
+					OntologyTermParam.ONTOLOGY_TERM_PARAM, tree, node);
+		}
+	}
 }

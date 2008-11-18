@@ -46,7 +46,8 @@ public class FieldParamsFactory {
 	public static final String NO_PARAMS = "noParams";
 	
 	public static final String[] PARAM_TYPES = 
-	{NO_PARAMS, SingleParam.TEXT_LINE_PARAM,
+	{NO_PARAMS, 
+		SingleParam.TEXT_LINE_PARAM,
 		SingleParam.TEXT_BOX_PARAM, 
 		EnumParam.ENUM_PARAM, 
 		BooleanParam.BOOLEAN_PARAM, 

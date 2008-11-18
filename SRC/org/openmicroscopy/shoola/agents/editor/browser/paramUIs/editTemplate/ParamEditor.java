@@ -123,8 +123,9 @@ public class ParamEditor
 		String paramType = parameter.getAttribute(AbstractParam.PARAM_TYPE);
 		if (paramType != null) {
 			for (int i=0; i<FieldParamsFactory.UI_INPUT_TYPES.length; i++)
-				if (paramType.equals(FieldParamsFactory.PARAM_TYPES[i]))
+				if (paramType.equals(FieldParamsFactory.PARAM_TYPES[i])) {
 					paramTypeChooser.setSelectedIndex(i);
+				}
 		}
 
 		JPanel nameAndTypeContainer = new JPanel(new BorderLayout());

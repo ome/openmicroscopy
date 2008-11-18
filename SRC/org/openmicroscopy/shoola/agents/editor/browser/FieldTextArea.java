@@ -521,6 +521,13 @@ public class FieldTextArea
 		setBorder(selected ? selectedBorder : unselectedBorder);
 		// don't want to hide the button, or the text will expand to fill! 
 		addParamButton.setIcon(selected ? addParamIcon : blankIcon);
+		
+		// don't allow addition of parameters to root. 
+		if (selected) {
+			if(treeNode.isRoot()) {
+				selected = false;
+			}
+		}
 		addParamButton.setEnabled(selected);
 	}
     
@@ -565,8 +572,8 @@ public class FieldTextArea
     			}
     		}
     		else {
-    			// disable add-param button
-    			addParamButton.setEnabled(true);
+    			// enable add-param button, unless root node
+    			addParamButton.setEnabled(! treeNode.isRoot());
     		}
     	}
     }
