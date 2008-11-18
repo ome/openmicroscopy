@@ -109,8 +109,11 @@ public class ParamTemplateUIFactory {
 					SingleParam.DEFAULT_VALUE, "Text-box Default");
 		}
 		
-		System.err.println("ParamTemplateUIFactory No UI created for '" +
-				inputType + "'. Return null!");
+		// Some Parameters don't have any "Template" attributes to edit,
+		// so, no template UI component...
+		
+		// System.err.println("ParamTemplateUIFactory No UI created for '" +
+		//		inputType + "'. Return null!");
 		return null;
 	}
 }

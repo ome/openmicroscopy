@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
@@ -135,6 +136,10 @@ public class ParamUIFactory
 		
 		if (inputType.equals(TableParam.TABLE_PARAM)) {
 			return new TableEditor(paramObject);
+		}
+		
+		if (inputType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {
+			return new OntologyTermEditor(paramObject);
 		}
 		
 		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {

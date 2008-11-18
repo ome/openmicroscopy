@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
@@ -65,6 +66,7 @@ import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.util.Ontologies;
 
 /** 
  * A Factory for creating a TreeModel from an XML editor file. 
@@ -401,6 +403,19 @@ public class TreeModelFactory
 			 String zoom = allAttributes.get(
 					 DataFieldConstants.IMAGE_ZOOM);
 			 param.setAttribute(ImageParam.IMAGE_ZOOM, zoom);
+		 }
+		 else if (paramType.equals(DataFieldConstants.OLS_FIELD)){
+			 param = getFieldParam(OntologyTermParam.ONTOLOGY_TERM_PARAM);
+			 String ontologyTermName = allAttributes.get
+			 							(DataFieldConstants.ONTOLOGY_TERM_ID);
+			 String ontologyId = Ontologies.getOntologyIdFromB3
+			 												(ontologyTermName);
+			 String termId = Ontologies.getTermIdFromB3(ontologyTermName);
+			 String termName = Ontologies.getTermNameFromB3(ontologyTermName);
+			 
+			 param.setAttribute(OntologyTermParam.ONTOLOGY_ID, ontologyId);
+			 param.setAttribute(OntologyTermParam.TERM_ID, termId);
+			 param.setAttribute(OntologyTermParam.TERM_NAME, termName);
 		 }
 		 
 		 return param;

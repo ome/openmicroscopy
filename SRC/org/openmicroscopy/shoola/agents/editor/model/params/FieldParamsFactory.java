@@ -56,7 +56,7 @@ public class FieldParamsFactory {
 		LinkParam.LINK_PARAM, 
 		TableParam.TABLE_PARAM, 
 		ImageParam.IMAGE_PARAM, 
-		// OLS_FIELD, 
+		OntologyTermParam.ONTOLOGY_TERM_PARAM
 		// OBSERVATION_DEFINITION
 	};
 	
@@ -74,7 +74,7 @@ public class FieldParamsFactory {
 		"Link", 
 		"Table", 
 		"Image", 
-		// "Ontology Term", 
+		"Ontology Term"
 		// "Phenote Observation"
 		};
 
@@ -118,6 +118,9 @@ public class FieldParamsFactory {
 		}
 		else if (paramType.equals(TableParam.TABLE_PARAM)) {
 			fieldValue = new TableParam(TableParam.TABLE_PARAM);
+		}
+		else if (paramType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {
+			fieldValue = new OntologyTermParam();
 		}
 		
 		else 
