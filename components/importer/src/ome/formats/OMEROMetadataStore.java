@@ -324,7 +324,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /**
      * Retrieves a server side enumeration.
-     * 
+     *
      * @param klass the enumeration's class from <code>ome.model.enum</code>
      * @param value the enumeration's string value.
      * @return enumeration object.
@@ -2420,6 +2420,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setObjectiveCorrection[%s] instrumentIndex[%d] detectorIndex[%d]",
                 correction, instrumentIndex, objectiveIndex));
+        
+        if (correction.equals(" Plan Apo"))
+            correction = "PlanApo";
         
         Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
