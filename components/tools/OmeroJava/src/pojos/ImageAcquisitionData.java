@@ -28,9 +28,9 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
+import omero.RString;
 import omero.model.Coating;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
@@ -94,7 +94,8 @@ public class ImageAcquisitionData
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param image
+	 * @param image The image the acquisition data is related to. 
+	 * 				Mustn't be <code>null</code>.
 	 */
 	public ImageAcquisitionData(Image image)
 	{
@@ -199,7 +200,7 @@ public class ImageAcquisitionData
 	}
 	
 	/**
-	 * Returns the Co2 level, this is a value in the interval [0, 1]
+	 * Returns the Co2 level, this is a percent value in the interval [0, 1].
 	 * 
 	 * @return See above.
 	 */
@@ -351,7 +352,9 @@ public class ImageAcquisitionData
 		if (objective == null) return "";
 		Objective obj = objective.getObjective();
 		if (obj == null) return "";
-		return obj.getSerialNumber().getValue();
+		RString value = obj.getSerialNumber();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 	/**
@@ -364,7 +367,9 @@ public class ImageAcquisitionData
 		if (objective == null) return "";
 		Objective obj = objective.getObjective();
 		if (obj == null) return "";
-		return obj.getModel().getValue();
+		RString value = obj.getModel();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 	/**
@@ -377,7 +382,9 @@ public class ImageAcquisitionData
 		if (objective == null) return "";
 		Objective obj = objective.getObjective();
 		if (obj == null) return "";
-		return obj.getManufacturer().getValue();
+		RString value = obj.getManufacturer();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 	/**
