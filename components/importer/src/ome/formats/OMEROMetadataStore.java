@@ -1948,6 +1948,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             if (lsidMap.get(currentLSID) instanceof MetaLightSource)
             {
                 Laser laser = new Laser();
+                laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
                 
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
                 
