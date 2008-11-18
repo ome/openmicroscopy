@@ -56,6 +56,12 @@ public class PartialLineBorder
 	/** Indicates to remove the bottom segment of the border. */
 	public static final int BOTTOM_REMOVE = 1;
 	
+	/** Indicates to keep the top segment of the border. */
+	public static final int TOP_KEEP = 2;
+	
+	/** Indicates to keep the bottom segment of the border. */
+	public static final int BOTTOM_KEEP = 3;
+	
 	/** Indicates with segment of the border has to be removed. */
 	private int removeIndex;
 	
@@ -88,10 +94,7 @@ public class PartialLineBorder
 	 * 
 	 * @param index The value to set.
 	 */
-    public void setRemoveIndex(int index)
-    {
-    	removeIndex = index;
-    }
+    public void setRemoveIndex(int index) { removeIndex = index; }
     
     /**
      * Overriden to remove one segment of the border, either the top or 
@@ -101,16 +104,40 @@ public class PartialLineBorder
     public void paintBorder(Component c, Graphics g, int x, int y, int width, 
     						int height) 
     {
-    	super.paintBorder(c, g, x, y, width, height);
     	int i;
     	g.setColor(c.getBackground());
     	switch (removeIndex) {
+    		case TOP_KEEP:
+    			for (i = 0; i < thickness; i++)  {
+    				if (!roundedCorners)
+    					g.drawRect(x+i, y+i, width-2*i-1, height-2*i-1);
+    				else
+    					g.drawRoundRect(x+i, y+i, width-2*i-1, height-2*i-1, 
+    							thickness, thickness);
+    		    }
+    			g.setColor(getLineColor());
+    			g.drawLine(x, y, x+width-1, y);
+    			break;
+    		case BOTTOM_KEEP:
+    			for (i = 0; i < thickness; i++)  {
+    				if (!roundedCorners)
+    					g.drawRect(x+i, y+i, width-2*i-1, height-2*i-1);
+    				else
+    					g.drawRoundRect(x+i, y+i, width-2*i-1, height-2*i-1, 
+    							thickness, thickness);
+    		    }
+    			g.setColor(getLineColor());
+    			g.drawLine(x, y+height-1, x+width-1, y+height-1);
+    			
+    			break;
 			case TOP_REMOVE:
+				super.paintBorder(c, g, x, y, width, height);
 				for (i = 0; i < thickness; i++) 
 				    g.drawLine(x+i, y+i, x+width-i-1, y+i);
 				break;
 			case BOTTOM_REMOVE:
 			default:
+				super.paintBorder(c, g, x, y, width, height);
 				 for (i = 0; i < thickness; i++) 
 					 g.drawLine(x+width-i-1, y+height-i-1, x+i+1, y+height-i-1);
 		}

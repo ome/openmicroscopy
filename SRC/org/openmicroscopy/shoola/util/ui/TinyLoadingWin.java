@@ -82,7 +82,7 @@ public class TinyLoadingWin
      */
     public TinyLoadingWin(JFrame owner, String title)
     {
-        super(owner, title, true);
+        super(owner, title, BOTH);
         setModal(true);
         //setAlwaysOnTop(true);
         buildGUI();

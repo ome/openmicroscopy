@@ -30,6 +30,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -43,11 +44,10 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ImageAcquisitionData;
 
 /** 
@@ -68,28 +68,35 @@ class ImageAcquisitionComponent
 {
 
 	/** Reference to the Model. */
-	private EditorModel	model;
+	private EditorModel				model;
 	
 	/** The component hosting the various immersion values. */
-	private JComboBox 				immersionBox;
+	private OMEComboBox				immersionBox;
 	
 	/** The component hosting the various coating values. */
-	private JComboBox 				coatingBox;
+	private OMEComboBox 			coatingBox;
 	
 	/** The component hosting the various medium values. */
-	private JComboBox 				mediumBox;
+	private OMEComboBox 			mediumBox;
 	
 	/** The fields displaying the metadata. */
 	private Map<String, JComponent> fields;
 	
+	/** Flag indicating if the components have been initialized. */
+	private boolean					init;
+	
 	/** Initiliases the components. */
 	private void initComponents()
 	{
+		init = true;
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		immersionBox = EditorUtil.createComboBox(Mapper.IMMERSIONS);
-		coatingBox = EditorUtil.createComboBox(Mapper.COATING);
-		mediumBox = EditorUtil.createComboBox(Mapper.MEDIUM);
+		List l = model.getImageEnumerations(Editor.IMMERSION);
+		immersionBox = EditorUtil.createComboBox(l);
+		l = model.getImageEnumerations(Editor.CORRECTION);
+		coatingBox = EditorUtil.createComboBox(l);
+		l = model.getImageEnumerations(Editor.MEDIUM);
+		mediumBox = EditorUtil.createComboBox(l);
 		fields = new HashMap<String, JComponent>();
 	}
 	
@@ -185,6 +192,7 @@ class ImageAcquisitionComponent
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
+        Object selected;
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -197,6 +205,10 @@ class ImageAcquisitionComponent
             c.weightx = 0.0;  
             content.add(label, c);
             if (key.equals(EditorUtil.MEDIUM)) {
+            	selected = model.getImageEnumerationSelected(Editor.MEDIUM, 
+            			(String) value);
+            	if (selected != null) immersionBox.setSelectedItem(selected);
+            	mediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = mediumBox;
             } else {
             	 area = UIUtilities.createComponent(NumericalTextField.class, 
@@ -249,6 +261,7 @@ class ImageAcquisitionComponent
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
+        Object selected;
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -261,9 +274,17 @@ class ImageAcquisitionComponent
             c.weightx = 0.0;  
             content.add(label, c);
             if (key.equals(EditorUtil.IMMERSION)) {
-            	area = immersionBox;	
+            	selected = model.getImageEnumerationSelected(Editor.IMMERSION, 
+            			(String) value);
+            	if (selected != null) immersionBox.setSelectedItem(selected);
+            	immersionBox.setEditedColor(UIUtilities.EDITED_COLOR);
+            	area = immersionBox;
             } else if (key.equals(EditorUtil.CORRECTION)) {
+            	selected = model.getImageEnumerationSelected(Editor.CORRECTION, 
+            			(String) value);
+            	if (selected != null) coatingBox.setSelectedItem(selected);
             	area = coatingBox;
+            	coatingBox.setEditedColor(UIUtilities.EDITED_COLOR);
             } else {
             	if (value instanceof Number) {
             		 area = UIUtilities.createComponent(
@@ -433,13 +454,14 @@ class ImageAcquisitionComponent
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
-		initComponents();
-		buildGUI();
+		//initComponents();
+		//buildGUI();
 	}
 	
 	/** Sets the metadata. */
 	void setImageAcquisitionData()
 	{
+		if (!init) initComponents();
 		removeAll();
 		buildGUI();
 	}

@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
@@ -215,6 +216,27 @@ class ImageDataViewImpl
 	public CallHandle loadPlaneInfo(long pixelsID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new PlaneInfoLoader(pixelsID);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadChannelMetadataEnumerations(AgentEventListener)
+     */
+	public CallHandle loadChannelMetadataEnumerations(AgentEventListener 
+					observer) 
+	{
+		BatchCallTree cmd = new EnumerationLoader(EnumerationLoader.CHANNEL);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadImageMetadataEnumerations(AgentEventListener)
+     */
+	public CallHandle loadImageMetadataEnumerations(AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new EnumerationLoader(EnumerationLoader.IMAGE);
 		return cmd.exec(observer);
 	}
 	

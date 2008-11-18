@@ -125,11 +125,10 @@ class TitleBar
     /**
      * Creates a new title bar for the specified <code>frame</code>.
      * 
-     * @param title         The frame's title.
-     * @param closedButton  Passed <code>true</code> if the {@link #closeButton}
-     *                      is shown, <code>false</code> otherwise.
+     * @param title	 The frame's title.
+     * @param index  The type of buttons to display in the title bar.
      */
-    TitleBar(String title, boolean closedButton) 
+    TitleBar(String title, int index) 
     {
         setBorder(BorderFactory.createEmptyBorder());
         titlePainter = new TitlePainter(new Font("SansSerif", Font.PLAIN, 16));
@@ -138,32 +137,48 @@ class TitleBar
         sizeButton = new SizeButton();
         sizeButton.setActionType(SizeButton.COLLAPSE);
         //add sub components
-        add(sizeButton);
         buttonAreaWidth = SIZE_BUTTON_DIM+2*H_SPACING;
-        if (closedButton) {
-        	closeButton = new CloseButton();
-            closeButton.setActionType(CloseButton.CLOSE_ACTION);
-        	add(closeButton);
-        	buttonAreaWidth += SIZE_BUTTON_DIM+H_SPACING;
-        }
-        
+        closeButton = new CloseButton();
+        closeButton.setActionType(CloseButton.CLOSE_ACTION);
+    	add(closeButton);
+    	buttonAreaWidth += SIZE_BUTTON_DIM+H_SPACING;
         setLayout(new TitleBarLayout());
+        setDecoration(null, index);
     }
     
     /**
      * Sets the node's decoration.
      * 
-     * @param l The list of components to add to the title bar.
+     * @param l 	The list of components to add to the title bar.
+     * @param index	The type of buttons to display in the title bar.
      */
-    void setDecoration(List l)
+    void setDecoration(List l, int index)
     {
     	removeAll();
-    	add(sizeButton);
+    	//add(sizeButton);
+    	/*
     	buttonAreaWidth = SIZE_BUTTON_DIM+2*H_SPACING;
     	if (closeButton != null) {
     		add(closeButton);
     		buttonAreaWidth += SIZE_BUTTON_DIM+H_SPACING;
     	}
+    	*/
+    	switch (index) {
+    		case TinyDialog.CLOSE_ONLY:
+    			buttonAreaWidth = SIZE_BUTTON_DIM+2*H_SPACING;
+    			add(closeButton);
+    		break;
+    		case TinyDialog.SIZE_ONLY:
+    			buttonAreaWidth = SIZE_BUTTON_DIM+2*H_SPACING;
+    			add(sizeButton);
+    		break;
+			case TinyDialog.BOTH:
+			default:
+				buttonAreaWidth = 2*SIZE_BUTTON_DIM+3*H_SPACING;
+			add(sizeButton);
+			add(closeButton);
+		}
+    	
     	if (l == null) return;
     	Iterator i = l.iterator();
     	Object object;
@@ -187,10 +202,8 @@ class TitleBar
     JButton getButton(int id)
     {
     	switch (id) {
-			case SIZE_BUTTON:
-				return sizeButton;
-			case CLOSE_BUTTON:
-				return closeButton;
+			case SIZE_BUTTON: return sizeButton;
+			case CLOSE_BUTTON: return closeButton;
 		}
     	return null;
     }

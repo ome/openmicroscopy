@@ -156,7 +156,7 @@ class AcquisitionDataUI
 			JXTaskPane p;
 			while (i.hasNext()) {
 				channel = (ChannelData) i.next();
-				comp = new ChannelAcquisitionComponent(channel);
+				comp = new ChannelAcquisitionComponent(model, channel);
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getEmissionWavelength());
 				p.add(comp);

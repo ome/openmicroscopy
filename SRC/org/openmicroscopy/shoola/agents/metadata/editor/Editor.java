@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ImageAcquisitionData;
@@ -55,6 +56,37 @@ public interface Editor
 	extends ObservableComponent
 {
 
+	/** Identified the <code>Immersion</code> enumeration. */
+	public static final String IMMERSION = OmeroMetadataService.IMMERSION;
+	
+	/** Identified the <code>Correction</code> enumeration. */
+	public static final String CORRECTION = OmeroMetadataService.CORRECTION;
+	
+	/** Identified the <code>Medium</code> enumeration. */
+	public static final String MEDIUM = OmeroMetadataService.MEDIUM;
+	
+	/** Identified the <code>Detector type</code> enumeration. */
+	public static final String DETECTOR_TYPE = 
+					OmeroMetadataService.DETECTOR_TYPE;
+	
+	/** Identified the <code>Binning</code> enumeration. */
+	public static final String BINNING = OmeroMetadataService.BINNING;
+	
+	/** Identified the <code>contrast method</code> enumeration. */
+	public static final String CONTRAST_METHOD = 
+				OmeroMetadataService.CONTRAST_METHOD;
+	
+	/** Identified the <code>illumination type</code> enumeration. */
+	public static final String ILLUMINATION_TYPE = 
+				OmeroMetadataService.ILLUMINATION_TYPE;
+	
+	/** Identified the <code>photometric Interpretation</code> enumeration. */
+	public static final String PHOTOMETRIC_INTERPRETATION = 
+		OmeroMetadataService.PHOTOMETRIC_INTERPRETATION;
+	
+	/** Identified the <code>mode</code> enumeration. */
+	public static final String MODE = OmeroMetadataService.MODE;
+	
 	/** Inidicates to layout all the components vertically. */
 	public static final int VERTICAL_LAYOUT = MetadataViewer.VERTICAL_LAYOUT;
 	
@@ -206,5 +238,19 @@ public interface Editor
 
 	/** Loads the image acquisition data. */
 	public void loadImageAcquisitionData();
+
+	/**
+	 * Sets the enumerations for the metadata related to an image.
+	 * 
+	 * @param map The value to set.
+	 */
+	public void setImageEnumerations(Map map);
+
+	/**
+	 * Sets the enumerations for the metadata related to a channel.
+	 * 
+	 * @param map The value to set.
+	 */
+	public void setChannelEnumerations(Map map);
 	
 }

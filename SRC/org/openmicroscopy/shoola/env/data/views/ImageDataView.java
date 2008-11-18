@@ -32,6 +32,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -202,5 +204,21 @@ public interface ImageDataView
      * @return See above.
      */
     public CallHandle loadPlaneInfo(long pixelsID, AgentEventListener observer);
+
+    /**
+     * Loads the enumerations used for the image metadata.
+     * 
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+	public CallHandle loadImageMetadataEnumerations(AgentEventListener observer);
     
+	/**
+     * Loads the enumerations used for the channel metadata.
+     * 
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+	public CallHandle loadChannelMetadataEnumerations(AgentEventListener observer);
+	
 }

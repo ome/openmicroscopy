@@ -44,6 +44,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,6 +82,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -90,10 +92,11 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
-import org.openmicroscopy.shoola.util.ui.ColourIcon;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -154,9 +157,6 @@ class ImViewerUI
 	/** Identifies the <code>Violet</code> color. */
 	private static final Color  VIOLET = new Color(238, 130, 238);
 
-	/** The dimension of the icon. */
-	private static final Dimension ICON_DIMENSION = new Dimension(12, 12);
-	
 	/** The available colors for the unit bar. */
 	private static Map<Color, String>	colors;
 
@@ -187,37 +187,37 @@ class ImViewerUI
 	}
 
 	/** Reference to the Control. */
-	private ImViewerControl 			controller;
+	private ImViewerControl 					controller;
 
 	/** Reference to the Model. */
-	private ImViewerModel   			model;
+	private ImViewerModel   					model;
 
 	/** The status bar. */
-	private StatusBar       			statusBar;
+	private StatusBar       					statusBar;
 
 	/** Lens component which will control all behaviour of the lens. */
-	private LensComponent				lens;
+	private LensComponent						lens;
 
 	/** The tool bar. */
-	private ToolBar         			toolBar;
+	private ToolBar         					toolBar;
 
 	/** The control pane. */
-	private ControlPane     			controlPane;
+	private ControlPane     					controlPane;
 	
 	/** Group hosting the items of the <code>Zoom</code> menu. */
-	private ButtonGroup     			zoomingGroup;
+	private ButtonGroup     					zoomingGroup;
 
 	/** Group hosting the items of the <code>Color Model</code> menu. */
-	private ButtonGroup     			colorModelGroup;
+	private ButtonGroup     					colorModelGroup;
 
 	/** The loading window. */
-	private LoadingWindow   			loadingWindow;
+	private LoadingWindow   					loadingWindow;
 
 	/** Tabbed pane hosting the various panel. */
-	private ClosableTabbedPane			tabs;
+	private ClosableTabbedPane					tabs;
 
 	/** The component displaying the history. */
-	private HistoryUI					historyUI;
+	private HistoryUI							historyUI;
 
 	/**
 	 * Split component used to display the image in the top section and the
@@ -225,80 +225,83 @@ class ImViewerUI
 	 */
 	//private SplitPanel				historySplit;
 
-	private SplitPanel					historySplit;
+	private SplitPanel							historySplit;
 	
 	/**
 	 * Split component used to display the renderer component on the left hand
 	 * side of the pane.
 	 */
-	private JSplitPane					rendererSplit;
+	private JSplitPane							rendererSplit;
 
 	/** 
 	 * One out of the following list: 
 	 * {@link #NEUTRAL}, {@link #HISTORY}, {@link #RENDERER} and
 	 * {@link #HISTORY_AND_RENDERER}.
 	 */
-	private int							displayMode;
+	private int									displayMode;
 	
 	//private int							previousDisplayMode;
 	
 	/** Item used to control show or hide the renderer. */
-	private JCheckBoxMenuItem			rndItem;
+	private JCheckBoxMenuItem					rndItem;
 	
 	/** Item used to control show or hide the history. */
-	private JCheckBoxMenuItem			historyItem;
+	private JCheckBoxMenuItem					historyItem;
 
 	/** The dimension of the main component i.e. the tabbed pane. */
-	private Dimension					restoreSize;
+	private Dimension							restoreSize;
 
 	/** Listener to the bounds of the container. */
-	private HierarchyBoundsAdapter		boundsAdapter;
+	private HierarchyBoundsAdapter				boundsAdapter;
 
 	/** The height of the icons in the tabbed pane plus 2 pixels. */
-	private int							tabbedIconHeight;
+	private int									tabbedIconHeight;
 
 	/** The menu displaying the users who viewed the image. */
-	private UsersPopupMenu				usersMenu;
+	private UsersPopupMenu						usersMenu;
 	
 	/** The default insets of a split pane. */
-	private Insets						refInsets;
+	private Insets								refInsets;
 	
 	/** The number of pixels added between the left and right components. */
-	private int							widthAdded;
+	private int									widthAdded;
 	
 	/** The number of pixels added between the top and bottom components. */
-	private int							heightAdded;
+	private int									heightAdded;
 
 	/** Group hosting the possible background colors. */
-	private ButtonGroup 				bgColorGroup;
+	private ButtonGroup 						bgColorGroup;
 	
 	/** Group hosting the possible scale bar length. */
-	private ButtonGroup 				scaleBarGroup;
+	private ButtonGroup 						scaleBarGroup;
 	
 	/** The source invoking the {@link #usersMenu}. */
-	private Component					source;
+	private Component							source;
 	
 	/** The location where to pop up the {@link #usersMenu}. */
-	private Point						location;
+	private Point								location;
 	
 	/** The zoom menu. */
-	private JMenu						zoomMenu;
+	private JMenu								zoomMenu;
 	
 	/** The zoom grid menu. */
-	private JMenu						zoomGridMenu;
+	private JMenu								zoomGridMenu;
 	
 	/** Group hosting the items of the <code>ZoomGrid</code> menu. */
-	private ButtonGroup     			zoomingGridGroup;
+	private ButtonGroup     					zoomingGridGroup;
 	
 	/** The panel hosting the view. */
-	private ClosableTabbedPaneComponent	viewPanel;
+	private ClosableTabbedPaneComponent			viewPanel;
 	
 	/** The panel hosting the view. */
-	private ClosableTabbedPaneComponent	gridViewPanel;
+	private ClosableTabbedPaneComponent			gridViewPanel;
 	
 	/** The panel hosting the view. */
-	private ClosableTabbedPaneComponent	annotatorPanel;
+	private ClosableTabbedPaneComponent			annotatorPanel;
 	
+	/** The object displaying the plane information, one per channel. */
+	private Map<Integer, PlaneInfoComponent>	planes;
+
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -1015,6 +1018,7 @@ class ImViewerUI
 		widthAdded = 0;
 		heightAdded = 0;
 		addComponentListener(controller);
+		planes = new HashMap<Integer, PlaneInfoComponent>();
 	}
 
 	/** 
@@ -1029,6 +1033,18 @@ class ImViewerUI
 		toolBar.buildComponent();
 		controlPane.buildComponent();
 		buildGUI();
+		ChannelData[] data = model.getChannelData();
+		ChannelData d;
+		int index;
+		PlaneInfoComponent comp;
+		for (int i = 0; i < data.length; i++) {
+			d = data[i];
+			index = d.getIndex();
+			comp = new PlaneInfoComponent(index, model.getChannelColor(index));
+			comp.addPropertyChangeListener(
+					PlaneInfoComponent.PLANE_INFO_PROPERTY, controller);
+			planes.put(index, comp);
+		}
 	}
 
 	/**
@@ -1161,7 +1177,6 @@ class ImViewerUI
 	 */
 	void setPlaneInfoStatus()
 	{
-		
 		int z = model.getDefaultZ();
 		int t = model.getDefaultT();
 		List<Integer> indexes = model.getActiveChannels();
@@ -1171,12 +1186,39 @@ class ImViewerUI
 		int index;
 		PlaneInfo info;
 		String s, toolTipText;
-		JLabel l;
 		Map<Integer, Color> colors = model.getActiveChannelsColorMap();
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		Map<String, Object> details;
 		List<String> tips;
+		PlaneInfoComponent comp;
+		while (i.hasNext()) {
+			s = "";
+			toolTipText = "";
+			tips = new ArrayList<String>();
+			index = i.next();
+			info = model.getPlane(z, index, t);
+			comp = planes.get(index);
+			if (info != null) {
+				details = EditorUtil.transformPlaneInfo(info);
+				comp.setColor(colors.get(index));
+				s += details.get(EditorUtil.DELTA_T)+"s ";
+				toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+				toolTipText += details.get(EditorUtil.EXPOSURE_TIME)+"s";
+				tips.add(toolTipText);
+				toolTipText = "";
+				toolTipText += "Stage coordinates: ";
+				toolTipText += details.get(EditorUtil.POSITION_X)+", ";
+				toolTipText += details.get(EditorUtil.POSITION_Y)+", ";
+				toolTipText += details.get(EditorUtil.POSITION_Z)+" ";
+				tips.add(toolTipText);
+				comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+				comp.setText(s);
+				panel.add(comp);
+			}
+		}
+		
+		/*
 		while (i.hasNext()) {
 			s = "";
 			toolTipText = "";
@@ -1202,6 +1244,7 @@ class ImViewerUI
 				panel.add(l);
 			}
 		}
+		*/
 		statusBar.setCenterStatus(panel);
 		
 	}
@@ -1926,6 +1969,31 @@ class ImViewerUI
 	List<ChannelButton> createChannelButtons()
 	{
 		return controlPane.createChannelButtons();
+	}
+	
+	/** 
+	 * Shows the plane information.
+	 * 
+	 * @param show 	Pass <code>true</code> to show the dialog, 
+	 * 				<code>false</code> to hide it.
+	 * @param comp The component to show.
+	 */
+	void showPlaneInfoDetails(PlaneInfoComponent comp)
+	{
+		if (comp == null) return;
+		TinyDialog d = new TinyDialog(this, comp.getContent(), 
+						TinyDialog.CLOSE_ONLY);
+		d.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
+				controller);
+		d.pack();
+		setCloseAfter(true);
+		showJDialogAsSheet(d);
+	}
+	
+	/** Hides the plane information. */
+	void hidePlaneInfoDetails()
+	{
+		hideAnimation();
 	}
 	
 	/** 

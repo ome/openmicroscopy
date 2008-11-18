@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
+import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
@@ -99,6 +100,7 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
@@ -829,7 +831,10 @@ class ImViewerControl
 			model.loadContainers();
 		} else if (ProjectionDialog.CLOSE_DIALOG_PROPERTY.equals(pName)) {
 			view.requestFocus();
-		}
+		} else if (PlaneInfoComponent.PLANE_INFO_PROPERTY.equals(pName)) {
+			view.showPlaneInfoDetails((PlaneInfoComponent) pce.getNewValue());
+		} else if (TinyDialog.CLOSED_PROPERTY.equals(pName))
+			view.hidePlaneInfoDetails();
 	}
 
 	/**

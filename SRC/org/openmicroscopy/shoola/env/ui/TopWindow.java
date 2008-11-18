@@ -35,6 +35,7 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.AnimatedJFrame;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -67,7 +68,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public abstract class TopWindow
-	extends JFrame
+	extends AnimatedJFrame
 {
 	
 	/** 

@@ -1576,5 +1576,15 @@ class OmeroMetadataServiceImpl
 		}
 		return annotations;
 	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#getEnumeration(String)
+	 */
+	public Collection getEnumeration(String type) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getEnumerations(type);
+	}
 	
 }

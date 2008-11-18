@@ -30,6 +30,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -43,8 +44,8 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
@@ -70,31 +71,40 @@ class ChannelAcquisitionComponent
 	private ChannelData 			channel;
 	
 	/** The component displaying the illumination's options. */
-	private JComboBox				illuminationBox;
+	private OMEComboBox				illuminationBox;
 	
 	/** The component displaying the contrast Method options. */
-	private JComboBox				contrastMethodBox;
+	private OMEComboBox				contrastMethodBox;
 	
 	/** The component displaying the contrast Method options. */
-	private JComboBox				modeBox;
+	private OMEComboBox				modeBox;
 	
 	/** The component displaying the binning options. */
-	private JComboBox				binningBox;
+	private OMEComboBox				binningBox;
 	
 	/** The component displaying the binning options. */
-	private JComboBox				detectorBox;
+	private OMEComboBox				detectorBox;
 	
 	/** The fields displaying the metadata. */
 	private Map<String, JComponent> fields;
 	
+	/** Reference to the Model. */
+	private EditorModel				model;
+	
+	
 	/** Initializes the components */
 	private void initComponents()
 	{
-		illuminationBox = EditorUtil.createComboBox(Mapper.ILLUMINATION);
-		contrastMethodBox = EditorUtil.createComboBox(Mapper.CONSTRAST_METHOD);
-		modeBox = EditorUtil.createComboBox(Mapper.MODE);
-		binningBox = EditorUtil.createComboBox(Mapper.BINNING);
-		detectorBox = EditorUtil.createComboBox(Mapper.DETECTOR_TYPE);
+		List l = model.getChannelEnumerations(Editor.ILLUMINATION_TYPE);
+		illuminationBox = EditorUtil.createComboBox(l);
+		l = model.getChannelEnumerations(Editor.CONTRAST_METHOD);
+		contrastMethodBox = EditorUtil.createComboBox(l);
+		l = model.getChannelEnumerations(Editor.MODE);
+		modeBox = EditorUtil.createComboBox(l);
+		l = model.getChannelEnumerations(Editor.BINNING);
+		binningBox = EditorUtil.createComboBox(l);
+		l = model.getChannelEnumerations(Editor.DETECTOR_TYPE);
+		detectorBox = EditorUtil.createComboBox(l);
 		fields = new HashMap<String, JComponent>();
 	}
 	
@@ -123,6 +133,7 @@ class ChannelAcquisitionComponent
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
+        Object selected;
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -135,8 +146,17 @@ class ChannelAcquisitionComponent
             c.weightx = 0.0;  
             content.add(label, c);
             if (key.equals(EditorUtil.BINNING)) {
+            	selected = model.getChannelEnumerationSelected(Editor.BINNING, 
+            			(String) value);
+            	if (selected != null) binningBox.setSelectedItem(selected);
+            	binningBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = binningBox;
             } else if (key.equals(EditorUtil.TYPE)) {
+            	selected = model.getChannelEnumerationSelected(
+            			Editor.DETECTOR_TYPE, 
+            			(String) value);
+            	if (selected != null) detectorBox.setSelectedItem(selected);
+            	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = detectorBox;
             } else if (value instanceof Number) {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
@@ -193,6 +213,7 @@ class ChannelAcquisitionComponent
         label = new JLabel();
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
+        Object selected;
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -206,10 +227,25 @@ class ChannelAcquisitionComponent
             content.add(label, c);
             
             if (key.equals(EditorUtil.ILLUMINATION)) {
+            	selected = model.getChannelEnumerationSelected(
+            			Editor.ILLUMINATION_TYPE, 
+            			(String) value);
+            	if (selected != null) illuminationBox.setSelectedItem(selected);
+            	illuminationBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = illuminationBox;
             } else if (key.equals(EditorUtil.CONTRAST_METHOD)) {
+            	selected = model.getChannelEnumerationSelected(
+            			Editor.ILLUMINATION_TYPE, 
+            			(String) value);
+            	if (selected != null) 
+            		contrastMethodBox.setSelectedItem(selected);
+            	contrastMethodBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = contrastMethodBox;
             } else if (key.equals(EditorUtil.MODE)) {
+            	selected = model.getChannelEnumerationSelected(Editor.MODE, 
+            			(String) value);
+            	if (selected != null) modeBox.setSelectedItem(selected);
+            	modeBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = modeBox;
             } else {
             	if (value instanceof Number) {
@@ -257,10 +293,12 @@ class ChannelAcquisitionComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param channel The channel to display.
+	 * @param model 	Reference to the model.
+	 * @param channel 	The channel to display.
 	 */
-	ChannelAcquisitionComponent(ChannelData channel)
+	ChannelAcquisitionComponent(EditorModel model, ChannelData channel)
 	{
+		this.model = model;
 		this.channel = channel;
 		initComponents();
 		buildGUI();

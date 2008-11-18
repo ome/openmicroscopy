@@ -323,9 +323,9 @@ public class UserManagerDialog
 		bar.setBorder(null);
 		//bar.add(mySelf);
 		//bar.add(Box.createRigidArea(H_SPACER_SIZE));
-		bar.add(cancel);
-		bar.add(Box.createRigidArea(H_SPACER_SIZE));
 		bar.add(apply);
+		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		bar.add(cancel);
 		JPanel p =  UIUtilities.buildComponentPanelRight(bar);
 		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);

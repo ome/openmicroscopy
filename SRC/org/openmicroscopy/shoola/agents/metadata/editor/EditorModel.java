@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
+import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
@@ -56,6 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -145,6 +147,12 @@ class EditorModel
 	
 	/** The image acquisition data. */
 	private ImageAcquisitionData	imageAcquisitionData;
+	
+	/** The enumerations related to channel metadata. */
+	private Map						channelEnumerations;
+	
+	/** The enumerations related to image metadata. */
+	private Map						imageEnumerations;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -402,12 +410,14 @@ class EditorModel
 	String formatDate(DataObject object)
 	{
 		String date = "";
+		Timestamp time = null;
 		if (object == null) return date;
-		if (object instanceof AnnotationData) {
-			Timestamp time = ((AnnotationData) object).getLastModified();
-			if (time != null)
-				date = UIUtilities.formatWDMYDate(time);
-		}
+		if (object instanceof AnnotationData)
+			time = ((AnnotationData) object).getLastModified();
+		else if (object instanceof ImageData) 
+			time = EditorUtil.getAcquisitionTime((ImageData) object);
+			
+		if (time != null) date = UIUtilities.formatWDMYDate(time);
 		return date;
 	}
 	
@@ -719,6 +729,10 @@ class EditorModel
 	    existingAttachments = null;
 	    existingURLs = null;
 	    emissionsWavelengths = null;
+	    if (refObject instanceof ImageData) {
+	    	fireChannelEnumerationsLoading();
+	    	fireImageEnumerationsLoading();
+	    }
 	}
 
 	/**
@@ -1196,6 +1210,22 @@ class EditorModel
 		bus.post(evt);
 	}
 	
+	/** Loads the image metadata enumerations. */
+	void fireImageEnumerationsLoading()
+	{
+		EnumerationLoader loader = new EnumerationLoader(component, 
+					EnumerationLoader.IMAGE);
+		loader.load();
+	}
+	
+	/** Loads the channel metadata enumerations. */
+	void fireChannelEnumerationsLoading()
+	{
+		EnumerationLoader loader = new EnumerationLoader(component, 
+				EnumerationLoader.CHANNEL);
+	loader.load();
+	}
+	
 	/** Loads the image acquisition data. */
 	void  fireImagAcquisitionDataLoading()
 	{
@@ -1224,4 +1254,92 @@ class EditorModel
 		return imageAcquisitionData;
 	}
 
+	/**
+	 * Returns the collection of objects corresponding to the passed name.
+	 * 
+	 * @param name The name of the enumeration.
+	 * @return See above.
+	 */
+	List<EnumerationObject> getImageEnumerations(String name)
+	{
+		if (imageEnumerations != null)
+			return (List<EnumerationObject>) imageEnumerations.get(name);
+		return new ArrayList<EnumerationObject>();
+	}
+
+	/**
+	 * Returns the collection of objects corresponding to the passed name.
+	 * 
+	 * @param name The name of the enumeration.
+	 * @return See above.
+	 */
+	List<EnumerationObject> getChannelEnumerations(String name)
+	{
+		if (channelEnumerations != null)
+			return (List<EnumerationObject>) channelEnumerations.get(name);
+		return new ArrayList<EnumerationObject>();
+	}
+	
+	/**
+	 * Returns the enumeration object corresponding to the passed enumeration 
+	 * name and value for the image metadata.
+	 * 
+	 * @param name	The type of enumeration.
+	 * @param value	The value to select.
+	 * @return See above.
+	 */
+	Object getImageEnumerationSelected(String name, String value)
+	{
+		List<EnumerationObject> l = getImageEnumerations(name);
+		if (l.size() == 0) return null;
+		EnumerationObject o;
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			o = (EnumerationObject) i.next();
+			if (o.getValue().equals(value)) return o;
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the enumeration object corresponding to the passed enumeration 
+	 * name and value for the channel metadata.
+	 * 
+	 * @param name	The type of enumeration.
+	 * @param value	The value to select.
+	 * @return See above.
+	 */
+	Object getChannelEnumerationSelected(String name, String value)
+	{
+		List<EnumerationObject> l = getChannelEnumerations(name);
+		if (l.size() == 0) return null;
+		EnumerationObject o;
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			o = (EnumerationObject) i.next();
+			if (o.getValue().equals(value)) return o;
+		}
+		return null;
+	}
+	
+	/**
+	 * Sets the enumerations related to channel metadata.
+	 * 
+	 * @param channelEnumerations The value to set.
+	 */
+	void setChannelEnumerations(Map channelEnumerations)
+	{
+		this.channelEnumerations = channelEnumerations;
+	}
+
+	/**
+	 * Sets the enumerations related to image metadata.
+	 * 
+	 * @param imageEnumerations The value to set.
+	 */
+	void setImageEnumerations(Map imageEnumerations)
+	{
+		this.imageEnumerations = imageEnumerations;
+	}
+	
 }

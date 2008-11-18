@@ -200,7 +200,7 @@ public class TinyDialogUI
     {
         if (window == null) throw new NullPointerException("No window.");
         this.window = window;
-        titleBar = new TitleBar(window.getTitle(), window.hasClosedButton());
+        titleBar = new TitleBar(window.getTitle(), window.getButtonIndex());
     }
     
     /**
@@ -352,7 +352,7 @@ public class TinyDialogUI
 	void setDecoration(List l)
 	{
 		if (titleBar == null) return;
-		titleBar.setDecoration(l);
+		titleBar.setDecoration(l, window.getButtonIndex());
 	}
 	
     /** 

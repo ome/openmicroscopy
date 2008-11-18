@@ -104,7 +104,7 @@ class EditorComponent
 	{
 		controller.initialize(this, view);
 		view.initialize(model, controller);
-		model.getObservable() .addPropertyChangeListener(controller);
+		model.getObservable().addPropertyChangeListener(controller);
 	}
 	
 	/** 
@@ -381,6 +381,24 @@ class EditorComponent
 		if (!(model.getRefObject() instanceof ImageData)) return;
 		model.fireImagAcquisitionDataLoading();
 		view.setStatus(true);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setChannelEnumerations(Map)
+	 */
+	public void setChannelEnumerations(Map map)
+	{
+		model.setChannelEnumerations(map);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setImageEnumerations(Map)
+	 */
+	public void setImageEnumerations(Map map)
+	{
+		model.setImageEnumerations(map);
 	}
 	
 }

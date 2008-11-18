@@ -46,6 +46,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -80,6 +81,7 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
+import omero.model.Coating;
 import omero.model.Dataset;
 import omero.model.Details;
 import omero.model.DetailsI;
@@ -91,8 +93,10 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Immersion;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.Medium;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -236,6 +240,9 @@ class OMEROGateway
 	 */
 	private client 					blitzClient;
 
+	/** Map hosting the enumeration required for metadata. */
+	private Map<String, List<EnumerationObject>>  		enumerations;
+	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -864,6 +871,7 @@ class OMEROGateway
 		this.dsFactory = dsFactory;
 		this.port = port;
 		thumbRetrieval = 0;
+		enumerations = new HashMap<String, List<EnumerationObject>>();
 	}
 	
 	/**
@@ -1033,6 +1041,7 @@ class OMEROGateway
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", ""+5000);
 			connected = true;
+			fillEnumerations();
 			return getUserDetails(userName);
 		} catch (Throwable e) {
 			connected = false;
@@ -3815,8 +3824,8 @@ class OMEROGateway
         sb.append("left outer join fetch img.condition as condition ");
         sb.append("left outer join fetch img.objectiveSettings as os ");
         sb.append("left outer join fetch os.objective as objective ");
-        sb.append("left outer join fetch img.setup as setup ");
-        sb.append("left outer join fetch setup.objective as obj ");
+        sb.append("left outer join fetch objective.immersion as im ");
+        sb.append("left outer join fetch objective.coating as co ");
         sb.append("where img.id = :id");
         param.addLong("id", imageID);
         try {
@@ -3896,24 +3905,35 @@ class OMEROGateway
 	 * Returns the enumerations corresponding to the passed type or 
 	 * <code>null</code> if none found.
 	 * 
-	 * @param klass The class the enumeration is for.
+	 * @param klassName The name of the class the enumeration is for.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<IObject> getEnumerations(Class klass)
+	List<EnumerationObject> getEnumerations(String klassName)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		List<EnumerationObject> r;
 		try {
+			r = enumerations.get(klassName);
+			if (r != null) return r;
 			IPixelsPrx service = getPixelsService();
-			return service.getAllEnumerations(klass.getName());
+			List<IObject> l = service.getAllEnumerations(klassName);
+			r = new ArrayList<EnumerationObject>(); 
+			if (l == null) return r;
+			Iterator<IObject> i = l.iterator();
+			while (i.hasNext()) {
+				r.add(new EnumerationObject(i.next()));
+			}
+			enumerations.put(klassName, r);
+			return r;
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
 		}
-		return new ArrayList<IObject>();
+		return new ArrayList<EnumerationObject>();
 	}
 	
 	/**
@@ -3946,6 +3966,22 @@ class OMEROGateway
 					"Cannot load the plane info for pixels: "+pixelsID);
 		}
 		return new ArrayList<IObject>();
+	}
+	
+	void fillEnumerations()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<EnumerationObject> l = getEnumerations(
+				OmeroMetadataService.IMMERSION);
+		l = getEnumerations(OmeroMetadataService.CORRECTION);
+		l = getEnumerations(OmeroMetadataService.MEDIUM);
+		l = getEnumerations(OmeroMetadataService.DETECTOR_TYPE);
+		l = getEnumerations(OmeroMetadataService.BINNING);
+		l = getEnumerations(OmeroMetadataService.CONTRAST_METHOD);
+		l = getEnumerations(OmeroMetadataService.ILLUMINATION_TYPE);
+		l = getEnumerations(OmeroMetadataService.PHOTOMETRIC_INTERPRETATION);
+		l = getEnumerations(OmeroMetadataService.MODE);
 	}
 	
 }

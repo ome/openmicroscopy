@@ -33,6 +33,7 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -283,10 +284,10 @@ public class EditorUtil
 	public static final String	READ_OUT_RATE = "Read out rate";
 	
 	/** Identifies the <code>Binning</code> field. */
-	public static final String	BINNING = "Binnning";
+	public static final String	BINNING = "Binning";
 	
-	/** Identifies the <code>Aplication</code> field. */
-	public static final String	APLIFICATION = "Aplification";
+	/** Identifies the <code>Amplication</code> field. */
+	public static final String	AMPLIFICATION = "Amplification";
 	
 	/** Identifies the <code>Exposure</code> field. */
 	public static final String	EXPOSURE_TIME = "Exposure Time";
@@ -958,7 +959,7 @@ public class EditorUtil
     	details.put(OFFSET, "");
     	details.put(READ_OUT_RATE, "");
     	details.put(BINNING, "");
-    	details.put(APLIFICATION, "");
+    	details.put(AMPLIFICATION, "");
     	return details;
     }
     
@@ -1022,11 +1023,10 @@ public class EditorUtil
 	 * @param decrement The value by which the font size is reduced.
 	 * @return See above.
 	 */
-    public static JComboBox createComboBox(Object[] values, int decrement)
+    public static OMEComboBox createComboBox(Object[] values, int decrement)
 	{
     	OMEComboBox box = new OMEComboBox(values);
 		box.setBackground(UIUtilities.BACKGROUND_COLOR);
-		box.setSelectedIndex(0);
 		box.setUI(new BasicComboBoxUI() {
 
 	        /**
@@ -1045,7 +1045,6 @@ public class EditorUtil
 		int size = f.getSize()-decrement;
 		box.setBorder(null);
 		box.setFont(f.deriveFont(Font.ITALIC, size));
-		box.setEditedColor(UIUtilities.EDITED_COLOR);
 		return box;
 	}
     
@@ -1055,11 +1054,30 @@ public class EditorUtil
 	 * @param values The values to display.
 	 * @return See above.
 	 */
-    public static JComboBox createComboBox(Object[] values)
+    public static OMEComboBox createComboBox(Object[] values)
 	{
     	return createComboBox(values, 3);
 	}
 
+    /**
+	 * Initialises a <code>JComboBox</code>.
+	 * 
+	 * @param values The values to display.
+	 * @return See above.
+	 */
+    public static OMEComboBox createComboBox(List<Object> values)
+	{
+    	if (values == null) return null;
+    	Iterator i = values.iterator();
+    	Object[] array = new Object[values.size()];
+    	int index = 0;
+    	while (i.hasNext()) {
+			array[index] = i.next();
+			index++;
+		}
+    	return createComboBox(array, 3);
+	}
+    
 	/**
 	 * Initiliases a <code>JXTaskPane</code>.
 	 * 

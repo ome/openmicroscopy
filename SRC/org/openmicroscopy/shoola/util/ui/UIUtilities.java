@@ -493,7 +493,8 @@ public class UIUtilities
 	{
 		StringBuffer buf = new StringBuffer();
 		//buf.
-		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
+		//buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
+		buf.append("<html><body>");
 		buf.append("<font face=Arial size=2>");  
 		Iterator<String> i = toolTipText.iterator();
 		buf.append("<p>");

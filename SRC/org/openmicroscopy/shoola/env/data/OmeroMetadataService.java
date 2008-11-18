@@ -34,6 +34,16 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.AcquisitionMode;
+import omero.model.Binning;
+import omero.model.Coating;
+import omero.model.ContrastMethod;
+import omero.model.DetectorType;
+import omero.model.Illumination;
+import omero.model.Immersion;
+import omero.model.Medium;
+import omero.model.PhotometricInterpretation;
+
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -64,6 +74,34 @@ public interface OmeroMetadataService
 	
 	/** Indicates to retrieve the tag sets and the tags. */
 	public static final int LEVEL_ALL = 2;
+	
+	/** Identified the <code>Immersion</code> enumeration. */
+	public static final String IMMERSION = Immersion.class.getName();
+	
+	/** Identified the <code>Correction</code> enumeration. */
+	public static final String CORRECTION = Coating.class.getName();
+	
+	/** Identified the <code>Medium</code> enumeration. */
+	public static final String MEDIUM = Medium.class.getName();
+	
+	/** Identified the <code>Detector type</code> enumeration. */
+	public static final String DETECTOR_TYPE = DetectorType.class.getName();
+	
+	/** Identified the <code>Binning</code> enumeration. */
+	public static final String BINNING = Binning.class.getName();
+	
+	/** Identified the <code>contrast method</code> enumeration. */
+	public static final String CONTRAST_METHOD = ContrastMethod.class.getName();
+	
+	/** Identified the <code>illumination type</code> enumeration. */
+	public static final String ILLUMINATION_TYPE = Illumination.class.getName();
+	
+	/** Identified the <code>photometric Interpretation</code> enumeration. */
+	public static final String PHOTOMETRIC_INTERPRETATION = 
+		PhotometricInterpretation.class.getName();
+	
+	/** Identified the <code>mode</code> enumeration. */
+	public static final String MODE = AcquisitionMode.class.getName();
 	
 	/**
 	 * Retrieves the textual annotations
@@ -512,4 +550,17 @@ public interface OmeroMetadataService
 	public Collection loadTags(int level, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Returns the enumeration corresponding to the specified type.
+	 * 
+	 * @param type 	The type of enumeration. 
+	 * 				One of the enumerations defined by this class.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection getEnumeration(String type)
+		throws DSOutOfServiceException, DSAccessException;
 }

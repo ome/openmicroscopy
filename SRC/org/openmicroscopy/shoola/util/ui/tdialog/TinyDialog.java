@@ -63,10 +63,19 @@ public class TinyDialog
     public final static String COLLAPSED_PROPERTY = "collapsed";
     
     /** Bound property name indicating if the window is closed. */
-    public final static String CLOSED_PROPERTY = "closed";
+    public final static String CLOSED_PROPERTY = "closedDialog";
      
     /** Bound property name indicating if the window's title has changed. */
     public final static String TITLE_PROPERTY = "title";
+    
+    /** Indicates to show both the close and size buttons. */
+    public final static int		BOTH = 0;
+    
+    /** Indicates to only show the close button. */
+    public final static int		CLOSE_ONLY = 1;
+    
+    /** Indicates to only show the size button. */
+    public final static int		SIZE_ONLY = 2;
     
     /** The minimum magnification value. */
     final static int		MINIMUM_ZOOM = 1;
@@ -89,9 +98,6 @@ public class TinyDialog
     /** Tells if this window is closed or not. */
     private boolean         closed;
     
-    /** Tells if the close button is displayed. */
-    private boolean         closedButton;
-    
     /** The image to display. */
     private BufferedImage	originalImage;
     
@@ -100,6 +106,12 @@ public class TinyDialog
     
     /** Collection of components to add to the title. */
     private List			decoration;
+    
+    /** 
+     * One of the following: {@link #BOTH}, {@link #CLOSE_ONLY} or 
+     * {@link #SIZE_ONLY}. 
+     */
+    private int				buttonIndex;
     
     /** The title displayed in this window's title bar. */
     protected String        title;
@@ -115,7 +127,7 @@ public class TinyDialog
     }
     
     /**
-     * 
+     * Returns the elements added to the title bar.
      * 
      * @return See above.
      */
@@ -159,12 +171,11 @@ public class TinyDialog
     Dimension getRestoreSize() { return restoreSize; }
     
     /**
-     * Returns <code>true</code> if the close button is shown, 
-     * <code>false</code> otherwise.
+     * Returns the type of buttons to display in the tool bar.
      * 
      * @return See above.
      */
-    boolean hasClosedButton() { return closedButton; }
+    int getButtonIndex() { return buttonIndex; }
     
     /**
      * Creates a new window with the specified owner frame.
@@ -193,7 +204,7 @@ public class TinyDialog
         this.title = title;
         originalImage = image;
         zoomFactor = MINIMUM_ZOOM;
-        closedButton = true;
+        buttonIndex = BOTH;
         //Create the View and the Controller.
         uiDelegate = new TinyDialogUI(this, image);
         controller = new DialogControl(this, uiDelegate);
@@ -216,35 +227,58 @@ public class TinyDialog
      * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
      * @param c     The component to display. Mustn't be <code>null</code>.
-     * @param title The window's title.
+     * @param index The type of button to display in the tool bar.
      */
-    public TinyDialog(Frame owner, JComponent c, String title)
+    public TinyDialog(Frame owner, JComponent c, int index)
     {
-        super(owner);
-        if (owner == null) throw new NullPointerException("No owner.");
-        this.title = title;
-        closedButton = true;
-        //Create the View and the Controller.
-        if (c == null) uiDelegate = new TinyDialogUI(this);
-        else uiDelegate = new TinyDialogUI(this, c);
-        controller = new DialogControl(this, uiDelegate);
-        setProperties();
+        this(owner, c, index, null);
     }
     
     /**
      * Creates a new window with the specified owner frame.
      * 
-     * @param owner         The parent's of the window.
-     *                      Mustn't be <code>null</code>.
-     * @param title         The window's title.
-     * @param closedButton  Passed <code>true</code> if the  closeButton
-     *                      is shown, <code>false</code> otherwise.
+     * @param owner The parent's of the window. Mustn't be <code>null</code>.
+     * @param c     The component to display. Mustn't be <code>null</code>.
+     * @param index The type of button to display in the tool bar.
+     * @param title The window's title.
      */
-    public TinyDialog(Frame owner, String title, boolean closedButton)
+    public TinyDialog(Frame owner, JComponent c, int index, String title)
+    {
+    	 super(owner);
+         if (owner == null) throw new NullPointerException("No owner.");
+         this.title = title;
+         buttonIndex = index;
+         //Create the View and the Controller.
+         if (c == null) uiDelegate = new TinyDialogUI(this);
+         else uiDelegate = new TinyDialogUI(this, c);
+         controller = new DialogControl(this, uiDelegate);
+         setProperties();
+    }
+    
+    /**
+     * Creates a new window with the specified owner frame.
+     * 
+     * @param owner The parent's of the window. Mustn't be <code>null</code>.
+     * @param c     The component to display. Mustn't be <code>null</code>.
+     * @param title The window's title.
+     */
+    public TinyDialog(Frame owner, JComponent c, String title)
+    {
+       this(owner, c, BOTH, title);
+    }
+    
+    /**
+     * Creates a new window with the specified owner frame.
+     * 
+     * @param owner	The parent's of the window. Mustn't be <code>null</code>.
+     * @param title The window's title.
+     * @param index The type of button to display in the tool bar.
+     */
+    public TinyDialog(Frame owner, String title, int index)
     {
         super(owner);
         this.title = title;
-        this.closedButton = closedButton;
+        this.buttonIndex = index;
         if (owner == null) throw new NullPointerException("No owner.");
         uiDelegate = new TinyDialogUI(this);
         controller = new DialogControl(this, uiDelegate);

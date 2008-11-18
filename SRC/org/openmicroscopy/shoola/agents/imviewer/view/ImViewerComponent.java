@@ -2558,6 +2558,7 @@ class ImViewerComponent
 			message = "An error has occurred while creating the " +
 			"projected image.";
 			un.notifyInfo("Projection", message);
+			if (projection == null) return;
 			projection.setVisible(false);
 			projection.dispose();
 			projection = null;
@@ -2570,6 +2571,7 @@ class ImViewerComponent
 		} else {
 			notifyProjection("The projected image has been " +
 					"successfully created.", image);
+			if (projection == null) return;
 			projection.setVisible(false);
 			projection.dispose();
 			projection = null;
@@ -2589,7 +2591,9 @@ class ImViewerComponent
 		else
 			message = "An error has occurred while copying the " +
 			"rendering settings of the projected image.";
+		
 		notifyProjection(message, image);
+		if (projection == null) return;
 		projection.setVisible(false);
 		projection.dispose();
 		projection = null;
