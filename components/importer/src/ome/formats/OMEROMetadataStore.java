@@ -2310,6 +2310,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             Objective objective = new Objective();
             objective.setImmersion((Immersion) getEnumeration(Immersion.class, "Unknown"));
+            objective.setCoating((Coating) getEnumeration(Coating.class, "Unknown"));
             lsidMap.put(currentLSID, objective);
             instrument.addObjective(objective);
         } 
