@@ -109,7 +109,6 @@ class AnimatedPane
 		if (source == null) return;
 		animatedSize.width = source.getWidth();
 		makeOffscreenImage(source);
-		
 	}
 	
 	/** 
@@ -149,11 +148,17 @@ class AnimatedPane
 	{
 		super.paintComponent(g);
 		if (image == null) return;
-		int y = image.getHeight()-animatedSize.height;
-		if (parent.getOrientation() == AnimatedJFrame.UP) y = 0;
-		BufferedImage img = image.getSubimage(0, y, source.getWidth(), 
-				animatedSize.height);
-		g.drawImage(img, 0, 0, this);
+		BufferedImage img;
+		if (parent.getOrientation() == AnimatedJFrame.UP) {
+			img = image.getSubimage(0, 0, source.getWidth(), 
+					animatedSize.height);
+			g.drawImage(img, 0, source.getHeight()-animatedSize.height, this);
+			
+		} else {
+			img = image.getSubimage(0, image.getHeight()-animatedSize.height, 
+					source.getWidth(), animatedSize.height);
+			g.drawImage(img, 0, 0, this);
+		}
 	}
 	
 }

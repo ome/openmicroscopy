@@ -38,15 +38,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
-
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -1065,7 +1063,7 @@ public class EditorUtil
 	 * @param values The values to display.
 	 * @return See above.
 	 */
-    public static OMEComboBox createComboBox(List<Object> values)
+    public static OMEComboBox createComboBox(List values)
 	{
     	if (values == null) return null;
     	Iterator i = values.iterator();

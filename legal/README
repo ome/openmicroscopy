@@ -245,3 +245,34 @@
   Web Site: http://backport-jsr166.sourceforge.net/
   Artifacts: The backport-util-concurrent-* file under LIB/
   License: This software is released to the public domain
+  
+  Project: The Ontology Lookup service. A spin-off the PRIDE project.
+  Provides a web service interface to query multiple ontologies from a single 
+  location with a unified output format. 
+  Web Site: http://www.ebi.ac.uk/ontology-lookup/
+  Artifacts: The ols-client-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: Apache Axis is an implementation of the SOAP 
+  ("Simple Object Access Protocol") submission to W3C.
+  This project is a follow-on to the Apache SOAP project.
+  We don't use this software directly but required by the ontology lookup 
+  service.
+  Web Site: http://ws.apache.org/axis/
+  Artifacts: The axis-client-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: SAAJ Standard Implementation Project.
+  We don't use this software directly but required by the Apache Axis project
+  Web Site: https://saaj.dev.java.net/
+  Artifacts: The saaj-* file under LIB/
+  License: General Public License (GPL), Version 2
+  License File: gpl.txt
+  
+  Project: JAX-RPC Reference Implementation Project.
+  We don't use this software directly but required by the Apache Axis project
+  Web Site: https://jax-rpc.dev.java.net/
+  Artifacts: The jaxrpc-* file under LIB/
+  License: Common Development and Distribution License, Version 1.0

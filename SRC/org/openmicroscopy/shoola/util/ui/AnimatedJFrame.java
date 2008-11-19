@@ -118,9 +118,19 @@ public class AnimatedJFrame
 	/** Flag indicating to close the application after a given time. */
 	private boolean				closeAfter;
 	
+	/** 
+	 * The timer used to hide the animation after a given time,
+	 * only used if the flag {@link #closeAfter} is <code>true</code>.
+	 */
+	private Timer 				timer;
+	
+	/** The extra space to remove. */
+	private int					bottomSpace;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
+		bottomSpace = 0;
 		duration = DURATION;
 		sleep = SLEEP;
 		animatingPane = new AnimatedPane(this);
@@ -133,16 +143,26 @@ public class AnimatedJFrame
 	/** Starts the animation. */
 	private void startAnimation()
 	{
+		System.err.println(bottomSpace);
 		glass.repaint();
 		glass.removeAll();
 		animatingPane.setSource(sheet);
 		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.NORTH;
 		c.gridy = 0;
-		glass.add(animatingPane, c);
-		c.gridy++;
-		c.weighty = Integer.MAX_VALUE;
-		glass.add(Box.createGlue(), c);
+		if (orientation == DOWN) {
+			c.anchor = GridBagConstraints.NORTH;
+			glass.add(animatingPane, c);
+			c.gridy++;
+			c.weighty = Integer.MAX_VALUE;
+			glass.add(Box.createGlue(), c);
+		} else {
+			c.anchor = GridBagConstraints.PAGE_END;
+			int h = glass.getHeight()-sheet.getHeight()-bottomSpace;
+			glass.add(Box.createVerticalStrut(h), c);
+			c.gridy++;
+			glass.add(animatingPane, c);
+		}
+		
 		glass.setVisible(true);
 		animationStart = System.currentTimeMillis();
 		if (animationTimer == null)
@@ -165,21 +185,29 @@ public class AnimatedJFrame
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTH;
 		c.gridy = 0;
-		glass.add(sheet, c);
-		c.gridy++;
-		c.weighty = Integer.MAX_VALUE;
-		glass.add(Box.createGlue(), c);
+		if (orientation == DOWN) {
+			glass.add(sheet, c);
+			c.gridy++;
+			c.weighty = Integer.MAX_VALUE;
+			glass.add(Box.createGlue(), c);
+		} else {
+			int h = glass.getHeight()-sheet.getHeight()-bottomSpace;
+			glass.add(Box.createVerticalStrut(h), c);
+			c.gridy++;
+			glass.add(sheet, c);
+		}
 		glass.revalidate();
 		glass.repaint();
 		if (closeAfter) {
-			ActionListener task = new ActionListener() {
-		        public void actionPerformed(ActionEvent e) {
-		            hideAnimation();
-		        }
-		    };
-		    Timer timer = new Timer(500, task); //fire every half second
-		    timer.setInitialDelay(2000);        //first delay 2 seconds
-		    timer.setRepeats(false);
+			if (timer == null) {
+				timer = new Timer(500, new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						hideAnimation();
+					}
+				}); //fire every half second
+				timer.setInitialDelay(2000); //first delay 2 seconds
+				timer.setRepeats(false);
+			}
 		    timer.start();
 		}
 	}
@@ -210,6 +238,13 @@ public class AnimatedJFrame
 	 * @return See above.
 	 */
 	public int getOrientation() { return orientation; }
+	
+	/** 
+	 * Sets the extra space to take into when laying out the animated component.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setBottomSpace(int value) { bottomSpace = value; }
 	
 	/**
 	 * Sets the duration of the animation.
@@ -251,7 +286,6 @@ public class AnimatedJFrame
 				break;
 			
 		}
-		
 		if (sheet != null) sheet.setBorder(border);
 		animatingPane.setBorder(border);
 	}
@@ -278,9 +312,8 @@ public class AnimatedJFrame
 	public JComponent showJDialogAsSheet(JDialog dialog, int orientation)
 	{
 		if (dialog == null) return null;
-		setOrientation(orientation);
 		sheet = (JComponent) dialog.getContentPane();
-		sheet.setBorder(border);
+		setOrientation(orientation);
 		glass.removeAll();
 		animationDir = INCOMING;
 		startAnimation();
@@ -293,6 +326,7 @@ public class AnimatedJFrame
 		animationDir = OUTGOING;
 		stopAnimation();
 		glass.setVisible(false);
+		if (timer != null && closeAfter) timer.stop();
 	}
 	
 	/**

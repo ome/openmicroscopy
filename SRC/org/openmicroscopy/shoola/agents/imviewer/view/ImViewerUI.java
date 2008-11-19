@@ -1986,8 +1986,9 @@ class ImViewerUI
 		d.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
 				controller);
 		d.pack();
+		setBottomSpace(2*statusBar.getPreferredSize().height);
 		setCloseAfter(true);
-		showJDialogAsSheet(d);
+		showJDialogAsSheet(d, UP);
 	}
 	
 	/** Hides the plane information. */
