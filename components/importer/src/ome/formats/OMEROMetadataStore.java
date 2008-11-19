@@ -55,6 +55,7 @@ import ome.model.acquisition.Filament;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Laser;
+import ome.model.acquisition.LightSettings;
 import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
@@ -1846,10 +1847,33 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             if (j == lightSourceIndex)
             {
                 LightSource ls = (LightSource) i.next();
+                
+                //FIXME: big fat ugly hack to get lightsources attached to *some* channel
+                //Lightsettings still needs to be implemented in bio-formats for this to work correctly
+                //Lightsettings method in bio-formats need to specify lightsourceindex and channelindex
+                for (Image image : imageList)
+                {
+                    Iterator <Pixels> pi = image.iteratePixels();
+                    while (pi.hasNext())
+                    {
+                        Pixels p = pi.next();
+                        Iterator <Channel> ci = p.iterateChannels();
+                        while (ci.hasNext())
+                        {
+                            Channel c = ci.next();
+                            LogicalChannel lc = c.getLogicalChannel();
+                            LightSettings lightsettings = new LightSettings();
+                            lightsettings.setLightSource(ls);
+                            lc.setLightSourceSettings(lightsettings);
+                        }
+                    }
+                }
+                
                 return ls;
             }
             i.next();
         }
+        
         return null;
     }
 
