@@ -1269,9 +1269,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // we're populating the cache here which will be invalidated
                 // upon a call to createRoot().
                 PlaneInfo info = new PlaneInfo();
-                // FIXME: Time stamp needs fixing.
-                info.setTimestamp(0.0f);
                 cache.add(info);
+            }
+        }
+        
+        // This prevents a cached planeinfo from being used 
+        // unless timestamp or exposure time is full
+        for (int i = cache.size(); i <= planeIndex; i++)
+        {
+            PlaneInfo info = cache.get(planeIndex);
+            if (info.getPixels() == null &&
+                (info.getTimestamp() != null || info.getExposureTime() != null))
+            {
                 pixels.addPlaneInfo(info);
             }
         }
