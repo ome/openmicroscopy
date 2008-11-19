@@ -111,7 +111,7 @@ public class RawPixelsStoreServiceImpl
 	 * @param pixelsId see above.
 	 * @return true if the gateway was closed.
 	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
+	 * @throws DSAccessException
 	 */
 	public boolean closeGateway(long pixelsId) throws omero.ServerError
 	{
@@ -119,6 +119,11 @@ public class RawPixelsStoreServiceImpl
 		{
 			if(containsGateway(pixelsId))
 			{
+				RawPixelsStorePrx gateway = getGateway(pixelsId);
+				synchronized(gateway)
+				{
+					gateway.close();
+				}
 				gatewayMap.remove(pixelsId);
 				return true;
 			}
@@ -126,6 +131,7 @@ public class RawPixelsStoreServiceImpl
 				return false;
 		}
 	}
+
 
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getByteWidth(long)

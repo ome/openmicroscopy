@@ -112,21 +112,21 @@ public class RawFileStoreServiceImpl
 	 * @param fileId see above.
 	 * @return true if the gateway was closed.
 	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
+	 * @throws DSAccessException
 	 */
 	public boolean closeGateway(long fileId) throws omero.ServerError
 	{
-		synchronized(gatewayMap)
+		RawFileStorePrx gateway = gatewayMap.get(fileId);
+		if(gateway==null)
+			return false;
+		synchronized(gateway)
 		{
-			if(containsGateway(fileId))
-			{
-				gatewayMap.remove(fileId);
-				return true;
-			}
-			else
-				return false;
+			gateway.close();
+			gatewayMap.remove(fileId);
 		}
+		return false;
 	}
+
 
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawFileStoreService#exists(long)

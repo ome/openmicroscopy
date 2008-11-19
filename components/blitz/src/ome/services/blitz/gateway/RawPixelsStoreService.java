@@ -43,7 +43,16 @@ public interface RawPixelsStoreService
 	 * @throwsomero.ServerError
 	 */
 	public void keepAlive() throws omero.ServerError;
-
+	
+	/**
+	 * Close the gateway for pixels = pixelsId
+	 * @param pixelsId see above.
+	 * @return true if the gateway was closed.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public boolean closeGateway(long pixelsId) throws omero.ServerError;
+	
 	/**
 	 * Get the plane size of the current image.
 	 * @param pixelsId the pixelsId of the image.

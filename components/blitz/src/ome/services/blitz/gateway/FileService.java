@@ -53,6 +53,13 @@ interface FileService
 	public void keepAlive() throws omero.ServerError;
 	
 	/**
+	 * Close the gateway for the fileService with fileId
+	 * @param fileId see above.
+	 * @throws omero.ServerError
+	 */
+	public void closeRawFileService(long fileId) throws omero.ServerError;
+															
+	/**
 	 * Does the file with id exist in the OMERO original file store.
 	 * @param id id of the file.
 	 * @return see above.

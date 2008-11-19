@@ -51,14 +51,14 @@ public class Plane2D
 	/** The number of timepoint along the x-axis. */
 	private int					sizeX;
 	
+	/** The number of timepoint along the x-axis. */
+	private int					sizeY;
+	
 	/** The original array. */
 	private ReadOnlyByteArray	data;
 	
 	/** Strategy used to transform original data. */
 	private BytesConverter		strategy;
-	
-	/** The converted raw data. */
-	private double[][]			mappedData;
 	
 	/** 
 	 * Determines the offset value.
@@ -77,9 +77,9 @@ public class Plane2D
 	 * 
 	 * @param sizeY The number of pixels along the y-axis.
 	 */
-	private void mappedData(int sizeY)
+	private double[][] mappedDataAsDouble(int sizeY)
 	{
-		mappedData = new double[sizeX][sizeY];
+		double[][] mappedData = new double[sizeX][sizeY];
 		int offset;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
@@ -87,6 +87,79 @@ public class Plane2D
 				mappedData[x][y] = strategy.pack(data, offset, bytesPerPixel);
 			}
 		}
+		return mappedData;
+	}
+
+	/**
+	 * Converts the raw data.
+	 * 
+	 * @param sizeY The number of pixels along the y-axis.
+	 */
+	private long[][] mappedDataAsLong(int sizeY)
+	{
+		long[][] mappedData = new long[sizeX][sizeY];
+		int offset;
+		for (int x = 0; x < sizeX; x++) {
+			for (int y = 0; y < sizeY; y++) {
+				offset = calculateOffset(x, y);
+				mappedData[x][y] = (long)strategy.pack(data, offset, bytesPerPixel);
+			}
+		}
+		return mappedData;
+	}
+
+	/**
+	 * Converts the raw data.
+	 * 
+	 * @param sizeY The number of pixels along the y-axis.
+	 */
+	private int[][] mappedDataAsInt(int sizeY)
+	{
+		int[][] mappedData = new int[sizeX][sizeY];
+		int offset;
+		for (int x = 0; x < sizeX; x++) {
+			for (int y = 0; y < sizeY; y++) {
+				offset = calculateOffset(x, y);
+				mappedData[x][y] = (int)strategy.pack(data, offset, bytesPerPixel);
+			}
+		}
+		return mappedData;
+	}
+	
+	/**
+	 * Converts the raw data.
+	 * 
+	 * @param sizeY The number of pixels along the y-axis.
+	 */
+	private short[][] mappedDataAsShort(int sizeY)
+	{
+		short[][] mappedData = new short[sizeX][sizeY];
+		int offset;
+		for (int x = 0; x < sizeX; x++) {
+			for (int y = 0; y < sizeY; y++) {
+				offset = calculateOffset(x, y);
+				mappedData[x][y] = (short)strategy.pack(data, offset, bytesPerPixel);
+			}
+		}
+		return mappedData;
+	}
+	
+	/**
+	 * Converts the raw data.
+	 * 
+	 * @param sizeY The number of pixels along the y-axis.
+	 */
+	private byte[][] mappedDataAsByte(int sizeY)
+	{
+		byte[][] mappedData = new byte[sizeX][sizeY];
+		int offset;
+		for (int x = 0; x < sizeX; x++) {
+			for (int y = 0; y < sizeY; y++) {
+				offset = calculateOffset(x, y);
+				mappedData[x][y] = (byte)strategy.pack(data, offset, bytesPerPixel);
+			}
+		}
+		return mappedData;
 	}
 	
 	/**
@@ -106,30 +179,52 @@ public class Plane2D
 		this.data = data;
 		this.strategy = strategy;
 		this.sizeX = sizeX;
-		mappedData(sizeY);
+		this.sizeY = sizeY;
 	}
-	
-	/**
-	 * Returns the pixels value at the point specified by the x-coordinate
-	 * and y-coordinate.
-	 * 
-	 * @param x	The x-coordinate.
-	 * @param y	The y-coordinate.
-	 * @return See above.
-	 */
-	public double getPixelValue(int x, int y)
-	{
-		//int offset = calculateOffset(x, y);
-		//return strategy.pack(data, offset, bytesPerPixel);
-		return mappedData[x][y];
-	}
-	
+
 	/**
 	 * Return the pixels array of the mapped data.
 	 * @return see above.
 	 */
-	public double[][] getPixelsArray()
+	public double[][] getPixelsArrayAsDouble()
 	{
-		return mappedData;
+		return mappedDataAsDouble(sizeY);
 	}
+
+	/**
+	 * Return the pixels array of the mapped data.
+	 * @return see above.
+	 */
+	public long[][] getPixelsArrayAsLong()
+	{
+		return mappedDataAsLong(sizeY);
+	}
+
+	/**
+	 * Return the pixels array of the mapped data.
+	 * @return see above.
+	 */
+	public int[][] getPixelsArrayAsInt()
+	{
+		return mappedDataAsInt(sizeY);
+	}
+
+	/**
+	 * Return the pixels array of the mapped data.
+	 * @return see above.
+	 */
+	public short[][] getPixelsArrayAsShort()
+	{
+		return mappedDataAsShort(sizeY);
+	}
+
+	/**
+	 * Return the pixels array of the mapped data.
+	 * @return see above.
+	 */
+	public byte[][] getPixelsArrayAsByte()
+	{
+		return mappedDataAsByte(sizeY);
+	}
+	
 }

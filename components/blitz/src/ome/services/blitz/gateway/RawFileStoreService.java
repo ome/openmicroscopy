@@ -43,6 +43,14 @@ public interface RawFileStoreService
 	 * @throws omero.ServerError
 	 */
 	public void keepAlive() throws omero.ServerError;
+
+	/**
+	 * Close the gateway for pixels = pixelsId
+	 * @param pixelsId see above.
+	 * @return true if the gateway was closed.
+	 * @throws omero.ServerError;
+	 */
+	public boolean closeGateway(long fileId) throws omero.ServerError;
 	
 	/**
 	 * Read from the file in the rawFileStore.
