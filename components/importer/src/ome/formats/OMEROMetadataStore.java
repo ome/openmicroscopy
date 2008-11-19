@@ -1941,6 +1941,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             Laser laser = new Laser();
+            laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
+            laser.setType((LaserType) getEnumeration(LaserType.class, "Unknown"));
             lsidMap.put(currentLSID, laser);
             instrument.addLightSource(laser);
         } else 
@@ -2063,6 +2065,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             Arc arc = new Arc();
+            arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown")); 
             lsidMap.put(currentLSID, arc);
             instrument.addLightSource(arc);
         } else 
@@ -2123,6 +2126,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             Filament filament = new Filament();
+            filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown")); 
             lsidMap.put(currentLSID, filament);
             instrument.addLightSource(filament);
         } else 
