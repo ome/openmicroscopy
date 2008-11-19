@@ -1949,6 +1949,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             {
                 Laser laser = new Laser();
                 laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
+                laser.setType((LaserType) getEnumeration(LaserType.class, "Unknown"));
                 
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
                 
@@ -2069,6 +2070,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             if (lsidMap.get(currentLSID) instanceof MetaLightSource)
             {
                 Arc arc = new Arc();
+                arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown")); 
                 
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
                 
@@ -2128,6 +2130,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             if (lsidMap.get(currentLSID) instanceof MetaLightSource)
             {
                 Filament filament = new Filament();
+                
+                filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown")); 
+                
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
                 
                 mls.copyData(filament);
