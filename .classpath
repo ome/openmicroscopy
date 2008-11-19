@@ -22,11 +22,11 @@
 	<classpathentry kind="lib" path="LIB/commons-validator-1.3.1.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="LIB/omero_client-Beta4.jar"/>
-	<classpathentry kind="lib" path="LIB/ols-client.jar"/>
-	<classpathentry kind="lib" path="LIB/saaj.jar"/>
 	<classpathentry kind="lib" path="LIB/wsdl4j-1.5.1.jar"/>
-	<classpathentry kind="lib" path="LIB/jaxrpc.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="LIB/axis.jar"/>
+	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
+	<classpathentry kind="lib" path="LIB/saaj-1.2.jar"/>
+	<classpathentry kind="lib" path="LIB/jaxrpc-1.1.jar"/>
+	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
