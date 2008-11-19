@@ -37,6 +37,7 @@ import java.util.Map;
 import omero.RInt;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.PixelsI;
 import omero.model.PixelsType;
 
 /** 
@@ -111,7 +112,7 @@ class ImageServiceImpl
 	public double[][] getPlaneAsDouble(long pixelsId, int z, int c, int t) 
 		throws omero.ServerError
 	{
-		Pixels pixels = getPixels(pixelsId);
+		PixelsI pixels = getPixels(pixelsId);
 		return convertRawPlaneAsDouble(pixels, z, c, t);
 	}
 	
@@ -121,7 +122,7 @@ class ImageServiceImpl
 	public long[][] getPlaneAsLong(long pixelsId, int z, int c, int t) 
 		throws omero.ServerError
 	{
-		Pixels pixels = getPixels(pixelsId);
+		PixelsI pixels = getPixels(pixelsId);
 		return convertRawPlaneAsLong(pixels, z, c, t);
 	}
 
@@ -131,7 +132,7 @@ class ImageServiceImpl
 	public int[][] getPlaneAsInt(long pixelsId, int z, int c, int t) 
 		throws omero.ServerError
 	{
-		Pixels pixels = getPixels(pixelsId);
+		PixelsI pixels = getPixels(pixelsId);
 		return convertRawPlaneAsInt(pixels, z, c, t);
 	}
 
@@ -141,7 +142,7 @@ class ImageServiceImpl
 	public short[][] getPlaneAsShort(long pixelsId, int z, int c, int t) 
 		throws omero.ServerError
 	{
-		Pixels pixels = getPixels(pixelsId);
+		PixelsI pixels = getPixels(pixelsId);
 		return convertRawPlaneAsShort(pixels, z, c, t);
 	}
 	
@@ -151,7 +152,7 @@ class ImageServiceImpl
 	public byte[][] getPlaneAsByte(long pixelsId, int z, int c, int t) 
 		throws omero.ServerError
 	{
-		Pixels pixels = getPixels(pixelsId);
+		PixelsI pixels = getPixels(pixelsId);
 		return convertRawPlaneAsByte(pixels, z, c, t);
 	}
 
@@ -178,7 +179,7 @@ class ImageServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	private double[][] convertRawPlaneAsDouble(Pixels pixels, int z, int c, int t) 
+	private double[][] convertRawPlaneAsDouble(PixelsI pixels, int z, int c, int t) 
 		throws omero.ServerError 
 	{
 		DataSink sink = DataSink.makeNew(pixels, this);
@@ -197,7 +198,7 @@ class ImageServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	private long[][] convertRawPlaneAsLong(Pixels pixels, int z, int c, int t) 
+	private long[][] convertRawPlaneAsLong(PixelsI pixels, int z, int c, int t) 
 		throws omero.ServerError 
 	{
 		DataSink sink = DataSink.makeNew(pixels, this);
@@ -216,7 +217,7 @@ class ImageServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	private int[][] convertRawPlaneAsInt(Pixels pixels, int z, int c, int t) 
+	private int[][] convertRawPlaneAsInt(PixelsI pixels, int z, int c, int t) 
 		throws omero.ServerError 
 	{
 		DataSink sink = DataSink.makeNew(pixels, this);
@@ -235,7 +236,7 @@ class ImageServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	private short[][] convertRawPlaneAsShort(Pixels pixels, int z, int c, int t) 
+	private short[][] convertRawPlaneAsShort(PixelsI pixels, int z, int c, int t) 
 		throws omero.ServerError 
 	{
 		DataSink sink = DataSink.makeNew(pixels, this);
@@ -254,7 +255,7 @@ class ImageServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	private byte[][] convertRawPlaneAsByte(Pixels pixels, int z, int c, int t) 
+	private byte[][] convertRawPlaneAsByte(PixelsI pixels, int z, int c, int t) 
 		throws omero.ServerError 
 	{
 		DataSink sink = DataSink.makeNew(pixels, this);
@@ -266,10 +267,10 @@ class ImageServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.ImageService#getPixels(long)
 	 */
-	public Pixels getPixels(long pixelsId) 
+	public PixelsI getPixels(long pixelsId) 
 		throws omero.ServerError
 	{
-		return iPixels.retrievePixDescription(pixelsId);
+		return (PixelsI)iPixels.retrievePixDescription(pixelsId);
 	}
 
 	/* (non-Javadoc)
@@ -302,8 +303,8 @@ class ImageServiceImpl
 	{
 		Pixels pixels = getPixels(pixelsID);
 		Long newID = iPixels.copyAndResizePixels
-						(pixelsID, pixels.getSizeX(), pixels.getSizeY(), 
-						 pixels.getSizeT(),pixels.getSizeZ(), 
+						(pixelsID, pixels.sizeX, pixels.sizeY, 
+						 pixels.sizeT,pixels.sizeZ, 
 						 channelList, methodology, true).val;
 		return newID;
 	}
@@ -348,10 +349,10 @@ class ImageServiceImpl
 	 */
 	public byte[] convertClientToServer(Pixels pixels, double [][] data)
 	{
-		String pixelsType  = pixels.getPixelsType().getValue().val;
+		String pixelsType  = pixels.pixelsType.value.val;
 		int pixelsSize = getPixelsSize(pixelsType); 
-		int sizex = pixels.getSizeX().val;
-		int sizey = pixels.getSizeY().val;
+		int sizex = pixels.sizeX.val;
+		int sizey = pixels.sizeY.val;
 		byte[] rawbytes =  new byte[sizex*sizey*pixelsSize];
 		for ( int x = 0 ; x < sizex ; x++)
 			for ( int y = 0 ; y < sizey ; y++)
@@ -483,8 +484,8 @@ class ImageServiceImpl
 		Pixels pixels = getPixels(pixelsId);
 		double[][] serverPlane = getPlaneAsDouble(pixelsId, z, c, t);
 		byte[] clientBytes = convertClientToServer(pixels, serverPlane);
-		return DataSink.mapServerToClient(clientBytes, pixels.getSizeX().val, 
-			pixels.getSizeY().val, pixels.getPixelsType().getValue().val);
+		return DataSink.mapServerToClient(clientBytes, pixels.sizeX.val, 
+			pixels.sizeY.val, pixels.pixelsType.value.val);
 	}
 	
 	/**
@@ -691,8 +692,8 @@ class ImageServiceImpl
 			throws omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
-		double[][][] stack = new double[pixels.getSizeZ().val][pixels.getSizeX().val][pixels.getSizeY().val];
-		for(int z = 0 ; z < pixels.getSizeZ().val ; z++)
+		double[][][] stack = new double[pixels.sizeZ.val][pixels.sizeX.val][pixels.sizeY.val];
+		for(int z = 0 ; z < pixels.sizeZ.val ; z++)
 			stack[z] = getPlaneAsDouble(pixelsId, z, c, t);
 		return stack;
 	}

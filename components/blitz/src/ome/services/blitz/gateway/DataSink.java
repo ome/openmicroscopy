@@ -22,7 +22,7 @@
  */
 package ome.services.blitz.gateway;
 
-import omero.model.Pixels;
+import omero.model.PixelsI;
 
 
 
@@ -75,7 +75,7 @@ public class DataSink
 	ImageService service;
 	
 	/** The data source. */
-	private Pixels			source;
+	private PixelsI			source;
 
 	/** The number of bytes per pixel. */
 	private int				bytesPerPixels;
@@ -95,7 +95,7 @@ public class DataSink
 	 * @param size		The size of the cache.
 	 * @return See above.
 	 */
-	public static DataSink makeNew(Pixels source, ImageService service)
+	public static DataSink makeNew(PixelsI source, ImageService service)
 	{
 		if (source == null)
 			throw new NullPointerException("No pixels.");
@@ -110,14 +110,14 @@ public class DataSink
 	 * @param source	The pixels set.
 	 * @param service 	The Image service.
 	 */
-	private DataSink(Pixels source, ImageService service)
+	private DataSink(PixelsI source, ImageService service)
 	{
 		if (service == null)
 			throw new NullPointerException("No Image service.");
 		this.source = source;
 		this.service = service;
 		this.source = source;
-		String type = source.getPixelsType().getValue().val;
+		String type = source.pixelsType.value.val;
 		bytesPerPixels = getBytesPerPixels(type);
 //		cache = CachingService.createPixelsCache(source.id.val, 
 //				source.sizeX.val*source.sizeY.val*bytesPerPixels);
@@ -152,17 +152,17 @@ public class DataSink
 	 */
 	private Integer linearize(int z, int w, int t)
 	{
-		int sizeZ = source.getSizeZ().val;
-		int sizeC = source.getSizeC().val;
+		int sizeZ = source.sizeZ.val;
+		int sizeC = source.sizeC.val;
 		if (z < 0 || sizeZ <= z) 
 			throw new IllegalArgumentException(
 					"z out of range [0, "+sizeZ+"): "+z+".");
 		if (w < 0 || sizeC <= w) 
 			throw new IllegalArgumentException(
 					"w out of range [0, "+sizeC+"): "+w+".");
-		if (t < 0 || source.getSizeT().val <= t) 
+		if (t < 0 || source.sizeT.val <= t) 
 			throw new IllegalArgumentException(
-					"t out of range [0, "+source.getSizeT().val+"): "+t+".");
+					"t out of range [0, "+source.sizeT.val+"): "+t+".");
 		return new Integer(sizeZ*sizeC*t + sizeZ*w + z);
 	}
 
@@ -187,10 +187,10 @@ public class DataSink
 		Plane2D plane = null;
 		if (plane != null) return plane;
 		byte[] data = null; 
-		data = service.getRawPlane(source.getId().val, z, w, t);
+		data = service.getRawPlane(source.id.val, z, w, t);
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
-		plane = new Plane2D(array, source.getSizeX().val, 
-							source.getSizeY().val, bytesPerPixels, 
+		plane = new Plane2D(array, source.sizeX.val, 
+							source.sizeY.val, bytesPerPixels, 
 							strategy);
 		return plane;
 	}
@@ -220,7 +220,7 @@ public class DataSink
 	 */
 	public boolean isSame(long pixelsID)
 	{
-		return (pixelsID == source.getId().val);
+		return (pixelsID == source.id.val);
 	}
 	
 	static public double[][] mapServerToClient(byte[] data, int x, int y, String pixelType)
