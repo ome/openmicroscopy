@@ -51,7 +51,7 @@ public class SaveResultsAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Save ";
+	private static final String NAME = "Save To Excel";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Save the results.";

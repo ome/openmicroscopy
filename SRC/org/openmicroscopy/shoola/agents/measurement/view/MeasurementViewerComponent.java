@@ -481,6 +481,7 @@ class MeasurementViewerComponent
 		try {
 			saved = view.saveResultsTable();
 		} catch (Exception e) {
+			e.printStackTrace();
 			reg.getLogger().error(this, 
 					"Cannot save the results "+e.getMessage());
 			un.notifyInfo("Save ROI results", "Cannot save the ROI results");

@@ -27,8 +27,18 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.geom.Point2D;
+
 import javax.swing.AbstractButton;
 import javax.swing.DefaultButtonModel;
+
+import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.painter.CompoundPainter;
+import org.jdesktop.swingx.painter.GlossPainter;
+import org.jdesktop.swingx.painter.MattePainter;
+import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.painter.RectanglePainter;
 
 //Third-party libraries
 
@@ -48,7 +58,8 @@ import javax.swing.DefaultButtonModel;
  * @since OME2.2
  */
 public class ColouredButton
-    extends AbstractButton
+//    extends AbstractButton
+	extends JXButton
 {
      
     /** The UI for this button. */
@@ -68,10 +79,23 @@ public class ColouredButton
             throw new IllegalArgumentException("No color.");
         setModel(new DefaultButtonModel());
     	init(text, null);
-        uiDelegate = new ColouredButtonUI(this, color);
-        setUI(uiDelegate);
+       // uiDelegate = new ColouredButtonUI(this, color);
+      //  setUI(uiDelegate);
         setRolloverEnabled(false);
         this.setBorder(null);
+        Color newColor = color.darker();
+        Color translucent = new Color(newColor.getRed(), newColor.getGreen(), 
+        	newColor.getBlue(), 0);
+        setForeground(Color.LIGHT_GRAY);
+        GradientPaint bgToTranslucent = new GradientPaint(
+			new Point2D.Double(.4, 0), newColor,
+			new Point2D.Double(1, 0), translucent);
+        MattePainter veil = new MattePainter(bgToTranslucent);
+        veil.setPaintStretched(true);
+        Painter backgroundPainter = new RectanglePainter(color, null);
+        Painter p = new CompoundPainter(new GlossPainter(), veil, 
+			 backgroundPainter);
+        setBackgroundPainter(p);
     }
     
      /**
@@ -82,8 +106,8 @@ public class ColouredButton
      */
     public void setGrayedOut(boolean greyedOut)
     {
-    	if (uiDelegate == null) return;
-       		uiDelegate.setGrayedOut(greyedOut);
+    	//if (uiDelegate == null) return;
+       	//	uiDelegate.setGrayedOut(greyedOut);
         repaint();
     }
     
@@ -94,11 +118,23 @@ public class ColouredButton
      * 
      * @param c The color to set.
      */
-    public void setColor(Color c) 
+    public void setColor(Color color) 
     { 
-    	if (uiDelegate != null && c != null)
-    		uiDelegate.setColor(c); 
-    	repaint();
+    	//if (uiDelegate != null && c != null)
+    	//	uiDelegate.setColor(c); 
+        Color translucent = new Color(color.getRed(), color.getGreen(), 
+        	color.getBlue(), 0);
+        setForeground(Color.LIGHT_GRAY);
+        GradientPaint bgToTranslucent = new GradientPaint(
+			new Point2D.Double(.4, 0), color,
+			new Point2D.Double(1, 0), translucent);
+        MattePainter veil = new MattePainter(bgToTranslucent);
+        veil.setPaintStretched(true);
+        Painter backgroundPainter = new RectanglePainter(Color.white, null);
+        Painter p = new CompoundPainter(backgroundPainter, veil, 
+			new GlossPainter());
+        setBackgroundPainter(p);
+        repaint();
     }
     
     /**

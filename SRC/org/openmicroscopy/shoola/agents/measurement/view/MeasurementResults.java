@@ -62,7 +62,9 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -584,7 +586,7 @@ class MeasurementResults
 		throws IOException
 	{
 		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new CSVFilter();
+		FileFilter filter=new ExcelFilter();
 		filterList.add(filter);
 		FileChooser chooser=
 				new FileChooser(
@@ -594,19 +596,16 @@ class MeasurementResults
 					filterList);
 		File f=UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
-		int results = chooser.showDialog();
-		if (results != JFileChooser.APPROVE_OPTION) return false;
+		int choice = chooser.showDialog();
+		if (choice != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
-		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
+		if (!file.getAbsolutePath().endsWith(ExcelFilter.EXCEL))
 		{
-			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
+			String fileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
 			file = new File(fileName);
 		}
-		BufferedWriter out = new BufferedWriter(new FileWriter(file));
-		writeHeader(out);
-		writeColumns(out);
-		writeData(out);
-		out.close();
+		ExcelWriter writer = new ExcelWriter(file.getAbsolutePath(), "measurementResults", results.getModel());
+		writer.write();
 		return true;
 	}
 
