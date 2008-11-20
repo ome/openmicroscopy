@@ -61,8 +61,7 @@ build-* targets.
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
         <delete includeemptydirs="true">
-            <fileset dir="${lib.dir}/repository/omero" includes="**/*"/>
-            <fileset dir="${lib.dir}/repository/omero-tools" includes="**/*"/>
+            <fileset dir="${lib.dir}/repository" includes="omero,omero-tools"/>
         </delete>
         <delete dir="${target.dir}"/>
     </target>
