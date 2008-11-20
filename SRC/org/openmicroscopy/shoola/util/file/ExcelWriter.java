@@ -58,8 +58,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
  */
 public class ExcelWriter
 {	
-	/** The table model to be output to excel. */
-	TableModel 		tablemodel;
 	
 	/** The filename to write out to. */
 	String 			filename;
@@ -136,6 +134,84 @@ public class ExcelWriter
 	}
 	
 	/**
+	 * Encapsulate the array in a table model adapter and write to excel.
+	 * @param sheetname The name of the sheet in excel.
+	 * @param objectArray The array of objects to write.
+	 * @param firstRowHeadings does the first row of the array contain the column headings
+	 * @throws IOException 
+	 */
+	public void write(String sheetname, Object[][] objectArray, boolean firstRowHeadings) throws IOException
+	{
+		TableModel tableModel = new TableModelAdapter(objectArray, firstRowHeadings);
+		writeTableToSheet(sheetname, tableModel);
+	}
+	
+	/**
+	 * Encapsulate the array in a table model adapter and write to excel.
+	 * @param sheetname The name of the sheet in excel.
+	 * @param objectArray The array of objects to write.
+	 * @param firstRowHeadings does the first row of the array contain the column headings
+	 * @throws IOException 
+	 */
+	public void write(String sheetname, int[][] objectArray, boolean firstRowHeadings) throws IOException
+	{
+		TableModel tableModel = new TableModelAdapter(objectArray, firstRowHeadings);
+		writeTableToSheet(sheetname, tableModel);
+	}
+	
+	/**
+	 * Encapsulate the array in a table model adapter and write to excel.
+	 * @param sheetname The name of the sheet in excel.
+	 * @param objectArray The array of objects to write.
+	 * @param firstRowHeadings does the first row of the array contain the column headings
+	 * @throws IOException 
+	 */
+	public void write(String sheetname, long[][] objectArray, boolean firstRowHeadings) throws IOException
+	{
+		TableModel tableModel = new TableModelAdapter(objectArray, firstRowHeadings);
+		writeTableToSheet(sheetname, tableModel);
+	}
+	
+	/**
+	 * Encapsulate the array in a table model adapter and write to excel.
+	 * @param sheetname The name of the sheet in excel.
+	 * @param objectArray The array of objects to write.
+	 * @param firstRowHeadings does the first row of the array contain the column headings
+	 * @throws IOException 
+	 */
+	public void write(String sheetname, double[][] objectArray, boolean firstRowHeadings) throws IOException
+	{
+		TableModel tableModel = new TableModelAdapter(objectArray, firstRowHeadings);
+		writeTableToSheet(sheetname, tableModel);
+	}
+	
+	/**
+	 * Encapsulate the array in a table model adapter and write to excel.
+	 * @param sheetname The name of the sheet in excel.
+	 * @param objectArray The array of objects to write.
+	 * @param firstRowHeadings does the first row of the array contain the column headings
+	 * @throws IOException 
+	 */
+	public void write(String sheetname, float[][] objectArray, boolean firstRowHeadings) throws IOException
+	{
+		TableModel tableModel = new TableModelAdapter(objectArray, firstRowHeadings);
+		writeTableToSheet(sheetname, tableModel);
+	}
+	
+	/**
+	 * Encapsulate the array in a table model adapter and write to excel.
+	 * @param sheetname The name of the sheet in excel.
+	 * @param objectArray The array of objects to write.
+	 * @param firstRowHeadings does the first row of the array contain the column headings
+	 * @throws IOException 
+	 */
+	public void write(String sheetname, boolean[][] objectArray, boolean firstRowHeadings) throws IOException
+	{
+		TableModel tableModel = new TableModelAdapter(objectArray, firstRowHeadings);
+		writeTableToSheet(sheetname, tableModel);
+	}
+	
+	/**
 	 * Write a new tablemodel as a new sheet in the currently opened file.
 	 * @param sheetname see above.
 	 * @param model see above.
@@ -143,28 +219,24 @@ public class ExcelWriter
 	 */
 	public void write(String sheetname, TableModel model) throws IOException
 	{
-		this.sheetname = sheetname;
-		this.tablemodel = model;
+		writeTableToSheet(sheetname, model);		
+	}
 		
+	/**
+	 * Write a new tablemodel as a new sheet in the currently opened file.
+	 * @param sheetname see above.
+	 * @param model see above.
+	 * @throws IOException
+	 */
+	private void writeTableToSheet(String sheetname, TableModel tableModel) throws IOException
+	{
+		this.sheetname = sheetname;
 		currentSheet = createSheet();
 		workbook.setSheetName((numSheets-1), sheetname);
 		
-		writeHeader(currentSheet);
-		writeTableContents(currentSheet);
+		writeHeader(currentSheet, tableModel);
+		writeTableContents(currentSheet, tableModel);
 		this.workbook.write(out);
-	}
-	
-	
-	
-	/**
-	 * Write the table model to the file.
-	 * @throws IOException 
-	 */
-	public void write() throws IOException
-	{
-		openFile(filename);
-		write(sheetname, tablemodel);
-		closeFile();
 	}
 	
 	/**
@@ -240,12 +312,12 @@ public class ExcelWriter
 	 * @param sheet see above.
 	 * @param rowCount The current row in the tablemodel.
 	 */
-	private void writeRow(HSSFSheet sheet, int rowCount)
+	private void writeRow(HSSFSheet sheet, int rowCount, TableModel tableModel)
 	{
 		int maxRows = 1;
-		for(int columnCount = 0 ; columnCount < tablemodel.getColumnCount(); columnCount++)
+		for(int columnCount = 0 ; columnCount < tableModel.getColumnCount(); columnCount++)
 		{
-			Object element = tablemodel.getValueAt(rowCount, columnCount);
+			Object element = tableModel.getValueAt(rowCount, columnCount);
 			if(element instanceof List)
 			{
 				List elementList = (List)element;
@@ -257,10 +329,10 @@ public class ExcelWriter
 		for(int elementRowCount = 0; elementRowCount < maxRows; elementRowCount++)
 		{
 			HSSFRow row = sheet.createRow(startRow+elementRowCount);
-			for(int columnCount = 0; columnCount < tablemodel.getColumnCount(); columnCount++)
+			for(int columnCount = 0; columnCount < tableModel.getColumnCount(); columnCount++)
 			{
 				HSSFCell cell = row.createCell(columnCount);
-				Object element = getElement(tablemodel.getValueAt(rowCount, columnCount), elementRowCount);
+				Object element = getElement(tableModel.getValueAt(rowCount, columnCount), elementRowCount);
 				cell.setCellStyle(numberStyle);
 				if(isNumber(element))
 					cell.setCellValue(toNumber(element));
@@ -275,26 +347,26 @@ public class ExcelWriter
 	 * Write the table contents(data, not column header) to the spreadsheet.
 	 * @param sheet see above.
 	 */
-	private void writeTableContents(HSSFSheet sheet)
+	private void writeTableContents(HSSFSheet sheet, TableModel tableModel)
 	{
-		for(int rowCount = 0 ; rowCount < tablemodel.getRowCount(); rowCount++)
-			writeRow(sheet, rowCount);
+		for(int rowCount = 0 ; rowCount < tableModel.getRowCount(); rowCount++)
+			writeRow(sheet, rowCount, tableModel);
 	}
 	
 	/**
 	 * Write the column headers to the spreadsheet.
 	 * @param sheet see above.
 	 */
-	private void writeHeader(HSSFSheet sheet)
+	private void writeHeader(HSSFSheet sheet, TableModel tableModel)
 	{
 		HSSFCell cell;
 		HSSFRow	 row;
 		currentRow = 0;
 		row = sheet.createRow(currentRow);
-		for (short cellnum = (short) 0; cellnum < tablemodel.getColumnCount(); cellnum++)
+		for (short cellnum = (short) 0; cellnum < tableModel.getColumnCount(); cellnum++)
 		{
 			cell = row.createCell(cellnum);
-		    cell.setCellValue(tablemodel.getColumnName(cellnum));
+		    cell.setCellValue(tableModel.getColumnName(cellnum));
 		}
 		currentRow++;
 	}
