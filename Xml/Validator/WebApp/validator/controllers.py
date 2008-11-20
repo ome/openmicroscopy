@@ -118,8 +118,10 @@ class Root(controllers.Root):
 					schema = "http://www.openmicroscopy.org/Schemas/OME/2007-06 (Standard V2)"
 				elif result.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2008-02":
 					schema = "http://www.openmicroscopy.org/Schemas/OME/2008-02 (Standard V2)"
+				elif result.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2008-09":
+					schema = "http://www.openmicroscopy.org/Schemas/OME/2008-09 (Standard V1)"
 				else:
-					schema = "No schema found - using http://www.openmicroscopy.org/Schemas/OME/2008-02 (Standard V2)"
+					schema = "No schema found - using http://www.openmicroscopy.org/Schemas/OME/2008-09 (Standard V1)"
 				return dict(filepath=filename, result=result, schema=schema)
 		else:
 			raise turbogears.redirect("/")
