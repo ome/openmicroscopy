@@ -37,13 +37,13 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TimerField;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.HrsMinsSecsField;
 
 /** 
  * The UI component for editing the "Template" of the timer parameter
- * (edits the timer default value, in the {@link SingleParam#DEFAULT_VALUE}
+ * (edits the timer default value, in the {@link TextParam#DEFAULT_VALUE}
  * attribute.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -61,7 +61,7 @@ public class TimerTemplate
 	/**
 	 * The attribute for storing the default time. 
 	 */
-	private String 			attributeName = SingleParam.DEFAULT_VALUE;
+	private String 			attributeName = TextParam.DEFAULT_VALUE;
 	
 	/**
 	 * Builds the UI.

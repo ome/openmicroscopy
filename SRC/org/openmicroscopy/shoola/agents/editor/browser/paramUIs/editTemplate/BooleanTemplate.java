@@ -37,14 +37,14 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.BooleanEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 
  * A UI for editing the "template" (default value) of a boolean 
  * parameter. 
  * Uses a {@link BooleanEditor} to do the editing of the 
- * {@link SingleParam#DEFAULT_VALUE} attribute. 
+ * {@link TextParam#DEFAULT_VALUE} attribute. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -62,7 +62,7 @@ public class BooleanTemplate
 	private void buildUI()
 	{
 		BooleanEditor checkBox = new BooleanEditor(getParameter(), 
-				SingleParam.DEFAULT_VALUE);
+				TextParam.DEFAULT_VALUE);
 		checkBox.addPropertyChangeListener
 			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		

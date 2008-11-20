@@ -33,13 +33,13 @@ import javax.swing.text.JTextComponent;
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
 
 /** 
  * This is a text editing component that edits an attribute in an
  * instance of IParam. The name of the attribute can be specified in 
- * the constructor, or will otherwise be {@link SingleParam#PARAM_VALUE}
+ * the constructor, or will otherwise be {@link TextParam#PARAM_VALUE}
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -87,7 +87,7 @@ public class TextFieldEditor
 	public TextFieldEditor(IParam param) 
 	{
 		super(param);
-		attributeName = SingleParam.PARAM_VALUE;
+		attributeName = TextParam.PARAM_VALUE;
 
 		initialise();
 	}

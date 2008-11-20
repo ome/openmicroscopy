@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
@@ -75,9 +75,9 @@ public class ParamTemplateUIFactory {
 			throw new NullPointerException("No input type.");
 		}
 		
-		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
+		if (inputType.equals(TextParam.TEXT_LINE_PARAM)) {
 			return new AttributeEditLine(paramObject, 
-					SingleParam.DEFAULT_VALUE, "Default Text");
+					TextParam.DEFAULT_VALUE, "Default Text");
 		} 
 		
 		if (inputType.equals(EnumParam.ENUM_PARAM)) {
@@ -104,9 +104,9 @@ public class ParamTemplateUIFactory {
 			return new NumberTemplate(paramObject);
 		}
 		
-		if (inputType.equals(SingleParam.TEXT_BOX_PARAM)) {
+		if (inputType.equals(TextParam.TEXT_BOX_PARAM)) {
 			return new AttributeEditArea(paramObject,
-					SingleParam.DEFAULT_VALUE, "Text-box Default");
+					TextParam.DEFAULT_VALUE, "Text-box Default");
 		}
 		
 		// Some Parameters don't have any "Template" attributes to edit,

@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 
 /** 
@@ -120,20 +120,20 @@ public class UPEEditorExport
 		// and add any additional attributes. 
 		if (param instanceof NumberParam) {
 			addChildContent(parameter, "param-type", "NUMERIC");
-			attValue = param.getAttribute(SingleParam.PARAM_VALUE);
-			addChildContent(parameter, SingleParam.PARAM_VALUE, attValue);
-			attValue = param.getAttribute(SingleParam.DEFAULT_VALUE);
-			addChildContent(parameter, SingleParam.DEFAULT_VALUE, attValue);
+			attValue = param.getAttribute(TextParam.PARAM_VALUE);
+			addChildContent(parameter, TextParam.PARAM_VALUE, attValue);
+			attValue = param.getAttribute(TextParam.DEFAULT_VALUE);
+			addChildContent(parameter, TextParam.DEFAULT_VALUE, attValue);
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
 			if (units != null)
 				addChildContent(parameter, "unit", units);
 		} else 
 		if (param instanceof EnumParam) {
 			addChildContent(parameter, "param-type", "ENUMERATION");
-			attValue = param.getAttribute(SingleParam.PARAM_VALUE);
-			addChildContent(parameter, SingleParam.PARAM_VALUE, attValue);
-			attValue = param.getAttribute(SingleParam.DEFAULT_VALUE);
-			addChildContent(parameter, SingleParam.DEFAULT_VALUE, attValue);
+			attValue = param.getAttribute(TextParam.PARAM_VALUE);
+			addChildContent(parameter, TextParam.PARAM_VALUE, attValue);
+			attValue = param.getAttribute(TextParam.DEFAULT_VALUE);
+			addChildContent(parameter, TextParam.DEFAULT_VALUE, attValue);
 			String enumOptions = param.getAttribute(EnumParam.ENUM_OPTIONS);
 			if (enumOptions != null) {
 				IXMLElement enumList = new XMLElement("enum-list");

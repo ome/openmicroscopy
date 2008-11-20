@@ -35,7 +35,7 @@ import javax.swing.Box;
 
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 
@@ -65,7 +65,7 @@ public class NumberEditor
 	private void buildUI()
 	{
 		TextFieldEditor numberField = new TextFieldEditor(getParameter(), 
-				SingleParam.PARAM_VALUE);
+				TextParam.PARAM_VALUE);
 		numberField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);
 		
@@ -95,7 +95,7 @@ public class NumberEditor
 	 */
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
-		attributeEdited(SingleParam.PARAM_VALUE, evt.getNewValue());
+		attributeEdited(TextParam.PARAM_VALUE, evt.getNewValue());
 	}
 	
 	/**

@@ -34,7 +34,7 @@ import javax.swing.JCheckBox;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 
 /** 
  * A UI Component for editing a Boolean Parameter. 
@@ -101,7 +101,7 @@ public class BooleanEditor
 	
 	/**
 	 * Creates an instance, which will edit the 
-	 * {@link SingleParam#PARAM_VALUE} attribute of the 
+	 * {@link TextParam#PARAM_VALUE} attribute of the 
 	 * {@link IAttributes} parameter. 
 	 * 
 	 * @param param		The IAttributes collection we're editing
@@ -110,7 +110,7 @@ public class BooleanEditor
 		
 		super(param);
 		
-		attributeName = SingleParam.PARAM_VALUE;
+		attributeName = TextParam.PARAM_VALUE;
 		initialise();
 		
 		this.add(checkBox);

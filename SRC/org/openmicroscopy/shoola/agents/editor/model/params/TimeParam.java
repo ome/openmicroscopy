@@ -110,7 +110,7 @@ public class TimeParam
 	 * Returns a single attribute name that identifies the default value
 	 */
 	public String[] getDefaultAttributes() {
-		return new String [] {SingleParam.DEFAULT_VALUE};
+		return new String [] {TextParam.DEFAULT_VALUE};
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class TimeParam
 	{	
 		HashMap<String,String> oldValues = new HashMap<String, String>();
 		
-		String defValue = getAttribute(SingleParam.DEFAULT_VALUE);
+		String defValue = getAttribute(TextParam.DEFAULT_VALUE);
 		if (defValue != null) {
 			oldValues.put(SECONDS, getAttribute(SECONDS));
 			setAttribute(SECONDS, defValue);

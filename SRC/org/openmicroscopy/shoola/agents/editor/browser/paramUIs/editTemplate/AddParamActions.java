@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
@@ -204,7 +204,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, SingleParam.TEXT_LINE_PARAM, 
+			controller.addParamToField(field, TextParam.TEXT_LINE_PARAM, 
 					tree, node);
 		}
 		
@@ -238,7 +238,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, SingleParam.TEXT_BOX_PARAM, 
+			controller.addParamToField(field, TextParam.TEXT_BOX_PARAM, 
 					tree, node);
 		}
 	}

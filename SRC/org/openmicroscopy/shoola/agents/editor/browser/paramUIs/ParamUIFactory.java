@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
@@ -98,7 +98,7 @@ public class ParamUIFactory
 			return null;
 		}
 		
-		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
+		if (inputType.equals(TextParam.TEXT_LINE_PARAM)) {
 			return new TextFieldEditor(paramObject);
 		} 
 		
@@ -106,7 +106,7 @@ public class ParamUIFactory
 			return new DateTimeField(paramObject);
 		} 
 		
-		if (inputType.equals(SingleParam.TEXT_BOX_PARAM)) {
+		if (inputType.equals(TextParam.TEXT_BOX_PARAM)) {
 			return new TextBoxEditor(paramObject);
 		}
 		

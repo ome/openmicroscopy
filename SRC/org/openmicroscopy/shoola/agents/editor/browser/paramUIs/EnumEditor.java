@@ -36,7 +36,7 @@ import javax.swing.JComboBox;
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 
 /** 
@@ -159,7 +159,7 @@ public class EnumEditor
 	{	
 		super(param);
 		
-		attributeName = SingleParam.PARAM_VALUE;
+		attributeName = TextParam.PARAM_VALUE;
 		initialise();
 		
 		buildUI();

@@ -76,7 +76,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
@@ -529,7 +529,7 @@ public class FieldTextArea
 		
 		// create a new parameter
 		IParam param = FieldParamsFactory.getFieldParam(paramType);
-		param.setAttribute(SingleParam.PARAM_VALUE, selectedText);
+		param.setAttribute(TextParam.PARAM_VALUE, selectedText);
 		
 		// and use it to build a new content list. This method links the 
 		// newly inserted tag (id=new) with the parameter argument
@@ -765,7 +765,7 @@ public class FieldTextArea
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		insertParam(SingleParam.TEXT_LINE_PARAM);
+		insertParam(TextParam.TEXT_LINE_PARAM);
 		
 	}
 }

@@ -74,8 +74,8 @@ extends AbstractParam
 	public String toString() {
 		String text = "";
 		
-		String value = getAttribute (SingleParam.PARAM_VALUE);
-		String def = getAttribute (SingleParam.DEFAULT_VALUE);
+		String value = getAttribute (TextParam.PARAM_VALUE);
+		String def = getAttribute (TextParam.DEFAULT_VALUE);
 		if (value != null) { 
 			text = value; 
 		} else if (def != null) {
@@ -97,8 +97,8 @@ extends AbstractParam
 	 */
 	public String[] getParamAttributes() 
 	{
-		return new String[] {SingleParam.PARAM_VALUE, 
-				SingleParam.DEFAULT_VALUE,
+		return new String[] {TextParam.PARAM_VALUE, 
+				TextParam.DEFAULT_VALUE,
 				NumberParam.PARAM_UNITS};
 	}
 
@@ -109,7 +109,7 @@ extends AbstractParam
 	 */
 	public boolean isParamFilled() 
 	{
-		return (getAttribute(SingleParam.PARAM_VALUE) != null);
+		return (getAttribute(TextParam.PARAM_VALUE) != null);
 	}
 
 }

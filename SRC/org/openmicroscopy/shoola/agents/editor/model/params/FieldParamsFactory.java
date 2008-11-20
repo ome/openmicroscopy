@@ -47,8 +47,8 @@ public class FieldParamsFactory {
 	
 	public static final String[] PARAM_TYPES = 
 	{NO_PARAMS, 
-		SingleParam.TEXT_LINE_PARAM,
-		SingleParam.TEXT_BOX_PARAM, 
+		TextParam.TEXT_LINE_PARAM,
+		TextParam.TEXT_BOX_PARAM, 
 		EnumParam.ENUM_PARAM, 
 		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
@@ -90,11 +90,11 @@ public class FieldParamsFactory {
 	{	
 		IParam fieldValue = null;
 		
-		if (paramType.equals(SingleParam.TEXT_LINE_PARAM)) {
-			fieldValue = new SingleParam(SingleParam.TEXT_LINE_PARAM);
+		if (paramType.equals(TextParam.TEXT_LINE_PARAM)) {
+			fieldValue = new TextParam(TextParam.TEXT_LINE_PARAM);
 		}
-		else if (paramType.equals(SingleParam.TEXT_BOX_PARAM)) {
-			fieldValue = new SingleParam(SingleParam.TEXT_BOX_PARAM);
+		else if (paramType.equals(TextParam.TEXT_BOX_PARAM)) {
+			fieldValue = new TextParam(TextParam.TEXT_BOX_PARAM);
 		}
 		else if (paramType.equals(NumberParam.NUMBER_PARAM)) {
 			fieldValue = new NumberParam();

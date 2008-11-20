@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 
 /** 
  * This class is for exporting OMERO.editor files as "UPE" Universal Protocol 
@@ -260,11 +260,11 @@ public class UPEexport {
 		
 		addChildContent(parameter, "necessity", "OPTIONAL");
 		
-		String value = param.getAttribute(SingleParam.PARAM_VALUE);
+		String value = param.getAttribute(TextParam.PARAM_VALUE);
 		if (value != null)
 			addChildContent(parameter, "value", value);
 		
-		String defaultValue = param.getAttribute(SingleParam.DEFAULT_VALUE);
+		String defaultValue = param.getAttribute(TextParam.DEFAULT_VALUE);
 		if (defaultValue != null)
 			addChildContent(parameter, "default-value", defaultValue);
 		

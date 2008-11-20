@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 
 /** 
@@ -103,9 +103,9 @@ public class UpeXmlReader {
 		setName(upeParam, param);
 		String attributeValue;
 		attributeValue = getChildContent(upeParam, "value");
-		param.setAttribute(SingleParam.PARAM_VALUE, attributeValue);
+		param.setAttribute(TextParam.PARAM_VALUE, attributeValue);
 		attributeValue = getChildContent(upeParam, "default-value");
-		param.setAttribute(SingleParam.DEFAULT_VALUE, attributeValue);
+		param.setAttribute(TextParam.DEFAULT_VALUE, attributeValue);
 	}
 	
 	/**
@@ -121,7 +121,7 @@ public class UpeXmlReader {
 	{
 		String attributeValue;
 		attributeValue = getChildContent(upeParam, "name");
-		param.setAttribute(SingleParam.PARAM_NAME, attributeValue);
+		param.setAttribute(TextParam.PARAM_NAME, attributeValue);
 	}
 
 	/**
@@ -170,8 +170,8 @@ public class UpeXmlReader {
 			setNameValueDefault(upeParam, param);
 		}
 		else
-		if (SingleParam.TEXT_LINE_PARAM.equals(attributeValue)) {
-			param = FieldParamsFactory.getFieldParam(SingleParam.TEXT_LINE_PARAM);
+		if (TextParam.TEXT_LINE_PARAM.equals(attributeValue)) {
+			param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
 			setNameValueDefault(upeParam, param);
 		}
 		else
@@ -187,7 +187,7 @@ public class UpeXmlReader {
 			param = FieldParamsFactory.getFieldParam(attributeValue);
 			if (param == null) {	
 				// if paramType not recognised, return text text parameter
-				param = FieldParamsFactory.getFieldParam(SingleParam.TEXT_LINE_PARAM);
+				param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
 				setNameValueDefault(upeParam, param);
 				return param;
 			}

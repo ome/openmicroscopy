@@ -44,7 +44,7 @@ import java.util.HashMap;
  * </small>
  * @since OME3.0
  */
-public class SingleParam 
+public class TextParam 
 	extends AbstractParam {
 
 	public static final String PARAM_VALUE = "value";
@@ -68,7 +68,7 @@ public class SingleParam
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public SingleParam(String fieldType) 
+	public TextParam(String fieldType) 
 	{
 		super(fieldType);
 	}

@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.EnumEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 
@@ -87,7 +87,7 @@ public class EnumTemplate
 		
 		
 		// Combo-box displaying the options - for picking a default
-		defaultValueComboBox = new EnumEditor(param, SingleParam.DEFAULT_VALUE);
+		defaultValueComboBox = new EnumEditor(param, TextParam.DEFAULT_VALUE);
 		defaultValueComboBox.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 
@@ -134,7 +134,7 @@ public class EnumTemplate
 				if (evt.getNewValue() != null)
 					newDefault = evt.getNewValue().toString();
 				// simply change the new value of default attribute
-				attributeEdited(SingleParam.DEFAULT_VALUE, newDefault);
+				attributeEdited(TextParam.DEFAULT_VALUE, newDefault);
 			}
 			
 			// if the drop-down options have changed, need to check that
@@ -145,9 +145,9 @@ public class EnumTemplate
 					newOptions = evt.getNewValue().toString();
 				
 				String defaultValue = getParameter().getAttribute
-						(SingleParam.DEFAULT_VALUE);
+						(TextParam.DEFAULT_VALUE);
 				String paramValue = getParameter().getAttribute
-				(SingleParam.PARAM_VALUE);
+				(TextParam.PARAM_VALUE);
 				
 				// if the new options don't contain the default value,
 				// reset the default value...
@@ -165,8 +165,8 @@ public class EnumTemplate
 				// the new options. 
 				HashMap<String,String> newAttributes = 
 					new HashMap<String,String>();
-				newAttributes.put(SingleParam.DEFAULT_VALUE, defaultValue);
-				newAttributes.put(SingleParam.PARAM_VALUE, paramValue);
+				newAttributes.put(TextParam.DEFAULT_VALUE, defaultValue);
+				newAttributes.put(TextParam.PARAM_VALUE, paramValue);
 				newAttributes.put(EnumParam.ENUM_OPTIONS, newOptions);
 				attributeEdited("Drop-down options", newAttributes);
 				

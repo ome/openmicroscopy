@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
@@ -296,11 +296,11 @@ public class TreeModelFactory
 		 IParam param = null;
 		 
 		 if (paramType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
-			 param = getFieldParam(SingleParam.TEXT_LINE_PARAM);
+			 param = getFieldParam(TextParam.TEXT_LINE_PARAM);
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
-			 param = getFieldParam(SingleParam.TEXT_BOX_PARAM);
+			 param = getFieldParam(TextParam.TEXT_BOX_PARAM);
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.NUMBER_ENTRY_STEP)) {
@@ -441,8 +441,8 @@ public class TreeModelFactory
 		String value = attributes.get(DataFieldConstants.VALUE);
 		String defaultValue = attributes.get(DataFieldConstants.DEFAULT);
 		
-		param.setAttribute(SingleParam.PARAM_VALUE, value);
-		param.setAttribute(SingleParam.DEFAULT_VALUE, defaultValue);
+		param.setAttribute(TextParam.PARAM_VALUE, value);
+		param.setAttribute(TextParam.DEFAULT_VALUE, defaultValue);
 	}
 
 	/**

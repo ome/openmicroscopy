@@ -39,7 +39,7 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AttributeEditListeners;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 
@@ -137,7 +137,7 @@ public class AttributeEditArea
 	
 	/**
 	 * Creates an instance, initialises the textBox, and adds it to the UI. 
-	 * This will edit the value of the {@link SingleParam#PARAM_VALUE} 
+	 * This will edit the value of the {@link TextParam#PARAM_VALUE} 
 	 * attribute.
 	 * 
 	 * @param param		The parameter object that this UI will edit. 
@@ -146,7 +146,7 @@ public class AttributeEditArea
 	{	
 		super(param);
 		
-		this.attributeName = SingleParam.PARAM_VALUE;
+		this.attributeName = TextParam.PARAM_VALUE;
 		
 		initialise();
 		

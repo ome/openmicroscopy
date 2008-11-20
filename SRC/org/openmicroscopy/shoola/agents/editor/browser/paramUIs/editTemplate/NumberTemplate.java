@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 
 /** 
  * This is the UI component for editing the "Template" of a number 
@@ -66,7 +66,7 @@ public class NumberTemplate
 	{
 		// NumberDefault: Label and text box
 		AttributeEditLine defaultEditor = new AttributeEditLine
-			(getParameter(), SingleParam.DEFAULT_VALUE, "Number Default");
+			(getParameter(), TextParam.DEFAULT_VALUE, "Number Default");
 		defaultEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		add(defaultEditor);
