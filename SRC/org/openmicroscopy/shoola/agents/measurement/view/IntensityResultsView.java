@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescrip
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -424,7 +425,7 @@ implements TabPaneInterface
 		FileFilter filter=new CSVFilter();
 		filterList.add(filter);
 		FileChooser chooser=
-			new FileChooser(view, FileChooser.SAVE, "Save the Results", "Save the " +
+			new FileChooser(view, FileChooser.SAVE, "Save Results to Excel", "Save the " +
 				"Results data to a file which can be loaded by a spreadsheet.",
 				filterList);
 		File f = UIUtilities.getDefaultFolder();
@@ -433,14 +434,14 @@ implements TabPaneInterface
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
 		
-		BufferedWriter out;
 		try
 		{
-			out = new BufferedWriter(new FileWriter(file));
-			writeHeader(out);
-			for(int i = 0 ; i < resultsModel.getRowCount() ; i++)
-				writeRow(out, i);
-			out.close();
+			String filename = file.getAbsolutePath();
+			ExcelWriter writer = new ExcelWriter();
+			writer.openFile(filename);
+			writer.write("Intensity Results", resultsModel);
+			writer.closeFile();
+		
 		}
 		catch (IOException e)
 		{
@@ -452,33 +453,6 @@ implements TabPaneInterface
 				" save the data.\n" +
 			"Please try again.");
 		}
-	}
-	
-	/**
-	 * Write the header to the file.
-	 * @param out the output stream.
-	 * @throws IOException thrown if something goes wrong.
-	 */
-	private void writeHeader(BufferedWriter out) throws IOException
-	{
-		for( int j = 0 ; j < resultsModel.getColumnCount()-1 ; j++)
-			out.write(resultsModel.getColumnName(j)+",");
-		out.write(""+resultsModel.getColumnName(resultsModel.getColumnCount()-1));
-		out.newLine();
-	}
-	
-	/**
-	 * Write the row to the file.
-	 * @param out the output stream.
-	 * @param i the row.
-	 * @throws IOException thrown if something goes wrong.
-	 */
-	private void writeRow(BufferedWriter out, int i) throws IOException
-	{
-		for( int j = 0 ; j < resultsModel.getColumnCount()-1 ; j++)
-			out.write(resultsModel.getValueAt(i, j)+",");
-		out.write(""+resultsModel.getValueAt(i, resultsModel.getColumnCount()-1));
-		out.newLine();
 	}
 	
 	

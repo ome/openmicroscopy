@@ -329,128 +329,7 @@ class MeasurementResults
 			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
 												fields.get(i).getName()));
 	}
-	
-	/**
-	 * Writes the contain of the columns into the passed buffer.
-	 * 
-	 * @param out The buffer to write data into.
-	 * @throws IOException Thrown if the data cannot be written.
-	 */
-	private void writeColumns(BufferedWriter out) 
-		throws IOException
-	{
-		int n = results.getColumnCount()-1;
-		for (int i = 0 ; i < n+1 ; i++) {
-			out.write(results.getColumnName(i));
-			if (i < n) out.write(",");
-		}
-		out.newLine();
-	}
-	
-	/**
-	 * Writes the data to the passed buffer.
-	 * 
-	 * @param out	The buffer to write data into.
-	 * @throws IOException Thrown if the data cannot be written.
-	 */
-	private void writeData(BufferedWriter out) 
-		throws IOException
-	{
-		MeasurementTableModel tm = (MeasurementTableModel) results.getModel();
-		for (int i = 0 ; i < results.getRowCount() ; i++)
-			writeRow(out, tm.getRow(i));
-	}
-	
-	/**
-	 * Writes the contain for the passed row to the passed buffer.
-	 * 
-	 * @param out	The buffer to write data into.
-	 * @param row	The row to get data from.
-	 * @throws IOException Thrown if the data cannot be written.
-	 */
-	private void writeRow(BufferedWriter out, MeasurementObject row) 
-		throws IOException
-	{
-		int height = 1;
-		int width = row.getSize();
-		Object element;
-		ArrayList list;
-		for (int i = 0 ; i < row.getSize(); i++)
-		{
-			element = row.getElement(i);
-			if (element instanceof ArrayList) {
-				list = (ArrayList) element;
-				if (list.size() > height) height = list.size();
-			}
-		}
-		for (int j = 0 ; j < height ; j++)
-		{
-			for (int i = 0 ; i < width ; i++)
-			{
-				out.write(writeElement(row.getElement(i), j));
-				if (i < width-1) out.write(",");
-			}
-			out.newLine();
-		}
-	}
-	
-	/**
-	 * Writes the header information for the file, image, projects, dataset.
-	 * 
-	 * @param out	The buffer to write data into.
-	 * @throws IOException Thrown if the data cannot be written.
-	 */
-	private void writeHeader(BufferedWriter out) 
-		throws IOException
-	{
-		out.write("Image , "+model.getImageName());
-		out.newLine();
-	}
-	/**
-	 * Converts the passed element into a String depending on the specified
-	 * index.
-	 * 
-	 * @param element 	The element to convert.
-	 * @param j			The index.
-	 * @return See above.
-	 */
-	private String writeElement(Object element, int j)
-	{
-		if (element instanceof Double || element instanceof Integer ||
-				element instanceof Float || element instanceof String ||
-				element instanceof Boolean || element instanceof Long)
-			if (j == 0) return convertElement(element);
-			else return "";
-		else if (element instanceof ArrayList)
-		{
-			ArrayList list = (ArrayList)element;
-			if (j < list.size()) return convertElement(list.get(j));
-			else return "";
-		}
-		return "";
-	}
-	
-	/**
-	 * Stringifies the passed object.
-	 * 
-	 * @param element The object to stringify.
-	 * @return See above.
-	 */
-	private String convertElement(Object element)
-	{
-		if (element instanceof Double) 
-			return ((Double) element).doubleValue()+"";
-		if (element instanceof Boolean) return ((Boolean) element).toString();
-		if (element instanceof Long) 
-			return ((Long) element).longValue()+"";
-		if (element instanceof Integer)
-			return ((Integer) element).intValue()+"";
-		if (element instanceof Float)
-			return ((Float) element).floatValue()+"";
-		if (element instanceof String)
-			return (String) element;
-		return "";
-	}
+
 	
 	class KeyDescription
 	{
@@ -604,8 +483,11 @@ class MeasurementResults
 			String fileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
 			file = new File(fileName);
 		}
-		ExcelWriter writer = new ExcelWriter(file.getAbsolutePath(), "measurementResults", results.getModel());
-		writer.write();
+		String filename = file.getAbsolutePath();
+		ExcelWriter writer = new ExcelWriter();
+		writer.openFile(filename);
+		writer.write("Measurement Results", results.getModel());
+		writer.closeFile();
 		return true;
 	}
 

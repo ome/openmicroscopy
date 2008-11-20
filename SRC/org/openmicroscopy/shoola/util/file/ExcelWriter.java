@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.file;
 
 
 //Java imports
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +59,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 public class ExcelWriter
 {	
 	/** The table model to be output to excel. */
-	TableModel 		model;
+	TableModel 		tablemodel;
 	
 	/** The filename to write out to. */
 	String 			filename;
@@ -72,44 +73,104 @@ public class ExcelWriter
 	/** The cell style for numbers, format to 2 dec. places.*/
 	HSSFCellStyle 	numberStyle;
 	
+	/** The output stream to the Excel spreadsheet. */
+	FileOutputStream out;
+	
+	/** The current workbook of the spreadsheet. */
+	HSSFWorkbook	workbook;
+	
+	/** The number of sheets in the workbook. */
+	int 			numSheets;
+	
+	/** The current sheet in the workbook being written. */
+	HSSFSheet 		currentSheet;
+	
 	/**
 	 * Create the excel writer for the table model. 
-	 * @param filename The name of 
-	 * @param sheetname
-	 * @param model
 	 */
-	public ExcelWriter(String filename, String sheetname, TableModel model) 
+	public ExcelWriter() 
 	{
-		this.filename = filename;
-		this.sheetname = sheetname;
-		this.model = model;
+		numSheets = 0;
 	}
 	
 	/**
-	 * Write the tablemodel to the file.
+	 * Set the different styles used in the output of the excel.
+	 * 
+	 */
+	private void setStyles()
+	{
+		numberStyle = createNumberFormatStyle(workbook);
+	}
+	
+	/**
+	 * Open the filename for writing and create workbook.
+	 * @param filename see above.
+	 * @throws FileNotFoundException
+	 */
+	public void openFile(String filename) throws FileNotFoundException
+	{
+		this.filename = filename;
+		out = new FileOutputStream(filename);
+		workbook = new HSSFWorkbook();
+		setStyles();
+	}
+	
+	/**
+	 * close the opened file.
+	 * @throws IOException
+	 */
+	public void closeFile() throws IOException
+	{
+		out.close();
+	}
+	
+	/**
+	 * Create a new sheet.
+	 * @return see above.
+	 */
+	private HSSFSheet createSheet()
+	{
+		numSheets++;
+		HSSFSheet sheet = workbook.createSheet();
+		return sheet;	
+	}
+	
+	/**
+	 * Write a new tablemodel as a new sheet in the currently opened file.
+	 * @param sheetname see above.
+	 * @param model see above.
+	 * @throws IOException
+	 */
+	public void write(String sheetname, TableModel model) throws IOException
+	{
+		this.sheetname = sheetname;
+		this.tablemodel = model;
+		
+		currentSheet = createSheet();
+		workbook.setSheetName((numSheets-1), sheetname);
+		
+		writeHeader(currentSheet);
+		writeTableContents(currentSheet);
+		this.workbook.write(out);
+	}
+	
+	
+	
+	/**
+	 * Write the table model to the file.
 	 * @throws IOException 
 	 */
 	public void write() throws IOException
 	{
-		FileOutputStream out = new FileOutputStream(filename);
-		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = wb.createSheet();
-		numberStyle = createNumberFormatStyle(wb);
-			
-		wb.setSheetName(0, sheetname);
-		
-		currentRow = 0;
-		writeHeader(sheet);
-		writeTableContents(sheet);
-
-		wb.write(out);
-		out.close();
+		openFile(filename);
+		write(sheetname, tablemodel);
+		closeFile();
 	}
 	
 	/**
 	 * Format the cell for Number values.
 	 * @param wb
-	 * @return
+	 * @return see above.
 	 */
 	private HSSFCellStyle createNumberFormatStyle(HSSFWorkbook wb)
 	{
@@ -182,9 +243,9 @@ public class ExcelWriter
 	private void writeRow(HSSFSheet sheet, int rowCount)
 	{
 		int maxRows = 1;
-		for(int columnCount = 0 ; columnCount < model.getColumnCount(); columnCount++)
+		for(int columnCount = 0 ; columnCount < tablemodel.getColumnCount(); columnCount++)
 		{
-			Object element = model.getValueAt(rowCount, columnCount);
+			Object element = tablemodel.getValueAt(rowCount, columnCount);
 			if(element instanceof List)
 			{
 				List elementList = (List)element;
@@ -196,10 +257,10 @@ public class ExcelWriter
 		for(int elementRowCount = 0; elementRowCount < maxRows; elementRowCount++)
 		{
 			HSSFRow row = sheet.createRow(startRow+elementRowCount);
-			for(int columnCount = 0; columnCount < model.getColumnCount(); columnCount++)
+			for(int columnCount = 0; columnCount < tablemodel.getColumnCount(); columnCount++)
 			{
 				HSSFCell cell = row.createCell(columnCount);
-				Object element = getElement(model.getValueAt(rowCount, columnCount), elementRowCount);
+				Object element = getElement(tablemodel.getValueAt(rowCount, columnCount), elementRowCount);
 				cell.setCellStyle(numberStyle);
 				if(isNumber(element))
 					cell.setCellValue(toNumber(element));
@@ -216,7 +277,7 @@ public class ExcelWriter
 	 */
 	private void writeTableContents(HSSFSheet sheet)
 	{
-		for(int rowCount = 0 ; rowCount < model.getRowCount(); rowCount++)
+		for(int rowCount = 0 ; rowCount < tablemodel.getRowCount(); rowCount++)
 			writeRow(sheet, rowCount);
 	}
 	
@@ -228,11 +289,12 @@ public class ExcelWriter
 	{
 		HSSFCell cell;
 		HSSFRow	 row;
+		currentRow = 0;
 		row = sheet.createRow(currentRow);
-		for (short cellnum = (short) 0; cellnum < model.getColumnCount(); cellnum++)
+		for (short cellnum = (short) 0; cellnum < tablemodel.getColumnCount(); cellnum++)
 		{
 			cell = row.createCell(cellnum);
-		    cell.setCellValue(model.getColumnName(cellnum));
+		    cell.setCellValue(tablemodel.getColumnName(cellnum));
 		}
 		currentRow++;
 	}
