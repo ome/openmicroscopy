@@ -33,6 +33,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
@@ -55,7 +57,12 @@ import javax.swing.tree.TreeModel;
  */
 class BrowserUI 
 	extends JPanel
+	implements ChangeListener 
 {
+	
+	public static final String 		TREE_VIEW = "Tree View";
+	
+	public static final String 		TEXT_VIEW = "Text View";
 
 	/** The tree hosting the display. */
     private JTree           		treeDisplay;
@@ -83,6 +90,12 @@ class BrowserUI
      *  {@link #editorPanel} in the right.
      */
     private JSplitPane 				rightSplitPane;
+    
+    /** 
+     * Tab pane to hold the different views of the Protocol.
+     * Either text-view or tree-view.
+     */
+    private JTabbedPane 			tabbedPane;
     
     /** The Controller. */
     private BrowserControl  		controller;
@@ -139,9 +152,11 @@ class BrowserUI
         // TODO: Need to split this out into it's own class, that has a
         // single setTreeModel() method, and only instantiates the views 
         // as needed. 
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Text View", new JScrollPane(textView));
-        tabbedPane.addTab("Tree View", new JScrollPane(treeDisplay));
+        tabbedPane = new JTabbedPane();
+        tabbedPane.addTab(TEXT_VIEW, new JScrollPane(textView));
+        tabbedPane.addTab(TREE_VIEW, new JScrollPane(treeDisplay));
+        // listen for changes to tab-view, to update view-mode in controller
+        tabbedPane.addChangeListener(this);
         // goes in the left part of the right splitPane
         rightSplitPane.setLeftComponent(tabbedPane);
         
@@ -166,6 +181,23 @@ class BrowserUI
     	editorPanel.setVisible(visible);
     	rightSplitPane.setDividerSize(visible ? 9 : 0);
     	rightSplitPane.setDividerLocation(visible ? 0.7 : 1.0);
+    }
+    
+    /**
+     * Sets the viewing mode in the controller, according to the currently 
+     * displayed tab in the tabbed pane. 
+     * Should be called when the tabbed pane changes, and also when the view
+     * is first used to display a file (called by {@link #displayTree()}
+     */
+    private void updateViewingMode() 
+    {
+    	String title = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+    	
+		if (TEXT_VIEW.equals(title)) {
+			controller.setViewingMode(BrowserControl.TEXT_VIEW);
+		} else {
+			controller.setViewingMode(BrowserControl.TREE_VIEW);
+		}
     }
     
     
@@ -213,6 +245,8 @@ class BrowserUI
     	
     	tm.addTreeModelListener(editorPanel);
     	
+    	// make sure that the controller is in sync with tabbed pane view.
+    	updateViewingMode();
     }
     
     /**
@@ -223,5 +257,24 @@ class BrowserUI
     	int state = model.getState();
     	treeDisplay.setEditable(state == Browser.TREE_EDIT);	
     	showFieldEditor(state == Browser.TREE_EDIT);
+    	
+    	// should also update the tabbed pane to the correct view, 
+    	// but, can assume any change in view-mode will have come from the
+    	// tabbed-pane, so it will already be in correct view. 
+    	
+    	// update editorPanel, to show correct editing view.
+    	editorPanel.refreshEditorDisplay();
+    	
     }
+
+    /**
+     * Implemented as specified by the {@link ChangeListener} interface.
+     * Responds to changes in the tabbed pane.
+     * Calls {@link #updateViewingMode()}
+     * 
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
+    public void stateChanged(ChangeEvent e) {
+    	updateViewingMode();
+	}
 }

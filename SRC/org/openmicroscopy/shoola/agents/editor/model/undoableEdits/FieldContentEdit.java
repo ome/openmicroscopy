@@ -144,6 +144,7 @@ public class FieldContentEdit
 	 * field name. 
 	 * 
 	 * @param field		The field to add a new parameter to.
+	 * @param fieldName		The new name for this field.
 	 * @param paramType		A string defining the type of parameter to add.
 	 * @param tree			The JTree to refresh with undo/redo
 	 * @param node		The node to highlight / refresh with undo/redo. 

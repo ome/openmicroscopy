@@ -26,55 +26,31 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.HashMap;
+import java.awt.Point;
+import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTree;
-import javax.swing.Scrollable;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
-import org.openmicroscopy.shoola.agents.editor.model.Field;
-import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.browser.FieldTextArea;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
-import org.openmicroscopy.shoola.agents.editor.model.TextContent;
-import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
 /** 
  * The Panel for editing the "Template" of each field.
  * This includes the Name, Description etc.
  * Also, this panel contains the components for template editing of 0, 1 or more 
  * parameters of the field. eg Default values, units etc. 
+ * This class extends {@link FieldParamEditor}, which allows editing of the 
+ * Field Name and Parameters. This class adds the ability to edit the textual
+ * content of the field, by adding a modified {@link FieldTextArea};
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -85,357 +61,105 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
  * @since OME3.0
  */
 public class FieldContentEditor 
-	extends JPanel 
-	implements PropertyChangeListener,
-	Scrollable
+	extends FieldParamEditor
 {
-	/**
-	 * Defines a minimum size for this Panel. 
-	 */
-	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
-	
-	/**
-	 * A bound property of this panel. 
-	 * Changes in this property indicate that the panel needs to be rebuilt
-	 * from the data model. 
-	 */
-	public static final String PANEL_CHANGED_PROPERTY = "panelChanged";
-	
-	/**
-	 * The field that this UI component edits.
-	 */
-	private IField 				field;
-	
-	/**
-	 * The controller for managing undo/redo. Eg manages attribute editing...
-	 */
-	private BrowserControl 		controller;
-	
-	/**
-	 * The JTree that this field is displayed in. 
-	 * Used eg. to notify that this field has been edited (needs refreshing)
-	 */
-	private JTree 				tree;
-	
-	/**
-	 * A reference to the node represented by this field. 
-	 * Used eg. to set the selected field to this node with undo/redo
-	 */
-	private DefaultMutableTreeNode treeNode;
 
 	/**
-	 * Vertical Box layout panel. Main panel.
+	 * A panel to hold the description text area. 
 	 */
-	private JPanel 				attributeFieldsPanel;
-
-	/**
-	 * Launches the colour pop-up menu
-	 */
-	protected JButton colourSelectButton;
-
-
-	/**
-	 * Initialises the UI components
-	 */
-	private void initialise() {
-		
-		// Panel to hold all components, vertically 
-		attributeFieldsPanel = new JPanel();
-		attributeFieldsPanel.setLayout(new BoxLayout
-				(attributeFieldsPanel, BoxLayout.Y_AXIS));
-		// set border and background
-		Border emptyBorder = new EmptyBorder(10, 5, 15,5);
-		Border lineBorder = BorderFactory.createMatteBorder(
-                0, 0, 1, 0, UIUtilities.LIGHT_GREY);
-		Border compoundBorder = BorderFactory.createCompoundBorder
-			(lineBorder, emptyBorder);
-		attributeFieldsPanel.setBorder(compoundBorder);
-		attributeFieldsPanel.setBackground(ImageBorderFactory.DEFAULT_BACKGROUND);
-		
-	}
+	private JPanel 		descriptionPanel;
 	
 	/**
-	 * Builds the UI. 
-	 */
-	private void buildPanel() {
-		
-		// Name: Label and text box
-		AttributeEditLine nameEditor = new AttributeEditLine
-			(field, Field.FIELD_NAME, "Field Name");
-		nameEditor.addPropertyChangeListener
-				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		attributeFieldsPanel.add(nameEditor);
-		attributeFieldsPanel.add(Box.createVerticalStrut(10));
-		
-		// Parameters: Label and "Add" button
-		attributeFieldsPanel.add(Box.createVerticalStrut(10));
-		//JLabel paramLabel = new CustomLabel("Parameters:");
-		
-		// For each parameter of this field, add the components for
-		// editing their default or template values. 
-		addFieldContents();
-		
-		this.setLayout(new BorderLayout());
-		add(attributeFieldsPanel, BorderLayout.NORTH);
-		setBackground(null);
-
-		this.validate();
-	}
-
-	/**
-	 * Each parameter editing component is added here.
-	 * This class becomes a property change listener for each one.
-	 * 
-	 * @param defaultEdit	A component for editing the defaults of each param
-	 */
-	private void addFieldComponent(IParam param) 
-	{
-		JComponent defaultEdit = ParamTemplateUIFactory.
-			getEditDefaultComponent(param);
-		
-		if (defaultEdit == null) return;
-		
-		attributeFieldsPanel.add(Box.createVerticalStrut(5));
-		attributeFieldsPanel.add(new JSeparator());
-		attributeFieldsPanel.add(Box.createVerticalStrut(3));
-		// add name field
-		AttributeEditLine nameEditor = new AttributeEditLine
-			(param, AbstractParam.PARAM_NAME, "Parameter Name");
-		nameEditor.addPropertyChangeListener
-			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		attributeFieldsPanel.add(nameEditor);
-	
-		attributeFieldsPanel.add(defaultEdit);
-		defaultEdit.addPropertyChangeListener( 
-				ITreeEditComp.VALUE_CHANGED_PROPERTY, 
-				this);
-	}
-
-	/**
-	 * Add additional UI components for editing the value of this field.
-	 * This deals with "Additional" parameters, not the first one, which
-	 * is a special case (added earlier). 
-	 * Uses the {@link ParamTemplateUIFactory} to create the UI components,
-	 * depending on the value type
-	 */
-	private void addFieldContents() 
-	{
-		attributeFieldsPanel.add(createAdditionalParamsHeader());
-		
-		int paramCount = field.getContentCount();
-		if (paramCount < 2) { return; }
-		
-		for (int i=0; i<paramCount; i++) {
-			IFieldContent content = field.getContentAt(i); 
-			if (content instanceof IParam) {
-				IParam param = (IParam)content;
-				
-				addFieldComponent(param);
-				
-			} else {
-				if (content instanceof TextContent) {
-					addTextComponent(content);
-				}
-			}
-		}
-	}
-	
-	private void addTextComponent(IAttributes textContent) {
-		
-		// Description: Label and text box
-		AttributeEditArea descriptionEditor = new AttributeEditArea
-				(textContent, TextContent.TEXT_CONTENT, "Description");
-		descriptionEditor.addPropertyChangeListener
-				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		attributeFieldsPanel.add(descriptionEditor);
-	}
-	
-	private JComponent createAdditionalParamsHeader() {
-		JPanel addParamsHeader = new JPanel(new BorderLayout());
-		addParamsHeader.setBackground(null);
-		JButton addParamsButton = new AddParamActions(field, tree, 
-				treeNode, controller).getButton();
-		addParamsButton.addPropertyChangeListener(
-				AddParamActions.PARAM_ADDED_PROPERTY, this);
-		addParamsHeader.add(addParamsButton, BorderLayout.EAST);
-		
-		addParamsHeader.add(
-				new CustomLabel("Field Content:"), BorderLayout.WEST);
-		
-		return addParamsHeader;
-	}
-
-	/**
-	 * Changes the Parameter type of the first parameter of this field.
-	 * In future, it may be preferable to allow users to change the type
-	 * of other parameters of this field, depending on selection etc. 
-	 * 
-	 * @param newType	A String that defines the type of parameter selected
-	 */
-	private void paramTypeChanged(String newType) {
-		
-		int paramIndex = 0;
-		
-		IParam newParam = null;
-		if (newType != null) 
-			newParam = FieldParamsFactory.getFieldParam(newType);
-		
-		// if newParam is null, this will simply remove first parameter
-		controller.changeParam(field, newParam, paramIndex,
-				 tree, treeNode);
-	}
-
-	/**
-	 * Creates an instance of this class for editing the field.
+	 * Creates an instance. 
+	 * Delegates to super-class, then adds a UI component for editing the
+	 * description content of this field. 
 	 * 
 	 * @param field		The Field to edit
 	 * @param tree		The JTree in which the field is displayed
 	 * @param treeNode	The node of the Tree which contains the field
+	 * @param controller	The BrowserControl for handling edits 
 	 */
-	public FieldContentEditor(IField field, JTree tree, 
-			DefaultMutableTreeNode treeNode, BrowserControl controller) 
+	public FieldContentEditor(IField field, JTree tree,
+			DefaultMutableTreeNode treeNode, BrowserControl controller) {
+		super(field, tree, treeNode, controller);
+		
+		// This UI for description editing is created in constructor where 
+		// we have access to all required fields. 
+		// Then added to panel inserted by addParameters() (see below).
+		JPanel desc = new DescriptionTextArea(field, tree, treeNode, controller);
+		descriptionPanel.add(desc, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Overridden to add additional UI components for editing the parameters
+	 * of this field. This method is called by the super-class constructor. 
+	 * Inserts a panel that is subsequently filled with the text panel in
+	 * the constructor. 
+	 * 
+	 * @see FieldParamEditor#addParameters();
+	 */
+	protected void addParameters() 
 	{
-		this.field = field;
+		descriptionPanel = new JPanel();
+		descriptionPanel.setBackground(null);
+		descriptionPanel.setLayout(new BorderLayout());
+		attributeFieldsPanel.add(descriptionPanel);
 		
-		this.tree = tree;
-		this.treeNode = treeNode;
-		this.controller = controller;
-		
-		initialise();
-		buildPanel();
+		super.addParameters();
 	}
 	
 	/**
-	 * If the size of a sub-component of this panel changes, 
-	 * the JTree in which it is contained must be required to 
-	 * re-draw the panel. 
+	 * Subclass of {@link FieldTextArea} that modifies UI for editing of 
+	 * field descriptions, but not Field Name. 
+	 * Name is not displayed, and is not saved. 
+	 * 
+	 * @author will
+	 *
 	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		
-		
-		String propName = evt.getPropertyName();
-		
-		//System.out.println("FieldEditorPanel propertyChanege: " + propName);
-				
-		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(propName)) {
+	private class DescriptionTextArea
+		extends FieldTextArea
+	{
+
+		public DescriptionTextArea(IField field, JTree tree,
+				DefaultMutableTreeNode treeNode, BrowserControl controller) {
+			super(field, tree, treeNode, controller);
 			
-			if (evt.getSource() instanceof ITreeEditComp) {
-				
-				/* Need controller to pass on the edit  */
-				if (controller == null) return;
-				
-				ITreeEditComp src = (ITreeEditComp)evt.getSource();
-				IAttributes param = src.getParameter();
-				String attrName = src.getAttributeName();
-				String displayName = src.getEditDisplayName();
-				
-				String newValue;
-				Object newVal = evt.getNewValue();
-				
-				
-				if ((newVal instanceof String) || (newVal == null)){
-					newValue = (newVal == null ? null : newVal.toString());
-				 	 controller.editAttribute(param, attrName, newValue, 
-				 			displayName, tree, treeNode);
-				}
-				
-				else if (newVal instanceof HashMap) {
-					HashMap<String,String> newVals = (HashMap)newVal;
-					 controller.editAttributes(param, displayName, newVals, 
-							tree, treeNode);
-				}
-				
-				updateEditingOfTreeNode();
-				
-			}
-		} else if (AddParamActions.PARAM_ADDED_PROPERTY.equals(propName)) {
-			updateEditingOfTreeNode();
-			rebuildEditorPanel();
-		}
-	}
-	
-	
-	/**
-	 * This method is used to refresh the size of the corresponding
-	 * node in the JTree.
-	 * It must also remain in the editing mode, otherwise the user who
-	 * is currently editing it will be required to click again to 
-	 * continue editing.
-	 * This can be achieved by calling startEditingAtPath(tree, path)
-	 */
-	public void updateEditingOfTreeNode() {
-		if ((tree != null) && (treeNode !=null)) {
+			setBorder(null);
 			
-			TreePath path = new TreePath(treeNode.getPath());
-			tree.getUI().startEditingAtPath(tree, path);
+			// setting font (fires Document Event)... Character moves etc!!!
+			// htmlEditor.setFont(CustomLabel.CUSTOM_FONT);
+			// htmlEditor.dataSaved();  // ... even if you reset edit flag !
 		}
-	}
-	
-	
-	public void rebuildEditorPanel() {
-
-		if ((tree != null) && (treeNode != null)) {
-			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
-			treeModel.nodeChanged(treeNode);
+		
+		/**
+		 * Overridden to disable the display of parameter editing dialog.
+		 * 
+		 * @see FieldTextArea#showParamDialog(int index, Point point) 
+		 */
+		protected void showParamDialog(int index, Point point) {}
+		
+		/**
+		 * Overridden to disable the display (and editing) of Field Name.
+		 * Returns null.
+		 * 
+		 * @see FieldTextArea#getFieldName()
+		 */
+		protected String getFieldName() { return null; }
+		
+		/**
+		 * Overridden to avoid editing the Field Name. 
+		 * This method only edits the textual content/description.
+		 * 
+		 * @see	FieldTextArea#saveContent(IField, String, List<IFieldContent>, 
+		 * 										JTree, TreeNode)
+		 */
+		protected void saveContent(IField fld, String fieldName,
+					List<IFieldContent> content, JTree tree, TreeNode node) 
+		{
+		    // replace the old content of the field with new content
+			controller.editFieldContent(fld, content, tree, node);
 		}
-
-		/*validate();
-		repaint();
-		this.firePropertyChange(PANEL_CHANGED_PROPERTY, null, "refresh");
-		*/
+		
 	}
 	
-	
-	
-	/**
-	 * Implemented as specified by the {@link Scrollable} interface.
-	 * Returns {@link #getPreferredSize()}
-	 * 
-	 * @see Scrollable#getPreferredScrollableViewportSize();
-	 */
-	public Dimension getPreferredScrollableViewportSize() {
-		return getPreferredSize();
-	}
-
-	/**
-	 * Implemented as specified by the {@link Scrollable} interface.
-	 * Returns 1
-	 * 
-	 * @see Scrollable#getScrollableBlockIncrement(Rectangle, int, int)
-	 */
-	public int getScrollableBlockIncrement(Rectangle visibleRect,
-			int orientation, int direction) {
-		return 1;
-	}
-
-	/**
-	 * Implemented as specified by the {@link Scrollable} interface.
-	 * Returns false, since this panel does not fill the entire 
-	 * height of the scroll pane.
-	 * 
-	 * @see Scrollable#getPreferredScrollableViewportSize();
-	 */
-	public boolean getScrollableTracksViewportHeight() {
-		return false;
-	}
-
-	/**
-	 * Implemented as specified by the {@link Scrollable} interface.
-	 * Returns true, so that this panel fills the width of the scroll pane.
-	 * 
-	 * @see Scrollable#getScrollableTracksViewportWidth()
-	 */
-	public boolean getScrollableTracksViewportWidth() {
-		return true;
-	}
-
-	/**
-	 * Implemented as specified by the {@link Scrollable} interface.
-	 * 
-	 * @see Scrollable#getScrollableUnitIncrement(Rectangle, int, int)
-	 */
-	public int getScrollableUnitIncrement(Rectangle visibleRect,
-			int orientation, int direction) {
-		return 1;
-	}
 }

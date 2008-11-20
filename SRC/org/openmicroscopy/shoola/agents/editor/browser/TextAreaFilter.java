@@ -139,9 +139,12 @@ public class TextAreaFilter
 		// if this is true, we are before the first character of tag.
 		else if (canEdit(offs - 1)){
 			// therefore, allow edit (won't affect tag).
+			a = null;	// make sure it won't extend the tag
 			super.replace(fb, offs, length, str, a);
 		}
+		else {
 			Toolkit.getDefaultToolkit().beep();
+		}
 	}
 	
 	/**

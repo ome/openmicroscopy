@@ -116,7 +116,7 @@ public class FieldParamEditor
 	/**
 	 * Vertical Box layout panel. Main panel.
 	 */
-	private JPanel 				attributeFieldsPanel;
+	protected JPanel 			attributeFieldsPanel;
 
 	/**
 	 * Initialises the UI components
@@ -169,13 +169,12 @@ public class FieldParamEditor
 	/**
 	 * Add additional UI components for editing the parameters of this field.
 	 */
-	private void addParameters() 
+	protected void addParameters() 
 	{
 		attributeFieldsPanel.add(createParamsHeader());
 		
 		int paramCount = field.getContentCount();
-		if (paramCount < 2) { return; }
-		
+				
 		for (int i=0; i<paramCount; i++) {
 			IFieldContent content = field.getContentAt(i); 
 			if (content instanceof IParam) {
@@ -237,6 +236,7 @@ public class FieldParamEditor
 	 * @param field		The Field to edit
 	 * @param tree		The JTree in which the field is displayed
 	 * @param treeNode	The node of the Tree which contains the field
+	 * @param controller	The BrowserControl for handling edits 
 	 */
 	public FieldParamEditor(IField field, JTree tree, 
 			DefaultMutableTreeNode treeNode, BrowserControl controller) 

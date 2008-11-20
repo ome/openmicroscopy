@@ -58,6 +58,7 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTML.Tag;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -67,6 +68,7 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamEditorDialog;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -99,7 +101,7 @@ public class FieldTextArea
 	ActionListener
 {
 	/**  The text area that displays and allows users to edit the text */
-	private HtmlContentEditor		htmlEditor;
+	protected HtmlContentEditor		htmlEditor;
 	
 	/** The field that is represented by this UI component */
 	private IField 					field;
@@ -123,7 +125,7 @@ public class FieldTextArea
 	/**
 	 * Controller for editing actions etc. 
 	 */
-	private BrowserControl 			controller;
+	protected BrowserControl 		controller;
 	
 	/**
 	 * A dialog for displaying a pop-up edit of a parameter.
@@ -172,6 +174,12 @@ public class FieldTextArea
 	 * The HTML tag name to use for displaying the Field Name.
 	 */
 	public static final Tag			NAME_TAG = Tag.SPAN;
+	
+	/**
+	 * A useful bit of HTML for adding space between tags etc. 
+	 */
+	public static final String 		TEXT_SPACER = "<"+ TEXT_TAG +
+													"> </"+ TEXT_TAG + ">";
 	
 	/**
 	 * Initialises UI components. 
@@ -249,17 +257,26 @@ public class FieldTextArea
     	List<IFieldContent> contentList = new ArrayList<IFieldContent>();
     	
     	int lastChar = 0;
+    	Document d = htmlEditor.getDocument();
     	
     	// ignore the name token, but need to know when it ends (content begins)
     	TextToken nameTag = getNameTag();
     	if (nameTag != null) {
-    		lastChar = nameTag.getEnd();
+    		lastChar = nameTag.getEnd();	
+    		// need to skip new-line character
+    		try {
+				String nextChar = d.getText(lastChar, 1);
+				if (nextChar.trim().length() == 0) 
+					lastChar++;
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     	}
     	
     	// Get the parameter tokens, iterate through them...
     	List<TextToken> tags = htmlEditor.getElementsByTag
     											(FieldTextArea.PARAM_TAG);
-    	Document d = htmlEditor.getDocument();
     	String description;
     	int id;
     	
@@ -267,8 +284,7 @@ public class FieldTextArea
     		for (TextToken param : tags) {
     			// is there any text between start of this tag and end of last?
 				description = d.getText(lastChar, param.getStart()-lastChar);
-				System.out.println("FieldTextArea getNewContent...");
-				System.out.println(description);
+				
 				if (description.trim().length() > 0) {
 					// if so, add a new text content object to the list
 					// without trimming. 
@@ -320,7 +336,7 @@ public class FieldTextArea
 	 * @param index		The index of the Parameter in the {@link #field}
 	 * @param point		The screen location to show the dialog
 	 */
-	private void showParamDialog(int index, Point point) 
+	protected void showParamDialog(int index, Point point) 
 	{
 		if ((paramEditDialog != null) && (paramEditDialog.isVisible())) {
 			paramEditDialog.setVisible(false);
@@ -356,21 +372,24 @@ public class FieldTextArea
 	 * @param field
 	 * @return
 	 */
-	private static String getHtml(IField field)
+	private String getHtml()
 	{
 		String html = "";
 		
 		// html for the field name
-		String name = field.getAttribute(Field.FIELD_NAME);
-		if (name != null && name.length() > 0)
+		String name = getFieldName();
+		if (name != null && name.length() > 0) {
 			html = "<"+ FieldTextArea.NAME_TAG  +" " + HTML.Attribute.ID +
 			"='"+ FieldTextArea.NAME_ID +"'>" 
 			+ name + "</"+ FieldTextArea.NAME_TAG +"><br>";
+		} else {
+		}
 		
 		String contentText;
 		String contentString;
 		IFieldContent content;
 		
+		// if no content, put a place-holder so users can enter text
 		if (field.getContentCount() == 0) {
 			contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
 			HTML.Attribute.ID + 
@@ -380,7 +399,7 @@ public class FieldTextArea
 		
 		// flag used to insert space between parameter objects, so user can
 		// start typing and insert text between parameters. 
-		boolean includeSpacer = true;	
+		boolean includeSpacer = false;	
 		
 		// html for the field contents. 
 		for (int i=0; i<field.getContentCount(); i++) {
@@ -391,7 +410,7 @@ public class FieldTextArea
 					contentString = "[param]";
 				// id attribute allows parameters to be linked to model
 				// eg for editing parameters. 
-				contentText = (includeSpacer ? " " : "") + // space before param
+				contentText = (includeSpacer ? TEXT_SPACER : "") + // space before param
 						"<"+ FieldTextArea.PARAM_TAG + " href='#' " +
 				 		HTML.Attribute.ID + "='" + i + "'>" + 
 				 		contentString + 
@@ -403,11 +422,13 @@ public class FieldTextArea
 				HTML.Attribute.ID + "='" + i + "'>" + 
 				content.toString() 
 				+ "</"+ FieldTextArea.TEXT_TAG + ">";
-				includeSpacer = false;		// don't need a space after text
+				if (content.toString().length() > 0)
+					includeSpacer = false;		// don't need a space after text
 			}
 			// add each component. 
 			html = html + contentText;
 		}
+		
 		return html;
 	}
 	
@@ -415,7 +436,7 @@ public class FieldTextArea
      * Saves the current textual content back to the model, if the 
      * text has been edited.
      */
-    private void saveContent() 
+    protected void saveContent() 
     {
     	if (htmlEditor.hasDataToSave()) {
     		
@@ -428,12 +449,29 @@ public class FieldTextArea
 			List<IFieldContent> newContent = getNewContent();
 			
 			// replace the old content of the field with new content
-			controller.editFieldContent(field, fieldName, 
-					newContent, navTree, treeNode);
+			saveContent(field, fieldName, newContent, navTree, treeNode);
 			
 			// reset this flag
 			htmlEditor.dataSaved();
 		}
+    }
+    
+   /**
+    * Saves the content via the controller, which handles adding to undo/redo.
+    * This method may be overridden by subclasses to change the saving 
+    * behavior of this class.
+    * 
+    * @param fld		The field to add a new parameter to.
+	* @param fieldName		The new name of the field
+	* @param content 		The new content, as a list.
+	* @param tree			The JTree to refresh with undo/redo
+	* @param node		The node to highlight / refresh with undo/redo. 
+    */
+    protected void saveContent(IField fld, String fieldName,
+			List<IFieldContent> content, JTree tree, TreeNode node) {
+    	
+    	// replace the old content of the field with new content
+		controller.editFieldContent(fld, fieldName, content, tree, node);
     }
     
     /**
@@ -557,7 +595,7 @@ public class FieldTextArea
     			
     			// show edit dialog
     			String id = htmlEditor.getElementId(c);
-    			if (id != null) { 
+    			if ((id != null) && (isShowing())) { 
     				Point paneLoc = null;
     				try { 
     					paneLoc = getLocationOnScreen();
@@ -587,7 +625,7 @@ public class FieldTextArea
 	 * @param treeNode		For undo/redo selection see {@link #treeNode}
 	 * @param controller	For managing edits
 	 */
-	FieldTextArea(IField field, JTree tree, DefaultMutableTreeNode treeNode,
+	public FieldTextArea(IField field, JTree tree, DefaultMutableTreeNode treeNode,
 			BrowserControl controller) 
 	{
 		
@@ -601,6 +639,18 @@ public class FieldTextArea
 	}
 	
 	/**
+	 * Gets the field name for display. 
+	 * This method may be overridden by subclasses if they do not want to
+	 * display the field name, E.g. {@link FieldContentEditor}.
+	 * 
+	 * @return		The name of the field. 
+	 */
+	protected String getFieldName()
+	{
+		return field.getAttribute(Field.FIELD_NAME);
+	}
+	
+	/**
 	 * Refreshes the text of this UI, based on the {@link #field}.
 	 * Sets the HTML to include CSS style header. 
 	 * This method is called by the parent UI when the field has been 
@@ -608,7 +658,7 @@ public class FieldTextArea
 	 */
 	public void refreshText() {
 		
-		String content = getHtml(field);
+		String content = getHtml();
 		
 		String html = "<html><head> <style type='text/css'> \n" +
 			FieldTextArea.NAME_TAG + "#" + FieldTextArea.NAME_ID +

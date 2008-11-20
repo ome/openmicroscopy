@@ -92,25 +92,6 @@ public class FieldEditorDisplay
 	private JComponent 					currentDisplay;
 	
 	/**
-	 * Refreshes the content of this panel, based on the currently selected
-	 * node of the {@link #tree}
-	 */
-	private void refreshEditorDisplay() 
-	{
-		if (tree.getSelectionCount() == 1) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-				tree.getSelectionPath().getLastPathComponent();
-			IField field = (IField)node.getUserObject();
-			FieldParamEditor fe = new FieldParamEditor(field, tree, node,
-					controller);
-			setPanel(fe);
-		}
-		else {
-			setPanel();
-		}
-	}
-
-	/**
 	 * Sets the content of this panel with a blank {@link JPanel}.
 	 * Calls {@link #setPanel(JComponent)}
 	 * 
@@ -172,6 +153,36 @@ public class FieldEditorDisplay
 		buildUI();
 		
 		setPanel();
+	}
+
+	/**
+	 * Refreshes the content of this panel, based on the currently selected
+	 * node of the {@link #tree}, and the current editing mode/view.
+	 * If {@link BrowserControl#TREE_VIEW}, show a panel that includes a
+	 * description editor, otherwise just show parameters editor. 
+	 */
+	void refreshEditorDisplay() 
+	{
+		int editView = controller.getViewingMode();
+		
+		if (tree.getSelectionCount() == 1) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+				tree.getSelectionPath().getLastPathComponent();
+			IField field = (IField)node.getUserObject();
+			
+			FieldParamEditor fe;
+			if (editView == BrowserControl.TREE_VIEW) {
+				// FieldContentEditor is subclass of FieldParamEditor, that
+				// includes a component for editing the field description. 
+				fe = new FieldContentEditor(field, tree, node, controller);
+			} else {
+				fe = new FieldParamEditor(field, tree, node, controller);
+			}
+			setPanel(fe);
+		}
+		else {
+			setPanel();
+		}
 	}
 
 	/**

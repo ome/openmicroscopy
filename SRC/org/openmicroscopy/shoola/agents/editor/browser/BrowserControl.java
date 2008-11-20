@@ -63,8 +63,6 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdi
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ChangeParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentEdit;
 
-
-
 /** 
  *	The Controller in the Browser MVC. 
  *	Also manages undo/redo queue.  
@@ -80,6 +78,16 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentE
 public class BrowserControl 
 	implements ChangeListener
 {
+	/**
+	 * A reference to the editing mode/state of the Browser. 
+	 * 
+	 */
+	private int 					editingView;
+	
+	public static final int 		TREE_VIEW = 0;
+	
+	public static final int 		TEXT_VIEW = 1;
+	
 
 	/** Identifies the <code>Edit</code> action. */
 	static final Integer    EDIT = new Integer(0);
@@ -186,6 +194,36 @@ public class BrowserControl
         this.view = view;
         model.addChangeListener(this);
     }
+    
+    /**
+     * Allows classes to change the view mode, which may change the UI in
+     * several places? 
+     * E.g.	{@link #TREE_VIEW} or {@link #TEXT_VIEW}.
+     * 
+     * @param viewMode		The new view mode. 
+     */
+    void setViewingMode(int viewMode) 
+    {
+    	switch (viewMode) {
+		case TREE_VIEW:
+			editingView = TREE_VIEW;
+			break;
+		case TEXT_VIEW:
+			editingView = TEXT_VIEW;
+			break;
+		default:
+			break;
+		}
+    	stateChanged(new ChangeEvent(this));
+    }
+    
+    /**
+     * Allows UI classes to determine the current editing mode. 
+     * E.g.	{@link #TREE_VIEW} or {@link #TEXT_VIEW}.
+     * 
+     * @return		The current viewing mode {@link #editingView}
+     */
+    int getViewingMode() { return editingView; }
     
     /**
      * Returns the action corresponding to the specified id.
@@ -298,6 +336,21 @@ public class BrowserControl
 		
 		UndoableEdit edit = new FieldContentEdit(field, name, 
 				content, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by changing the content (not name). 
+	 * 
+	 * @param field		The field to add a new parameter to.
+	 * @param content 		The new content, as a list.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void editFieldContent(IField field,List<IFieldContent> content, 
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new FieldContentEdit(field, content, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	
