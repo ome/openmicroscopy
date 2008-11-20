@@ -115,16 +115,25 @@ public class UPEEditorExport
 		
 		addChildContent(parameter, "necessity", "OPTIONAL");
 		
+		String attValue;
 		// Depending on the type of parameter, set the param-type, 
 		// and add any additional attributes. 
 		if (param instanceof NumberParam) {
 			addChildContent(parameter, "param-type", "NUMERIC");
+			attValue = param.getAttribute(SingleParam.PARAM_VALUE);
+			addChildContent(parameter, SingleParam.PARAM_VALUE, attValue);
+			attValue = param.getAttribute(SingleParam.DEFAULT_VALUE);
+			addChildContent(parameter, SingleParam.DEFAULT_VALUE, attValue);
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
 			if (units != null)
 				addChildContent(parameter, "unit", units);
 		} else 
 		if (param instanceof EnumParam) {
 			addChildContent(parameter, "param-type", "ENUMERATION");
+			attValue = param.getAttribute(SingleParam.PARAM_VALUE);
+			addChildContent(parameter, SingleParam.PARAM_VALUE, attValue);
+			attValue = param.getAttribute(SingleParam.DEFAULT_VALUE);
+			addChildContent(parameter, SingleParam.DEFAULT_VALUE, attValue);
 			String enumOptions = param.getAttribute(EnumParam.ENUM_OPTIONS);
 			if (enumOptions != null) {
 				IXMLElement enumList = new XMLElement("enum-list");
@@ -143,7 +152,6 @@ public class UPEEditorExport
 			addChildContent(parameter, "param-type", paramType);
 			// all parameter attributes are saved as attributes
 			String[] paramAts = param.getParamAttributes();
-			String attValue;
 			for (int a=0; a<paramAts.length; a++){
 				attValue = param.getAttribute(paramAts[a]);
 				addChildContent(parameter, paramAts[a], attValue);
