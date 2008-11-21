@@ -323,6 +323,30 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                     + "' must be of type 'List<ome.model.core.Image>'");
         imageList = (List<Image>) root;
     }
+    
+    /**
+     * Creates an unloaded copy of an enumeration object.
+     * @param enumeration Enumeration to copy.
+     * @return See above.
+     */
+    private IEnum copyEnumeration(IEnum enumeration)
+    {
+        Class<? extends IEnum> klass = enumeration.getClass();
+        try
+        {
+            Constructor<? extends IObject> constructor = 
+                klass.getDeclaredConstructor(
+                    new Class[] { Long.class, boolean.class });
+            return (IEnum) constructor.newInstance(
+                new Object[] { enumeration.getId(), false });
+        }
+        catch (Exception e)
+        {
+            String m = "Unable to copy enumeration: " + enumeration;
+            log.error(m, e);
+            throw new EnumerationException(m, klass, enumeration.getValue());
+        }
+    }
 
     /**
      * Retrieves a server side enumeration.
@@ -349,28 +373,22 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
         
         List<IObject> enumerations = enumCache.get(klass);
+        IEnum otherEnumeration = null;
         for (IObject object : enumerations)
         {
             IEnum enumeration = (IEnum) object;
             if (value.equals(enumeration.getValue()))
             {
-                // We're going to return an unloaded enumeration because
-                // of the potential unloading done by the update service.
-                try
-                {
-                    Constructor<? extends IObject> constructor = 
-                        klass.getDeclaredConstructor(
-                            new Class[] { Long.class, boolean.class });
-                return (IObject) constructor.newInstance(
-                        new Object[] { enumeration.getId(), false });
-                }
-                catch (Exception e)
-                {
-                    String m = "Unable to instantiate class: " + klass; 
-                    log.error(m, e);
-                    throw new EnumerationException(m, klass, value);
-                }
+                return copyEnumeration(enumeration);
             }
+            else if (enumeration.getValue().equals("Other"))
+            {
+                otherEnumeration = copyEnumeration(enumeration);
+            }
+        }
+        if (otherEnumeration != null)
+        {
+            return otherEnumeration;
         }
         throw new EnumerationException("Problem finding enumeration: ",
                                        klass, value);
