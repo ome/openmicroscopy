@@ -29,17 +29,28 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
 import omero.RString;
+import omero.model.Arc;
+import omero.model.ArcType;
+import omero.model.Binning;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
+import omero.model.DetectorType;
+import omero.model.Filament;
+import omero.model.FilamentType;
 import omero.model.Filter;
 import omero.model.FilterSet;
+import omero.model.Laser;
+import omero.model.LaserMedium;
+import omero.model.LaserType;
+import omero.model.LightEmittingDiode;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
-import omero.model.OTF;
+import omero.model.Pulse;
 
 /** 
  * Object hosting the acquisition related to a logical channel.
@@ -58,6 +69,22 @@ public class ChannelAcquisitionData
 	extends DataObject
 {
 
+	/** Indicates that the light source is a <code>laser</code>. */
+	public static final String LASER = Laser.class.getName();
+	
+	/** Indicates that the light source is a <code>filament</code>. */
+	public static final String FILAMENT = Filament.class.getName();
+	
+	/** Indicates that the light source is a <code>arc</code>. */
+	public static final String ARC = Arc.class.getName();
+	
+	/** 
+	 * Indicates that the light source is a 
+	 * <code>light emitting diode</code>. 
+	 */
+	public static final String LIGHT_EMITTING_DIODE = 
+		LightEmittingDiode.class.getName();
+	
 	/** The settings of the detector. */
 	private DetectorSettings 	detectorSettings;
 	
@@ -72,6 +99,28 @@ public class ChannelAcquisitionData
 	
 	/** The filter used for the excitation wavelength. */
 	private Filter				secondaryExFilter;
+	
+	/**
+	 * Returns the source of light.
+	 * 
+	 * @return See above.
+	 */
+	private LightSource getLightSource()
+	{
+		if (lightSettings == null) return null;
+		return lightSettings.getLightSource();
+	}
+	
+	/**
+	 * Returns the detector.
+	 * 
+	 * @return See above.
+	 */
+	private Detector getDetector()
+	{
+		if (detectorSettings == null) return null;
+		return detectorSettings.getDetector();
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -98,9 +147,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsOffset()
 	{
-		if (detectorSettings == null) return 0f;
+		if (detectorSettings == null) return 0;
 		RFloat value = detectorSettings.getOffsetValue();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -111,9 +160,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsGain()
 	{
-		if (detectorSettings == null) return 0f;
+		if (detectorSettings == null) return 0;
 		RFloat value = detectorSettings.getGain();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -124,9 +173,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsVoltage()
 	{
-		if (detectorSettings == null) return 0f;
+		if (detectorSettings == null) return 0;
 		RFloat value = detectorSettings.getVoltage();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -137,10 +186,23 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsReadOutRate()
 	{
-		if (detectorSettings == null) return 0f;
+		if (detectorSettings == null) return 0;
 		RFloat value = detectorSettings.getReadOutRate();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Returns the binning.
+	 * 
+	 * @return See above.
+	 */
+	public String getDetectorSettingsBinning()
+	{
+		if (detectorSettings == null) return "";
+		Binning value = detectorSettings.getBinning();
+		if (value == null) return "";
+		return value.getValue().getValue();
 	}
 	
 	/**
@@ -150,11 +212,10 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorVoltage()
 	{
-		if (detectorSettings == null) return 0f;
-		Detector detector = detectorSettings.getDetector();
-		if (detector == null) return 0f;
+		Detector detector = getDetector();
+		if (detector == null) return 0;
 		RFloat value = detector.getVoltage();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -165,11 +226,10 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorAmplificationGain()
 	{
-		if (detectorSettings == null) return 0f;
-		Detector detector = detectorSettings.getDetector();
-		if (detector == null) return 0f;
+		Detector detector = getDetector();
+		if (detector == null) return 0;
 		RFloat value = detector.getAmplificationGain();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -180,11 +240,10 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorGain()
 	{
-		if (detectorSettings == null) return 0f;
-		Detector detector = detectorSettings.getDetector();
-		if (detector == null) return 0f;
+		Detector detector = getDetector();
+		if (detector == null) return 0;
 		RFloat value = detector.getGain();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -195,11 +254,10 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorOffset()
 	{
-		if (detectorSettings == null) return 0f;
-		Detector detector = detectorSettings.getDetector();
-		if (detector == null) return 0f;
+		Detector detector = getDetector();
+		if (detector == null) return 0;
 		RFloat value = detector.getOffsetValue();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 
@@ -210,12 +268,25 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorZoom()
 	{
-		if (detectorSettings == null) return 0f;
-		Detector detector = detectorSettings.getDetector();
-		if (detector == null) return 0f;
+		Detector detector = getDetector();
+		if (detector == null) return 0;
 		RFloat value = detector.getZoom();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Returns the type of the detector.
+	 * 
+	 * @return See above.
+	 */
+	public String getDetectorType()
+	{
+		Detector detector = getDetector();
+		if (detector == null) return "";
+		DetectorType type = detector.getType();
+		if (type == null) return "";
+		return type.getValue().getValue();
 	}
 	
 	/**
@@ -225,8 +296,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getDetectorManufacturer()
 	{
-		if (detectorSettings == null) return "";
-		Detector detector = detectorSettings.getDetector();
+		Detector detector = getDetector();
 		if (detector == null) return "";
 		RString value = detector.getManufacturer();
 		if (value == null) return "";
@@ -240,8 +310,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getDetectorModel()
 	{
-		if (detectorSettings == null) return "";
-		Detector detector = detectorSettings.getDetector();
+		Detector detector = getDetector();
 		if (detector == null) return "";
 		RString value = detector.getModel();
 		if (value == null) return "";
@@ -255,8 +324,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getDetectorSerialNumber()
 	{
-		if (detectorSettings == null) return "";
-		Detector detector = detectorSettings.getDetector();
+		Detector detector = getDetector();
 		if (detector == null) return "";
 		RString value = detector.getSerialNumber();
 		if (value == null) return "";
@@ -271,9 +339,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getLigthSettingsAttenuation()
 	{
-		if (lightSettings == null) return 0f;
+		if (lightSettings == null) return 0;
 		RFloat value = lightSettings.getAttenuation();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
 	
@@ -431,8 +499,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getLightSourceManufacturer()
 	{
-		if (lightSettings == null) return "";
-		LightSource light = lightSettings.getLightSource();
+		LightSource light = getLightSource();
 		if (light == null) return "";
 		RString value = light.getManufacturer();
 		if (value == null) return "";
@@ -446,8 +513,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getLightSourceModel()
 	{
-		if (lightSettings == null) return "";
-		LightSource light = lightSettings.getLightSource();
+		LightSource light = getLightSource();
 		if (light == null) return "";
 		RString value = light.getModel();
 		if (value == null) return "";
@@ -461,8 +527,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getLightSourceSerialNumber()
 	{
-		if (lightSettings == null) return "";
-		LightSource light = lightSettings.getLightSource();
+		LightSource light = getLightSource();
 		if (light == null) return "";
 		RString value = light.getSerialNumber();
 		if (value == null) return "";
@@ -476,12 +541,180 @@ public class ChannelAcquisitionData
 	 */
 	public float getLightSourcePower()
 	{
-		if (lightSettings == null) return 0f;
-		LightSource light = lightSettings.getLightSource();
-		if (light == null) return 0f;
+		LightSource light = getLightSource();
+		if (light == null) return 0;
 		RFloat value = light.getPower();
-		if (value == null) return 0f;
+		if (value == null) return 0;
 		return value.getValue();
 	}
+	
+	/**
+	 * Returns the type of light.
+	 * 
+	 * @return See above.
+	 */
+	public String getLightType()
+	{
+		LightSource light = getLightSource();
+		if (light == null) return "";
+		RString value = null;
+		if (light instanceof Laser) {
+			LaserType t = ((Laser) light).getType();
+			value = t.getValue();
+		} else if (light instanceof Filament) {
+			FilamentType t = ((Filament) light).getType();
+			value = t.getValue();
+		} else if (light instanceof Arc) {
+			ArcType t = ((Arc) light).getType();
+			value = t.getValue();
+		}
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the laser's medium.
+	 * 
+	 * @return See above.
+	 */
+	public String getLaserMedium()
+	{
+		LightSource light = getLightSource();
+		if (light == null || !(light instanceof Laser)) return "";
+		Laser laser = (Laser) light;
+		LaserMedium medium = laser.getLaserMedium();
+		return medium.getValue().getValue();
+	}
+	
+	/**
+	 * Returns the laser's wavelength.
+	 * 
+	 * @return See above.
+	 */
+	public int getLaserWavelength()
+	{
+		if (!LASER.equals(getLightSourceKind())) return 0;
+		Laser laser = (Laser) getLightSource();
+		RInt value = laser.getWavelength();
+		if (value == null) return 0;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the value of the <code>tuneable</code> field or <code>null</code>
+	 * if no value set.
+	 * 
+	 * @return See above.
+	 */
+	public Object getLaserTuneable()
+	{
+		LightSource light = getLightSource();
+		if (light == null || !(light instanceof Laser)) return null;
+		Laser laser = (Laser) light;
+		RBool value = laser.getTunable();
+		if (value == null) return null;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the kind of light source.
+	 * 
+	 * @return See above.
+	 */
+	public String getLightSourceKind()
+	{
+		LightSource light = getLightSource();
+		if (light == null) return "";
+		if (light instanceof Laser) return LASER;
+		if (light instanceof Filament) return FILAMENT;
+		if (light instanceof Arc) return ARC;
+		if (light instanceof LightEmittingDiode) return LIGHT_EMITTING_DIODE;
+		return "";
+	}
 
+	/**
+	 * Returns <code>true</code> if there is a detector for that channel,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDectector() { return getDetector() != null; }
+	
+	/**
+	 * Returns <code>true</code> if there is a light source for that channel,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasLightSource() { return getLightSource() != null; }
+	
+	/**
+	 * Returns <code>true</code> if the light source is a laser with a pump,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	public boolean hasPump()
+	{
+		if (!LASER.equals(getLightSourceKind())) return false;
+		Laser laser = (Laser) getLightSource();
+		return laser.getPump() != null;
+	}
+	
+	/**
+	 * Returns the frequency multiplication of the laser.
+	 * 
+	 * @return See above
+	 */
+	public int getLaserFrequencyMultiplication()
+	{
+		if (!LASER.equals(getLightSourceKind())) return 0;
+		Laser laser = (Laser) getLightSource();
+		RInt value = laser.getFrequencyMultiplication();
+		if (value == null) return 0;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the pulse of the laser.
+	 * 
+	 * @return See above
+	 */
+	public String getLaserPulse()
+	{
+		if (!LASER.equals(getLightSourceKind())) return null;
+		Laser laser = (Laser) getLightSource();
+		Pulse value = laser.getPulse();
+		if (value == null) return null;
+		return value.getValue().getValue();
+	}
+	
+	/**
+	 * Returns the pockel cell flag of the laser.
+	 * 
+	 * @return See above
+	 */
+	public Object getLaserPockelCell()
+	{
+		if (!LASER.equals(getLightSourceKind())) return null;
+		Laser laser = (Laser) getLightSource();
+		RBool value = laser.getPockelCell();
+		if (value == null) return null;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the repetition rate (Hz) if the laser is repetitive.
+	 * 
+	 * @return See above.
+	 */
+	public float getLaserRepetitionRate()
+	{
+		if (!LASER.equals(getLightSourceKind())) return 0;
+		Laser laser = (Laser) getLightSource();
+		RFloat value = laser.getRepetitionRate();
+		if (value  == null) return 0;
+		return value.getValue();
+	}
+	
 }

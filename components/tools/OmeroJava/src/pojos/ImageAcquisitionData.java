@@ -83,14 +83,24 @@ public class ImageAcquisitionData
 	private boolean				objectiveDirty;
 	
 	/** The objective's medium. */
-	private String				medium;
+	private Medium				medium;
 	
 	/** The objective's immersion. */
-	private String				immersion;
+	private Immersion			immersion;
 	
-	/** The objective's coating. */
-	private String				coating;
+	/** The objective's correction. */
+	private Coating				correction;
 	
+	/**
+	 * Returns the objective if any.
+	 * 
+	 * @return See above.
+	 */
+	private Objective getObjective()
+	{
+		if (objective == null) return null;
+		return objective.getObjective();
+	}
 	/**
 	 * Creates a new instance.
 	 * 
@@ -107,7 +117,7 @@ public class ImageAcquisitionData
         objective = image.getObjectiveSettings();
         medium = null;
         immersion = null;
-        coating = null;
+        correction = null;
 	}
 	
 	/**
@@ -245,10 +255,10 @@ public class ImageAcquisitionData
 	 */
 	public String getMedium()
 	{
-		if (medium != null) return medium;
-		if (objective == null) return medium;
+		if (medium != null) return medium.getValue().getValue();
+		if (objective == null) return "";
 		Medium value = objective.getMedium();
-		if (value == null) return medium;
+		if (value == null) return "";
 		return value.getValue().getValue();
 	}
 	
@@ -259,8 +269,7 @@ public class ImageAcquisitionData
 	 */
 	public float getCalibratedMagnification()
 	{
-		if (objective == null) return 0f;
-		Objective obj = objective.getObjective();
+		Objective obj = getObjective();
 		if (obj == null) return 0f;
 		RFloat value = obj.getCalibratedMagnification();
 		if (value == null) return 0f;
@@ -274,8 +283,7 @@ public class ImageAcquisitionData
 	 */
 	public int getNominalMagnification()
 	{
-		if (objective == null) return 0;
-		Objective obj = objective.getObjective();
+		Objective obj = getObjective();
 		if (obj == null) return 0;
 		RInt value = obj.getNominalMagnification();
 		if (value == null) return 0;
@@ -289,8 +297,7 @@ public class ImageAcquisitionData
 	 */
 	public float getLensNA()
 	{
-		if (objective == null) return 0f;
-		Objective obj = objective.getObjective();
+		Objective obj = getObjective();
 		if (obj == null) return 0f;
 		RFloat value = obj.getLensNA();
 		if (value == null) return 0f;
@@ -304,12 +311,11 @@ public class ImageAcquisitionData
 	 */
 	public String getImmersion()
 	{
-		if (immersion != null) return immersion;
-		if (objective == null) return immersion;
-		Objective obj = objective.getObjective();
-		if (obj == null) return immersion;
+		if (immersion != null) return immersion.getValue().getValue();
+		Objective obj = getObjective();
+		if (obj == null) return "";
 		Immersion value = obj.getImmersion();
-		if (value == null) return immersion;
+		if (value == null) return "";
 		return value.getValue().getValue();
 	}
 	
@@ -318,14 +324,13 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public String getCoating()
+	public String getCorrection()
 	{
-		if (coating != null) return coating;
-		if (objective == null) return coating;
-		Objective obj = objective.getObjective();
-		if (obj == null) return coating;
+		if (correction != null) return correction.getValue().getValue();
+		Objective obj = getObjective();
+		if (obj == null) return "";
 		Coating value = obj.getCoating();
-		if (value == null) return coating;
+		if (value == null) return "";
 		return value.getValue().getValue();
 	}
 	
@@ -336,10 +341,11 @@ public class ImageAcquisitionData
 	 */
 	public float getWorkingDistance()
 	{
-		if (objective == null) return 0f;
-		Objective obj = objective.getObjective();
+		Objective obj = getObjective();
 		if (obj == null) return 0f;
-		return 0f;
+		RFloat value = obj.getWorkingDistance();
+		if (value == null) return 0f;
+		return value.getValue();
 	}
 	
 	/**
@@ -556,7 +562,7 @@ public class ImageAcquisitionData
 	 * 
 	 * @param medium The value to set.
 	 */
-	public void setMedium(String medium)
+	public void setMedium(Medium medium)
 	{
 		this.medium = medium;
 		objectiveSettingsDirty = true;
@@ -611,7 +617,7 @@ public class ImageAcquisitionData
 		objectiveDirty = true;
 		Objective ob = objective.getObjective();
 		if (ob == null) ob = new ObjectiveI();
-		//ob.setLensNA(omero.rtypes.rfloat(na));
+		ob.setWorkingDistance(omero.rtypes.rfloat(distance));
 	}
 	
 	/**
@@ -619,21 +625,21 @@ public class ImageAcquisitionData
 	 * 
 	 * @param immersion The value to set.
 	 */
-	public void setImmersion(String immersion)
+	public void setImmersion(Immersion immersion)
 	{
 		objectiveDirty = true;
 		this.immersion = immersion;
 	}
 	
 	/**
-	 * Sets the coating.
+	 * Sets the correction.
 	 * 
-	 * @param coating The value to set.
+	 * @param correction The value to set.
 	 */
-	public void setCoating(String coating)
+	public void setCorrection(Coating correction)
 	{
 		objectiveDirty = true;
-		this.coating = coating;
+		this.correction = correction;
 	}
 	
 	/**
@@ -712,10 +718,30 @@ public class ImageAcquisitionData
 	 */
 	public long getObjectiveId()
 	{
-		if (objective == null) return -1;
-		Objective ob = objective.getObjective();
+		Objective ob = getObjective();
 		if (ob == null) return -1;
 		return ob.getId().getValue();
 	}
+
+	/**
+	 * Returns the medium enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public Medium getMediumAsEnum() { return medium; }
+	
+	/**
+	 * Returns the immersion enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public Immersion getImmersionAsEnum() { return immersion; }
+	
+	/**
+	 * Returns the immersion enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public Coating getCorrectionAsEnum() { return correction; }
 	
 }
