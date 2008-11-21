@@ -3380,6 +3380,25 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     }
                 }));
     }
+    
+    public void setObjectiveSettingsCorrectionCollar_async(
+            AMD_MetadataStore_setObjectiveSettingsCorrectionCollar __cb,
+            final RFloat correctionCollar, final int imageIndex,
+            Current __current)
+            throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setObjectiveSettingsCorrectionCollar(
+                                correctionCollar.getValue(), imageIndex);
+                        return null;
+                    }
+                }));
+    }
 
     public void setObjectiveSettingsMedium_async(
             AMD_MetadataStore_setObjectiveSettingsMedium __cb, 

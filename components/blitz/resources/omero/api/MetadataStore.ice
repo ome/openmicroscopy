@@ -124,6 +124,7 @@ module omero {
 		void setObjectiveSettingsMedium(RString medium, int imageIndex) throws ServerError;
 		void setObjectiveSettingsObjective(RString objective, int imageIndex) throws ServerError;
 		void setObjectiveSettingsRefractiveIndex(RFloat refractiveIndex, int imageIndex) throws ServerError;
+		void setObjectiveSettingsCorrectionCollar(RFloat correctionCollar, int imageIndex) throws ServerError;
 		void setOTFID(RString id, int instrumentIndex, int otfIndex) throws ServerError;
 		void setOTFOpticalAxisAveraged(RBool opticalAxisAveraged, int instrumentIndex, int otfIndex) throws ServerError;
 		void setOTFPath(RString path, int instrumentIndex, int otfIndex) throws ServerError;

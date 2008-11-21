@@ -2376,7 +2376,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveSettingsCorrectionCollar(rfloat(correctionCollar), rint(imageIndex));
+            delegate.setObjectiveSettingsCorrectionCollar(rfloat(correctionCollar), imageIndex);
         }
         catch (ServerError e)
         {
@@ -2388,7 +2388,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveSettingsMedium(rstring(medium), rint(imageIndex));
+            delegate.setObjectiveSettingsMedium(rstring(medium), imageIndex);
         }
         catch (ServerError e)
         {
@@ -2400,7 +2400,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveSettingsObjective(rstring(objective), rint(imageIndex));
+            delegate.setObjectiveSettingsObjective(rstring(objective), imageIndex);
         }
         catch (ServerError e)
         {
@@ -2413,7 +2413,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setObjectiveSettingsRefractiveIndex(rfloat(refractiveIndex), rint(imageIndex));
+            delegate.setObjectiveSettingsRefractiveIndex(rfloat(refractiveIndex), imageIndex);
         }
         catch (ServerError e)
         {
