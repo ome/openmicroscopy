@@ -397,5 +397,11 @@ public class EditorUI
 	{
 		acquisitionPane.setImageAcquisitionData();
 	}
+
+	void setChannelAcquisitionData(int index)
+	{
+		acquisitionPane.setChannelAcquisitionData(index);
+		
+	}
 	
 }

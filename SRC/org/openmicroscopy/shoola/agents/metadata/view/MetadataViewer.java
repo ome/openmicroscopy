@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
@@ -60,7 +61,7 @@ import pojos.ExperimenterData;
 public interface MetadataViewer
 	extends ObservableComponent
 {
-
+	
 	/** Bound property indicating that the data have been saved. */
 	public static final String	ON_DATA_SAVE_PROPERTY = "onDataSave";
 	

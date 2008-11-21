@@ -155,7 +155,7 @@ class TextualAnnotationsUI
 		JButton moreButton = new JButton("...more");
 		UIUtilities.unifiedButtonLookAndFeel(moreButton);
 		moreButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		moreButton.setForeground(Color.BLUE);
+		moreButton.setForeground(UIUtilities.HYPERLINK_COLOR);
 		moreButton.setToolTipText("Display previous comments.");
 		moreButton.addActionListener(this);
 		moreButton.setActionCommand(""+MORE);
@@ -165,7 +165,7 @@ class TextualAnnotationsUI
 		JButton hideButton = new JButton("hide");
 		UIUtilities.unifiedButtonLookAndFeel(hideButton);
 		hideButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		hideButton.setForeground(Color.BLUE);
+		hideButton.setForeground(UIUtilities.HYPERLINK_COLOR);
 		hideButton.setToolTipText("Hide previous comments.");
 		hideButton.addActionListener(this);
 		hideButton.setActionCommand(""+HIDE);

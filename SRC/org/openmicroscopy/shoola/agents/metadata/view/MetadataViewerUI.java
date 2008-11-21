@@ -33,7 +33,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -43,7 +42,7 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
 import pojos.DatasetData;
@@ -64,7 +63,7 @@ import pojos.ProjectData;
  * @since OME3.0
  */
 class MetadataViewerUI 
-	extends JDialog//TopWindow
+	extends TopWindow
 {
 
     /** The text corresponding to the creation of a <code>Project</code>. */
@@ -148,8 +147,8 @@ class MetadataViewerUI
 	 */
 	MetadataViewerUI()
 	{
-		//super("");
-		super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
+		super("");
+		//super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 	}
 	
 	/**

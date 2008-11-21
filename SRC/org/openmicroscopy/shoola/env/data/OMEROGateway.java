@@ -3859,8 +3859,10 @@ class OMEROGateway
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
         sb.append("left outer join fetch ds.detector as detector ");
-        sb.append("left outer join fetch lss.lightSource as lightSource ");
-        sb.append("where img.id = :id");
+        sb.append("left outer join fetch detector.type as dt ");
+        sb.append("left outer join fetch lss.lightSource as light ");
+        sb.append("left outer join fetch light.type as lt ");
+        sb.append("where channel.id = :id");
         param.addLong("id", channelID);
 		try {
 			IObject r = service.findByQuery(sb.toString(), param);
@@ -3965,6 +3967,14 @@ class OMEROGateway
 		return new ArrayList<IObject>();
 	}
 	
+	/**
+	 * Fills the enumerations.
+	 * 
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	void fillEnumerations()
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -3978,7 +3988,12 @@ class OMEROGateway
 		l = getEnumerations(OmeroMetadataService.CONTRAST_METHOD);
 		l = getEnumerations(OmeroMetadataService.ILLUMINATION_TYPE);
 		l = getEnumerations(OmeroMetadataService.PHOTOMETRIC_INTERPRETATION);
-		l = getEnumerations(OmeroMetadataService.MODE);
+		l = getEnumerations(OmeroMetadataService.ACQUISITION_MODE);
+		l = getEnumerations(OmeroMetadataService.LASER_MEDIUM);
+		l = getEnumerations(OmeroMetadataService.LASER_TYPE);
+		l = getEnumerations(OmeroMetadataService.ARC_TYPE);
+		l = getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
+		l = getEnumerations(OmeroMetadataService.LASER_PULSE);
 	}
 	
 }

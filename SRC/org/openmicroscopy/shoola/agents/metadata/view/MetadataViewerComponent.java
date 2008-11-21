@@ -25,12 +25,12 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -564,6 +565,18 @@ class MetadataViewerComponent
 	public void setStatus(boolean busy)
 	{
 		model.getEditor().setStatus(busy);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#showManufacturer(JComponent, Point)
+	 */
+	public void showManufacturer(JComponent comp, Point point)
+	{
+		TinyDialog d = new TinyDialog(view, comp, TinyDialog.CLOSE_ONLY);
+		d.pack();
+		d.setLocation(point);
+		d.setVisible(true);
 	}
 	
 }

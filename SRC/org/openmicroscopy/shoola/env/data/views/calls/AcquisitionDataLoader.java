@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -68,7 +69,7 @@ public class AcquisitionDataLoader
 		return new BatchCall("Loading Acquisition data: ") {
 			public void doCall() throws Exception
 			{
-				OmeroImageService rds = context.getImageService();
+				OmeroMetadataService rds = context.getMetadataService();
 				result = rds.loadAcquisitionData(refObject);
 			}
 		};

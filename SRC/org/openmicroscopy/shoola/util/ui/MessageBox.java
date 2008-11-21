@@ -49,6 +49,9 @@ public class MessageBox
 	extends OptionsDialog
 {
 	
+	/** Bound property indicating the option selected by the user. */
+	public static final String		OPTION_SELECTED_PROPERTY = "optionSelected";
+	
 	/** User have selected the yes option. */
 	public final static int			YES_OPTION = 1;
 
@@ -65,19 +68,32 @@ public class MessageBox
      * Overridden to perform the action as the user has selected the 
      * <code>Yes</code> option.
      */
-    protected void onYesSelection() { option = YES_OPTION; }
+    protected void onYesSelection()
+    { 
+    	option = YES_OPTION; 
+
+    	firePropertyChange(OPTION_SELECTED_PROPERTY, -1, option);
+    }
     
     /**
      * Overridden to perform the action as the user has selected the 
      * <code>No</code> option.
      */
-    protected void onNoSelection() { option = NO_OPTION; }
+    protected void onNoSelection()
+    { 
+    	option = NO_OPTION;
+    	firePropertyChange(OPTION_SELECTED_PROPERTY, -1, option);
+    }
     
     /**
      * Overridden to perform the action as the user has selected the 
      * <code>Cancel</code> option.
      */
-    protected void onCancel() { option = CANCEL; }
+    protected void onCancel()
+    { 
+    	option = CANCEL; 
+    	firePropertyChange(OPTION_SELECTED_PROPERTY, -1, option);
+    }
     
 	/**
 	 * Creates a new dialog.
@@ -164,5 +180,7 @@ public class MessageBox
     	UIUtilities.centerAndShow(this);
     	return option;	
     }
+    
+    public int getOption() { return option; }
     
 }

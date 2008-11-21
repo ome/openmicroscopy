@@ -30,12 +30,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -69,6 +70,9 @@ class ImageAcquisitionComponent
 
 	/** Reference to the Model. */
 	private EditorModel				model;
+	
+	/** Reference to the parent of this component. */
+	private AcquisitionDataUI		parent;
 	
 	/** The component hosting the various immersion values. */
 	private OMEComboBox				immersionBox;
@@ -96,6 +100,7 @@ class ImageAcquisitionComponent
 		l = model.getImageEnumerations(Editor.CORRECTION);
 		coatingBox = EditorUtil.createComboBox(l);
 		l = model.getImageEnumerations(Editor.MEDIUM);
+		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
 		mediumBox = EditorUtil.createComboBox(l);
 		fields = new HashMap<String, JComponent>();
 	}
@@ -168,78 +173,10 @@ class ImageAcquisitionComponent
 	}
 	
 	/** 
-	 * Builds and lays out the setting relative to the objective.
-	 * 
-	 * @param details The data to lay out.
-	 * @return See above.
-	 */
-	private JPanel buildObjectiveSetting(Map<String, Object> details)
-	{
-		JPanel content = new JPanel();
-		content.setBorder(
-				BorderFactory.createTitledBorder("Objective's Settings"));
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		Iterator i = details.keySet().iterator();
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        Object selected;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            key = (String) i.next();
-            value = details.get(key);
-            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-            label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            if (key.equals(EditorUtil.MEDIUM)) {
-            	selected = model.getImageEnumerationSelected(Editor.MEDIUM, 
-            			(String) value);
-            	if (selected != null) immersionBox.setSelectedItem(selected);
-            	mediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = mediumBox;
-            } else {
-            	 area = UIUtilities.createComponent(NumericalTextField.class, 
-            			 null);
-            	 if (value instanceof Double) 
-            		 ((NumericalTextField) area).setNumberType(Double.class);
-            	 else if (value instanceof Float) 
-            		 ((NumericalTextField) area).setNumberType(Float.class);
-                 ((NumericalTextField) area).setText(""+value);
-                 ((NumericalTextField) area).setEditedColor(
-                		 UIUtilities.EDITED_COLOR);
-            }
-           
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-
-            fields.put(key, area);
-        }
-		return content;
-	}
-	
-	/** 
 	 * Builds and lays out the objective's data.
 	 * 
 	 * @param details The data to lay out.
+	 * @param detailsSettings The settings of the detector.
 	 * @return See above.
 	 */
 	private JPanel buildObjective(Map<String, Object> details, 
@@ -253,7 +190,6 @@ class ImageAcquisitionComponent
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-		Iterator i = details.keySet().iterator();
         JLabel label;
         JComponent area;
         String key;
@@ -262,6 +198,36 @@ class ImageAcquisitionComponent
         Font font = label.getFont();
         int sizeLabel = font.getSize()-2;
         Object selected;
+        
+        Map<String, Object> m = new LinkedHashMap<String, Object>(3);
+        m.put(EditorUtil.MANUFACTURER, details.get(EditorUtil.MANUFACTURER));
+        details.remove(EditorUtil.MANUFACTURER);
+        m.put(EditorUtil.MODEL, details.get(EditorUtil.MODEL));
+        details.remove(EditorUtil.MODEL);
+        m.put(EditorUtil.SERIAL_NUMBER, details.get(EditorUtil.SERIAL_NUMBER));
+        details.remove(EditorUtil.SERIAL_NUMBER);
+        
+        area = parent.formatManufacturer(m, sizeLabel, fields);
+    	
+    	c.gridx = 0;
+    	label = UIUtilities.setTextFont(AnnotationDataUI.MANUFACTURER, 
+    			Font.BOLD, sizeLabel);
+        label.setBackground(UIUtilities.BACKGROUND_COLOR);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        label.setLabelFor(area);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(area, c);
+        
+        c.gridy = 1;
+		Iterator i = details.keySet().iterator();
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -447,12 +413,16 @@ class ImageAcquisitionComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model	Reference to the Model. Mustn't be <code>null</code>.
+	 * @param parent	Reference to the Parent. Mustn't be <code>null</code>.
+	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	ImageAcquisitionComponent(EditorModel model)
+	ImageAcquisitionComponent(AcquisitionDataUI parent, EditorModel model)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
+		if (parent == null)
+			throw new IllegalArgumentException("No parent.");
+		this.parent = parent;
 		this.model = model;
 		//initComponents();
 		//buildGUI();

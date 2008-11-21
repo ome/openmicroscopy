@@ -25,14 +25,20 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import javax.swing.Box;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -40,6 +46,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 
@@ -77,16 +84,20 @@ class AcquisitionDataUI
 	private ImageAcquisitionComponent	imageAcquisition;
 	
 	/** The collection of channel acquisition data. */
-	private List<JXTaskPane> 			channelAcquisitionPanes;
+	private Map<JXTaskPane, ChannelData> channelAcquisitionPanes;
 	
 	/** The component hosting the image info. */
 	private JXTaskPane 					imagePane;
 	
+	/** Collection of components hosting the channel. */
+	private List<ChannelAcquisitionComponent> channelComps;
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
-		channelAcquisitionPanes = new ArrayList<JXTaskPane>();
-		imageAcquisition = new ImageAcquisitionComponent(model);
+		channelComps = new ArrayList<ChannelAcquisitionComponent>();
+		channelAcquisitionPanes = new HashMap<JXTaskPane, ChannelData>();
+		imageAcquisition = new ImageAcquisitionComponent(this, model);
 		imageAcquisition.addPropertyChangeListener(this);
 		imagePane = EditorUtil.createTaskPane("Image");
 		imagePane.add(imageAcquisition);
@@ -107,16 +118,19 @@ class AcquisitionDataUI
         c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(0, 2, 2, 0);
-        Iterator<JXTaskPane> i = channelAcquisitionPanes.iterator();
+        
         c.weightx = 1.0;
         container.add(imagePane, c);
         c.gridy = 1;
+        Iterator<JXTaskPane> i = channelAcquisitionPanes.keySet().iterator();
         while (i.hasNext()) {
             ++c.gridy;
             container.add(i.next(), c);  
         }
         add(container, BorderLayout.NORTH);
 	}
+	
+	
 	
 	/**
 	 * Creates a new instance.
@@ -142,6 +156,68 @@ class AcquisitionDataUI
 		initComponents();
 	}
 	
+	/**
+	 * Formats the manufacturer. 
+	 * 
+	 * @param details 	The value to format.
+	 * @param sizeLabel The size of the label.
+	 * @param fields	The fields to keep track of.
+	 * @return See above
+	 */
+	JComponent formatManufacturer(Map<String, Object> details, int sizeLabel, 
+			 Map<String, JComponent> fields)
+	{
+		JLabel l = UIUtilities.setTextFont(
+				AnnotationDataUI.MANUFACTURER_DETAILS, Font.ITALIC, sizeLabel);
+    	l.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	l.setForeground(UIUtilities.HYPERLINK_COLOR);
+    	l.setToolTipText(AnnotationDataUI.MANUFACTURER_TOOLTIP);
+    	//Format details
+    	JPanel content = new JPanel();
+		content.setBackground(UIUtilities.BACKGROUND_COLOR);
+		content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		Iterator i = details.keySet().iterator();
+        JLabel label;
+        JComponent area;
+        String key;
+        Object value;
+        label = new JLabel();
+        
+        while (i.hasNext()) {
+            ++c.gridy;
+            c.gridx = 0;
+            key = (String) i.next();
+            value = details.get(key);
+            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+            label.setBackground(UIUtilities.BACKGROUND_COLOR);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            area = UIUtilities.createComponent(OMETextArea.class, null);
+            if (value == null || value.equals(""))
+             	value = AnnotationUI.DEFAULT_TEXT;
+            ((OMETextArea) area).setText((String) value);
+       	 	((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
+            
+            label.setLabelFor(area);
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(area, c);  
+            fields.put(key, area);
+        }
+        l.addMouseListener(controller.createManufacturerAction(content));
+    	return l;
+	}
+	
 	/** 
 	 * Sets the data when data are loaded, builds the UI.
 	 */
@@ -156,11 +232,14 @@ class AcquisitionDataUI
 			JXTaskPane p;
 			while (i.hasNext()) {
 				channel = (ChannelData) i.next();
-				comp = new ChannelAcquisitionComponent(model, channel);
+				comp = new ChannelAcquisitionComponent(this, model, channel);
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getEmissionWavelength());
 				p.add(comp);
-				channelAcquisitionPanes.add(p);
+				p.addPropertyChangeListener(
+						UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+				channelAcquisitionPanes.put(p, channel);
+				channelComps.add(comp);
 			}
 		}
 		buildGUI();
@@ -170,6 +249,21 @@ class AcquisitionDataUI
 	void setImageAcquisitionData()
 	{
 		imageAcquisition.setImageAcquisitionData();
+	}
+	
+	/**
+	 * Displays the acquisition data for the passed channel.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void setChannelAcquisitionData(int index)
+	{
+		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
+		ChannelAcquisitionComponent comp;
+		while (i.hasNext()) {
+			comp = i.next();
+			comp.setChannelAcquisitionData(index);
+		}
 	}
 	
 	/**
@@ -183,7 +277,12 @@ class AcquisitionDataUI
 		Object src = evt.getSource();
 		if (src == imagePane) {
 			controller.loadImageAcquisitionData();
+		} else {
+			ChannelData channel = channelAcquisitionPanes.get(src);
+			controller.loadChannelAcquisitionData(channel);
 		}
 	}
+
+	
 	
 }

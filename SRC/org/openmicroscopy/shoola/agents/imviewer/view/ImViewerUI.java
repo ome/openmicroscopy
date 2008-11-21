@@ -1986,16 +1986,13 @@ class ImViewerUI
 		d.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
 				controller);
 		d.pack();
-		setBottomSpace(2*statusBar.getPreferredSize().height);
+		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
 		setCloseAfter(true);
-		showJDialogAsSheet(d, UP);
+		showJDialogAsSheet(d, p, UP);
 	}
 	
 	/** Hides the plane information. */
-	void hidePlaneInfoDetails()
-	{
-		hideAnimation();
-	}
+	void hidePlaneInfoDetails() { hideAnimation(); }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

@@ -216,10 +216,8 @@ class ServerDialog
 		editor.addPropertyChangeListener(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the window.");
-		cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		finishButton =  new JButton("Apply");
 		finishButton.setEnabled(false);
-		finishButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(finishButton);
 		//layer hosting title and empty message
 		IconManager icons = IconManager.getInstance();
@@ -237,7 +235,6 @@ class ServerDialog
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
-		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		bar.setOpaque(true);
         bar.setBorder(null);
         bar.add(finishButton);
@@ -245,7 +242,6 @@ class ServerDialog
         bar.add(cancelButton);
         JPanel p = UIUtilities.buildComponentPanelRight(bar);
         p.setOpaque(true);
-        p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         return p;
 	}
 	
@@ -298,11 +294,9 @@ class ServerDialog
 	private JPanel buildConnectionSpeed(int index)
 	{
 		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
 		buttonsGroup = new ButtonGroup();
 		JRadioButton button = new JRadioButton();
-		button.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		button.setText("LAN");
 		button.setActionCommand(""+HIGH_SPEED);
 		button.addActionListener(this);
@@ -310,7 +304,6 @@ class ServerDialog
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
-		button.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		button.setText("High (Broadband)");
 		button.setActionCommand(""+MEDIUM_SPEED);
 		button.setSelected(index == LoginCredentials.MEDIUM);
@@ -318,7 +311,6 @@ class ServerDialog
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
-		button.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		button.setText("Low (Dial-up)");
 		button.setActionCommand(""+LOW_SPEED);
 		button.setSelected(index == LoginCredentials.LOW);
@@ -329,9 +321,7 @@ class ServerDialog
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.add(editor);
 		p = UIUtilities.buildComponentPanel(p);
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		content.add(p);
-		content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return content;
 	}
 	

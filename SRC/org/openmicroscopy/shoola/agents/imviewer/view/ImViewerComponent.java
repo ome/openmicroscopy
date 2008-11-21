@@ -337,6 +337,7 @@ class ImViewerComponent
 			}
 		}
 		if (!showBox) return true;
+
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			if (rndBox != null && rndBox.isSelected()) {

@@ -30,18 +30,21 @@ package org.openmicroscopy.shoola.env.data.model;
 //Application-internal dependencies
 import omero.RString;
 import omero.model.AcquisitionMode;
+import omero.model.ArcType;
 import omero.model.Binning;
 import omero.model.Coating;
 import omero.model.ContrastMethod;
 import omero.model.DetectorType;
-import omero.model.IObject;
+import omero.model.FilamentType;
 import omero.model.Illumination;
 import omero.model.Immersion;
+import omero.model.LaserMedium;
+import omero.model.LaserType;
 import omero.model.Medium;
 import omero.model.PhotometricInterpretation;
 
 /** 
- * 
+ * Wraps an Enumeration object or a String.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,14 +60,14 @@ public class EnumerationObject
 {
 
 	/** The objet hosted by this component. */
-	private IObject object;
+	private Object object;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param object The 
 	 */
-	public EnumerationObject(IObject object)
+	public EnumerationObject(Object object)
 	{
 		if (object == null)
 			throw new IllegalArgumentException();
@@ -76,7 +79,7 @@ public class EnumerationObject
 	 * 
 	 * @return See above.
 	 */
-	public IObject getObject() { return object; }
+	public Object getObject() { return object; }
 	
 	/**
 	 * Returns the value of the enumeration. 
@@ -104,6 +107,15 @@ public class EnumerationObject
 			value = ((PhotometricInterpretation) object).getValue();
 		else if (object instanceof AcquisitionMode)
 			value = ((AcquisitionMode) object).getValue();
+		else if (object instanceof LaserMedium)
+			value = ((LaserMedium) object).getValue();
+		else if (object instanceof LaserType)
+			value = ((LaserType) object).getValue();
+		else if (object instanceof ArcType)
+			value = ((ArcType) object).getValue();
+		else if (object instanceof FilamentType)
+			value = ((FilamentType) object).getValue();
+		else if (object instanceof String) return (String) object;
 		if (value != null) return value.getValue();
 		return "";
 	}
@@ -112,8 +124,6 @@ public class EnumerationObject
 	 * Overridden to return the value of the enumeration object.
 	 * @see Object#toString()
 	 */
-	public String toString() { 
-		
-		return getValue(); }
+	public String toString() { return getValue(); }
 	
 }

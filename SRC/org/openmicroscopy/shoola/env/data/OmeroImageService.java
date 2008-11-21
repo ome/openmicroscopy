@@ -360,35 +360,7 @@ public interface OmeroImageService
 	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
 			List<Integer> indexes)
 		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the acquisition metadata for an image or a given channel.
-	 * 
-	 * @param refObject Either an <code>ImageData</code> or 
-     * 					<code>ChannelData</code> node.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Object loadAcquisitionData(Object refObject)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the acquisition metadata for an image or a given channel.
-	 * 
-	 * @param refObject Either an <code>ImageAcquisitionData</code> or 
-     * 					<code>ChannelAcquisitionData</code> node.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Object saveAcquisitionData(Object refObject)
-		throws DSOutOfServiceException, DSAccessException;
-	
+
 	/**
 	 * Loads the plane info objects related to the passed pixels set.
 	 * 

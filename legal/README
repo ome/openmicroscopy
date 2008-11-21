@@ -276,3 +276,10 @@
   Web Site: https://jax-rpc.dev.java.net/
   Artifacts: The jaxrpc-* file under LIB/
   License: Common Development and Distribution License, Version 1.0
+  
+  Project: Apache Project Java API To Access Microsoft Format Files
+  Artifacts: The poi-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  

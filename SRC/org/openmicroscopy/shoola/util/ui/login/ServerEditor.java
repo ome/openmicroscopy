@@ -228,12 +228,10 @@ public class ServerEditor
 		UIUtilities.unifiedButtonLookAndFeel(removeButton);
 		removeButton.setToolTipText("Remove the selected server " +
 									"from the list of servers.");
-		removeButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		addButton = new JButton(icons.getIcon(IconManager.ADD));
 		addButton.setToolTipText("Add a new server to the list of servers.");
 		addButton.setBorder(new TitledBorder(""));
 		UIUtilities.unifiedButtonLookAndFeel(addButton);
-		addButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		removeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{ 
@@ -249,7 +247,6 @@ public class ServerEditor
 	private void buildGUI()
 	{
         JPanel labels = new JPanel();
-        labels.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         labels.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -292,7 +289,6 @@ public class ServerEditor
             labels.add(label, c); 
         }
         JPanel p = new JPanel();
-        p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         p.add(new JScrollPane(table));
@@ -300,7 +296,6 @@ public class ServerEditor
        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel content = UIUtilities.buildComponentPanel(labels);
-        content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         add(content); 
         add(p);
 	}
@@ -313,14 +308,12 @@ public class ServerEditor
 	private JPanel buildControls()
 	{
 		JToolBar bar = new JToolBar();
-		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
         bar.add(addButton);
         bar.add(removeButton);
         JPanel p = UIUtilities.buildComponentPanel(bar);
-        p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         return p;
 	}
 	

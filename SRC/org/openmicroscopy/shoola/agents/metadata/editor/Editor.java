@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +38,8 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
+import pojos.ChannelAcquisitionData;
+import pojos.ChannelData;
 import pojos.ImageAcquisitionData;
 
 /** 
@@ -69,6 +72,14 @@ public interface Editor
 	public static final String DETECTOR_TYPE = 
 					OmeroMetadataService.DETECTOR_TYPE;
 	
+	/** Identified the <code>Laser medium</code> enumeration. */
+	public static final String LASER_MEDIUM = 
+					OmeroMetadataService.LASER_MEDIUM;
+	
+	/** Identified the <code>Laser medium</code> enumeration. */
+	public static final String LASER_PULSE = 
+					OmeroMetadataService.LASER_PULSE;
+	
 	/** Identified the <code>Binning</code> enumeration. */
 	public static final String BINNING = OmeroMetadataService.BINNING;
 	
@@ -84,8 +95,19 @@ public interface Editor
 	public static final String PHOTOMETRIC_INTERPRETATION = 
 		OmeroMetadataService.PHOTOMETRIC_INTERPRETATION;
 	
+	/** Identified the <code>arc type</code> enumeration. */
+	public static final String ARC_TYPE = OmeroMetadataService.ARC_TYPE;
+	
+	/** Identified the <code>filament type</code> enumeration. */
+	public static final String FILAMENT_TYPE = 
+		OmeroMetadataService.FILAMENT_TYPE;
+	
+	/** Identified the <code>laser type</code> enumeration. */
+	public static final String LASER_TYPE = 
+		OmeroMetadataService.LASER_TYPE;
+	
 	/** Identified the <code>mode</code> enumeration. */
-	public static final String MODE = OmeroMetadataService.MODE;
+	public static final String MODE = OmeroMetadataService.ACQUISITION_MODE;
 	
 	/** Inidicates to layout all the components vertically. */
 	public static final int VERTICAL_LAYOUT = MetadataViewer.VERTICAL_LAYOUT;
@@ -252,5 +274,29 @@ public interface Editor
 	 * @param map The value to set.
 	 */
 	public void setChannelEnumerations(Map map);
+
+	/**
+	 * Indicates to bring up on screen the manufacturer details.
+	 * 
+	 * @param comp	The component to display.
+	 * @param point	The onscreen location of the mouse pressed.
+	 */
+	public void showManufacturer(JComponent comp, Point point);
+
+	/**
+	 * Sets the acquisition data for the specified channel.
+	 * 
+	 * @param index The index of the channel.
+	 * @param data	The acquisition data.
+	 */
+	public void setChannelAcquisitionData(int index, 
+			ChannelAcquisitionData data);
+
+	/**
+	 * Loads the channel acquisition for the specified channel.
+	 * 
+	 * @param channel The channel to handle.
+	 */
+	public void loadChannelAcquisitionData(ChannelData channel);
 	
 }

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -63,7 +66,11 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.AnnotationData;
+import pojos.ChannelAcquisitionData;
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -154,6 +161,8 @@ class EditorModel
 	/** The enumerations related to image metadata. */
 	private Map						imageEnumerations;
 	
+	private Map<Integer, ChannelAcquisitionData> channelAcquisitionDatMap;
+	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -199,6 +208,8 @@ class EditorModel
 		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
+		channelAcquisitionDatMap = 
+			new HashMap<Integer, ChannelAcquisitionData>();
 	}
 	
 	/**
@@ -417,7 +428,7 @@ class EditorModel
 		else if (object instanceof ImageData) 
 			time = EditorUtil.getAcquisitionTime((ImageData) object);
 			
-		if (time != null) date = UIUtilities.formatWDMYDate(time);
+		if (time != null) date = UIUtilities.formatShortDateTime(time);
 		return date;
 	}
 	
@@ -1234,6 +1245,18 @@ class EditorModel
 		loader.load();
 	}
 	
+	/** 
+	 * Loads the image acquisition data. 
+	 * 
+	 * @param channel The channel to handle.
+	 */
+	void  fireChannelAcquisitionDataLoading(ChannelData channel)
+	{
+		AcquisitionDataLoader 
+			loader = new AcquisitionDataLoader(component, channel); 
+		loader.load();
+	}
+	
 	/**
 	 * Sets the image acquisition data.
 	 * 
@@ -1254,6 +1277,22 @@ class EditorModel
 		return imageAcquisitionData;
 	}
 
+
+	void setChannelAcquisitionData(int index, ChannelAcquisitionData data)
+	{
+		channelAcquisitionDatMap.put(index, data);
+	}
+	/**
+	 * Returns the channel acquisition data.
+	 * 
+	 * @param index The index of the channels.
+	 * @return See above.
+	 */
+	ChannelAcquisitionData getChannelAcquisitionData(int index)
+	{ 
+		return channelAcquisitionDatMap.get(index);
+	}
+	
 	/**
 	 * Returns the collection of objects corresponding to the passed name.
 	 * 

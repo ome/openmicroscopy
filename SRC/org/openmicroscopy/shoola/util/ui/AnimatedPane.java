@@ -94,8 +94,7 @@ class AnimatedPane
 		GraphicsEnvironment 
 			env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		config = env.getDefaultScreenDevice().getDefaultConfiguration();
-		setOpaque(true);
-		
+		setOpaque(false);
 	}
 	
 	/**
@@ -108,6 +107,8 @@ class AnimatedPane
 		this.source = source;
 		if (source == null) return;
 		animatedSize.width = source.getWidth();
+		if (parent.getOrientation() == AnimatedJFrame.UP)
+			animatedSize.height = source.getHeight();
 		makeOffscreenImage(source);
 	}
 	
@@ -119,7 +120,8 @@ class AnimatedPane
 	void setAnimatingHeight(int height)
 	{
 		animatedSize.height = height;
-		setSize(animatedSize);
+		if (parent.getOrientation() != AnimatedJFrame.UP)
+			setSize(animatedSize);
 	}
 
 	/**
@@ -149,16 +151,19 @@ class AnimatedPane
 		super.paintComponent(g);
 		if (image == null) return;
 		BufferedImage img;
-		if (parent.getOrientation() == AnimatedJFrame.UP) {
-			img = image.getSubimage(0, 0, source.getWidth(), 
-					animatedSize.height);
-			g.drawImage(img, 0, source.getHeight()-animatedSize.height, this);
-			
-		} else {
-			img = image.getSubimage(0, image.getHeight()-animatedSize.height, 
-					source.getWidth(), animatedSize.height);
-			g.drawImage(img, 0, 0, this);
-		}
+		try {
+			if (parent.getOrientation() == AnimatedJFrame.UP) {
+				img = image.getSubimage(0, 0, source.getWidth(), 
+						animatedSize.height);
+				g.drawImage(img, 0, 
+						source.getHeight()-animatedSize.height, this);
+			} else {
+				img = image.getSubimage(0, image.getHeight()-animatedSize.height, 
+						source.getWidth(), animatedSize.height);
+				g.drawImage(img, 0, 0, this);
+			}
+		} catch (Exception e) {} //ignore
+		
 	}
 	
 }

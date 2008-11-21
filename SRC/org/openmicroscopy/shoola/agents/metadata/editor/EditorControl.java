@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -53,6 +54,7 @@ import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 
 /** 
  * The Editor's controller.
@@ -156,11 +158,32 @@ class EditorControl
 	/** Loads the image acquisition data. */
 	void loadImageAcquisitionData() { model.loadImageAcquisitionData(); }
 	
+	/** 
+	 * Loads the channel acquisition data. 
+	 * 
+	 * @param channel The channel to handle.
+	 */
+	void loadChannelAcquisitionData(ChannelData channel)
+	{ 
+		model.loadChannelAcquisitionData(channel);
+	}
+	
 	/** Loads the existing Tags. */
 	void loadExistingTags()
 	{
 		view.onTagsLoading(true);
 		model.loadExistingTags();
+	}
+	
+	/**
+	 * Creates a manufacturer action for the passed component.
+	 * 
+	 * @param component The component to display.
+	 * @return See above
+	 */
+	ManufacturerAction createManufacturerAction(JComponent component)
+	{
+		return new ManufacturerAction(model, component);
 	}
 	
 	/**

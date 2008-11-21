@@ -72,6 +72,18 @@ abstract class AnnotationUI
 	/** Default text if no data entered. */
 	static final String DEFAULT_TEXT = "None";
 
+	/** The default text for enumeration if not set an arity is 0 or 1. */
+	static final String	NO_SET_TEXT = "Not Set";
+	
+	/** The default text to display manufactured details. */
+	static final String	MANUFACTURER = "Manufacturer";
+	
+	/** The Details or the manufacturer.  */
+	static final String	MANUFACTURER_DETAILS = "Details";
+	
+	/** The Details or the manufacturer.  */
+	static final String	MANUFACTURER_TOOLTIP = "Display the details " +
+			"of the manufacturer.";
 	
 	/** Reference to the model. */
 	protected EditorModel 	model;

@@ -98,6 +98,9 @@ public class UIUtilities
 {
 	
 	/** The default background color. */
+    public static final Color				HYPERLINK_COLOR = Color.BLUE;
+    
+	/** The default background color. */
     public static final Color				BACKGROUND_COLOR = Color.WHITE;
     
     /** The default background color. */

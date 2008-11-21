@@ -35,14 +35,19 @@ import java.util.Set;
 
 //Application-internal dependencies
 import omero.model.AcquisitionMode;
+import omero.model.ArcType;
 import omero.model.Binning;
 import omero.model.Coating;
 import omero.model.ContrastMethod;
 import omero.model.DetectorType;
+import omero.model.FilamentType;
 import omero.model.Illumination;
 import omero.model.Immersion;
+import omero.model.LaserMedium;
+import omero.model.LaserType;
 import omero.model.Medium;
 import omero.model.PhotometricInterpretation;
+import omero.model.Pulse;
 
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -100,8 +105,24 @@ public interface OmeroMetadataService
 	public static final String PHOTOMETRIC_INTERPRETATION = 
 		PhotometricInterpretation.class.getName();
 	
-	/** Identified the <code>mode</code> enumeration. */
-	public static final String MODE = AcquisitionMode.class.getName();
+	/** Identified the <code>Acquisition mode</code> enumeration. */
+	public static final String ACQUISITION_MODE = 
+								AcquisitionMode.class.getName();
+	
+	/** Identified the <code>laser medium</code> enumeration. */
+	public static final String LASER_MEDIUM = LaserMedium.class.getName();
+	
+	/** Identified the <code>Pulse</code> enumeration. */
+	public static final String LASER_PULSE = Pulse.class.getName();
+	
+	/** Identified the <code>laser type</code> enumeration. */
+	public static final String LASER_TYPE = LaserType.class.getName();
+	
+	/** Identified the <code>arc type</code> enumeration. */
+	public static final String ARC_TYPE = ArcType.class.getName();
+	
+	/** Identified the <code>filament type</code> enumeration. */
+	public static final String FILAMENT_TYPE = FilamentType.class.getName();
 	
 	/**
 	 * Retrieves the textual annotations
@@ -563,4 +584,34 @@ public interface OmeroMetadataService
 	 */
 	public Collection getEnumeration(String type)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the acquisition metadata for an image or a given channel.
+	 * 
+	 * @param refObject Either an <code>ImageData</code> or 
+     * 					<code>ChannelData</code> node.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object loadAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	
+	/**
+	 * Loads the acquisition metadata for an image or a given channel.
+	 * 
+	 * @param refObject Either an <code>ImageAcquisitionData</code> or 
+     * 					<code>ChannelAcquisitionData</code> node.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object saveAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

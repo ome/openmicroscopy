@@ -42,13 +42,26 @@ import org.apache.commons.collections.ListUtils;
 //Application-internal dependencies
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
+import omero.model.Coating;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.ImageAnnotationLink;
+import omero.model.ImagingEnvironment;
+import omero.model.ImagingEnvironmentI;
+import omero.model.Immersion;
+import omero.model.Medium;
+import omero.model.Objective;
+import omero.model.ObjectiveI;
+import omero.model.ObjectiveSettings;
+import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
+import omero.model.StageLabel;
+import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.sys.PojoOptions;
 import omero.util.PojoOptionsI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -61,10 +74,12 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.RatingAnnotationData;
@@ -95,7 +110,135 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 
-
+	/**
+	 * Saves the metadata linked to an image.
+	 * 
+	 * @param data
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	private void saveImageAcquisitionData(ImageAcquisitionData data)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Image image = data.asImage();
+		long id;
+		String value;
+		IObject object;
+		//stage Label
+		List<IObject> toCreate = new ArrayList<IObject>();
+		List<IObject> toUpdate = new ArrayList<IObject>();
+		if (data.isPositionDirty()) {
+			StageLabel label;
+			id = data.getPositionId();
+			if (id < 0) { //create a new one.
+				label = new StageLabelI();
+				toCreate.add(label);
+			} else {
+				label = (StageLabel) gateway.findIObject(
+						StageLabel.class.getName(), id);
+				toUpdate.add(label);
+			}
+			label.setName(omero.rtypes.rstring(data.getLabelName()));
+			label.setPositionX(omero.rtypes.rfloat(data.getPositionX()));
+			label.setPositionY(omero.rtypes.rfloat(data.getPositionY()));
+			label.setPositionZ(omero.rtypes.rfloat(data.getPositionZ()));
+		}
+		//Environment
+		if (data.isConditionDirty()) {
+			id = data.getConditionId();
+			ImagingEnvironment condition;
+			if (id < 0) {
+				condition = new ImagingEnvironmentI();
+				toCreate.add(condition);
+			} else {
+				condition = (ImagingEnvironment) gateway.findIObject(
+						ImagingEnvironment.class.getName(), id);
+				toUpdate.add(condition);
+			}
+			condition.setAirPressure(omero.rtypes.rfloat(
+					data.getAirPressure()));
+			condition.setHumidity(omero.rtypes.rfloat(
+					data.getHumidity()));
+			condition.setTemperature(omero.rtypes.rfloat(
+					data.getTemperature()));
+			condition.setCo2percent(omero.rtypes.rfloat(
+					data.getCo2Percent()));
+		}
+		
+		//TODO: check with DB update
+		if (data.isObjectiveDirty()) {
+			id = data.getObjectiveId();
+			Objective objective;
+			if (id < 0) {
+				objective = new ObjectiveI();
+				toCreate.add(objective);
+			} else {
+				objective = (Objective) gateway.findIObject(
+						Objective.class.getName(), id);
+				toUpdate.add(objective);
+			}
+			objective.setModel(omero.rtypes.rstring(data.getModel()));
+			objective.setSerialNumber(omero.rtypes.rstring(
+					data.getSerialNumber()));
+			objective.setManufacturer(
+					omero.rtypes.rstring(data.getManufacturer()));
+			objective.setLensNA(omero.rtypes.rfloat(data.getLensNA()));
+			objective.setNominalMagnification(omero.rtypes.rint(
+					data.getNominalMagnification()));
+			objective.setCalibratedMagnification(omero.rtypes.rfloat(
+					data.getCalibratedMagnification()));
+			object = data.getImmersionAsEnum();
+			if (object != null)
+				objective.setImmersion((Immersion) object);
+			object = data.getCorrectionAsEnum();
+			if (object != null)
+					objective.setCoating((Coating) object);
+			objective.setWorkingDistance(
+					omero.rtypes.rfloat(data.getWorkingDistance()));
+		}
+		if (data.isObjectiveSettingsDirty()) {
+			id = data.getObjectiveSettingsId();
+			ObjectiveSettings settings;
+			if (id < 0) {
+				settings = new ObjectiveSettingsI();
+				toCreate.add(settings);
+			} else {
+				settings = (ObjectiveSettings) gateway.findIObject(
+						ObjectiveSettings.class.getName(), id);
+				toUpdate.add(settings);
+			}
+			settings.setCorrectionCollar(
+					omero.rtypes.rfloat(data.getCorrectionCollar()));
+			settings.setRefractiveIndex(
+					omero.rtypes.rfloat(data.getRefractiveIndex()));
+			object = data.getMediumAsEnum();
+			if (object != null)
+				settings.setMedium((Medium) object);
+		}
+		
+		
+		if (toUpdate.size() > 0) {
+			gateway.updateObjects(toUpdate, (new PojoOptions()).map());
+		}
+		if (toCreate.size() > 0) {
+			List<IObject> l = gateway.createObjects(toUpdate, 
+					      				(new PojoOptions()).map());
+			Iterator<IObject> i = l.iterator();
+			image = (Image) gateway.findIObject(data.asIObject());
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof StageLabel)
+					image.setPosition((StageLabel) object);
+				else if (object instanceof ImagingEnvironment)
+					image.setCondition((ImagingEnvironment) object);
+				else if (object instanceof ObjectiveSettings)
+					image.setObjectiveSettings((ObjectiveSettings) object);
+			}
+			ModelMapper.unloadCollections(image);
+			gateway.updateObject(image, (new PojoOptions()).map());
+		}
+	}
+	
 	/**
 	 * Loads the description of the passed tag for the specified user.
 	 * 
@@ -1586,5 +1729,42 @@ class OmeroMetadataServiceImpl
 	{
 		return gateway.getEnumerations(type);
 	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadAcquisitionData(Object)
+	 */
+	public Object loadAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (refObject instanceof ImageData) {
+			return gateway.loadImageAcquisitionData(
+					((ImageData) refObject).getId());
+			
+		} else if (refObject instanceof ChannelData) {
+			return gateway.loadChannelAcquisitionData(
+					((ChannelData) refObject).getId());
+		}
+		return null;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#saveAcquisitionData(Object)
+	 */
+	public Object saveAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (refObject instanceof ImageAcquisitionData) {
+			ImageAcquisitionData data = (ImageAcquisitionData) refObject;
+			saveImageAcquisitionData(data);
+			
+			return null;//loadAcquisitionData(data.asImage());
+		} else if (refObject instanceof ChannelData) {
+			
+		}
+		return null;
+	}
+	
 	
 }

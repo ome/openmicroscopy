@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Box;
@@ -59,10 +60,10 @@ public class AnimatedJFrame
 {
 
 	/** The default value of the duration of the animation. */
-	public static final float 	DURATION = 500f;
+	public static final float 	DURATION = 300f;
 	
 	/** The default value of the animation waiting time. */
-	public static final int		SLEEP = 50;
+	public static final int		SLEEP = 20;
 	
 	/** Animation direction's constants. */
 	private static final int 	INCOMING = 1;
@@ -125,12 +126,15 @@ public class AnimatedJFrame
 	private Timer 				timer;
 	
 	/** The extra space to remove. */
-	private int					bottomSpace;
+	//private int					bottomSpace;
+	
+	/** Where to show the sheet, default is a <code>(0, 0)</code>. */
+	private Point				location;
 	
 	/** Initializes the components. */
 	private void initialize()
 	{
-		bottomSpace = 0;
+		location = new Point(0, 0);
 		duration = DURATION;
 		sleep = SLEEP;
 		animatingPane = new AnimatedPane(this);
@@ -143,7 +147,6 @@ public class AnimatedJFrame
 	/** Starts the animation. */
 	private void startAnimation()
 	{
-		System.err.println(bottomSpace);
 		glass.repaint();
 		glass.removeAll();
 		animatingPane.setSource(sheet);
@@ -156,13 +159,12 @@ public class AnimatedJFrame
 			c.weighty = Integer.MAX_VALUE;
 			glass.add(Box.createGlue(), c);
 		} else {
-			c.anchor = GridBagConstraints.PAGE_END;
-			int h = glass.getHeight()-sheet.getHeight()-bottomSpace;
+			c.anchor = GridBagConstraints.SOUTH;
+			int h = glass.getHeight()-sheet.getHeight()-location.y;
 			glass.add(Box.createVerticalStrut(h), c);
 			c.gridy++;
 			glass.add(animatingPane, c);
 		}
-		
 		glass.setVisible(true);
 		animationStart = System.currentTimeMillis();
 		if (animationTimer == null)
@@ -191,7 +193,7 @@ public class AnimatedJFrame
 			c.weighty = Integer.MAX_VALUE;
 			glass.add(Box.createGlue(), c);
 		} else {
-			int h = glass.getHeight()-sheet.getHeight()-bottomSpace;
+			int h = glass.getHeight()-sheet.getHeight()-location.y;
 			glass.add(Box.createVerticalStrut(h), c);
 			c.gridy++;
 			glass.add(sheet, c);
@@ -238,13 +240,6 @@ public class AnimatedJFrame
 	 * @return See above.
 	 */
 	public int getOrientation() { return orientation; }
-	
-	/** 
-	 * Sets the extra space to take into when laying out the animated component.
-	 * 
-	 * @param value The value to set.
-	 */
-	public void setBottomSpace(int value) { bottomSpace = value; }
 	
 	/**
 	 * Sets the duration of the animation.
@@ -293,25 +288,29 @@ public class AnimatedJFrame
 	/**
 	 * Shows the passed dialog as a sheet.
 	 * 
-	 * @param dialog The dialog to show.
+	 * @param dialog 	The dialog to show.
+	 * @param location 	The point where to show the sheet.
 	 * @return See above.
 	 */
-	public JComponent showJDialogAsSheet(JDialog dialog)
+	public JComponent showJDialogAsSheet(JDialog dialog, Point location)
 	{
-		return showJDialogAsSheet(dialog, DOWN);
+		return showJDialogAsSheet(dialog, location, DOWN);
 	}
 	
 	/**
 	 * Shows the passed dialog as a sheet.
 	 * 
 	 * @param dialog 		The dialog to show.
+	 * @param location 		The point where to show the sheet.
 	 * @param orientation 	One of the orientation constants defined by this 
 	 * 						class.
 	 * @return See above.
 	 */
-	public JComponent showJDialogAsSheet(JDialog dialog, int orientation)
+	public JComponent showJDialogAsSheet(JDialog dialog, Point location, 
+			int orientation)
 	{
 		if (dialog == null) return null;
+		this.location = location;
 		sheet = (JComponent) dialog.getContentPane();
 		setOrientation(orientation);
 		glass.removeAll();

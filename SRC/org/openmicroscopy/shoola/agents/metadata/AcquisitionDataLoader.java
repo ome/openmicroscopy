@@ -30,6 +30,9 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ChannelAcquisitionData;
+import pojos.ChannelData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
@@ -93,6 +96,10 @@ public class AcquisitionDataLoader
     {
   		if (refObject instanceof ImageData) {
   			viewer.setImageAcquisitionData((ImageAcquisitionData) result);
+  		} else if (refObject instanceof ChannelData) {
+  			ChannelData data = (ChannelData) refObject;
+  			viewer.setChannelAcquisitionData(data.getIndex(),
+  					(ChannelAcquisitionData) result);
   		}
     }
     

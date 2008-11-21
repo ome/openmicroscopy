@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +44,11 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.AnnotationData;
+import pojos.ChannelAcquisitionData;
+import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -385,6 +391,19 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#loadChannelAcquisitionData(ChannelData)
+	 */
+	public void loadChannelAcquisitionData(ChannelData channel)
+	{
+		if (channel == null) return;
+		Object data = model.getChannelAcquisitionData(channel.getIndex());
+		if (data != null) return;
+		model.fireChannelAcquisitionDataLoading(channel);
+		view.setStatus(true);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setChannelEnumerations(Map)
 	 */
 	public void setChannelEnumerations(Map map)
@@ -399,6 +418,34 @@ class EditorComponent
 	public void setImageEnumerations(Map map)
 	{
 		model.setImageEnumerations(map);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#showManufacturer(JComponent, Point)
+	 */
+	public void showManufacturer(JComponent comp, Point p)
+	{
+		TinyDialog d = new TinyDialog(
+				MetadataViewerAgent.getRegistry().getTaskBar().getFrame(), comp,
+				TinyDialog.CLOSE_ONLY);
+		d.pack();
+		Dimension dim = d.getSize();
+		d.setLocation(p.x-dim.width/2, p.y-dim.height-5);
+		d.setVisible(true);
+		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setChannelAcquisitionData(int, ChannelAcquisitionData)
+	 */
+	public void setChannelAcquisitionData(int index, 
+			ChannelAcquisitionData data)
+	{
+		model.setChannelAcquisitionData(index, data);
+		view.setChannelAcquisitionData(index);
+		view.setStatus(false);
 	}
 	
 }

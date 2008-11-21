@@ -108,13 +108,16 @@ public class EnumerationLoader
             	results.put(OmeroMetadataService.CONTRAST_METHOD, 
             			service.getEnumeration(
             					OmeroMetadataService.CONTRAST_METHOD));
-            	results.put(OmeroMetadataService.MODE, 
-            			service.getEnumeration(OmeroMetadataService.MODE));
+            	results.put(OmeroMetadataService.ACQUISITION_MODE, 
+            			service.getEnumeration(OmeroMetadataService.ACQUISITION_MODE));
             	results.put(OmeroMetadataService.BINNING, 
             			service.getEnumeration(OmeroMetadataService.BINNING));
             	results.put(OmeroMetadataService.DETECTOR_TYPE, 
             			service.getEnumeration(
             					OmeroMetadataService.DETECTOR_TYPE));
+            	results.put(OmeroMetadataService.LASER_MEDIUM, 
+            			service.getEnumeration(
+            					OmeroMetadataService.LASER_MEDIUM));
             }
         };
     }

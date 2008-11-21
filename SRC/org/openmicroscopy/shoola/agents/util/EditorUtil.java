@@ -44,10 +44,13 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import omero.RFloat;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -186,7 +189,7 @@ public class EditorUtil
     public static final String  EX_WAVE = "Excitation";
     
     /** Identifies the <code>Pin hole size</code> field. */
-    public static final String  PIN_HOLE_SIZE = "Pin hole size";
+    public static final String  PIN_HOLE_SIZE = "Pin hole size "+MICRONS;
     
     /** Identifies the <code>ND filter</code> field. */
     public static final String  ND_FILTER = "ND Filter "+PERCENT;
@@ -285,13 +288,44 @@ public class EditorUtil
 	public static final String	BINNING = "Binning";
 	
 	/** Identifies the <code>Amplication</code> field. */
-	public static final String	AMPLIFICATION = "Amplification";
+	public static final String	AMPLIFICATION = "Amplification Gain";
+	
+	/** Identifies the <code>Zoom</code> field. */
+	public static final String	ZOOM = "Zoom";
 	
 	/** Identifies the <code>Exposure</code> field. */
 	public static final String	EXPOSURE_TIME = "Exposure Time";
 	
 	/** Identifies the <code>Delta</code> field. */
 	public static final String	DELTA_T = "DeltaT";
+	
+	/** Identifies the <code>Power</code> field of light source. */
+	public static final String	POWER = "Power";
+	
+	/** Identifies the <code>type</code> field of the light. */
+	public static final String	LIGHT_TYPE = "Light";
+	
+	/** Identifies the <code>type</code> field of the light. */
+	public static final String	TUNEABLE = "Tuneable";
+	
+	/** Identifies the <code>type</code> field of the light. */
+	public static final String	PULSE = "Pulse";
+	
+	/** Identifies the <code>type</code> field of the light. */
+	public static final String	POCKEL_CELL = "PockelCell";
+	
+	/** Identifies the <code>Repetition rate</code> of the laser. */
+	public static final String	REPETITION_RATE = "Repetition Rate (Hz)";
+	
+	/** Identifies the <code>Repetition rate</code> of the laser. */
+	public static final String	PUMP = "Pump";
+	
+	/** Identifies the <code>Wavelength</code> of the laser. */
+	public static final String	WAVELENGTH = "Wavelength";
+	
+	/** Identifies the <code>Frequency Multiplication</code> of the laser. */
+	public static final String	FREQUENCY_MULTIPLICATION =
+									"Frequency Multiplication";
 	
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
@@ -803,18 +837,17 @@ public class EditorUtil
     {
         LinkedHashMap<String, Object> 
         		details = new LinkedHashMap<String, Object>(10);
-        if (data == null) {
-        	details.put(NAME, "");
-            details.put(EM_WAVE, new Integer(0));
-            details.put(EX_WAVE, new Integer(0));
-            details.put(ND_FILTER, new Float(0));
-            details.put(PIN_HOLE_SIZE, new Float(0));
-            details.put(FLUOR, "");
-            details.put(ILLUMINATION, "");
-            details.put(CONTRAST_METHOD, "");
-            details.put(MODE, "");
-            details.put(POCKEL_CELL_SETTINGS, new Integer(0));
-        } else {
+        details.put(NAME, "");
+        details.put(EM_WAVE, new Integer(0));
+        details.put(EX_WAVE, new Integer(0));
+        details.put(ND_FILTER, new Float(0));
+        details.put(PIN_HOLE_SIZE, new Float(0));
+        details.put(FLUOR, "");
+        details.put(ILLUMINATION, "");
+        details.put(CONTRAST_METHOD, "");
+        details.put(MODE, "");
+        details.put(POCKEL_CELL_SETTINGS, new Integer(-1));
+        if (data != null) {
         	details.put(NAME, data.getName());
         	details.put(EM_WAVE, data.getEmissionWavelength());
         	details.put(EX_WAVE, data.getExcitationWavelength());
@@ -840,26 +873,25 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
     			details = new LinkedHashMap<String, Object>(8);
-    	if (data == null) {
-    		details.put(MODEL, "");
-        	details.put(MANUFACTURER, "");
-        	details.put(SERIAL_NUMBER, "");
-        	details.put(NOMINAL_MAGNIFICATION, new Integer(0));
-        	details.put(CALIBRATED_MAGNIFICATION, new Float(0));
-            details.put(LENSNA, new Float(0));
-            details.put(IMMERSION, "");
-            details.put(CORRECTION, "");
-            details.put(WORKING_DISTANCE, new Float(0));
-    	} else {
-    		details.put(MODEL, "");
-        	details.put(MANUFACTURER, "");
-        	details.put(SERIAL_NUMBER, "");
+    	details.put(MODEL, "");
+    	details.put(MANUFACTURER, "");
+    	details.put(SERIAL_NUMBER, "");
+    	details.put(NOMINAL_MAGNIFICATION, new Integer(0));
+    	details.put(CALIBRATED_MAGNIFICATION, new Float(0));
+        details.put(LENSNA, new Float(0));
+        details.put(IMMERSION, "");
+        details.put(CORRECTION, "");
+        details.put(WORKING_DISTANCE, new Float(0));
+    	if (data != null) {
+    		details.put(MODEL, data.getModel());
+        	details.put(MANUFACTURER, data.getManufacturer());
+        	details.put(SERIAL_NUMBER, data.getSerialNumber());
         	details.put(NOMINAL_MAGNIFICATION, data.getNominalMagnification());
         	details.put(CALIBRATED_MAGNIFICATION, 
         			data.getCalibratedMagnification());
             details.put(LENSNA, data.getLensNA());
             details.put(IMMERSION, data.getImmersion());
-            details.put(CORRECTION, data.getCoating());
+            details.put(CORRECTION, data.getCorrection());
             details.put(WORKING_DISTANCE, data.getWorkingDistance());
     	}
         return details;
@@ -876,11 +908,10 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
     			details = new LinkedHashMap<String, Object>(3);
-    	if (data == null) {
-    		details.put(CORRECTION_COLLAR, new Float(0));
-        	details.put(MEDIUM, "");
-        	details.put(REFRACTIVE_INDEX, new Float(0));
-    	} else {
+    	details.put(CORRECTION_COLLAR, new Float(0));
+    	details.put(MEDIUM, "");
+    	details.put(REFRACTIVE_INDEX, new Float(0));
+    	if (data != null) {
     		details.put(CORRECTION_COLLAR, data.getCorrectionCollar());
         	details.put(MEDIUM, data.getMedium());
         	details.put(REFRACTIVE_INDEX, data.getRefractiveIndex());
@@ -899,12 +930,11 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
-    	if (data == null) {
-    		details.put(TEMPERATURE, new Float(0));
-        	details.put(AIR_PRESSURE, new Float(0));
-        	details.put(HUMIDITY, new Float(0));
-        	details.put(CO2_PERCENT, new Float(0));
-    	} else {
+    	details.put(TEMPERATURE, new Float(0));
+    	details.put(AIR_PRESSURE, new Float(0));
+    	details.put(HUMIDITY, new Float(0));
+    	details.put(CO2_PERCENT, new Float(0));
+    	if (data != null) {
     		details.put(TEMPERATURE, data.getTemperature());
         	details.put(AIR_PRESSURE, data.getAirPressure());
         	details.put(HUMIDITY, data.getHumidity()*100);
@@ -924,12 +954,11 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
-    	if (data == null) {
-    		details.put(NAME, "");
-        	details.put(POSITION_X, new Float(0));
-        	details.put(POSITION_Y, new Float(0));
-        	details.put(POSITION_Z, new Float(0));
-    	} else {
+    	details.put(NAME, "");
+    	details.put(POSITION_X, new Float(0));
+    	details.put(POSITION_Y, new Float(0));
+    	details.put(POSITION_Z, new Float(0));
+    	if (data != null) {
     		details.put(NAME, data.getLabelName());
         	details.put(POSITION_X, data.getPositionX());
         	details.put(POSITION_Y, data.getPositionY());
@@ -942,39 +971,111 @@ public class EditorUtil
     /**
      * Transforms the detector and its settings.
      * 
-     * @param detector 			The value to convert.
-     * @param detectorSettings	The value to convert.
+     * @param data	The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformDectector(Object detector, 
-    					Object detectorSettings)
+    public static Map<String, Object> transformLightSource(
+    		ChannelAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
-			details = new LinkedHashMap<String, Object>(7);
+			details = new LinkedHashMap<String, Object>();
+    	details.put(MODEL, "");
+    	details.put(MANUFACTURER, "");
+    	details.put(SERIAL_NUMBER, "");
+    	details.put(LIGHT_TYPE, "");
+    	details.put(POWER, new Float(0));
     	details.put(TYPE, "");
-    	details.put(VOLTAGE, "");
-    	details.put(GAIN, "");
-    	details.put(OFFSET, "");
-    	details.put(READ_OUT_RATE, "");
-    	details.put(BINNING, "");
-    	details.put(AMPLIFICATION, "");
+    	if (data != null) {
+    		String s = data.getLightSourceKind();
+    		details.put(MODEL, data.getLightSourceModel());
+        	details.put(MANUFACTURER, data.getLightSourceManufacturer());
+        	details.put(SERIAL_NUMBER, data.getLightSourceSerialNumber());
+        	details.put(LIGHT_TYPE, s);
+        	details.put(POWER, data.getLightSourcePower());
+            details.put(TYPE, data.getLightType()); 
+            if (ChannelAcquisitionData.LASER.equals(s)) {
+            	details.put(MEDIUM, data.getLaserMedium()); 
+            	details.put(WAVELENGTH, data.getLaserWavelength()); 
+
+            	details.put(FREQUENCY_MULTIPLICATION, 
+            			data.getLaserFrequencyMultiplication()); 
+            	details.put(TUNEABLE, data.getLaserTuneable());
+            	details.put(PULSE, data.getLaserPulse());
+            	details.put(POCKEL_CELL, data.getLaserPockelCell()); 
+            	details.put(REPETITION_RATE, data.getLaserRepetitionRate());
+            	details.put(PUMP, data.hasPump());
+            }
+    	}
     	return details;
     }
     
     /**
      * Transforms the detector.
      * 
-     * @param detector The value to convert.
+     * @param data  The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformDectector(Object detector)
+    public static Map<String, Object> transformDectector(
+    		ChannelAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
-			details = new LinkedHashMap<String, Object>(4);
-    	details.put(TYPE, "");
-    	details.put(VOLTAGE, "");
-    	details.put(GAIN, "");
-    	details.put(OFFSET, "");
+			details = new LinkedHashMap<String, Object>(11);
+    	details.put(MODEL, "");
+    	details.put(MANUFACTURER, "");
+    	details.put(SERIAL_NUMBER, "");
+    	details.put(GAIN, new Float(0));
+    	details.put(VOLTAGE, new Float(0));
+        details.put(OFFSET, new Float(0));
+        details.put(READ_OUT_RATE, new Float(0));
+        details.put(BINNING, "");
+        details.put(ZOOM, new Float(0));
+        details.put(AMPLIFICATION, "");
+        details.put(TYPE, ""); 
+    	if (data != null) {
+    		details.put(MODEL, data.getDetectorModel());
+        	details.put(MANUFACTURER, data.getDetectorManufacturer());
+        	details.put(SERIAL_NUMBER, data.getDetectorSerialNumber());
+        	float f = data.getDetectorSettingsGain();
+        	if (f > 0)  details.put(GAIN, f);
+        	else details.put(GAIN, data.getDetectorGain());
+        	f = data.getDetectorSettingsVoltage();
+        	if (f > 0)  details.put(VOLTAGE, f);
+        	else details.put(VOLTAGE, data.getDetectorVoltage());
+        	f = data.getDetectorSettingsOffset();
+        	if (f > 0)  details.put(OFFSET, f);
+        	else details.put(OFFSET, data.getDetectorOffset());
+            details.put(READ_OUT_RATE, data.getDetectorSettingsReadOutRate());
+            details.put(BINNING, data.getDetectorSettingsBinning());
+            details.put(ZOOM, data.getDetectorZoom());
+            details.put(AMPLIFICATION, data.getDetectorAmplificationGain());
+            details.put(TYPE, data.getDetectorType()); 
+    	}
+    	return details;
+    }
+    
+    /**
+     * Transforms the detector's settings.
+     * 
+     * @param data  The value to convert.
+     * @return See above.
+     */
+    public static Map<String, Object> transformDectectorSettings(
+    		ChannelAcquisitionData data)
+    {
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>(5);
+    	details.put(GAIN, new Float(0));
+    	details.put(VOLTAGE, new Float(0));
+        details.put(OFFSET, new Float(0));
+        details.put(READ_OUT_RATE, new Float(0));
+        details.put(BINNING, "");
+    	if (data != null) {
+    		details.put(GAIN, data.getDetectorSettingsGain());
+        	details.put(VOLTAGE, data.getDetectorSettingsVoltage());
+            details.put(OFFSET, data.getDetectorSettingsOffset());
+            details.put(READ_OUT_RATE, data.getDetectorSettingsReadOutRate());
+            details.put(BINNING, data.getDetectorSettingsBinning());
+    	}
     	return details;
     }
     
@@ -988,28 +1089,27 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 		details = new LinkedHashMap<String, Object>(4);
-    	if (plane == null) {
-    		details.put(DELTA_T, "");
-    		details.put(EXPOSURE_TIME, "");
-    		details.put(POSITION_X, "");
-    		details.put(POSITION_Y, "");
-    		details.put(POSITION_Z, "");
-    	} else {
-    		Object o = plane.getTimestamp();
+    	details.put(DELTA_T, new Float(0));
+		details.put(EXPOSURE_TIME, new Float(0));
+		details.put(POSITION_X, new Float(0));
+		details.put(POSITION_Y, new Float(0));
+		details.put(POSITION_Z, new Float(0));
+    	if (plane != null) {
+    		RFloat o = plane.getTimestamp();
     		if (o != null) 
-    			details.put(DELTA_T, plane.getTimestamp().getValue());
+    			details.put(DELTA_T, o.getValue());	
     		o = plane.getExposureTime();
     		if (o != null) 
-    			details.put(EXPOSURE_TIME, plane.getExposureTime().getValue());
+    			details.put(EXPOSURE_TIME, o.getValue());
     		o = plane.getPositionX();
     		if (o != null) 
-    			details.put(POSITION_X, plane.getPositionX().getValue());
+    			details.put(POSITION_X, o.getValue());
     		o = plane.getPositionY();
     		if (o != null) 
-    			details.put(POSITION_Y, plane.getPositionY().getValue());
+    			details.put(POSITION_Y, o.getValue());
     		o = plane.getPositionZ();
     		if (o != null) 
-    			details.put(POSITION_Z, plane.getPositionZ().getValue());
+    			details.put(POSITION_Z, o.getValue());
     	}
     	return details;
     }

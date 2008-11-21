@@ -150,24 +150,17 @@ public class SelectionWizard
 		selectedItemsListbox.setCellRenderer(new DataObjectListCellRenderer());
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW_16));
-		addButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW_16));
-		removeButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		addAllButton = new JButton(
 								icons.getIcon(IconManager.DOUBLE_RIGHT_ARROW));
-		addAllButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		removeAllButton = new JButton(
 								icons.getIcon(IconManager.DOUBLE_LEFT_ARROW));
-		removeAllButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		acceptButton = new JButton("Accept");
 		acceptButton.setToolTipText("Accept the selection.");
-		acceptButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Cancel the selection.");
-		cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		resetButton = new JButton("Reset");
 		resetButton.setToolTipText("Reset the selection.");
-		resetButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		
 		addButton.setActionCommand(""+ADD);
 		addButton.addActionListener(this);
@@ -336,7 +329,6 @@ public class SelectionWizard
 	private JPanel layoutSelectionPane()
 	{
 		JPanel container = new JPanel();
-		container.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
 		container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		//container.add(Box.createHorizontalStrut(10));
@@ -353,7 +345,6 @@ public class SelectionWizard
 	private void buildUI()
 	{
 		Container c = getContentPane();
-		c.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		c.setLayout(new BorderLayout());
 		c.add(layoutSelectionPane(), BorderLayout.CENTER);
 		c.add(createControlsPane(), BorderLayout.SOUTH);
@@ -369,12 +360,10 @@ public class SelectionWizard
 		JPanel controlPanel = new JPanel();
 		controlPanel.setOpaque(false);
 		controlPanel.setLayout(new FlowLayout());
-		controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlPanel.add(resetButton);
 		controlPanel.add(acceptButton);
 		controlPanel.add(cancelButton);
 		JPanel p = UIUtilities.buildComponentPanelRight(controlPanel);
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return p;
 	}
 	
@@ -387,7 +376,6 @@ public class SelectionWizard
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		JScrollPane pane = new JScrollPane(selectedItemsListbox);
 		p.add(new JLabel("Selected:"), BorderLayout.NORTH);
 		p.add(pane, BorderLayout.CENTER);
@@ -403,7 +391,6 @@ public class SelectionWizard
 	private JPanel createSelectionPane()
 	{
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 		buttonPanel.add(Box.createVerticalStrut(30));
 		buttonPanel.add(addButton);
@@ -426,7 +413,6 @@ public class SelectionWizard
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		JScrollPane pane = new JScrollPane(availableItemsListbox);
 		p.add(new JLabel("Available:"), BorderLayout.NORTH);
 		p.add(pane, BorderLayout.CENTER);

@@ -334,7 +334,7 @@ class TreeViewerWin
     	rightPane.setContinuousLayout(true);
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(model.getMetadataViewer().getEditorUI());
-    	rightPane.setResizeWeight(1.0);
+    	rightPane.setResizeWeight(0.7);
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -343,7 +343,8 @@ class TreeViewerWin
         splitPane.setLeftComponent(tabs);
         //splitPane.setRightComponent(workingPane);
         splitPane.setRightComponent(rightPane);
-        splitPane.setDividerLocation(DIVIDER_LOCATION);
+        splitPane.setResizeWeight(0.1);
+        //splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
         c.add(toolBar, BorderLayout.NORTH);

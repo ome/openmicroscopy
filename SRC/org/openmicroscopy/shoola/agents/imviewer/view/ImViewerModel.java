@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,8 +70,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
