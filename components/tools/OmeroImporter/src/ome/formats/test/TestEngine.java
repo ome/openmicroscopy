@@ -9,8 +9,6 @@ import java.util.List;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.testclient.TestServiceFactory;
-import ome.system.ServiceFactory;
 import omero.model.Dataset;
 import omero.model.Project;
 import omero.model.Pixels;
@@ -35,8 +33,6 @@ public class TestEngine
     private TestEngine() throws Exception
     {
         wrapper = new OMEROWrapper();
-        ServiceFactory sf = new TestServiceFactory("a");
-        store = new OMEROMetadataStore(sf);
         
         // Login
         store = new OMEROMetadataStore("root", "ome", "mage.openmicroscopy.org.uk", "1099");
@@ -238,8 +234,8 @@ public class TestEngine
     private static void usage()
     {
         System.err.println("Optional variables:\n" +
-        		" - p: populate ini files with any images found\n" +
-        		" - f: point to a new root test directory. Example: -f \"/tests/test1/\"\n"
-        		);
+                " - p: populate ini files with any images found\n" +
+                " - f: point to a new root test directory. Example: -f \"/tests/test1/\"\n"
+                );
     }
 }
