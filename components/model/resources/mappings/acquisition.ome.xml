@@ -120,7 +120,6 @@
 			<required name="experimenter" type="ome.model.meta.Experimenter"/>
 			<required name="type" type="ome.model.enums.MicrobeamManipulationType"/>
 			<onemany name="roi" type="ome.model.display.Roi" inverse="microbeamManipulation"/>
-			<zeromany name="lightSourceSettings" type="ome.model.acquisition.LightSettings" inverse="microbeamManipulation"/>
 			<manyone name="experiment" type="ome.model.experiment.Experiment"/>
 		</properties>
 	</type>
@@ -231,12 +230,11 @@
 	<type id="ome.model.acquisition.LightSettings">
 		<!-- in model as LightSourceRef-->
 		<properties>
-			<optional name="Attenuation" type="float">
+			<optional name="attenuation" type="float">
 				<rule id="ATTENUATION_RANGE" type="range" description="0-1"/>
 			</optional>
-			<optional name="Wavelength" type="int"/>
+			<optional name="wavelength" type="int"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
-			<manyone name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
 		</properties>
 	</type>
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
