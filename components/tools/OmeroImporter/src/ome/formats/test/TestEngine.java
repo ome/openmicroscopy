@@ -9,6 +9,8 @@ import java.util.List;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.testclient.TestServiceFactory;
+import ome.system.ServiceFactory;
 import omero.model.Dataset;
 import omero.model.Project;
 import omero.model.Pixels;
@@ -33,6 +35,8 @@ public class TestEngine
     private TestEngine() throws Exception
     {
         wrapper = new OMEROWrapper();
+        ServiceFactory sf = new TestServiceFactory("a");
+        store = new OMEROMetadataStore(sf);
         
         // Login
         store = new OMEROMetadataStore("root", "ome", "mage.openmicroscopy.org.uk", "1099");

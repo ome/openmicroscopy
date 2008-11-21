@@ -242,6 +242,43 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
     }
 
+
+    public void setDetectorSettingsBinning(String binning, int imageIndex,
+            int logicalChannelIndex)
+    {
+        try
+        {
+            delegate.setDetectorSettingsBinning(rstring(binning), imageIndex, logicalChannelIndex);
+        } catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDetectorSettingsReadOutRate(Float readOutRate,
+            int imageIndex, int logicalChannelIndex)
+    {
+        try
+        {
+            delegate.setDetectorSettingsReadOutRate(rfloat(readOutRate), imageIndex, logicalChannelIndex);
+        } catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setDetectorSettingsVoltage(Float voltage, int imageIndex,
+            int logicalChannelIndex)
+    {
+        try
+        {
+            delegate.setDetectorSettingsVoltage(rfloat(voltage), imageIndex, logicalChannelIndex);
+        } catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void setDetectorSettingsGain(Float gain, int imageIndex,
             int logicalChannelIndex)
     {
@@ -2330,6 +2367,58 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         // TODO Auto-generated method stub
         //
         throw new RuntimeException("Not implemented yet.");
+    }
+
+    /* ---- Objective Settings ---- */
+    
+    public void setObjectiveSettingsCorrectionCollar(Float correctionCollar,
+            int imageIndex)
+    {
+        try
+        {
+            delegate.setObjectiveSettingsCorrectionCollar(rfloat(correctionCollar), rint(imageIndex));
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setObjectiveSettingsMedium(String medium, int imageIndex)
+    {
+        try
+        {
+            delegate.setObjectiveSettingsMedium(rstring(medium), rint(imageIndex));
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setObjectiveSettingsObjective(String objective, int imageIndex)
+    {
+        try
+        {
+            delegate.setObjectiveSettingsObjective(rstring(objective), rint(imageIndex));
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
+            int imageIndex)
+    {
+        try
+        {
+            delegate.setObjectiveSettingsRefractiveIndex(rfloat(refractiveIndex), rint(imageIndex));
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     
 /*
