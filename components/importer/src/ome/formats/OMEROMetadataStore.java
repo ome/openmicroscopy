@@ -388,6 +388,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
         if (otherEnumeration != null)
         {
+            log.debug("Enumeration '" + value + "' does not exist in '" + klass + "' setting to 'Other'");
             return otherEnumeration;
         }
         throw new EnumerationException("Problem finding enumeration: ",
