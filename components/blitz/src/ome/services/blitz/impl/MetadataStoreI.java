@@ -3321,4 +3321,119 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
+    public void setDetectorSettingsBinning_async(
+            AMD_MetadataStore_setDetectorSettingsBinning __cb, 
+            final RString binning, final int imageIndex, 
+            final int logicalChannelIndex, Current __current)
+            throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setDetectorSettingsBinning(binning.getValue(),
+                                                         imageIndex,
+                                                         logicalChannelIndex);
+                        return null;
+                    }
+                }));
+    }
+
+    public void setDetectorSettingsReadOutRate_async(
+            AMD_MetadataStore_setDetectorSettingsReadOutRate __cb,
+            final RFloat readOutRate, final int imageIndex, 
+            final int logicalChannelIndex,
+            Current __current) throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setDetectorSettingsReadOutRate(
+                                readOutRate.getValue(), imageIndex,
+                                logicalChannelIndex);
+                        return null;
+                    }
+                }));
+    }
+
+    public void setDetectorSettingsVoltage_async(
+            AMD_MetadataStore_setDetectorSettingsVoltage __cb,
+            final RFloat voltage, final int imageIndex, 
+            final int logicalChannelIndex, Current __current)
+            throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setDetectorSettingsVoltage(voltage.getValue(),
+                                                         imageIndex,
+                                                         logicalChannelIndex);
+                        return null;
+                    }
+                }));
+    }
+
+    public void setObjectiveSettingsMedium_async(
+            AMD_MetadataStore_setObjectiveSettingsMedium __cb, 
+            final RString medium, final int imageIndex, 
+            Current __current) throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setObjectiveSettingsMedium(medium.getValue(),
+                                                         imageIndex);
+                        return null;
+                    }
+                }));
+    }
+
+    public void setObjectiveSettingsObjective_async(
+            AMD_MetadataStore_setObjectiveSettingsObjective __cb,
+            final RString objective, final int imageIndex, Current __current)
+            throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setObjectiveSettingsObjective(
+                                objective.getValue(), imageIndex);
+                        return null;
+                    }
+                }));
+    }
+
+    public void setObjectiveSettingsRefractiveIndex_async(
+            AMD_MetadataStore_setObjectiveSettingsRefractiveIndex __cb,
+            final RFloat refractiveIndex, final int imageIndex,
+            Current __current)
+            throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setObjectiveSettingsRefractiveIndex(
+                                refractiveIndex.getValue(), imageIndex);
+                        return null;
+                    }
+                }));
+    }
+
 }

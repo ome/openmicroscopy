@@ -79,9 +79,12 @@ module omero {
 		void setStageLabelX(RFloat x, int imageIndex) throws ServerError;
 		void setStageLabelY(RFloat y, int imageIndex) throws ServerError;
 		void setStageLabelZ(RFloat z, int imageIndex) throws ServerError;
+		void setDetectorSettingsBinning(RString binning, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setDetectorSettingsDetector(RString detector, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setDetectorSettingsGain(RFloat gain, int imageIndex, int logicalChannelIndex)  throws ServerError;
+		void setDetectorSettingsReadOutRate(RFloat readOutRate, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setDetectorSettingsOffset(RFloat offset, int imageIndex, int logicalChannelIndex)  throws ServerError;
+		void setDetectorSettingsVoltage(RFloat voltage, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setLightSourceID(RString id, int instrumentIndex, int lightSourceIndex) throws ServerError;
 		void setLightSourceSettingsLightSource(RString lightSource, int imageIndex, int logicalChannelIndex) throws ServerError;
 		void setLightSourceSettingsAttenuation(RFloat attenuation, int imageIndex, int logicalChannelIndex) throws ServerError;
@@ -118,6 +121,9 @@ module omero {
 		void setObjectiveNominalMagnification(RInt nominalMagnification, int instrumentIndex, int objectiveIndex)  throws ServerError;
 		void setObjectiveSerialNumber(RString serialNumber, int instrumentIndex, int objectiveIndex)  throws ServerError;
 		void setObjectiveWorkingDistance(RFloat workingDistance, int instrumentIndex, int objectiveIndex) throws ServerError;
+		void setObjectiveSettingsMedium(RString medium, int imageIndex) throws ServerError;
+		void setObjectiveSettingsObjective(RString objective, int imageIndex) throws ServerError;
+		void setObjectiveSettingsRefractiveIndex(RFloat refractiveIndex, int imageIndex) throws ServerError;
 		void setOTFID(RString id, int instrumentIndex, int otfIndex) throws ServerError;
 		void setOTFOpticalAxisAveraged(RBool opticalAxisAveraged, int instrumentIndex, int otfIndex) throws ServerError;
 		void setOTFPath(RString path, int instrumentIndex, int otfIndex) throws ServerError;
