@@ -1901,7 +1901,13 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             ls = new LightSettings();
             lc.setLightSourceSettings(ls);
-        } 
+        }
+        // FIXME Hack to ensure that the light settings has a light source.
+        if (ls.getLightSource() == null)
+        {
+            LightSource lightSource = getLightSource(0, 0);
+            ls.setLightSource(lightSource);
+        }
 
         return ls;
     }
