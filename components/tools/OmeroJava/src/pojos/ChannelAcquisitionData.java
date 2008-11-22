@@ -100,6 +100,9 @@ public class ChannelAcquisitionData
 	/** The filter used for the excitation wavelength. */
 	private Filter				secondaryExFilter;
 	
+	/** The light source. */
+	private LightSource			ligthSource;
+	
 	/**
 	 * Returns the source of light.
 	 * 
@@ -108,6 +111,7 @@ public class ChannelAcquisitionData
 	private LightSource getLightSource()
 	{
 		if (lightSettings == null) return null;
+		if (ligthSource != null) return ligthSource;
 		return lightSettings.getLightSource();
 	}
 	
@@ -715,6 +719,28 @@ public class ChannelAcquisitionData
 		RFloat value = laser.getRepetitionRate();
 		if (value  == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Returns the id of the light source.
+	 * 
+	 * @return See above.
+	 */
+	public long getLightSourceId()
+	{
+		LightSource source = getLightSource();
+		if (source == null) return -1;
+		return source.getId().getValue();
+	}
+	
+	/**
+	 * Sets the light source.
+	 * 
+	 * @param lightSource The value to set.
+	 */
+	public void setLightSource(LightSource lightSource)
+	{
+		this.ligthSource = lightSource;
 	}
 	
 }
