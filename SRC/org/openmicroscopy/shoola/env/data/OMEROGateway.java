@@ -92,6 +92,7 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
@@ -3866,8 +3867,24 @@ class OMEROGateway
         param.addLong("id", channelID);
 		try {
 			IObject r = service.findByQuery(sb.toString(), param);
-            return new ChannelAcquisitionData((LogicalChannel) r);
+			ChannelAcquisitionData data = new ChannelAcquisitionData(
+					(LogicalChannel) r);
+			String kind = data.getLightSourceKind();
+			if (ChannelAcquisitionData.LASER.equals(kind)) {
+				sb = new StringBuilder();
+				param = new ParametersI();
+				sb.append("select laser from Laser as laser ");
+				sb.append("left outer join fetch laser.type as type ");
+				sb.append("left outer join fetch laser.laserMedium as medium ");
+				sb.append("left outer join fetch laser.pulse as pulse ");
+		        sb.append("where laser.id = :id");
+		        param.addLong("id", data.getLightSourceId());
+		        r = service.findByQuery(sb.toString(), param);
+		        data.setLightSource((LightSource) r);
+			}
+            return data;
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
@@ -3991,9 +4008,9 @@ class OMEROGateway
 		l = getEnumerations(OmeroMetadataService.ACQUISITION_MODE);
 		l = getEnumerations(OmeroMetadataService.LASER_MEDIUM);
 		l = getEnumerations(OmeroMetadataService.LASER_TYPE);
+		l = getEnumerations(OmeroMetadataService.LASER_PULSE);
 		l = getEnumerations(OmeroMetadataService.ARC_TYPE);
 		l = getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
-		l = getEnumerations(OmeroMetadataService.LASER_PULSE);
 	}
 	
 }

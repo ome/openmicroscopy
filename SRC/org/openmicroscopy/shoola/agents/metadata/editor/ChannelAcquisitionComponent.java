@@ -115,6 +115,9 @@ class ChannelAcquisitionComponent
 	/** The component displaying the pockel cell option for a  laser. */
 	private OMEComboBox				laserPockelCellBox;
 	
+	/** The component displaying the types of laser. */
+	private OMEComboBox				laserPulseBox;
+	
 	/** The fields displaying the metadata. */
 	private Map<String, JComponent> fieldsGeneral;
 	
@@ -156,6 +159,10 @@ class ChannelAcquisitionComponent
 		filamentTypeBox = EditorUtil.createComboBox(l);
 		l = model.getChannelEnumerations(Editor.LASER_MEDIUM);
 		laserMediumBox = EditorUtil.createComboBox(l);
+		l = model.getChannelEnumerations(Editor.LASER_PULSE);
+		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
+		laserPulseBox = EditorUtil.createComboBox(l);
+		
 		String[] values = new String[3];
 		values[0] = BOOLEAN_YES;
 		values[1] = BOOLEAN_NO;
@@ -245,12 +252,13 @@ class ChannelAcquisitionComponent
             c.weightx = 0.0;  
             content.add(label, c);
             if (ChannelAcquisitionData.LASER.equals(kind)) {
-            	selected = model.getChannelEnumerationSelected(
-            			Editor.LASER_TYPE, (String) value);
-            	if (selected != null) laserTypeBox.setSelectedItem(selected);
-            	laserTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = laserTypeBox;
-            	if (key.equals(EditorUtil.MEDIUM)) {
+            	if (key.equals(EditorUtil.TYPE)) {
+            		selected = model.getChannelEnumerationSelected(
+                			Editor.LASER_TYPE, (String) value);
+                	if (selected != null) laserTypeBox.setSelectedItem(selected);
+                	laserTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
+                	area = laserTypeBox;
+            	} else if (key.equals(EditorUtil.MEDIUM)) {
                 	selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_MEDIUM, 
                 			(String) value);
@@ -258,6 +266,17 @@ class ChannelAcquisitionComponent
                 		laserMediumBox.setSelectedItem(selected);
                 	laserMediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = laserMediumBox;
+            	} else if (key.equals(EditorUtil.PULSE)) {
+            		selected = model.getChannelEnumerationSelected(
+                			Editor.LASER_PULSE, 
+                			(String) value);
+                	if (selected != null) 
+                		laserPulseBox.setSelectedItem(selected);
+                	else 
+                		laserPulseBox.setSelectedIndex(
+                				laserPulseBox.getItemCount()-1);
+                	laserPulseBox.setEditedColor(UIUtilities.EDITED_COLOR);
+                	area = laserPulseBox;
             	} else if (key.equals(EditorUtil.TUNEABLE)) { 
             		boolean b;
             		if (value != null) {
@@ -267,6 +286,7 @@ class ChannelAcquisitionComponent
             		} else 
             			laserTuneableBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
+            		area = laserTuneableBox;
             	} else if (key.equals(EditorUtil.POCKEL_CELL)) {
             		boolean b;
             		if (value != null) {
@@ -276,6 +296,7 @@ class ChannelAcquisitionComponent
             		} else 
             			laserPockelCellBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
+            		area = laserPockelCellBox;
             	} 
             } else if (ChannelAcquisitionData.ARC.equals(kind)) {
             	selected = model.getChannelEnumerationSelected(Editor.ARC_TYPE, 
@@ -300,7 +321,10 @@ class ChannelAcquisitionComponent
             	((NumericalTextField) area).setText(""+value);
             	((NumericalTextField) area).setEditedColor(
             			UIUtilities.EDITED_COLOR);
-            } else {
+            } else if (key.equals(EditorUtil.PUMP)) {
+            	boolean b = (Boolean) value;
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
+            	/*
             	area = UIUtilities.createComponent(OMETextArea.class, null);
             	if (value == null || value.equals("")) 
                 	value = AnnotationUI.DEFAULT_TEXT;
@@ -308,6 +332,7 @@ class ChannelAcquisitionComponent
             	 ((OMETextArea) area).setText((String) value);
             	 ((OMETextArea) area).setEditedColor(
             			 UIUtilities.EDITED_COLOR);
+            			 */
             }
 
             label.setLabelFor(area);

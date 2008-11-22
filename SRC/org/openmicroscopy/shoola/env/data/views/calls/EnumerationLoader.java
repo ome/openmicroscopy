@@ -27,20 +27,18 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Command to retrieve existing the enumerations related to the image
+ * acquisition metadata, and to the channel metadata.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -109,7 +107,8 @@ public class EnumerationLoader
             			service.getEnumeration(
             					OmeroMetadataService.CONTRAST_METHOD));
             	results.put(OmeroMetadataService.ACQUISITION_MODE, 
-            			service.getEnumeration(OmeroMetadataService.ACQUISITION_MODE));
+            			service.getEnumeration(
+            					OmeroMetadataService.ACQUISITION_MODE));
             	results.put(OmeroMetadataService.BINNING, 
             			service.getEnumeration(OmeroMetadataService.BINNING));
             	results.put(OmeroMetadataService.DETECTOR_TYPE, 
@@ -118,6 +117,18 @@ public class EnumerationLoader
             	results.put(OmeroMetadataService.LASER_MEDIUM, 
             			service.getEnumeration(
             					OmeroMetadataService.LASER_MEDIUM));
+            	results.put(OmeroMetadataService.LASER_TYPE, 
+            			service.getEnumeration(
+            					OmeroMetadataService.LASER_TYPE));
+            	results.put(OmeroMetadataService.LASER_PULSE, 
+            			service.getEnumeration(
+            					OmeroMetadataService.LASER_PULSE));
+            	results.put(OmeroMetadataService.ARC_TYPE, 
+            			service.getEnumeration(
+            					OmeroMetadataService.ARC_TYPE));
+            	results.put(OmeroMetadataService.FILAMENT_TYPE, 
+            			service.getEnumeration(
+            					OmeroMetadataService.FILAMENT_TYPE));
             }
         };
     }

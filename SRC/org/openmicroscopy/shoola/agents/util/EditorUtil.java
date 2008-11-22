@@ -1003,7 +1003,7 @@ public class EditorUtil
             	details.put(PULSE, data.getLaserPulse());
             	details.put(POCKEL_CELL, data.getLaserPockelCell()); 
             	details.put(REPETITION_RATE, data.getLaserRepetitionRate());
-            	details.put(PUMP, data.hasPump());
+            	//details.put(PUMP, data.hasPump());
             }
     	}
     	return details;

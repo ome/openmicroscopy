@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
@@ -105,7 +106,7 @@ public class EditorUI
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("General", null, generalPane, "General Information.");
-		tabbedPane.addTab("Acquisition", null, acquisitionPane, 
+		tabbedPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
 			"Acquisition Metadata.");
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);

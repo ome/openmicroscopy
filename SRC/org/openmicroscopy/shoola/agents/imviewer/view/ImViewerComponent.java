@@ -88,29 +88,29 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
-* Implements the {@link ImViewer} interface to provide the functionality
-* required of the hierarchy viewer component.
-* This class is the component hub and embeds the component's MVC triad.
-* It manages the component's state machine and fires state change 
-* notifications as appropriate, but delegates actual functionality to the
-* MVC sub-components.
-*
-* @see org.openmicroscopy.shoola.agents.imviewer.view.ImViewerModel
-* @see org.openmicroscopy.shoola.agents.imviewer.view.ImViewerUI
-* @see org.openmicroscopy.shoola.agents.imviewer.view.ImViewerControl
-* 
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
-* 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
-* @since OME2.2
-*/
+ * Implements the {@link ImViewer} interface to provide the functionality
+ * required of the hierarchy viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
+ *
+ * @see org.openmicroscopy.shoola.agents.imviewer.view.ImViewerModel
+ * @see org.openmicroscopy.shoola.agents.imviewer.view.ImViewerUI
+ * @see org.openmicroscopy.shoola.agents.imviewer.view.ImViewerControl
+ * 
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
 class ImViewerComponent
 	extends AbstractComponent
 	implements ImViewer
