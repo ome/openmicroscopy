@@ -169,7 +169,7 @@ public final class SplashScreenInit
 		        	} else if (max == 0) {
 		        		//Exit if we couldn't manage to log in.
 		        		 un.notifyError("Login Failure", 
-		        				 "A valid connection to the OMERO \n"+
+		        				 "A valid connection to the OMERO "+
 		                         "server could not be established. \n" +
 		                         "The application will exit.");
 		                 container.exit();

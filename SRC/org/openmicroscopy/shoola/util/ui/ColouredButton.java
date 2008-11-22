@@ -29,18 +29,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.geom.Point2D;
-
-import javax.swing.AbstractButton;
 import javax.swing.DefaultButtonModel;
 
+
+//Third-party libraries
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.painter.RectanglePainter;
-
-//Third-party libraries
 
 //Application-internal dependencies
 
@@ -62,9 +60,45 @@ public class ColouredButton
 	extends JXButton
 {
      
+	/** The foreground color when the color of the button is dark. */
+	private static final Color	FOREGROUND_DARK = Color.BLACK.brighter();
+	
+	/** The foreground color when the color of the button is light. */
+	private static final Color	FOREGROUND_LIGHT = Color.GRAY.darker();
+	
     /** The UI for this button. */
     private ColouredButtonUI uiDelegate;
 	
+    /** The background color. */
+    private Color	color;
+    
+    /**
+     * Sets the color of the button.
+     * 
+     * @param color The background color of the button. Corresponds to the
+     *                  color associated to the channel.
+     */
+    private void setButtonColour(Color color)
+    {
+    	Color newColor = color.darker();
+        Color translucent = new Color(newColor.getRed(), newColor.getGreen(), 
+        	newColor.getBlue(), 0);
+        
+        //Maybe use foregroundPainter
+        if (UIUtilities.isDarkColor(newColor)) setForeground(FOREGROUND_LIGHT);
+        else setForeground(FOREGROUND_DARK);
+        
+        GradientPaint bgToTranslucent = new GradientPaint(
+			new Point2D.Double(.4, 0), newColor,
+			new Point2D.Double(1, 0), translucent);
+        MattePainter veil = new MattePainter(bgToTranslucent);
+        veil.setPaintStretched(true);
+        Painter backgroundPainter = new RectanglePainter(color, null);
+        Painter p = new CompoundPainter(new GlossPainter(), veil, 
+			 backgroundPainter);
+        setBackgroundPainter(p);
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -82,20 +116,9 @@ public class ColouredButton
        // uiDelegate = new ColouredButtonUI(this, color);
       //  setUI(uiDelegate);
         setRolloverEnabled(false);
-        this.setBorder(null);
-        Color newColor = color.darker();
-        Color translucent = new Color(newColor.getRed(), newColor.getGreen(), 
-        	newColor.getBlue(), 0);
-        setForeground(Color.LIGHT_GRAY);
-        GradientPaint bgToTranslucent = new GradientPaint(
-			new Point2D.Double(.4, 0), newColor,
-			new Point2D.Double(1, 0), translucent);
-        MattePainter veil = new MattePainter(bgToTranslucent);
-        veil.setPaintStretched(true);
-        Painter backgroundPainter = new RectanglePainter(color, null);
-        Painter p = new CompoundPainter(new GlossPainter(), veil, 
-			 backgroundPainter);
-        setBackgroundPainter(p);
+        setBorder(null);
+    	this.color = color;
+        setButtonColour(color);
     }
     
      /**
@@ -108,6 +131,8 @@ public class ColouredButton
     {
     	//if (uiDelegate == null) return;
        	//	uiDelegate.setGrayedOut(greyedOut);
+    	if (greyedOut) setButtonColour(Color.LIGHT_GRAY);
+    	else setButtonColour(color);
         repaint();
     }
     
@@ -116,24 +141,15 @@ public class ColouredButton
      * be used as the base colour to generate the gradient fill of the 
      * buttons. 
      * 
-     * @param c The color to set.
+     * @param color The color to set.
      */
     public void setColor(Color color) 
     { 
+    	if (color == null) return;
+    	this.color = color;
     	//if (uiDelegate != null && c != null)
     	//	uiDelegate.setColor(c); 
-        Color translucent = new Color(color.getRed(), color.getGreen(), 
-        	color.getBlue(), 0);
-        setForeground(Color.LIGHT_GRAY);
-        GradientPaint bgToTranslucent = new GradientPaint(
-			new Point2D.Double(.4, 0), color,
-			new Point2D.Double(1, 0), translucent);
-        MattePainter veil = new MattePainter(bgToTranslucent);
-        veil.setPaintStretched(true);
-        Painter backgroundPainter = new RectanglePainter(Color.white, null);
-        Painter p = new CompoundPainter(backgroundPainter, veil, 
-			new GlossPainter());
-        setBackgroundPainter(p);
+        setButtonColour(color);
         repaint();
     }
     
@@ -144,7 +160,8 @@ public class ColouredButton
      */
     public void setFontIndex(int index)
     {
-        if (uiDelegate != null) uiDelegate.setDeriveFont(index);
+        //if (uiDelegate != null) uiDelegate.setDeriveFont(index);
+    	getFont().deriveFont(index);
     }
     
     /**

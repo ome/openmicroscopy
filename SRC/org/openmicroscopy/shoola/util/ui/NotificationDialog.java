@@ -25,15 +25,15 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -88,10 +88,7 @@ public class NotificationDialog
 	 * vertically.
 	 */
 	protected static final Dimension	V_SPACER_SIZE = new Dimension(1, 20);
-	
-    /** Sets the default color of the panel. */
-    protected static final Color        DEFAULT_COLOR = Color.WHITE;
-    
+
     /** 
 	 * The outmost container.  
 	 * All other widgets are added to this panel, which, in turn, is then 
@@ -120,6 +117,7 @@ public class NotificationDialog
         messagePanel.setOpaque(true);
 		controlsPanel = new JPanel();
 		okButton = new JButton("OK");
+		okButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(okButton);
 	}
 	
@@ -174,10 +172,11 @@ public class NotificationDialog
 	{
 		controlsPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlsPanel.setBorder(null);
-		controlsPanel.add(Box.createHorizontalGlue());
 		controlsPanel.add(okButton);
 		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		return controlsPanel;
+		JPanel p = UIUtilities.buildComponentPanelRight(controlsPanel);
+		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		return p;
 	}
 	
 	/**
@@ -190,10 +189,20 @@ public class NotificationDialog
 	private void buildGUI(String message, Icon messageIcon)
 	{
 		mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		mainPanel.add(buildCommentPanel(message, messageIcon));
-		mainPanel.add(buildControlPanel());
+		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+	    mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	    mainPanel.setLayout(new GridBagLayout());
+	    GridBagConstraints c = new GridBagConstraints();
+	    c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 0;
+		mainPanel.add(buildCommentPanel(message, messageIcon), c);
+		c.gridy++;
+		mainPanel.add(Box.createVerticalStrut(5), c);
+		c.gridy++;
+		mainPanel.add(buildControlPanel(), c);
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 	}
 	
@@ -210,6 +219,7 @@ public class NotificationDialog
 		setAlwaysOnTop(true);
 		setModal(true);
 		buildGUI(message, messageIcon);
+		pack();
 	}
 	
 	/**

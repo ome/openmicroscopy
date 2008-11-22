@@ -276,25 +276,7 @@ class ChannelAcquisitionComponent
             		} else 
             			laserPockelCellBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
-            	} else if (value instanceof Number) {
-                	area = UIUtilities.createComponent(NumericalTextField.class, 
-                			null);
-                	if (value instanceof Double) 
-                		((NumericalTextField) area).setNumberType(Double.class);
-                	else if (value instanceof Float) 
-                		((NumericalTextField) area).setNumberType(Float.class);
-                	((NumericalTextField) area).setText(""+value);
-                	((NumericalTextField) area).setEditedColor(
-                			UIUtilities.EDITED_COLOR);
-                } else {
-                	area = UIUtilities.createComponent(OMETextArea.class, null);
-                	if (value == null || value.equals("")) 
-                    	value = AnnotationUI.DEFAULT_TEXT;
-                	 ((OMETextArea) area).setEditable(false);
-                	 ((OMETextArea) area).setText((String) value);
-                	 ((OMETextArea) area).setEditedColor(
-                			 UIUtilities.EDITED_COLOR);
-                }
+            	} 
             } else if (ChannelAcquisitionData.ARC.equals(kind)) {
             	selected = model.getChannelEnumerationSelected(Editor.ARC_TYPE, 
             			(String) value);
@@ -307,6 +289,25 @@ class ChannelAcquisitionComponent
             	if (selected != null) filamentTypeBox.setSelectedItem(selected);
             	filamentTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = filamentTypeBox;
+            } 
+            if (value instanceof Number) {
+            	area = UIUtilities.createComponent(NumericalTextField.class, 
+            			null);
+            	if (value instanceof Double) 
+            		((NumericalTextField) area).setNumberType(Double.class);
+            	else if (value instanceof Float) 
+            		((NumericalTextField) area).setNumberType(Float.class);
+            	((NumericalTextField) area).setText(""+value);
+            	((NumericalTextField) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
+            } else {
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
+            	if (value == null || value.equals("")) 
+                	value = AnnotationUI.DEFAULT_TEXT;
+            	 ((OMETextArea) area).setEditable(false);
+            	 ((OMETextArea) area).setText((String) value);
+            	 ((OMETextArea) area).setEditedColor(
+            			 UIUtilities.EDITED_COLOR);
             }
 
             label.setLabelFor(area);
@@ -543,7 +544,7 @@ class ChannelAcquisitionComponent
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	add(buildChannelInfo(EditorUtil.transformChannelData(channel)));
     	add(buildDetector(EditorUtil.transformDectector(data)));
-    	//add(buildLightSource(EditorUtil.transformLightSource(data)));
+    	add(buildLightSource(EditorUtil.transformLightSource(data)));
     }
     
 	/**
@@ -575,8 +576,10 @@ class ChannelAcquisitionComponent
 	void setChannelAcquisitionData(int index)
 	{
 		if (channel.getIndex() != index) return;
-		if (!init) initComponents();
-		removeAll();
-		buildGUI();
+		if (!init) {
+			initComponents();
+			removeAll();
+			buildGUI();
+		}
 	}
 }
