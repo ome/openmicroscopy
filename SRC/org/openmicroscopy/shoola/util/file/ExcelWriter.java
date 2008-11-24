@@ -223,13 +223,15 @@ public class ExcelWriter
 	 * @param rowIndex see above.
 	 * @param columnIndex see above.
 	 * @param tableModel see above.
+	 * return the current row in the being written to. 
 	 */
-	public void writeTableToSheet(int rowIndex, int columnIndex, TableModel tableModel)
+	public int writeTableToSheet(int rowIndex, int columnIndex, TableModel tableModel)
 	{
 		int startColumn = columnIndex;
 		currentSheet.setCurrentRow(rowIndex);
 		writeHeader(startColumn, tableModel);
 		writeTableContents(startColumn, tableModel);
+		return currentSheet.currentRow;
 	}
 	
 	/**
@@ -238,10 +240,11 @@ public class ExcelWriter
 	 * @param columnIndex see above.
 	 * @param value see above.
 	 */
-	public void writeElement(int rowIndex, int columnIndex, Object value)
+	public int writeElement(int rowIndex, int columnIndex, Object value)
 	{
 		HSSFCell cell = currentSheet.getCell(rowIndex, columnIndex);
 		cell.setCellValue(new HSSFRichTextString(value.toString()));
+		return currentSheet.currentRow;
 	}
 	
 	/**
@@ -250,7 +253,7 @@ public class ExcelWriter
 	 * @param columnIndex see above.
 	 * @param values see above.
 	 */
-	public void writeArrayToRow(int rowIndex, int columnIndex, Object[] values)
+	public int writeArrayToRow(int rowIndex, int columnIndex, Object[] values)
 	{
 		HSSFCell cell; 
 		for( int i = 0 ; i < values.length; i++)
@@ -258,6 +261,7 @@ public class ExcelWriter
 			cell = currentSheet.getCell(rowIndex, columnIndex+i);
 			cell.setCellValue(new HSSFRichTextString(values[i].toString()));
 		}
+		return currentSheet.currentRow;
 	}
 	
 	/**
@@ -266,7 +270,7 @@ public class ExcelWriter
 	 * @param columnIndex see above.
 	 * @param values see above.
 	 */
-	public void writeArrayToColumn(int rowIndex, int columnIndex, Object[] values)
+	public int writeArrayToColumn(int rowIndex, int columnIndex, Object[] values)
 	{
 		HSSFCell cell; 
 		for( int i = 0 ; i < values.length; i++)
@@ -274,6 +278,7 @@ public class ExcelWriter
 			cell = currentSheet.getCell(rowIndex+i, columnIndex);
 			cell.setCellValue(new HSSFRichTextString(values[i].toString()));
 		}
+		return currentSheet.currentRow;
 	}
 	
 	/**

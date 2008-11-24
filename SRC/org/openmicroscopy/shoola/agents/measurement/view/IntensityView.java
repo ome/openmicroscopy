@@ -61,7 +61,9 @@ import javax.swing.filechooser.FileFilter;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -905,7 +907,7 @@ class IntensityView
 	{
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
 		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new CSVFilter();
+		FileFilter filter=new ExcelFilter();
 		filterList.add(filter);
 		FileChooser chooser=
 				new FileChooser(
@@ -919,13 +921,13 @@ class IntensityView
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
 		//TODO: Modify that code when we have various writer.
-		/*
-		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
+		
+		if (!file.getAbsolutePath().endsWith(ExcelFilter.EXCEL))
 		{
-			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
+			String fileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
 			file = new File(fileName);
 		}
-		*/
+		
 		List<Integer> channels = channelsSelectionForm.getUserSelection();
 		if (channels == null || channels.size() == 0) {
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
@@ -935,22 +937,24 @@ class IntensityView
 			return;
 		}
 				
-		BufferedWriter out;
 		try
 		{
-			out = new BufferedWriter(new FileWriter(file));
+			//out = new BufferedWriter(new FileWriter(file));
+			ExcelWriter writer = new ExcelWriter(file.getAbsolutePath());
+			writer.openFile();
+			writer.createWorkbook();
+			writer.createSheet("Channel Summary");
 			Iterator<Coord3D> coordMapIterator = shapeMap.keySet().iterator();
 			Coord3D currentCoord;
 			int n = channels.size();
 			Integer channel;
 			if(channelSummarySelected(channels))
-				outputSummary(out, shapeMap);
+				outputSummary(writer, shapeMap);
 
 			if(channelSummarySelected(channels) && channels.size()!=1)
 				while (coordMapIterator.hasNext())
 				{
 					currentCoord = coordMapIterator.next();
-					writeHeader(out, currentCoord);
 					for (int i = 0 ; i < n ; i++)
 					{
 						channel = channels.get(i);
@@ -958,13 +962,14 @@ class IntensityView
 							continue;
 						if (!nameMap.containsKey(channelName.get(channel)))
 							continue;
-						writeTitle(out, 
-							"Channel Number : "+channelName.get(channel));
+						int rowIndex = 0;
+						writer.createSheet("Channel Number "+channelName.get(channel));
+						writeHeader(writer, rowIndex, currentCoord);
 						channel = nameMap.get(channelName.get(channel));
-						writeData(out, currentCoord, channel.intValue());
+						writeData(writer, rowIndex, currentCoord, channel.intValue());
 					}
 				}
-			out.close();
+			writer.close();
 		}
 		catch (IOException e)
 		{
@@ -998,15 +1003,14 @@ class IntensityView
 	 * @param out The output stream
 	 * @throws IOException Any io error.
 	 */
-	private void printSummaryHeader(BufferedWriter out) 
+	private void printSummaryHeader(ExcelWriter writer, int rowIndex) 
 		throws IOException
 	{
-		out.write("channel,");
-		out.write("zsection,");
-		out.write("time,");
+		writer.writeElement(rowIndex, 0, "channel");
+		writer.writeElement(rowIndex, 1, "zsection");
+		writer.writeElement(rowIndex, 2, "time");
 		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
-				out.write(channelSummaryTable.getValueAt(y, 0)+",");
-		out.newLine();
+				writer.writeElement(rowIndex, 3+y, channelSummaryTable.getValueAt(y, 0));
 	}
 	
 	/**
@@ -1015,10 +1019,12 @@ class IntensityView
 	 * @param shapeMap see above.
 	 * @throws IOException
 	 */
-	private void outputSummary(BufferedWriter out, TreeMap<Coord3D, ROIShape> shapeMap) 
+	private void outputSummary(ExcelWriter writer, TreeMap<Coord3D, ROIShape> shapeMap) 
 		throws IOException
 	{
-		printSummaryHeader(out);
+		int rowIndex = 0;
+		printSummaryHeader(writer, rowIndex);
+		rowIndex++;
 		Coord3D start = shapeMap.firstKey();
 		Coord3D end = shapeMap.lastKey();
 		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
@@ -1029,7 +1035,8 @@ class IntensityView
 				{
 					Coord3D coord = new Coord3D(z, t);
 					populateData(coord, c);
-					outputSummaryRow(out, c, z, t);
+					outputSummaryRow(writer,rowIndex, c, z, t);
+					rowIndex++;
 				}
 		}
 	}
@@ -1044,21 +1051,20 @@ class IntensityView
 	 * @param out The output stream
 	 * @throws IOException Any io error.
 	 */
-	private void outputSummaryRow(BufferedWriter out, Integer channel, int z, int t) 
+	private void outputSummaryRow(ExcelWriter writer, int rowIndex, Integer channel, int z, int t) 
 		throws IOException
 	{
-		out.write(channelName.get(channel)+",");
-		out.write(z+",");
-		out.write(t+",");
+		writer.writeElement(rowIndex, 0, channelName.get(channel));
+		writer.writeElement(rowIndex, 1, z+"");
+		writer.writeElement(rowIndex, 2, t+"");
 
 		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
 			int col = getColumn(channelName.get(channel));
 			if(col == -1)
 				continue;
-			out.write(channelSummaryTable.getValueAt(y, col)+",");
+			writer.writeElement(rowIndex, 3+y, channelSummaryTable.getValueAt(y, col));
 		}
-		out.newLine();
 	}
 	
 	/** 
@@ -1094,15 +1100,18 @@ class IntensityView
 	 * @param currentCoord the coord of the shape being written.
 	 * @throws IOException Thrown if the data cannot be written.
 	 */
-	private void writeHeader(BufferedWriter out, Coord3D currentCoord) 
+	private void writeHeader(ExcelWriter writer, int rowIndex, Coord3D currentCoord) 
 		throws IOException
 	{
-		out.write("Image , "+model.getImageName());
-		out.newLine();
-		out.write("Z ,"  + (currentCoord.getZSection()+1));
-		out.newLine();
-		out.write("T ,"  + (currentCoord.getTimePoint()+1));
-		out.newLine();
+		writer.writeElement(rowIndex, 0 , "Image ");
+		writer.writeElement(rowIndex, 1 , model.getImageName());
+		rowIndex++;
+		writer.writeElement(rowIndex, 0 , "Z ");
+		writer.writeElement(rowIndex, 1 ,  (currentCoord.getZSection()+1));
+		rowIndex++;
+		writer.writeElement(rowIndex, 0 , "T ");
+		writer.writeElement(rowIndex, 1 ,  (currentCoord.getTimePoint()+1));
+		rowIndex++;
 	}
 	
 	/** 
@@ -1125,28 +1134,12 @@ class IntensityView
 	 * @param channel The channel to output.
 	 * @throws IOException Any IO Error.
 	 */
-	private void writeData(BufferedWriter out, Coord3D coord, int channel) 
+	private void writeData(ExcelWriter writer, int rowIndex, Coord3D coord, int channel) 
 		throws IOException
 	{
 		populateData(coord, channel);
 		Double value;
-		for(int y = 0 ; y < tableModel.getRowCount() ; y++)
-		{
-			for(int x = 0 ; x < tableModel.getColumnCount()-1; x++)
-			{
-				value = (Double) tableModel.getValueAt(y, x); 
-				if(value == null)
-					value = new Double(0);
-				out.write(String.format("%.2f",value));	
-				out.write(",");
-			}
-			value = (Double) tableModel.getValueAt(y, 
-												tableModel.getColumnCount()-1); 
-			if(value == null)
-				value = new Double(0);
-			out.write(String.format("%.2f", value)); 
-			out.newLine();
-		}
+		rowIndex = writer.writeTableToSheet(rowIndex, 0, tableModel);
 	}
 	
 	
