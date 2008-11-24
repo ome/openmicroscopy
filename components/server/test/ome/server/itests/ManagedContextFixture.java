@@ -128,12 +128,16 @@ public class ManagedContextFixture {
     }
 
     public void setCurrentUser(String user) {
-        Principal p = new Principal(user, "user", "Test");
-        Session s = mgr.create(p);
-        p = new Principal(s.getUuid(), "user", "Test");
-        login.p = p;
+        setCurrentUserAndGroup(user, "user");
     }
 
+    public void setCurrentUserAndGroup(String user, String group) {
+        Principal p = new Principal(user, group, "Test");
+        Session s = mgr.create(p);
+        p = new Principal(s.getUuid(), group, "Test");
+        login.p = p;        
+    }
+    
     public Principal getPrincipal() {
         return login.p;
     }
