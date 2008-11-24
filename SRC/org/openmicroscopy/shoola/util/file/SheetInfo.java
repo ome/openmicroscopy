@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.util.file;
 
 //Application-internal dependencies
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 
@@ -58,6 +59,9 @@ public class SheetInfo
 	
 	/** The current row in the spreadsheet. */
 	int 				currentRow;
+	
+	/** the current drawing context of the sheet. */
+	HSSFPatriarch		drawingPatriarch;
 	
 	public SheetInfo(String name, int sheetIndex, HSSFSheet sheet)
 	{
@@ -95,6 +99,13 @@ public class SheetInfo
 		currentRow = row;
 	}
 	
+	public HSSFPatriarch getDrawingPatriarch()
+	{
+		if(drawingPatriarch == null) 
+			drawingPatriarch = sheet.createDrawingPatriarch();
+	
+		return drawingPatriarch;
+	}
 	
 }
 

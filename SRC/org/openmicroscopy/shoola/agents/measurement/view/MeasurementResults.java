@@ -27,6 +27,12 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -490,6 +496,14 @@ class MeasurementResults
 		writer.createWorkbook();
 		writer.createSheet("Measurement Results");
 		writer.writeTableToSheet(0, 0, results.getModel());
+		
+		BufferedImage image = new BufferedImage(model.getDrawingView().getWidth(), model.getDrawingView().getWidth(), BufferedImage.TYPE_INT_RGB);
+		
+		
+		// Add the ROI for the current plane to the image.
+		model.getDrawingView().print(image.getGraphics());
+		writer.addImageToWorkbook("ThumbnailImage", image); 
+		writer.writeImage(10,10,image.getWidth(), image.getHeight(), "ThumbnailImage");
 		writer.close();
 		return true;
 	}

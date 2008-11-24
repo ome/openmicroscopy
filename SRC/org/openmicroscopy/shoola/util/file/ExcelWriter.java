@@ -25,12 +25,16 @@ package org.openmicroscopy.shoola.util.file;
 
 
 //Java imports
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.TableModel;
 
@@ -39,10 +43,19 @@ import javax.swing.table.TableModel;
 //Application-internal dependencies
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFPicture;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import com.sun.image.codec.jpeg.ImageFormatException;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGEncodeParam;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.sun.medialib.mlib.Image;
 
 /** 
  * 
@@ -71,8 +84,10 @@ public class ExcelWriter
 	/** The cell style for numbers, format to 2 dec. places.*/
 	HSSFCellStyle 					numberStyle;
 
-	/** Map of the sheetname vs sheet. */
+	/** Map of the sheet names vs sheetInfos. */
 	HashMap<String, SheetInfo>		sheetMap;
+	
+	HashMap<String, Integer> 		imageMap;
 	
 	/** The number of sheets in the workbook. */
 	int 							numSheets;
@@ -97,6 +112,7 @@ public class ExcelWriter
 	{
 		out = new FileOutputStream(filename);
 		sheetMap = new HashMap<String, SheetInfo>();
+		imageMap = new HashMap<String, Integer>();
 		numSheets = 0;
 		currentSheet = null;
 	}
@@ -173,7 +189,7 @@ public class ExcelWriter
 	
 	/**
 	 * Set the current sheet to the sheet with name sheet name in the map.
-	 * @param sheetname see above.
+	 * @param sheetIndex see above.
 	 * @return see above.
 	 */
 	public SheetInfo setCurrentSheet(int sheetIndex)
@@ -191,6 +207,74 @@ public class ExcelWriter
 		return null;
 	}
 
+	/**
+	 * Convert the BufferImage to Jpeg
+	 * @param image see above.
+	 * @return see above.
+	 * @throws ImageFormatException
+	 * @throws IOException
+	 */
+	private byte[] ImageToByteStream(BufferedImage image) throws ImageFormatException, IOException
+	{
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos); 
+		JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
+		param.setQuality(1.0f, false); 
+		encoder.setJPEGEncodeParam(param); 
+		encoder.encode(image); 
+		bos.close(); 
+		return bos.toByteArray();
+	}
+	
+	/**
+	 * Get the image index associated with the image with name imageName
+	 * @param imageName see above.
+	 * @return see above.
+	 */
+	private int getImage(String imageName)
+	{
+		return imageMap.get(imageName);
+	}
+	
+	/**
+	 * Add a new image image to the workbook, with imageName. 
+	 * @param imageName see above.
+	 * @param image see above.
+	 * @return index of new image.
+	 * @throws ImageFormatException
+	 * @throws IOException
+	 */
+	public int addImageToWorkbook(String imageName, BufferedImage image) throws ImageFormatException, IOException
+	{
+		int index = workbook.addPicture(ImageToByteStream(image), HSSFWorkbook.PICTURE_TYPE_JPEG);
+		imageMap.put(imageName, index);
+		return index;
+	}
+	
+	/**
+	 * Write the image with name imageName to the work sheet, at location 
+	 * (rowStart, colStart)->(rowEnd, colEnd)
+	 * @param rowStartIndex see above.
+	 * @param colStartIndex see above.
+	 * @param rowEndIndex see above.
+	 * @param colEndIndex see above.
+	 * @param imageName see above.
+	 */
+	public void writeImage(int rowStartIndex, int colStartIndex, int width, int height,
+			String imageName)
+	{
+		HSSFPatriarch patriarch = currentSheet.getDrawingPatriarch();
+		HSSFClientAnchor anchor;
+		HSSFCell cell = getCell(rowStartIndex, colStartIndex);
+		double remainderWidth =  ((double)(width%68))/68.0;
+		int widthInCells = width/68;
+		double remainderHeight = ((double)(height%18))/18.0;
+		int heightInCells = (height/18);
+		anchor = new HSSFClientAnchor(0,0,(int)(remainderWidth*1023),(int)(remainderHeight*255),(short)colStartIndex,(short)rowStartIndex,(short)(colStartIndex+widthInCells), (short)(rowStartIndex+heightInCells));
+		
+		anchor.setAnchorType( 3 );
+		HSSFPicture pic = patriarch.createPicture(anchor, getImage(imageName));
+	}
 	
 	/**
 	 * Get the cell row and column from the current sheet.
@@ -206,7 +290,7 @@ public class ExcelWriter
 	}
 	
 	/**
-	 * Change the name of the sheet from old name to newname.
+	 * Change the name of the sheet from old name to new name.
 	 * @param oldname see above.
 	 * @param newname see above.
 	 */
@@ -223,7 +307,7 @@ public class ExcelWriter
 	 * @param rowIndex see above.
 	 * @param columnIndex see above.
 	 * @param tableModel see above.
-	 * return the current row in the being written to. 
+	 * @return the next free row after the table.
 	 */
 	public int writeTableToSheet(int rowIndex, int columnIndex, TableModel tableModel)
 	{
@@ -235,15 +319,39 @@ public class ExcelWriter
 	}
 	
 	/**
+	 * Write a map to the spreadsheet starting at rowIndex and columnIndex.
+	 * @param rowIndex see above.
+	 * @param columnIndex see above.
+	 * @param map see above.
+	 * @return the next free row after the map.
+	 */
+	public int writeMapToSheet(int rowIndex, int columnIndex, Map map)
+	{
+		Iterator it = map.keySet().iterator();
+		while (it.hasNext())
+		{
+			Object key = it.next();
+			Object value = map.get(key);
+			writeElement(rowIndex, columnIndex, key.toString());
+			writeElement(rowIndex, columnIndex+1, value.toString());
+			rowIndex++;
+		}
+		currentSheet.setCurrentRow(rowIndex);
+		return rowIndex;
+	}
+	
+	/**
 	 * Write a single object to rowIndex, columnIndex.
 	 * @param rowIndex see above.
 	 * @param columnIndex see above.
 	 * @param value see above.
+	 * @return the next free row after the element.
 	 */
 	public int writeElement(int rowIndex, int columnIndex, Object value)
 	{
 		HSSFCell cell = currentSheet.getCell(rowIndex, columnIndex);
 		cell.setCellValue(new HSSFRichTextString(value.toString()));
+		currentSheet.setCurrentRow(rowIndex+1);
 		return currentSheet.currentRow;
 	}
 	
@@ -252,10 +360,12 @@ public class ExcelWriter
 	 * @param rowIndex The row to write to.
 	 * @param columnIndex see above.
 	 * @param values see above.
+ 	 * @return the next free row after the array.
 	 */
 	public int writeArrayToRow(int rowIndex, int columnIndex, Object[] values)
 	{
 		HSSFCell cell; 
+		currentSheet.setCurrentRow(rowIndex+1);
 		for( int i = 0 ; i < values.length; i++)
 		{
 			cell = currentSheet.getCell(rowIndex, columnIndex+i);
@@ -269,6 +379,7 @@ public class ExcelWriter
 	 * @param rowIndex see above.
 	 * @param columnIndex see above.
 	 * @param values see above.
+	 * @return the next free row after the array.
 	 */
 	public int writeArrayToColumn(int rowIndex, int columnIndex, Object[] values)
 	{
@@ -278,6 +389,7 @@ public class ExcelWriter
 			cell = currentSheet.getCell(rowIndex+i, columnIndex);
 			cell.setCellValue(new HSSFRichTextString(values[i].toString()));
 		}
+		currentSheet.setCurrentRow(rowIndex+values.length);
 		return currentSheet.currentRow;
 	}
 	
