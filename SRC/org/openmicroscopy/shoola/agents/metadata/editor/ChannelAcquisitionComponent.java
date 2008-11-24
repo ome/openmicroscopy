@@ -28,14 +28,15 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.HashMap;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -77,61 +78,88 @@ class ChannelAcquisitionComponent
 	private static final String 	BOOLEAN_NO = "No";
 	
 	/** Reference to the parent of this component. */
-	private AcquisitionDataUI		parent;
+	private AcquisitionDataUI					parent;
 	
 	/** The channel data. */
-	private ChannelData 			channel;
+	private ChannelData 						channel;
 	
 	/** The component displaying the illumination's options. */
-	private OMEComboBox				illuminationBox;
+	private OMEComboBox							illuminationBox;
 	
 	/** The component displaying the contrast Method options. */
-	private OMEComboBox				contrastMethodBox;
+	private OMEComboBox							contrastMethodBox;
 	
 	/** The component displaying the contrast Method options. */
-	private OMEComboBox				modeBox;
+	private OMEComboBox							modeBox;
 	
 	/** The component displaying the binning options. */
-	private OMEComboBox				binningBox;
+	private OMEComboBox							binningBox;
 	
 	/** The component displaying the detector options. */
-	private OMEComboBox				detectorBox;
+	private OMEComboBox							detectorBox;
 	
 	/** The component displaying the laser options. */
-	private OMEComboBox				laserMediumBox;
+	private OMEComboBox							laserMediumBox;
 	
 	/** The component displaying the types of arc. */
-	private OMEComboBox				arcTypeBox;
+	private OMEComboBox							arcTypeBox;
 	
 	/** The component displaying the types of filament. */
-	private OMEComboBox				filamentTypeBox;
+	private OMEComboBox							filamentTypeBox;
 	
 	/** The component displaying the types of laser. */
-	private OMEComboBox				laserTypeBox;
+	private OMEComboBox							laserTypeBox;
 	
 	/** The component displaying the tuneable option for a  laser. */
-	private OMEComboBox				laserTuneableBox;
+	private OMEComboBox							laserTuneableBox;
 	
 	/** The component displaying the pockel cell option for a  laser. */
-	private OMEComboBox				laserPockelCellBox;
+	private OMEComboBox							laserPockelCellBox;
 	
 	/** The component displaying the types of laser. */
-	private OMEComboBox				laserPulseBox;
+	private OMEComboBox							laserPulseBox;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, JComponent> fieldsGeneral;
+	private Map<String, AcquisitionComponent> 	fieldsGeneral;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, JComponent> fieldsDetector;
+	private Map<String, AcquisitionComponent> 	fieldsDetector;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, JComponent> fieldsLight;
+	private Map<String, AcquisitionComponent> 	fieldsLight;
+	
+	/** Button to show or hides the unset fields of the light. */
+	private JButton								unsetLight;
+	
+	/** Flag indicating the unset fields for the light are displayed. */
+	private boolean								unsetLightShown;
+	
+	/** The UI component hosting the objective metadata. */
+	private JPanel								lightPane;
+	
+	/** Button to show or hides the unset fields of the detector. */
+	private JButton								unsetDetector;
+	
+	/** Flag indicating the unset fields for the detector are displayed. */
+	private boolean								unsetDetectorShown;
+	
+	/** The UI component hosting the detector metadata. */
+	private JPanel								detectorPane;
+	
+	/** Button to show or hides the unset fields of the detector. */
+	private JButton								unsetGeneral;
+	
+	/** Flag indicating the unset fields for the general are displayed. */
+	private boolean								unsetGeneralShown;
+	
+	/** The UI component hosting the general metadata. */
+	private JPanel								generalPane;
 	
 	/** Flag indicating if the components have been initialized. */
-	private boolean					init;
+	private boolean								init;
 	
 	/** Reference to the Model. */
-	private EditorModel				model;
+	private EditorModel							model;
 	
 	/** Initializes the components */
 	private void initComponents()
@@ -169,20 +197,50 @@ class ChannelAcquisitionComponent
 		values[2] = AnnotationDataUI.NO_SET_TEXT;
 		laserTuneableBox = EditorUtil.createComboBox(values);
 		laserPockelCellBox = EditorUtil.createComboBox(values);
-		fieldsGeneral = new HashMap<String, JComponent>();
-		fieldsDetector = new HashMap<String, JComponent>();
-		fieldsLight = new HashMap<String, JComponent>();
+		fieldsGeneral = new LinkedHashMap<String, AcquisitionComponent>();
+		fieldsDetector = new LinkedHashMap<String, AcquisitionComponent>();
+		fieldsLight = new LinkedHashMap<String, AcquisitionComponent>();
+		
+		
+		unsetDetector = null;
+		unsetDetectorShown = false;
+		detectorPane = new JPanel();
+		detectorPane.setBorder(BorderFactory.createTitledBorder("Camera"));
+		detectorPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		detectorPane.setLayout(new GridBagLayout());
+		unsetLight = null;
+		unsetLightShown = false;
+		lightPane = new JPanel();
+		lightPane.setBorder(BorderFactory.createTitledBorder("Light"));
+		lightPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		lightPane.setLayout(new GridBagLayout());
+		unsetGeneral = null;
+		unsetGeneralShown = false;
+		generalPane = new JPanel();
+		generalPane.setBorder(BorderFactory.createTitledBorder("Info"));
+		generalPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		generalPane.setLayout(new GridBagLayout());
+		
+	}
+	
+	/** Shows or hides the unset fields. */
+	private void displayUnsetLightFields()
+	{
+		unsetLightShown = !unsetLightShown;
+		String s = AcquisitionDataUI.SHOW_UNSET;
+		if (unsetLightShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unsetLight.setText(s);
+		parent.layoutFields(lightPane, unsetLight, fieldsLight, 
+				unsetLightShown);
 	}
 	
 	/**
-	 * Builds and lays out the details of the source of light
+	 * Transforms the light metadata.
 	 * 
-	 * @param details The data to lay out.
-	 * @return See above.
+	 * @param details The value to transform.
 	 */
-	private JPanel buildLightSource(Map<String, Object> details)
+	private void transformLightSource(Map<String, Object> details)
 	{
-		JPanel content = new JPanel();
 		String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
 		details.remove(EditorUtil.LIGHT_TYPE);
 		String title = "Light Source";
@@ -192,70 +250,43 @@ class ChannelAcquisitionComponent
 			title = "Arc";
 		else if (ChannelAcquisitionData.FILAMENT.equals(kind))
 			title = "Filament";
+		else if (ChannelAcquisitionData.LIGHT_EMITTING_DIODE.equals(kind))
+			title = "Emitting Diode";
+		lightPane.setBorder(BorderFactory.createTitledBorder(title));
 		
-		content.setBorder(BorderFactory.createTitledBorder(title));
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(0, 2, 2, 0);
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        Object selected;
-        
-        
-        Map<String, Object> m = new LinkedHashMap<String, Object>(3);
-        m.put(EditorUtil.MANUFACTURER, details.get(EditorUtil.MANUFACTURER));
-        details.remove(EditorUtil.MANUFACTURER);
-        m.put(EditorUtil.MODEL, details.get(EditorUtil.MODEL));
-        details.remove(EditorUtil.MODEL);
-        m.put(EditorUtil.SERIAL_NUMBER, details.get(EditorUtil.SERIAL_NUMBER));
-        details.remove(EditorUtil.SERIAL_NUMBER);
-        
-        area = parent.formatManufacturer(m, sizeLabel, fieldsLight);
-    	
-    	c.gridx = 0;
-    	label = UIUtilities.setTextFont(AnnotationDataUI.MANUFACTURER, 
-    			Font.BOLD, sizeLabel);
-        label.setBackground(UIUtilities.BACKGROUND_COLOR);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        label.setLabelFor(area);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
-        c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(area, c);
-        
-        c.gridy = 1;
+		AcquisitionComponent comp;
+		JLabel label;
+		JComponent area = null;
+		String key;
+		Object value;
+		label = new JLabel();
+		Font font = label.getFont();
+		int sizeLabel = font.getSize()-2;
+		Object selected;
+		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		details.remove(EditorUtil.NOT_SET);
+		if (notSet.size() > 0 && unsetLight == null) {
+			unsetLight = parent.formatUnsetFieldsControl();
+			unsetLight.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayUnsetLightFields();
+				}
+			});
+		}
+
 		Iterator i = details.keySet().iterator();
 
         while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
             key = (String) i.next();
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
             if (ChannelAcquisitionData.LASER.equals(kind)) {
             	if (key.equals(EditorUtil.TYPE)) {
             		selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_TYPE, (String) value);
-                	if (selected != null) laserTypeBox.setSelectedItem(selected);
+                	if (selected != null) 
+                		laserTypeBox.setSelectedItem(selected);
                 	laserTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = laserTypeBox;
             	} else if (key.equals(EditorUtil.MEDIUM)) {
@@ -333,88 +364,69 @@ class ChannelAcquisitionComponent
             	 ((OMETextArea) area).setEditedColor(
             			 UIUtilities.EDITED_COLOR);
             			 */
+            } else if (key.equals(EditorUtil.MODEL) || 
+            		key.equals(EditorUtil.MANUFACTURER) ||
+            		key.equals(EditorUtil.SERIAL_NUMBER)) {
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
+            	if (value == null || value.equals("")) 
+                	value = AnnotationUI.DEFAULT_TEXT;
+            	 ((OMETextArea) area).setEditable(false);
+            	 ((OMETextArea) area).setText((String) value);
+            	 ((OMETextArea) area).setEditedColor(
+            			 UIUtilities.EDITED_COLOR);
             }
-
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-            fieldsDetector.put(key, area);
+            if (area != null) {
+            	comp = new AcquisitionComponent(label, area);
+    			comp.setSetField(!notSet.contains(key));
+    			fieldsLight.put(key, comp);
+            }
         }
-		return content;
+	}
+	
+	/** Shows or hides the unset fields. */
+	private void displayUnsetDetectorFields()
+	{
+		unsetDetectorShown = !unsetDetectorShown;
+		String s = AcquisitionDataUI.SHOW_UNSET;
+		if (unsetDetectorShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unsetDetector.setText(s);
+		parent.layoutFields(detectorPane, unsetDetector, fieldsDetector, 
+				unsetDetectorShown);
 	}
 	
 	/**
-	 * Builds and lays out the body displaying the detector.
+	 * Transforms the detector metadata.
 	 * 
-	 * @param details The data to lay out.
-	 * @return See above.
+	 * @param details The value to transform.
 	 */
-    private JPanel buildDetector(Map<String, Object> details)
-    {
-        JPanel content = new JPanel();
-        content.setBorder(BorderFactory.createTitledBorder("Camera"));
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        content.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(0, 2, 2, 0);
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        Object selected;
-        
-        
-        Map<String, Object> m = new LinkedHashMap<String, Object>(3);
-        m.put(EditorUtil.MANUFACTURER, details.get(EditorUtil.MANUFACTURER));
-        details.remove(EditorUtil.MANUFACTURER);
-        m.put(EditorUtil.MODEL, details.get(EditorUtil.MODEL));
-        details.remove(EditorUtil.MODEL);
-        m.put(EditorUtil.SERIAL_NUMBER, details.get(EditorUtil.SERIAL_NUMBER));
-        details.remove(EditorUtil.SERIAL_NUMBER);
-        
-        area = parent.formatManufacturer(m, sizeLabel, fieldsDetector);
-    	
-    	c.gridx = 0;
-    	label = UIUtilities.setTextFont(AnnotationDataUI.MANUFACTURER, 
-    			Font.BOLD, sizeLabel);
-        label.setBackground(UIUtilities.BACKGROUND_COLOR);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        label.setLabelFor(area);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
-        c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(area, c);
-        
-        c.gridy = 1;
-		Iterator i = details.keySet().iterator();
+	private void transformDetectorSource(Map<String, Object> details)
+	{
+		AcquisitionComponent comp;
+		JLabel label;
+		JComponent area;
+		String key;
+		Object value;
+		label = new JLabel();
+		Font font = label.getFont();
+		int sizeLabel = font.getSize()-2;
+		Object selected;
+		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		details.remove(EditorUtil.NOT_SET);
+		if (notSet.size() > 0 && unsetDetector == null) {
+			unsetDetector = parent.formatUnsetFieldsControl();
+			unsetDetector.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayUnsetDetectorFields();
+				}
+			});
+		}
 
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
+		Iterator i = details.keySet().iterator();
+		while (i.hasNext()) {
             key = (String) i.next();
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
             if (key.equals(EditorUtil.BINNING)) {
             	selected = model.getChannelEnumerationSelected(Editor.BINNING, 
             			(String) value);
@@ -447,58 +459,56 @@ class ChannelAcquisitionComponent
             	 ((OMETextArea) area).setText((String) value);
             	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             }
-            
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-            fieldsDetector.put(key, area);
+            comp = new AcquisitionComponent(label, area);
+			comp.setSetField(!notSet.contains(key));
+			fieldsDetector.put(key, comp);
         }
-        return content;
-    }
+	}
     
-	 /**
-     * Builds and lays out the body displaying the channel info.
-     * 
-     * @param details The data to lay out.
-     * @return See above.
-     */
-    private JPanel buildChannelInfo(Map<String, Object> details)
-    {
-        JPanel content = new JPanel();
-        content.setBorder(BorderFactory.createTitledBorder("Info"));
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        content.setLayout(new GridBagLayout());
-        //content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(0, 2, 2, 0);
-        Iterator i = details.keySet().iterator();
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        Object selected;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
+	/** Shows or hides the unset fields. */
+	private void displayUnsetGeneralFields()
+	{
+		unsetGeneralShown = !unsetGeneralShown;
+		String s = AcquisitionDataUI.SHOW_UNSET;
+		if (unsetGeneralShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unsetGeneral.setText(s);
+		parent.layoutFields(generalPane, unsetGeneral, fieldsGeneral, 
+				unsetGeneralShown);
+	}
+	
+	/**
+	 * Transforms the detector metadata.
+	 * 
+	 * @param details The value to transform.
+	 */
+	private void transformGeneralSource(Map<String, Object> details)
+	{
+		AcquisitionComponent comp;
+		JLabel label;
+		JComponent area;
+		String key;
+		Object value;
+		label = new JLabel();
+		Font font = label.getFont();
+		int sizeLabel = font.getSize()-2;
+		Object selected;
+		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		details.remove(EditorUtil.NOT_SET);
+		if (notSet.size() > 0 && unsetGeneral == null) {
+			unsetGeneral = parent.formatUnsetFieldsControl();
+			unsetGeneral.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayUnsetGeneralFields();
+				}
+			});
+		}
+
+		Iterator i = details.keySet().iterator();
+		while (i.hasNext()) {
             key = (String) i.next();
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            
             if (key.equals(EditorUtil.ILLUMINATION)) {
             	selected = model.getChannelEnumerationSelected(
             			Editor.ILLUMINATION_TYPE, 
@@ -546,30 +556,26 @@ class ChannelAcquisitionComponent
                 			UIUtilities.EDITED_COLOR);
             	}
             }
-            
-            label.setLabelFor(area);
-            c.gridx = 1;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-            fieldsGeneral.put(key, area);
+            comp = new AcquisitionComponent(label, area);
+			comp.setSetField(!notSet.contains(key));
+			fieldsGeneral.put(key, comp);
         }
-        return content;
-    }
-    
+	}
+	
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	fieldsGeneral.clear();
-    	fieldsDetector.clear();
-    	ChannelAcquisitionData data = model.getChannelAcquisitionData(
-    			channel.getIndex());
     	setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    	add(buildChannelInfo(EditorUtil.transformChannelData(channel)));
-    	add(buildDetector(EditorUtil.transformDectector(data)));
-    	add(buildLightSource(EditorUtil.transformLightSource(data)));
+		parent.layoutFields(detectorPane, unsetDetector, fieldsDetector, 
+				unsetDetectorShown);
+		parent.layoutFields(lightPane, unsetLight, fieldsLight, 
+				unsetLightShown);
+		parent.layoutFields(generalPane, unsetGeneral, fieldsGeneral, 
+				unsetGeneralShown);
+    	add(generalPane);;
+    	add(detectorPane);
+    	add(lightPane);
     }
     
 	/**
@@ -603,6 +609,12 @@ class ChannelAcquisitionComponent
 		if (channel.getIndex() != index) return;
 		if (!init) {
 			initComponents();
+			transformGeneralSource(EditorUtil.transformChannelData(channel));
+			ChannelAcquisitionData data = model.getChannelAcquisitionData(
+	    			channel.getIndex());
+			transformDetectorSource(EditorUtil.transformDetector(data));
+			transformLightSource(EditorUtil.transformLightSource(data));
+			
 			removeAll();
 			buildGUI();
 		}

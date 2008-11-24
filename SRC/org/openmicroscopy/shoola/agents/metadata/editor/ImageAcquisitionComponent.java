@@ -28,7 +28,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.HashMap;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -69,25 +71,90 @@ class ImageAcquisitionComponent
 {
 
 	/** Reference to the Model. */
-	private EditorModel				model;
+	private EditorModel							model;
 	
 	/** Reference to the parent of this component. */
-	private AcquisitionDataUI		parent;
+	private AcquisitionDataUI					parent;
 	
 	/** The component hosting the various immersion values. */
-	private OMEComboBox				immersionBox;
+	private OMEComboBox							immersionBox;
 	
 	/** The component hosting the various coating values. */
-	private OMEComboBox 			coatingBox;
+	private OMEComboBox 						coatingBox;
 	
 	/** The component hosting the various medium values. */
-	private OMEComboBox 			mediumBox;
+	private OMEComboBox 						mediumBox;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, JComponent> fields;
+	private Map<String, AcquisitionComponent> 	fieldsObjective;
+	
+	/** The fields displaying the metadata. */
+	private Map<String, AcquisitionComponent> 	fieldsEnv;
+	
+	/** The fields displaying the metadata. */
+	private Map<String, AcquisitionComponent> 	fieldsStage;
 	
 	/** Flag indicating if the components have been initialized. */
-	private boolean					init;
+	private boolean								init;
+	
+	/** Button to show or hides the unset fields. */
+	private JButton								unsetObjective;
+	
+	/** Flag indicating the unset fields for the objective are displayed. */
+	private boolean								unsetObjectiveShown;
+	
+	/** The UI component hosting the objective metadata. */
+	private JPanel								objectivePane;
+	
+	/** Button to show or hides the unset fields. */
+	private JButton								unsetEnv;
+	
+	/** Flag indicating the unset fields for the environment are displayed. */
+	private boolean								unsetEnvShown;
+	
+	/** The UI component hosting the environment metadata. */
+	private JPanel								envPane;
+	
+	/** Button to show or hides the unset fields. */
+	private JButton								unsetStage;
+	
+	/** Flag indicating the unset fields for the stage are displayed. */
+	private boolean								unsetStageShown;
+	
+	/** The UI component hosting the stage metadata. */
+	private JPanel								stagePane;
+	
+	/** Shows or hides the unset fields. */
+	private void displayUnsetObjectiveFields()
+	{
+		unsetObjectiveShown = !unsetObjectiveShown;
+		String s = AcquisitionDataUI.SHOW_UNSET;
+		if (unsetObjectiveShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unsetObjective.setText(s);
+		parent.layoutFields(objectivePane, unsetObjective, fieldsObjective, 
+				unsetObjectiveShown);
+	}
+	
+	/** Shows or hides the unset fields. */
+	private void displayUnsetEnvFields()
+	{
+		unsetEnvShown = !unsetEnvShown;
+		String s = AcquisitionDataUI.SHOW_UNSET;
+		if (unsetEnvShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unsetEnv.setText(s);
+		parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
+	}
+	
+	/** Shows or hides the unset fields. */
+	private void displayUnsetStageFields()
+	{
+		unsetStageShown = !unsetStageShown;
+		String s = AcquisitionDataUI.SHOW_UNSET;
+		if (unsetStageShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unsetStage.setText(s);
+		parent.layoutFields(stagePane, unsetStage, fieldsStage, 
+				unsetStageShown);
+	}
 	
 	/** Initiliases the components. */
 	private void initComponents()
@@ -102,45 +169,143 @@ class ImageAcquisitionComponent
 		l = model.getImageEnumerations(Editor.MEDIUM);
 		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
 		mediumBox = EditorUtil.createComboBox(l);
-		fields = new HashMap<String, JComponent>();
+		fieldsObjective = new LinkedHashMap<String, AcquisitionComponent>();
+		fieldsEnv = new LinkedHashMap<String, AcquisitionComponent>();
+		fieldsStage = new LinkedHashMap<String, AcquisitionComponent>();
+		unsetObjective = null;
+		unsetObjectiveShown = false;
+		objectivePane = new JPanel();
+		objectivePane.setBorder(BorderFactory.createTitledBorder("Objective"));
+		objectivePane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		objectivePane.setLayout(new GridBagLayout());
+		unsetEnv = null;
+		unsetEnvShown = false;
+		envPane = new JPanel();
+		envPane.setBorder(BorderFactory.createTitledBorder("Environment"));
+		envPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		envPane.setLayout(new GridBagLayout());
+		unsetStage = null;
+		unsetStageShown = false;
+		stagePane = new JPanel();
+		stagePane.setBorder(BorderFactory.createTitledBorder("Position"));
+		stagePane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		stagePane.setLayout(new GridBagLayout());
 	}
 	
-	/** 
-	 * Builds and lays out the stage label.
+	/**
+	 * Transforms the objective metadata into the corresponding UI objects.
 	 * 
-	 * @param details The data to lay out.
-	 * @return See above.
+	 * @param details The metadata to transform.
 	 */
-	private JPanel buildStageLabel(Map<String, Object> details)
+	private void transformObjective(Map<String, Object> details)
 	{
-		JPanel content = new JPanel();
-		content.setBorder(
-				BorderFactory.createTitledBorder("Position"));
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
+		AcquisitionComponent comp;
+		JLabel label;
+		JComponent area;
+		String key;
+		Object value;
+		label = new JLabel();
+		Font font = label.getFont();
+		int sizeLabel = font.getSize()-2;
+		Object selected;
+		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		details.remove(EditorUtil.NOT_SET);
+		if (notSet.size() > 0 && unsetObjective == null) {
+			unsetObjective = parent.formatUnsetFieldsControl();
+			unsetObjective.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayUnsetObjectiveFields();
+				}
+			});
+		}
+
 		Iterator i = details.keySet().iterator();
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
+		while (i.hasNext()) {
+			key = (String) i.next();
+			value = details.get(key);
+			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+			label.setBackground(UIUtilities.BACKGROUND_COLOR);
+			if (key.equals(EditorUtil.IMMERSION)) {
+				selected = model.getImageEnumerationSelected(
+						Editor.IMMERSION, (String) value);
+				if (selected != null) 
+					immersionBox.setSelectedItem(selected);
+				immersionBox.setEditedColor(UIUtilities.EDITED_COLOR);
+				area = immersionBox;
+			} else if (key.equals(EditorUtil.CORRECTION)) {
+				selected = model.getImageEnumerationSelected(
+						Editor.CORRECTION, (String) value);
+				if (selected != null) coatingBox.setSelectedItem(selected);
+				area = coatingBox;
+				coatingBox.setEditedColor(UIUtilities.EDITED_COLOR);
+			} else if (key.equals(EditorUtil.MEDIUM)) {
+				selected = model.getImageEnumerationSelected(
+						Editor.MEDIUM, (String) value);
+				if (selected != null) mediumBox.setSelectedItem(selected);
+				area = mediumBox;
+				mediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
+			} else {
+				if (value instanceof Number) {
+					area = UIUtilities.createComponent(
+							NumericalTextField.class, null);
+					if (value instanceof Double) 
+						((NumericalTextField) area).setNumberType(
+								Double.class);
+					else if (value instanceof Float) 
+						((NumericalTextField) area).setNumberType(
+								Float.class);
+					((NumericalTextField) area).setText(""+value);
+					((NumericalTextField) area).setEditedColor(
+							UIUtilities.EDITED_COLOR);
+				} else {
+					area = UIUtilities.createComponent(OMETextArea.class, 
+							null);
+					if (value == null || value.equals(""))
+						value = AnnotationUI.DEFAULT_TEXT;
+					((OMETextArea) area).setText((String) value);
+					((OMETextArea) area).setEditedColor(
+							UIUtilities.EDITED_COLOR);
+				}
+			}
+			comp = new AcquisitionComponent(label, area);
+			comp.setSetField(!notSet.contains(key));
+			fieldsObjective.put(key, comp);
+		}
+	}
+	
+	/**
+	 * Transforms the position metadata into the corresponding UI objects.
+	 * 
+	 * @param details The metadata to transform.
+	 */
+	private void transformStage(Map<String, Object> details)
+	{
+		AcquisitionComponent comp;
+		JLabel label;
+		JComponent area;
+		String key;
+		Object value;
+		label = new JLabel();
+		Font font = label.getFont();
+		int sizeLabel = font.getSize()-2;
+		Object selected;
+		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		details.remove(EditorUtil.NOT_SET);
+		if (notSet.size() > 0 && unsetStage == null) {
+			unsetStage = parent.formatUnsetFieldsControl();
+			unsetStage.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayUnsetStageFields();
+				}
+			});
+		}
+
+		Iterator i = details.keySet().iterator();
+		while (i.hasNext()) {
             key = (String) i.next();
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
             if (value instanceof String) {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
                 if (value == null || value.equals(""))
@@ -160,254 +325,93 @@ class ImageAcquisitionComponent
             	
             }
             
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
+            comp = new AcquisitionComponent(label, area);
+			comp.setSetField(!notSet.contains(key));
+			fieldsStage.put(key, comp);
         }
-		return content;
 	}
 	
-	/** 
-	 * Builds and lays out the objective's data.
+	/**
+	 * Transforms the environment metadata into the corresponding UI objects.
 	 * 
-	 * @param details The data to lay out.
-	 * @param detailsSettings The settings of the detector.
-	 * @return See above.
+	 * @param details The metadata to transform.
 	 */
-	private JPanel buildObjective(Map<String, Object> details, 
-			Map<String, Object> detailsSettings)
+	private void transformEnv(Map<String, Object> details)
 	{
-		JPanel content = new JPanel();
-		content.setBorder(BorderFactory.createTitledBorder("Objective"));
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        Object selected;
-        
-        Map<String, Object> m = new LinkedHashMap<String, Object>(3);
-        m.put(EditorUtil.MANUFACTURER, details.get(EditorUtil.MANUFACTURER));
-        details.remove(EditorUtil.MANUFACTURER);
-        m.put(EditorUtil.MODEL, details.get(EditorUtil.MODEL));
-        details.remove(EditorUtil.MODEL);
-        m.put(EditorUtil.SERIAL_NUMBER, details.get(EditorUtil.SERIAL_NUMBER));
-        details.remove(EditorUtil.SERIAL_NUMBER);
-        
-        area = parent.formatManufacturer(m, sizeLabel, fields);
-    	
-    	c.gridx = 0;
-    	label = UIUtilities.setTextFont(AnnotationDataUI.MANUFACTURER, 
-    			Font.BOLD, sizeLabel);
-        label.setBackground(UIUtilities.BACKGROUND_COLOR);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        label.setLabelFor(area);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
-        c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(area, c);
-        
-        c.gridy = 1;
-		Iterator i = details.keySet().iterator();
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            key = (String) i.next();
-            value = details.get(key);
-            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-            label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            if (key.equals(EditorUtil.IMMERSION)) {
-            	selected = model.getImageEnumerationSelected(Editor.IMMERSION, 
-            			(String) value);
-            	if (selected != null) immersionBox.setSelectedItem(selected);
-            	immersionBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = immersionBox;
-            } else if (key.equals(EditorUtil.CORRECTION)) {
-            	selected = model.getImageEnumerationSelected(Editor.CORRECTION, 
-            			(String) value);
-            	if (selected != null) coatingBox.setSelectedItem(selected);
-            	area = coatingBox;
-            	coatingBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            } else {
-            	if (value instanceof Number) {
-            		 area = UIUtilities.createComponent(
-            				 NumericalTextField.class, null);
-            		 if (value instanceof Double) 
-                		 ((NumericalTextField) area).setNumberType(Double.class);
-                	 else if (value instanceof Float) 
-                		 ((NumericalTextField) area).setNumberType(Float.class);
-            		 ((NumericalTextField) area).setText(""+value);
-            		 ((NumericalTextField) area).setEditedColor(
-            				 UIUtilities.EDITED_COLOR);
-            	} else {
-            		 area = UIUtilities.createComponent(OMETextArea.class, null);
-                     if (value == null || value.equals(""))
-                     	value = AnnotationUI.DEFAULT_TEXT;
-                     ((OMETextArea) area).setText((String) value);
-                     ((OMETextArea) area).setEditedColor(
-                			 UIUtilities.EDITED_COLOR);
-            	}
-            }
-           
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
+		AcquisitionComponent comp;
+		JLabel label;
+		JComponent area;
+		String key;
+		Object value;
+		label = new JLabel();
+		Font font = label.getFont();
+		int sizeLabel = font.getSize()-2;
+		Object selected;
+		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		details.remove(EditorUtil.NOT_SET);
+		if (notSet.size() > 0 && unsetEnv == null) {
+			unsetEnv = parent.formatUnsetFieldsControl();
+			unsetEnv.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					displayUnsetEnvFields();
+				}
+			});
+		}
 
-            fields.put(key, area);
-        }
-        i = detailsSettings.keySet().iterator();
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            key = (String) i.next();
-            value = detailsSettings.get(key);
-            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-            label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            if (key.equals(EditorUtil.MEDIUM)) {
-            	area = mediumBox;
-            } else {
-            	 area = UIUtilities.createComponent(NumericalTextField.class, 
-            			 null);
-            	 if (value instanceof Double) 
-            		 ((NumericalTextField) area).setNumberType(Double.class);
-            	 else if (value instanceof Float) 
-            		 ((NumericalTextField) area).setNumberType(Float.class);
-                 ((NumericalTextField) area).setText(""+value);
-                 ((NumericalTextField) area).setEditedColor(
-                		 UIUtilities.EDITED_COLOR);
-            }
-           
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-
-            fields.put(key, area);
-        }
-		return content;
-	}
-	
-	/** 
-	 * Builds and lays out the imaging environment.
-	 * 
-	 * @param details The data to lay out.
-	 * @return See above.
-	 */
-	public JPanel buildImagingEnvironment(Map<String, Object> details)
-	{
-		JPanel content = new JPanel();
-		content.setBorder(
-				BorderFactory.createTitledBorder("Environment"));
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
 		Iterator i = details.keySet().iterator();
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        Font font = label.getFont();
-        int sizeLabel = font.getSize()-2;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            key = (String) i.next();
-            value = details.get(key);
-            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-            label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-	
-            if (value instanceof Number) {
-            	 area = UIUtilities.createComponent(
-            			 NumericalTextField.class, null);
-            	 if (EditorUtil.HUMIDITY.equals(key) ||
-            		EditorUtil.CO2_PERCENT.equals(key)) {
-            		 //((NumericalTextField) area).setMinimum(0.0);
-            		 //((NumericalTextField) area).setMaximum(1.0);
-            	 }
-            	 if (value instanceof Double) 
-            		 ((NumericalTextField) area).setNumberType(Double.class);
-            	 else if (value instanceof Float) 
-            		 ((NumericalTextField) area).setNumberType(Float.class);
-            	 ((NumericalTextField) area).setText(""+value);
-            	 ((NumericalTextField) area).setEditedColor(
-            			 UIUtilities.EDITED_COLOR);
-            } else {
-            	 area = UIUtilities.createComponent(
-            			 OMETextArea.class, null);
-            	 if (value == null || value.equals(""))
-                  	value = AnnotationUI.DEFAULT_TEXT;
-                 ((OMETextArea) area).setText((String) value);
-                 ((OMETextArea) area).setEditedColor(
-            			 UIUtilities.EDITED_COLOR);
-            }
-           
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-            fields.put(key, area);
-        }
-		return content;
+		 while (i.hasNext()) {
+			 key = (String) i.next();
+			 value = details.get(key);
+			 label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+			 label.setBackground(UIUtilities.BACKGROUND_COLOR);
+
+			 if (value instanceof Number) {
+				 area = UIUtilities.createComponent(
+						 NumericalTextField.class, null);
+				 if (EditorUtil.HUMIDITY.equals(key) ||
+						 EditorUtil.CO2_PERCENT.equals(key)) {
+					 //((NumericalTextField) area).setMinimum(0.0);
+					 //((NumericalTextField) area).setMaximum(1.0);
+				 }
+				 if (value instanceof Double) 
+					 ((NumericalTextField) area).setNumberType(Double.class);
+				 else if (value instanceof Float) 
+					 ((NumericalTextField) area).setNumberType(Float.class);
+				 ((NumericalTextField) area).setText(""+value);
+				 ((NumericalTextField) area).setEditedColor(
+						 UIUtilities.EDITED_COLOR);
+			 } else {
+				 area = UIUtilities.createComponent(
+						 OMETextArea.class, null);
+				 if (value == null || value.equals(""))
+					 value = AnnotationUI.DEFAULT_TEXT;
+				 ((OMETextArea) area).setText((String) value);
+				 ((OMETextArea) area).setEditedColor(
+						 UIUtilities.EDITED_COLOR);
+			 }
+
+			 comp = new AcquisitionComponent(label, area);
+			 comp.setSetField(!notSet.contains(key));
+			 fieldsEnv.put(key, comp);
+		}
 	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		fields.clear();
+		fieldsObjective.clear();
 		ImageAcquisitionData data = model.getImageAcquisitionData();
-		add(buildObjective(EditorUtil.transformObjective(data), 
-				EditorUtil.transformObjectiveSettings(data)));
-		add(buildImagingEnvironment(
-				EditorUtil.transformImageEnvironment(data)));
-		add(buildStageLabel(EditorUtil.transformStageLabel(data)));
+		transformObjective(EditorUtil.transformObjective(data));
+		transformEnv(EditorUtil.transformImageEnvironment(data));
+		transformStage(EditorUtil.transformStageLabel(data));
+		parent.layoutFields(objectivePane, unsetObjective, fieldsObjective, 
+				unsetObjectiveShown);
+		parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
+		parent.layoutFields(stagePane, unsetStage, fieldsStage, 
+				unsetStageShown);
+		add(objectivePane);
+		add(envPane);
+		add(stagePane);
 	}
 	
 	/**
@@ -431,9 +435,11 @@ class ImageAcquisitionComponent
 	/** Sets the metadata. */
 	void setImageAcquisitionData()
 	{
-		if (!init) initComponents();
-		removeAll();
-		buildGUI();
+		if (!init) {
+			initComponents();
+			removeAll();
+			buildGUI();
+		}
 	}
 	
 }

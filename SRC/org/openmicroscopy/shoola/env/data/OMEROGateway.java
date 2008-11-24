@@ -3870,9 +3870,9 @@ class OMEROGateway
 			ChannelAcquisitionData data = new ChannelAcquisitionData(
 					(LogicalChannel) r);
 			String kind = data.getLightSourceKind();
+			sb = new StringBuilder();
+			param = new ParametersI();
 			if (ChannelAcquisitionData.LASER.equals(kind)) {
-				sb = new StringBuilder();
-				param = new ParametersI();
 				sb.append("select laser from Laser as laser ");
 				sb.append("left outer join fetch laser.type as type ");
 				sb.append("left outer join fetch laser.laserMedium as medium ");
@@ -3881,7 +3881,21 @@ class OMEROGateway
 		        param.addLong("id", data.getLightSourceId());
 		        r = service.findByQuery(sb.toString(), param);
 		        data.setLightSource((LightSource) r);
-			}
+			} else if (ChannelAcquisitionData.ARC.equals(kind)) {
+				sb.append("select arc from Arc as arc ");
+				sb.append("left outer join fetch arc.type as type ");
+		        sb.append("where arc.id = :id");
+		        param.addLong("id", data.getLightSourceId());
+		        r = service.findByQuery(sb.toString(), param);
+		        data.setLightSource((LightSource) r);
+			} else if (ChannelAcquisitionData.FILAMENT.equals(kind)) {
+				sb.append("select filament from Filament as filament ");
+				sb.append("left outer join fetch filament.type as type ");
+		        sb.append("where filament.id = :id");
+		        param.addLong("id", data.getLightSourceId());
+		        r = service.findByQuery(sb.toString(), param);
+		        data.setLightSource((LightSource) r);
+			} 
             return data;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -83,6 +83,9 @@ class PropertiesUI
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
     
+    /** The text for the id. */
+    private static final String ID_TEXT = "ID:";
+    
     /** The name before possible modification. */
     private String				originalName;
     
@@ -97,6 +100,9 @@ class PropertiesUI
     
     /** The component hosting the description of the <code>DataObject</code>. */
     private JTextArea			descriptionPane;
+    
+    /** The component hosting the id of the <code>DataObject</code>. */
+    private JLabel				idLabel;
     
     /** Indicates if the <code>DataObject</code> has group visibility. */
     private JCheckBox 			publicBox;
@@ -239,6 +245,11 @@ class PropertiesUI
        	group.add(privateBox);
        	group.add(publicBox);
        	
+       	idLabel = new JLabel();
+       	idLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	idLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+       	f = idLabel.getFont();
+       	idLabel.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	namePane = createTextPane();
     	descriptionPane = createTextPane();
     	descriptionPane.setLineWrap(true);
@@ -260,6 +271,10 @@ class PropertiesUI
     	 JPanel p = new JPanel();
          p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
          p.add(namePane);
+         p.add(Box.createVerticalStrut(5));
+         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
+         l.setBackground(UIUtilities.BACKGROUND_COLOR);
+         p.add(l);
          p.add(Box.createVerticalStrut(5));
          p.add(descriptionPane);
          p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -311,6 +326,7 @@ class PropertiesUI
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
+		idLabel.setText(ID_TEXT+model.getRefObjectID());
 		originalDescription = model.getRefObjectDescription();
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
@@ -468,6 +484,7 @@ class PropertiesUI
 	{
 		//namePane.getDocument().removeDocumentListener(this);
 		//descriptionPane.getDocument().removeDocumentListener(this);
+		idLabel.setText("");
 		namePane.setText(model.getRefObjectName());
 		descriptionPane.setText(model.getRefObjectDescription());
 		//namePane.getDocument().addDocumentListener(this);

@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.util;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -326,6 +327,9 @@ public class EditorUtil
 	/** Identifies the <code>Frequency Multiplication</code> of the laser. */
 	public static final String	FREQUENCY_MULTIPLICATION =
 									"Frequency Multiplication";
+	
+	/** Identifies the unset fields. */
+	public static final String	NOT_SET = "NotSet";
 	
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
@@ -837,6 +841,7 @@ public class EditorUtil
     {
         LinkedHashMap<String, Object> 
         		details = new LinkedHashMap<String, Object>(10);
+        List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
         details.put(EM_WAVE, new Integer(0));
         details.put(EX_WAVE, new Integer(0));
@@ -846,19 +851,72 @@ public class EditorUtil
         details.put(ILLUMINATION, "");
         details.put(CONTRAST_METHOD, "");
         details.put(MODE, "");
-        details.put(POCKEL_CELL_SETTINGS, new Integer(-1));
-        if (data != null) {
-        	details.put(NAME, data.getName());
-        	details.put(EM_WAVE, data.getEmissionWavelength());
-        	details.put(EX_WAVE, data.getExcitationWavelength());
-            details.put(ND_FILTER, data.getNDFilter()*100);
-            details.put(PIN_HOLE_SIZE, data.getPinholeSize());
-            details.put(FLUOR, data.getFluor());
-            details.put(ILLUMINATION, data.getIllumination());
-            details.put(CONTRAST_METHOD, data.getContrastMethod());
-            details.put(MODE, data.getMode());
-            details.put(POCKEL_CELL_SETTINGS, data.getPockelCell());
+        details.put(POCKEL_CELL_SETTINGS, new Integer(0));
+        if (data == null) {
+        	notSet.add(NAME);
+        	notSet.add(EM_WAVE);
+        	notSet.add(EX_WAVE);
+        	notSet.add(ND_FILTER);
+        	notSet.add(PIN_HOLE_SIZE);
+        	notSet.add(FLUOR);
+        	notSet.add(ILLUMINATION);
+        	notSet.add(CONTRAST_METHOD);
+        	notSet.add(MODE);
+        	notSet.add(POCKEL_CELL_SETTINGS);
+        	details.put(NOT_SET, notSet);
+        	return details;
         }
+        String s = data.getName();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(NAME);
+        details.put(NAME, s);
+        int i = data.getEmissionWavelength();
+        if (i < 0) {
+        	i = 0;
+        	notSet.add(EM_WAVE);
+        }
+    	details.put(EM_WAVE, i);
+    	i = data.getExcitationWavelength();
+        if (i < 0) {
+        	i = 0;
+        	notSet.add(EX_WAVE);
+        }
+    	details.put(EX_WAVE, i);
+    	float f = data.getNDFilter();
+    	if (f < 0) {
+    		f = 0;
+        	notSet.add(ND_FILTER);
+    	}
+    	details.put(ND_FILTER, f*100);
+    	f = data.getPinholeSize();
+    	if (f < 0) {
+    		f = 0;
+        	notSet.add(PIN_HOLE_SIZE);
+    	}
+        details.put(PIN_HOLE_SIZE, f);
+        s = data.getFluor();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(FLUOR);
+        details.put(FLUOR, s);
+        s = data.getIllumination();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(ILLUMINATION);
+        details.put(ILLUMINATION, s);
+        s = data.getContrastMethod();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(CONTRAST_METHOD);
+        details.put(CONTRAST_METHOD, s);
+        s = data.getMode();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODE);
+        details.put(MODE, s);
+        i = data.getPockelCell();
+        if (i < 0) {
+        	i = 0;
+        	notSet.add(POCKEL_CELL_SETTINGS);
+        }
+        details.put(POCKEL_CELL_SETTINGS, i);
+        details.put(NOT_SET, notSet);
         return details;
     }
     
@@ -872,7 +930,8 @@ public class EditorUtil
     		ImageAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
-    			details = new LinkedHashMap<String, Object>(8);
+    			details = new LinkedHashMap<String, Object>(9);
+    	List<String> notSet = new ArrayList<String>();
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
@@ -882,43 +941,90 @@ public class EditorUtil
         details.put(IMMERSION, "");
         details.put(CORRECTION, "");
         details.put(WORKING_DISTANCE, new Float(0));
-    	if (data != null) {
-    		details.put(MODEL, data.getModel());
-        	details.put(MANUFACTURER, data.getManufacturer());
-        	details.put(SERIAL_NUMBER, data.getSerialNumber());
-        	details.put(NOMINAL_MAGNIFICATION, data.getNominalMagnification());
-        	details.put(CALIBRATED_MAGNIFICATION, 
-        			data.getCalibratedMagnification());
-            details.put(LENSNA, data.getLensNA());
-            details.put(IMMERSION, data.getImmersion());
-            details.put(CORRECTION, data.getCorrection());
-            details.put(WORKING_DISTANCE, data.getWorkingDistance());
-    	}
-        return details;
-    }
-    
-    /**
-     * Transforms the passed objective.
-     * 
-     * @param data The value to convert.
-     * @return See above.
-     */
-    public static Map<String, Object> transformObjectiveSettings(
-    		ImageAcquisitionData data)
-    {
-    	LinkedHashMap<String, Object> 
-    			details = new LinkedHashMap<String, Object>(3);
-    	details.put(CORRECTION_COLLAR, new Float(0));
+        details.put(CORRECTION_COLLAR, new Float(0));
     	details.put(MEDIUM, "");
     	details.put(REFRACTIVE_INDEX, new Float(0));
-    	if (data != null) {
-    		details.put(CORRECTION_COLLAR, data.getCorrectionCollar());
-        	details.put(MEDIUM, data.getMedium());
-        	details.put(REFRACTIVE_INDEX, data.getRefractiveIndex());
+        
+        if (data == null) {
+        	notSet.add(MODEL);
+        	notSet.add(MANUFACTURER);
+        	notSet.add(SERIAL_NUMBER);
+        	notSet.add(NOMINAL_MAGNIFICATION);
+        	notSet.add(CALIBRATED_MAGNIFICATION);
+        	notSet.add(LENSNA);
+        	notSet.add(IMMERSION);
+        	notSet.add(CORRECTION);
+        	notSet.add(WORKING_DISTANCE);
+        	notSet.add(CORRECTION_COLLAR);
+    		notSet.add(MEDIUM);
+    		notSet.add(REFRACTIVE_INDEX);
+        	details.put(NOT_SET, notSet);
+        	return details;
+        }
+        String s = data.getModel();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODEL);
+		details.put(MODEL, s);
+		s = data.getManufacturer();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MANUFACTURER);
+		details.put(MANUFACTURER, s);
+		s = data.getSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(SERIAL_NUMBER);
+		details.put(SERIAL_NUMBER, s);
+		int i = data.getNominalMagnification();
+		if (i < 0) {
+			i = 0;
+			notSet.add(NOMINAL_MAGNIFICATION);
+		}
+		details.put(NOMINAL_MAGNIFICATION, i);
+		float f = data.getCalibratedMagnification();
+ 		if (f < 0) {
+ 			f = 0;
+ 			notSet.add(CALIBRATED_MAGNIFICATION);
+ 		}
+ 		details.put(CALIBRATED_MAGNIFICATION, f);
+ 		f = data.getLensNA();
+ 		if (f < 0) {
+ 			f = 0;
+ 			notSet.add(LENSNA);
+ 		}
+ 		details.put(LENSNA, f);
+ 		s = data.getImmersion();
+ 		if (s == null || s.trim().length() == 0) 
+			notSet.add(IMMERSION);
+		details.put(IMMERSION, s);
+ 		s = data.getCorrection();
+ 		if (s == null || s.trim().length() == 0) 
+			notSet.add(CORRECTION);
+		details.put(CORRECTION, s);
+ 		f = data.getWorkingDistance();
+ 		if (f < 0) {
+ 			f = 0;
+ 			notSet.add(WORKING_DISTANCE);
+ 		}
+ 		details.put(WORKING_DISTANCE, f);
+ 		f = data.getCorrectionCollar();
+    	if (f < 0) {
+    		f = 0;
+    		notSet.add(CORRECTION_COLLAR);
     	}
-        return details;
+    	details.put(CORRECTION_COLLAR, f);
+    	s = data.getMedium();
+    	if (s == null || s.trim().length() == 0) 
+    		notSet.add(MEDIUM);
+    	details.put(MEDIUM, s);
+    	f = data.getRefractiveIndex();
+    	if (f < 0) {
+    		f = 0;
+    		notSet.add(REFRACTIVE_INDEX);
+    	}
+    	details.put(REFRACTIVE_INDEX, f);
+ 		details.put(NOT_SET, notSet);
+    	return details;
     }
-    
+  
     /**
      * Transforms the acquisition's condition.
      * 
@@ -930,16 +1036,45 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
+    	List<String> notSet = new ArrayList<String>();
     	details.put(TEMPERATURE, new Float(0));
     	details.put(AIR_PRESSURE, new Float(0));
     	details.put(HUMIDITY, new Float(0));
     	details.put(CO2_PERCENT, new Float(0));
-    	if (data != null) {
-    		details.put(TEMPERATURE, data.getTemperature());
-        	details.put(AIR_PRESSURE, data.getAirPressure());
-        	details.put(HUMIDITY, data.getHumidity()*100);
-        	details.put(CO2_PERCENT, data.getCo2Percent()*100);
+    	
+    	if (data == null) {
+    		notSet.add(TEMPERATURE);
+    		notSet.add(AIR_PRESSURE);
+    		notSet.add(HUMIDITY);
+    		notSet.add(CO2_PERCENT);
+    		details.put(NOT_SET, notSet);
+    		return details;
     	}
+    	Object o = data.getTemperature();
+    	float f = 0;
+    	if (o == null) {
+    		notSet.add(TEMPERATURE);
+    	} else f = (Float) o;
+    	details.put(TEMPERATURE, f);
+    	f = data.getAirPressure();
+    	if (f < 0) {
+    		notSet.add(AIR_PRESSURE);
+    		f = 0;
+    	}
+    	details.put(AIR_PRESSURE, f);
+    	f = data.getHumidity();
+    	if (f < 0) {
+    		notSet.add(HUMIDITY);
+    		f = 0;
+    	}
+    	details.put(HUMIDITY, f*100);
+    	f = data.getCo2Percent();
+    	if (f < 0) {
+    		notSet.add(CO2_PERCENT);
+    		f = 0;
+    	}
+    	details.put(CO2_PERCENT, f*100);
+    	details.put(NOT_SET, notSet);
     	return details;
     }
     
@@ -954,17 +1089,41 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
+    	List<String> notSet = new ArrayList<String>();
     	details.put(NAME, "");
     	details.put(POSITION_X, new Float(0));
     	details.put(POSITION_Y, new Float(0));
     	details.put(POSITION_Z, new Float(0));
-    	if (data != null) {
-    		details.put(NAME, data.getLabelName());
-        	details.put(POSITION_X, data.getPositionX());
-        	details.put(POSITION_Y, data.getPositionY());
-        	details.put(POSITION_Z, data.getPositionZ());
-    	}
     	
+    	if (data == null) {
+    		notSet.add(NAME);
+    		notSet.add(POSITION_X);
+    		notSet.add(POSITION_Y);
+    		notSet.add(POSITION_Z);
+    		details.put(NOT_SET, notSet);
+    	}
+    	String s = data.getLabelName();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(NAME);
+    	details.put(NAME, s);
+    	Object o = data.getPositionX();
+    	float f = 0;
+    	if (o == null) {
+    		notSet.add(POSITION_X);
+    	} else f = (Float) o;
+    	details.put(POSITION_X, f);
+    	f = 0;
+    	if (o == null) {
+    		notSet.add(POSITION_Y);
+    	} else f = (Float) o;
+    	details.put(POSITION_Y, f);
+    	f = 0;
+    	if (o == null) {
+    		notSet.add(POSITION_Z);
+    	} else f = (Float) o;
+    	details.put(POSITION_Z, f);
+    	
+    	details.put(NOT_SET, notSet);
     	return details;
     }
     
@@ -979,33 +1138,95 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>();
+
+    	List<String> notSet = new ArrayList<String>();
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
     	details.put(LIGHT_TYPE, "");
     	details.put(POWER, new Float(0));
     	details.put(TYPE, "");
-    	if (data != null) {
-    		String s = data.getLightSourceKind();
-    		details.put(MODEL, data.getLightSourceModel());
-        	details.put(MANUFACTURER, data.getLightSourceManufacturer());
-        	details.put(SERIAL_NUMBER, data.getLightSourceSerialNumber());
-        	details.put(LIGHT_TYPE, s);
-        	details.put(POWER, data.getLightSourcePower());
-            details.put(TYPE, data.getLightType()); 
-            if (ChannelAcquisitionData.LASER.equals(s)) {
-            	details.put(MEDIUM, data.getLaserMedium()); 
-            	details.put(WAVELENGTH, data.getLaserWavelength()); 
 
-            	details.put(FREQUENCY_MULTIPLICATION, 
-            			data.getLaserFrequencyMultiplication()); 
-            	details.put(TUNEABLE, data.getLaserTuneable());
-            	details.put(PULSE, data.getLaserPulse());
-            	details.put(POCKEL_CELL, data.getLaserPockelCell()); 
-            	details.put(REPETITION_RATE, data.getLaserRepetitionRate());
-            	//details.put(PUMP, data.hasPump());
-            }
+    	if (data == null) {
+    		notSet.add(MODEL);
+    		notSet.add(MANUFACTURER);
+    		notSet.add(SERIAL_NUMBER);
+    		notSet.add(LIGHT_TYPE);
+    		notSet.add(POWER);
+    		notSet.add(TYPE);
+    		details.put(NOT_SET, notSet);
+        	return details;
+    		
     	}
+    	String s = data.getLightSourceModel();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODEL);
+		details.put(MODEL, s);
+		s = data.getLightSourceManufacturer();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MANUFACTURER);
+		details.put(MANUFACTURER, s);
+		s = data.getLightSourceSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(SERIAL_NUMBER);
+		details.put(SERIAL_NUMBER, s);
+    	s = data.getLightSourceKind();
+    	details.put(LIGHT_TYPE, s);
+    	float f = data.getLightSourcePower();
+    	if (f < 0) {
+    		notSet.add(POWER);
+    		f = 0;
+    	}
+    	details.put(POWER, f);
+    	s = data.getLightType();
+    	if (s == null || s.trim().length() == 0) 
+			notSet.add(TYPE);
+        details.put(TYPE, s); 
+        s = data.getLightSourceKind();
+        if (ChannelAcquisitionData.LASER.equals(s)) {
+        	s = data.getLaserMedium();
+        	if (s == null || s.trim().length() == 0) 
+    			notSet.add(MEDIUM);
+        	details.put(MEDIUM, s);
+        	
+        	int i = data.getLaserWavelength();
+        	if (i < 0) {
+        		i = 0;
+        		notSet.add(WAVELENGTH);
+        	}
+        	details.put(WAVELENGTH, i); 
+			i = data.getLaserFrequencyMultiplication();
+			if (i < 0) {
+        		i = 0;
+        		notSet.add(FREQUENCY_MULTIPLICATION);
+        	}
+        	details.put(FREQUENCY_MULTIPLICATION, i); 
+        	Object o = data.getLaserTuneable();
+        	if (o == null) {
+        		notSet.add(TUNEABLE);
+        	}
+        	details.put(TUNEABLE, o);
+        	
+        	s = data.getLaserPulse();
+        	if (s == null || s.trim().length() == 0) 
+    			notSet.add(PULSE);
+        	details.put(PULSE, s);
+        	f = data.getLaserRepetitionRate();
+			if (f < 0) {
+        		f = 0;
+        		notSet.add(REPETITION_RATE);
+        	}
+        	details.put(REPETITION_RATE, f);
+        	o = data.getLaserPockelCell();
+        	if (o == null) {
+        		notSet.add(TUNEABLE);
+        	}
+        	details.put(POCKEL_CELL, o); 
+        	
+        	//details.put(PUMP, data.hasPump());
+        }
+
+		details.put(NOT_SET, notSet);
     	return details;
     }
     
@@ -1015,11 +1236,12 @@ public class EditorUtil
      * @param data  The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformDectector(
+    public static Map<String, Object> transformDetector(
     		ChannelAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(11);
+    	List<String> notSet = new ArrayList<String>();
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
@@ -1031,51 +1253,90 @@ public class EditorUtil
         details.put(ZOOM, new Float(0));
         details.put(AMPLIFICATION, "");
         details.put(TYPE, ""); 
-    	if (data != null) {
-    		details.put(MODEL, data.getDetectorModel());
-        	details.put(MANUFACTURER, data.getDetectorManufacturer());
-        	details.put(SERIAL_NUMBER, data.getDetectorSerialNumber());
-        	float f = data.getDetectorSettingsGain();
-        	if (f > 0)  details.put(GAIN, f);
-        	else details.put(GAIN, data.getDetectorGain());
-        	f = data.getDetectorSettingsVoltage();
-        	if (f > 0)  details.put(VOLTAGE, f);
-        	else details.put(VOLTAGE, data.getDetectorVoltage());
-        	f = data.getDetectorSettingsOffset();
-        	if (f > 0)  details.put(OFFSET, f);
-        	else details.put(OFFSET, data.getDetectorOffset());
-            details.put(READ_OUT_RATE, data.getDetectorSettingsReadOutRate());
-            details.put(BINNING, data.getDetectorSettingsBinning());
-            details.put(ZOOM, data.getDetectorZoom());
-            details.put(AMPLIFICATION, data.getDetectorAmplificationGain());
-            details.put(TYPE, data.getDetectorType()); 
+        if (data == null) {
+        	notSet.add(MODEL);
+        	notSet.add(MANUFACTURER);
+        	notSet.add(SERIAL_NUMBER);
+        	notSet.add(GAIN);
+        	notSet.add(VOLTAGE);
+        	notSet.add(READ_OUT_RATE);
+        	notSet.add(BINNING);
+        	notSet.add(ZOOM);
+        	notSet.add(AMPLIFICATION);
+        	notSet.add(TYPE);
+        	details.put(NOT_SET, notSet);
+        	return details;
+        }
+        String s = data.getDetectorModel();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODEL);
+		details.put(MODEL, s);
+		s = data.getDetectorManufacturer();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MANUFACTURER);
+		details.put(MANUFACTURER, s);
+		s = data.getDetectorSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(SERIAL_NUMBER);
+		details.put(SERIAL_NUMBER, s);
+    	float f = data.getDetectorSettingsGain();
+    	if (f > 0)  details.put(GAIN, f);
+    	else {
+    		f = data.getDetectorGain();
+    		if (f < 0) {
+    			f = 0;
+    			notSet.add(GAIN);
+    		}
+    		details.put(GAIN, f);
     	}
-    	return details;
-    }
-    
-    /**
-     * Transforms the detector's settings.
-     * 
-     * @param data  The value to convert.
-     * @return See above.
-     */
-    public static Map<String, Object> transformDectectorSettings(
-    		ChannelAcquisitionData data)
-    {
-    	LinkedHashMap<String, Object> 
-			details = new LinkedHashMap<String, Object>(5);
-    	details.put(GAIN, new Float(0));
-    	details.put(VOLTAGE, new Float(0));
-        details.put(OFFSET, new Float(0));
-        details.put(READ_OUT_RATE, new Float(0));
-        details.put(BINNING, "");
-    	if (data != null) {
-    		details.put(GAIN, data.getDetectorSettingsGain());
-        	details.put(VOLTAGE, data.getDetectorSettingsVoltage());
-            details.put(OFFSET, data.getDetectorSettingsOffset());
-            details.put(READ_OUT_RATE, data.getDetectorSettingsReadOutRate());
-            details.put(BINNING, data.getDetectorSettingsBinning());
+    	f = data.getDetectorSettingsVoltage();
+    	if (f > 0)  details.put(VOLTAGE, f);
+    	else {
+    		f = data.getDetectorVoltage();
+    		if (f < 0) {
+    			f = 0;
+    			notSet.add(VOLTAGE);
+    		}
+    		details.put(VOLTAGE, f);
     	}
+    	f = data.getDetectorSettingsOffset();
+    	if (f > 0)  details.put(OFFSET, f);
+    	else {
+    		f = data.getDetectorOffset();
+    		if (f < 0) {
+    			f = 0;
+    			notSet.add(OFFSET);
+    		}
+    		details.put(OFFSET, f);
+    	}
+    	f = data.getDetectorSettingsReadOutRate();
+    	if (f < 0) {
+			f = 0;
+			notSet.add(READ_OUT_RATE);
+		}
+        details.put(READ_OUT_RATE, f);
+        s = data.getDetectorSettingsBinning();
+        if (s == null || s.trim().length() == 0) 
+			notSet.add(BINNING);
+        details.put(BINNING, s);
+        f = data.getDetectorZoom();
+    	if (f < 0) {
+			f = 0;
+			notSet.add(ZOOM);
+		}
+        details.put(ZOOM, f);
+        f = data.getDetectorAmplificationGain();
+    	if (f < 0) {
+			f = 0;
+			notSet.add(AMPLIFICATION);
+		}
+        details.put(AMPLIFICATION, f);
+        s = data.getDetectorType();
+        System.err.println("detector type:"+s);
+        if (s == null || s.trim().length() == 0) 
+			notSet.add(TYPE);
+        details.put(TYPE, s); 
+    	details.put(NOT_SET, notSet);
     	return details;
     }
     

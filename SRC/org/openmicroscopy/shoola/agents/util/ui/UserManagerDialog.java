@@ -237,11 +237,9 @@ public class UserManagerDialog
 		sorter = new ViewerSorter();
 		orderedMap = new LinkedHashMap<GroupData, Object[]>();
 		cancel = new JButton("Cancel");
-		cancel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		cancel.setToolTipText(
 				UIUtilities.formatToolTipText(CANCEL_DESCRIPTION));
 		apply = new JButton("Apply");
-		apply.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		apply.setEnabled(false);
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
@@ -275,7 +273,6 @@ public class UserManagerDialog
 		
 		//sort by name
 		groups = new JComboBox(objects);
-		groups.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		groups.setRenderer(new GroupsRenderer());
 		
 		
@@ -307,7 +304,6 @@ public class UserManagerDialog
 		content.add(groups, "1, 0");
 		content.add(UIUtilities.setTextFont("Users"), "0, 2, l, t");
 		content.add(new JScrollPane(users), "1, 2");
-		content.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return content;
 	}
 	
@@ -327,8 +323,6 @@ public class UserManagerDialog
 		bar.add(Box.createRigidArea(H_SPACER_SIZE));
 		bar.add(cancel);
 		JPanel p =  UIUtilities.buildComponentPanelRight(bar);
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return p;
 	}
 	

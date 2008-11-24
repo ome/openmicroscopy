@@ -139,9 +139,15 @@ class OmeroMetadataServiceImpl
 				toUpdate.add(label);
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
-			label.setPositionX(omero.rtypes.rfloat(data.getPositionX()));
-			label.setPositionY(omero.rtypes.rfloat(data.getPositionY()));
-			label.setPositionZ(omero.rtypes.rfloat(data.getPositionZ()));
+			Object o = data.getPositionX();
+			if (o != null)
+				label.setPositionX(omero.rtypes.rfloat((Float) o));
+			o = data.getPositionY();
+			if (o != null)
+				label.setPositionY(omero.rtypes.rfloat((Float) o));
+			o = data.getPositionZ();
+			if (o != null)
+				label.setPositionZ(omero.rtypes.rfloat((Float) o));
 		}
 		//Environment
 		if (data.isConditionDirty()) {
@@ -159,8 +165,9 @@ class OmeroMetadataServiceImpl
 					data.getAirPressure()));
 			condition.setHumidity(omero.rtypes.rfloat(
 					data.getHumidity()));
-			condition.setTemperature(omero.rtypes.rfloat(
-					data.getTemperature()));
+			Object o = data.getPositionY();
+			if (o != null)
+				condition.setTemperature(omero.rtypes.rfloat((Float) o));
 			condition.setCo2percent(omero.rtypes.rfloat(
 					data.getCo2Percent()));
 		}

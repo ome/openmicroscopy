@@ -180,7 +180,5 @@ public class MessageBox
     	UIUtilities.centerAndShow(this);
     	return option;	
     }
-    
-    public int getOption() { return option; }
-    
+
 }

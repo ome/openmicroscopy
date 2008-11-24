@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -68,6 +69,12 @@ class AcquisitionDataUI
 	implements PropertyChangeListener
 {
 
+	/** Text to show the unset fields. */
+	static final String					SHOW_UNSET = "Show unset fields";
+	
+	/** Text to hide the unset fields. */
+	static final String					HIDE_UNSET = "Hide unset fields";
+	
 	/** The default text of the channel. */
 	private static final String			DEFAULT_CHANNEL_TEXT = "Channel ";
 	
@@ -130,8 +137,6 @@ class AcquisitionDataUI
         add(container, BorderLayout.NORTH);
 	}
 	
-	
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -154,6 +159,72 @@ class AcquisitionDataUI
 		this.controller = controller;
 		this.view = view;
 		initComponents();
+	}
+	
+	/**
+	 * Formats the button used to hide or show the unset fields
+	 * for acquisition metadata.
+	 * 
+	 * @return See above.
+	 */
+	JButton formatUnsetFieldsControl()
+	{
+		JButton button = new JButton(AcquisitionDataUI.SHOW_UNSET);
+		Font font = button.getFont();
+		int sizeLabel = font.getSize()-2;
+    	UIUtilities.unifiedButtonLookAndFeel(button);
+    	button.setFont(font.deriveFont(Font.ITALIC, sizeLabel));
+    	button.setText(AcquisitionDataUI.SHOW_UNSET);
+    	button.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	button.setForeground(UIUtilities.HYPERLINK_COLOR);
+    	return button;
+	}
+	
+	/** 
+	 * Lays out the passed component.
+	 * 
+	 * @param pane 		The main component.
+	 * @param button	The button to show or hide the unset fields.
+	 * @param fields	The fields to lay out.
+	 * @param shown		Pass <code>true</code> to show the unset fields,
+	 * 					<code>false</code> to hide them.
+	 */
+	void layoutFields(JPanel pane, JButton button, 
+			Map<String, AcquisitionComponent> fields, boolean shown)
+	{
+		pane.removeAll();
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+        AcquisitionComponent comp;
+        String key;
+		Iterator i = fields.keySet().iterator();
+        while (i.hasNext()) {
+            c.gridx = 0;
+            key = (String) i.next();
+            comp = fields.get(key);
+            if (comp.isSetField() || shown) {
+            	 ++c.gridy;
+            	 c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+                 c.fill = GridBagConstraints.NONE;      //reset to default
+                 c.weightx = 0.0;  
+                 pane.add(comp.getLabel(), c);
+                 c.gridx++;
+                 pane.add(Box.createHorizontalStrut(5), c); 
+                 c.gridx++;
+                 c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+                 c.fill = GridBagConstraints.HORIZONTAL;
+                 c.weightx = 1.0;
+                 pane.add(comp.getArea(), c);  
+            } 
+        }
+        ++c.gridy;
+        c.gridx = 0;
+        //c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        //c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        if (button != null) pane.add(button, c);
 	}
 	
 	/**
