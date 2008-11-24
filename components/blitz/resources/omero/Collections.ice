@@ -70,6 +70,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.ExperimenterGroup>:java.util.List<omero.model.ExperimenterGroup>"]
             sequence<omero::model::ExperimenterGroup> ExperimenterGroupList;
 
+        ["java:type:java.util.ArrayList<omero.model.Event>:java.util.List<omero.model.Event>"]
+            sequence<omero::model::Event> EventList;
+
         ["java:type:java.util.ArrayList<omero.model.Annotation>:java.util.List<omero.model.Annotation>"]
             sequence<omero::model::Annotation> AnnotationList;
 
@@ -108,14 +111,14 @@ module omero {
         sequence<byte> ByteArray;
         sequence<short> ShortArray;
         sequence<int> IntegerArray;
-       	sequence<long> LongArray;
-		sequence<double> DoubleArray;
-      	sequence<ByteArray> ByteArrayArray;
-		sequence<ShortArray> ShortArrayArray;
-	  	sequence<IntegerArray> IntegerArrayArray;
+	sequence<long> LongArray;
+	sequence<double> DoubleArray;
+	sequence<ByteArray> ByteArrayArray;
+	sequence<ShortArray> ShortArrayArray;
+	sequence<IntegerArray> IntegerArrayArray;
         sequence<IntegerArrayArray> IntegerArrayArrayArray;
         sequence<LongArray> LongArrayArray;
-		sequence<DoubleArray> DoubleArrayArray;
+	sequence<DoubleArray> DoubleArrayArray;
         sequence<DoubleArrayArray> DoubleArrayArrayArray;
 
         // Dictionaries
@@ -127,6 +130,7 @@ module omero {
         dictionary<string, omero::RType> StringRTypeMap;
         dictionary<string, omero::model::Experimenter> UserMap;
         dictionary<string, IObjectList> IObjectListMap;
+        dictionary<string, long> StringLongMap;
         dictionary<string, Ice::LongSeq> IdListMap;
 
         // Redundant or too specifically named definitions. Should possibly be deprecated.

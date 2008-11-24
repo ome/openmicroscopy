@@ -29,8 +29,8 @@
 
   <!-- Non-ome.api service-based
   ==============================================================================
-  All of these services are marked as "singleton" since each ServiceFactoryI
-  manages its own statefulness.
+  All of these services are marked as "singleton=false" since each ServiceFactoryI
+  manages its own statefulness. See documentation in blitz/resources/omero/API.ice
   -->
 
   <bean id="omero.api.IScript" class="omero.api._IScriptTie" singleton="false">
@@ -41,7 +41,21 @@
     </constructor-arg>
   </bean>
 
-  <!-- Stateless ome.api service-based -->
+  <bean id="omero.api.ITimeline" class="omero.api._ITimelineTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.TimelineI">
+            <constructor-arg ref="throttlingStrategy"/>
+            <property name="localQuery" ref="managed-ome.api.IQuery"/>
+            <property name="sessionManager" ref="sessionMnager"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
+  <!-- Stateless ome.api service-based
+  ==============================================================================
+  See documentation at http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/package-summary.html
+  -->
+
 
   <bean id="omero.api.IAdmin" class="omero.api._IAdminTie" singleton="false">
     <constructor-arg>
@@ -97,7 +111,7 @@
         </bean>
     </constructor-arg>
   </bean>
-  
+
   <bean id="omero.api.IProjection" class="omero.api._IProjectionTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ProjectionI">

@@ -116,6 +116,21 @@ public abstract class rtypes {
     public static omero.RTime rtime(Date date) {
         return date == null ? null : new RTimeI(date.getTime());
     }
+    
+    public static omero.RTime rtime_min() {
+        String tstr = "0001-01-01 00:00:00";
+        return rtime_str(tstr);
+    }
+    
+    public static omero.RTime rtime_max() {
+        String tstr = "9999-12-31 23:59:59";
+        return rtime_str(tstr);
+    }
+    
+    public static omero.RTime rtime_str(String tstr) {
+        Timestamp t = Timestamp.valueOf(tstr);
+        return rtime(t.getTime());
+    }
 
     // Static factory methods (objects)
     // =========================================================================
