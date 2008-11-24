@@ -37,7 +37,7 @@ def run(args,\
     if isinstance(java,str):
         java = [java]
     if isinstance(xargs,str):
-        xargs = [xargs]
+        xargs = shlex.split(xargs)
 
     # Add our logging configuration early
     # so that it can be overwritten by xargs
