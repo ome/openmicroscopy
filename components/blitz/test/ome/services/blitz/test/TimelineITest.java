@@ -62,7 +62,7 @@ public class TimelineITest extends TestCase {
 
         user = new ManagedContextFixture(ctx);
         String name = user.loginNewUserNewGroup();
-        user_sf = user.createServiceFactoryI();
+        user_sf = createServiceFactoryI(user);
 
         user_t = new TimelineI(be);
         user_t.setServiceFactory(user_sf);
@@ -71,12 +71,26 @@ public class TimelineITest extends TestCase {
 
         root = new ManagedContextFixture(ctx);
         // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
-        root_sf = user.createServiceFactoryI();
+        root_sf = createServiceFactoryI(root);
 
         root_t = new TimelineI(be);
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);
         root_t.setLocalQuery((LocalQuery) root.managedSf.getQueryService());
+    }
+
+    /**
+     * TODO: This method should be in the ManagedContextFixture, but that is
+     * under components/server. Either subclass or rearrange.
+     */
+    public ServiceFactoryI createServiceFactoryI(ManagedContextFixture fixture)
+            throws omero.ApiUsageException {
+        Ice.Current current = new Ice.Current();
+        current.ctx = new HashMap<String, String>();
+        current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
+        ServiceFactoryI factory = new ServiceFactoryI(current, fixture.ctx,
+                fixture.mgr, fixture.ex, fixture.getPrincipal(), null);
+        return factory;
     }
 
     @Override
@@ -134,7 +148,7 @@ public class TimelineITest extends TestCase {
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Map<String, List<IObject>> rv = assertGetByPeriod(types, rtime_min(),
-                rtime_max());
+                rtime_max(), false);
 
         List<Long> imageIds = new ArrayList<Long>();
         for (IObject obj : rv.get("Image")) {
@@ -164,7 +178,7 @@ public class TimelineITest extends TestCase {
         Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
-        Map<String, List<IObject>> rv = assertMostRecent(types, null);
+        Map<String, List<IObject>> rv = assertMostRecent(types, null, false);
 
         List<Long> imageIds = new ArrayList<Long>();
         for (IObject obj : rv.get("Image")) {
@@ -172,7 +186,25 @@ public class TimelineITest extends TestCase {
         }
         assertTrue(imageIds.contains(i.getId()));
     }
-    
+
+    @Test
+    public void testMostRecentMerged() throws Exception {
+        List<String> types = Arrays.asList("Image", "Dataset");
+
+        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        i = user.managedSf.getUpdateService().saveAndReturnObject(i);
+
+        Dataset d = new Dataset("ds");
+        d = user.managedSf.getUpdateService().saveAndReturnObject(d);
+
+        Map<String, List<IObject>> rv = assertMostRecent(types,
+                new ParametersI().page(0, 1), true);
+
+        assertTrue(rv.containsKey("Dataset"));
+        assertFalse(rv.containsKey("Image"));
+        assertEquals(1, rv.get("Dataset").size());
+    }
+
     @Test
     public void testJust1RecentImage() throws Exception {
         List<String> types = Arrays.asList("Image");
@@ -181,7 +213,7 @@ public class TimelineITest extends TestCase {
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         ParametersI p = new ParametersI().page(0, 1);
-        Map<String, List<IObject>> rv = assertMostRecent(types, p);
+        Map<String, List<IObject>> rv = assertMostRecent(types, p, false);
         assertEquals(1, rv.get("Image").size());
     }
 
@@ -212,7 +244,7 @@ public class TimelineITest extends TestCase {
     }
 
     private Map<String, List<IObject>> assertGetByPeriod(List<String> types,
-            RTime start, RTime end) throws ServerError {
+            RTime start, RTime end, boolean merge) throws ServerError {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
         final Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
@@ -227,7 +259,7 @@ public class TimelineITest extends TestCase {
                 status[1] = true;
                 rv.putAll(__ret);
             }
-        }, types, start, end, null, null);
+        }, types, start, end, null, merge, null);
         assertFalse("exception thrown: " + exc[0], status[0]);
         assertTrue("didn't pass", status[1]);
         return rv;
@@ -256,7 +288,7 @@ public class TimelineITest extends TestCase {
     }
 
     private Map<String, List<IObject>> assertMostRecent(List<String> types,
-            Parameters p) throws ServerError {
+            Parameters p, boolean merge) throws ServerError {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
         final Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
@@ -272,7 +304,7 @@ public class TimelineITest extends TestCase {
                         status[1] = true;
                         rv.putAll(__ret);
                     }
-                }, types, p, null);
+                }, types, p, merge, null);
         assertFalse("exception thrown: " + exc[0], status[0]);
         assertTrue("didn't pass", status[1]);
         return rv;

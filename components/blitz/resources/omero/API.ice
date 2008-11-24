@@ -526,7 +526,7 @@ module omero {
 	     * Note the concept of "period inclusion" mentioned above.
 	     */
 	    EventList
-		getEventsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p, bool merge)
+		getEventsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p)
 		throws ServerError;
 
 	};

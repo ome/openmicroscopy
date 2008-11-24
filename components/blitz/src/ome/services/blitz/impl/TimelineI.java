@@ -10,6 +10,8 @@ package ome.services.blitz.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,16 +184,25 @@ public class TimelineI extends AbstractAmdServant implements
 
     public void getByPeriod_async(final AMD_ITimeline_getByPeriod __cb,
             final List<String> types, final RTime start, final RTime end,
-            final omero.sys.Parameters p, Current __current) throws ServerError {
+            final omero.sys.Parameters p, final boolean merge, Current __current)
+            throws ServerError {
         runnableCall(__current, new Runnable() {
             public void run() {
                 try {
                     log.info(" Meth: TimelineI.getByPeriod");
                     log.info(String.format(" Args: %s, %s, %s", types, start,
                             end, p));
-                    final Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
+                    
+                    Parameters pWithDefaults = applyDefaults(p);
+                    Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
                             false, types, userId(), start, end, null,
-                            new IceMapper(IceMapper.FILTERABLE_COLLECTION), applyDefaults(p));
+                            new IceMapper(IceMapper.FILTERABLE_COLLECTION),
+                            pWithDefaults);
+
+                    if (merge) {
+                        returnValue = merge(returnValue, pWithDefaults);
+                    }
+
                     log.info(" Rslt: " + returnValue);
                     __cb.ice_response(returnValue);
                 } catch (Exception e) {
@@ -215,7 +226,8 @@ public class TimelineI extends AbstractAmdServant implements
                     Map<String, List<Event>> events = (Map<String, List<Event>>) do_periodQuery(
                             false, Arrays.asList("Event"), userId(), start,
                             end, null, new IceMapper(
-                                    IceMapper.FILTERABLE_COLLECTION), applyDefaults(p));
+                                    IceMapper.FILTERABLE_COLLECTION),
+                            applyDefaults(p));
                     log.info(" Rslt: " + events.get("Event"));
                     __cb.ice_response(events.get("Event"));
                 } catch (Exception e) {
@@ -230,7 +242,7 @@ public class TimelineI extends AbstractAmdServant implements
     public void getMostRecentObjects_async(
             final AMD_ITimeline_getMostRecentObjects __cb,
             final List<String> types, final omero.sys.Parameters p,
-            Current __current) throws ServerError {
+            final boolean merge, Current __current) throws ServerError {
 
         runnableCall(__current, new Runnable() {
             public void run() {
@@ -241,9 +253,17 @@ public class TimelineI extends AbstractAmdServant implements
                     log.info(" Meth: TimelineI.getMostRecentObjects");
                     log.info(String.format(" Args: %s offset=%s, limit=%s",
                             types, offset, limit));
+                    
+                    Parameters pWithDefaults = applyDefaults(p);
                     Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
                             false, types, userId(), null, null, null,
-                            new IceMapper(IceMapper.FILTERABLE_COLLECTION), applyDefaults(p));
+                            new IceMapper(IceMapper.FILTERABLE_COLLECTION),
+                            pWithDefaults);
+
+                    if (merge) {
+                        returnValue = merge(returnValue, pWithDefaults);
+                    }
+
                     log.info(" Rslt: " + returnValue);
                     __cb.ice_response(returnValue);
                 } catch (Exception e) {
@@ -273,6 +293,11 @@ public class TimelineI extends AbstractAmdServant implements
     // Helpers
     // =========================================================================
 
+    /**
+     * Main implementation for most of the interface methods in TimelineI.
+     * Arguments: - parameters : if null, then no setFirst or setMax will be
+     * called on query
+     */
     private Map do_periodQuery(final boolean count, final List<String> types,
             final long userId, final RTime start, final RTime end,
             final Object missingValue, final IceMapper mapper,
@@ -355,7 +380,60 @@ public class TimelineI extends AbstractAmdServant implements
         String session = this.factory.sessionId().name;
         return sm.getEventContext(new Principal(session)).getCurrentUserId();
     }
-    
+
+    /**
+     * Accepts only a properly initialzed {@link Parameters} instance. See
+     * {@link #applyDefaults(Parameters)}
+     */
+    private Map<String, List<IObject>> merge(Map<String, List<IObject>> toMerge, Parameters p) {
+        
+        int limit = p.theFilter.limit.getValue();
+        
+        class Entry {
+            final long updateId;
+            final String key;
+            final IObject obj;
+            Entry(String key, IObject obj) {
+                this.key = key;
+                this.obj = obj;
+                this.updateId = obj.getDetails().getUpdateEvent().getId().getValue();
+            }
+        }
+        
+        List<Entry> list = new ArrayList<Entry>();
+        for (String key : toMerge.keySet()) {
+            for (IObject obj : toMerge.get(key)) {
+                list.add(new Entry(key, obj));
+            }
+        }
+        
+        Collections.sort(list, new Comparator<Entry>(){
+            public int compare(Entry o1, Entry o2) {
+                long u1 = o1.updateId;
+                long u2 = o2.updateId;
+                if (u1 < u2) {
+                    return 1;
+                } else if (u2 < u1) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }});
+
+        toMerge.clear();
+        for (int i = 0; i < Math.min(limit, list.size()); i++) {
+            Entry entry = list.get(i);
+            List<IObject> objs = toMerge.get(entry.key);
+            if (objs == null) {
+                objs = new ArrayList<IObject>();
+                toMerge.put(entry.key, objs);
+            }
+            objs.add(entry.obj);
+        }
+        
+        return toMerge;
+    }
+
     private Parameters applyDefaults(Parameters p) {
         if (p == null) {
             p = new Parameters();
@@ -369,7 +447,7 @@ public class TimelineI extends AbstractAmdServant implements
         if (p.theFilter.limit == null) {
             p.theFilter.limit = rint(50);
         }
-        
+
         return p;
     }
 }
