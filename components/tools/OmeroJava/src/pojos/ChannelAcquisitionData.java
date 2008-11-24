@@ -151,9 +151,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsOffset()
 	{
-		if (detectorSettings == null) return 0;
+		if (detectorSettings == null) return -1;
 		RFloat value = detectorSettings.getOffsetValue();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -164,9 +164,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsGain()
 	{
-		if (detectorSettings == null) return 0;
+		if (detectorSettings == null) return -1;
 		RFloat value = detectorSettings.getGain();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -177,9 +177,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsVoltage()
 	{
-		if (detectorSettings == null) return 0;
+		if (detectorSettings == null) return -1;
 		RFloat value = detectorSettings.getVoltage();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -190,9 +190,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getDetectorSettingsReadOutRate()
 	{
-		if (detectorSettings == null) return 0;
+		if (detectorSettings == null) return -1;
 		RFloat value = detectorSettings.getReadOutRate();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -217,9 +217,9 @@ public class ChannelAcquisitionData
 	public float getDetectorVoltage()
 	{
 		Detector detector = getDetector();
-		if (detector == null) return 0;
+		if (detector == null) return -1;
 		RFloat value = detector.getVoltage();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -231,9 +231,9 @@ public class ChannelAcquisitionData
 	public float getDetectorAmplificationGain()
 	{
 		Detector detector = getDetector();
-		if (detector == null) return 0;
+		if (detector == null) return -1;
 		RFloat value = detector.getAmplificationGain();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -245,9 +245,9 @@ public class ChannelAcquisitionData
 	public float getDetectorGain()
 	{
 		Detector detector = getDetector();
-		if (detector == null) return 0;
+		if (detector == null) return -1;
 		RFloat value = detector.getGain();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -259,9 +259,9 @@ public class ChannelAcquisitionData
 	public float getDetectorOffset()
 	{
 		Detector detector = getDetector();
-		if (detector == null) return 0;
+		if (detector == null) return -1;
 		RFloat value = detector.getOffsetValue();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 
@@ -273,9 +273,9 @@ public class ChannelAcquisitionData
 	public float getDetectorZoom()
 	{
 		Detector detector = getDetector();
-		if (detector == null) return 0;
+		if (detector == null) return -1;
 		RFloat value = detector.getZoom();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -343,9 +343,9 @@ public class ChannelAcquisitionData
 	 */
 	public float getLigthSettingsAttenuation()
 	{
-		if (lightSettings == null) return 0;
+		if (lightSettings == null) return -1;
 		RFloat value = lightSettings.getAttenuation();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -356,9 +356,9 @@ public class ChannelAcquisitionData
 	 */
 	public int getLigthSettingsWavelength()
 	{
-		if (lightSettings == null) return 0;
+		if (lightSettings == null) return -1;
 		RInt value = lightSettings.getWavelength();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -597,10 +597,10 @@ public class ChannelAcquisitionData
 	 */
 	public int getLaserWavelength()
 	{
-		if (!LASER.equals(getLightSourceKind())) return 0;
+		if (!LASER.equals(getLightSourceKind())) return -1;
 		Laser laser = (Laser) getLightSource();
 		RInt value = laser.getWavelength();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -672,10 +672,10 @@ public class ChannelAcquisitionData
 	 */
 	public int getLaserFrequencyMultiplication()
 	{
-		if (!LASER.equals(getLightSourceKind())) return 0;
+		if (!LASER.equals(getLightSourceKind())) return -1;
 		Laser laser = (Laser) getLightSource();
 		RInt value = laser.getFrequencyMultiplication();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -714,10 +714,10 @@ public class ChannelAcquisitionData
 	 */
 	public float getLaserRepetitionRate()
 	{
-		if (!LASER.equals(getLightSourceKind())) return 0;
+		if (!LASER.equals(getLightSourceKind())) return -1;
 		Laser laser = (Laser) getLightSource();
 		RFloat value = laser.getRepetitionRate();
-		if (value  == null) return 0;
+		if (value  == null) return -1;
 		return value.getValue();
 	}
 	

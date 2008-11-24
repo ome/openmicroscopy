@@ -136,11 +136,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getPositionX()
+	public Object getPositionX()
 	{
-		if (label == null) return 0f;
+		if (label == null) return null;
 		RFloat value = label.getPositionX();
-		if (value == null) return 0f;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -149,11 +149,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getPositionY()
+	public Object getPositionY()
 	{
-		if (label == null) return 0f;
+		if (label == null) return null;
 		RFloat value = label.getPositionY();
-		if (value == null) return 0f;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -162,11 +162,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getPositionZ()
+	public Object getPositionZ()
 	{
-		if (label == null) return 0f;
+		if (label == null) return null;
 		RFloat value = label.getPositionZ();
-		if (value == null) return 0f;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -175,11 +175,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getTemperature()
+	public Object getTemperature()
 	{
-		if (environment == null) return 0f;
+		if (environment == null) return null;
 		RFloat value = environment.getTemperature();
-		if (value == null) return 0f;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -190,9 +190,9 @@ public class ImageAcquisitionData
 	 */
 	public float getAirPressure()
 	{
-		if (environment == null) return 0f;
+		if (environment == null) return -1;
 		RFloat value = environment.getAirPressure();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -203,9 +203,9 @@ public class ImageAcquisitionData
 	 */
 	public float getHumidity()
 	{
-		if (environment == null) return 0f;
+		if (environment == null) return -1;
 		RFloat value = environment.getHumidity();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -216,9 +216,9 @@ public class ImageAcquisitionData
 	 */
 	public float getCo2Percent()
 	{
-		if (environment == null) return 0f;
+		if (environment == null) return -1;
 		RFloat value = environment.getCo2percent();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -229,9 +229,9 @@ public class ImageAcquisitionData
 	 */
 	public float getCorrectionCollar()
 	{
-		if (objective == null) return 0f;
+		if (objective == null) return -1;
 		RFloat value = objective.getCorrectionCollar();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -242,9 +242,9 @@ public class ImageAcquisitionData
 	 */
 	public float getRefractiveIndex()
 	{
-		if (objective == null) return 0f;
+		if (objective == null) return -1;
 		RFloat value = objective.getRefractiveIndex();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -270,9 +270,9 @@ public class ImageAcquisitionData
 	public float getCalibratedMagnification()
 	{
 		Objective obj = getObjective();
-		if (obj == null) return 0f;
+		if (obj == null) return -1;
 		RFloat value = obj.getCalibratedMagnification();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -284,9 +284,9 @@ public class ImageAcquisitionData
 	public int getNominalMagnification()
 	{
 		Objective obj = getObjective();
-		if (obj == null) return 0;
+		if (obj == null) return -1;
 		RInt value = obj.getNominalMagnification();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -298,9 +298,9 @@ public class ImageAcquisitionData
 	public float getLensNA()
 	{
 		Objective obj = getObjective();
-		if (obj == null) return 0f;
+		if (obj == null) return -1;
 		RFloat value = obj.getLensNA();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -342,9 +342,9 @@ public class ImageAcquisitionData
 	public float getWorkingDistance()
 	{
 		Objective obj = getObjective();
-		if (obj == null) return 0f;
+		if (obj == null) return -1;
 		RFloat value = obj.getWorkingDistance();
-		if (value == null) return 0f;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
