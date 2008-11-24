@@ -57,6 +57,8 @@ import omero.api.ISessionPrx;
 import omero.api.ISessionPrxHelper;
 import omero.api.ISharePrx;
 import omero.api.ISharePrxHelper;
+import omero.api.ITimelinePrx;
+import omero.api.ITimelinePrxHelper;
 import omero.api.ITypesPrx;
 import omero.api.ITypesPrxHelper;
 import omero.api.IUpdatePrx;
@@ -121,7 +123,6 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.transaction.TransactionStatus;
 
-import omero.rtypes.*;
 import Ice.Current;
 
 /**
@@ -277,6 +278,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
+    public ITimelinePrx getTimelineService(Ice.Current current) throws ServerError {
+        return ITimelinePrxHelper.uncheckedCast(getByName(TYPESSERVICE.value,
+                current));
+    }
+    
     public ITypesPrx getTypesService(Ice.Current current) throws ServerError {
         return ITypesPrxHelper.uncheckedCast(getByName(TYPESSERVICE.value,
                 current));
