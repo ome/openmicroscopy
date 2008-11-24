@@ -157,8 +157,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         long user = d.getOwner().getId();
         long group = d.getGroup().getId();
 
-        boolean root = ec.getCurrentUserId().equals(
-                sec.getSecurityRoles().getRootId());
+        boolean root = ec.isCurrentUserAdmin();
         List<Long> leaderof = ec.getLeaderOfGroupsList();
         boolean pi = leaderof.contains(group);
         boolean own = ec.getCurrentUserId().equals(user);
