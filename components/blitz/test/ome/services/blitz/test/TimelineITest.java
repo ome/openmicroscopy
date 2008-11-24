@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 import ome.api.local.LocalQuery;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
-import ome.server.itests.ManagedContextFixture;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.TimelineI;
 import ome.services.blitz.util.BlitzExecutor;
