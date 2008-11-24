@@ -66,7 +66,9 @@ import validation.SAXValidator;
 //Application-internal dependencies
 
 /** 
- * 
+ * This field can link to a directory of protocols. 
+ * Shows a drop-down menu for users to choose from these protocols to import.
+ * When a protocol is selected, the protocol is imported below this field. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -114,12 +116,16 @@ extends FormField
 		
 		// need comboBox for choosing protocol file to import. 
 		protocolChooser = new CustomComboBox();
+		protocolChooser.setToolTipText("Choose a protocol to import " +
+				"(will be added below this field)");
 		protocolChooser.setBackground(null);
 		horizontalBox.add(protocolChooser);
 		
 		Icon chooseLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.WRENCH_ICON);
 		
 		getLinkButton = new JButton(chooseLinkIcon);
+		getLinkButton.setToolTipText("Choose a directory of protocols which" +
+				" may be imported into this protocol");
 		getLinkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { getAndSaveLink(); }
 		});
@@ -284,7 +290,7 @@ extends FormField
 			}
 		}
 		
-		// if folderLink isn't null, it should be absolute...
+		// if folderLink isn't null, populate the drop-down menu. 
 		if (folderLink != null) {
 			
 			File protocolFolder = new File(folderLink);
@@ -303,6 +309,8 @@ extends FormField
 					protocolChooser.addItem(protName);
 			}
 			protocolChooser.addActionListener(this);
+			protocolChooser.setToolTipText("Choose a protocol to import " +
+			"(will be added below this field)");
 			
 			return;
 		}

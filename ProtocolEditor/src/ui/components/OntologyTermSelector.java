@@ -274,7 +274,6 @@ public class OntologyTermSelector extends JPanel {
 		}
 	}
 	
-	
 	public String getCurrentOntologyId() {
 		
 		String ontologyId = ontologySelector.getSelectedItem().toString();

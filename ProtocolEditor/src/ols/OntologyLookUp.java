@@ -34,6 +34,8 @@ public class OntologyLookUp {
 	
 	public static Map<String,String> getTermsByName (String name, String ontologyID) {
 	
+		System.out.println("OntologyLookUp getTermsByName: " + name + " " + ontologyID);
+		
 		boolean removeObsoleteTerms = false;
 		
 		Map<String, String> map = null;
