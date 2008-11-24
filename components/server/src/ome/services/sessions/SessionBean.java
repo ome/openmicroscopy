@@ -93,13 +93,13 @@ public class SessionBean implements ISession, SelfConfigurableService {
 
     @RolesAllowed("system")
     public Session createSessionWithTimeout(@NotNull
-    Principal principal, long seconds) {
+    Principal principal, long milliseconds) {
 
         Session session = null;
         try {
             session = mgr.create(principal);
             session.setTimeToIdle(0L);
-            session.setTimeToLive(seconds);
+            session.setTimeToLive(milliseconds);
             return mgr.update(session);
         } catch (Exception e) {
             throw creationExceptionHandler(e);

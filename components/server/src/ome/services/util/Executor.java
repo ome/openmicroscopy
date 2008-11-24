@@ -39,8 +39,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Simple execution/work interface which can be used for <em>internal</em>
- * tasks which need to have a full working implementation. The
+ * Simple execution/work interface which can be used for <em>internal</em> tasks
+ * which need to have a full working implementation. The
  * {@link Executor#execute(Principal, ome.services.util.Executor.Work)} method
  * ensures that {@link SecuritySystem#login(Principal)} is called before the
  * task, that a {@link TransactionCallback} and a {@link HibernateCallback}
@@ -92,9 +92,9 @@ public interface Executor extends ApplicationContextAware {
     /**
      * Work SPI to perform actions within the server as if they were fully
      * wrapped in our service logic. Note: any results which are coming from
-     * Hibernate <em>may <b>not</b></em> be assigned directly to a field,
-     * rather must be returned as an {@link Object} so that Hibernate proxies
-     * can be properly handled.
+     * Hibernate <em>may <b>not</b></em> be assigned directly to a field, rather
+     * must be returned as an {@link Object} so that Hibernate proxies can be
+     * properly handled.
      */
     public interface Work {
         /**
@@ -161,8 +161,8 @@ public interface Executor extends ApplicationContextAware {
 
         /**
          * Calls
-         * {@link #execute(Principal, ome.services.util.Executor.Work, boolean) with
-         * readOnly set to false.
+         * {@link #execute(Principal, ome.services.util.Executor.Work, boolean)
+         * with readOnly set to false.
          */
         public Object execute(final Principal p, final Work work) {
             return execute(p, work, false);
@@ -231,10 +231,17 @@ public interface Executor extends ApplicationContextAware {
                     return hibTemplate.execute(new HibernateCallback() {
                         public Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException {
-                            StatelessSession s = hibTemplate
-                                    .getSessionFactory().openStatelessSession(
-                                            session.connection());
-                            return work.doWork(status, s);
+                            StatelessSession s = null;
+                            try {
+                                s = hibTemplate.getSessionFactory()
+                                        .openStatelessSession(
+                                                session.connection());
+                                return work.doWork(status, s);
+                            } finally {
+                                if (s != null) {
+                                    s.close();
+                                }
+                            }
                         }
                     }, true);
                 }

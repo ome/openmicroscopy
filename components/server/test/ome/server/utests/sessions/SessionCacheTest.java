@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
@@ -20,6 +24,7 @@ import ome.conditions.InternalException;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
+import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
@@ -307,7 +312,7 @@ public class SessionCacheTest extends TestCase {
         
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
-        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        ApplicationEventMulticaster multicaster = mc();
         multicaster.addApplicationListener(listener);
         Session s = sess();
         cache.putSession(uuid, sc(s));
@@ -327,7 +332,7 @@ public class SessionCacheTest extends TestCase {
         
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
-        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        ApplicationEventMulticaster multicaster = mc();
         multicaster.addApplicationListener(listener);
         Session s = sess();
         s.setTimeToLive(1L);
@@ -368,7 +373,7 @@ public class SessionCacheTest extends TestCase {
         
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
-        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        ApplicationEventMulticaster multicaster = mc();
         multicaster.addApplicationListener(listener);
         Session s = sess();
         s.setTimeToLive(1L);
@@ -379,6 +384,59 @@ public class SessionCacheTest extends TestCase {
         }
         cache.updateEvent(new UserGroupUpdateEvent(this));
         assertTrue(listener.called);
+    }
+    
+    @Test
+    public void testTwoSessionsRemovedAtTheSameTimeOnlyCallsOnce() {
+        
+        // Setup
+        Session s = sess();
+        cache.putSession("uuid", sc(s));
+        
+        // Threads
+        final CyclicBarrier barrier = new CyclicBarrier(3);
+        class Listener implements ApplicationListener {
+            boolean failed = false;
+            public void onApplicationEvent(ApplicationEvent arg0) {
+                if (arg0 instanceof DestroySessionMessage) {
+                    try {
+                        barrier.await();
+                    } catch (BrokenBarrierException bbe) {
+                        // This should mean that the timeout has been reached
+                    } catch (Exception e) {
+                        // Any other exception will say "failed"
+                        failed = true;
+                    }
+                }
+            }};
+        Listener listener = new Listener();
+        mc().addApplicationListener(listener);
+        class Work extends Thread {
+            @Override
+            public void run() {
+                cache.removeSession("uuid");
+            }
+        }
+        
+        // Run
+        new Work().start();
+        new Work().start();
+        boolean timeout = false;
+        try {
+            barrier.await(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            fail("Interrupted. Not likely!");
+        } catch (BrokenBarrierException e) {
+            fail("Already broken. How did this happen?");
+        } catch (TimeoutException e) {
+            timeout = true; // This is what we want.
+            // Means that the second work thread didn't make it in
+        }
+        
+        // Check
+        assertTrue(timeout);
+        assertFalse(listener.failed);
+            
     }
     
     // Helpers
@@ -396,5 +454,11 @@ public class SessionCacheTest extends TestCase {
     SessionContext sc(Session s) {
         return new SessionContextImpl(s, Collections.singletonList(1L),
                 Collections.singletonList(1L), Collections.singletonList(""));
+    }
+    
+
+    private ApplicationEventMulticaster mc() {
+        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        return multicaster;
     }
 }
