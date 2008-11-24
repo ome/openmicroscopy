@@ -78,6 +78,31 @@ public class FieldParamsFactory {
 		"Ontology Term"
 		// "Phenote Observation"
 		};
+	
+	/**
+	 * Returns the UI-suitable parameter type name 
+	 * (from the {@link #UI_INPUT_TYPES} list, that represents the paramType
+	 * from the {@link #PARAM_TYPES} list. 
+	 * If paramType is not in this list, paramType is returned.
+	 * 
+	 * @param paramType		see above
+	 * @return				see above
+	 */
+	public static String getTypeForDisplay(String paramType) 
+	{
+		if (paramType == null)		return null;
+		
+		int paramTypesLength = PARAM_TYPES.length;
+		
+		for (int i = 0; i < paramTypesLength; i++) {
+			
+			if (PARAM_TYPES[i].equals(paramType)) {
+				return UI_INPUT_TYPES[i];
+			}
+		}
+		
+		return paramType;
+	}
 
 	/**
 	 * This create new Parameter objects (subclasses of

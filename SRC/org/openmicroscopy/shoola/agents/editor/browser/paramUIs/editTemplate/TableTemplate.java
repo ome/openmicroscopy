@@ -31,8 +31,8 @@ import javax.swing.table.TableModel;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
+import org.openmicroscopy.shoola.agents.editor.model.tables.MutableTableModel;
 
 //Java imports
 
@@ -41,7 +41,9 @@ import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 //Application-internal dependencies
 
 /** 
- * 
+ * A UI for editing the column names for a Table parameter. 
+ * Uses a {@link AttributeEditArea} text-box for editing the columns String
+ * (comma-delimited list of column names). 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

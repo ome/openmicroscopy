@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.editor.model;
 
 import java.util.List;
 
+import javax.swing.table.TableModel;
+
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 
 //Java imports
@@ -139,4 +141,21 @@ public interface IField
 	 * @return		see above.
 	 */
 	public String toHtmlString();
+	
+	/**
+	 * If this field has tabular data (multiple values for each parameter) then
+	 * this method will return a tableModel to represent this data. 
+	 * One column per parameter, one row for each instance of data. 
+	 * 
+	 * @return		A tableModel for this field's data, or null if none exists. 
+	 */
+	public TableModel getTableData();
+	
+	/**
+	 * Sets a {@link TableModel} that represents multiple values of the 
+	 * parameters of this field. 
+	 * 
+	 * @param tableModel
+	 */
+	public void setTableData(TableModel tableModel);
 }

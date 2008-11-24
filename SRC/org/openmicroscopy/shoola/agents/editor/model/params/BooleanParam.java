@@ -99,5 +99,24 @@ public class BooleanParam
 	{
 		return (getAttribute(TextParam.PARAM_VALUE) != null);
 	}
+	
+	public void setValueAt(int index, Object value) 
+	{
+		Boolean b = Boolean.valueOf(value.toString());
+		super.setValueAt(index, b);
+	}
 
+	/**
+	 * Gets the specified value in the list of values for this parameter.
+	 * Returns null if index is greater than length of list.  
+	 * 
+	 * @param index		The index of the parameter. 
+	 * @return			The value
+	 */
+	public Object getValueAt(int index) 
+	{
+		Object obj = super.getValueAt(index);
+		
+		return Boolean.valueOf(obj.toString());
+	}
 }

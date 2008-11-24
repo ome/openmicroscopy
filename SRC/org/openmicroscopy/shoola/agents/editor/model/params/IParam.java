@@ -93,4 +93,50 @@ public interface IParam
 	 * @return		A HashMap of the attributes (with Old Values) affected.
 	 */
 	public HashMap<String, String> loadDefaultValues();
+	
+	/**
+	 * Returns the number of values that have been set for this parameter. 
+	 * A parameter may have a list of values when several instances of a 
+	 * field are saved in a table. 
+	 * Each parameter in the field will be a column, with the list of values
+	 * populating the rows of that column. 
+	 * 
+	 * @return		The number of values saved for this parameter. 
+	 */
+	public int getValueCount();
+	
+	/**
+	 * Gets the specified value in the list of values for this parameter.
+	 * Returns null if index is greater than length of list.  
+	 * 
+	 * @param index		The index of the parameter. 
+	 * @return			The value
+	 */
+	public Object getValueAt(int index);
+	
+	/**
+	 * Sets the value at the specified index in the list of values for this
+	 * parameter. If the index is greater than the length of the list, the
+	 * list should automatically be extended to this length. 
+	 * 
+	 * @param index		The index to add this value. 
+	 * @param value		The new value
+	 */
+	public void setValueAt(int index, Object value);
+	
+	/**
+	 * Inserts a value to the list of values for this parameter
+	 * 
+	 * @param index		The index to insert this value. 
+	 * @param value			The value to insert into the list
+	 */
+	public void insertValue(int index, Object value);
+	
+	/**
+	 * Removes the value at the specified index of the list of values for this
+	 * parameter. 
+	 * 
+	 * @param index		The index to remove a value. 
+	 */
+	public void removeValueAt(int index);
 }

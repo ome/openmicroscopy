@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.table.TableModel;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -97,6 +99,12 @@ public class Field
 	 * Not saved.  
 	 */
 	private HashMap<String, String> displayAttributesMap;
+	
+	/**
+	 * If the parameters of this field have multiple values, they can be 
+	 * represented as a {@link TableModel} here. 
+	 */
+	private TableModel 				tableData;
 	
 	/**
 	 * Default constructor.
@@ -411,4 +419,23 @@ public class Field
 		return text;
 		
 	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface. 
+	 * Sets {@link #tableData}
+	 * 
+	 * @see IField#setTableData(TableModel)
+	 */
+	public void setTableData(TableModel tableModel)
+	{
+		tableData = tableModel;
+	}
+
+	/**
+	 * Implemented as specified by the {@link IField} interface. 
+	 * Returns {@link #tableData}
+	 * 
+	 * @see IField#getTableData()
+	 */
+	public TableModel getTableData() { return tableData; }
 }

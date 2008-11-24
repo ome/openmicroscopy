@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -41,14 +40,13 @@ import net.n3.nanoxml.IXMLElement;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
+import org.openmicroscopy.shoola.agents.editor.model.tables.MutableTableModel;
 
 /** 
  * This class is used for reading 'UPE' Universal Protocol Exchange XML files,

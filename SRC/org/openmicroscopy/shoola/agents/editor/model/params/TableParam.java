@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 
 import javax.swing.table.TableModel;
 
+import org.openmicroscopy.shoola.agents.editor.model.tables.MutableTableModel;
+
 //Third-party libraries
 
 //Application-internal dependencies

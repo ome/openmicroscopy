@@ -23,7 +23,9 @@
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 //Third-party libraries
 
@@ -68,9 +70,20 @@ public abstract class AbstractParam
 	 */
 	public static final String 		PARAM_NAME = "paramName";
 	
-	
+	/**
+	 * A map of the attributes that define this parameter. 
+	 * Can be used to store any name, value pair. 
+	 * E.g. Parameter-Name, Default-Value, etc. 
+	 */
 	private HashMap<String, String> valueAttributesMap;
 
+	/**
+	 * A list of the values for this parameter. Used to store several 
+	 * instances of a field, when each parameter in the field will contain
+	 * several values. 
+	 */
+	private List<Object>			paramValues;
+	
 	/**
 	 * Creates an instance, storing the field type in the attributes map.
 	 * @see FieldParamsFactory#PARAM_TYPES
@@ -81,6 +94,8 @@ public abstract class AbstractParam
 	{
 		valueAttributesMap = new HashMap<String, String>();
 		valueAttributesMap.put(PARAM_TYPE, fieldType);
+		
+		paramValues = new ArrayList<Object>();
 	}
 	
 	/**
@@ -174,5 +189,73 @@ public abstract class AbstractParam
 	{	
 		return new HashMap<String, String>();
 	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
+	 * @see IParam#getValueCount()
+	 */
+	public int getValueCount() 
+	{
+		return paramValues.size();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
+	 * @see IParam#getValueAt(int)
+	 */
+	public Object getValueAt(int index) 
+	{
+		if (index < 0 || index > paramValues.size())
+			return null;
+		
+		return paramValues.get(index);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
+	 * @see IParam#setValueAt(int, Object)
+	 */
+	public void setValueAt(int index, Object value) 
+	{
+		if (index < 0 ) return;
+		
+		// make sure the list is long enough
+		while (index+1 > paramValues.size()) {
+			paramValues.add("");
+		}
+		
+		paramValues.set(index, value);
+	}
 
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
+	 * @see IParam#insertValue(int, Object)
+	 */
+	public void insertValue(int index, Object value)
+	{
+		if (index < 0 ) return;
+		
+		// make sure the list is long enough
+		while (index > paramValues.size()) {
+			paramValues.add("");
+		}
+		paramValues.add(index, value);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
+	 * @see IParam#removeValueAt(int)
+	 */
+	public void removeValueAt(int index) {
+		
+		if (index < 0) return;
+		if (index > paramValues.size() +1 ) return;
+		
+		paramValues.remove(index);
+	}
 }

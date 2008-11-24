@@ -36,15 +36,22 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -54,8 +61,10 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.EnumEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamUIFactory;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamValuesTable;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TableEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.XMLParamButton;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
@@ -67,10 +76,14 @@ import org.openmicroscopy.shoola.agents.editor.model.Lock;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.XMLFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.DDTableCellRenderer;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.TableEditUI;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 import org.openmicroscopy.shoola.agents.editor.util.BareBonesBrowserLaunch;
 
@@ -175,20 +188,10 @@ public class FieldPanel
 	private JButton 				descriptionButton;
 	
 	/**
-	 * This button is visible if a "url" value has been set. 
-	 * Clicking it will open a web browser with the url.
+	 * A button to add a table to this field, to show multiple values for
+	 * the parameters in this field. 
 	 */
-	private JButton 				urlButton;
-
-	/**
-	 * This button doesn't do anything. Just indicates that field is required. 
-	 */
-	private JButton 				requiredFieldButton;
-	
-	/**
-	 *  Visible if a default value set for this field. 
-	 */
-	private JButton 				defaultButton;
+	private JButton 				fieldTableButton;
 	
 	/**
 	 * A label used to display the description of the field
@@ -266,35 +269,13 @@ public class FieldPanel
 		descriptionButton.setVisible(false);	// only made visible if description exists.
 		setDescriptionText(); 	// will update description label
 		
-		// A url-link button, that is only visible if a URL has been set.
-		Icon wwwIcon = iconManager.getIcon(IconManager.WWW_ICON);
-		urlButton = new CustomButton(wwwIcon);
-		urlButton.setFocusable(false); // so it is not selected by tabbing
-		urlButton.setActionCommand(OPEN_URL_CMD);
-		urlButton.addActionListener(this);
-		urlButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		urlButton.setVisible(false);	// only made visible if url exists.
-		
-		/*
-		 * TODO
-		 * Default icon/button. Shows if a default is set. 
-		 * Tool-tip shows what the default is. 
-		 * Clicking the button loads defaults for this field,
-		 * Disabled if field is fully locked.
-		 */
-		//Icon defaultIcon = iconManager.getIcon(IconManager.DEFAULT_ICON);
-		defaultButton = new CustomButton("");
-		defaultButton.setFocusable(false);
-		defaultButton.setVisible(false);	// only visible if default set. 
-		defaultButton.setActionCommand(LOAD_DEFAULTS_CMD);
-		defaultButton.addActionListener(this);
-		
-		/* TODO
-		 * Required field button. Doesn't do anything, just indicates that the field is required.
-		 */
-		requiredFieldButton = new CustomButton("");
-		requiredFieldButton.setFocusable(false);
-		requiredFieldButton.setVisible(false);	// only visible if requiredField = true;
+		fieldTableButton = new CustomButton("Add Table");
+		fieldTableButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.addFieldTable(field, tree, treeNode);
+			}
+		});
+
 	}
 	
 	/**
@@ -312,9 +293,7 @@ public class FieldPanel
 		 */
 		horizontalBox = Box.createHorizontalBox();
 		horizontalBox.add(descriptionButton);
-		horizontalBox.add(urlButton);
-		horizontalBox.add(defaultButton);
-		horizontalBox.add(requiredFieldButton);
+		horizontalBox.add(fieldTableButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		
 		/*
@@ -335,26 +314,42 @@ public class FieldPanel
 	
 	/**
 	 * Add additional UI components for editing the parameters of this field.
-	 * Use a Factory to create the UI components, depending on the 
+	 * If table-data exists for this field (multiple values for each parameter)
+	 * show this in a table. 
+	 * Otherwise, use a Factory to create the UI components, depending on the 
 	 * type of each parameter. 
 	 */
 	private void buildParamComponents() 
 	{
-		int paramCount = field.getContentCount();
-		JComponent edit;
-		for (int i=0; i<paramCount; i++) {
-			IFieldContent content = field.getContentAt(i);
-			if (content instanceof IParam) {
-				IParam param = (IParam)content;
-				edit = ParamUIFactory.getEditingComponent(param);
-				if (edit != null) {
+		// show a table, one column per parameter, that displays multiple 
+		// values for each parameter. 
+		if (field.getTableData() != null) {
+			
+			TableModel tm = field.getTableData();
+			// table sets cell renderers and editors according to parameter types
+			JTable table = new ParamValuesTable(field);
+			// put the table in a UI with buttons for adding and deleting rows
+			TableEditUI tableUI = new TableEditUI(table);
+			
+			addFieldComponent(tableUI);
+			
+		} else {
+			int paramCount = field.getContentCount();
+			JComponent edit;
+			for (int i=0; i<paramCount; i++) {
+				IFieldContent content = field.getContentAt(i);
+				if (content instanceof IParam) {
+					IParam param = (IParam)content;
+					edit = ParamUIFactory.getEditingComponent(param);
+					if (edit != null) {
+						addFieldComponent(edit);
+					}
+				} else 
+				// if this is a 'custom' XML element, add button to show dialog
+				if (content instanceof XMLFieldContent) {
+					edit = new XMLParamButton(content, this);
 					addFieldComponent(edit);
 				}
-			} else 
-			// if this is a 'custom' XML element, add button to show dialog
-			if (content instanceof XMLFieldContent) {
-				edit = new XMLParamButton(content, this);
-				addFieldComponent(edit);
 			}
 		}
 	}

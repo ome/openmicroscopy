@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.model.params;
+package org.openmicroscopy.shoola.agents.editor.model.tables;
 
 import java.util.ArrayList;
 
@@ -34,6 +34,7 @@ import javax.swing.table.AbstractTableModel;
 
 /** 
  * The data structure for the TableParam to store the table data. 
+ * Allows rows to be added and deleted. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,6 +46,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class MutableTableModel 
 	extends AbstractTableModel 
+	implements IMutableTableModel
 {
 
 	/**
@@ -143,34 +145,6 @@ public class MutableTableModel
      * Returns the column count, as defined by the number of column names. 
      */
     public int getColumnCount() { return columnNames.size(); }
-
-    /**
-     * Is the last row empty?
-     * 
-     * @return	True if the last row has no filled cells.
-     */
-    public boolean isLastRowEmpty() 
-    {
-        if (getRowCount() == 0) return false;
-        int lastRow = getRowCount() -1;
-        
-        return isRowEmpty(lastRow);
-    }
-    
-    /**
-     * Is the specified row empty? 
-     * 
-     * @param row
-     * @return	True if the row has no filled cells.
-     */
-    public boolean isRowEmpty(int row) 
-    {
-    	for (int col=0; col<data.get(row).size(); col++){
-    		String value = (String)getValueAt(row, col);
-    		if(value.trim().length() > 0) return false;
-    	}
-    	return true;
-    }
 
     /**
      * Adds a new row to the data model, at the bottom of the table
