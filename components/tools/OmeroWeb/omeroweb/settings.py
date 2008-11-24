@@ -16,7 +16,7 @@ import datetime
 import logging
 
 # Django settings for webadmin project.
-DEBUG = True # if True handler404 and handler500 works only when False
+DEBUG = False # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (

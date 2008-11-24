@@ -544,8 +544,6 @@ class BlitzObjectWrapper (object):
                 return name
             return name[:40] + "..."
         except:
-            print traceback.format_exc()
-            
             logger.debug(traceback.format_exc())
             return _("Unknown")
     
