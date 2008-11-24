@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -484,10 +485,12 @@ class MeasurementResults
 			file = new File(fileName);
 		}
 		String filename = file.getAbsolutePath();
-		ExcelWriter writer = new ExcelWriter();
-		writer.openFile(filename);
-		writer.write("Measurement Results", results.getModel());
-		writer.closeFile();
+		ExcelWriter writer = new ExcelWriter(filename);
+		writer.openFile();
+		writer.createWorkbook();
+		writer.createSheet("Measurement Results");
+		writer.writeTableToSheet(0, 0, results.getModel());
+		writer.close();
 		return true;
 	}
 

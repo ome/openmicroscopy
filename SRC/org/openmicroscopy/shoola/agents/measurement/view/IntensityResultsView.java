@@ -437,10 +437,12 @@ implements TabPaneInterface
 		try
 		{
 			String filename = file.getAbsolutePath();
-			ExcelWriter writer = new ExcelWriter();
-			writer.openFile(filename);
-			writer.write("Intensity Results", resultsModel);
-			writer.closeFile();
+			ExcelWriter writer = new ExcelWriter(filename);
+			writer.openFile();
+			writer.createWorkbook();
+			writer.createSheet("Intensity Results");
+			writer.writeTableToSheet(0, 0, resultsModel);
+			writer.close();
 		
 		}
 		catch (IOException e)
