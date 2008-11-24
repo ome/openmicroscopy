@@ -516,15 +516,36 @@ class BlitzObjectWrapper (object):
     
     def getOwner(self):
         try:
-            lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
-            firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
-            middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
+            # only for python 2.5
+            # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
+            # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
+            # middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
+            lastName = ""
+            if hasattr(self._obj.details.owner.lastName, 'val'):
+                lastName = self._obj.details.owner.lastName.val
+            else:
+                if self._obj.lastName is not None:
+                    lastName = self._obj.details.owner.lastName
+            firstName = ""
+            if hasattr(self._obj.details.owner.firstName, 'val'):
+                firstName = self._obj.details.owner.firstName.val
+            else:
+                if self._obj.firstName is not None:
+                    firstName = self._obj.details.owner.firstName
+            middleName = ""
+            if hasattr(self._obj.details.owner.middleName, 'val'):
+                middleName = self._obj.details.owner.middleName.val
+            else:
+                if self._obj.details.owner.middleName is not None:
+                    middleName = self._obj.details.owner.middleName
             name = "%s %s, %s" % (lastName, firstName, middleName)
             l = len(name)
             if l < 40:
                 return name
             return name[:40] + "..."
         except:
+            print traceback.format_exc()
+            
             logger.debug(traceback.format_exc())
             return _("Unknown")
     
@@ -562,9 +583,28 @@ class ExperimenterWrapper (BlitzObjectWrapper):
 
     def getFullName(self):
         try:
-            lastName = self._obj.lastName.val if hasattr(self._obj.lastName, 'val') else ""
-            firstName = self._obj.firstName.val if hasattr(self._obj.firstName, 'val') else ""
-            middleName = self._obj.middleName.val if hasattr(self._obj.middleName, 'val') else ""
+            # only for python 2.5
+            # lastName = self._obj.lastName.val if hasattr(self._obj.lastName, 'val') else ""
+            # firstName = self._obj.firstName.val if hasattr(self._obj.firstName, 'val') else ""
+            # middleName = self._obj.middleName.val if hasattr(self._obj.middleName, 'val') else ""
+            lastName = ""
+            if hasattr(self._obj.lastName, 'val'):
+                lastName = self._obj.lastName.val
+            else:
+                if self._obj.lastName is not None:
+                    lastName = self._obj.lastName
+            firstName = ""
+            if hasattr(self._obj.firstName, 'val'):
+                firstName = self._obj.firstName.val
+            else:
+                if self._obj.firstName is not None:
+                    firstName = self._obj.firstName
+            middleName = ""
+            if hasattr(self._obj.middleName, 'val'):
+                middleName = self._obj.middleName.val
+            else:
+                if self._obj.middleName is not None:
+                    middleName = self._obj.middleName
             name = "%s %s, %s" % (lastName, firstName, middleName)
             l = len(name)
             if l < 40:

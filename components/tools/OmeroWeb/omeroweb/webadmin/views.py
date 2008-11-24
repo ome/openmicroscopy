@@ -376,8 +376,12 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 lastName = request.POST.get('last_name').encode('utf8')
                 email = request.POST.get('email').encode('utf8')
                 institution = request.POST.get('institution').encode('utf8')
-                admin = True if request.POST.get('administrator') else False
-                active = True if request.POST.get('active') else False
+                admin = False
+                if request.POST.get('administrator'):
+                    admin = True
+                active = False
+                if request.POST.get('active'):
+                    active = True
                 defaultGroup = request.POST.get('default_group').encode('utf8')
                 otherGroups = request.POST.getlist('other_groups')
                 if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
@@ -414,8 +418,12 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 lastName = request.POST.get('last_name').encode('utf8')
                 email = request.POST.get('email').encode('utf8')
                 institution = request.POST.get('institution').encode('utf8')
-                admin = True if request.POST.get('administrator') else False
-                active = True if request.POST.get('active') else False
+                admin = False
+                if request.POST.get('administrator'):
+                    admin = True
+                active = False
+                if request.POST.get('active'):
+                    active = True
                 defaultGroup = request.POST.get('default_group').encode('utf8')
                 otherGroups = request.POST.getlist('other_groups')
                 try:

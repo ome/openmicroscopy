@@ -141,11 +141,34 @@ class ExperimenterQuerySetIterator(object):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
-            lastName = obj.lastName.val if hasattr(obj.lastName, 'val') else ("" if obj.lastName is None else obj.lastName)
-            firstName = obj.firstName.val if hasattr(obj.firstName, 'val') else ("" if obj.firstName is None else obj.firstName)
-            middleName = obj.middleName.val if hasattr(obj.middleName, 'val') else ("" if obj.middleName is None else obj.middleName)
+            # only for python 2.5
+            # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
+            # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
+            # middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
+            lastName = ""
+            if hasattr(obj.lastName, 'val'):
+                lastName = obj.lastName.val
+            else:
+                if obj.lastName is not None:
+                    lastName = obj.lastName
+            firstName = ""
+            if hasattr(obj.firstName, 'val'):
+                firstName = obj.firstName.val
+            else:
+                if obj.firstName is not None:
+                    firstName = obj.firstName
+            middleName = ""
+            if hasattr(obj.middleName, 'val'):
+                middleName = obj.middleName.val
+            else:
+                if obj.middleName is not None:
+                    middleName = obj.middleName
             name = "%s %s, %s" % (lastName, firstName, middleName)
-            oid = obj.id.val if hasattr(obj.id, 'val') else obj.id
+            if hasattr(obj.id, 'val'):
+                oid = obj.id.val
+            else:
+                oid = obj.id
+            
             yield (oid, smart_unicode(name))
         # Clear the QuerySet cache if required.
         #if not self.cache_choices:
