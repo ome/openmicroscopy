@@ -25,6 +25,7 @@ import traceback
 import logging
 
 from time import time
+from StringIO import StringIO
 
 from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
@@ -276,19 +277,21 @@ def index(request):
         else:
             return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
 
-def logout(request):
+@isUserConnected
+def logout(request, **kwargs):
+    conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
-    else:
-        try:
-            session_key = "S:%s#%s" % (request.session.session_key,request.session['base'])
-            if connectors.has_key(session_key):
-                conn.seppuku()
-                del connectors[session_key]
-        except:
-            logger.error(traceback.format_exc())
+    
+    try:
+        session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
+        if connectors.has_key(session_key):
+            conn.seppuku()
+            del connectors[session_key]
+    except:
+        logger.error(traceback.format_exc())
     
     try:
         del request.session['base']
@@ -329,19 +332,16 @@ def experimenters(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        controller = BaseExperimenters(conn)
-        
-        context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    controller = BaseExperimenters(conn)
+    
+    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isAdminConnected
 def manage_experimenter(request, action, eid=None, **kwargs):
@@ -354,98 +354,96 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        
-        controller = BaseExperimenter(conn, eid)
-        
-        if action == 'new':
-            form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
-            context = {'info':info, 'eventContext':eventContext, 'form':form}
-        elif action == 'create':
-            name_check = conn.checkOmeName(request.POST.get('omename').encode('utf8'))
-            email_check = conn.checkEmail(request.POST.get('email').encode('utf8'))
-            form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check, passwd_check=True)
-            if form.is_valid():
-                omeName = request.POST.get('omename').encode('utf8')
-                firstName = request.POST.get('first_name').encode('utf8')
-                middleName = request.POST.get('middle_name').encode('utf8')
-                lastName = request.POST.get('last_name').encode('utf8')
-                email = request.POST.get('email').encode('utf8')
-                institution = request.POST.get('institution').encode('utf8')
-                admin = False
-                if request.POST.get('administrator'):
-                    admin = True
-                active = False
-                if request.POST.get('active'):
-                    active = True
-                defaultGroup = request.POST.get('default_group').encode('utf8')
-                otherGroups = request.POST.getlist('other_groups')
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    
+    controller = BaseExperimenter(conn, eid)
+    
+    if action == 'new':
+        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
+        context = {'info':info, 'eventContext':eventContext, 'form':form}
+    elif action == 'create':
+        name_check = conn.checkOmeName(request.POST.get('omename').encode('utf8'))
+        email_check = conn.checkEmail(request.POST.get('email').encode('utf8'))
+        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check, passwd_check=True)
+        if form.is_valid():
+            omeName = request.POST.get('omename').encode('utf8')
+            firstName = request.POST.get('first_name').encode('utf8')
+            middleName = request.POST.get('middle_name').encode('utf8')
+            lastName = request.POST.get('last_name').encode('utf8')
+            email = request.POST.get('email').encode('utf8')
+            institution = request.POST.get('institution').encode('utf8')
+            admin = False
+            if request.POST.get('administrator'):
+                admin = True
+            active = False
+            if request.POST.get('active'):
+                active = True
+            defaultGroup = request.POST.get('default_group').encode('utf8')
+            otherGroups = request.POST.getlist('other_groups')
+            if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
+                password = "ome"
+            else:
+                password = request.POST.get('password').encode('utf8')
+            controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
+            return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+        context = {'info':info, 'eventContext':eventContext, 'form':form}
+    elif action == 'edit' :
+        if controller.ldapAuth == "" or controller.ldapAuth is None:
+            form = ExperimenterForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
+                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
+                                    'administrator': controller.isAdmin, 'active': controller.isActive,
+                                    'default_group':controller.defaultGroup, 'other_groups': controller.otherGroups,
+                                    'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
+        else:
+            form = ExperimenterLdapForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
+                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
+                                    'administrator': controller.isAdmin, 'active': controller.isActive,
+                                    'default_group':controller.defaultGroup, 'other_groups': controller.otherGroups,
+                                    'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
+    elif action == 'save':
+        name_check = conn.checkOmeName(request.POST.get('omename').encode('utf8'), controller.experimenter.omeName)
+        email_check = conn.checkEmail(request.POST.get('email').encode('utf8'), controller.experimenter.email)
+        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+        if form.is_valid():
+            omeName = request.POST.get('omename').encode('utf8')
+            firstName = request.POST.get('first_name').encode('utf8')
+            middleName = request.POST.get('middle_name').encode('utf8')
+            lastName = request.POST.get('last_name').encode('utf8')
+            email = request.POST.get('email').encode('utf8')
+            institution = request.POST.get('institution').encode('utf8')
+            admin = False
+            if request.POST.get('administrator'):
+                admin = True
+            active = False
+            if request.POST.get('active'):
+                active = True
+            defaultGroup = request.POST.get('default_group').encode('utf8')
+            otherGroups = request.POST.getlist('other_groups')
+            try:
                 if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
-                    password = "ome"
+                    password = None
                 else:
                     password = request.POST.get('password').encode('utf8')
-                controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
-                return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
-            context = {'info':info, 'eventContext':eventContext, 'form':form}
-        elif action == 'edit' :
-            if controller.ldapAuth == "" or controller.ldapAuth is None:
-                form = ExperimenterForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                        'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                        'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                        'administrator': controller.isAdmin, 'active': controller.isActive,
-                                        'default_group':controller.defaultGroup, 'other_groups': controller.otherGroups,
-                                        'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
-            else:
-                form = ExperimenterLdapForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                        'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                        'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                        'administrator': controller.isAdmin, 'active': controller.isActive,
-                                        'default_group':controller.defaultGroup, 'other_groups': controller.otherGroups,
-                                        'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
-        elif action == 'save':
-            name_check = conn.checkOmeName(request.POST.get('omename').encode('utf8'), controller.experimenter.omeName)
-            email_check = conn.checkEmail(request.POST.get('email').encode('utf8'), controller.experimenter.email)
-            form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-            if form.is_valid():
-                omeName = request.POST.get('omename').encode('utf8')
-                firstName = request.POST.get('first_name').encode('utf8')
-                middleName = request.POST.get('middle_name').encode('utf8')
-                lastName = request.POST.get('last_name').encode('utf8')
-                email = request.POST.get('email').encode('utf8')
-                institution = request.POST.get('institution').encode('utf8')
-                admin = False
-                if request.POST.get('administrator'):
-                    admin = True
-                active = False
-                if request.POST.get('active'):
-                    active = True
-                defaultGroup = request.POST.get('default_group').encode('utf8')
-                otherGroups = request.POST.getlist('other_groups')
-                try:
-                    if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
-                        password = None
-                    else:
-                        password = request.POST.get('password').encode('utf8')
-                except:
-                    password = None
-                controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
-                return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
-        elif action == "delete":
-            controller.deleteExperimenter()
+            except:
+                password = None
+            controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
             return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
-        else:
-            return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
+    elif action == "delete":
+        controller.deleteExperimenter()
+        return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+    else:
+        return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
 
 @isAdminConnected
 def groups(request, **kwargs):
@@ -458,19 +456,16 @@ def groups(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        controller = BaseGroups(conn)
-        
-        context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    controller = BaseGroups(conn)
+    
+    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isAdminConnected
 def manage_group(request, action, gid=None, **kwargs):
@@ -483,63 +478,61 @@ def manage_group(request, action, gid=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        
-        controller = BaseGroup(conn, gid)
-        
-        if action == 'new':
-            form = GroupForm(initial={'experimenters':controller.experimenters})
-            context = {'info':info, 'eventContext':eventContext, 'form':form}
-        elif action == 'create':
-            name_check = conn.checkGroupName(request.POST.get('name').encode('utf8'))
-            form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
-            if form.is_valid():
-                name = request.POST.get('name').encode('utf8')
-                description = request.POST.get('description').encode('utf8')
-                owner = request.POST.get('owner').encode('utf8')
-                controller.createGroup(name, owner, description)
-                return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
-            context = {'info':info, 'eventContext':eventContext, 'form':form}
-        elif action == 'edit':
-            form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
-                                         'owner': controller.group.details.owner.id.val, 'experimenters':controller.experimenters})
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
-        elif action == 'save':
-            name_check = conn.checkGroupName(request.POST.get('name').encode('utf8'), controller.group.name)
-            form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
-            if form.is_valid():
-                name = request.POST.get('name').encode('utf8')
-                description = request.POST.get('description').encode('utf8')
-                owner = request.POST.get('owner').encode('utf8')
-                controller.updateGroup(name, owner, description)
-                return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
-        elif action == "update":
-            template = "group_edit.html"
-            controller.containedExperimenters()
-            form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-            if not form.is_valid():
-                available = request.POST.getlist('available')
-                members = request.POST.getlist('members')
-                controller.setMembersOfGroup(available, members)
-                return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
-        elif action == "members":
-            template = "group_edit.html"
-            controller.containedExperimenters()
-            form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
-        else:
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    
+    controller = BaseGroup(conn, gid)
+    
+    if action == 'new':
+        form = GroupForm(initial={'experimenters':controller.experimenters})
+        context = {'info':info, 'eventContext':eventContext, 'form':form}
+    elif action == 'create':
+        name_check = conn.checkGroupName(request.POST.get('name').encode('utf8'))
+        form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+        if form.is_valid():
+            name = request.POST.get('name').encode('utf8')
+            description = request.POST.get('description').encode('utf8')
+            owner = request.POST.get('owner').encode('utf8')
+            controller.createGroup(name, owner, description)
             return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+        context = {'info':info, 'eventContext':eventContext, 'form':form}
+    elif action == 'edit':
+        form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
+                                     'owner': controller.group.details.owner.id.val, 'experimenters':controller.experimenters})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
+    elif action == 'save':
+        name_check = conn.checkGroupName(request.POST.get('name').encode('utf8'), controller.group.name)
+        form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+        if form.is_valid():
+            name = request.POST.get('name').encode('utf8')
+            description = request.POST.get('description').encode('utf8')
+            owner = request.POST.get('owner').encode('utf8')
+            controller.updateGroup(name, owner, description)
+            return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
+    elif action == "update":
+        template = "group_edit.html"
+        controller.containedExperimenters()
+        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
+        if not form.is_valid():
+            available = request.POST.getlist('available')
+            members = request.POST.getlist('members')
+            controller.setMembersOfGroup(available, members)
+            return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
+    elif action == "members":
+        template = "group_edit.html"
+        controller.containedExperimenters()
+        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
+    else:
+        return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
 
 @isAdminConnected
 def ldap(request, **kwargs):
@@ -556,19 +549,16 @@ def scripts(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        controller = BaseScripts(conn)
-        
-        context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    controller = BaseScripts(conn)
+    
+    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isAdminConnected
 def manage_script(request, action, sc_id=None, **kwargs):
@@ -581,32 +571,29 @@ def manage_script(request, action, sc_id=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        controller = BaseScripts(conn, sc_id)
-        
-        if action == 'new':
-            form = ScriptForm(initial={'script':controller.script})
-            context = {'info':info, 'eventContext':eventContext, 'form':form}
-        elif action == 'save':
-            form = GroupForm(initial={'script':controller.script}, data=request.POST.copy())
-            if form.is_valid():
-                
-                return HttpResponseRedirect("/%s/scripts/" % settings.WEBADMIN_ROOT_BASE)
-            context = {'info':info, 'eventContext':eventContext, 'form':form}
-        elif action == "edit":
-            form = ScriptForm(initial={'name':controller.details.val.path.val, 'content':controller.script, 'size':controller.details.val.size.val})
-            context = {'info':info, 'eventContext':eventContext, 'form':form, 'sc_id': sc_id}
-        else:
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    controller = BaseScripts(conn, sc_id)
+    
+    if action == 'new':
+        form = ScriptForm(initial={'script':controller.script})
+        context = {'info':info, 'eventContext':eventContext, 'form':form}
+    elif action == 'save':
+        form = GroupForm(initial={'script':controller.script}, data=request.POST.copy())
+        if form.is_valid():
+            
             return HttpResponseRedirect("/%s/scripts/" % settings.WEBADMIN_ROOT_BASE)
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+        context = {'info':info, 'eventContext':eventContext, 'form':form}
+    elif action == "edit":
+        form = ScriptForm(initial={'name':controller.details.val.path.val, 'content':controller.script, 'size':controller.details.val.size.val})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'sc_id': sc_id}
+    else:
+        return HttpResponseRedirect("/%s/scripts/" % settings.WEBADMIN_ROOT_BASE)
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isAdminConnected
 def imports(request, **kwargs):
@@ -623,50 +610,47 @@ def my_account(request, action=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        
-        myaccount = BaseExperimenter(conn)
-        myaccount.getMyDetails()
-        
-        if action == "save":
-            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
-            if form.is_valid():
-                firstName = request.POST.get('first_name').encode('utf8')
-                middleName = request.POST.get('middle_name').encode('utf8')
-                lastName = request.POST.get('last_name').encode('utf8')
-                email = request.POST.get('email').encode('utf8')
-                institution = request.POST.get('institution').encode('utf8')
-                defaultGroup = request.POST.get('default_group').encode('utf8')
-                try:
-                    if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
-                        password = None
-                    else:
-                        password = request.POST.get('password').encode('utf8')
-                except:
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    
+    myaccount = BaseExperimenter(conn)
+    myaccount.getMyDetails()
+    
+    if action == "save":
+        form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
+        if form.is_valid():
+            firstName = request.POST.get('first_name').encode('utf8')
+            middleName = request.POST.get('middle_name').encode('utf8')
+            lastName = request.POST.get('last_name').encode('utf8')
+            email = request.POST.get('email').encode('utf8')
+            institution = request.POST.get('institution').encode('utf8')
+            defaultGroup = request.POST.get('default_group').encode('utf8')
+            try:
+                if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
                     password = None
-                myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
-                logout(request)
-                return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+                else:
+                    password = request.POST.get('password').encode('utf8')
+            except:
+                password = None
+            myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
+            logout(request)
+            return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+    else:
+        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
+            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         else:
-            if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-                form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                        'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                        'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                        'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-            else:
-                form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                        'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                        'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                        'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        
-        context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth}
-        t = template_loader.get_template(template)
-        c = Context(request,context)
-        return HttpResponse(t.render(c))
+            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+    
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth}
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
 
 @isUserConnected
 def drivespace(request, **kwargs):
@@ -679,70 +663,67 @@ def drivespace(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
-        eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-        controller = BaseDriveSpace(conn)
-        controller.pieChartData()
-        
-        for item in controller.topTen:
-            if item[0] == "free space":
-                controller.topTen.remove(item)
-                continue
-            if item[0] == "rest":
-                controller.topTen.remove(item)
-                continue
-        
-        context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace}, 'topTen':controller.topTen}
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    controller = BaseDriveSpace(conn)
+    controller.pieChartData()
+    
+    for item in controller.topTen:
+        if item[0] == "free space":
+            controller.topTen.remove(item)
+            continue
+        if item[0] == "rest":
+            controller.topTen.remove(item)
+            continue
+    
+    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace}, 'topTen':controller.topTen}
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isUserConnected
 def piechart(request, **kwargs):
-    from StringIO import StringIO
-    from PIL import Image as PILImage
-
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from matplotlib.figure import Figure
-    
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
     
-    if conn is None:
-        return HttpResponseRedirect("/%s/" % settings.WEBADMIN_ROOT_BASE)
-    else:
-        controller = BaseDriveSpace(conn)
-        controller.pieChartData()
+    controller = BaseDriveSpace(conn)
+    controller.pieChartData()
+    
+    values = list()
+    keys = list()
+    for item in controller.topTen:
+        keys.append(str(item[0]))
+        values.append(long(item[1]))
+    
+    try:
+        from PIL import Image as PILImage
+    except:
+        return HttpResponse('<center>Error: Please install PILImage.</center>')
+    try:
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        from matplotlib.figure import Figure
+    except:
+        return HttpResponse('<center>Error: Please install matplotlib.</center>')
         
-        values = list()
-        keys = list()
-        for item in controller.topTen:
-            keys.append(str(item[0]))
-            values.append(long(item[1]))
-        
+    try:
         fig = Figure()
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
-        
+
         explode = list()
         explode.append(0.1)
         for e in controller.topTen:
             explode.append(0)
         explode.remove(0)
-        
+
         ax.pie(values, labels=tuple(keys), explode=tuple(explode), autopct='%1.1f%%', shadow=False)
         ax.set_title(_("Repository information status"))
         ax.grid(True)
-        #ax.set_xlabel('time')
-        #ax.set_ylabel('volts')
         canvas.draw()
         size = canvas.get_renderer().get_canvas_width_height()
         buf=canvas.tostring_rgb()
@@ -750,6 +731,8 @@ def piechart(request, **kwargs):
         imdata=StringIO()
         im.save(imdata, format='PNG')
         return HttpResponse(imdata.getvalue(), mimetype='image/png')
+    except:
+        return HttpResponse('<center>Error: Chart could not be generated.</center>')
 
 ################################################################################
 # handlers

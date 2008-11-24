@@ -5,6 +5,17 @@
 
 {% block title %}{% trans "Drive space" %}{% endblock %}
 
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webadmin_static_url %}/js/jquery_1.2.6.js"></script>
+    <script>
+        $(document).ready(function(){
+            
+            $("div#piechart").html('<img src="{% get_webadmin_static_url %}/images/tree/spinner.gif"/>');
+            $("div#piechart").load("{% get_webadmin_root_url %}/piechart/");
+        });
+      </script>
+{% endblock %}
+
 {% block content %}
 <div>
 <h2>{% trans "Drive space" %}</h2>
@@ -12,7 +23,8 @@
 <p>{% trans "Pie-chart shows usage of main hard drive." %}</p>
 <br/>
 
-<center><img src="{% get_webadmin_root_url %}/piechart/" title="drivespace" alt="drivespace" /></center>
+<div id="piechart"></div>
+
 </div>
 <br/>
 <p>{% trans "Free space" %}: {{ driveSpace.free }} [KB]</p>
