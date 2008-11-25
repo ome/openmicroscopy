@@ -84,6 +84,7 @@ public class MeasurementAgent
     	}
     	if (viewer != null) {
     		viewer.setIconImage(evt.getThumbnail());
+    		viewer.setRndImage(evt.getRenderedImage());
     		MeasurementViewerFactory.addRequest(evt);
     		viewer.activate();
     	}

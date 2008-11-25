@@ -77,6 +77,9 @@ public class MeasurementTool
     /** Thumbnail of the rendered image. */
     private BufferedImage	thumbnail;
     
+    /** The rendered image. */
+    private BufferedImage	renderedImage;
+    
     /**
      * Creates a new instance.
      * 
@@ -117,6 +120,23 @@ public class MeasurementTool
     {
     	this.thumbnail = thumbnail;
     }
+    
+    /**
+     * Sets the rendered image.
+     * 
+     * @param renderedImage The image to set.
+     */
+    public void setRenderedImage(BufferedImage renderedImage)
+    {
+    	this.renderedImage = renderedImage;
+    }
+    
+    /**
+     * Returns the rendered image.
+     * 
+     * @return See above. 
+     */
+    public BufferedImage getRenderedImage() { return renderedImage; }
     
     /**
      * Returns the thumbnail.

@@ -2003,6 +2003,7 @@ class ImViewerComponent
 				model.getActiveChannelsColorMap(), model.getZoomFactor(), 
 				view.getBounds());
 		request.setThumbnail(model.getImageIcon());
+		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		bus.post(request);
 		view.selectTabbedPane(ImViewer.VIEW_INDEX);
 	}
