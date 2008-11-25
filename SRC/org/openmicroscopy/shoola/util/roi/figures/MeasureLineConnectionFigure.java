@@ -131,7 +131,7 @@ public class MeasureLineConnectionFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
 		{
 			if(getPointCount()==2)
 			{
@@ -184,6 +184,11 @@ public class MeasureLineConnectionFigure
 				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
+			}
+			if(MeasurementAttributes.SHOWID.get(this))
+			{
+				g.setColor(this.getTextColor());
+				g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
 			}
 		}
 	}

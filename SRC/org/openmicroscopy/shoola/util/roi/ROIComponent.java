@@ -133,6 +133,7 @@ public class ROIComponent
     	AttributeKeys.FONT_SIZE.set(fig, FONT_SIZE);
 		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
 		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
+		MeasurementAttributes.SHOWID.set(fig, false);
 		if(fig instanceof MeasureLineFigure)
 			MeasurementAttributes.SHOWMEASUREMENT.set(fig, true);
 		else

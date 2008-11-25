@@ -160,7 +160,7 @@ public class MeasureBezierFigure
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
 		{
 			if(isClosed())
 			{
@@ -173,8 +173,16 @@ public class MeasureBezierFigure
 				bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-				g.drawString(polygonArea, (int)bounds.getX(), (int)bounds.getY()); 
+				if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+				{
+					g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+					g.drawString(polygonArea, (int)bounds.getX(), (int)bounds.getY());
+				}
+				if(MeasurementAttributes.SHOWID.get(this))
+				{
+					g.setColor(this.getTextColor());
+					g.drawString(this.getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
+				}
 			}
 			else
 			{
@@ -198,8 +206,16 @@ public class MeasureBezierFigure
 					bounds = new Rectangle2D.Double(x-bounds.getWidth()/2,
 							y+bounds.getHeight()/2,
 							bounds.getWidth(), bounds.getHeight());
-					g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-					g.drawString(polygonLength, (int)path.getCenter().getX(), (int)path.getCenter().getY());
+					if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+					{
+						g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+						g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
+					}
+					if(MeasurementAttributes.SHOWID.get(this))
+					{
+						g.setColor(this.getTextColor());
+						g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
+					}
 				}
 			}
 		}

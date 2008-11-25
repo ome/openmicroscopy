@@ -212,7 +212,7 @@ public class MeasurePointFigure
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this)  || MeasurementAttributes.SHOWID.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String pointCentre = 
@@ -225,8 +225,23 @@ public class MeasurePointFigure
 			bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(pointCentre, (int)bounds.getX(), (int)bounds.getY()); 
+			if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+			{
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.drawString(pointCentre, (int)bounds.getX(), (int)bounds.getY());
+			}
+			if(MeasurementAttributes.SHOWID.get(this))
+			{
+				Rectangle2D 		bounds;
+				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
+				bounds = new Rectangle2D.Double(
+							getBounds().getCenterX()-bounds.getWidth()/2,
+							getBounds().getCenterY()+bounds.getHeight()/2,
+						bounds.getWidth(), bounds.getHeight());
+				g.setColor(this.getTextColor());
+				g.drawString(getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
+			}
+			 
 		}
 	}
 

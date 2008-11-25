@@ -251,7 +251,7 @@ public class MeasureEllipseFigure
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
 		{
 			NumberFormat formatter=new DecimalFormat("###.#");
 			String ellipseArea=formatter.format(getArea());
@@ -264,8 +264,22 @@ public class MeasureEllipseFigure
 							-stringBoundsbounds.getWidth()/2, this.getCentreY()
 							+stringBoundsbounds.getHeight()/2, stringBoundsbounds.getWidth(), 
 							stringBoundsbounds.getHeight());
-			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(ellipseArea, (int) measurementBounds.getX(), (int) measurementBounds.getY());
+			if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+			{
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.drawString(ellipseArea, (int) measurementBounds.getX(), (int) measurementBounds.getY());
+			}
+			if(MeasurementAttributes.SHOWID.get(this))
+			{
+				g.setColor(this.getTextColor());
+				measurementBounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
+				measurementBounds = new Rectangle2D.Double(
+							getBounds().getCenterX()-measurementBounds.getWidth()/2,
+							getBounds().getCenterY()+measurementBounds.getHeight()/2,
+							measurementBounds.getWidth(), measurementBounds.getHeight());
+				g.drawString(this.getROI().getID()+"", (int) measurementBounds.getX(), (int) measurementBounds.getY());
+			}
+			
 		}
 	}
 	

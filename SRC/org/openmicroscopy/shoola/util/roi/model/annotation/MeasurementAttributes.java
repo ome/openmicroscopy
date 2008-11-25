@@ -54,6 +54,12 @@ public class MeasurementAttributes
 	 */
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
 		new AttributeKey<Boolean>("ShowMeasurement", false);
+
+	/**
+	 * Should the figure show the measurement text.
+	 */
+	public static final AttributeKey<Boolean> SHOWID = 
+		new AttributeKey<Boolean>("ShowID", false);
 	
 	/**
 	 * The colour of the measurement text.

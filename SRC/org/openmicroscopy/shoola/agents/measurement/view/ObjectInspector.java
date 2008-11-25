@@ -105,7 +105,9 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
-					"Show Measurements", false)); 
+			"Show Measurements", false)); 
+		l.add(new AttributeField(MeasurementAttributes.SHOWID, 
+			"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH, 
 						"Line Width", true, strokeRange(), ValueType.ENUM));
 		l.add(new AttributeField(MeasurementAttributes.FONT_SIZE, "Font Size", 

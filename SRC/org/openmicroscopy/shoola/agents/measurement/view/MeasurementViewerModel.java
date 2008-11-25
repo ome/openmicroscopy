@@ -377,6 +377,19 @@ class MeasurementViewerModel
 			getDrawingView().setScaleFactor(magnification);
 	}
 
+	/**
+	 * Set the attribute of all the ROI in the current plane to the key with value.
+	 * @param key see above.
+	 * @param value see above.
+	 */
+	public void setAttributes(AttributeKey key, Object value)
+	{
+		List<Figure> figures =  getDrawing().getFigures();
+		for(Figure f : figures)
+			f.setAttribute(key, value);
+		getDrawingView().repaint();
+	}
+	
 	/** 
 	 * Sets the ROI for the pixels set.
 	 *  

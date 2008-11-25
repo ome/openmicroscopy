@@ -212,7 +212,7 @@ public class MeasureRectangleFigure
 	{
 		super.draw(g);
 		
-		if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String rectangleArea = formatter.format(getArea());
@@ -224,10 +224,25 @@ public class MeasureRectangleFigure
 						getBounds().getCenterX()-bounds.getWidth()/2,
 						getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(rectangleArea, (int) bounds.getX(), (int) 
-						bounds.getY()); 
-					
+		
+			if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+			{
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.drawString(rectangleArea, (int) bounds.getX(), (int) 
+							bounds.getY()); 
+			}
+			if(MeasurementAttributes.SHOWID.get(this))
+			{
+				g.setColor(this.getTextColor());
+				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
+				bounds = new Rectangle2D.Double(
+							getBounds().getCenterX()-bounds.getWidth()/2,
+							getBounds().getCenterY()+bounds.getHeight()/2,
+						bounds.getWidth(), bounds.getHeight());
+				g.drawString(getROI().getID()+"", (int) bounds.getX(), (int) 
+							bounds.getY()); 
+			}
+			
 		}
 	}
 				

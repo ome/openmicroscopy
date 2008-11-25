@@ -62,11 +62,13 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -488,12 +490,14 @@ class MeasurementResults
 		writer.createSheet("Measurement Results");
 		writer.writeTableToSheet(0, 0, results.getModel());
 		
-		BufferedImage image = model.getRenderedImage();
-		
+		BufferedImage originalImage = model.getRenderedImage();
+		BufferedImage image = Factory.createImage(originalImage);
 		
 		// Add the ROI for the current plane to the image.
 		//TODO: Need to check that.
+		model.setAttributes(MeasurementAttributes.SHOWID, true);
 		model.getDrawingView().print(image.getGraphics());
+		model.setAttributes(MeasurementAttributes.SHOWID, false);
 		try {
 			writer.addImageToWorkbook("ThumbnailImage", image); 
 		} catch (Exception e) {
