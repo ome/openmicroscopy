@@ -36,8 +36,12 @@ import javax.swing.table.TableModel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 
 /**
  * This is the data object that occupies a node of the tree hierarchy. 
@@ -303,14 +307,18 @@ public class Field
 	/**
 	 * Implemented as specified by the {@link IField} interface.
 	 * 
-	 * @see IField#getParams()
+	 * @see IField#getAtomicParams()
 	 */
-	public List<IParam> getParams() 
+	public List<IParam> getAtomicParams() 
 	{
 		List<IParam> params = new ArrayList<IParam>();
 		
+		// check Boolean, Enum, Text, Number
 		for (IFieldContent content : fieldParams) {
-			if (content instanceof IParam) {
+			if ((content instanceof BooleanParam) ||
+					(content instanceof EnumParam) ||
+					(content instanceof TextParam) || 
+					(content instanceof NumberParam)){
 				params.add((IParam)content);
 			}
 		}

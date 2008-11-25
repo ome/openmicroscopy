@@ -407,7 +407,9 @@ public class FieldTextArea
 			if (content instanceof IParam) {
 				contentString = content.toString();
 				if (contentString.length() == 0)
-					contentString = "[param]";
+					contentString = "param";
+				
+				contentString = "[" + contentString + "]";
 				// id attribute allows parameters to be linked to model
 				// eg for editing parameters. 
 				contentText = (includeSpacer ? TEXT_SPACER : "") + // space before param
@@ -529,7 +531,7 @@ public class FieldTextArea
 		
 		// create a new parameter
 		IParam param = FieldParamsFactory.getFieldParam(paramType);
-		param.setAttribute(TextParam.PARAM_VALUE, selectedText);
+		param.setAttribute(TextParam.PARAM_NAME, selectedText);
 		
 		// and use it to build a new content list. This method links the 
 		// newly inserted tag (id=new) with the parameter argument

@@ -29,28 +29,22 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.Box;
-import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.border.Border;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -61,7 +55,6 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.EnumEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamUIFactory;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamValuesTable;
@@ -76,16 +69,13 @@ import org.openmicroscopy.shoola.agents.editor.model.Lock;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.XMLFieldContent;
-import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldTableEdit;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.DDTableCellRenderer;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.TableEditUI;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
-import org.openmicroscopy.shoola.agents.editor.util.BareBonesBrowserLaunch;
 
 /**
  * This is the UI component that represents a field in the JTree.
@@ -227,6 +217,11 @@ public class FieldPanel
 	private Border 					imageBorderHighlight;
 	
 	/**
+	 * Maximum number of characters to display for the field name.
+	 */
+	private static final int 		MAX_CHARS = 25;
+	
+	/**
 	 * Initialises the UI components. 
 	 */
 	private void initialise() 
@@ -269,13 +264,17 @@ public class FieldPanel
 		descriptionButton.setVisible(false);	// only made visible if description exists.
 		setDescriptionText(); 	// will update description label
 		
-		fieldTableButton = new CustomButton("Add Table");
+		// Button for adding a table for display of parameter data
+		Icon paramTableIcon = iconManager.getIcon(IconManager.ADD_TABLE_ICON);
+		fieldTableButton = new CustomButton(paramTableIcon);
 		fieldTableButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				controller.addFieldTable(field, tree, treeNode);
 			}
 		});
-
+		fieldTableButton.setToolTipText("Add a table for parameter values, " +
+				"so that multiple values can be set for each parameter");
+		fieldTableButton.setVisible(AddFieldTableEdit.canDo(field));
 	}
 	
 	/**
@@ -414,9 +413,20 @@ public class FieldPanel
 	 * 
 	 * @param name 		The text to display as the name of the field.
 	 */
-	private void setNameText(String name) 
+	private void setNameText() 
 	{
-		nameLabel.setText(name);
+		String text = field.getAttribute(Field.FIELD_NAME);
+		
+		if ( text == null && field.getContentCount() > 0) {
+			// if no name set, use content for name
+			text = field.getContentAt(0).toString();
+		}
+		
+		if (text != null && text.length() > MAX_CHARS) { 
+			text = text.substring(0, MAX_CHARS-1) + "..";
+		}
+		
+		nameLabel.setText(text);
 		
 	}
 
@@ -590,7 +600,7 @@ public class FieldPanel
 		buildUI();
 
 		// Update components with the values from field
-		setNameText(field.getAttribute(Field.FIELD_NAME));
+		setNameText();
 		setDescriptionText();
 		
 		refreshBackgroundColour();

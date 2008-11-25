@@ -114,20 +114,13 @@ public class TextParam
 	 * @see Object#toString()
 	 */
 	public String toString() {
-		String text = "";
 		
-		String value = getAttribute (PARAM_VALUE);
-		String def = getAttribute (DEFAULT_VALUE);
-		if (value != null) { 
-			text = value; 
-		} else if (def != null) {
-			text = "Default: " + def;
-		} else {
-			text = "Value not set";
+		String text = super.toString();
+		
+		String value = getAttribute (TextParam.PARAM_VALUE);
+		if (value != null) {
+			text = value;
 		}
-		
-		String units = getAttribute(NumberParam.PARAM_UNITS);
-		if (units != null) { text = text + " " + units; }
 		
 		return text;
 	}

@@ -129,7 +129,7 @@ public class TimeParam
 	 */
 	public String toString()
 	{
-		String time = "";
+		String time = super.toString();
 		
 		String seconds = getAttribute(SECONDS);
 		if (seconds != null)
@@ -138,11 +138,9 @@ public class TimeParam
 			
 			time = secsToString(secs);
 
-		} else {
-			time = time + " Time not set";
-		}
+		} 
 		
-		return time;
+		return  time;
 	}
 	
 	/**

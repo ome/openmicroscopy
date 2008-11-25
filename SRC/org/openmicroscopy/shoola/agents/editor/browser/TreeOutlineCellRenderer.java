@@ -69,6 +69,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class TreeOutlineCellRenderer 
 	extends DefaultTreeCellRenderer {
 
+	/**
+	 * The maximum length of characters to display in the node label
+	 */
 	private static final int 		MAX_CHARS = 25;
 	
 	/**

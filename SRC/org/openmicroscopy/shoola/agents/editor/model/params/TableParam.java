@@ -109,7 +109,7 @@ public class TableParam
 			text = text + tableModel.getColumnName(c);
 		}
 		
-		return text;
+		return super.toString() + " " + text;
 	}
 
 }

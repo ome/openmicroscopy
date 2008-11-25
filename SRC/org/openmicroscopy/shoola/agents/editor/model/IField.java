@@ -100,11 +100,14 @@ public interface IField
 	public void removeContent(int index);
 	
 	/**
-	 * Returns a list of the parameters for this field
+	 * Returns a list of the 'Atomic' parameters for this field.
+	 * These are Boolean, Enum, Text, Number, parameters (have a
+	 * single 'value' that can be shown in a table). 
+	 * NOT Table, Date-Time, Text-Box etc. 
 	 * 
 	 * @return 		see above
 	 */
-	public List<IParam> getParams();
+	public List<IParam> getAtomicParams();
 	
 	/**
 	 * Indicates whether all parameters have been filled out. 

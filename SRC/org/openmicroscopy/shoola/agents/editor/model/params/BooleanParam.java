@@ -65,16 +65,12 @@ public class BooleanParam
 	 * @see Object#toString()
 	 */
 	public String toString() {
-		String text = "";
+		
+		String text = super.toString();
 		
 		String value = getAttribute (TextParam.PARAM_VALUE);
-		String def = getAttribute (TextParam.DEFAULT_VALUE);
-		if (value != null) { 
-			text = value; 
-		} else if (def != null) {
-			text = "Default: " + def;
-		} else {
-			text = "Value not set";
+		if (value != null) {
+			text = value;
 		}
 		
 		return text;

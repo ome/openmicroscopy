@@ -263,11 +263,14 @@ public class IconManager
     /** The <code>Ontology Parameter</code> icon. */
     public  static int			ONTOLOGY_ICON = 65;
     
+    /** The <code>Add Table</code> icon. */
+    public  static int			ADD_TABLE_ICON = 66;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 65;
+    private static int          MAX_ID = 66;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -345,6 +348,7 @@ public class IconManager
         relPaths[UP_ICON] = "nuvola_up16.png";
         relPaths[DOWN_ICON] = "nuvola_down16.png";
         relPaths[ONTOLOGY_ICON] = "nuvola_licq16.png";
+        relPaths[ADD_TABLE_ICON] = "nuvola_add_table16.png";
     }
     
     

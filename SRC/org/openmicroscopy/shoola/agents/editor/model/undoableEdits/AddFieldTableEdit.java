@@ -124,13 +124,22 @@ extends AbstractUndoableEdit {
 		initialise(field, tree, node, tm);
 	}
 	
-	public boolean canDo() 
+	/**
+	 * This method allow you to test whether a field should be allowed to 
+	 * have a table of parameter values. 
+	 * 
+	 * @param newField
+	 * @return
+	 */
+	public static boolean canDo(IField newField) 
 	{	
-		if (tree == null || field == null) return false;
-		
-		if (field.getParams().size() == 0) {
+		// can't have parameter data if no parameters! 
+		if (newField.getAtomicParams().size() == 0) {
 			return false;
 		}
+		// don't want to add table if it already exists!
+		if (newField.getTableData() != null)
+			return false;
 		
 		return true;
 	}

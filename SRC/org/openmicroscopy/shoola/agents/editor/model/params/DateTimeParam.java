@@ -177,9 +177,7 @@ public class DateTimeParam
 				date.setTime(millis);
 				SimpleDateFormat dateF = new SimpleDateFormat("yyyy, MMM d");
 				text = text + dateF.format(date);
-			} else {
-				text = text + " No Date Set";
-			}
+			} 
 		}
 		String timeSecs = getAttribute(TIME_ATTRIBUTE);
 		if (timeSecs != null)
@@ -187,6 +185,10 @@ public class DateTimeParam
 			int secs = Integer.parseInt(timeSecs);
 			String time = TimeParam.secsToString(secs);
 			text = text + " at " + time;
+		}
+		
+		if (text.length() == 0) {
+			return super.toString();
 		}
 		return text;
 	}

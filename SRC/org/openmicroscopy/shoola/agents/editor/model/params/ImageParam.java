@@ -121,7 +121,7 @@ public class ImageParam
 			text = text + "no image set.";
 		}
 		
-		return text;
+		return super.toString() + " " + text;
 	}
 
 }

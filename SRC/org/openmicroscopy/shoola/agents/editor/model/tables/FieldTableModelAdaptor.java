@@ -78,7 +78,7 @@ public class FieldTableModelAdaptor
 	 * @see TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		return field.getParams().size();
+		return field.getAtomicParams().size();
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class FieldTableModelAdaptor
 	 * @see TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-		List<IParam> params = field.getParams();
+		List<IParam> params = field.getAtomicParams();
 		int maxRows = 0;
 		int rows;
 		for (IParam param : params) {
@@ -108,7 +108,7 @@ public class FieldTableModelAdaptor
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		
-		List<IParam> params = field.getParams();
+		List<IParam> params = field.getAtomicParams();
 		if (columnIndex > params.size())
 			return null;
 		
@@ -123,7 +123,7 @@ public class FieldTableModelAdaptor
 	 */
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     	
-    	List<IParam> params = field.getParams();
+    	List<IParam> params = field.getAtomicParams();
 		if (columnIndex > params.size()) return;
 		
 		params.get(columnIndex).setValueAt(rowIndex, aValue);
@@ -137,7 +137,7 @@ public class FieldTableModelAdaptor
      */
 	public String getColumnName(int col) {
 		
-		List<IParam> params = field.getParams();
+		List<IParam> params = field.getAtomicParams();
 		if (col > params.size())
 			return "";
 		
@@ -171,7 +171,7 @@ public class FieldTableModelAdaptor
      */
      public Class<? extends Object> getColumnClass(int col) {
     	 
-    	 List<IParam> params = field.getParams();
+    	 List<IParam> params = field.getAtomicParams();
     	 if (col > params.size())
     		 return Object.class;
     	 
@@ -204,7 +204,7 @@ public class FieldTableModelAdaptor
       */
      public void addEmptyRow(int addAtThisRow) {
 		
-    	 List<IParam> params = field.getParams();
+    	 List<IParam> params = field.getAtomicParams();
     	 for (IParam param : params) {
     		 param.insertValue(addAtThisRow, "");
     	 }
@@ -220,7 +220,7 @@ public class FieldTableModelAdaptor
       * @see IMutableTableModel#addEmptyRow()
       */
      public void removeRows(int[] rowIndecies) {
-    	 List<IParam> params = field.getParams();
+    	 List<IParam> params = field.getAtomicParams();
     	 for (IParam param : params) {
     		// remove rows, starting at the highest!
     	    	for (int i=rowIndecies.length-1; i>-1; i--) {

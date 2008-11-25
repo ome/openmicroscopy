@@ -65,7 +65,7 @@ public class ParamValuesTable
 			setModel(tableModel);
 		//super(tableModel);
 		
-		List<IParam> params = field.getParams();
+		List<IParam> params = field.getAtomicParams();
 		IParam param;
 		JComboBox comboBox;
 		String options;

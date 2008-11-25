@@ -258,4 +258,19 @@ public abstract class AbstractParam
 		
 		paramValues.remove(index);
 	}
+	
+	/**
+	 * Override this to give the Name of the parameter, or it's Type. 
+	 */
+	public String toString() 
+	{
+		String name = getAttribute(PARAM_NAME);
+		
+		if (name == null) {
+			name = getAttribute(PARAM_TYPE);
+			name = FieldParamsFactory.getTypeForDisplay(name);
+		}
+		
+		return (name == null ? "" : name);
+	}
 }

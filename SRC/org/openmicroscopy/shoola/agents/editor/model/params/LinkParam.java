@@ -118,7 +118,7 @@ public class LinkParam
 			text = text + "no link set";
 		}
 		
-		return text;
+		return super.toString() + " " + text;
 	}
 
 }

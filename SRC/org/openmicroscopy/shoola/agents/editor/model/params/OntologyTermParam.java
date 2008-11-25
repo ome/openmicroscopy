@@ -107,7 +107,7 @@ extends AbstractParam
 			(term == null ? "" : term + " ") +
 			(name == null ? "" : name);
 		
-		return text;
+		return super.toString() + " " + text;
 	}
 	
 	/**
