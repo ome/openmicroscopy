@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,15 +60,18 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -439,6 +443,22 @@ class IntensityResultsView
 			writer.openFile();
 			writer.createSheet("Intensity Results");
 			writer.writeTableToSheet(0, 0, resultsModel);
+			BufferedImage originalImage = model.getRenderedImage();
+			BufferedImage image = Factory.createImage(originalImage);
+			
+			// Add the ROI for the current plane to the image.
+			//TODO: Need to check that.
+			model.setAttributes(MeasurementAttributes.SHOWID, true);
+			model.getDrawingView().print(image.getGraphics());
+			model.setAttributes(MeasurementAttributes.SHOWID, false);
+			try {
+				writer.addImageToWorkbook("ThumbnailImage", image); 
+			} catch (Exception e) {
+				//TODO
+			}
+			int col = writer.getMaxColumn(0);
+			writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
+
 			writer.close();
 		
 		}
@@ -452,6 +472,11 @@ class IntensityResultsView
 				" save the data.\n" +
 			"Please try again.");
 		}
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		un.notifyInfo("Save ROI results", "The ROI results have been " +
+											"successfully saved.");
+	
 	}
 	
 	

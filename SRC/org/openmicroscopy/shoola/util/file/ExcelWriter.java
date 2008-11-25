@@ -347,8 +347,6 @@ public class ExcelWriter
 		}
 		return null;
 	}
-
-	
 	
 	/**
 	 * Adds a new image image to the workbook, with imageName. 
@@ -414,6 +412,17 @@ public class ExcelWriter
 	{
 		if (currentSheet == null) return null;
 		return currentSheet.getCell(row, column);
+	}
+	
+	/**
+	 * Return the maximum column a value has been entered in for row. 
+	 * @param row see above.
+	 * @return see above.
+	 */
+	public int getMaxColumn(int row)
+	{
+		if (currentSheet == null) return 0;
+		return currentSheet.getMaxColumn(row);
 	}
 	
 	/**

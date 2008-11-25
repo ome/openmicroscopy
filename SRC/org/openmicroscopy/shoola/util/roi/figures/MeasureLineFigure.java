@@ -149,7 +149,7 @@ public class MeasureLineFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
 			if(getPointCount()==2)
 			{
@@ -167,8 +167,8 @@ public class MeasureLineFigure
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x,
 						lengthPoint.y+rect.getHeight()*2, rect.getWidth(),
 						rect.getHeight());
-					g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-					g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
 			for( int x = 1 ; x < this.getPointCount()-1; x++)
@@ -205,18 +205,18 @@ public class MeasureLineFigure
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}
-			if(MeasurementAttributes.SHOWID.get(this))
-			{
-				Rectangle2D 		bounds;
-				
-				g.setColor(this.getTextColor());
-				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
-				bounds = new Rectangle2D.Double(
-							getBounds().getCenterX()-bounds.getWidth()/2,
-							getBounds().getCenterY()+bounds.getHeight()/2,
-						bounds.getWidth(), bounds.getHeight());
-				g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
-			}
+		}
+		if(MeasurementAttributes.SHOWID.get(this))
+		{
+			Rectangle2D 		bounds;
+			
+			g.setColor(this.getTextColor());
+			bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
+			bounds = new Rectangle2D.Double(
+						path.getCenter().getX()-bounds.getWidth()/2,
+						path.getCenter().getY()+bounds.getHeight()/2,
+					bounds.getWidth(), bounds.getHeight());
+			g.drawString(this.getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
 		}
 	}
 	

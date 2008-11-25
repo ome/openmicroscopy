@@ -503,9 +503,8 @@ class MeasurementResults
 		} catch (Exception e) {
 			//TODO
 		}
-		
-		writer.writeImage(10, 10, image.getWidth(), image.getHeight(), 
-					"ThumbnailImage");
+		int col = writer.getMaxColumn(0);
+		writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
 		writer.close();
 		return true;
 	}

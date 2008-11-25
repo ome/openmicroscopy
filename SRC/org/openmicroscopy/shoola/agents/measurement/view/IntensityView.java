@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -64,6 +65,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -74,6 +76,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -949,6 +952,21 @@ class IntensityView
 			Integer channel;
 			if (channelSummarySelected(channels))
 				outputSummary(writer, shapeMap);
+			BufferedImage originalImage = model.getRenderedImage();
+			BufferedImage image = Factory.createImage(originalImage);
+			
+			// Add the ROI for the current plane to the image.
+			//TODO: Need to check that.
+			model.setAttributes(MeasurementAttributes.SHOWID, true);
+			model.getDrawingView().print(image.getGraphics());
+			model.setAttributes(MeasurementAttributes.SHOWID, false);
+			try {
+				writer.addImageToWorkbook("ThumbnailImage", image); 
+			} catch (Exception e) {
+				//TODO
+			}
+			int col = writer.getMaxColumn(0);
+			writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
 
 			if(channelSummarySelected(channels) && channels.size()!=1)
 				while (coordMapIterator.hasNext())

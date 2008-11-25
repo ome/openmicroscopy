@@ -96,6 +96,17 @@ class SheetInfo
 		if (cell == null) cell = row.createCell(columnIndex);
 		return cell;
 	}
+	
+	/**
+	 * Get the last cell column written to in row rowIndex.
+	 * @param rowIndex see above.
+	 * @return see above.
+	 */
+	public int getMaxColumn(int rowIndex)
+	{
+		HSSFRow row = sheet.getRow(rowIndex);
+		return row.getLastCellNum();
+	}
 
 	/**
 	 * Returns the current position in workbook.
