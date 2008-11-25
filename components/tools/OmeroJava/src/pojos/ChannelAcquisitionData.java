@@ -546,9 +546,9 @@ public class ChannelAcquisitionData
 	public float getLightSourcePower()
 	{
 		LightSource light = getLightSource();
-		if (light == null) return 0;
+		if (light == null) return -1;
 		RFloat value = light.getPower();
-		if (value == null) return 0;
+		if (value == null) return -1;
 		return value.getValue();
 	}
 	
