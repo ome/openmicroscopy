@@ -101,6 +101,7 @@ import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
 import omero.constants.SHARESERVICE;
 import omero.constants.THUMBNAILSTORE;
+import omero.constants.TIMELINESERVICE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
 import omero.grid.InteractiveProcessorI;
@@ -279,7 +280,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public ITimelinePrx getTimelineService(Ice.Current current) throws ServerError {
-        return ITimelinePrxHelper.uncheckedCast(getByName(TYPESSERVICE.value,
+        return ITimelinePrxHelper.uncheckedCast(getByName(TIMELINESERVICE.value,
                 current));
     }
     
