@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.undo.UndoRedoObservable;
  * This Action performs an Redo on the {@link #undoManager} specified in the 
  * constructor. 
  * It listens both to the posting of {@link UndoableEdit}s to the 
- * undoSupport§ and to the undo and redo actions of the {@link undoManager}.
+ * undoSupport and to the undo and redo actions of the {@link undoManager}.
  * In each case, the Action is enabled depending on the canRedo() method
  * of the {@link #undoManager} and the Description of this Action is refreshed.
  *
@@ -89,9 +89,10 @@ public class RedoEditAction
 	/**
 	 * Creates an instance of this class.
 	 * 
-	 * @param undoManager		The undoManager for undo()
-	 * @param undoSupport		The UndoableEditSupport, for listening to 
-	 * 							posting of new edits. 
+	 * @param undoManager	The undoManager for undo().
+	 * @param undoSupport	The UndoableEditSupport, for listening to 
+	 * 						posting of new edits. 
+	 * @param model			Reference to the model.
 	 */
 	public RedoEditAction(UndoManager undoManager, 
 			UndoableEditSupport undoSupport, Browser model) 
@@ -120,7 +121,6 @@ public class RedoEditAction
 	/**
 	 * Performs the Redo action.
 	 * This will also cause the undoRedoPerformed() method to be called.
-	 * 
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
@@ -133,7 +133,7 @@ public class RedoEditAction
 	 * queue.
 	 * The Action's enabled status and description is refreshed.
 	 * 
-	 * Implemented as specified in the {@link UndoableEditListener} interface
+	 * Implemented as specified in the {@link UndoableEditListener} interface.
 	 */
 	public void undoableEditHappened(UndoableEditEvent e) { refreshStatus(); }
 	
@@ -141,7 +141,7 @@ public class RedoEditAction
 	 * This method is called when undo or redo occurs at the undoManager. 
 	 * The Action's enabled status and description is refreshed.
 	 * 
-	 * Implemented as specified by the {@link UndoRedoListener} interface
+	 * Implemented as specified by the {@link UndoRedoListener} interface.
 	 */
 	public void undoRedoPerformed() { refreshStatus(); }
 
