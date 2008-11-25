@@ -44,7 +44,7 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
-	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
+	<classpathentry kind="lib" path="target/libs/bio-formats.jar" sourcepath="/bio-formats"/>
 	<classpathentry kind="lib" path="target/libs/bufr.jar"/>
 	<classpathentry kind="lib" path="target/libs/grib.jar"/>
 	<classpathentry kind="lib" path="target/libs/ij.jar"/>
