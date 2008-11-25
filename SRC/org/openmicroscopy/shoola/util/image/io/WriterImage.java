@@ -28,13 +28,20 @@ package org.openmicroscopy.shoola.util.image.io;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+
 //Third-party libraries
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGEncodeParam;
+import com.sun.image.codec.jpeg.JPEGImageDecoder;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 //Application-internal dependencies
 
@@ -104,4 +111,53 @@ public class WriterImage
         }      
     }  
     
+    /**
+	 * Converts the BufferImage to <code>JPEG</code> image.
+	 * 
+	 * @param image The image to convert.
+	 * @return See above.
+	 * @throws EncoderException Exception thrown if an error occured during the
+     * encoding process.
+	 */
+	public static byte[] imageToByteStreamAsJPEG(BufferedImage image) 
+		throws EncoderException
+	{
+		if (image == null) 
+    		throw new IllegalArgumentException("No image specified.");
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos); 
+			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
+			param.setQuality(1.0f, false); 
+			encoder.setJPEGEncodeParam(param); 
+			encoder.encode(image); 
+			bos.close(); 
+			return bos.toByteArray(); 
+		} catch (Exception e) {
+			throw new EncoderException("Cannot encode the image.", e);
+		}  
+	}
+	
+	/**
+	 * Converts the passed byte array to a buffered image.
+	 * 
+	 * @param values The values to convert.
+	 * @return See above.
+	 *  @throws EncoderException Exception thrown if an error occured during the
+     * encoding process.
+	 */
+	public static BufferedImage bytesToImageJPEG(byte[] values)
+		throws EncoderException
+	{
+		if (values == null) 
+    		throw new IllegalArgumentException("No array specified.");
+		JPEGImageDecoder decoder = 
+			JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
+		try {
+			return decoder.decodeAsBufferedImage();
+		} catch (Exception e) {
+			throw new EncoderException("Cannot decode the image.", e);
+		}
+	}
+	
 }

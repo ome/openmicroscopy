@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -157,6 +158,9 @@ class MeasurementViewerModel
      * viewer.
      */
     private SaveRelatedData 		event;
+    
+    /** The rendered image. */
+    private BufferedImage 			rndImage;
     
     /**
      * Returns the name used to log in.
@@ -979,10 +983,22 @@ class MeasurementViewerModel
 	{
 		roiComponent.addShape(id, coord, shape);
 	}
-	
-	public Double getPixelValue(int channel, int x, int y)
+
+	/** 
+	 * Sets the rendered image.
+	 * 
+	 * @param rndImage The value to set.
+	 */
+	void setRenderedImage(BufferedImage rndImage)
 	{
-		return null;
+		this.rndImage = rndImage;
 	}
+	
+	/**
+	 * Returns the rendered image.
+	 * 
+	 * @return See above.
+	 */
+	BufferedImage getRenderedImage() { return rndImage; }
 	
 }	

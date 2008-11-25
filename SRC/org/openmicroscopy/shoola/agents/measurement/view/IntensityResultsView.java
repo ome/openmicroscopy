@@ -28,9 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,9 +50,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
@@ -88,8 +86,8 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * @since OME3.0
  */
 class IntensityResultsView
-extends JPanel 
-implements TabPaneInterface
+	extends JPanel 
+	implements TabPaneInterface
 {
 	
 	/** Index to identify tab */
@@ -439,7 +437,6 @@ implements TabPaneInterface
 			String filename = file.getAbsolutePath();
 			ExcelWriter writer = new ExcelWriter(filename);
 			writer.openFile();
-			writer.createWorkbook();
 			writer.createSheet("Intensity Results");
 			writer.writeTableToSheet(0, 0, resultsModel);
 			writer.close();

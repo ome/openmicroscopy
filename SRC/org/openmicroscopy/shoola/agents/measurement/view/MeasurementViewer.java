@@ -274,4 +274,11 @@ public interface MeasurementViewer
      */
 	public void setIconImage(BufferedImage thumbnail);
 	
+	 /**
+     * Sets the rendered image.
+     * 
+     * @param rndImage	The rendered image.
+     */
+	public void setRndImage(BufferedImage rndImage);
+	
 }

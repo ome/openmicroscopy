@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Dimension;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
@@ -61,7 +60,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-
 import pojos.PixelsData;
 
 /** 
@@ -775,12 +773,22 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setIconImage(BufferedImage)
+     * @see MeasurementViewer#setIconImage(BufferedImage, BufferedImage)
      */
 	public void setIconImage(BufferedImage thumbnail)
 	{
 		if (model.getState() == DISCARDED) return;
 		view.setIconImage(thumbnail);
+	}
+	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setRndImage(BufferedImage)
+     */
+	public void setRndImage(BufferedImage rndImage)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setRenderedImage(rndImage);
 	}
     
 }

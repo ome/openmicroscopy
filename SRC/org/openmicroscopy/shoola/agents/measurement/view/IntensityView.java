@@ -942,13 +942,12 @@ class IntensityView
 			//out = new BufferedWriter(new FileWriter(file));
 			ExcelWriter writer = new ExcelWriter(file.getAbsolutePath());
 			writer.openFile();
-			writer.createWorkbook();
 			writer.createSheet("Channel Summary");
 			Iterator<Coord3D> coordMapIterator = shapeMap.keySet().iterator();
 			Coord3D currentCoord;
 			int n = channels.size();
 			Integer channel;
-			if(channelSummarySelected(channels))
+			if (channelSummarySelected(channels))
 				outputSummary(writer, shapeMap);
 
 			if(channelSummarySelected(channels) && channels.size()!=1)

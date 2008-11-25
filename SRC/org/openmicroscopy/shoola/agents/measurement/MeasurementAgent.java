@@ -188,8 +188,10 @@ public class MeasurementAgent
     {
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
     									evt.getPixelsID());
-    	if (viewer != null)
+    	if (viewer != null) {
     		viewer.setIconImage(evt.getThumbnail());
+    		viewer.setRndImage(evt.getRenderedImage());
+    	}
     }
     
     /**

@@ -27,15 +27,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -64,13 +57,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
-import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -98,6 +88,7 @@ class MeasurementResults
 	extends JPanel
 	implements TabPaneInterface
 {
+	
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.RESULTS_INDEX;
 
@@ -388,7 +379,8 @@ class MeasurementResults
 		ROIFigure figure;
 		MeasurementObject row;
 		AnnotationKey key;
-		MeasurementTableModel tm = new MeasurementTableModel(columnNames, model.getMeasurementUnits());
+		MeasurementTableModel tm = new MeasurementTableModel(columnNames, 
+				model.getMeasurementUnits());
 		
 		while (i.hasNext()) {
 			roi = (ROI) map.get(i.next());
@@ -406,10 +398,10 @@ class MeasurementResults
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
 					Object value = key.get(shape);
-					if (value instanceof ArrayList)
+					if (value instanceof List)
 					{
-						ArrayList valueArray = (ArrayList) value;
-						ArrayList arrayList = new ArrayList(valueArray);
+						List valueArray = (List) value;
+						List arrayList = new ArrayList(valueArray);
 						row.addElement(arrayList);
 					}
 					else
@@ -493,17 +485,23 @@ class MeasurementResults
 		String filename = file.getAbsolutePath();
 		ExcelWriter writer = new ExcelWriter(filename);
 		writer.openFile();
-		writer.createWorkbook();
 		writer.createSheet("Measurement Results");
 		writer.writeTableToSheet(0, 0, results.getModel());
 		
-		BufferedImage image = new BufferedImage(model.getDrawingView().getWidth(), model.getDrawingView().getWidth(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = model.getRenderedImage();
 		
 		
 		// Add the ROI for the current plane to the image.
+		//TODO: Need to check that.
 		model.getDrawingView().print(image.getGraphics());
-		writer.addImageToWorkbook("ThumbnailImage", image); 
-		writer.writeImage(10,10,image.getWidth(), image.getHeight(), "ThumbnailImage");
+		try {
+			writer.addImageToWorkbook("ThumbnailImage", image); 
+		} catch (Exception e) {
+			//TODO
+		}
+		
+		writer.writeImage(10, 10, image.getWidth(), image.getHeight(), 
+					"ThumbnailImage");
 		writer.close();
 		return true;
 	}

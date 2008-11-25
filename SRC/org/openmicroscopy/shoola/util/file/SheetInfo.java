@@ -46,24 +46,32 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
  * </small>
  * @since OME3.0
  */
-public class SheetInfo
+class SheetInfo
 {	
+	
 	/** The sheet this info relates to. */
-	HSSFSheet			sheet;
+	private HSSFSheet		sheet;
 	
 	/** The name of the sheet. */
-	String 				name;
+	private String			name;
 	
-	/** current position in workbook. */
-	int 				index;
+	/** The current position in workbook. */
+	private int				index;
 	
 	/** The current row in the spreadsheet. */
-	int 				currentRow;
+	private int				currentRow;
 	
-	/** the current drawing context of the sheet. */
-	HSSFPatriarch		drawingPatriarch;
+	/** The current drawing context of the sheet. */
+	private HSSFPatriarch	drawingPatriarch;
 	
-	public SheetInfo(String name, int sheetIndex, HSSFSheet sheet)
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param name			The name of the sheet.
+	 * @param sheetIndex	The current position in workbook.
+	 * @param sheet			The sheet this object is related to.
+	 */
+	SheetInfo(String name, int sheetIndex, HSSFSheet sheet)
 	{
 		this.sheet = sheet;
 		this.name = name;
@@ -71,41 +79,70 @@ public class SheetInfo
 		currentRow = 0;
 	}
 	
-	public HSSFCell getCell(int rowIndex, int columnIndex)
+	/**
+	 * Returns the cell corresponding to the row and column
+	 * 
+	 * @param rowIndex		The selected row.
+	 * @param columnIndex	The selected column.
+	 * @return See above.
+	 */
+	HSSFCell getCell(int rowIndex, int columnIndex)
 	{
 		HSSFRow row;
 		HSSFCell cell;
 		row = sheet.getRow(rowIndex);
-		if(row==null)
-			row = sheet.createRow(rowIndex);
+		if (row == null) row = sheet.createRow(rowIndex);
 		cell = row.getCell(columnIndex);
-		if(cell==null)
-			cell = row.createCell(columnIndex);
+		if (cell == null) cell = row.createCell(columnIndex);
 		return cell;
 	}
 
-	public int getIndex()
-	{
-		return index;
-	}
+	/**
+	 * Returns the current position in workbook.
+	 * 
+	 * @return See above.
+	 */
+	int getIndex() { return index; }
 
-	public int getCurrentRow()
-	{
-		return currentRow;
-	}
+	/**
+	 * Returns the current row.
+	 * 
+	 * @return See above.
+	 */
+	int getCurrentRow() { return currentRow; }
 	
-	public void setCurrentRow(int row)
-	{
-		currentRow = row;
-	}
+	/**
+	 * Sets the current row.
+	 * 
+	 * @param row The value to set.
+	 */
+	void setCurrentRow(int row) { currentRow = row; }
 	
-	public HSSFPatriarch getDrawingPatriarch()
+	/**
+	 * Returns the current drawing context of the sheet. 
+	 * 
+	 * @return See above.
+	 */
+	HSSFPatriarch getDrawingPatriarch()
 	{
-		if(drawingPatriarch == null) 
+		if (drawingPatriarch == null) 
 			drawingPatriarch = sheet.createDrawingPatriarch();
-	
 		return drawingPatriarch;
 	}
+	
+	/**
+	 * Returns the name of the sheet.
+	 * 
+	 * @return See above.
+	 */
+	String getName() { return name; }
+	
+	/**
+	 * Sets the name of the sheet.
+	 * 
+	 * @param name The name of the sheet.
+	 */
+	void setName(String name) { this.name = name; }
 	
 }
 

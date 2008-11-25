@@ -54,19 +54,25 @@ public class ImageRendered
     
     /** Thumbnail of the rendered image. */
     private BufferedImage	thumbnail;
+    
+    /** The rendered image. */
+    private BufferedImage	renderedImage;
  
     /**
      * Creates a new instance.
      * 
-     * @param pixelsID  The id of the pixels set.
-     * @param thumbnail Thumbnail of the rendered image.
+     * @param pixelsID  	The id of the pixels set.
+     * @param thumbnail 	Thumbnail of the rendered image.
+     * @param renderedImage	The rendered image.
      */
-    public ImageRendered(long pixelsID, BufferedImage thumbnail)
+    public ImageRendered(long pixelsID, BufferedImage thumbnail, 
+    				BufferedImage renderedImage)
     {
     	if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
     	this.pixelsID = pixelsID;
     	this.thumbnail = thumbnail;
+    	this.renderedImage = renderedImage;
     }
     
     /**
@@ -82,5 +88,12 @@ public class ImageRendered
      * @return See above. 
      */
     public BufferedImage getThumbnail() { return thumbnail; }
+    
+    /**
+     * Returns the rendered image.
+     * 
+     * @return See above. 
+     */
+    public BufferedImage getRenderedImage() { return renderedImage; }
     
 }

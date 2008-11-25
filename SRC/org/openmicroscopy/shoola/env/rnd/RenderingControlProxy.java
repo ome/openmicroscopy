@@ -36,8 +36,6 @@ import javax.imageio.ImageIO;
 
 
 //Third-party libraries
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
 
 //Application-internal dependencies
 import omero.ServerError;
@@ -53,6 +51,8 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -395,9 +395,7 @@ class RenderingControlProxy
 			imageSize = values.length;
 			initializeCache(pDef);
 			cache(pDef, values);
-			JPEGImageDecoder decoder = 
-				JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
-			return decoder.decodeAsBufferedImage();
+			return WriterImage.bytesToImageJPEG(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		}
@@ -467,14 +465,11 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
-			
 			byte[] values = servant.renderProjectedCompressed(
 					ProjectionParam.convertType(type), 
 					getDefaultT(), stepping, startZ, endZ);
 			
-			JPEGImageDecoder decoder = 
-				JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
-			return decoder.decodeAsBufferedImage();
+			return WriterImage.bytesToImageJPEG(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render projected selection.");
 		}

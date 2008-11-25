@@ -1219,7 +1219,7 @@ public class EditorUtil
         	details.put(REPETITION_RATE, f);
         	o = data.getLaserPockelCell();
         	if (o == null) {
-        		notSet.add(TUNEABLE);
+        		notSet.add(POCKEL_CELL);
         	}
         	details.put(POCKEL_CELL, o); 
         	

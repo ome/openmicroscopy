@@ -748,7 +748,8 @@ class ImViewerComponent
 			//Post an event
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 			BufferedImage icon = model.getImageIcon();
-			bus.post(new ImageRendered(model.getPixelsID(), icon));
+			bus.post(new ImageRendered(model.getPixelsID(), icon, 
+					model.getBrowser().getRenderedImage()));
 			view.setIconImage(icon);
 		}
 			
