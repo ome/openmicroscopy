@@ -405,6 +405,8 @@ public class Factory
      */
     public static BufferedImage createImage(BufferedImage img)
     {
+    	//TODO: ONLY NEED THIS METHOD AS THE TIFF WRITER DOES NOT WORK WITH 
+    	//BLITTED IMAGES.
     	if (img == null) return null;
         int sizeY = img.getWidth();
         int sizeX = img.getHeight();
@@ -413,6 +415,7 @@ public class Factory
         ColorModel cm = img.getColorModel();
         int pos = 0;
         int v = 0;
+        
         for (int y = 0; y < sizeY; ++y) {
             for (int x = 0; x < sizeX; ++x) {
                 pos = sizeX*y+x;
@@ -430,7 +433,7 @@ public class Factory
                 sizeX, sizeY, 3);
         return new BufferedImage(ccm, 
                 Raster.createWritableRaster(csm, buffer, null), false, null);
-    }
+    }   
     
     /**
      * Creates a {@link BufferedImage} from an Image. 
@@ -443,6 +446,23 @@ public class Factory
     	if (img == null) return null;
         BufferedImage buff = new BufferedImage(img.getWidth(null), 
             img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics gfx = buff.createGraphics();
+        gfx.drawImage(img, 0, 0, null);
+        gfx.dispose();
+        return buff;
+    }
+    
+    /**
+     * Creates a {@link BufferedImage} from an Image. 
+     *  
+     * @param img The BufferedImage to copy to a buffered image
+     * @return The buffered image
+     */
+    public static  BufferedImage copyBufferedImage(BufferedImage img)
+    {
+    	if (img == null) return null;
+        BufferedImage buff = new BufferedImage(img.getWidth(null), 
+            img.getHeight(null), img.getType());
         Graphics gfx = buff.createGraphics();
         gfx.drawImage(img, 0, 0, null);
         gfx.dispose();

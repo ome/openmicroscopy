@@ -491,7 +491,7 @@ class MeasurementResults
 		writer.writeTableToSheet(0, 0, results.getModel());
 		
 		BufferedImage originalImage = model.getRenderedImage();
-		BufferedImage image = Factory.createImage(originalImage);
+		BufferedImage image =  Factory.copyBufferedImage(originalImage);
 		
 		// Add the ROI for the current plane to the image.
 		//TODO: Need to check that.
