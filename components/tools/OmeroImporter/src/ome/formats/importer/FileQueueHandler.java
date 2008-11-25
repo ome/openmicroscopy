@@ -454,6 +454,7 @@ public class FileQueueHandler
         if (message == "REIMPORT")
         {
             store = viewer.loginHandler.getMetadataStore();  
+            historyTable.reimportBtn.setEnabled(false);
             
             String datasetName = "", projectName = "", fileName = "";
             Long datasetID = 0L, projectID = 0L;
@@ -525,6 +526,7 @@ public class FileQueueHandler
                         "to the import queue for reimport.");                 
             }
 
+            historyTable.reimportBtn.setEnabled(true);
             
             if (qTable.table.getRowCount() >  0)
                 qTable.importBtn.setEnabled(true);

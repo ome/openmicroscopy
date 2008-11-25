@@ -897,6 +897,35 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return i;
     }
 
+    
+    /**
+     * Returns a LogicalChannel from a given pixels set. This method ensures
+     * that out of order execution is supported.
+     * 
+     * @param imageIndex Image index.
+     * @param pixelsIndex Pixels index.
+     * @param logicalChannelIndex LogicalChannel index.
+     * @return A LogicalChannel, a new instance if required.
+     */
+    private LogicalChannel getLogicalChannel(int imageIndex, int pixelsIndex,
+                                             int logicalChannelIndex)
+    {
+        Pixels p = getPixels(imageIndex, pixelsIndex);
+        if (p.sizeOfChannels() <= logicalChannelIndex)
+        {
+            for (int i = p.sizeOfChannels(); i <= logicalChannelIndex; i++)
+            {
+                // Since OMERO model objects prevent us from inserting nulls
+                // here we must insert a Pixels object. We also need to ensure
+                // that the OMERO specific "sha1" field is filled.
+                Channel c = new Channel();
+                c.setLogicalChannel(new LogicalChannel());
+                p.addChannel(c);
+            }
+        }
+        return p.getChannel(logicalChannelIndex).getLogicalChannel();
+    }
+    
     /**
      * Returns a Pixels from a given Image's indexed pixels list. The indexed
      * pixels list is extended as required and the Pixels object itself is
@@ -1084,17 +1113,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             return;
         }
         p.setSizeC(sizeC);
+        
         if (p.sizeOfChannels() != 0)
         {
             p.clearChannels();
         }
+
         for (int i = 0; i < sizeC; i++)
         {
-            Channel c = new Channel();
-            c.setLogicalChannel(new LogicalChannel());
-            p.addChannel(c);
+            LogicalChannel lc =
+                getLogicalChannel(imageIndex, pixelsIndex, i);
         }
     }
+
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
@@ -1296,10 +1327,33 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // FIXME: Time stamp needs fixing.
                 info.setTimestamp(0.0f);
                 cache.add(info);
-                pixels.addPlaneInfo(info);
             }
         }
-        return cache.get(planeIndex);
+        
+        // This prevents a cached planeinfo from being used 
+        // unless timestamp or exposure time is full
+        PlaneInfo planeInfo = cache.get(planeIndex);
+        Iterator<PlaneInfo> i = pixels.iteratePlaneInfo();
+        while (i.hasNext())
+        {
+            PlaneInfo linkedPlaneInfo = i.next();
+            if (linkedPlaneInfo == planeInfo)
+            {
+                return planeInfo;
+            }
+        }
+        if ((planeInfo.getTheC()!= null && planeInfo.getTheZ() != null && planeInfo.getTheT() != null) &&
+        	 ( planeInfo.getTimestamp() != null
+            || planeInfo.getExposureTime() != null
+            || planeInfo.getPositionX() != null
+            || planeInfo.getPositionY() != null
+            || planeInfo.getPositionZ() != null)    
+        )
+        {
+            pixels.addPlaneInfo(planeInfo);
+        }
+        
+        return planeInfo;
     }
 
     /* (non-Javadoc)
@@ -1368,24 +1422,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
     /* ---- LogicalChannels ---- */
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
      */
     public void setLogicalChannelName(String name, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] name: '%s'",
-                    imageIndex, p, logicalChannelIndex, name));
-            LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setName(name);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] name: '%s'",
+                imageIndex, logicalChannelIndex, name));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setName(name);
     }
 
     /* (non-Javadoc)
@@ -1394,38 +1442,28 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelIlluminationType(String illuminationType,
             int imageIndex, int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] illumination type: '%s'",
-                    imageIndex, p, logicalChannelIndex, illuminationType));
-            LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
-            Illumination iType = (Illumination) getEnumeration(AcquisitionMode.class, illuminationType);
-            lc.setIllumination(iType);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] illumination type: '%s'",
+                imageIndex, logicalChannelIndex, illuminationType));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        //Illumination iType = (Illumination) getEnumeration(AcquisitionMode.class, "Unknown");
+        //lc.setIllumination(iType);
     }
 
+   
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
      */
     public void setLogicalChannelPinholeSize(Integer pinholeSize,
             int imageIndex, int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] pinhole size: '%d'",
-                    imageIndex, p, logicalChannelIndex, pinholeSize));
-            LogicalChannel lc = 
-                p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setPinHoleSize(pinholeSize);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] pinhole size: '%f'",
+                imageIndex, logicalChannelIndex, pinholeSize));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setPinHoleSize(pinholeSize);
     }
 
     /* (non-Javadoc)
@@ -1435,21 +1473,15 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             String photometricInterpretation, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] photometric interpretation: '%s'",
-                    imageIndex, p, logicalChannelIndex, photometricInterpretation));
-            LogicalChannel lc = 
-                p.getChannel(logicalChannelIndex).getLogicalChannel();
-            PhotometricInterpretation pi = 
-                (PhotometricInterpretation) getEnumeration(
-                        PhotometricInterpretation.class, photometricInterpretation);
-            lc.setPhotometricInterpretation(pi);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] photometric interpretation: '%s'",
+                imageIndex, logicalChannelIndex, photometricInterpretation));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        PhotometricInterpretation pi = 
+            (PhotometricInterpretation) getEnumeration(
+                    PhotometricInterpretation.class, "Unknown");
+        lc.setPhotometricInterpretation(pi);
     }
 
     /* (non-Javadoc)
@@ -1458,20 +1490,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelMode(String mode, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] channel mode: '%s'",
-                    imageIndex, p, logicalChannelIndex, mode));
-            LogicalChannel lc = 
-                p.getChannel(logicalChannelIndex).getLogicalChannel();
-            AcquisitionMode m = 
-                (AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
-            lc.setMode(m);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] channel mode: '%s'",
+                imageIndex, logicalChannelIndex, mode));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        AcquisitionMode m = 
+            (AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
+        lc.setMode(m);
     }
 
     /* (non-Javadoc)
@@ -1480,19 +1506,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelContrastMethod(String contrastMethod,
             int imageIndex, int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] contrast method: '%s'",
-                    imageIndex, p, logicalChannelIndex, contrastMethod));
-            LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
-            ContrastMethod m = (ContrastMethod) 
-            getEnumeration(ContrastMethod.class, contrastMethod);
-            lc.setContrastMethod(m);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] contrast method: '%s'",
+                imageIndex, logicalChannelIndex, contrastMethod));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        ContrastMethod m = (ContrastMethod) 
+        getEnumeration(ContrastMethod.class, "Unknown");
+        lc.setContrastMethod(m);
     }
 
     /* (non-Javadoc)
@@ -1501,24 +1522,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelExWave(Integer exWave, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] excitation wavelength: '%d'",
+                imageIndex, logicalChannelIndex, exWave));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setExcitationWave(exWave);
+        if (lc.getPhotometricInterpretation() == null)
         {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] excitation wavelength: '%d'",
-                    imageIndex, p, logicalChannelIndex, exWave));
-            LogicalChannel lc = 
-                p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setExcitationWave(exWave);
-            if (lc.getPhotometricInterpretation() == null)
-            {
-                log.debug("Setting Photometric iterpretation to monochrome");
-                PhotometricInterpretation pi = (PhotometricInterpretation) 
-                getEnumeration(PhotometricInterpretation.class, "Monochrome");
-                lc.setPhotometricInterpretation(pi);
-            }
+            log.debug("Setting Photometric iterpretation to monochrome");
+            PhotometricInterpretation pi = (PhotometricInterpretation) 
+            getEnumeration(PhotometricInterpretation.class, "Monochrome");
+            lc.setPhotometricInterpretation(pi);
         }
     }
 
@@ -1528,23 +1543,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] emission wavelength: '%d'",
+                imageIndex, logicalChannelIndex, emWave));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setEmissionWave(emWave);
+        if (lc.getPhotometricInterpretation() == null)
         {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] emission wavelength: '%d'",
-                    imageIndex, p, logicalChannelIndex, emWave));
-            LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setEmissionWave(emWave);
-            if (lc.getPhotometricInterpretation() == null)
-            {
-                log.debug("Setting Photometric iterpretation to monochrome");
-                PhotometricInterpretation pi = (PhotometricInterpretation) 
-                getEnumeration(PhotometricInterpretation.class, "Monochrome");
-                lc.setPhotometricInterpretation(pi);
-            }
+            log.debug("Setting Photometric iterpretation to monochrome");
+            PhotometricInterpretation pi = (PhotometricInterpretation) 
+            getEnumeration(PhotometricInterpretation.class, "Monochrome");
+            lc.setPhotometricInterpretation(pi);
         }
     }
 
@@ -1554,17 +1564,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelFluor(String fluor, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] fluor: '%s'",
-                    imageIndex, p, logicalChannelIndex, fluor));
-            LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setFluor(fluor);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] fluor: '%s'",
+                imageIndex,  logicalChannelIndex, fluor));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setFluor(fluor);
     }
 
     /* (non-Javadoc)
@@ -1574,17 +1579,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelNdFilter(Float ndFilter, int imageIndex,
             int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] ndFilter: '%f'",
-                    imageIndex, p, logicalChannelIndex, ndFilter));
-            LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setNdFilter(ndFilter);
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] ndFilter: '%f'",
+                imageIndex, logicalChannelIndex, ndFilter));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setNdFilter(ndFilter);
     }
 
     /* (non-Javadoc)
@@ -1594,20 +1594,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
             int imageIndex, int logicalChannelIndex)
     {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-                    "pockel cell setting: '%d'",
-                    imageIndex, p, logicalChannelIndex, pockelCellSetting));
-            LogicalChannel lc = 
-                p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setPockelCellSetting(pockelCellSetting);
-            // FIXME: Should pockel cell be String or Integer?
-        }
+        log.debug(String.format(
+                "Setting Image[%d] LogicalChannel[%d] " +
+                "pockel cell setting: '%d'",
+                imageIndex, logicalChannelIndex, pockelCellSetting));
+        LogicalChannel lc = 
+            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+        lc.setPockelCellSetting(pockelCellSetting);
+        // FIXME: Should pockel cell be String or Integer?
     }
 
     /* --- Stage Position --- */
@@ -1729,7 +1723,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
     public void setDetectorSettingsGain(Float gain, int imageIndex,
-            int logicalChannelIndex) {       
+            int logicalChannelIndex) {  
+    	/*
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
@@ -1742,10 +1737,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             DetectorSettings ds = p.getChannel(logicalChannelIndex).getLogicalChannel().getDetectorSettings();
             ds.setGain(gain);
         }
+       */
     }
 
     public void setDetectorSettingsOffset(Float offset, int imageIndex,
             int logicalChannelIndex) {
+    	/*
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
@@ -1758,6 +1755,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             DetectorSettings ds = p.getChannel(logicalChannelIndex).getLogicalChannel().getDetectorSettings();
             ds.setOffsetValue(offset);
         }
+        */
     }
 
     /* ---- Instrument-based Methods ---- */
@@ -1806,6 +1804,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /* Based on the currentLSID we have stored, see if the lightsource is set, if not, set it */
     private LightSource getLightSource(int instrumentIndex, int lightSourceIndex)
     {
+    	return null;
+    	/*
         setLightSourceID(null, instrumentIndex, lightSourceIndex);
         
         Instrument instrument = getInstrument(instrumentIndex);
@@ -1846,6 +1846,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             //LogicalChannel lc = p.getChannel(logicalChannelIndex).getLogicalChannel();
 
         }
+        */
     }
 
     public void setLightSourceSettingsAttenuation(Float attenuation,
@@ -2157,6 +2158,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     private Detector getDetector(int instrumentIndex, int detectorIndex)
     {
+    	return null;
+    	/*
     	setDetectorID(null, instrumentIndex, detectorIndex);
         
         Instrument instrument = getInstrument(instrumentIndex);
@@ -2169,6 +2172,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         } 
 
         return (Detector) lsidMap.get(currentLSID);
+        */
     }
     
     public void setDetectorGain(Float gain, int instrumentIndex,
@@ -2259,6 +2263,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     private Objective getObjective(int instrumentIndex, int objectiveIndex)
     {
+    	return null;
+    	/*
         setObjectiveID(null, instrumentIndex, objectiveIndex);
         
         Instrument instrument = getInstrument(instrumentIndex);
@@ -2271,6 +2277,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         } 
 
         return (Objective) lsidMap.get(currentLSID);
+        */
     }
     
     public void setObjectiveCalibratedMagnification(
@@ -3401,12 +3408,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 		
 	}
 
-	public void setLogicalChannelPinholeSize(Float pinholeSize, int imageIndex,
-			int logicalChannelIndex) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public void setOTFObjective(String objective, int instrumentIndex,
 			int otfIndex) {
 		// TODO Auto-generated method stub
@@ -3417,4 +3418,57 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 		pixelsStore.close();
 		pixelsStore = null;
 	}
+
+	public void setDetectorSettingsBinning(String binning, int imageIndex,
+			int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setDetectorSettingsReadOutRate(Float readOutRate,
+			int imageIndex, int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setDetectorSettingsVoltage(Float voltage, int imageIndex,
+			int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setObjectiveSettingsCorrectionCollar(Float correctionCollar,
+			int imageIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setObjectiveSettingsMedium(String medium, int imageIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setObjectiveSettingsObjective(String objective, int imageIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
+			int imageIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setLightSourceSettingsLightSource(String lightSource,
+			int imageIndex, int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setLogicalChannelPinholeSize(Float pinholeSize, int imageIndex,
+			int logicalChannelIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
