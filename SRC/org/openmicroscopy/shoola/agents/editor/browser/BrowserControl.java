@@ -44,12 +44,14 @@ import javax.swing.undo.UndoableEditSupport;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentLeftAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentRightAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveDownAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveUpAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.PasteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
@@ -117,6 +119,12 @@ public class BrowserControl
 	/** Identifies the <code>Move Down</code> action. */
 	static final Integer    MOVE_DOWN_ACTION = new Integer(8);
 	
+	/** Identifies the <code>Copy Fields</code> action. */
+	static final Integer    COPY_FIELDS_ACTION = new Integer(9);
+	
+	/** Identifies the <code>Paste Fields</code> action. */
+	static final Integer    PASTE_FIELDS_ACTION = new Integer(10);
+	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -158,6 +166,9 @@ public class BrowserControl
     		   (undoSupport, model));
        actionsMap.put(MOVE_UP_ACTION, new MoveUpAction(undoSupport, model));
        actionsMap.put(MOVE_DOWN_ACTION, new MoveDownAction(undoSupport, model));
+       actionsMap.put(COPY_FIELDS_ACTION, new CopyFieldsAction(model));
+       actionsMap.put(PASTE_FIELDS_ACTION, new PasteFieldsAction
+    		   											(undoSupport, model));
     }
     
     /**

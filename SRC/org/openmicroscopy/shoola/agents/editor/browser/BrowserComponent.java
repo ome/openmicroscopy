@@ -31,6 +31,9 @@ import javax.swing.tree.TreeModel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /**  
@@ -135,4 +138,13 @@ public class BrowserComponent
 	 */
 	public int getState() { return model.getState(); }
 
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#copySelectedFields()
+	 */
+	public void copySelectedFields(Object fieldData) {
+		
+		 Registry reg = EditorAgent.getRegistry();
+		 reg.getEventBus().post(new CopyEvent(fieldData));
+	}
 }

@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,14 +32,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.tree.TreeModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
-import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -126,6 +126,27 @@ public class EditorFactory
 	}
 	
 	/**
+	 * Sets a reference to data copied 'to - clipboard' in Editor. 
+	 * Allows fields, text, parameters etc to be copied and pasted between
+	 * Editor instances. 
+	 * 
+	 * @param copiedData		The data object. 
+	 */
+	public static void setCopiedData(Object copiedData)
+	{
+		singleton.copiedData = copiedData;
+	}
+	
+	/**
+	 * Gets a reference to data copied 'to - clipboard' in Editor. 
+	 * Allows fields, text, parameters etc to be copied and pasted between
+	 * Editor instances. 
+	 * 
+	 * @return Object		The data object. 
+	 */
+	public static Object getCopiedData() { return singleton.copiedData; }
+
+	/**
 	 * This has a similar functionality to {@link getEditor()}, except this
 	 * method always returns a new editor (never an existing editor);
 	 * 	
@@ -180,6 +201,12 @@ public class EditorFactory
 	/** The windows menu. */
 	private JMenu   			windowMenu;
 
+	/**  
+	 * A reference to clip-board data, for copying between Editors.
+	 * E.g. A list of fields (nodes) or text with parameters. 
+	 */
+	private Object 				copiedData;
+	
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.

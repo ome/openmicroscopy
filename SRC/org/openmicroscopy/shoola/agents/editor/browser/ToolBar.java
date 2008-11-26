@@ -35,6 +35,7 @@ import javax.swing.JTree;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AbstractTreeEditAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
 /** 
@@ -82,6 +83,8 @@ public class ToolBar
 		add(createButton(BrowserControl.INDENT_RIGHT_ACTION));
 		add(createButton(BrowserControl.MOVE_UP_ACTION));
 		add(createButton(BrowserControl.MOVE_DOWN_ACTION));
+		add(createButton(BrowserControl.COPY_FIELDS_ACTION));
+		add(createButton(BrowserControl.PASTE_FIELDS_ACTION));
 	}
 	
 	/**
@@ -96,6 +99,9 @@ public class ToolBar
 		Action action = controller.getAction(actionID);
 		if (action instanceof AbstractTreeEditAction) {
 			((AbstractTreeEditAction)action).setTree(treeUI);
+		}
+		else if (action instanceof CopyFieldsAction) {
+			((CopyFieldsAction)action).setTree(treeUI);
 		}
 		JButton b = new CustomButton(action);
 		b.setText("");

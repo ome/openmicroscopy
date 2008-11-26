@@ -32,6 +32,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
+import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.env.Agent;
@@ -109,6 +110,18 @@ public class EditorAgent
 		}
 	}
 	
+	/**
+	 * Handles the copying event, by passing the copied data from this event
+	 * to the {@link EditorFactory} where it can be accessed by any Editor 
+	 * instance. 
+	 * 
+	 * @param evt		The CopyEvent event. 
+	 */
+	private void handleCopyData(CopyEvent evt)
+	{
+		EditorFactory.setCopiedData(evt.getCopiedData());
+	}
+	
 	 /** Creates a new instance. */
     public EditorAgent() {}
     
@@ -134,6 +147,7 @@ public class EditorAgent
         EventBus bus = registry.getEventBus();
         bus.register(this, EditFileEvent.class);
         bus.register(this, ShowEditorEvent.class);
+        bus.register(this, CopyEvent.class);
     }
 
     /**
@@ -169,6 +183,9 @@ public class EditorAgent
        
        if (e instanceof ShowEditorEvent)
     	   handleShowEditor();
+       
+       if (e instanceof CopyEvent)
+    	   handleCopyData((CopyEvent)e);
     }
 
 }

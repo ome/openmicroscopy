@@ -97,4 +97,12 @@ public interface Browser
 	 * @return One of the state flags defined by this interface.
 	 */
 	public int getState();
+	
+	/**
+	 * Copies the selected fields and posts them to an Event on the bus, for
+	 * other Editor instances to use. 
+	 * 
+	 * @param		fieldData		The object to copy. 
+	 */
+	public void copySelectedFields(Object fieldData);
 }

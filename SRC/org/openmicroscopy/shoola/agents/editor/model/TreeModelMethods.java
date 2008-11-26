@@ -159,33 +159,34 @@ public class TreeModelMethods {
 		}
 	}
 	
-	
 	/**
-	 * Duplicates the child of oldNode and adds them to newNode.
+	 * Duplicates the oldNode and returns the cloned node. 
 	 * Also recursively calls this method for child nodes to copy
-	 * the entire sub-tree of oldNode to newNode. 
+	 * the entire sub-tree of oldNode to the new node. 
 	 * This method casts the User Object from each node to a 
-	 * Field and duplicates this object using Field.clone() before
+	 * Field and duplicates this object using {@link Field#clone()} before
 	 * placing this in a new node. 
 	 * 
 	 * @param oldNode	The existing node with children to copy
 	 * @param newNode	The new node, with no children added yet.
 	 */
-	public static void duplicateNode(DefaultMutableTreeNode oldNode,
-			DefaultMutableTreeNode newNode) 
+	public static DefaultMutableTreeNode duplicateNode(
+												DefaultMutableTreeNode oldNode)
 	{
+		Field oldField = (Field)oldNode.getUserObject();
+		IField newField = (Field)oldField.clone();
+		DefaultMutableTreeNode newNode = new FieldNode(newField);
+		
+		DefaultMutableTreeNode newChild;
+		DefaultMutableTreeNode oldChild;
 		
 		for(int i=0; i<oldNode.getChildCount(); i++) {
-			DefaultMutableTreeNode child = (DefaultMutableTreeNode)
-				oldNode.getChildAt(i);
-			Field oldField = (Field)child.getUserObject();
-			Field newField = (Field)oldField.clone();
-			
-			DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(newField);
+			oldChild = (DefaultMutableTreeNode)oldNode.getChildAt(i);
+			newChild = duplicateNode(oldChild);
 			newNode.add(newChild);
-			
-			duplicateNode(child, newChild);
 		}
+		
+		return newNode;
 	}
 	
 	/**

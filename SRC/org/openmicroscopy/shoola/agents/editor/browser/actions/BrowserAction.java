@@ -85,6 +85,8 @@ public abstract class BrowserAction
         model.addChangeListener(this);
     }
     
+    
+    
     /**
      * Sets the name of the Action. 
      * 
