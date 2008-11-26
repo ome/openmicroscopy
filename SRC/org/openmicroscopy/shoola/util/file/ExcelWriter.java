@@ -40,10 +40,12 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.image.io.EncoderException;
@@ -65,6 +67,20 @@ import org.openmicroscopy.shoola.util.image.io.WriterImage;
  */
 public class ExcelWriter
 {	
+	final public static String HYPERLINK = "hyperlink";
+	final public static String DEFAULT = "default";
+	final public static String ITALIC_DEFAULT = "italic_default";
+	final public static String BOLD_DEFAULT = "bold_default";
+	final public static String UNDERLINE_DEFAULT = "underline_default";
+	final public static String BOLD_UNDERLINE_DEFAULT = "bold_underline_default";
+	final public static String BOLD_ITALIC_DEFAULT = "bold_italic_default";
+	final public static String BOLD_ITALIC_UNDERLINE_DEFAULT = "bold_italic_underline_default";
+	final public static String ITALIC_UNDERLINE_DEFAULT = "italic_underline_default";
+	final public static String PLAIN_14 = "plain_14";
+	final public static String BOLD_14 = "bold_14";
+	final public static String BOLD_18 = "bold_18";
+	final public static String TWODECIMALPOINTS = "2 decimal points";
+	final public static String INTEGER = "integer";
 	
 	/** The default name of a sheet. */
 	private static final String		DEFAULT_NAME = "Sheet";
@@ -78,9 +94,12 @@ public class ExcelWriter
 	/** The current workbook of the spreadsheet. */
 	private HSSFWorkbook			workbook;
 
-	/** The cell style for numbers, format to 2 dec. places.*/
-	private HSSFCellStyle 			numberStyle;
+	/** The map of all the styles created in the workbook. */
+	private Map<String, HSSFCellStyle> styleMap;
 
+	/** The map of all fonts used by the cell styles. */
+	private Map<String, HSSFFont> fontMap;
+	
 	/** Map of the sheet names vs sheetInfos. */
 	private Map<String, SheetInfo>	sheetMap;
 	
@@ -93,28 +112,209 @@ public class ExcelWriter
 	/** The current sheet being worked on. */
 	private SheetInfo				currentSheet;
 	
-	/**
-	 * Formats the cell for Number values.
-	 * 
-	 * @param wb The wrokbook to format.
-	 * @return See above.
-	 */
-	private HSSFCellStyle createNumberFormatStyle(HSSFWorkbook wb)
-	{
-		if (wb == null) 
-			throw new IllegalArgumentException("No workbook to format.");
-		HSSFCellStyle cellStyle = wb.createCellStyle();
-		HSSFDataFormat df = wb.createDataFormat();
-		cellStyle.setDataFormat(df.getFormat("#0.##"));
-		return cellStyle;
-	}
-	
 	/** Sets the different styles used in the output of the excel. */
 	private void setStyles()
 	{
-		numberStyle = createNumberFormatStyle(workbook);
+		styleMap = new HashMap<String, HSSFCellStyle>();
+		fontMap = new HashMap<String, HSSFFont>();
+		createFonts();
+		createStyles();
 	}
 	
+	private void createStyles()
+	{
+		HSSFCellStyle style;
+				
+		Iterator<String> fontIterator = fontMap.keySet().iterator();
+		while (fontIterator.hasNext())
+		{
+			String fontName=(String) fontIterator.next();
+			style = workbook.createCellStyle();
+			style.setFont(fontMap.get(fontName));
+			styleMap.put(fontName, style);
+		}
+		HSSFDataFormat df;
+		style = workbook.createCellStyle();
+		style.setFont(fontMap.get(this.DEFAULT));
+		df = workbook.createDataFormat();
+		style.setDataFormat(df.getFormat("#.##"));
+		styleMap.put(TWODECIMALPOINTS, style);
+
+		style = workbook.createCellStyle();
+		style.setFont(fontMap.get(this.DEFAULT));
+		df = workbook.createDataFormat();
+		style.setDataFormat(df.getFormat("#"));
+		styleMap.put(INTEGER, style);
+		
+	}
+	
+	/**
+	 * Create the fonts that are going to be used in the styles. 
+	 */
+	private void createFonts()
+	{
+		HSSFFont font;
+		/* Hyperlink font. */
+		font = workbook.createFont();
+		font.setUnderline(HSSFFont.U_SINGLE);
+		font.setColor(HSSFColor.BLUE.index);
+    	fontMap.put(HYPERLINK, font);
+    	
+    	/* Default Font. */
+    	font = workbook.createFont();
+    	fontMap.put(DEFAULT, font);
+    	
+    	/* Bold Font. */
+    	font = workbook.createFont();
+    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+    	fontMap.put(BOLD_DEFAULT, font);
+    	
+    	/* Underline Font. */
+    	font = workbook.createFont();
+    	font.setUnderline(HSSFFont.U_SINGLE);
+    	fontMap.put(UNDERLINE_DEFAULT, font);
+    	
+    	/* Italic Font. */
+    	font = workbook.createFont();
+    	font.setItalic(true);
+    	fontMap.put(ITALIC_DEFAULT, font);
+    	
+    	/* Italic, underline Font. */
+    	font = workbook.createFont();
+    	font.setItalic(true);
+    	font.setUnderline(HSSFFont.U_SINGLE);
+    	fontMap.put(ITALIC_UNDERLINE_DEFAULT, font);
+
+    	/* Italic, bold Font. */
+    	font = workbook.createFont();
+    	font.setItalic(true);
+    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+    	fontMap.put(BOLD_ITALIC_DEFAULT, font);
+
+    	/* Italic, bold, underline Font. */
+    	font = workbook.createFont();
+    	font.setItalic(true);
+    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+    	font.setUnderline(HSSFFont.U_SINGLE);
+    	fontMap.put(BOLD_ITALIC_UNDERLINE_DEFAULT, font);
+
+    	/* Italic, bold, underline Font. */
+    	font = workbook.createFont();
+    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+    	font.setUnderline(HSSFFont.U_SINGLE);
+    	fontMap.put(BOLD_UNDERLINE_DEFAULT, font);
+    	
+    	/* 14 point font. */
+    	font = workbook.createFont();
+    	font.setFontHeight((short)14);
+    	fontMap.put(PLAIN_14, font);
+
+    	/* 14 point font. */
+    	font = workbook.createFont();
+    	font.setFontHeight((short)14);
+    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+    	fontMap.put(BOLD_14, font);
+    	
+    	/* 18 point font. */
+    	font = workbook.createFont();
+    	font.setFontHeight((short)14);
+    	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+    	fontMap.put(BOLD_18, font);
+	}
+	
+	/**
+	 * Get the style with name style.
+	 * @param style see above.
+	 * @return see above.
+	 */
+	private HSSFCellStyle getCellStyle(String style)
+	{
+		if(!styleMap.containsKey(style))
+			throw new IllegalArgumentException("No such style");
+		return styleMap.get(style);
+	}
+	
+	/**
+	 * Set the cell Style for cell at row and col
+	 * @param row see above.
+	 * @param col see above.
+	 * @param style see above.
+	 */
+	public void setCellStyle(int row, int col, String style)
+	{
+		HSSFCell cell = getCell(row, col);
+		setCellStyle(cell, style);
+	}
+	
+	/**
+	 * Set the cell Style for cell 
+	 * @param cell see above.
+	 * @param style see above.
+	 */
+	private void setCellStyle(HSSFCell cell, String style)
+	{
+		HSSFCellStyle cellStyle = getCellStyle(style);
+		cell.setCellStyle(cellStyle);
+	}
+	
+	/**
+	 * Set the cell Style for cells [startRow, startCol] to [endRow, endCol]
+	 * @param startRow see above.
+	 * @param startCol see above.
+	 * @param endRow see above.
+	 * @param endCol see above.
+	 * @param style see above.
+	 */
+	public void setCellStyle(int startRow, int startCol, int endRow, int endCol, 
+			String style)
+	{
+		HSSFCellStyle cellStyle = getCellStyle(style);
+		for(int y = startRow; y <= endRow; y++)
+			for(int x = startCol; x <= endCol ; x++)
+			{
+				HSSFCell cell = getCell(y, x);
+				cell.setCellStyle(cellStyle);
+			}
+	}
+	
+	/**
+	 * Add the font to the fontMap
+	 * @param fontName see above.
+	 * @param font add above.
+	 */
+	public void addFont(String fontName, HSSFFont font)
+	{
+		fontMap.put(fontName, font);
+	}
+
+	/**
+	 * Add the style to the styleMap
+	 * @param styleName see above.
+	 * @param style add above.
+	 */
+	public void addStyle(String styleName, HSSFCellStyle style)
+	{
+		styleMap.put(styleName, style);
+	}
+	
+	/**
+	 * Get all the cell styles available in the workbook. 
+	 * @return list of all cell styles in the map.
+	 */
+	public String[] getCellStyles()
+	{
+		return (String[])styleMap.keySet().toArray();
+	}
+	
+	/**
+	 * Get all the fonts available in the workbook. 
+	 * @return list of all fonts in the workbook.
+	 */
+	public String[] getFonts()
+	{
+		return (String[])fontMap.keySet().toArray();
+	}
+
 	/**
 	 * Writes the column headers to the spreadsheet.
 	 * 
@@ -237,7 +437,7 @@ public class ExcelWriter
 						elementRowCount, startColumn + columnCount);
 				element = getElement(tableModel.getValueAt(rowCount, 
 						columnCount), elementRowCount);
-				cell.setCellStyle(numberStyle);
+				setCellStyle(cell, TWODECIMALPOINTS);
 				if (isNumber(element))
 					cell.setCellValue(toNumber(element));
 				else

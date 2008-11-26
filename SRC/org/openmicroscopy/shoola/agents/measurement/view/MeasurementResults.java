@@ -498,13 +498,14 @@ class MeasurementResults
 		model.setAttributes(MeasurementAttributes.SHOWID, true);
 		model.getDrawingView().print(image.getGraphics());
 		model.setAttributes(MeasurementAttributes.SHOWID, false);
+		String imageName = "ROIImage";
 		try {
-			writer.addImageToWorkbook("ThumbnailImage", image); 
+			writer.addImageToWorkbook(imageName, image); 
 		} catch (Exception e) {
 			//TODO
 		}
 		int col = writer.getMaxColumn(0);
-		writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
+		writer.writeImage(0, col+1, 256, 256,	imageName);
 		writer.close();
 		return true;
 	}
