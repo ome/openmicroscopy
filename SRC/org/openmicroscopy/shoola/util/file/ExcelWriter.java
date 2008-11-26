@@ -36,11 +36,13 @@ import java.util.Map;
 import javax.swing.table.TableModel;
 
 //Third-party libraries
+import org.apache.poi.hssf.record.formula.functions.Hyperlink;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -67,19 +69,46 @@ import org.openmicroscopy.shoola.util.image.io.WriterImage;
  */
 public class ExcelWriter
 {	
+	/** Hyperlink fonts. */
 	final public static String HYPERLINK = "hyperlink";
+	
+	/** default font. */
 	final public static String DEFAULT = "default";
+
+	/** italic font. */
 	final public static String ITALIC_DEFAULT = "italic_default";
+	
+	/** bold font. */
 	final public static String BOLD_DEFAULT = "bold_default";
+	
+	/** underline font. */
 	final public static String UNDERLINE_DEFAULT = "underline_default";
+	
+	/** bold underline font. */
 	final public static String BOLD_UNDERLINE_DEFAULT = "bold_underline_default";
+	
+	/** bold italic font. */
 	final public static String BOLD_ITALIC_DEFAULT = "bold_italic_default";
+	
+	/** bold italic underline font. */
 	final public static String BOLD_ITALIC_UNDERLINE_DEFAULT = "bold_italic_underline_default";
+	
+	/** italic underline font. */
 	final public static String ITALIC_UNDERLINE_DEFAULT = "italic_underline_default";
+
+	/** plain 14pt. font. */
 	final public static String PLAIN_14 = "plain_14";
+	
+	/** bold 14pt font. */
 	final public static String BOLD_14 = "bold_14";
+	
+	/** bold, 18 pt font. */
 	final public static String BOLD_18 = "bold_18";
+	
+	/** two decimal point format. */
 	final public static String TWODECIMALPOINTS = "2 decimal points";
+	
+	/** integer number format. */
 	final public static String INTEGER = "integer";
 	
 	/** The default name of a sheet. */
@@ -112,6 +141,7 @@ public class ExcelWriter
 	/** The current sheet being worked on. */
 	private SheetInfo				currentSheet;
 	
+
 	/** Sets the different styles used in the output of the excel. */
 	private void setStyles()
 	{
@@ -145,9 +175,8 @@ public class ExcelWriter
 		df = workbook.createDataFormat();
 		style.setDataFormat(df.getFormat("#"));
 		styleMap.put(INTEGER, style);
-		
 	}
-	
+
 	/**
 	 * Create the fonts that are going to be used in the styles. 
 	 */
@@ -275,6 +304,25 @@ public class ExcelWriter
 				HSSFCell cell = getCell(y, x);
 				cell.setCellStyle(cellStyle);
 			}
+	}
+
+	/**
+	 * Add hyperlink to the cell.
+	 * @param row see above.
+	 * @param col see above.
+	 * @param description contents of cell.
+	 * @param URL address.
+	 */
+	public void addHyperlink(int row, int col, String description, String URL)
+	{
+		HSSFCell cell;
+	    cell = getCell(row, col);
+	    cell.setCellValue(new HSSFRichTextString(description));
+
+	    HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
+	    link.setAddress(URL);
+	    cell.setHyperlink(link);
+	    setCellStyle(cell, HYPERLINK);
 	}
 	
 	/**
