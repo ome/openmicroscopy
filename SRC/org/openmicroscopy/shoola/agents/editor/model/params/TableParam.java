@@ -112,4 +112,18 @@ public class TableParam
 		return super.toString() + " " + text;
 	}
 
+	/**
+	 * Overridden to include copying of the {@link #tableModel};
+	 * 
+	 * @see AbstractParam#cloneParam();
+	 */
+	public IParam cloneParam() 
+	{
+		IParam param = super.cloneParam();
+		
+		TableModel newTM = new MutableTableModel(tableModel);
+		((TableParam)param).tableModel = newTM;
+		
+		return param;
+	}
 }

@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
+import org.openmicroscopy.shoola.agents.editor.model.tables.FieldTableModelAdaptor;
 
 /**
  * This is the data object that occupies a node of the tree hierarchy. 
@@ -64,38 +65,38 @@ public class Field
 	/**
 	 * A property of this field. The attribute for an (optional) Name.
 	 */
-	public static final String 		FIELD_NAME = "fieldName";
+	public static final String 			FIELD_NAME = "fieldName";
 	
 	/**
 	 * A property of this field. 
 	 * Stores a color as a string in the form "r:g:b";
 	 */
-	public static final String 		BACKGROUND_COLOUR = "backgroundColour";
+	public static final String 			BACKGROUND_COLOUR = "backgroundColour";
 	
 	/**
 	 * A display property of this field.
 	 * getDisplayAttribute(TOOL_TIP_TEXT) should return a string composed
 	 * of field description and parameter values etc. 
 	 */
-	public static final String 		TOOL_TIP_TEXT = "toolTipText";
+	public static final String 			TOOL_TIP_TEXT = "toolTipText";
 	
 	/**
 	 * The list of Parameters, representing experimental variables for this 
 	 * field.
 	 */
-	private List<IFieldContent> 			fieldParams;
+	private List<IFieldContent> 		fieldParams;
 
 	/**
 	 * A map of the template attributes for this Field. 
 	 * eg Name, Description etc. 
 	 */
-	private HashMap<String, String> templateAttributesMap;
+	private HashMap<String, String> 	templateAttributesMap;
 	
 	/**
 	 * If the parameters of this field have multiple values, they can be 
 	 * represented as a {@link TableModel} here. 
 	 */
-	private TableModel 				tableData;
+	private TableModel 					tableData;
 	
 	/**
 	 * Default constructor.
@@ -116,22 +117,29 @@ public class Field
 	{
 		Field newField = new Field();
 		
+		// duplicate attributes
 		HashMap<String,String> newAtt = new HashMap<String,String>(getAllAttributes());
-		
 		newField.setAllAttributes(newAtt);
 		
+		IFieldContent newContent;
+		// duplicate parameters 
 		for (int i=0; i<getContentCount(); i++) {
-			
 			IFieldContent content = getContentAt(i);
 			if (content instanceof IParam) {
 				IParam param = (IParam)content;
-					IParam newP = FieldParamsFactory.cloneParam(param);
-				newField.addContent(newP);
+				newContent = param.cloneParam();
+				newField.addContent(newContent);
 			} else if (content instanceof TextContent) {
 				TextContent text = (TextContent)content;
-				TextContent newText = new TextContent(text);	// clone content
-				newField.addContent(newText);
+				newContent = new TextContent(text);	// clone content
+				newField.addContent(newContent);
 			}
+		}
+		
+		// if tableModelAdaptor exists for this field, add one to new field
+		if (getTableData() != null) {
+			TableModel tm = new FieldTableModelAdaptor(newField);
+			newField.setTableData(tm);
 		}
 		
 		return newField;

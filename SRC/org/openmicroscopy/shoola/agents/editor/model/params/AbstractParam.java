@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -272,5 +273,37 @@ public abstract class AbstractParam
 		}
 		
 		return (name == null ? "" : name);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * Returns a clone of this parameter. 
+	 * 
+	 * @see IParam#cloneParam()
+	 */
+	public IParam cloneParam() 
+	{
+		String paramType = getAttribute(AbstractParam.PARAM_TYPE);
+		IParam newParam = FieldParamsFactory.getFieldParam(paramType);
+		
+		// duplicate the attributes. 
+		String name;
+		String value;
+		Iterator<String> iterator = valueAttributesMap.keySet().iterator();
+		while(iterator.hasNext()) {
+			name = iterator.next();
+			value = getAttribute(name);
+			if (value != null)
+			newParam.setAttribute(name, value);
+		}
+		
+		// duplicate parameter values
+		int index = 0;
+		for (Object object : paramValues) 
+		{
+			newParam.setValueAt(index++, object);
+		}
+		
+		return newParam;
 	}
 }

@@ -68,7 +68,6 @@ public class FieldTableModelAdaptor
 	 */
 	public FieldTableModelAdaptor(IField field) {
 		this.field = field;
-		addEmptyRow();
 	}
 
 	/**

@@ -139,4 +139,13 @@ public interface IParam
 	 * @param index		The index to remove a value. 
 	 */
 	public void removeValueAt(int index);
+	
+	/**
+	 * Method to clone a parameter object. 
+	 * Subclasses should override this to copy any additional attributes 
+	 * that they have.
+	 * 
+	 * @return 		A clone of this parameter. 
+	 */
+	public IParam cloneParam();
 }

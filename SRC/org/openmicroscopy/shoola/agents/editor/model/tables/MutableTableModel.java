@@ -27,6 +27,7 @@ import java.util.ArrayList;
 //Java imports
 
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 //Third-party libraries
 
@@ -57,7 +58,7 @@ public class MutableTableModel
     /**
      * The 2-dimensional arrayList to hold the data.
      */
-    protected ArrayList<ArrayList<String>> 		data;
+    protected ArrayList<ArrayList<Object>> 		data;
 
     /**
      * Creates an instance of this class.
@@ -66,8 +67,38 @@ public class MutableTableModel
     public MutableTableModel() 
     {	
     	columnNames = new ArrayList<String>();
+    	data = new ArrayList<ArrayList<Object>>();
+    }
+    
+    /**
+     * Creates an instance of this table model, duplicating the data 
+     * in the TableModel argument. 
+     * NB. Objects are passed to Strings, to copy from one table to the other, 
+     * instead of copying the reference. 
+     * 
+     * @param tModel
+     */
+    public MutableTableModel(TableModel tModel)
+    {
+    	this();
     	
-    	data = new ArrayList<ArrayList<String>>();
+    	int rowCount = tModel.getRowCount();
+    	int colCount = tModel.getColumnCount();
+    	
+    	// populate column names from tModel
+    	for (int c=0; c<colCount; c++) {
+    		columnNames.add(tModel.getColumnName(c));
+		}
+    	
+    	// populate data from tModel
+    	ArrayList<Object> row;
+    	for (int r=0 ; r<rowCount ; r++) {
+    		row = new ArrayList<Object>();
+    		for (int c=0; c<colCount; c++) {
+    			row.add(tModel.getValueAt(r, c).toString());
+    		}
+    		data.add(row);
+    	}
     }
 
     /**
@@ -114,7 +145,7 @@ public class MutableTableModel
     public Object getValueAt(int row, int column) {
     	
     	if ((row < getRowCount()) && (column < getColumnCount())) {
-    		String value = data.get(row).get(column);
+    		Object value = data.get(row).get(column);
     		if (value == null) 
     			return "";
     		
@@ -151,7 +182,7 @@ public class MutableTableModel
      */
     public void addEmptyRow() 
     {
-    	ArrayList<String> newRow = new ArrayList<String>();
+    	ArrayList<Object> newRow = new ArrayList<Object>();
     	for (int i=0; i<getColumnCount(); i++) {
     		newRow.add(" ");
     	}
@@ -167,7 +198,7 @@ public class MutableTableModel
      */
     public void addEmptyRow(int addAtThisRow) 
     {
-    	ArrayList<String> newRow = new ArrayList<String>();
+    	ArrayList<Object> newRow = new ArrayList<Object>();
     	for (int i=0; i<getColumnCount(); i++) {
     		newRow.add(" ");
     	}
@@ -190,7 +221,7 @@ public class MutableTableModel
     {	
     	columnNames.add(colName);
     	
-    	for(ArrayList<String> row: data) {
+    	for(ArrayList<Object> row: data) {
     		row.add("");
     	}
     	
@@ -207,7 +238,7 @@ public class MutableTableModel
     	
     	// getColumnCount is now one smaller
     	int colCount = getColumnCount();
-    	for(ArrayList<String> row: data) {
+    	for(ArrayList<Object> row: data) {
     		row.remove(colCount);
     	}
     	fireTableStructureChanged();
