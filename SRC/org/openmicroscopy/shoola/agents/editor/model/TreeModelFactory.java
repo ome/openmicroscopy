@@ -243,24 +243,6 @@ public class TreeModelFactory
 		 
 		 field.addContent(new TextContent(description));
 		 
-		 // Field lock
-		 String lockLevel = allAttributes.get(DataFieldConstants.LOCK_LEVEL);
-		 if (lockLevel != null) {
-			 String userName = allAttributes.get
-			 		(DataFieldConstants.LOCKED_FIELD_USER_NAME);
-			 int locking;
-			 if (lockLevel.equals(DataFieldConstants.LOCKED_TEMPLATE)) {
-				 locking = Lock.TEMPLATE_LOCKED;
-			 } else {
-				 locking = Lock.FULLY_LOCKED;
-			 }
-			 Lock lock = new Lock(locking, userName);
-			 
-			 String utc = allAttributes.get(DataFieldConstants.LOCKED_FIELD_UTC);
-			 lock.setTimeStamp(utc);
-			 
-			 field.setLock(lock);
-		 }
 		 
 		 IParam param;
 		 // if there was a url set, add this as a link parameter. 

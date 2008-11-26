@@ -84,25 +84,12 @@ public class Field
 	 * field.
 	 */
 	private List<IFieldContent> 			fieldParams;
-	
-	/**
-	 * A reference to a lock that may be applied to this field to prevent
-	 * editing of some attributes or parameters. 
-	 */
-	private Lock 					fieldLock;
 
 	/**
 	 * A map of the template attributes for this Field. 
 	 * eg Name, Description etc. 
 	 */
 	private HashMap<String, String> templateAttributesMap;
-	
-	/**
-	 * A map of the display attributes for this Field. 
-	 * eg Description visible, 
-	 * Not saved.  
-	 */
-	private HashMap<String, String> displayAttributesMap;
 	
 	/**
 	 * If the parameters of this field have multiple values, they can be 
@@ -116,7 +103,6 @@ public class Field
 	public Field() 
 	{
 		templateAttributesMap = new HashMap<String, String>();
-		displayAttributesMap = new HashMap<String, String>();
 		fieldParams = new ArrayList<IFieldContent>();
 	}
 	
@@ -126,11 +112,8 @@ public class Field
 	 * Therefore, any subclasses should also manually override this method to 
 	 * copy any additional attributes they have.  
 	 */
-	public Object clone() 
+	public IField clone() 
 	{
-		
-		//Field newField = (Field)super.clone();
-		
 		Field newField = new Field();
 		
 		HashMap<String,String> newAtt = new HashMap<String,String>(getAllAttributes());
@@ -325,25 +308,6 @@ public class Field
 		
 		return params;
 	}
-
-	/**
-	 * Gets a display attribute (eg description visible)
-	 */
-	public String getDisplayAttribute(String name) 
-	{
-		if (TOOL_TIP_TEXT.equals(name)) return getToolTipText();
-		
-		return displayAttributesMap.get(name);
-	}
-
-	/**
-	 * Sets a display attribute. 
-	 * This will not be saved in the file, 
-	 */
-	public void setDisplayAttribute(String name, String value) 
-	{
-		displayAttributesMap.put(name, value);
-	}
 	
 	/**
 	 * Returns a String containing the field description, plus the 
@@ -367,36 +331,6 @@ public class Field
 		}
 		
 		return toolTipText;
-	}
-	
-	/**
-	 * Sets a lock on this field to prevent editing. 
-	 * @see #fieldLock
-	 * 
-	 * @param lock
-	 */
-	public void setLock(Lock lock)
-	{
-		fieldLock = lock;
-	}
-	
-	/**
-	 * Returns this field's lock (or null if no lock).
-	 * 
-	 * @return		see above
-	 */
-	public Lock getLock() { return fieldLock; }
-
-	/**
-	 * Implemented as specified by the {@link IField} interface.
-	 * 
-	 * @see IField#isFieldLocked()
-	 */
-	public boolean isFieldLocked() 
-	{
-		if (fieldLock == null)	return false;
-	
-		return (! (fieldLock.getLockLevel() == Lock.NOT_LOCKED));
 	}
 	
 	/**

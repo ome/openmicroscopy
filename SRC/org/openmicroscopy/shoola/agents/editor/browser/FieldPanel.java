@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
-import org.openmicroscopy.shoola.agents.editor.model.Lock;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.XMLFieldContent;
@@ -235,21 +234,7 @@ public class FieldPanel
 		nameLabel = new CustomLabel();
 		nameLabel.setBackground(null);
 		nameLabel.setOpaque(false);
-		
-		if (field.isFieldLocked()) {
-			Icon lockIcon = null;
-			Lock lock = field.getLock();
-			switch (lock.getLockLevel()) {
-			case Lock.FULLY_LOCKED:
-				lockIcon = iconManager.getIcon(IconManager.FULL_LOCK);
-				break;
-			case Lock.TEMPLATE_LOCKED:
-				lockIcon = iconManager.getIcon(IconManager.TEMPLATE_LOCK);
-				break;
-			}
-			nameLabel.setIcon(lockIcon);
-			nameLabel.setToolTipText(lock.toString());
-		}
+
 		
 		// A description label displays description below the field.
 		descriptionLabel = new CustomLabel();

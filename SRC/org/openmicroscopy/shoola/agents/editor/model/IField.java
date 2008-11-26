@@ -125,20 +125,6 @@ public interface IField
 	public String getToolTipText();
 	
 	/**
-	 * Returns true if the is a lock on this field.
-	 * 
-	 * @return		see above
-	 */
-	public boolean isFieldLocked();
-	
-	/**
-	 * Returns this field's lock (or null if no lock).
-	 * 
-	 * @return		see above
-	 */
-	public Lock getLock();
-	
-	/**
 	 * Returns a html-formatted string representation of this field. 
 	 * 
 	 * @return		see above.
