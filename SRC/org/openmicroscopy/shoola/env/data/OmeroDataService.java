@@ -35,6 +35,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -618,10 +619,23 @@ public interface OmeroDataService
 	 * @param plateID
 	 * @param userID
 	 * @return See above
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
 	public Collection loadPlateWells(long plateID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Deletes the collection of objects.
+	 * 
+	 * @param objects	The collection of objects to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public Object delete(Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

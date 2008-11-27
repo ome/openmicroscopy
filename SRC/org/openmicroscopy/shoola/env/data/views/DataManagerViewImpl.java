@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +32,14 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.DataObjectRemover;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
@@ -343,6 +346,27 @@ class DataManagerViewImpl
 									AgentEventListener observer)
 	{
 		BatchCallTree cmd = new PlateWellsLoader(plateID, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#delete(Collection, AgentEventListener)
+	 */
+	public CallHandle delete(Collection<DeletableObject> values, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new DataObjectRemover(values);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#delete(DeletableObject, AgentEventListener)
+	 */
+	public CallHandle delete(DeletableObject value, AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new DataObjectRemover(value);
 		return cmd.exec(observer);
 	}
   

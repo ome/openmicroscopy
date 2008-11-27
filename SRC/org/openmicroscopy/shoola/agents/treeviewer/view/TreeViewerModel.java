@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +61,7 @@ import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -389,6 +389,7 @@ class TreeViewerModel
 	 */
 	void fireDataObjectsDeletion(TreeImageDisplay node)
 	{
+		/*
 		state = TreeViewer.SAVE;
 		TreeImageDisplay parent = node.getParentDisplay();
 		DataObject object = (DataObject) node.getUserObject();
@@ -400,6 +401,7 @@ class TreeViewerModel
 		l.add(object);
 		currentLoader = new DataObjectRemover(component, l, data);
 		currentLoader.load();
+		*/
 	}
 
 	/**
@@ -412,6 +414,7 @@ class TreeViewerModel
 	 */
 	void fireDataObjectsDeletion(List nodes)
 	{
+		/*
 		state = TreeViewer.SAVE;
 		DataObject object;
 		Iterator i = nodes.iterator();
@@ -428,14 +431,6 @@ class TreeViewerModel
 					if (toRemove == null) toRemove = new HashSet<DataObject>();
 					toRemove.add(object);
 				} else {
-					/*
-					po = (DataObject) parent.getUserObject();
-					if (map == null) map = new HashMap<DataObject, Set>();
-					l = (Set) map.get(po);
-					if (l == null) l = new HashSet<DataObject>();
-					l.add(object);
-					map.put(po, l);
-					*/
 				}
 			}
 		}
@@ -447,8 +442,24 @@ class TreeViewerModel
 			//currentLoader = new DataObjectRemover(component, map);
 			//currentLoader.load();
 		}
+		*/
 	}
 
+	/**
+	 * Starts the asynchronous removal of the data and sets the state to 
+	 * {@link TreeViewer#SAVE}.
+	 * This method should be invoked to remove a collection of nodes of the
+	 * same type.
+	 * 
+	 * @param values The values to delete.
+	 */
+	void fireObjectsDeletion(List<DeletableObject> values)
+	{
+		state = TreeViewer.SAVE;
+		currentLoader = new DataObjectRemover(component, values);
+		currentLoader.load();
+	}
+	
 	/** 
 	 * Returns the {@link Finder} component.
 	 * 

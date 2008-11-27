@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
@@ -315,5 +317,25 @@ public interface DataManagerView
 	
 	public CallHandle loadPlateWells(long plateID, long userID, 
 								AgentEventListener observer);
+	
+	/**
+	 * Deletes the passed collection.
+	 * 
+	 * @param values	The collection of object to delete.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle delete(Collection<DeletableObject> values, 
+			AgentEventListener observer);
+	
+	/**
+	 * Deletes the passed object.
+	 * 
+	 * @param value		The object to delete.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle delete(DeletableObject value, 
+			AgentEventListener observer);
 	
 }

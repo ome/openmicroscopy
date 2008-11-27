@@ -80,7 +80,7 @@ public class DeleteCmd
             	objects.add(n);
             }
         }
-        if (objects.size() > 0) model.removeObjects(objects);
+        if (objects.size() > 0) model.deleteObjects(objects);
     }
     
 }

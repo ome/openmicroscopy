@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -64,7 +65,7 @@ public class DeleteAction
     /** 
      * Description of the action if the selected item is <code>null</code>. 
      */
-    private static final String DESCRIPTION = "Delete.";
+    private static final String DESCRIPTION = "Delete the selected items.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -108,6 +109,7 @@ public class DeleteAction
             description = DESCRIPTION;
             return;
         } 
+        /*
         if (browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
             name = NAME;
             putValue(Action.SHORT_DESCRIPTION, 
@@ -116,6 +118,7 @@ public class DeleteAction
             description = DESCRIPTION;
             return;
         }
+        */
         Object ho = selectedDisplay.getUserObject(); 
         /*
         if (ho instanceof ProjectData) {
@@ -171,7 +174,8 @@ public class DeleteAction
                     UIUtilities.formatToolTipText(DESCRIPTION));
         }
         */
-        if ((ho instanceof DatasetData) || (ho instanceof ProjectData)) {
+        if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
+        	(ho instanceof ImageData)) {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
         	else {

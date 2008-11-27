@@ -32,17 +32,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-
-
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import pojos.AnnotationData;
+import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * 
@@ -385,6 +382,16 @@ public class NullOmeroPojoService
      * @see OmeroDataService#updateExperimenter(ExperimenterData)
      */
 	public ExperimenterData updateExperimenter(ExperimenterData exp) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#delete(Collection)
+     */
+	public Object delete(Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

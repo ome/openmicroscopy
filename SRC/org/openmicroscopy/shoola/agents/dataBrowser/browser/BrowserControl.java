@@ -227,7 +227,9 @@ public class BrowserControl
     	}
     	if (b) { //multi selection
     		ImageDisplay previous = model.getLastSelectedDisplay();
-    		Class ref = previous.getHierarchyObject().getClass();
+    		if (previous == null) return;
+    		Object object = previous.getHierarchyObject();
+    		Class ref = object.getClass();
     		if (!ref.equals(d.getHierarchyObject().getClass())) return;
     		
     		Collection nodes = model.getSelectedDisplays();

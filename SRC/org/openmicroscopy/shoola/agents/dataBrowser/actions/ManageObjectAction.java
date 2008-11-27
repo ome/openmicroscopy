@@ -83,11 +83,11 @@ public class ManageObjectAction
     									"Paste the selected elements.";
     
     /** The default name of the action if the index is {@link #REMOVE}. */
-    private static final String NAME_REMOVE = "Remove";
+    private static final String NAME_REMOVE = "Delete";
     
     /** The description of the action if the index is {@link #REMOVE}. */
     private static final String DESCRIPTION_REMOVE = 
-    								"Remove the selected elements.";
+    								"Delete the selected elements.";
 	
     /** The default name of the action if the index is {@link #CUT}. */
     private static final String NAME_CUT = "Cut";
@@ -185,8 +185,10 @@ public class ManageObjectAction
 			     else setEnabled(false);
 				break;
 			case REMOVE:
-				if (ho instanceof ProjectData)
+				if ((ho instanceof ProjectData) || (ho instanceof DatasetData)
+						|| (ho instanceof ImageData)) {
 					setEnabled(model.isObjectWritable(ho));
+				/*
 				else if (ho instanceof DatasetData) {
 					if (parent == null) setEnabled(false);
 					else {
@@ -203,6 +205,7 @@ public class ManageObjectAction
 							setEnabled(model.isObjectWritable(ho));
 						else setEnabled(false);
 		    		}
+		    		*/
 				} else setEnabled(false);
 				break;
 			case CUT:

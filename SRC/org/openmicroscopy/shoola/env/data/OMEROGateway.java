@@ -888,36 +888,36 @@ class OMEROGateway
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
-	String convertPojos(Class nodeType)
+	Class convertPojos(Class nodeType)
 	{
 		if (nodeType.equals(ProjectData.class)) 
-			return Project.class.getName();
+			return Project.class;
 		else if (nodeType.equals(DatasetData.class)) 
-			return Dataset.class.getName();
+			return Dataset.class;
 		else if (nodeType.equals(ImageData.class)) 
-			return Image.class.getName();
+			return Image.class;
 		else if (nodeType.equals(BooleanAnnotationData.class) ||
 				nodeType.equals(ArchivedAnnotationData.class))
-			return BooleanAnnotation.class.getName();
+			return BooleanAnnotation.class;
 		else if (nodeType.equals(RatingAnnotationData.class) ||
 				nodeType.equals(LongAnnotationData.class)) 
-			return LongAnnotation.class.getName();
+			return LongAnnotation.class;
 		else if (nodeType.equals(TagAnnotationData.class)) 
-			return TagAnnotation.class.getName();
+			return TagAnnotation.class;
 		else if (nodeType.equals(TextualAnnotationData.class)) 
-			return TextAnnotation.class.getName();
+			return TextAnnotation.class;
 		else if (nodeType.equals(FileAnnotationData.class))
-			return FileAnnotation.class.getName();
+			return FileAnnotation.class;
 		else if (nodeType.equals(URLAnnotationData.class))
-			return UrlAnnotation.class.getName();
+			return UrlAnnotation.class;
 		else if (nodeType.equals(ScreenData.class)) 
-			return Screen.class.getName();
+			return Screen.class;
 		else if (nodeType.equals(PlateData.class)) 
-			return Plate.class.getName();
+			return Plate.class;
 		else if (nodeType.equals(WellData.class)) 
-			return Well.class.getName();
+			return Well.class;
 		else if (nodeType.equals(WellSampleData.class)) 
-			return WellSample.class.getName();
+			return WellSample.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 	
@@ -1124,7 +1124,7 @@ class OMEROGateway
 		try {
 			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
-				convertPojos(rootType), rootIDs, options));
+				convertPojos(rootType).getName(), rootIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
@@ -1160,7 +1160,7 @@ class OMEROGateway
 		try {
 			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
-					convertPojos(rootNodeType), leavesIDs, options));
+					convertPojos(rootNodeType).getName(), leavesIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find hierarchy for "+rootNodeType+".");
 		}
@@ -1203,8 +1203,8 @@ class OMEROGateway
 		try {
 			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(
-					service.findAnnotations(convertPojos(nodeType), nodeIDs, 
-							annotatorIDs, options));
+					service.findAnnotations(convertPojos(nodeType).getName(), 
+							nodeIDs, annotatorIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
@@ -1234,7 +1234,7 @@ class OMEROGateway
 		try {
 			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
-					convertPojos(nodeType), nodeIDs, options));
+					convertPojos(nodeType).getName(), nodeIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find images for "+nodeType+".");
 		}
@@ -1294,7 +1294,7 @@ class OMEROGateway
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
 			return PojoMapper.asDataObjects(service.getCollectionCount(
-					convertPojos(rootNodeType), p, ids, options));
+					convertPojos(rootNodeType).getName(), p, ids, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot count the collection.");
 		}
@@ -1748,6 +1748,8 @@ class OMEROGateway
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link";
+			sql +=" left outer join link.child as child";
+			sql +=" left outer join link.parent as parent";
 			ParametersI p = new ParametersI();
 			if (parentID > 0) {
 				sql += " where link.parent.id = :parentID";
@@ -1768,7 +1770,7 @@ class OMEROGateway
 					"parent ID: "+parentID);
 		}
 		return null;
-	}	
+	}		
 	
 	/**
 	 * Finds the link if any between the specified parent and child.
@@ -1943,6 +1945,9 @@ class OMEROGateway
 
 			String sql = "select link from "+table+" as link where " +
 			"link.child.id = :childID";
+			if (childID >= 0) {
+				
+			}
 			if (userID >= 0) {
 				sql += " and link.details.owner.id = :userID";
 				param.map.put("userID", omero.rtypes.rlong(userID));
@@ -2532,7 +2537,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			String klass = convertPojos(rootNodeType);
+			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName()) 
 					|| klass.equals(Dataset.class.getName()))
 				success = service.resetDefaultsInSet(klass, nodes);
@@ -2570,7 +2575,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			String klass = convertPojos(rootNodeType);
+			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()))
 				success = service.setOriginalSettingsInSet(klass, nodes);
@@ -2609,7 +2614,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			String klass = convertPojos(rootNodeType);
+			String klass = convertPojos(rootNodeType).getName();
 			Iterator i = nodes.iterator();
 			long id;
 			boolean b = false;
@@ -2972,7 +2977,7 @@ class OMEROGateway
 			List<String> supportedTypes = new ArrayList<String>();
 			i = types.iterator();
 			while (i.hasNext()) 
-				supportedTypes.add(convertPojos((Class) i.next()));
+				supportedTypes.add(convertPojos((Class) i.next()).getName());
 
 			List rType;
 			Map<Integer, Object> results = new HashMap<Integer, Object>();
@@ -3085,7 +3090,7 @@ class OMEROGateway
 			}
 			List<String> t = prepareTextSearch(terms, service);
 
-			service.onlyType(convertPojos(annotationType));
+			service.onlyType(convertPojos(annotationType).getName());
 			Set rType = new HashSet();
 			service.bySomeMustNone(t, null, null);
 			Object size = handleSearchResult(
@@ -3489,40 +3494,6 @@ class OMEROGateway
 			handleException(e, "Cannot remove the tag description.");
 		}
 		return new ArrayList();
-	}
-	
-	/**
-	 * Deletes the passed object using the {@link IDelete} service.
-	 * Returns an emtpy list of nothing prevent the delete to happen,
-	 * otherwise returns a list of objects preventing the delete to happen.
-	 * 
-	 * @param objectType The type of object to delete.
-	 * @param objectID   The id of the object to delete.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List<IObject> removeObject(Class objectType, Long objectID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IDeletePrx service = getDeleteService();
-			if (ImageData.class.equals(objectType)) {
-				List r = service.checkImageDelete(objectID, false);
-				if (r == null || r.size() == 0) {
-					service.deleteImage(objectID, true);
-					return r;
-				}
-				return r;
-			}
-		} catch (Exception e) {
-			handleException(e, "Cannot delete: "+objectType+" "+objectID);
-		}
-		
-		return new ArrayList<IObject>();
 	}
 	
 	/**
@@ -4027,4 +3998,81 @@ class OMEROGateway
 		l = getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
 	}
 	
+	
+	/**
+	 * Deletes the passed object using the {@link IDelete} service.
+	 * Returns an emtpy list of nothing prevent the delete to happen,
+	 * otherwise returns a list of objects preventing the delete to happen.
+	 * 
+	 * @param objectType The type of object to delete.
+	 * @param objectID   The id of the object to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<IObject> removeObject(Class objectType, Long objectID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IDeletePrx service = getDeleteService();
+			if (ImageData.class.equals(objectType)) {
+				List r = service.checkImageDelete(objectID, false);
+				if (r == null || r.size() == 0) {
+					service.deleteImage(objectID, true);
+					return r;
+				}
+				return r;
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot delete: "+objectType+" "+objectID);
+		}
+		
+		return new ArrayList<IObject>();
+	}
+	
+	/**
+	 * Deletes the specified image.
+	 * 
+	 * @param object The image to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Object deleteImage(Image object)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IDeletePrx service = getDeleteService();
+			service.deleteImage(object.getId().getValue(), true);
+		} catch (Exception e) {
+			handleException(e, "Cannot delete the image: "+object.getId());
+		}
+		
+		return new ArrayList<IObject>();
+	}
+	
+	/** 
+	 * Returns the list of object than can prevent the delete.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	List<IObject> checkImage(Image object)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IDeletePrx service = getDeleteService();
+			return service.checkImageDelete(object.getId().getValue(), true);
+		} catch (Exception e) {
+			handleException(e, "Cannot delete the image: "+object.getId());
+		}
+		return new ArrayList<IObject>();
+	}
 }

@@ -381,7 +381,7 @@ class OmeroMetadataServiceImpl
 	private void linkAnnotation(DataObject data, AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String ioType = gateway.convertPojos(data.getClass());
+		String ioType = gateway.convertPojos(data.getClass()).getName();
 		IObject ho = gateway.findIObject(ioType, data.getId());
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
@@ -445,7 +445,7 @@ class OmeroMetadataServiceImpl
 					
 					gateway.removeTagDescription(id, getUserDetails().getId());
 				}	
-				ioType = gateway.convertPojos(TagAnnotationData.class);
+				ioType = gateway.convertPojos(TagAnnotationData.class).getName();
 				ho = gateway.findIObject(ioType, id);
 				ModelMapper.unloadCollections(ho);
 				link = ModelMapper.createAnnotationAndLink(ho, description);
@@ -681,7 +681,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (annotation == null)
 			throw new IllegalArgumentException("DataObject cannot be null");
-		String ioType = gateway.convertPojos(type);
+		String ioType = gateway.convertPojos(type).getName();
 		IObject ho = gateway.findIObject(ioType, id);
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
@@ -795,7 +795,7 @@ class OmeroMetadataServiceImpl
 			} 
 		}
 		List l = null;
-		String klass = gateway.convertPojos(type);
+		String klass = gateway.convertPojos(type).getName();
 		if (ids.size() != 0)
 			l = gateway.findAnnotationLinks(klass, id, ids);
 		if (l != null) {

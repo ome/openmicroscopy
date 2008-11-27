@@ -47,24 +47,27 @@ public class DeletableObject
 {
 
 	/** The data object to delete. */
-	private DataObject	objectToDelete;
+	private pojos.DataObject	objectToDelete;
 	
 	/** 
 	 * Flag indicating to delete the objects contained in the object to delete,
 	 * the flag will be taken into account when the objec to delete is a 
 	 * container e.g. <code>Project</code>.
 	 */
-	private boolean		content;
+	private boolean				content;
 	
 	/** Flag indicating to delete the annotations. */
-	private boolean		attachment;
+	private boolean				attachment;
 	
 	/** 
 	 * Sets to <code>null</code> or <code>empty</code>
 	 * if all annotations have to be deleted,
 	 * otherwise contains the types of annotation to delete.
 	 */
-	private List<Class> attachmentTypes;
+	private List<Class> 		attachmentTypes;
+	
+	/** Collection of entities that blocked the delete action. */
+	private List				blocker;
 	
 	/**
 	 * Creates a new instance.
@@ -76,7 +79,7 @@ public class DeletableObject
 	 * @param attachment		Pass <code>true</code> to delete the 
 	 * 							annotations, <code>false</code> otherwise.
 	 */
-	public DeletableObject(DataObject objectToDelete, 
+	public DeletableObject(pojos.DataObject objectToDelete, 
 			boolean content, boolean attachment)
 	{
 		if (objectToDelete == null) 
@@ -91,7 +94,7 @@ public class DeletableObject
 	 * 
 	 * @param objectToDelete The object to delete.
 	 */
-	public DeletableObject(DataObject objectToDelete)
+	public DeletableObject(pojos.DataObject objectToDelete)
 	{
 		this(objectToDelete, false, false);
 	}
@@ -135,6 +138,20 @@ public class DeletableObject
 	 * 
 	 * @return See above.
 	 */
-	public DataObject getObjectToDelete() { return objectToDelete; }
+	public pojos.DataObject getObjectToDelete() { return objectToDelete; }
+	
+	/**
+	 * Sets the collection of objects that prevent the delete action.
+	 * 
+	 * @param blocker The value to set.
+	 */
+	public void setBlocker(List blocker) { this.blocker = blocker; }
+	
+	/**
+	 * Returns the collection of objects that prevent the delete action.
+	 * 
+	 * @return See above.
+	 */
+	public List getBlocker() { return blocker; }
 	
 }

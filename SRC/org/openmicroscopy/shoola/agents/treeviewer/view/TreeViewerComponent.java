@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -316,10 +317,8 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				//System.err.println(model.getState());
 				model.getSelectedBrowser().activate(); 
 				view.setOnScreen();
-				//view.toFront();
 				model.setState(READY);
 				break;
 			case DISCARDED:
@@ -507,6 +506,7 @@ class TreeViewerComponent
               "invoked in the READY or NEW state.");
       }
 		 */
+		/*
 		if (nodes == null) return;
 		boolean askQuestion = true;
 		Iterator i = nodes.iterator();
@@ -516,8 +516,8 @@ class TreeViewerComponent
 			if (node.getNumberOfItems() > 0) askQuestion = true;
 		}
 		if (askQuestion) {
-			DeleteDialog dialog = new DeleteDialog(view);
-			if (dialog.centerMsgBox() == DeleteDialog.YES_OPTION) {
+			DeleteBox dialog = new DeleteBox(view);
+			if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 				model.fireDataObjectsDeletion(nodes);
 				fireStateChange();
 			}
@@ -525,7 +525,7 @@ class TreeViewerComponent
 			model.fireDataObjectsDeletion(nodes);
 			fireStateChange();
 		}
-		
+		*/
 	}
 
 	/**
@@ -1915,6 +1915,58 @@ class TreeViewerComponent
 			model.browsePlate(node);
 		}
 		fireStateChange();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#deleteObjects(List)
+	 */
+	public void deleteObjects(List nodes)
+	{
+		/*
+      switch (model.getState()) {
+          case READY:
+          case NEW:  
+          case LOADING_THUMBNAIL:
+              break;
+          default:
+              throw new IllegalStateException("This method should only be " +
+              "invoked in the READY or NEW state.");
+      }
+		 */
+		if (nodes == null) return;
+		Iterator i = nodes.iterator();
+		TreeImageDisplay node;
+		Class type = null;
+		while (i.hasNext()) {
+			node = (TreeImageDisplay) i.next();
+			type = node.getUserObject().getClass();
+			break;
+		}
+		DeleteBox dialog = new DeleteBox(type, nodes.size(), view);
+		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
+			boolean ann = dialog.deleteAnnotations();
+			boolean content = dialog.deleteContents();
+			List<Class> types = dialog.getAnnotationTypes();
+			i = nodes.iterator();
+			Object obj;
+			List<DeletableObject> l = new ArrayList<DeletableObject>();
+			DeletableObject d;
+			while (i.hasNext()) {
+				node = (TreeImageDisplay) i.next();
+				obj = node.getUserObject();
+				if (obj instanceof DataObject) {
+					d = new DeletableObject((DataObject) obj, content, ann);
+					d.setAttachmentTypes(types);
+					l.add(d);
+				}
+			}
+			
+			if (l.size() > 0) {
+				model.fireObjectsDeletion(l);
+				fireStateChange();
+			}
+		}
 	}
 	
 }

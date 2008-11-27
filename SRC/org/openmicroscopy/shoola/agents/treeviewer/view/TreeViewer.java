@@ -773,4 +773,11 @@ public interface TreeViewer
 	 */
 	public void browse(TreeImageDisplay node);
 	
+	/**
+	 * Deletes the {@link DataObject}s hosted by the passed nodes.
+	 * 
+	 * @param nodes The nodes hosting the {@link DataObject}s to delete.
+	 */
+	public void deleteObjects(List nodes);
+	
 }
