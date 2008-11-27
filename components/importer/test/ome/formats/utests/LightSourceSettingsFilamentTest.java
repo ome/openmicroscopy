@@ -91,7 +91,7 @@ public class LightSourceSettingsFilamentTest extends TestCase
         List<Image> images = (List<Image>) store.getRoot();
         Image image = images.get(0);
         Instrument instrument = image.getSetup();
-        assertEquals(instrument.sizeOfLightSource(), 2);
+        assertEquals(2, instrument.sizeOfLightSource());
 	}
 	
 	public void testLightSourceSettingsCount()
@@ -108,7 +108,7 @@ public class LightSourceSettingsFilamentTest extends TestCase
         	assertNotNull(ls);
         	i++;
         }
-        assertEquals(i, 2);
+        assertEquals(2, i);
 	}
 	
 	public void testLightSourceSettingsLightSourceExists()

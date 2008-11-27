@@ -1066,13 +1066,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
         Image image = getImage(imageIndex);
-        Instrument instrument = getInstrument(imageIndex);
         log.debug(String.format(
-                "Setting ImageInstrumentRef[%s] image: '%d", instrumentRef, imageIndex));
-        if (instrument != null)
-        {
-            image.setSetup(instrument);
-        }
+                "Setting ImageInstrumentRef[%s] image: '%d'", instrumentRef, imageIndex));
+        image.setSetup((Instrument) lsidMap.get(instrumentRef));
     }
     
     /* ---- Pixels ---- */
@@ -1730,36 +1726,23 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         mapLSID(currentLSID);    
     }
     
-    //FIXME: horribly hacked. This needs pixelsindex from melissa before it will return 
-    // the correct DS - for now it just returns the last one.
     private DetectorSettings getDetectorSettings(int imageIndex, int logicalChannelIndex)
     {
     	setDetectorSettingsID(null, imageIndex, logicalChannelIndex);
-        
-        Image image = getImage(imageIndex);
-        
-    	Iterator <Pixels> pi = image.iteratePixels();
-     	while (pi.hasNext())
-    	{
-    		Pixels p = pi.next();
-    		Channel c = p.getChannel(logicalChannelIndex);
-    		LogicalChannel lc = c.getLogicalChannel();
-    		
-    		DetectorSettings ds;
-    		
-    		if (lc.getDetectorSettings() == null)
-    		{
-    			ds = new DetectorSettings();
-    			lc.setDetectorSettings(ds);
-        		lsidMap.put(currentLSID, ds);
-    		} else {
-    			ds = lc.getDetectorSettings();
-    		}
-    		
-    	}
-    	
-     	return (DetectorSettings) lsidMap.get(currentLSID);
 
+    	LogicalChannel lc = getLogicalChannel(imageIndex, 0, logicalChannelIndex);
+    	DetectorSettings ds = lc.getDetectorSettings();
+    	if (ds == null)
+    	{
+    		ds = new DetectorSettings();
+    		lc.setDetectorSettings(ds);
+    		lsidMap.put(currentLSID, ds);
+    	}
+    	else
+    	{
+    		ds = lc.getDetectorSettings();
+    	}
+    	return ds;
     }
     
     public void setDetectorSettingsBinning(String binning, int imageIndex, int logicalChannelIndex)
@@ -1844,8 +1827,15 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setInstrumentID(String id, int instrumentIndex)
     {
         log.debug(String.format(
-                "SKIPPED: setInstrumentID[%s] instrumentIndex[%d] will be set by OMERO",
-                id, instrumentIndex)); 
+                "setInstrumentID[%s] instrumentIndex[%d]",
+                id, instrumentIndex));
+        currentLSID = "ome.formats.importer.instrument." + instrumentIndex;
+        if (id != null)
+        {        
+        	lsidMap.put(id, getInstrument(instrumentIndex));
+        	log.debug(String.format("Mapping Instrument ID[%s]", id));
+        }
+        mapLSID(currentLSID); 
     }
     
     /**
@@ -1867,27 +1857,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // the database.
                 instrumentList.add(null);
             }
-	    Instrument i = new Instrument();
+            Instrument i = new Instrument();
             instrumentList.add(i);
-	    // FIXME: Haxxor!
-	    Image image = getImage(instrumentIndex);
-	    image.setSetup(i);
         }
-
-        // We're going to check to see if the instrument list has a null value and
-        // update it as required.
-        Instrument i = instrumentList.get(instrumentIndex);
-	log.error("Instrument: " + i);
-        if (i == null)
-        {
-	    log.error("Instrument is null, linking.");
-            i = new Instrument();
-            instrumentList.set(instrumentIndex, i);
-	    // FIXME: Haxxor!
-	    Image image = getImage(instrumentIndex);
-	    image.setSetup(i);
-        }
-        return i;
+        return instrumentList.get(instrumentIndex);
     }
 
     /* ---- Light Source Settings ---- */
@@ -2429,12 +2402,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if (id != null)
         {
             lsidMap.put(id, getDetector(instrumentIndex, detectorIndex));
-            
             log.debug(String.format(
                     "setDetectorID[%s] instrumentIndex[%d] detectorIndex[%d]",
                     id, instrumentIndex, detectorIndex));
         }
-        mapLSID(currentLSID);    
+        mapLSID(currentLSID);   
     }
 
     private Detector getDetector(int instrumentIndex, int detectorIndex)
@@ -2508,7 +2480,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         
         Detector detector = getDetector(instrumentIndex, detectorIndex); 
         if (detector != null)
-            detector.setManufacturer(model);
+            detector.setModel(model);
     }
 
     public void setDetectorOffset(Float offset, int instrumentIndex,
@@ -2560,14 +2532,13 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveID(String id, int instrumentIndex,
             int objectiveIndex)
     {
+        log.debug(String.format(
+                "setObjectiveID[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                id, instrumentIndex, objectiveIndex));    	
         currentLSID = "ome.formats.importer.objective." + instrumentIndex + "." + objectiveIndex;
         if (id != null)
         {
             lsidMap.put(id, getObjective(instrumentIndex, objectiveIndex));
-            
-            log.debug(String.format(
-                    "setObjectiveID[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                    id, instrumentIndex, objectiveIndex));
         }
         mapLSID(currentLSID);  
 
@@ -2587,24 +2558,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             lsidMap.put(currentLSID, objective);
             instrument.addObjective(objective);
         } 
-
-        Objective o = (Objective) lsidMap.get(currentLSID);
-        
-        //FIXME: hack here.. objective settings needs to be properly set up
-        
-        /*
-        for (Image i : imageList)
-        {
-        	if (i.getObjectiveSettings() == null)
-        	{
-	        	ObjectiveSettings os = new ObjectiveSettings();
-	        	os.setObjective(o);
-	        	i.setObjectiveSettings(os);
-        	}
-        }
-        */
-        
-        return o;
+        return (Objective) lsidMap.get(currentLSID);
     }
     
     public void setObjectiveCalibratedMagnification(
@@ -2717,6 +2671,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     
     public void setObjectiveSettingsID(String id, int imageIndex)
     {
+        log.debug(String.format(
+                "setObjectiveSettingsID[%s] imageIndex[%d]",
+                id, imageIndex));
         currentLSID = "ome.formats.importer.objectiveSettings." + imageIndex;
         if (id != null)
         {
@@ -2730,17 +2687,13 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         setObjectiveSettingsID(null, imageIndex);
         
         Image image = getImage(imageIndex);
-
-        ObjectiveSettings os;
-        
-        if (image.getObjectiveSettings() == null)
+        ObjectiveSettings os = image.getObjectiveSettings();
+        if (os == null)
         {
             os = new ObjectiveSettings();
             image.setObjectiveSettings(os);
-        } else {
-            os = image.getObjectiveSettings();
+            lsidMap.put(currentLSID, os);
         }
-        
         return os;
     }
 
