@@ -52,6 +52,6 @@
 	<classpathentry kind="lib" path="target/libs/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi.jar"/>
-	<classpathentry kind="lib" path="/Users/TheBrain/Documents/LOCI Software/artifacts/loci-common.jar"/>
+	<classpathentry kind="lib" path="target/libs/loci-common.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
