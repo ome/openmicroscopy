@@ -168,15 +168,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     private Map<Pixels, List<PlaneInfo>> planeInfoCache = null;
 
-    private Experimenter    _exp;
-
     private RawFileStore    rawFileStore;
 
     private Timestamp creationTimestamp;
 
     private String currentLSID;
-    
-    private enum OMETypes {SCREEN, PLATE, WELL, WELL_SAMPLE}
     
     private Server server;
     private Login login;
@@ -1898,34 +1894,33 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     private void setLightSourceSettingsID(String id, int imageIndex, int logicalChannelIndex)
     {
+        log.debug(String.format(
+                "setLightSourceSettingsID[%s] imageIndex[%d] logicalChannelIndex[%d]",
+                id, imageIndex, logicalChannelIndex));
         currentLSID = "ome.formats.importer.lightsourcesettings." + imageIndex + "." + logicalChannelIndex;
-        mapLSID(currentLSID);    
+        if (id != null)
+        {        
+        	lsidMap.put(id, getLightSourceSettings(imageIndex, logicalChannelIndex));
+        	log.debug(String.format("Mapping LightSourceSettings ID[%s]", id));
+        }
+        mapLSID(currentLSID); 
     }
     
     private LightSettings getLightSourceSettings(int imageIndex, int logicalChannelIndex)
     {
         setLightSourceSettingsID(null, imageIndex, logicalChannelIndex);
 
-        //FIXME This still needs to properly indicate pixels since there could be more then one pixels per image
-        // this is a fault in the model that needs fixing.
+        //FIXME This still needs to properly indicate pixels since there could 
+        // be more then one pixels per image this is a fault in the model that 
+        // needs fixing.
         LogicalChannel lc = getLogicalChannel(imageIndex, 0, logicalChannelIndex);
         LightSettings ls = lc.getLightSourceSettings();
-
-        if (lc.getLightSourceSettings() == null)
+        if (ls == null)
         {
             ls = new LightSettings();
             lc.setLightSourceSettings(ls);
+            lsidMap.put(currentLSID, ls);
         }
-        
-        /*
-        // FIXME Hack to ensure that the light settings has a light source.
-        if (ls.getLightSource() == null)
-        {
-            LightSource lightSource = getLightSource(0, 0);
-            ls.setLightSource(lightSource);
-        }
-        */
-
         return ls;
     }
     
@@ -1967,14 +1962,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public void setLightSourceID(String id, int instrumentIndex, int lightSourceIndex)
     {
+        log.debug(String.format(
+                "setLightSourceID[%s] instrumentIndex[%d] lightSourceIndex[%d]",
+                id, instrumentIndex, lightSourceIndex));
         currentLSID = "ome.formats.importer.lightsource." + instrumentIndex + "." + lightSourceIndex;
         if (id != null)
         {        
-            if (!lsidMap.containsKey(id))
-            {
-                lsidMap.put(id, getLightSource(instrumentIndex, lightSourceIndex));
-                log.debug(String.format("Mapping ID[%s]", id));
-            }
+        	lsidMap.put(id, getLightSource(instrumentIndex, lightSourceIndex));
+        	log.debug(String.format("Mapping LightSource ID[%s]", id));
         }
         mapLSID(currentLSID); 
     }
@@ -1994,7 +1989,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             instrument.addLightSource(mls);
         }
         
-        LightSource lightSource = null;
         Iterator<LightSource> iter = instrument.iterateLightSource();
         int i = 0;
         while (iter.hasNext())
@@ -2002,10 +1996,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             LightSource ls = iter.next();
             if (i == lightSourceIndex)
             {
-                lightSource = ls;
+                return ls;
             }
+            i++;
         }
-        return lightSource;
+        // This should never happen.
+        throw new RuntimeException(
+        		"Internal error, no light source linked with index: " + 
+        		lightSourceIndex);
     }
     
     public void setLightSourceManufacturer(String manufacturer, int instrumentIndex, int lightSourceIndex) 
@@ -2063,23 +2061,30 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
+        	// We've been called before any generic fields from the abstract
+        	// class (MetaLightSource) so we add a new concrete object to the
+        	// Instrument with the correct type.
             Laser laser = new Laser();
             laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
             laser.setType((LaserType) getEnumeration(LaserType.class, "Unknown"));
             lsidMap.put(currentLSID, laser);
             instrument.addLightSource(laser);
-        } else 
+        }
+        else 
         {
             if (lsidMap.get(currentLSID) instanceof MetaLightSource)
             {
+            	// The object in the LSID map is an abstract instance which
+            	// we now need to "upcast" to the correct contrete object.
                 Laser laser = new Laser();
                 laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
                 laser.setType((LaserType) getEnumeration(LaserType.class, "Unknown"));
                 
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
-                
                 mls.copyData(laser);
                 
+                // As there may be multiple instances of the abstract instance
+                // linked to multiple LSID keys we have to update each one.
                 for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
                 {
                     String key = entry.getKey();
@@ -2089,15 +2094,36 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                         log.debug(String.format(
                                 "associating key [%s] with a new laser",
                                 key));
-                        
                         lsidMap.put(key, laser);
                     }
                 }
                 
+                // Instrument has a link to this abstract instance so we need
+                // to replace it.
                 instrument.removeLightSource(mls);
-                
                 instrument.addLightSource(laser);
                 
+                // One or all of the Images linked to the Instrument may have
+                // LightSourceSettings that have a link to this abstract
+                // instance so we need to update them.
+                for (Image image : imageList)
+                {
+                	if (image.getSetup() == instrument)
+                	{
+                		Iterator<Channel> iter = 
+                			image.getPrimaryPixels().iterateChannels();
+                		while (iter.hasNext())
+                		{
+                			Channel c = iter.next();
+                			LogicalChannel lc = c.getLogicalChannel();
+                			LightSettings ls = lc.getLightSourceSettings();
+                			if (ls.getLightSource() == mls)
+                			{
+                				ls.setLightSource(laser);
+                			}
+                		}
+                	}
+                }
             }
         }  
         
@@ -2205,18 +2231,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown")); 
             lsidMap.put(currentLSID, arc);
             instrument.addLightSource(arc);
-        } else 
+        }
+        else 
         {
             if (lsidMap.get(currentLSID) instanceof MetaLightSource)
             {
+            	// The object in the LSID map is an abstract instance which
+            	// we now need to "upcast" to the correct contrete object.
                 Arc arc = new Arc();
-                arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown")); 
+                arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown"));
                 
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
-                
                 mls.copyData(arc);
                 
-                
+                // As there may be multiple instances of the abstract instance
+                // linked to multiple LSID keys we have to update each one.
                 for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
                 {
                     String key = entry.getKey();
@@ -2224,15 +2253,38 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                     if (value == mls)
                     {
                         log.debug(String.format(
-                                "associating [%s] with metalightsource object [%s]",
-                                key, currentLSID));
-                        
+                                "associating key [%s] with a new arc",
+                                key));
                         lsidMap.put(key, arc);
                     }
                 }
                 
+                // Instrument has a link to this abstract instance so we need
+                // to replace it.
                 instrument.removeLightSource(mls);
-                instrument.addLightSource(arc); 
+                instrument.addLightSource(arc);
+                
+                // One or all of the Images linked to the Instrument may have
+                // LightSourceSettings that have a link to this abstract
+                // instance so we need to update them.
+                for (Image image : imageList)
+                {
+                	if (image.getSetup() == instrument)
+                	{
+                		Iterator<Channel> iter = 
+                			image.getPrimaryPixels().iterateChannels();
+                		while (iter.hasNext())
+                		{
+                			Channel c = iter.next();
+                			LogicalChannel lc = c.getLogicalChannel();
+                			LightSettings ls = lc.getLightSourceSettings();
+                			if (ls.getLightSource() == mls)
+                			{
+                				ls.setLightSource(arc);
+                			}
+                		}
+                	}
+                }
             }
         }
         
@@ -2281,35 +2333,61 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown")); 
             lsidMap.put(currentLSID, filament);
             instrument.addLightSource(filament);
-        } else 
+        }
+        else 
         {
             if (lsidMap.get(currentLSID) instanceof MetaLightSource)
             {
-                Filament filament = new Filament();
-                
-                filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown")); 
-                
-                MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
-                
-                mls.copyData(filament);
-                
-                
-                for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
-                {
-                    String key = entry.getKey();
-                    IObject value = entry.getValue();
-                    if (value == mls)
-                    {
-                        log.debug(String.format(
-                                "associating [%s] with metalightsource object [%s]",
-                                key, currentLSID));
-                        
-                        lsidMap.put(key, filament);
-                    }
-                }
-                
-                instrument.removeLightSource(mls);
-                instrument.addLightSource(filament); 
+            	// The object in the LSID map is an abstract instance which
+            	// we now need to "upcast" to the correct contrete object.
+            	Filament filament = new Filament();
+            	filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown"));
+
+            	MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
+            	mls.copyData(filament);
+
+            	// As there may be multiple instances of the abstract instance
+            	// linked to multiple LSID keys we have to update each one.
+            	for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
+            	{
+            		String key = entry.getKey();
+            		IObject value = entry.getValue();
+            		if (value == mls)
+            		{
+            			log.debug(String.format(
+            					"associating key [%s] with a new filament",
+            					key));
+
+            			lsidMap.put(key, filament);
+            		}
+            	}
+
+            	// Instrument has a link to this abstract instance so we need
+            	// to replace it.
+            	instrument.removeLightSource(mls);
+            	instrument.addLightSource(filament);
+
+            	// One or all of the Images linked to the Instrument may have
+            	// LightSourceSettings that have a link to this abstract
+            	// instance so we need to update them.
+            	for (Image image : imageList)
+            	{
+            		if (image.getSetup() == instrument)
+            		{
+            			Iterator<Channel> iter = 
+            				image.getPrimaryPixels().iterateChannels();
+            			while (iter.hasNext())
+            			{
+            				Channel c = iter.next();
+            				LogicalChannel lc = c.getLogicalChannel();
+            				LightSettings ls = lc.getLightSourceSettings();
+            				if (ls.getLightSource() == mls)
+            				{
+            					ls.setLightSource(filament);
+            				}
+            			}
+            		}
+            	}
             }
         }
         

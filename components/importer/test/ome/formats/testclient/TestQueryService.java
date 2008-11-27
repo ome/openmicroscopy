@@ -77,6 +77,10 @@ public class TestQueryService implements IQuery
             enumeration.setId(-1L);
             setValue.invoke(enumeration, "1x1");
             l.add((T) enumeration);
+            enumeration = (IEnum) arg0.newInstance();
+            enumeration.setId(-1L);
+            setValue.invoke(enumeration, "HeNe");
+            l.add((T) enumeration);
             
             return l;
         }
