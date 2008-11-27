@@ -102,6 +102,9 @@ public class ExcelWriter
 	/** bold 14pt font. */
 	final public static String BOLD_14 = "bold_14";
 	
+	/** plain, 18 pt font. */
+	final public static String PLAIN_18 = "plain_18";
+	
 	/** bold, 18 pt font. */
 	final public static String BOLD_18 = "bold_18";
 	
@@ -235,18 +238,23 @@ public class ExcelWriter
     	
     	/* 14 point font. */
     	font = workbook.createFont();
-    	font.setFontHeight((short)14);
+    	font.setFontHeightInPoints((short)14);
     	fontMap.put(PLAIN_14, font);
 
     	/* 14 point font. */
     	font = workbook.createFont();
-    	font.setFontHeight((short)14);
+    	font.setFontHeightInPoints((short)14);
     	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
     	fontMap.put(BOLD_14, font);
     	
     	/* 18 point font. */
     	font = workbook.createFont();
-    	font.setFontHeight((short)14);
+    	font.setFontHeightInPoints((short)18);
+    	fontMap.put(PLAIN_18, font);
+
+    	/* 18 point font. */
+    	font = workbook.createFont();
+    	font.setFontHeightInPoints((short)18);
     	font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
     	fontMap.put(BOLD_18, font);
 	}
