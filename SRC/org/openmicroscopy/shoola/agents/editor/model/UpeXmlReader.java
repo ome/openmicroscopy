@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.MutableTableModel;
+import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 
 /** 
  * This class is used for reading 'UPE' Universal Protocol Exchange XML files,
@@ -199,6 +200,15 @@ public class UpeXmlReader {
 			}
 		}
 		
+		IXMLElement data = upeParam.getFirstChildNamed("data");
+		if (data != null) {
+			int index = 0;
+			List <IXMLElement> values = data.getChildrenNamed("value");
+			for (IXMLElement element : values) {
+				param.setValueAt(index++, element.getContent());
+			}
+		}
+		
 		return param;
 	}
 	
@@ -268,9 +278,13 @@ public class UpeXmlReader {
 		
 		// add parameters
 		List<IXMLElement> params = stepAttribute.getChildren();
+		IParam parameter;
+		boolean paramHasValues = false;	// do any parameters have value list?
 		for (IXMLElement param : params) {
 			if ("parameter".equals(param.getName())) {
-				field.addContent(getParameter(param));
+				parameter = getParameter(param);
+				if (parameter.getValueCount() > 0)	paramHasValues = true;
+				field.addContent(parameter);
 			} else 
 				
 			// there won't be any 'description' elements in strict UPE, but
@@ -279,6 +293,10 @@ public class UpeXmlReader {
 				String description = param.getContent();
 				field.addContent(new TextContent(description));
 			}
+		}
+		// if any of the parameters had multiple values, add a tableModel
+		if (paramHasValues) {
+			field.setTableData(TableModelFactory.getFieldTable(field));
 		}
 		
 		return field;

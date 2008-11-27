@@ -34,8 +34,6 @@ import net.n3.nanoxml.XMLElement;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -109,11 +107,22 @@ public class UPEEditorExport
 		
 		String paramType = param.getAttribute(AbstractParam.PARAM_TYPE);
 		
-		// Add name, necessity, value and default-value, (nulls not added)
+		// Add name, necessity, (null not added)
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
 		addChildContent(parameter, "name", name);
-		
 		addChildContent(parameter, "necessity", "OPTIONAL");
+		
+		// Add 'values' as a list
+		int valueCount = param.getValueCount();
+		if (valueCount > 0) {
+			String dataValue;
+			IXMLElement data = new XMLElement("data");
+			for (int i=0; i<valueCount; i++) {
+				dataValue = param.getValueAt(i) + "";
+				addChildContent(data, "value", dataValue);
+			}
+			parameter.addChild(data);
+		}
 		
 		String attValue;
 		// Depending on the type of parameter, set the param-type, 

@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.FieldTableModelAdaptor;
+import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 
 /**
  * This is the data object that occupies a node of the tree hierarchy. 
@@ -138,7 +139,7 @@ public class Field
 		
 		// if tableModelAdaptor exists for this field, add one to new field
 		if (getTableData() != null) {
-			TableModel tm = new FieldTableModelAdaptor(newField);
+			TableModel tm = TableModelFactory.getFieldTable(newField);
 			newField.setTableData(tm);
 		}
 		

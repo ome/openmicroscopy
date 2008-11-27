@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.FieldTableModelAdaptor;
+import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 
 /** 
  * This Edit adds a new {@link FieldTableModelAdaptor} to the field, so that
@@ -119,7 +120,7 @@ extends AbstractUndoableEdit {
 	 */
 	public AddFieldTableEdit(IField field, JTree tree, TreeNode node) {
 		
-		TableModel tm = new FieldTableModelAdaptor(field);
+		TableModel tm = TableModelFactory.getFieldTable(field);
 		
 		initialise(field, tree, node, tm);
 	}
