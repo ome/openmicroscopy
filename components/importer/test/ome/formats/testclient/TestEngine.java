@@ -13,8 +13,8 @@ public class TestEngine
         ServiceFactory sf = new TestServiceFactory();
         OMEROMetadataStore store = new OMEROMetadataStore(sf);
         wrapper.setMetadataStore(store);
-        wrapper.setId("/Users/TheBrain/Desktop/Images/FRAP-23.8.05/IAGFP-Noc02_R3D.dv");
-        //wrapper.setId("/workspace/Test Images/Zeiss (.lsm)/C1.lsm");
+        //wrapper.setId("/Users/TheBrain/test_images/dv/IAGFP-Noc01_R3D.dv");
+        wrapper.setId("/Users/TheBrain/test_images/lsm/C1.lsm");
         System.err.println("DONE BITCHES!");
     }
     

@@ -1072,7 +1072,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         Image image = getImage(imageIndex);
         Instrument instrument = getInstrument(imageIndex);
         log.debug(String.format(
-                "Setting ImageInstrumentRef[%d] image: '%d", instrumentRef, imageIndex));
+                "Setting ImageInstrumentRef[%s] image: '%d", instrumentRef, imageIndex));
         if (instrument != null)
         {
             image.setSetup(instrument);
@@ -1133,19 +1133,24 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             return;
         }
         p.setSizeC(sizeC);
+        
         /*
         COMMENTED OUT because of the need to handle metadata associate with
         channels **before** the number of channels has been set. May still be
         required, need to see what potential regressions may be.
+        */
         if (p.sizeOfChannels() != 0)
         {
             p.clearChannels();
         }
-        */
+        
+        
         for (int i = 0; i < sizeC; i++)
         {
             LogicalChannel lc =
                 getLogicalChannel(imageIndex, pixelsIndex, i);
+            
+            /*
             //FIXME: big fat ugly hack to get lightsources attached to *some* channel
             //Lightsettings still needs to be implemented in bio-formats for this to work correctly
             //Lightsettings method in bio-formats need to specify lightsourceindex and channelindex
@@ -1161,6 +1166,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                     lc.setLightSourceSettings(settings);
                 }
             }
+            */
         }
     }
 
@@ -1838,6 +1844,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /* ---- Instrument-based Methods ---- */
 
+
+    public void setInstrumentID(String id, int instrumentIndex)
+    {
+        log.debug(String.format(
+                "SKIPPED: setInstrumentID[%s] instrumentIndex[%d] will be set by OMERO",
+                id, instrumentIndex)); 
+    }
+    
     /**
      * Returns an Instrument from the internal indexed instrument list. The indexed 
      * instrument list is extended as required and the Instrument object itself is 
@@ -1902,12 +1916,15 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             ls = new LightSettings();
             lc.setLightSourceSettings(ls);
         }
+        
+        /*
         // FIXME Hack to ensure that the light settings has a light source.
         if (ls.getLightSource() == null)
         {
             LightSource lightSource = getLightSource(0, 0);
             ls.setLightSource(lightSource);
         }
+        */
 
         return ls;
     }
@@ -1952,10 +1969,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         currentLSID = "ome.formats.importer.lightsource." + instrumentIndex + "." + lightSourceIndex;
         if (id != null)
-        {
-            lsidMap.put(id, getLightSource(instrumentIndex, lightSourceIndex));
+        {        
+            if (!lsidMap.containsKey(id))
+            {
+                lsidMap.put(id, getLightSource(instrumentIndex, lightSourceIndex));
+                log.debug(String.format("Mapping ID[%s]", id));
+            }
         }
-        mapLSID(currentLSID);     
+        mapLSID(currentLSID); 
     }
  
     /* Based on the currentLSID we have stored, see if the lightsource is set, if not, set it */
@@ -1968,6 +1989,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
         {
             MetaLightSource mls = new MetaLightSource();
+            log.debug(String.format("New metalightsource object created with currentLSID: [%s]", currentLSID));
             lsidMap.put(currentLSID, mls);
             instrument.addLightSource(mls);
         }
@@ -2057,6 +2079,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
                 
                 mls.copyData(laser);
+                
+                for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
+                {
+                    String key = entry.getKey();
+                    IObject value = entry.getValue();
+                    if (value == mls)
+                    {
+                        log.debug(String.format(
+                                "associating key [%s] with a new laser",
+                                key));
+                        
+                        lsidMap.put(key, laser);
+                    }
+                }
                 
                 instrument.removeLightSource(mls);
                 
@@ -2180,6 +2216,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 
                 mls.copyData(arc);
                 
+                
+                for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
+                {
+                    String key = entry.getKey();
+                    IObject value = entry.getValue();
+                    if (value == mls)
+                    {
+                        log.debug(String.format(
+                                "associating [%s] with metalightsource object [%s]",
+                                key, currentLSID));
+                        
+                        lsidMap.put(key, arc);
+                    }
+                }
+                
                 instrument.removeLightSource(mls);
                 instrument.addLightSource(arc); 
             }
@@ -2242,6 +2293,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 
                 mls.copyData(filament);
                 
+                
+                for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
+                {
+                    String key = entry.getKey();
+                    IObject value = entry.getValue();
+                    if (value == mls)
+                    {
+                        log.debug(String.format(
+                                "associating [%s] with metalightsource object [%s]",
+                                key, currentLSID));
+                        
+                        lsidMap.put(key, filament);
+                    }
+                }
+                
                 instrument.removeLightSource(mls);
                 instrument.addLightSource(filament); 
             }
@@ -2285,6 +2351,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if (id != null)
         {
             lsidMap.put(id, getDetector(instrumentIndex, detectorIndex));
+            
+            log.debug(String.format(
+                    "setDetectorID[%s] instrumentIndex[%d] detectorIndex[%d]",
+                    id, instrumentIndex, detectorIndex));
         }
         mapLSID(currentLSID);    
     }
@@ -2307,6 +2377,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         //FIXME: This is a horrible hack until 
         Detector detector = (Detector) lsidMap.get(currentLSID);
         
+        /*
         for (Image i : imageList)
         {
         	Iterator <Pixels> pi = i.iteratePixels();
@@ -2324,6 +2395,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         		}
         	}
         }
+        */
         
         return detector;
     }
@@ -2411,7 +2483,16 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             int objectiveIndex)
     {
         currentLSID = "ome.formats.importer.objective." + instrumentIndex + "." + objectiveIndex;
-        mapLSID(currentLSID);   
+        if (id != null)
+        {
+            lsidMap.put(id, getObjective(instrumentIndex, objectiveIndex));
+            
+            log.debug(String.format(
+                    "setObjectiveID[%s] instrumentIndex[%d] objectiveIndex[%d]",
+                    id, instrumentIndex, objectiveIndex));
+        }
+        mapLSID(currentLSID);  
+
     }
 
     private Objective getObjective(int instrumentIndex, int objectiveIndex)
@@ -2433,6 +2514,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         
         //FIXME: hack here.. objective settings needs to be properly set up
         
+        /*
         for (Image i : imageList)
         {
         	if (i.getObjectiveSettings() == null)
@@ -2442,6 +2524,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 	        	i.setObjectiveSettings(os);
         	}
         }
+        */
         
         return o;
     }
@@ -2609,7 +2692,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public void setObjectiveSettingsObjective(String objective, int imageIndex)
     {
         log.debug(String.format(
-                "setting imageIndex[%d] objective[%f]",
+                "setting imageIndex[%d] objective[%s]",
                 imageIndex, objective));
         
         ObjectiveSettings os = getObjectiveSettings(imageIndex); 
@@ -3312,13 +3395,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "SKIPPED: setImageID[%s] imageIndex[%d] will be set by OMERO",
                 id, imageIndex));
-    }
-
-    public void setInstrumentID(String id, int instrumentIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setInstrumentID[%s] instrumentIndex[%d] will be set by OMERO",
-                id, instrumentIndex)); 
     }
 
     public void setLogicalChannelID(String id, int imageIndex,
