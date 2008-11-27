@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>Structure</title>
+</head>
+<body>
+<p>
+So let's move on to describe roles and relationships of the classes needed 
+to support the event bus mechanism. 
+The following UML class diagram introduces the static structure of the participant classes.
+TODO: ADD DIAGRAM
+      </p>
+<p>
+The <code>EventBus</code> interface defines how client classes access 
+the event bus service. A client object, typically an agent, uses the 
+<code>register</code> method in order to be notified of occurrences of the 
+specified event types - this is referred to as making subscriptions and the 
+client object plays the role of a subscriber. The <code>remove</code> 
+method cancels existing subscriptions. The <code>postEvent</code> method 
+allows a client object (again this is typically an agent) to fire an event and 
+put it on the event bus so that it can be delivered to all subscribers that 
+registered interest in that type of event - the object that fires the event 
+is referred to as being the publisher. For a subscriber to register interest in 
+a given event type, this type has to be made known to subscribers - this is 
+referred to as publishing an event. This happens (for the time being) at 
+design time: an event is "published" by adding its class to the events 
+package within the agents package.  
+</p>
+<p>
+Notice that (because of the <code>register</code>/<code>remove</code> methods) 
+the <code>EventBus</code> interface is seen by subscribers as a publisher. 
+To a publisher, it looks like a subscriber (<code>postEvent</code> method). 
+In this respect, the arrangement just described is similar to that of the 
+<i>Event Channel </i>variant of the Publisher-Subscriber pattern 
+<a href="biblio.html#pos_a1">[POSA1]</a>.
+</p>
+<p>
+The <code>AgentEvent</code> abstract class is the ancestor of all classes 
+that represent events. Its source field is meant to be a reference to the 
+publisher that fired the event - this is used by the event bus to avoid 
+dispatching an event back to its source if the event source is also a 
+subscriber that registered for that event.
+</p>
+<p>
+The <code>AgentEventListener</code> interface represents a subscriber 
+to the event bus. It has to be implemented by all subscribers in order to 
+register for event notification. It defines a callback method, 
+<code>eventFired</code>, that the event bus invokes in order to 
+dispatch an event. Notice that even though the only argument of this method is an 
+<code>AgentEvent</code>, the event bus only dispatches events whose type
+ is one of the event types that the subscriber registered interest in.  
+</p>
+<p>
+The <code>EventBusImpl</code> implements the <code>EventBus</code> 
+interface and is the pumping heart of the event propagation mechanism. 
+It maintains a de-multiplex table to keep track of what events have to be 
+dispatched to which subscribers. From an abstract standpoint, the 
+de-multiplex table is the set of couples:
+<pre class="code">
+DT = { (eventClass, subscriber) }
+</pre>
+where <code>eventClass</code> is a class representing a concrete event and 
+subscriber is an object that implements the <code>AgentEventListener</code> 
+interface and has registered interest in the event type defined by 
+<code>eventClass</code>. When the <code>postEvent</code> method is invoked, 
+the passed <code>AgentEvent e</code> is dispatched to all listeners in the 
+event notification
+list of <code>e</code>:
+<pre class="code">
+EvNotifList(e) = { (x, y) in DT |  typeof(e)==x }
+</pre>
+</p>
+<p>
+The obvious mechanism to implement the de-multiplex table is a map in which 
+each key is an event class and the corresponding value is a linked lists 
+containing all the subscribers for that event type.
+</p>
+<p>
+Notice that, even though a hierarchy of events can be defined by sub-classing 
+<code>AgentEvent</code>, event de-multiplexing and dispatching is not polymorphic. 
+This boils down to the fact that if event B's class extends event A's class 
+and subscriber S registers interest only in event A, then S will never be 
+notified of occurrences of event B.
+Also notice that, because we treat <code>DT</code> as a set, a subscriber 
+may not register twice for the same event - this would cause the subscriber 
+to be notified twice for every occurrence of that event, so no matter how 
+many times a subscriber tries to register for an event, it will only be
+added once to the corresponding event notification list. 
+</p>
+   </body>
+</html>

@@ -1,0 +1,57 @@
+<html>
+   <head>
+      <title>Dynamics</title>
+   </head>
+   <body>
+<p>The following UML sequence diagram outlines how a configuration
+file is parsed and the corresponding <code>Registry</code> is built. 
+[TODO:ADD DIAGRAM]
+
+</p>
+<p>
+First off, a <code>RegistryImpl</code> object is created with an empty map. 
+Then a <code>Parser</code> object is created passing the path to the 
+configuration file and the 
+<code>RegistryImpl</code> object. At this point <code>parse()</code> is 
+invoked on the <code>Parser</code> object. The configuration file is read 
+(the XML parsing is handled by built-in JAXP libraries) and, for each 
+configuration entry (that is, either <i>entry</i> or <i>struturedEntry</i> tag), 
+<code>createEntryFor() </code> is called to obtain a concrete
+<code>Entry</code> object, which will handle the conversion of the tag's 
+content into an object. This <code>Entry</code> object is then added to 
+the map kept by the 
+<code>RegistryImpl</code> object.  
+</p>
+<p>
+In order to find out which class is in charge of handling a given tag, 
+the <code>Entry</code> class maintains a map, <code>contentHandlers</code>, 
+whose keys are the predefined values used for the <i>type</i> attribute 
+("string",  "integer", "icons", etc.) and values are the fully qualified 
+names of the handler classes. Given a tag, <code>createEntryFor()</code> 
+uses the content of the <i>type</i> attribute (or "string" if this attribute 
+is missing) to look up the class name in the map and then creates an instance 
+by reflection - all <code>Entry</code>'s subclasses are supposed to have a 
+no-args constructor. If the class name is not found in the map, then the 
+content of the <i>type</i> attribute is assumed to be a valid fully qualified 
+name of an <code>Entry</code>'s subclass. This allows for agents to specify 
+custom handlers - as long as the handler extends <code>Entry</code> and has 
+a public no-args constructor. 
+</p>
+<p>
+Notice that the <code>RegistryImpl</code> object adds the couple 
+(<code>e.getName(), e</code>) to its map. Because the <code>Entry</code> 
+class takes care of setting the name field to the content of the 
+<i>name</i> attribute within the entry tag, the application code can 
+subsequently access <code>e</code> by specifying the value of the name attribute 
+to <code>lookup()</code>.
+<br/>
+The above outlined process is repeated for each configuration file so that 
+the configuration entries of each agent (and the container) are kept in 
+separate objects -- a 
+<code>RegistryImpl</code> is created every time. Because every agent is 
+then provided with its own <code>RegistryImpl</code> object, the configuration 
+entries are private to each agent. However, the container configures all 
+<code>RegistryImpl</code> objects with the same references to its services. 
+</p>
+</body>
+</html>
