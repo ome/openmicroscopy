@@ -1411,21 +1411,13 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	synchronized Map getThumbnailSet(List<Long> pixelsID, int maxLength)
+	synchronized Map getThumbnailSet(Set<Long> pixelsID, int maxLength)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		isSessionAlive();
 		try {
 			ThumbnailStore service = getThumbService();
-			Set<Long> ids = new HashSet<Long>();
-			Iterator<Long> i = pixelsID.iterator();
-			while (i.hasNext())  {
-				long id = i.next();
-				
-				ids.add(id);
-			}
-				
-			return service.getThumbnailByLongestSideSet(maxLength, ids);
+			return service.getThumbnailByLongestSideSet(maxLength, pixelsID);
 		} catch (Throwable t) {
 			if (thumbnailService != null) thumbnailService.close();
 			thumbnailService = null;

@@ -158,7 +158,7 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws RenderingServiceException
 	 */
-	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, 
+	public Map<Long, BufferedImage> getThumbnailSet(Set<Long> pixelsID, 
 			                                        int maxLength)
 		throws RenderingServiceException;
 	

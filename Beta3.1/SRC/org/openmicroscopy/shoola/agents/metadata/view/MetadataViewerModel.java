@@ -179,8 +179,8 @@ class MetadataViewerModel
 	void setRootObject(Object refObject)
 	{ 
 		this.refObject = refObject; 
-		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
+		browser.setRootObject(refObject);
 		data = null;
 	}
 	

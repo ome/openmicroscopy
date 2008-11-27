@@ -193,17 +193,6 @@ public class NullRenderingService
 	{
 		return null;
 	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#getThumbnailSet(List, int)
-     */
-	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, 
-			                                        int maxLength) 
-	    throws RenderingServiceException
-	{
-		return null;
-	}
 	
 	/**
      * No-op implementation
@@ -241,6 +230,17 @@ public class NullRenderingService
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return Boolean.TRUE;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getThumbnailSet(Set, int)
+     */
+	public Map<Long, BufferedImage> 
+		getThumbnailSet(Set<Long> pixelsID, int maxLength) 
+		throws RenderingServiceException
+	{
+		return null;
 	}
 
 }

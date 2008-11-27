@@ -219,9 +219,9 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#getThumbnailSet(List, int)
+	 * @see OmeroImageService#getThumbnailSet(Set, int)
 	 */
-	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, int max)
+	public Map<Long, BufferedImage> getThumbnailSet(Set<Long> pixelsID, int max)
 		throws RenderingServiceException
 	{
 		try {

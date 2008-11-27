@@ -504,7 +504,6 @@ class TagsUI
 			c.weightx = 0;
 
 		}
-
 		existingTags.add(UIUtilities.setTextFont("Tags to Add: "), c);
 		c.gridx++;
 		c.weightx = 0.5;
@@ -611,9 +610,6 @@ class TagsUI
 		JPanel content = new JPanel();
 		content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		content.add(pane);
-		//pane.setBackground(UIUtilities.BACKGROUND);
-		//content.setBackground(UIUtilities.BACKGROUND);
-		//content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		return content;
 	}
 	

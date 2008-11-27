@@ -29,9 +29,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -88,7 +90,7 @@ public class ThumbnailSetLoader
     private int						maxLength;
     
     /** Collection of list of pixels set to handle. */
-    private List<List> 				toHandle;
+    private List<Set> 				toHandle;
     
     /** Key, value pairs, Key is the pixels set id. */
     private Map<Long, ImageData> 	input;
@@ -171,7 +173,7 @@ public class ThumbnailSetLoader
      * 
      * @param ids The collection of pixels set id.
      */
-    private void loadThumbails(List ids) 
+    private void loadThumbails(Set<Long> ids) 
     {
     	try {
         	Map m = service.getThumbnailSet(ids, maxLength);
@@ -203,12 +205,12 @@ public class ThumbnailSetLoader
      */
     protected void buildTree()
     {
-    	Iterator<List> i = toHandle.iterator();
+    	Iterator<Set> i = toHandle.iterator();
     	String description = "Loading collection of thumbnails";
-    	List l;
+    	Set l;
     	while (i.hasNext()) {
 			l = i.next();
-			final List ids = l;
+			final Set ids = l;
 			add(new BatchCall(description) {
         		public void doCall() { loadThumbails(ids); }
         	});  
@@ -248,13 +250,13 @@ public class ThumbnailSetLoader
     	computeFetchSize();
     	this.maxLength = maxLength;
     	service = context.getImageService();
-    	toHandle = new ArrayList<List>();
+    	toHandle = new ArrayList<Set>();
     	input = new HashMap<Long, ImageData>();
     	notValid = new ArrayList();
     	Iterator<ImageData> i = images.iterator();
     	ImageData img;
     	int index = 0;
-    	List<Long> l = null;
+    	Set<Long> l = null;
     	PixelsData pxd = null;
     	
     	while (i.hasNext()) {
@@ -262,7 +264,7 @@ public class ThumbnailSetLoader
     		try {
             	pxd = img.getDefaultPixels();
             	input.put(pxd.getId(), img);
-    			if (index == 0) l = new ArrayList<Long>();
+    			if (index == 0) l = new HashSet<Long>();
     			if (index < fetchSize) {
     				l.add(pxd.getId());
     				index++;

@@ -427,7 +427,9 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
-    	if (model.getRefObject() instanceof ExperimenterData)  {
+    	Object ref = model.getRefObject();
+    	if (!(ref instanceof DataObject)) return;
+    	if (ref instanceof ExperimenterData)  {
     		toolBarTop.buildGUI();
     		userUI.buildUI();
     		userUI.repaint();
@@ -858,5 +860,5 @@ public class EditorUI
 		revalidate();
     	repaint();
 	}
-
+	
 }

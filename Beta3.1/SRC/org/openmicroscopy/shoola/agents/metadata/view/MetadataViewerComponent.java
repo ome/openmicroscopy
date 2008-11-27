@@ -486,6 +486,9 @@ class MetadataViewerComponent
 		DataObject dataObject = null;
 		if (data.size() == 1) dataObject = data.get(0);
 		if (dataObject != null && model.isSameObject(dataObject)) {
+			//firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
+			//setRootObject(model.getRefObject());
+			//setRootObject(dataObject);
 			setRootObject(model.getRefObject());
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
 		} else

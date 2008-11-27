@@ -327,9 +327,9 @@ public class UserManagerDialog
 		bar.setBorder(null);
 		//bar.add(mySelf);
 		//bar.add(Box.createRigidArea(H_SPACER_SIZE));
-		bar.add(cancel);
-		bar.add(Box.createRigidArea(H_SPACER_SIZE));
 		bar.add(apply);
+		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		bar.add(cancel);
 		return UIUtilities.buildComponentPanelRight(bar);
 	}
 	
