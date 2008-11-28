@@ -36,7 +36,6 @@ import java.util.Map;
 import javax.swing.table.TableModel;
 
 //Third-party libraries
-import org.apache.poi.hssf.record.formula.functions.Hyperlink;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;

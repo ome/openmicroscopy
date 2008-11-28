@@ -734,9 +734,10 @@ public class InputStrategy
 		double width=rx*2d;
 		double height=ry*2d;
 		
-		MeasureEllipseFigure ellipseFigure=
-				new MeasureEllipseFigure(x, y, width, height);
+		MeasureEllipseFigure ellipseFigure= new MeasureEllipseFigure();
+		ellipseFigure.setEllipse(x, y, width, height);
 		addAttributes(ellipseFigure, ellipseElement);
+		
 		return ellipseFigure;
 	}
 	

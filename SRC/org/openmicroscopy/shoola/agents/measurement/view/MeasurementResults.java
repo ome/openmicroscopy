@@ -489,7 +489,6 @@ class MeasurementResults
 		writer.openFile();
 		writer.createSheet("Measurement Results");
 		writer.writeTableToSheet(0, 0, results.getModel());
-		
 		BufferedImage originalImage = model.getRenderedImage();
 		BufferedImage image =  Factory.copyBufferedImage(originalImage);
 		

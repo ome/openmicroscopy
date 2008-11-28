@@ -628,6 +628,8 @@ public class OutputStrategy
 		XMLElement ellipseElement=new XMLElement(IOConstants.ELLIPSE_TAG);
 		svgElement.addChild(ellipseElement);
 		
+		
+		
 		double rx=fig.getEllipse().getWidth()/2d;
 		double ry=fig.getEllipse().getHeight()/2d;
 		double cx=fig.getEllipse().getCenterX();
