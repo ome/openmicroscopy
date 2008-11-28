@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
@@ -83,6 +84,9 @@ public class ExperimenterDataLoader
     /** Indicates that the root node is of type <code>Image</code>. */
     public static final int TAGS = 3;
     
+    /** Indicates that the root node is of type <code>Image</code>. */
+    public static final int ATTACHMENTS = 4;
+    
     /** 
      * Flag to indicate if the images are also retrieved.
      * Value set to <code>true</code> to retrieve the images,
@@ -119,6 +123,7 @@ public class ExperimenterDataLoader
             case PROJECT: return ProjectData.class;
             case DATASET: return DatasetData.class; 
             case TAGS: return TagAnnotationData.class;
+            case ATTACHMENTS: return FileAnnotationData.class;
         }
         return null;
     }
@@ -180,7 +185,7 @@ public class ExperimenterDataLoader
     public void load()
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
-    	if (rootNodeType.equals(TagAnnotationData.class)) {
+    	if (TagAnnotationData.class.equals(rootNodeType)) {
     		long id = -1;
     		if (parent != null) id = parent.getUserObjectId();
     		switch (tagLevel) {
@@ -191,7 +196,9 @@ public class ExperimenterDataLoader
 	
 				case TAG_LEVEL:
 					handle = dmView.loadTags(id, images, exp.getId(), this);
-			}
+			} 
+    	} else if (FileAnnotationData.class.equals(rootNodeType)) {
+    		handle = mhView.loadAttachments(exp.getId(), this);
     	} else {
     		if (parent == null) {
         		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
@@ -218,6 +225,10 @@ public class ExperimenterDataLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        if (FileAnnotationData.class.equals(rootNodeType)) {
+        	//viewer.setUploadedFiles((Collection) result);
+        	return;
+        }
         if (parent == null) 
         	viewer.setExperimenterData(expNode, (Collection) result);
         else {

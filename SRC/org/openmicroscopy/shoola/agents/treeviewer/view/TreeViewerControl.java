@@ -262,6 +262,9 @@ class TreeViewerControl
 	/** Identifies the <code>Launch Editor</code> in the menu. */
 	static final Integer    EDITOR = new Integer(43);
 	
+	/** Identifies the <code>Files Explorer</code> action in the View menu. */
+	static final Integer	FILES_EXPLORER = new Integer(44);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -296,6 +299,8 @@ class TreeViewerControl
 				new BrowserSelectionAction(model, Browser.TAGS_EXPLORER));
 		actionsMap.put(IMAGES_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.IMAGES_EXPLORER));
+		actionsMap.put(FILES_EXPLORER, 
+				new BrowserSelectionAction(model, Browser.FILES_EXPLORER));
 		actionsMap.put(FIND,  new FinderAction(model));
 		actionsMap.put(CLASSIFY, new ClassifyAction(model,
 				ClassifyAction.CLASSIFY));

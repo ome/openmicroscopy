@@ -296,14 +296,17 @@ public class IconManager
     /** The <code>Plate Annotated</code> icon. */
     public static int           PLATE_ANNOTATED = 80;
     
-    /** The <code>Plate Annotated</code> icon. */
+    /** The <code>Editor</code> icon. */
     public static int           EDITOR = 81;
+    
+    /** The <code>Files Explorer</code> icon. */
+    public static int           FILES_EXPLORER = 82;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 81;
+    private static int          MAX_ID = 82;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -394,6 +397,7 @@ public class IconManager
         relPaths[PLATE_ANNOTATED] ="plate_annotated16.png";
         relPaths[PLATE] ="plate16.png";
         relPaths[EDITOR] ="omeroEditorLink16.png";
+        relPaths[FILES_EXPLORER] ="omeroEditorLink16.png";
     }
     
     /** The sole instance. */

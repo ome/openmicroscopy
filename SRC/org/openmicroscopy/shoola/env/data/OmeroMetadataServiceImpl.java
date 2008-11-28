@@ -82,6 +82,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -455,6 +456,50 @@ class OmeroMetadataServiceImpl
 		}
 	}
 	
+	private Collection loadAllAttachments(Class type, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (type == null) {
+			//retrieve attachment to P/D and I
+			List all = new ArrayList();
+			Collection l;
+			l = gateway.findAllAnnotations(ProjectData.class, userID);
+			if (l != null && l.size() > 0) all.addAll(l);
+			l = gateway.findAllAnnotations(DatasetData.class, userID);
+			if (l != null && l.size() > 0) all.addAll(l);
+			l = gateway.findAllAnnotations(ImageData.class, userID);
+			if (l != null && l.size() > 0) all.addAll(l);
+			return getFileAnnotations(all);
+		} 
+		Collection l = gateway.findAllAnnotations(type, userID);
+		return getFileAnnotations(l);
+	}
+	
+	private List<AnnotationData> getFileAnnotations(Collection annotations)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<AnnotationData> result = new ArrayList<AnnotationData>();
+		if (annotations == null || annotations.size() == 0)
+			return result;
+		Iterator i = annotations.iterator();
+		AnnotationData data;
+		FileAnnotation fa;
+		long fileID;
+		OriginalFile of;
+		while (i.hasNext()) {
+			data = (AnnotationData) i.next();
+			if (data instanceof FileAnnotationData) {
+					fa = (FileAnnotation) data.asAnnotation();
+					fileID = fa.getFile().getId().getValue();
+					of = gateway.getOriginalFile(fileID);
+					if (of != null) 
+						((FileAnnotationData) data).setContent(of);
+					result.add(data);
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -479,27 +524,10 @@ class OmeroMetadataServiceImpl
 	public Collection loadAttachments(Class type, long id, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (id < 0 || type == null) return loadAllAttachments(type, userID);
+		
 		Collection annotations = loadStructuredAnnotations(type, id, userID);
-		List<AnnotationData> result = new ArrayList<AnnotationData>();
-		if (annotations == null || annotations.size() == 0)
-			return result;
-		Iterator i = annotations.iterator();
-		AnnotationData data;
-		FileAnnotation fa;
-		long fileID;
-		OriginalFile of;
-		while (i.hasNext()) {
-			data = (AnnotationData) i.next();
-			if (data instanceof FileAnnotationData) {
-					fa = (FileAnnotation) data.asAnnotation();
-					fileID = fa.getFile().getId().getValue();
-					of = gateway.getOriginalFile(fileID);
-					if (of != null) 
-						((FileAnnotationData) data).setContent(of);
-					result.add(data);
-			}
-		}
-		return result;
+		return getFileAnnotations(annotations);
 	}
 
 	/**
@@ -903,7 +931,8 @@ class OmeroMetadataServiceImpl
 	{
 		if (id < 0)
 			throw new IllegalArgumentException("Object id not valid.");
-
+		if (type == null) 
+			throw new IllegalArgumentException("No type specified.");
 		List<Long> ids = null;
 		if (userID != -1) {
 			ids = new ArrayList<Long>(1);
@@ -911,14 +940,8 @@ class OmeroMetadataServiceImpl
 		}
 		List<Long> objects = new ArrayList<Long>(1);
 		objects.add(id);
-		Map map;
-		if (type.equals(ImageData.class)) {
-			map = gateway.findAnnotations(type, objects, ids, 
-					new PojoOptionsI().map());
-		} else 
-			map = gateway.findAnnotations(type, objects, ids, 
-					new PojoOptionsI().map());
-		
+		Map map = gateway.findAnnotations(type, objects, ids, 
+						new PojoOptionsI().map());
 		return (Collection) map.get(id);
 	}
 

@@ -85,26 +85,26 @@ import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
 /** 
-* Implements the {@link TreeViewer} interface to provide the functionality
-* required of the tree viewer component.
-* This class is the component hub and embeds the component's MVC triad.
-* It manages the component's state machine and fires state change 
-* notifications as appropriate, but delegates actual functionality to the
-* MVC sub-components.
-*
-* @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
-* @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerWin
-* @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerControl
-*
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * Implements the {@link TreeViewer} interface to provide the functionality
+ * required of the tree viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
+ *
+ * @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
+ * @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerWin
+ * @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerControl
+ *
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 class TreeViewerComponent
  	extends AbstractComponent
  	implements TreeViewer
@@ -805,15 +805,17 @@ class TreeViewerComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Map browsers = model.getBrowsers();
 		Browser browser;
+		model.clearMetadataViewer();
+		DataBrowserFactory.discardAll();
+		view.removeAllFromWorkingPane();
+		//REview that code depending on the type of objects deleted.
 		Iterator i = browsers.keySet().iterator();
 		while (i.hasNext()) {
 			browser = (Browser) browsers.get(i.next());
 			browser.refreshTree();
 		}
-		DataBrowserFactory.discardAll();
-	    view.removeAllFromWorkingPane();
-		//model.setEditor(null);
 		onSelectedDisplay();
+		model.getMetadataViewer().setRootObject(null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

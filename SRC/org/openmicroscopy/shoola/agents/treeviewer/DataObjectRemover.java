@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -35,7 +33,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
 
 /** 
  * Removes data objects. Depending on the specified parameters, 

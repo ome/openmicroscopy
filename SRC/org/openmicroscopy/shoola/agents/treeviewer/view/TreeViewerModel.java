@@ -230,6 +230,9 @@ class TreeViewerModel
 		browser = BrowserFactory.createBrowser(Browser.TAGS_EXPLORER,
 				component, experimenter);
 		browsers.put(new Integer(Browser.TAGS_EXPLORER), browser);
+		browser = BrowserFactory.createBrowser(Browser.FILES_EXPLORER,
+				component, experimenter);
+		browsers.put(new Integer(Browser.FILES_EXPLORER), browser);
 		/*
 		browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
 				component, experimenter);
@@ -837,6 +840,13 @@ class TreeViewerModel
 			metadataViewer = MetadataViewerFactory.getViewer("", false,
 					MetadataViewer.VERTICAL_LAYOUT);
 		return metadataViewer;
+	}
+	
+	/** Clears the metadata viewer. */
+	void clearMetadataViewer()
+	{
+		if (metadataViewer != null) metadataViewer.discard();
+		metadataViewer = null;
 	}
 	
 	/**

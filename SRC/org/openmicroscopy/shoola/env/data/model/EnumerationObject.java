@@ -42,6 +42,7 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Medium;
 import omero.model.PhotometricInterpretation;
+import omero.model.Pulse;
 
 /** 
  * Wraps an Enumeration object or a String.
@@ -111,6 +112,8 @@ public class EnumerationObject
 			value = ((LaserMedium) object).getValue();
 		else if (object instanceof LaserType)
 			value = ((LaserType) object).getValue();
+		else if (object instanceof Pulse)
+			value = ((Pulse) object).getValue();
 		else if (object instanceof ArcType)
 			value = ((ArcType) object).getValue();
 		else if (object instanceof FilamentType)

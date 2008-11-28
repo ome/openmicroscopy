@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -83,7 +84,9 @@ public class RefreshExperimenterDataLoader
     private void checkClass(Class klass)
     {
         if (ProjectData.class.equals(klass) || ImageData.class.equals(klass) ||
-        	TagAnnotationData.class.equals(klass) ||
+        	TagAnnotationData.class.equals(klass) || 
+        	DatasetData.class.equals(klass) || 
+        	FileAnnotationData.class.equals(klass) ||
         	ScreenData.class.equals(klass))
             return;
         throw new IllegalArgumentException("Root node not supported.");

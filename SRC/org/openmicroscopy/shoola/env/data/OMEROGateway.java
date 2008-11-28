@@ -1212,6 +1212,39 @@ class OMEROGateway
 	}
 
 	/**
+	 * Finds the links if any between the specified parent and child.
+	 * 
+	 * @param type    The type of parent to handle.
+	 * @param userID  The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	Collection findAllAnnotations(Class type, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IQueryPrx service = getQueryService();
+			String table = getTableForAnnotationLink(type.getName());
+			if (table == null) return null;
+			String sql = "select link from "+table+" as link";
+			sql +=" left outer join link.child as child";
+			Parameters p = new ParametersI();
+			p.map = new HashMap<String, RType>();
+			p.map.put("uid", omero.rtypes.rlong(userID));
+			sql += " and link.details.owner.id = :uid";
+			return service.findAllByQuery(sql, p);
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the requested link for "+
+					"userID: "+userID);
+		}
+		return null;
+	}
+	
+	
+	/**
 	 * Retrieves the images contained in containers specified by the 
 	 * node type.
 	 * Wraps the call to the {@link IPojos#getImages(Class, List, Map)}
@@ -3832,6 +3865,7 @@ class OMEROGateway
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
         sb.append("left outer join fetch ds.detector as detector ");
         sb.append("left outer join fetch detector.type as dt ");
+        sb.append("left outer join fetch ds.binning as binning ");
         sb.append("left outer join fetch lss.lightSource as light ");
         sb.append("left outer join fetch light.type as lt ");
         sb.append("where channel.id = :id");

@@ -111,6 +111,16 @@ public interface MetadataHandlerView
 			AgentEventListener observer);
 
 	/**
+	 * Loads all the files uploaded to the server by the passed user
+	 * or all the uploaded files if the user is <code>-1</code>.
+	 * 
+	 * @param userID	The user's ID or <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAttachments(long userID, AgentEventListener observer);
+	
+	/**
 	 * Loads all the containers containing the specified object.
 	 * Retrieves the files if the userID is not <code>-1</code>.
 	 * 
@@ -350,6 +360,14 @@ public interface MetadataHandlerView
 	public CallHandle createDataObject(DataObject parent, DataObject data,
 							Collection children, AgentEventListener observer);
 	
+	/**
+	 * Loads the existing created by the specified user.
+	 * 
+	 * @param level		One of the constants defined by this class.
+	 * @param userID	The ID of the user.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle loadExistingTags(int level, long userID, 
 			                  AgentEventListener observer);
 	
