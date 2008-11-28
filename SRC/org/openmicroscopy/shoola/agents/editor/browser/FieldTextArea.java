@@ -277,13 +277,14 @@ public class FieldTextArea
     	// Get the parameter tokens, iterate through them...
     	List<TextToken> tags = htmlEditor.getElementsByTag
     											(FieldTextArea.PARAM_TAG);
+    	
     	String description;
     	int id;
     	
     	try {
     		for (TextToken param : tags) {
     			// is there any text between start of this tag and end of last?
-				description = d.getText(lastChar, param.getStart()-lastChar);
+    			description = d.getText(lastChar, param.getStart()-lastChar);
 				
 				if (description.trim().length() > 0) {
 					// if so, add a new text content object to the list
@@ -507,6 +508,33 @@ public class FieldTextArea
 		int start = htmlEditor.getSelectionStart();
 		int end = htmlEditor.getSelectionEnd();
 		
+		Document d = htmlEditor.getDocument();
+		
+		int nameEnd = 0;
+		// ignore the name token, but need to know when it ends (content begins)
+    	TextToken nameTag = getNameTag();
+    	if (nameTag != null) {
+    		nameEnd = nameTag.getEnd();	
+    		// need to skip new-line character
+    		try {
+				String nextChar = d.getText(nameEnd, 1);
+				if (nextChar.trim().length() == 0) 
+					nameEnd++;
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	
+    	// if selection is within the name tag, move to end of name before adding
+    	// parameter. (can't have parameters in name). 
+    	if (start < nameEnd) {
+    		start = nameEnd;
+    	}
+    	if (end < nameEnd) {
+    		end = nameEnd;
+    	}
+		
 		// edit the document text, inserting tags around the currently-selected
 		// text (or inserting the tag into the caret position, if no text
 		// is selected). 
@@ -520,10 +548,13 @@ public class FieldTextArea
 			selectedText = "param";		// need to insert something!
 		}
 		
-		Document d = htmlEditor.getDocument();
 		try {
 			// replace the selected text with the parameter 
 			d.remove(start, end - start);
+			
+			// if textEditor doesn't have focus, char = 0. 
+			if (start == 0) start++;	// to avoid adding into header! 
+			
 			d.insertString(start, selectedText, tagAttributes);
 		} catch (BadLocationException e1) {
 			e1.printStackTrace();
@@ -538,7 +569,6 @@ public class FieldTextArea
 		List<IFieldContent> newContent = getNewContent(param);
 		
 		// get the new name, just in case it changed...
-		TextToken nameTag = getNameTag();
 		String fieldName = (nameTag == null ? null : nameTag.getText());
 		
 		// replace the old content of the field with new content

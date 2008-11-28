@@ -45,12 +45,15 @@ import net.n3.nanoxml.XMLWriter;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * This class is for exporting OMERO.editor files as "UPE" Universal Protocol 
@@ -350,7 +353,7 @@ public class UPEexport {
 	 * @param treeModel			The OMERO.editor data model. 
 	 * @param file				The XML file to export to. 
 	 */
-	public void export(TreeModel treeModel, File file) 
+	public boolean export(TreeModel treeModel, File file) 
 	{
 		// start with the root of the XHTML document
 		IXMLElement protocolArchive = new XMLElement("protocol-archive");
@@ -397,6 +400,7 @@ public class UPEexport {
 		
 		Writer output;
 		try {
+			// output the XML file with suitable headers...
 			output = new FileWriter(file);
 			output.write(XML_HEADER + "\n");
 			output.write(UPE_STYLESHEET + "\n");
@@ -404,8 +408,17 @@ public class UPEexport {
 			XMLWriter xmlwriter = new XMLWriter(output);
 			xmlwriter.write(protocolArchive, true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			// Register error message...
+			Registry reg = EditorAgent.getRegistry();
+			reg.getLogger().error(this, e.toString());
+			
+			// ...and notify the user. Maybe output file doesn't exist? SaveAs?
+			UserNotifier un = reg.getUserNotifier();
+		    un.notifyInfo("File Failed to Save", 
+				"The file could not be saved for some reason. Try 'Save As...'");
+			return false;
 		}
+		return true;
 	}
 }

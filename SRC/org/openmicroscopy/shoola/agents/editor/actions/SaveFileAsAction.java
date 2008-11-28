@@ -91,12 +91,6 @@ public class SaveFileAsAction
 		filters.add(new HTMLFilter());
 	}
 	
-	protected void doExport(File file) 
-	{
-		UPEexport xmlExport = new UPEEditorExport();
-		xmlExport.export(model.getBrowser().getTreeModel(), file);
-	}
-	
 	/**
 	 * Brings up on screen the {@link FileChooser}.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
@@ -144,7 +138,7 @@ public class SaveFileAsAction
 				}
 			}
 			
-			doExport(file);
+			model.saveFileAs(file);
 		}
 	}
 

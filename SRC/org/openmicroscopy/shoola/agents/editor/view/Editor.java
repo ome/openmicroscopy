@@ -144,4 +144,13 @@ public interface Editor
 	 * If file is on server...
 	 */
 	public boolean saveCurrentFile();
+	
+	/**
+	 * Saves to the specified file, and remembers file location in model.
+	 * 
+	 * @param file		The location to save to (local file). 
+	 * 
+	 * @return			True if the saving was successful
+	 */
+	public boolean saveFileAs(File file);
 }

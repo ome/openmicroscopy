@@ -249,15 +249,14 @@ class EditorModel
 	 * If file is a local file, saves the file there. 
 	 * If file came from the server, saves the file there. 
 	 * If the file is not saved anywhere, returns false.
+	 * Delegates to {@link #saveFile(File)} to do the saving.
 	 */
-	boolean saveCurrentFile() {
-		
+	boolean saveCurrentFile() 
+	{
 		// if no fileID, file is local. 
 		if (fileID == 0) {
 			if ((fileToEdit != null) && (fileToEdit.exists())) {
-				UPEexport xmlExport = new UPEEditorExport();
-				xmlExport.export(getBrowser().getTreeModel(), fileToEdit);
-				return true;
+				return saveFile(fileToEdit);
 			} 
 			// didn't save. 
 			return false;
@@ -268,4 +267,35 @@ class EditorModel
 		}
 	}
 	
+	/**
+	 * Saves a file locally. If the save was successful, updates the current
+	 * file, fileName, etc so that future "Save" operations will write to it.
+	 * Delegates to {@link #saveFile(File)} to do the saving.  
+	 * 
+	 * @param file		The local file destination to save to. 
+	 * @return			True if the save was successful. 
+	 */
+	boolean saveFileAs(File file)
+	{
+		if (saveFile(file)) {
+			fileToEdit = file;
+			fileName = file.getName();
+			// indicates the current file is now local, even if it wasn't before.
+			fileID = 0;	
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	private boolean saveFile(File file)
+	{
+		UPEexport xmlExport = new UPEEditorExport();
+		return xmlExport.export(getBrowser().getTreeModel(), file);
+	}
 }

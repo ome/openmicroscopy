@@ -268,4 +268,19 @@ class EditorComponent
 		
 		return model.saveCurrentFile();
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * Saves to the specified file, and remembers file location in model
+	 * 
+	 * @see Editor#saveFileAs(File)
+	 */
+	public boolean saveFileAs(File file) {
+		
+		if (model.saveFileAs(file)) {
+			view.setTitle(model.getFileName());
+			return true;
+		}
+		return false;
+	}
 }

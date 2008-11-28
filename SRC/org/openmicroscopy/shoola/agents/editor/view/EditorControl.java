@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.editor.actions.NewBlankFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
-import org.openmicroscopy.shoola.agents.editor.actions.SaveUPEFileAction;
 
 /** 
  * The {@link Editor}'s controller. 

@@ -237,11 +237,13 @@ public class HtmlContentEditor
 		int caret = getCaretPosition();
 		super.setText(text);
 		
+		
 		try {
 			setCaretPosition(caret);
 		} catch (IllegalArgumentException ex) {
 			setCaretPosition(0);
 		}
+		
 	}
 	
 	/**
