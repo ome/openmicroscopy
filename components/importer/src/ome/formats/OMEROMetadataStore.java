@@ -356,10 +356,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if (klass == null)
             throw new NullPointerException("Expecting not-null klass.");
         if (value == null)
+        {
+            log.warn("Not performing query for enumeration " + klass +
+                     " with value of null.");
             return null;
+        }
         if (value.length() == 0)
+        {
             log.warn("Not performing query for enumeration " + klass +
                      " with value of zero length.");
+            return null;
+        }
         
 
         if (!enumCache.containsKey(klass))
