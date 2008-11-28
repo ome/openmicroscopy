@@ -32,35 +32,59 @@ import path as pathModule
 # If any platform-specific stuff in the imported library fails an exception will be
 # raised, a further sanity check.
 #
-supported = { 'MACOS_10_5+'  : 'Mac-10-5-Monitor', 
-              'LINUX_2_6_13+': 'Linux-2-6-13-Monitor', 
-              'WIN_XP'       : 'Win-XP-Monitor', 
+supported = { 'MACOS_10_5+'                : 'Mac-10-5-Monitor', 
+              'LINUX_2_6_13+pyinotify_0_7' : 'Pyinotify-0-7-Monitor', 
+              'LINUX_2_6_13+pyinotify_0_8' : 'Pyinotify-0-8-Monitor', 
+              'WIN_XP'                     : 'Win-XP-Monitor', 
             }
             
 current = 'UNKNOWN'
+errorString = 'Unknown error'
 import platform
 
 # Determine the OS, then the version of that OS
-if platform.system() == 'Darwin':
+system = platform.system()
+if system == 'Darwin':
     version = platform.mac_ver()[0].split('.')
     if  int(version[0]) == 10 and int(version[1]) >= 5:
         current = 'MACOS_10_5+'
-elif platform.system() == 'Linux':
+    else:
+        errorString = "Mac Os 10.5 or above required. You have: %s" % str(platform.mac_ver()[0])
+        
+elif system == 'Linux':
     kernel = platform.platform().split('-')[1].split('.')
     if int(kernel[0]) == 2 and int(kernel[1]) == 6 and int(kernel[2]) >= 13:
-        current = 'LINUX_2_6_13+'
-elif platform.system() == 'Windows':
+        import pkg_resources
+        try: 
+            pkg_resources.require("pyinotify>=0.8.0")
+            current = 'LINUX_2_6_13+pyinotify_0_8'
+        except pkg_resources.DistributionNotFound:
+            errorString = "Pyinotify 0.7 or above required. No pyinotify found."
+        except pkg_resources.VersionConflict:
+            try:
+                pkg_resources.require("pyinotify>=0.7.0")
+                current = 'LINUX_2_6_13+pyinotify_0_7'
+            except pkg_resources.VersionConflict:
+                errorString = "Pyinotify 0.7 or above required. Lower version found."
+    else:
+        errorString = "Linux kernel 2.6.13 or above required. You have: %s" % str(platform.platform().split('-')[1])
+        
+elif system == 'Windows':
     version = platform.platform().split('-')[1]
     if version == 'XP':
         current = 'WIN_XP'
-
+    else:
+        errorString = "Windows XP required. You have: %s" % str(version)
+else:
+    errorString = "Unsupported platform: %s" % system
+    
 # Now try to import the correct module
 try:
     Monitor = __import__(supported[current])            
 except KeyError:
-    raise Exception("OS and/or version not supported by OMERO.fs")
+    raise Exception(errorString)
 except Exception, e:
-    raise Exception("OS libraries required by OMERO.fs not available: " + str(e))
+    raise Exception("Libraries required by OMERO.fs failed to load: " + str(e))
 
 import monitors
 
@@ -88,6 +112,9 @@ class MonitorServerI(monitors.MonitorServer):
         self.monitors = {}
         #: Dictionary of MonitorClientI proxies by Id
         self.proxies = {}
+        #: Dictionary of fileId proxies by sha1
+        self.sha1ToFileId = {}
+                    
         
 
     """
@@ -134,8 +161,8 @@ class MonitorServerI(monitors.MonitorServer):
         try:
     	    self.monitors[monitorId] = Monitor.Monitor(eType, pathString, pMode, whitelist, blacklist, self, monitorId)
         except Exception, e:
-    		log.error('Failed to create monitor: ' + str(e))
-        	raise monitors.OmeroFSError('Failed to create monitor: ' + str(e))       
+            log.error('Failed to create monitor: ' + str(e))
+            raise monitors.OmeroFSError('Failed to create monitor: ' + str(e))       
 
         self.proxies[monitorId] = proxy    
 
@@ -632,24 +659,31 @@ class MonitorServerI(monitors.MonitorServer):
         	raise monitors.OmeroFSError('File ID  ' + str(fileId) + ' not on this FSServer')       
     
         try:
-            file = open(pathString, 'rb')
+            sha1 = self._getSHA1(pathString)
         except Exception, e:
-    		log.error('Failed to open file ' + pathString + ' : ' + str(e))
-        	raise monitors.OmeroFSError('Failed to open file ' + pathString + ' : ' + str(e))       
+    		log.error('Failed to get SHA1 digest  ' + pathString + ' : ' + str(e))
+        	raise monitors.OmeroFSError(str(e))       
 
-        digest = hashlib.sha1()
-        try:
-            block = file.read(1024)
-            while block:
-                digest.update(block)
-                block = file.read(1024)
-        except Exception, e:
-    		log.error('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))
-        	raise monitors.OmeroFSError('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))       
-        finally:
-            file.close()
+        return sha1
         
-        return digest.hexdigest()
+    def getFileId(self, sha1, current=None):
+        """
+            Returns the fileID given a sha1 digest for a file.
+
+            :Parameters:
+                sha1 : string
+                    A sha 1 hexdigest.
+
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+
+                    :return: fileId
+                    :rtype: string
+
+        """
+        pass
+        
 
     def readBlock(self, fileId, offset, size, current=None):
         """
@@ -690,7 +724,30 @@ class MonitorServerI(monitors.MonitorServer):
     
         return bytes      
        
-    
+    def _getSHA1(self, pathString):
+        """docstring for _getSHA1"""
+        try:
+            file = open(pathString, 'rb')
+        except Exception, e:
+            log.error('Failed to open file ' + pathString + ' : ' + str(e))
+            raise Exception('Failed to open file ' + pathString + ' : ' + str(e))       
+
+        digest = hashlib.sha1()
+        try:
+            block = file.read(1024)
+            while block:
+                digest.update(block)
+                block = file.read(1024)
+        except Exception, e:
+    		log.error('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))
+        	raise Exception('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))       
+        finally:
+            file.close()
+
+        return digest.hexdigest()
+
+
+   
     def _getNextMonitorId(self):
         """
             Return next monitor ID and increment.
