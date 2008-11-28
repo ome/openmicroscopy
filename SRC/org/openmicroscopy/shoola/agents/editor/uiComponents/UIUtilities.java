@@ -165,4 +165,18 @@ public class UIUtilities {
 		return (n == JOptionPane.OK_OPTION);
 	}
 	
+	/**
+	 * Convenience method to show a confirmation dialog. 
+	 * Returns true if the user hits "OK".
+	 * 
+	 * @param title			The dialog title
+	 * @param message		The message to display
+	 * @return
+	 */
+	public static void showMessageDialog(String title, String message) 
+	{
+		JOptionPane.showMessageDialog(null, message, title,
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+	
 }

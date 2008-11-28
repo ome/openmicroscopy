@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.SaveUPEFileAction 
+ * org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,22 +22,22 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
-import java.io.File;
-
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.model.UPEEditorExport;
-import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
-
 //Java imports
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 /** 
- * This is the Action for Saving a 'UPE' Universal Protocol Exchange XML file 
- * to the local machine. 
+ * This Action allows users to choose a local 
+ * location to save an OMERO.editor file. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -47,22 +47,44 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
  * </small>
  * @since OME3.0
  */
-public class SaveUPEFileAction 
-	extends SaveFileAction 
+public class SaveFileAction 
+	extends EditorAction
 {
 
-	public SaveUPEFileAction(Editor model) {
+	/** The description of the action. */
+	private static final String 	NAME = "Save File";
+
+	/** The description of the action. */
+	private static final String 	DESCRIPTION = 
+		"Save the current file.";
+
+	/** Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public SaveFileAction(Editor model)
+	{
 		super(model);
-		
-		setName("Save as UPE");
-		setDescription("Save as a 'Universal Protocol Exchange' XML file");
+		setEnabled(true);
+		setName(NAME);
+		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_ICON);
 	}
-	
-	protected void doExport(File file) 
+
+	/**
+	 * Brings up on screen the {@link FileChooser}.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) 
 	{
-		UPEexport xmlExport = new UPEEditorExport();
-		xmlExport.export(model.getBrowser().getTreeModel(), file);
+		// returns true if file exists, is not null etc. 
+		if (model.saveCurrentFile()) {
+			org.openmicroscopy.shoola.agents.editor.uiComponents.
+					UIUtilities.showMessageDialog("File Saved", "File Saved");
+			// otherwise, need to Save As...
+		} else {
+			Action saveAs = new SaveFileAsAction(model);
+			saveAs.actionPerformed(e);
+		}
 	}
-	
 }

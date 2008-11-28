@@ -136,4 +136,12 @@ public interface Editor
 	 * Tells this editor to display a new blank file for user to start editing
 	 */
 	public void setBlankFile();
+	
+	/**
+	 * Saves the currently-edited file to the location it came from (as defined
+	 * in the model). 
+	 * If the current file is local, saves there, overwriting the old file. 
+	 * If file is on server...
+	 */
+	public boolean saveCurrentFile();
 }

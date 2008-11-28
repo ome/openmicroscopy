@@ -64,8 +64,8 @@ class EditorToolBar
 		bar.setRollover(true);
 		bar.setBorder(null);
 		addAction(EditorControl.OPEN_LOCAL_FILE, bar);
-		// addAction(EditorControl.SAVE_FILE_LOCALLY, bar);
-		addAction(EditorControl.SAVE_UPE_FILE, bar);
+		addAction(EditorControl.SAVE_FILE, bar);
+		addAction(EditorControl.SAVE_FILE_AS, bar);
 		addAction(EditorControl.NEW_BLANK_FILE, bar);
 		return bar;
 	}

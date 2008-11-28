@@ -49,6 +49,7 @@ import net.n3.nanoxml.XMLParserFactory;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
@@ -67,6 +68,8 @@ import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.util.Ontologies;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * A Factory for creating a TreeModel from an XML editor file. 
@@ -463,6 +466,8 @@ public class TreeModelFactory
 		
 		IXMLElement root = null;
 		
+		String errMsg = null;
+		
 		try {
 			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
 
@@ -471,30 +476,38 @@ public class TreeModelFactory
 			parser.setReader(reader);
 			
 			root = (IXMLElement) parser.parse();
-		} catch (XMLException e1) {
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			
+			errMsg = "Error reading XML file: " + ex.toString();
+		} 
+		
+		String rootName = null;
+		
+		if (root != null) {
+		
+			rootName = root.getFullName();
+		
+			if ("protocol-archive".equals(rootName))
+				return UpeXmlReader.getTreeUPE(root);
+			
+			if ("ProtocolTitle".equals(rootName))
+				return getTreeB3(root);
+			
+			errMsg = "File format not recognised: " +
+			" XML root element named '" + rootName + 
+			"' is not an OMERO.Editor File"; 
 		}
 		
-		//TODO handle failure of file to open. 
-		if (root == null) return null;
+		// if you reach here, something is wrong. Register error message...
+		Registry reg = EditorAgent.getRegistry();
+		reg.getLogger().error(new TreeModelFactory(), errMsg);
 		
-		String rootName = root.getFullName();
-		if ("protocol-archive".equals(rootName))
-			return UpeXmlReader.getTreeUPE(root);
-		
-		if ("ProtocolTitle".equals(rootName))
-			return getTreeB3(root);
-		
+		// ...and notify the user. 
+		UserNotifier un = reg.getUserNotifier();
+	    un.notifyInfo("File Failed to Open", 
+				"The file could not be read, or was not recognised as " +
+				"an OMERO.editor file.");
+	      
 		return null;
 	}
 	

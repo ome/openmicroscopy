@@ -36,7 +36,8 @@ import org.openmicroscopy.shoola.agents.editor.FileLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
-import org.openmicroscopy.shoola.agents.editor.model.UpeXmlReader;
+import org.openmicroscopy.shoola.agents.editor.model.UPEEditorExport;
+import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
 
 /** 
  * The Model component in the <code>Editor</code> MVC triad.
@@ -210,13 +211,17 @@ class EditorModel
 	 * 
 	 * @param file The file to edit.
 	 */
-	void setFileToEdit(File file)
+	boolean setFileToEdit(File file)
 	{
+		TreeModel treeModel = TreeModelFactory.getTree(file);
+		if (treeModel == null)
+			return false;
+		
 		fileToEdit = file;
 		fileName = file.getName();
-		TreeModel treeModel = TreeModelFactory.getTree(file);
 		browser.setTreeModel(treeModel);
 		state = Editor.READY;
+		return true;
 	}
 	
 	/**
@@ -224,6 +229,8 @@ class EditorModel
 	 */
 	void setBlankFile() 
 	{
+		fileToEdit = null;
+		fileID = 0;
 		fileName = "New Blank File";
 		TreeModel treeModel = TreeModelFactory.getTree();
 		browser.setTreeModel(treeModel);
@@ -236,5 +243,29 @@ class EditorModel
 	 * @return		see above.
 	 */
 	Browser getBrowser() { return browser; }
+
+	/**
+	 * Saves the current file.
+	 * If file is a local file, saves the file there. 
+	 * If file came from the server, saves the file there. 
+	 * If the file is not saved anywhere, returns false.
+	 */
+	boolean saveCurrentFile() {
+		
+		// if no fileID, file is local. 
+		if (fileID == 0) {
+			if ((fileToEdit != null) && (fileToEdit.exists())) {
+				UPEexport xmlExport = new UPEEditorExport();
+				xmlExport.export(getBrowser().getTreeModel(), fileToEdit);
+				return true;
+			} 
+			// didn't save. 
+			return false;
+
+		} else {
+			//TODO save to server.
+			return false;
+		}
+	}
 	
 }

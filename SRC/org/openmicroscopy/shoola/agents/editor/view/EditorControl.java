@@ -45,7 +45,8 @@ import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.NewBlankFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
-import org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveUPEFileAction;
 
 /** 
@@ -71,14 +72,14 @@ class EditorControl
 	/** Identifies the <code>Open Local File</code> Action. */
 	static final Integer	OPEN_LOCAL_FILE = new Integer(2);
 	
-	/** Identifies the <code>Save File Locally</code> Action. */
-	static final Integer	SAVE_FILE_LOCALLY = new Integer(3);
+	/** Identifies the <code>Save File As</code> Action. */
+	static final Integer	SAVE_FILE_AS = new Integer(3);
 	
 	/** Identifies the <code>New Blank File</code> Action. */
 	static final Integer	NEW_BLANK_FILE = new Integer(4);
 	
 	/** Identifies the <code>Save UPE File</code> Action. */
-	static final Integer	SAVE_UPE_FILE = new Integer(5);
+	static final Integer	SAVE_FILE = new Integer(5);
 	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
@@ -97,9 +98,9 @@ class EditorControl
 	{
 		actionsMap.put(CLOSE_EDITOR, new CloseEditorAction(model));
 		actionsMap.put(OPEN_LOCAL_FILE, new OpenLocalFileAction(model));
-		actionsMap.put(SAVE_FILE_LOCALLY, new SaveFileLocallyAction(model));
+		actionsMap.put(SAVE_FILE_AS, new SaveFileAsAction(model));
 		actionsMap.put(NEW_BLANK_FILE, new NewBlankFileAction(model));
-		actionsMap.put(SAVE_UPE_FILE, new SaveUPEFileAction(model));
+		actionsMap.put(SAVE_FILE, new SaveFileAction(model));
 	}
 	
 	/** 

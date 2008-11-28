@@ -69,7 +69,7 @@ public class EditorFileFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-	public String getDescription() { return "Editor images"; }
+	public String getDescription() { return "OMERO.Editor (.pro.xml)"; }
 		
     /**
      * Overridden to accept file with the declared file extensions.

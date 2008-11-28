@@ -29,6 +29,8 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.editor.model.MicroFormatsExport;
+import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -172,8 +174,9 @@ class EditorComponent
 			throw new IllegalStateException("This method should only be " +
 					"invoked in the LOADING or NEW states.");
 					
-		model.setFileToEdit(file);
-		view.displayFile();
+		if (model.setFileToEdit(file)) {
+			view.displayFile();
+		}
 		fireStateChange();
 	}
 
@@ -253,5 +256,16 @@ class EditorComponent
 		model.setBlankFile();
 		view.displayFile();
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * Saves the file in model. 
+	 * 
+	 * @see Editor#saveCurrentFile()
+	 */
+	public boolean saveCurrentFile() {
+		
+		return model.saveCurrentFile();
 	}
 }

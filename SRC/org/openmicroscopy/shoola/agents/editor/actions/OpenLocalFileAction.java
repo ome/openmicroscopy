@@ -38,6 +38,7 @@ import javax.swing.filechooser.FileFilter;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -82,6 +83,7 @@ public class OpenLocalFileAction
        
        filters = new ArrayList<FileFilter>();
        filters.add(new EditorFileFilter());
+       filters.add(new XMLFilter());
    }
    
    /**
@@ -110,7 +112,18 @@ public class OpenLocalFileAction
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File f = (File) evt.getNewValue();
 			
-			model.openLocalFile(f);
+			boolean accept = false;
+			for (FileFilter filter : filters) {
+				if (filter.accept(f)) {
+					accept = true;
+					continue;
+				}
+			}
+			
+			// only allow accepted files to be opened.
+			// (opening an unrecognised file will cause a crash)!
+			if (accept)
+				model.openLocalFile(f);
 		}
    }
 }

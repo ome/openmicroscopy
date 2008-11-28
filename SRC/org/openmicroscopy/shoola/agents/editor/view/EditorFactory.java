@@ -91,6 +91,7 @@ public class EditorFactory
 		if (file == null) return getEditor();	// just in case. Never used! 
 		
 		EditorModel model = new EditorModel(file);
+		
 		// if a "blank" editor is open, with a "blank" model, this is returned
 		// or, if the model matches the model in an existing editor, return this,
 		// or, create a new editor with this new model.

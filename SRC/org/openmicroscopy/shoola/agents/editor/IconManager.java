@@ -272,11 +272,14 @@ public class IconManager
     /** The <code>Paste</code> icon. */
     public  static int			PASTE_ICON = 68;
     
+    /** The <code>Save-As</code> icon. */
+    public  static int			SAVE_AS_ICON = 69;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 68;
+    private static int          MAX_ID = 69;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -357,6 +360,7 @@ public class IconManager
         relPaths[ADD_TABLE_ICON] = "nuvola_add_table16.png";
         relPaths[COPY_ICON] = "eclipse_copy_edit16.png";
         relPaths[PASTE_ICON] = "eclipse_paste_edit16.png";
+        relPaths[SAVE_AS_ICON] = "nuvola_filesaveas16.png";
     }
     
     

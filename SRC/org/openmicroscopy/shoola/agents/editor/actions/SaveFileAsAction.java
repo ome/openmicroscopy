@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction 
+ * org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,12 +23,14 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
+
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -36,7 +38,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.model.MicroFormatsExport;
+import org.openmicroscopy.shoola.agents.editor.model.UPEEditorExport;
 import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
 import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
@@ -47,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * This Action allows users to choose a local 
- * location to save an OMERO.editor file. 
+ * location to save an OMERO.editor file.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -57,33 +59,33 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * </small>
  * @since OME3.0
  */
-public class SaveFileLocallyAction 
+public class SaveFileAsAction 
 	extends EditorAction
 	implements PropertyChangeListener
 {
-
+	
 	/** The description of the action. */
-	private static final String 	NAME = "Save File";
-
+	private static final String 	NAME = "Save File As...";
+	
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = 
 		"Save as Local File on your computer";
-
+	
 	/** Collection of supported file formats. */
 	private List<FileFilter>		filters;
-
+	
 	/** Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public SaveFileLocallyAction(Editor model)
+	public SaveFileAsAction(Editor model)
 	{
 		super(model);
 		setEnabled(true);
 		setName(NAME);
 		setDescription(DESCRIPTION);
-		setIcon(IconManager.SAVE_ICON);
-
+		setIcon(IconManager.SAVE_AS_ICON);
+	
 		filters = new ArrayList<FileFilter>();
 		filters.add(new EditorFileFilter());
 		filters.add(new HTMLFilter());
@@ -91,10 +93,10 @@ public class SaveFileLocallyAction
 	
 	protected void doExport(File file) 
 	{
-		XMLexport xmlExport = new MicroFormatsExport();
+		UPEexport xmlExport = new UPEEditorExport();
 		xmlExport.export(model.getBrowser().getTreeModel(), file);
 	}
-
+	
 	/**
 	 * Brings up on screen the {@link FileChooser}.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
@@ -111,7 +113,7 @@ public class SaveFileLocallyAction
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
 	}
-
+	
 	/**
 	 * Responds to the user choosing a file to save.
 	 * Calls {@link XMLexport#export(javax.swing.tree.TreeModel, File)}
@@ -123,7 +125,15 @@ public class SaveFileLocallyAction
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File file = (File) evt.getNewValue();
-
+			
+			// check if file is allowed. If not, add extension. 
+			FileFilter filter = new EditorFileFilter();
+				if (! filter.accept(file)) {
+					String filePath = file.getAbsolutePath();
+					filePath = filePath + "." + EditorFileFilter.PRO_XML;
+					file = new File(filePath);
+				}
+				
 			// if file exists, get user to confirm. Otherwise exit! 
 			if (file.exists()) {
 				String title = "File Exists";
@@ -133,9 +143,9 @@ public class SaveFileLocallyAction
 					return;
 				}
 			}
-
+			
 			doExport(file);
 		}
 	}
-	
+
 }
