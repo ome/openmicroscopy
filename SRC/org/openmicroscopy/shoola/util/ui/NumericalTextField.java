@@ -297,15 +297,17 @@ public class NumericalTextField
 			try {
 				if (str == null) return;
 				for (int i = 0; i < str.length(); i++) {
-		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1)
-		                return;
+		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1) {
+		            	return;
+		            }
 		        }
 				
 				if (accepted.equals(FLOAT) ||
 				   (accepted.equals(FLOAT+"-") && negativeAccepted)) {
 					if (str.indexOf(".") != -1) {
-						if (getText(0, getLength()).indexOf(".") != -1) 
+						if (getText(0, getLength()).indexOf(".") != -1) {
 							return;
+						}	
 					}
 				}
 				if (negativeAccepted && str.indexOf("-") != -1) {
@@ -313,6 +315,7 @@ public class NumericalTextField
 						return;
 					}
 				}
+				System.err.println(str);
 				if (str.equals(".") && accepted.equals(FLOAT)) {
 					super.insertString(offset, str, a);
 				} else {

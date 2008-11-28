@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -137,7 +138,8 @@ class BrowserModel
             case Browser.CATEGORY_EXPLORER:
             case Browser.IMAGES_EXPLORER:    
             case Browser.TAGS_EXPLORER:  
-            case Browser.SCREENS_EXPLORER:  
+            case Browser.SCREENS_EXPLORER: 
+            case Browser.FILES_EXPLORER:
                 break;
             default:
                 throw new IllegalArgumentException("Browser type not valid.");
@@ -565,8 +567,12 @@ class BrowserModel
 				break;
 			case Browser.SCREENS_EXPLORER:
 				klass = ScreenData.class;
+				break;
+			//case Browser.FILES_EXPLORER:
+				//klass = FileAnnotationData.class;
 		}
         state = Browser.LOADING_DATA;
+        if (klass == null) return;
         currentLoader = new RefreshExperimenterDataLoader(component, klass,
         												nodes);
         currentLoader.load();   

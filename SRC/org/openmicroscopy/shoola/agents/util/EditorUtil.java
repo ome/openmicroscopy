@@ -1332,7 +1332,6 @@ public class EditorUtil
 		}
         details.put(AMPLIFICATION, f);
         s = data.getDetectorType();
-        System.err.println("detector type:"+s);
         if (s == null || s.trim().length() == 0) 
 			notSet.add(TYPE);
         details.put(TYPE, s); 

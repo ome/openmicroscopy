@@ -298,5 +298,5 @@ public interface Editor
 	 * @param channel The channel to handle.
 	 */
 	public void loadChannelAcquisitionData(ChannelData channel);
-	
+
 }

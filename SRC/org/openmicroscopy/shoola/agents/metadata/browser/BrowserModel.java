@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 //Java imports
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,7 +33,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
 
 /** 

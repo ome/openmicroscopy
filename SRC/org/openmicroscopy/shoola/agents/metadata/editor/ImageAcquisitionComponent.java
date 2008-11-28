@@ -312,6 +312,7 @@ class ImageAcquisitionComponent
             } else {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);
+            	((NumericalTextField) area).setNegativeAccepted(true);
             	if (value instanceof Double) 
             		((NumericalTextField) area).setNumberType(Double.class);
             	else if (value instanceof Float) 
@@ -356,40 +357,45 @@ class ImageAcquisitionComponent
 		}
 
 		Iterator i = details.keySet().iterator();
-		 while (i.hasNext()) {
-			 key = (String) i.next();
-			 value = details.get(key);
-			 label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-			 label.setBackground(UIUtilities.BACKGROUND_COLOR);
+		while (i.hasNext()) {
+			key = (String) i.next();
+			value = details.get(key);
+			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 
-			 if (value instanceof Number) {
-				 area = UIUtilities.createComponent(
-						 NumericalTextField.class, null);
-				 if (EditorUtil.HUMIDITY.equals(key) ||
-						 EditorUtil.CO2_PERCENT.equals(key)) {
-					 //((NumericalTextField) area).setMinimum(0.0);
-					 //((NumericalTextField) area).setMaximum(1.0);
-				 }
-				 if (value instanceof Double) 
-					 ((NumericalTextField) area).setNumberType(Double.class);
-				 else if (value instanceof Float) 
-					 ((NumericalTextField) area).setNumberType(Float.class);
-				 ((NumericalTextField) area).setText(""+value);
-				 ((NumericalTextField) area).setEditedColor(
-						 UIUtilities.EDITED_COLOR);
-			 } else {
-				 area = UIUtilities.createComponent(
-						 OMETextArea.class, null);
-				 if (value == null || value.equals(""))
-					 value = AnnotationUI.DEFAULT_TEXT;
-				 ((OMETextArea) area).setText((String) value);
-				 ((OMETextArea) area).setEditedColor(
-						 UIUtilities.EDITED_COLOR);
-			 }
+			if (value instanceof Number) {
+				area = UIUtilities.createComponent(
+						NumericalTextField.class, null);
+				if (EditorUtil.HUMIDITY.equals(key) ||
+						EditorUtil.CO2_PERCENT.equals(key)) {
+					//((NumericalTextField) area).setMinimum(0.0);
+					//((NumericalTextField) area).setMaximum(1.0);
+				}
+				if (EditorUtil.TEMPERATURE.equals(key)) {
+					((NumericalTextField) area).setMinimum(-Double.MAX_VALUE);
+					((NumericalTextField) area).setNegativeAccepted(true);
+				}
+				if (value instanceof Double) 
+					((NumericalTextField) area).setNumberType(Double.class);
+				else if (value instanceof Float) 
+					((NumericalTextField) area).setNumberType(Float.class);
+				((NumericalTextField) area).setText(""+value);
+				((NumericalTextField) area).setEditedColor(
+						UIUtilities.EDITED_COLOR);
+				
+			} else {
+				area = UIUtilities.createComponent(
+						OMETextArea.class, null);
+				if (value == null || value.equals(""))
+					value = AnnotationUI.DEFAULT_TEXT;
+				((OMETextArea) area).setText((String) value);
+				((OMETextArea) area).setEditedColor(
+						UIUtilities.EDITED_COLOR);
+			}
 
-			 comp = new AcquisitionComponent(label, area);
-			 comp.setSetField(!notSet.contains(key));
-			 fieldsEnv.put(key, comp);
+			comp = new AcquisitionComponent(label, area);
+			comp.setSetField(!notSet.contains(key));
+			fieldsEnv.put(key, comp);
 		}
 	}
 

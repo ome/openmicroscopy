@@ -508,6 +508,8 @@ class BrowserComponent
                 return im.getIcon(IconManager.IMAGES_EXPLORER);
             case SCREENS_EXPLORER:
             	return im.getIcon(IconManager.SCREENS_EXPLORER);
+            case FILES_EXPLORER:
+                return im.getIcon(IconManager.FILES_EXPLORER);
         }
         return null;
     }

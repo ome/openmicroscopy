@@ -125,12 +125,18 @@ public interface Browser
      * explorer.
      */
     public static final int     	TAGS_EXPLORER = 103;
-    
+   
     /** 
      * Indicates that the browser corresponds to a <code>Screen</code>
      * explorer.
      */
     public static final int     	SCREENS_EXPLORER = 104;
+    
+    /** 
+     * Indicates that the browser corresponds to a <code>Files</code>
+     * explorer.
+     */
+    public static final int     	FILES_EXPLORER = 105;
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
@@ -182,6 +188,11 @@ public interface Browser
      * The browser's title corresponding to {@link #SCREENS_EXPLORER} type.
      */
     public static final String     SCREENS_TITLE = "Screens";
+    
+    /** 
+     * The browser's title corresponding to {@link #FILES_EXPLORER} type.
+     */
+    public static final String     FILES_TITLE = "Attachments";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.

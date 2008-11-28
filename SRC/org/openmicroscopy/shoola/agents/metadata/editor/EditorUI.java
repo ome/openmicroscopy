@@ -158,6 +158,8 @@ public class EditorUI
     		component = userTabbedPane;
     	} else if (!(uo instanceof DataObject)) {
     		setDataToSave(false);
+    		toolBar.buildUI();
+    		toolBar.setStatus(false);
     		component = defaultPane;
     	} else {
     		setDataToSave(false);
@@ -176,7 +178,12 @@ public class EditorUI
 	{
 		Object uo = model.getRefObject();
 		if (!(uo instanceof DataObject)) {
+			setDataToSave(false);
+			toolBar.buildUI();
+    		toolBar.setStatus(false);
+			remove(component);
 			component = defaultPane;
+			add(component, BorderLayout.CENTER);
 			revalidate();
 	    	repaint();
 		} else if (uo instanceof ExperimenterData) 

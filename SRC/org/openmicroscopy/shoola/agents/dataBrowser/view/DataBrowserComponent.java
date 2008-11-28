@@ -140,7 +140,6 @@ class DataBrowserComponent
 	public void discard()
 	{
 		model.discard();
-		
 	}
 
 	/**

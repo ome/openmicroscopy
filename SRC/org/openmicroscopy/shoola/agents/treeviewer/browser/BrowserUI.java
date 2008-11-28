@@ -704,6 +704,8 @@ class BrowserUI
                 return Browser.TAGS_TITLE;
             case Browser.SCREENS_EXPLORER:
             	return Browser.SCREENS_TITLE;
+            case Browser.FILES_EXPLORER:
+                return Browser.FILES_TITLE;
         }
         return "";
     }
