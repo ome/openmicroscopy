@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -61,6 +62,12 @@ import pojos.ExperimenterData;
 public class EditorUI 
 	extends JPanel
 {
+	
+	/** Identifies the general component of the tabbed pane. */
+	private static final int			GENERAL_INDEX = 0;
+	
+	/** Indetifies the acquisition component of the tabbed pane. */
+	private static final int			ACQUISITION_INDEX = 1;
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -108,6 +115,7 @@ public class EditorUI
 		tabbedPane.addTab("General", null, generalPane, "General Information.");
 		tabbedPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
 			"Acquisition Metadata.");
+		tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		component = defaultPane;
@@ -151,25 +159,24 @@ public class EditorUI
     {
     	Object uo = model.getRefObject();
     	remove(component);
+    	setDataToSave(false);
+    	toolBar.setStatus(false);
     	if (uo instanceof ExperimenterData)  {
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
     		component = userTabbedPane;
-    	} else if (!(uo instanceof DataObject)) {
-    		setDataToSave(false);
+    	} else if (!(uo instanceof DataObject)) {	
     		toolBar.buildUI();
-    		toolBar.setStatus(false);
     		component = defaultPane;
     	} else {
-    		setDataToSave(false);
         	toolBar.buildUI();
         	toolBar.setControls();
         	generalPane.layoutUI();
         	component = tabbedPane;
     	}
     	add(component, BorderLayout.CENTER);
-    	revalidate();
+    	validate();
     	repaint();
     }
     
@@ -188,7 +195,15 @@ public class EditorUI
 	    	repaint();
 		} else if (uo instanceof ExperimenterData) 
 			layoutUI();
-		else generalPane.setRootObject();
+		else {
+			if (!(uo instanceof ImageData)) {
+				tabbedPane.setSelectedIndex(GENERAL_INDEX);
+				tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);
+			} else
+				tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+			generalPane.setRootObject();
+			acquisitionPane.setRootObject();
+		}
 	}
 	
 	/**

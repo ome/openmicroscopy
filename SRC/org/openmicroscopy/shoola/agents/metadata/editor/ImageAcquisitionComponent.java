@@ -445,4 +445,11 @@ class ImageAcquisitionComponent
 		}
 	}
 	
+	/** Clears the data. */
+	void setRootObject()
+	{
+		init = false;
+		removeAll();
+	}
+	
 }

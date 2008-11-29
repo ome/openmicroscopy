@@ -842,13 +842,6 @@ class TreeViewerModel
 		return metadataViewer;
 	}
 	
-	/** Clears the metadata viewer. */
-	void clearMetadataViewer()
-	{
-		if (metadataViewer != null) metadataViewer.discard();
-		metadataViewer = null;
-	}
-	
 	/**
 	 * Creates the advanced finder.
 	 * 

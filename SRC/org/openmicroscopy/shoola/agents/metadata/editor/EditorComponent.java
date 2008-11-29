@@ -382,6 +382,7 @@ class EditorComponent
 	 */
 	public void loadImageAcquisitionData()
 	{
+		if (!(model.getRefObject() instanceof ImageData)) return;
 		Object data = model.getImageAcquisitionData();
 		if (data != null) return;
 		if (!(model.getRefObject() instanceof ImageData)) return;
@@ -395,6 +396,7 @@ class EditorComponent
 	 */
 	public void loadChannelAcquisitionData(ChannelData channel)
 	{
+		if (!(model.getRefObject() instanceof ImageData)) return;
 		if (channel == null) return;
 		Object data = model.getChannelAcquisitionData(channel.getIndex());
 		if (data != null) return;

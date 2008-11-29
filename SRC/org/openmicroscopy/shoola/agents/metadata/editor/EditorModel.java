@@ -733,13 +733,27 @@ class EditorModel
 	void setRootObject(Object refObject)
 	{ 
 		this.refObject = refObject; 
+		if (thumbnails != null) thumbnails.clear();
 		thumbnails = null;
+		if (existingTags != null) existingTags.clear();
 		existingTags = null;
+		if (textualAnnotationsByUsers != null) 
+			textualAnnotationsByUsers.clear();
 		textualAnnotationsByUsers = null;
+		if (textualAnnotationsByDate != null) 
+			textualAnnotationsByDate.clear();
 		textualAnnotationsByDate = null;
+		if (existingAttachments != null) 
+			existingAttachments.clear();
 	    existingAttachments = null;
+	    if (existingURLs != null) 
+	    	existingURLs.clear();
 	    existingURLs = null;
+	    if (emissionsWavelengths != null) 
+	    	emissionsWavelengths.clear();
 	    emissionsWavelengths = null;
+	    channelAcquisitionDatMap.clear();
+	    imageAcquisitionData = null;
 	    if (refObject instanceof ImageData) {
 	    	fireChannelEnumerationsLoading();
 	    	fireImageEnumerationsLoading();
@@ -1277,7 +1291,12 @@ class EditorModel
 		return imageAcquisitionData;
 	}
 
-
+    /**
+     * Sets the acquisition data for the specifed channel.
+     * 
+     * @param index The index of the channel.
+     * @param data  The value to set.
+     */
 	void setChannelAcquisitionData(int index, ChannelAcquisitionData data)
 	{
 		channelAcquisitionDatMap.put(index, data);

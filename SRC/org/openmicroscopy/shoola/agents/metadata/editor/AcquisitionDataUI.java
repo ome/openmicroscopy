@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,8 +33,8 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
@@ -79,31 +80,38 @@ class AcquisitionDataUI
 	private static final String			DEFAULT_CHANNEL_TEXT = "Channel ";
 	
 	/** Reference to the controller. */
-	private EditorControl				controller;
+	private EditorControl						controller;
 	
 	/** Reference to the Model. */
-	private EditorModel					model;
+	private EditorModel							model;
 		
 	/** Reference to the Model. */
-	private EditorUI					view;
+	private EditorUI							view;
 	
 	/** The component hosting the image acquisition data. */
-	private ImageAcquisitionComponent	imageAcquisition;
+	private ImageAcquisitionComponent			imageAcquisition;
 	
 	/** The collection of channel acquisition data. */
-	private Map<JXTaskPane, ChannelData> channelAcquisitionPanes;
+	private Map<JXTaskPane, ChannelData> 		channelAcquisitionPanes;
 	
 	/** The component hosting the image info. */
-	private JXTaskPane 					imagePane;
+	private JXTaskPane 							imagePane;
 	
 	/** Collection of components hosting the channel. */
-	private List<ChannelAcquisitionComponent> channelComps;
+	private List<ChannelAcquisitionComponent> 	channelComps;
+	
+	/** The UI component hosting the <code>JXTaskPane</code>s. */
+	private JPanel								container;
+	
+	/** The constraints used to lay out the components in the container. */
+	private GridBagConstraints					constraints;
 	
 	/** Initializes the UI components. */
 	private void initComponents()
-	{
+	{  
+		container = new JPanel();
 		channelComps = new ArrayList<ChannelAcquisitionComponent>();
-		channelAcquisitionPanes = new HashMap<JXTaskPane, ChannelData>();
+		channelAcquisitionPanes = new LinkedHashMap<JXTaskPane, ChannelData>();
 		imageAcquisition = new ImageAcquisitionComponent(this, model);
 		imageAcquisition.addPropertyChangeListener(this);
 		imagePane = EditorUtil.createTaskPane("Image");
@@ -112,29 +120,44 @@ class AcquisitionDataUI
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
 	
+	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		removeAll();
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setLayout(new BorderLayout(0, 0));
-		JPanel container = new JPanel();
 		container.setBackground(UIUtilities.BACKGROUND_COLOR);
 		container.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(0, 2, 2, 0);
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		setLayout(new BorderLayout(0, 0));
+		constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.anchor = GridBagConstraints.WEST;
+		constraints.insets = new Insets(0, 2, 2, 0);
+		constraints.weightx = 1.0;
+        container.add(imagePane, constraints);
         
-        c.weightx = 1.0;
-        container.add(imagePane, c);
-        c.gridy = 1;
+        add(container, BorderLayout.NORTH);
+	}
+	
+	/** Lays out the channels. */
+	private void layoutUI()
+	{
+		int n = container.getComponentCount();
+		if (n == 0) return;
+		Component[] comps = container.getComponents();
+		for (int i = 0; i < comps.length; i++) {
+			if (comps[i] != imagePane)
+				container.remove(comps[i]);
+		}
+
+		constraints.gridy = 1;
         Iterator<JXTaskPane> i = channelAcquisitionPanes.keySet().iterator();
         while (i.hasNext()) {
-            ++c.gridy;
-            container.add(i.next(), c);  
+            ++constraints.gridy;
+            container.add(i.next(), constraints);  
         }
-        add(container, BorderLayout.NORTH);
+        revalidate();
+        repaint();
+        
 	}
 	
 	/**
@@ -159,6 +182,7 @@ class AcquisitionDataUI
 		this.controller = controller;
 		this.view = view;
 		initComponents();
+		buildGUI();
 	}
 	
 	/**
@@ -313,7 +337,7 @@ class AcquisitionDataUI
 				channelComps.add(comp);
 			}
 		}
-		buildGUI();
+		layoutUI();
 	}
 	
 	/** Sets the metadata. */
@@ -337,6 +361,17 @@ class AcquisitionDataUI
 		}
 	}
 	
+	/** Updates display when the new root node is set. */
+	void setRootObject()
+	{
+		imageAcquisition.setRootObject();
+		channelAcquisitionPanes.clear();
+		layoutUI();
+		repaint();
+		if (!imagePane.isCollapsed())
+			controller.loadImageAcquisitionData();
+	}
+	
 	/**
 	 * Loads the acquisition metadata.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -354,6 +389,4 @@ class AcquisitionDataUI
 		}
 	}
 
-	
-	
 }

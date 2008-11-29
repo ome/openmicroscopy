@@ -81,9 +81,6 @@ class TreeViewerWin
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
     
-    /** The location of the vertical split pane location. */
-    private static final int 	DIVIDER_LOCATION = 300;
-
     /** The Controller. */
     private TreeViewerControl	controller;
 
@@ -477,6 +474,7 @@ class TreeViewerWin
      */
     void addComponent(JComponent component)
     {
+    	if (component == null) return;
         JViewport viewPort = workingPane.getViewport();
         component.setPreferredSize(viewPort.getExtentSize());
         viewPort.removeAll();
@@ -488,10 +486,11 @@ class TreeViewerWin
     void removeAllFromWorkingPane()
     {
         JViewport viewPort = workingPane.getViewport();
-        if (viewPort.getComponents().length != 0) {
+       // if (viewPort.getComponents().length != 0) {
             viewPort.removeAll();
+            viewPort.validate();
             viewPort.repaint();
-        }
+       // }
     }
     
     /**

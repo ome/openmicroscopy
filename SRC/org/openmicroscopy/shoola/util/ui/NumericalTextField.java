@@ -315,8 +315,9 @@ public class NumericalTextField
 						return;
 					}
 				}
-				System.err.println(str);
 				if (str.equals(".") && accepted.equals(FLOAT)) {
+					super.insertString(offset, str, a);
+				} else if (str.equals("-") && negativeAccepted) {
 					super.insertString(offset, str, a);
 				} else {
 					String s = this.getText(0, this.getLength());

@@ -803,18 +803,18 @@ class TreeViewerComponent
 		model.setState(READY);
 		fireStateChange();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		
+		view.removeAllFromWorkingPane();
+		DataBrowserFactory.discardAll();
 		Map browsers = model.getBrowsers();
 		Browser browser;
-		model.clearMetadataViewer();
-		DataBrowserFactory.discardAll();
-		view.removeAllFromWorkingPane();
 		//REview that code depending on the type of objects deleted.
 		Iterator i = browsers.keySet().iterator();
 		while (i.hasNext()) {
 			browser = (Browser) browsers.get(i.next());
 			browser.refreshTree();
 		}
-		onSelectedDisplay();
+		//onSelectedDisplay();
 		model.getMetadataViewer().setRootObject(null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

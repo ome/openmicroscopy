@@ -787,8 +787,6 @@ class ImViewerControl
 		} else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
 			model.setUnitBarSize(v);
-		} else if (InfoDialog.UPDATE_PROPERTY.equals(pName)) {
-			//TODO: implement method
 		} else if (ImViewer.ICONIFIED_PROPERTY.equals(pName)) {
 			if (moviePlayer != null)
 				model.playMovie(false, false, -1);
