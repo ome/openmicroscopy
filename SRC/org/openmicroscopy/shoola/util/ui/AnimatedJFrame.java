@@ -39,10 +39,10 @@ import javax.swing.Timer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.border.PartialLineBorder;
+import org.openmicroscopy.shoola.util.ui.border.OneLineBorder;
 
 /** 
- * 
+ * Animated frame.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -114,7 +114,7 @@ public class AnimatedJFrame
 	private int					orientation;
 	
 	/** The partial line border, the value depends on the orientation. */
-	private PartialLineBorder	border;
+	private OneLineBorder	border;
 	
 	/** Flag indicating to close the application after a given time. */
 	private boolean				closeAfter;
@@ -270,14 +270,12 @@ public class AnimatedJFrame
 		switch (orientation) {
 			case UP:
 				this.orientation = UP;
-				border = new PartialLineBorder(LINE_COLOR);
-				border.setRemoveIndex(PartialLineBorder.BOTTOM_KEEP);
+				border = new OneLineBorder(OneLineBorder.BOTTOM, LINE_COLOR);
 				break;
 			case DOWN:	
 				default:
 				this.orientation = DOWN;
-				border = new PartialLineBorder(LINE_COLOR);
-				border.setRemoveIndex(PartialLineBorder.TOP_KEEP);
+				border = new OneLineBorder(OneLineBorder.TOP, LINE_COLOR);
 				break;
 			
 		}
