@@ -101,7 +101,7 @@
 			<required name="theZ" type="int"/>
 			<required name="theC" type="int"/>
 			<required name="theT" type="int"/>
-			<optional name="timestamp" type="float"/>
+			<optional name="deltaT" type="float"/>
 			<optional name="positionX" type="float"/>
 			<optional name="positionY" type="float"/>
 			<optional name="positionZ" type="float"/>
@@ -264,7 +264,7 @@
 			<required name="type" type="ome.model.enums.LaserType"/>
 			<required name="laserMedium" type="ome.model.enums.LaserMedium"/>
 			<optional name="frequencyMultiplication" type="int"/>
-			<optional name="tunable" type="boolean"/>
+			<optional name="tuneable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
 			<optional name="wavelength" type="int"/>
 			<optional name="pockelCell" type="boolean"/>
@@ -312,7 +312,7 @@
 			<optional name="calibratedMagnification" type="float"/>
 			<optional name="lensNA" type="float"/>
 			<optional name="immersion" type="ome.model.enums.Immersion"/>
-			<optional name="coating" type="ome.model.enums.Coating"/><!-- called Correction in model -->
+			<optional name="correction" type="ome.model.enums.Correction"/><!-- called Correction in model -->
 			<optional name="workingDistance" type="float"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
@@ -443,12 +443,13 @@
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
-	<enum id="ome.model.enums.Coating">
+	<enum id="ome.model.enums.Correction">
 		<entry name="UV"/>
 		<entry name="PlanApo"/>
 		<entry name="PlanFluor"/>
 		<entry name="SuperFluor"/>
 		<entry name="VioletCorrected"/>
+		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
 	<enum id="ome.model.enums.IrisDiaphragm"><!--TODO: not in model - Not used elsewhere in mappings-->

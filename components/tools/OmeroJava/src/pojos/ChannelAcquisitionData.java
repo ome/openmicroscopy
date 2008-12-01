@@ -615,7 +615,7 @@ public class ChannelAcquisitionData
 		LightSource light = getLightSource();
 		if (light == null || !(light instanceof Laser)) return null;
 		Laser laser = (Laser) light;
-		RBool value = laser.getTunable();
+		RBool value = laser.getTuneable();
 		if (value == null) return null;
 		return value.getValue();
 	}

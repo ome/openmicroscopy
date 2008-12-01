@@ -73,14 +73,6 @@ alter table event alter column type set not null;
 alter table event alter column experimentergroup set not null;
 
 
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filtertype'),-35,0,0,0,'LongPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filtertype'),-35,0,0,0,'ShortPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filtertype'),-35,0,0,0,'BandPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filtertype'),-35,0,0,0,'MultiPass';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_immersion'),-35,0,0,0,'Oil';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
@@ -97,18 +89,6 @@ insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_immersion'),-35,0,0,0,'Other';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_immersion'),-35,0,0,0,'Unknown';
-insert into coating (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_coating'),-35,0,0,0,'UV';
-insert into coating (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_coating'),-35,0,0,0,'PlanApo';
-insert into coating (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_coating'),-35,0,0,0,'PlanFluor';
-insert into coating (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_coating'),-35,0,0,0,'SuperFluor';
-insert into coating (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_coating'),-35,0,0,0,'VioletCorrected';
-insert into coating (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_coating'),-35,0,0,0,'Unknown';
 insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_arctype'),-35,0,0,0,'Hg';
 insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
@@ -117,116 +97,40 @@ insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_arctype'),-35,0,0,0,'HgXe';
 insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_arctype'),-35,0,0,0,'Unknown';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'FP';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'FRET';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'TimeLapse';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'FourDPlus';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Screen';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Immunocytochemistry';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Immunofluorescence';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'FISH';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Electrophysiology';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'IonImaging';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Colocalization';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'PGIDocumentation';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'FluorescenceLifetime';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'SpectralImaging';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Photobleaching';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_experimenttype'),-35,0,0,0,'Other';
 insert into renderingmodel (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_renderingmodel'),-35,0,0,0,'rgb';
 insert into renderingmodel (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_renderingmodel'),-35,0,0,0,'greyscale';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Import';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Internal';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Shoola';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'User';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Task';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Test';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Processing';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'FullText';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_eventtype'),-35,0,0,0,'Sessions';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microscopetype'),-35,0,0,0,'Upright';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microscopetype'),-35,0,0,0,'Inverted';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microscopetype'),-35,0,0,0,'Dissection';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microscopetype'),-35,0,0,0,'Electrophysiology';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microscopetype'),-35,0,0,0,'Unknown';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filamenttype'),-35,0,0,0,'Incandescent';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filamenttype'),-35,0,0,0,'Halogen';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_filamenttype'),-35,0,0,0,'Unknown';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_photometricinterpretation'),-35,0,0,0,'RGB';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_photometricinterpretation'),-35,0,0,0,'ARGB';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_photometricinterpretation'),-35,0,0,0,'CMYK';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_photometricinterpretation'),-35,0,0,0,'HSV';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_photometricinterpretation'),-35,0,0,0,'Monochrome';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_photometricinterpretation'),-35,0,0,0,'ColorMap';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'Excimer';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'Gas';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'MetalVapor';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'SolidState';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'Dye';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'Semiconductor';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'FreeElectron';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasertype'),-35,0,0,0,'Unknown';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_dimensionorder'),-35,0,0,0,'XYZCT';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_dimensionorder'),-35,0,0,0,'XYZTC';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_dimensionorder'),-35,0,0,0,'XYCTZ';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_dimensionorder'),-35,0,0,0,'XYCZT';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_dimensionorder'),-35,0,0,0,'XYTCZ';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_dimensionorder'),-35,0,0,0,'XYTZC';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'WideField';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'LaserScanningMicroscopy';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'LaserScanningConfocal';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'SpinningDiskConfocal';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'SlitScanConfocal';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'MultiPhotonMicroscopy';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'StructuredIllumination';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'SingleMoleculeImaging';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'TotalInternalReflection';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'FluorescenceLifetime';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'SpectralImaging';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'FluorescenceCorrelationSpectroscopy';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'NearFieldScanningOpticalMicroscopy';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'SecondHarmonicGenerationImaging';
+insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_acquisitionmode'),-35,0,0,0,'Other';
 insert into binning (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_binning'),-35,0,0,0,'1x1';
 insert into binning (id,permissions,owner_id,group_id,creation_id,value)
@@ -243,84 +147,6 @@ insert into family (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_family'),-35,0,0,0,'exponential';
 insert into family (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_family'),-35,0,0,0,'logarithmic';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_illumination'),-35,0,0,0,'Transmitted';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_illumination'),-35,0,0,0,'Epifluorescence';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_illumination'),-35,0,0,0,'Oblique';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_illumination'),-35,0,0,0,'NonLinear';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'CCD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'IntensifiedCCD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'AnalogVideo';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'PMT';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'Photodiode';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'Spectroscopy';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'LifetimeImaging';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'CorrelationSpectroscopy';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'FTIR';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'EM-CCD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'APD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'CMOS';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_detectortype'),-35,0,0,0,'Unknown';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'CW';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'Single';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'QSwitched';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'Repetitive';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'ModeLocked';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Achro';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Achromat';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluor';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fl';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluar';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Neofluar';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluotar';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Apo';
-insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_irisdiaphragm'),-35,0,0,0,'I';
-insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_irisdiaphragm'),-35,0,0,0,'Iris';
-insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_irisdiaphragm'),-35,0,0,0,'W/Iris';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'FRAP';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoablation';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoactivation';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Uncaging';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'OpticalTrapping';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Other';
 insert into medium (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_medium'),-35,0,0,0,'Air';
 insert into medium (id,permissions,owner_id,group_id,creation_id,value)
@@ -329,56 +155,6 @@ insert into medium (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_medium'),-35,0,0,0,'Water';
 insert into medium (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_medium'),-35,0,0,0,'Glycerol';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Rhodamine6G';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'CoumarinC30';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'ArFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'ArCl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'KrFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'KrCl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'XeFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'XeCl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'XeBr';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'GaAs';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'GaAlAs';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'EMinus';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Cu';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Ag';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'N';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Ar';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Kr';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Xe';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'HeNe';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'HeCd';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'CO';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'CO2';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'H2O';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'HFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_lasermedium'),-35,0,0,0,'Unknown';
 insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_pixelstype'),-35,0,0,0,'int8';
 insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
@@ -533,36 +309,32 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-powerpoint';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-word';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'WideField';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'LaserScanningMicroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'LaserScanningConfocal';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'SpinningDiskConfocal';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'SlitScanConfocal';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'MultiPhotonMicroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'StructuredIllumination';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'SingleMoleculeImaging';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'TotalInternalReflection';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'FluorescenceLifetime';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'SpectralImaging';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'FluorescenceCorrelationSpectroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'NearFieldScanningOpticalMicroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'SecondHarmonicGenerationImaging';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_acquisitionmode'),-35,0,0,0,'Other';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'Excimer';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'Gas';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'MetalVapor';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'SolidState';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'Dye';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'Semiconductor';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'FreeElectron';
+insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasertype'),-35,0,0,0,'Unknown';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'CW';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'Single';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'QSwitched';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'Repetitive';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'ModeLocked';
 insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_jobstatus'),-35,0,0,0,'Submitted';
 insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
@@ -581,6 +353,222 @@ insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_jobstatus'),-35,0,0,0,'Finished';
 insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_jobstatus'),-35,0,0,0,'Cancelled';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'CCD';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'IntensifiedCCD';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'AnalogVideo';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'PMT';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'Photodiode';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'Spectroscopy';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'LifetimeImaging';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'CorrelationSpectroscopy';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'FTIR';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'EM-CCD';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'APD';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'CMOS';
+insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_detectortype'),-35,0,0,0,'Unknown';
+insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'FRAP';
+insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoablation';
+insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoactivation';
+insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Uncaging';
+insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'OpticalTrapping';
+insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Other';
+insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_illumination'),-35,0,0,0,'Transmitted';
+insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_illumination'),-35,0,0,0,'Epifluorescence';
+insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_illumination'),-35,0,0,0,'Oblique';
+insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_illumination'),-35,0,0,0,'NonLinear';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Achro';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Achromat';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluor';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fl';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluar';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Neofluar';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluotar';
+insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Apo';
+insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_photometricinterpretation'),-35,0,0,0,'RGB';
+insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_photometricinterpretation'),-35,0,0,0,'ARGB';
+insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_photometricinterpretation'),-35,0,0,0,'CMYK';
+insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_photometricinterpretation'),-35,0,0,0,'HSV';
+insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_photometricinterpretation'),-35,0,0,0,'Monochrome';
+insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_photometricinterpretation'),-35,0,0,0,'ColorMap';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'UV';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'PlanApo';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'PlanFluor';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'SuperFluor';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'VioletCorrected';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Other';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Unknown';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Import';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Internal';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Shoola';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'User';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Task';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Test';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Processing';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'FullText';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'Sessions';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Rhodamine6G';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'CoumarinC30';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'ArFl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'ArCl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'KrFl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'KrCl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'XeFl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'XeCl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'XeBr';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'GaAs';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'GaAlAs';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'EMinus';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Cu';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Ag';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'N';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Ar';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Kr';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Xe';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'HeNe';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'HeCd';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'CO';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'CO2';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'H2O';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'HFl';
+insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_lasermedium'),-35,0,0,0,'Unknown';
+insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microscopetype'),-35,0,0,0,'Upright';
+insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microscopetype'),-35,0,0,0,'Inverted';
+insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microscopetype'),-35,0,0,0,'Dissection';
+insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microscopetype'),-35,0,0,0,'Electrophysiology';
+insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_microscopetype'),-35,0,0,0,'Unknown';
+insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_irisdiaphragm'),-35,0,0,0,'I';
+insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_irisdiaphragm'),-35,0,0,0,'Iris';
+insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_irisdiaphragm'),-35,0,0,0,'W/Iris';
+insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_dimensionorder'),-35,0,0,0,'XYZCT';
+insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_dimensionorder'),-35,0,0,0,'XYZTC';
+insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_dimensionorder'),-35,0,0,0,'XYCTZ';
+insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_dimensionorder'),-35,0,0,0,'XYCZT';
+insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_dimensionorder'),-35,0,0,0,'XYTCZ';
+insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_dimensionorder'),-35,0,0,0,'XYTZC';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'FP';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'FRET';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'TimeLapse';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'FourDPlus';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Screen';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Immunocytochemistry';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Immunofluorescence';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'FISH';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Electrophysiology';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'IonImaging';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Colocalization';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'PGIDocumentation';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'FluorescenceLifetime';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'SpectralImaging';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Photobleaching';
+insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_experimenttype'),-35,0,0,0,'Other';
 insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_contrastmethod'),-35,0,0,0,'Brightfield';
 insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
@@ -597,6 +585,20 @@ insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_contrastmethod'),-35,0,0,0,'Darkfield';
 insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_contrastmethod'),-35,0,0,0,'Fluorescence';
+insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filamenttype'),-35,0,0,0,'Incandescent';
+insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filamenttype'),-35,0,0,0,'Halogen';
+insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filamenttype'),-35,0,0,0,'Unknown';
+insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filtertype'),-35,0,0,0,'LongPass';
+insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filtertype'),-35,0,0,0,'ShortPass';
+insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filtertype'),-35,0,0,0,'BandPass';
+insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_filtertype'),-35,0,0,0,'MultiPass';
 
 create table configuration ( name varchar(255) primary key, value text );
 

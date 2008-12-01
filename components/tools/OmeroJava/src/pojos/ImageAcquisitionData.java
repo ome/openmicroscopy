@@ -31,7 +31,7 @@ package pojos;
 import omero.RFloat;
 import omero.RInt;
 import omero.RString;
-import omero.model.Coating;
+import omero.model.Correction;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
@@ -89,7 +89,7 @@ public class ImageAcquisitionData
 	private Immersion			immersion;
 	
 	/** The objective's correction. */
-	private Coating				correction;
+	private Correction				correction;
 	
 	/**
 	 * Returns the objective if any.
@@ -320,7 +320,7 @@ public class ImageAcquisitionData
 	}
 	
 	/**
-	 * Returns the coating value of the objective.
+	 * Returns the correction value of the objective.
 	 * 
 	 * @return See above.
 	 */
@@ -329,7 +329,7 @@ public class ImageAcquisitionData
 		if (correction != null) return correction.getValue().getValue();
 		Objective obj = getObjective();
 		if (obj == null) return "";
-		Coating value = obj.getCoating();
+		Correction value = obj.getCorrection();
 		if (value == null) return "";
 		return value.getValue().getValue();
 	}
@@ -636,7 +636,7 @@ public class ImageAcquisitionData
 	 * 
 	 * @param correction The value to set.
 	 */
-	public void setCorrection(Coating correction)
+	public void setCorrection(Correction correction)
 	{
 		objectiveDirty = true;
 		this.correction = correction;
@@ -742,6 +742,6 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public Coating getCorrectionAsEnum() { return correction; }
+	public Correction getCorrectionAsEnum() { return correction; }
 	
 }

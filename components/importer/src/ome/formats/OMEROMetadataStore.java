@@ -75,7 +75,7 @@ import ome.model.core.PlaneInfo;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.ArcType;
 import ome.model.enums.Binning;
-import ome.model.enums.Coating;
+import ome.model.enums.Correction;
 import ome.model.enums.ContrastMethod;
 import ome.model.enums.DetectorType;
 import ome.model.enums.DimensionOrder;
@@ -1362,7 +1362,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 return planeInfo;
             }
         }
-        if (planeInfo.getTimestamp() != null
+        if (planeInfo.getDeltaT() != null
             || planeInfo.getExposureTime() != null
             || planeInfo.getPositionX() != null
             || planeInfo.getPositionY() != null
@@ -1422,7 +1422,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 "Setting Image[%d] Pixels[%d] PlaneInfo[%d] deltaT: '%f'",
                 imageIndex, pixelsIndex, planeIndex, deltaT));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setTimestamp(deltaT);
+        p.setDeltaT(deltaT);
     }
 
     /* (non-Javadoc)
@@ -2177,7 +2177,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
         Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
         if (laser != null)
-            laser.setTunable(tuneable);   
+            laser.setTuneable(tuneable);   
     }
 
     public void setLaserType(String type, int instrumentIndex, int lightSourceIndex) 
@@ -2566,7 +2566,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             Objective objective = new Objective();
             objective.setImmersion((Immersion) getEnumeration(Immersion.class, "Unknown"));
-            objective.setCoating((Coating) getEnumeration(Coating.class, "Unknown"));
+            objective.setCorrection((Correction) getEnumeration(Correction.class, "Unknown"));
             lsidMap.put(currentLSID, objective);
             instrument.addObjective(objective);
         } 
@@ -2665,7 +2665,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         
         Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
-            objective.setCoating((Coating) getEnumeration(Coating.class, correction));
+            objective.setCorrection((Correction) getEnumeration(Correction.class, correction));
     }
     
     public void setObjectiveWorkingDistance(Float workingDistance,

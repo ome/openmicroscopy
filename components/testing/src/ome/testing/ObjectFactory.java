@@ -107,7 +107,7 @@ public class ObjectFactory {
             pl.setTheC(new Integer(0));
             pl.setTheZ(new Integer(0));
             pl.setTheT(new Integer(0));
-            pl.setTimestamp(new Float(0.0));
+            pl.setDeltaT(new Float(0.0));
             p.addPlaneInfo(pl);
             i.setName("test");
             i.addPixels(p);
