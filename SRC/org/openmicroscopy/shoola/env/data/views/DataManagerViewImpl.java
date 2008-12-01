@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 

@@ -355,11 +355,35 @@ public class IconManager
     /** ID of the <code>Backward</code> icon. */
     public static final int ACQUISITION = 100;
     
+    /** The <code>File</code> icon. */
+    public static final int	FILE_PDF = 101;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_TEXT = 102;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_EDITOR = 103;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_WORD = 104;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_EXCEL = 105;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_PPT = 106;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_XML = 107;
+    
+    /** The <code>File</code> icon. */
+    public static final int	FILE_HTML = 108;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 100;
+    private static int      MAX_ID = 108;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -463,11 +487,19 @@ public class IconManager
         relPaths[START_UNSELECTED_12] = "mozilla_grey12.png";
         relPaths[START_SELECTED_8] = "nuvola_mozilla8.png";
         relPaths[START_UNSELECTED_8] = "mozilla_grey8.png";
-        relPaths[FILE] = "nuvola_fileexport16.png";
+        relPaths[FILE] = "nuvola_attach16.png";
         relPaths[BROWSER] = "nuvola_browser16.png";
         relPaths[FORWARD] = "eclipse_forward_nav16.png";
         relPaths[BACKWARD] = "eclipse_backward_nav16.png";
         relPaths[ACQUISITION] = "nuvola_help48.png";
+        relPaths[FILE_PDF] = "nuvola_acroread16.png";
+        relPaths[FILE_TEXT] = "nuvola_txt16.png";
+        relPaths[FILE_WORD] = "alienOSX_Microsoft_Word16.png";
+        relPaths[FILE_PPT] = "alienOSX_Microsoft_PowerPoint16.png";
+        relPaths[FILE_EXCEL] = "alienOSX_Microsoft_Excel16.png";
+        relPaths[FILE_XML] = "txt_xml16.png";
+        relPaths[FILE_HTML] = "txt_html16.png";
+        relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
     }
     
     /** 

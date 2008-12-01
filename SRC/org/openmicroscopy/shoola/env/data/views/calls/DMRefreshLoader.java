@@ -38,11 +38,13 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -188,6 +190,33 @@ public class DMRefreshLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve the files.
+     * 
+     * @param nodes The map whose keys are the id of user and the values 
+     * 				are the corresponding collections of data objects to reload.  		
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeFilesBatchCall(final Map<Long, List> nodes)
+    {
+        return new BatchCall("Loading files: ") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService os = context.getMetadataService();
+                Iterator users = nodes.keySet().iterator();
+                results = new HashMap<Long, Object>(nodes.size());
+                long userID;
+                Object result;
+                while (users.hasNext()) {
+                	userID = (Long) users.next();
+                	result = os.loadAnnotations(FileAnnotationData.class, null, 
+                			-1, userID);
+                	results.put(userID, result);
+                }
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -220,7 +249,10 @@ public class DMRefreshLoader
         	loadCall = makeImagesBatchCall(nodes);
         else if (ProjectData.class.equals(rootNodeType) ||
         		ScreenData.class.equals(rootNodeType))
-        	loadCall = makeBatchCall(rootNodeType,  nodes);
+        	loadCall = makeBatchCall(rootNodeType, nodes);
+        else if (FileAnnotationData.class.equals(rootNodeType)) {
+        	loadCall = makeFilesBatchCall(nodes);
+        }
     }
     
 }

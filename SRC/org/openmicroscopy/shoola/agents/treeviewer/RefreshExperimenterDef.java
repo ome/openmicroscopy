@@ -62,7 +62,7 @@ public class RefreshExperimenterDef
     private Map         		expandedTopNodes;
     
     /** The results of the call. */
-    private Map					results;
+    private Object				results;
     
     /**
      * Creates a new instance.
@@ -109,13 +109,13 @@ public class RefreshExperimenterDef
      * 
      * @return See above.
      */
-    public Map getResults() { return results; }
+    public Object getResults() { return results; }
     
     /**
      * Sets the results of the call.
      * 
      * @param results The value to set.
      */
-    public void setResults(Map results) { this.results = results; }
+    public void setResults(Object results) { this.results = results; }
     
 }

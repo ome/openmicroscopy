@@ -1102,12 +1102,16 @@ class BrowserComponent
 			exp = (ExperimenterData) expNode.getUserObject();
 			if (browserType == IMAGES_EXPLORER) {
 				results = TreeViewerTranslator.refreshImageHierarchy(
-							node.getResults(), exp.getId(), 
+							(Map) node.getResults(), exp.getId(), 
 							-1);
 				view.refreshTimeFolder(expNode, results);
+			} else if (browserType == FILES_EXPLORER) {
+				convertedNodes = TreeViewerTranslator.transformHierarchy(
+						(Collection) node.getResults(), exp.getId(), -1);
+				view.setExperimenterData(convertedNodes, expNode);
 			} else {
 				convertedNodes = TreeViewerTranslator.refreshHierarchy(
-						node.getResults(), node.getExpandedTopNodes(), 
+						(Map) node.getResults(), node.getExpandedTopNodes(), 
 						exp.getId(), -1);
 				view.setExperimenterData(convertedNodes, expNode);
 			}

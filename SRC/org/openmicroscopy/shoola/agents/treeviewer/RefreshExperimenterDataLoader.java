@@ -235,6 +235,13 @@ public class RefreshExperimenterDataLoader
             	expId = (Long) i.next();
             	formatImageResult(expId, (List) m.get(expId));
     		}
+        } else if (FileAnnotationData.class.equals(rootNodeType)) {
+        	RefreshExperimenterDef node;
+        	while (i.hasNext()) {
+            	expId = (Long) i.next();
+            	node = expNodes.get(expId);
+            	node.setResults(m.get(expId));
+    		}
         } else {
         	while (i.hasNext()) {
             	expId = (Long) i.next();
