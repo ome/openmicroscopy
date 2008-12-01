@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -37,8 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -66,14 +63,13 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -161,6 +157,7 @@ class EditorModel
 	/** The enumerations related to image metadata. */
 	private Map						imageEnumerations;
 	
+	/** The map hosting the channels acquisition data. */
 	private Map<Integer, ChannelAcquisitionData> channelAcquisitionDatMap;
 	
     /** 
@@ -295,6 +292,8 @@ class EditorModel
 			return ((ScreenData) refObject).getName();
 		else if (refObject instanceof PlateData)
 			return ((PlateData) refObject).getName();
+		else if (refObject instanceof FileAnnotationData)
+			return ((FileAnnotationData) refObject).getFileName();
 		return "";
 	}
 	

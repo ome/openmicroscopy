@@ -43,6 +43,7 @@ import org.apache.commons.collections.ListUtils;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Coating;
+import omero.model.DatasetAnnotationLink;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -57,6 +58,7 @@ import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
+import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
@@ -316,7 +318,7 @@ class OmeroMetadataServiceImpl
 				if (ann instanceof FileAnnotationData) {
 					fileAnn = (FileAnnotationData) ann;
 					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
-							fileAnn.getServerFileFormat());
+							fileAnn.getServerFileFormat(), -1);
 					fa = new FileAnnotationI();
 					fa.setFile(of);
 					iobject = fa;
@@ -456,25 +458,65 @@ class OmeroMetadataServiceImpl
 		}
 	}
 	
+	private void convert(List<DataObject> all, Collection l)
+	{
+		Iterator i;
+		if (l == null || l.size() == 0) return;
+		i = l.iterator();
+		IObject object;
+		while (i.hasNext()) {
+			object = (IObject) i.next();
+			if (object instanceof ProjectAnnotationLink) {
+				all.add(PojoMapper.asDataObject(
+						((ProjectAnnotationLink) object).getChild()));
+			} else if (object instanceof DatasetAnnotationLink) {
+				all.add(PojoMapper.asDataObject(
+						((DatasetAnnotationLink) object).getChild()));
+			} else if (object instanceof ImageAnnotationLink) {
+				all.add(PojoMapper.asDataObject(
+						((ImageAnnotationLink) object).getChild()));
+			}
+		}
+	}
+	
+	/**
+	 * Loads the attachments.
+	 * 
+	 * @param type		The type of object the attachment is related to.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	private Collection loadAllAttachments(Class type, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		List<DataObject> all = new ArrayList<DataObject>();
 		if (type == null) {
 			//retrieve attachment to P/D and I
-			List all = new ArrayList();
 			Collection l;
 			l = gateway.findAllAnnotations(ProjectData.class, userID);
-			if (l != null && l.size() > 0) all.addAll(l);
+			if (l != null && l.size() > 0) convert(all, l);
 			l = gateway.findAllAnnotations(DatasetData.class, userID);
-			if (l != null && l.size() > 0) all.addAll(l);
+			if (l != null && l.size() > 0) convert(all, l);
 			l = gateway.findAllAnnotations(ImageData.class, userID);
-			if (l != null && l.size() > 0) all.addAll(l);
+			if (l != null && l.size() > 0) convert(all, l);
 			return getFileAnnotations(all);
 		} 
-		Collection l = gateway.findAllAnnotations(type, userID);
-		return getFileAnnotations(l);
+		convert(all, gateway.findAllAnnotations(type, userID));
+		return getFileAnnotations(all);
 	}
 	
+	/**
+	 * Returns the file annotations.
+	 * 
+	 * @param annotations The collection to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	private List<AnnotationData> getFileAnnotations(Collection annotations)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -525,7 +567,6 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (id < 0 || type == null) return loadAllAttachments(type, userID);
-		
 		Collection annotations = loadStructuredAnnotations(type, id, userID);
 		return getFileAnnotations(annotations);
 	}
@@ -760,7 +801,7 @@ class OmeroMetadataServiceImpl
 			FileAnnotationData ann = (FileAnnotationData) annotation;
 			if (ann.getId() < 0) {
 				OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
-						ann.getServerFileFormat());
+						ann.getServerFileFormat(), -1);
 				FileAnnotation fa = new FileAnnotationI();
 				fa.setFile(of);
 				link = ModelMapper.linkAnnotation(ho, fa);
@@ -1780,7 +1821,7 @@ class OmeroMetadataServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#saveAcquisitionData(Object)
+	 * @see OmeroMetadataService#saveAcquisitionData(Object)
 	 */
 	public Object saveAcquisitionData(Object refObject)
 		throws DSOutOfServiceException, DSAccessException
@@ -1795,6 +1836,27 @@ class OmeroMetadataServiceImpl
 		}
 		return null;
 	}
-	
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#archivedFile(Object)
+	 */
+	public Object archivedFile(FileAnnotationData file, long originalFileID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (file == null) 
+			throw new IllegalArgumentException("No file to save.");
+		//Upload the file back to the server
+		OriginalFile of = gateway.uploadFile(file.getAttachedFile(), 
+				file.getServerFileFormat(), originalFileID);
+		//Need to relink and delete the previous one.
+		FileAnnotation fa;
+		if (originalFileID <= 0) {
+			fa = new FileAnnotationI();
+			fa.setFile(of);
+			gateway.createObject(fa, (new PojoOptionsI()).map());
+		}
+		return true;
+	}
 	
 }

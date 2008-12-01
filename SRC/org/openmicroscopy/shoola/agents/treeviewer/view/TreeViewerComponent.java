@@ -384,14 +384,14 @@ class TreeViewerComponent
 	public void displayBrowser(int browserType)
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-		case SAVE:
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED or SAVE " +
-			"state.");
+			case DISCARDED:
+			case SAVE:
+				throw new IllegalStateException(
+						"This method cannot be invoked in the DISCARDED " +
+						"or SAVE state.");
 		}
 		Map browsers = model.getBrowsers();
-		Browser browser = (Browser) browsers.get(new Integer(browserType));
+		Browser browser = (Browser) browsers.get(browserType);
 		if (browser.isDisplayed()) {
 			view.removeBrowser(browser);
 		} else {

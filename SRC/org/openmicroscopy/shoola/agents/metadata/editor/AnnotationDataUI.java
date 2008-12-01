@@ -28,11 +28,14 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -51,7 +54,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
@@ -161,6 +166,34 @@ class AnnotationDataUI
 	/** The dialog displaying the possible tags. */
 	private HistoryDialog					autoCompleteDialog;
 
+	/** 
+	 * The selection menu to attach either local documents or already
+	 * upload files. 
+	 */
+	private JPopupMenu						docSelectionMenu;
+	
+	/**
+	 * Creates the selection menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createDocSelectionMenu()
+	{
+		if (docSelectionMenu != null) return docSelectionMenu;
+		docSelectionMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem("Local document");
+		item.setToolTipText("Upload and attach a local document.");
+		item.addActionListener(controller);
+		item.setActionCommand(""+EditorControl.ADD_LOCAL_DOCS);
+		docSelectionMenu.add(item);
+		item = new JMenuItem("Uploaded document");
+		item.setToolTipText("Attach a document already uploaded.");
+		item.addActionListener(controller);
+		item.setActionCommand(""+EditorControl.ADD_UPLOADED_DOCS);
+		docSelectionMenu.add(item);
+		return docSelectionMenu;
+	}
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -179,8 +212,16 @@ class AnnotationDataUI
 		addDocsButton = new JButton(icons.getIcon(IconManager.PLUS));
 		addDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addDocsButton.setToolTipText("Attach a document.");
-		addDocsButton.addActionListener(controller);
-		addDocsButton.setActionCommand(""+EditorControl.ADD_DOCS);
+		addDocsButton.addMouseListener(new MouseAdapter() {
+			
+			public void mouseReleased(MouseEvent e) {
+				Point p = e.getPoint();
+				createDocSelectionMenu().show(addDocsButton, p.x, p.y);
+			}
+		
+		});
+		//addDocsButton.addActionListener(controller);
+		//addDocsButton.setActionCommand(""+EditorControl.ADD_DOCS);
 		UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
 		viewedBy = new HashMap<Long, ViewedByComponent>();
 		selectedValue = 0;
@@ -202,7 +243,7 @@ class AnnotationDataUI
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		docPane.add(new DocComponent(null, model));
+		docPane.add(new DocComponent(null, model, false));
 		viewedByPane = new JPanel();
 		viewedByPane.setLayout(new BoxLayout(viewedByPane, BoxLayout.Y_AXIS));
 		viewedByPane.setOpaque(false);
@@ -540,6 +581,50 @@ class AnnotationDataUI
 		layoutTags(values);
 	}
 	
+	/**
+	 * Adds the collection of files to the list.
+	 * 
+	 * @param attachments The collection to handle.
+	 */
+	private void handleFilesEnter(Collection attachments)
+	{
+		Component[] components = docPane.getComponents();
+		List<DocComponent> list = new ArrayList<DocComponent>();
+		DocComponent doc;
+		FileAnnotationData f;
+		boolean exist;
+		Iterator k = attachments.iterator();
+		FileAnnotationData data;
+		Object object;
+		while (k.hasNext()) {
+			 exist = false;
+			 data = (FileAnnotationData) k.next();
+			 if (components != null && components.length > 0) {
+				 for (int i = 0; i < components.length; i++) {
+					 if (components[i] instanceof DocComponent) {
+						 doc = (DocComponent) components[i];
+						 object = doc.getData();
+						 if (object instanceof FileAnnotationData) {
+							 f = (FileAnnotationData) doc.getData();
+							 if (doc.isAdded()) list.add(doc);
+							 if (f.getId() == data.getId()) exist = true;
+						 } else if (object instanceof File)
+							 list.add(doc);
+					 }
+				 }
+			 }
+			 if (!exist) {
+				 docFlag = true;
+				 doc = new DocComponent(data, model, true);
+				 doc.addPropertyChangeListener(controller);
+				 list.add(doc);
+				 firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						 Boolean.TRUE);
+			 }
+		}
+		layoutAttachments(list);
+	}
+	
 	/** Handles the text removal. */
 	private void handleTextRemoval()
 	{
@@ -657,7 +742,7 @@ class AnnotationDataUI
 		if (l != null && l.size() > 0) {
 			i = l.iterator();
 			while (i.hasNext()) {
-				doc = new DocComponent(i.next(), model);
+				doc = new DocComponent(i.next(), model, false);
 				doc.addPropertyChangeListener(controller);
 				docPane.add(doc);
 			}
@@ -669,7 +754,7 @@ class AnnotationDataUI
 			}
 		}
 		if (docPane.getComponentCount() == 0)
-			docPane.add(new DocComponent(null, model));
+			docPane.add(new DocComponent(null, model, false));
 		docPane.revalidate();
 		docPane.repaint();
 		
@@ -793,6 +878,65 @@ class AnnotationDataUI
 		autoComplete = false;
 	}	
 	
+	/** 
+	 * Displays the existing in the <code>SelectionWizard</code>
+	 * or in the UI component used for code completion.
+	 */
+	void setExistingAttachments()
+	{
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		Collection l = model.getExistingAttachments();
+		if (l == null) return;
+		List<Object> r = new ArrayList<Object>();
+		Collection attachments = model.getAttachments();
+		Iterator i;
+		Set<Long> ids = new HashSet<Long>();
+		AnnotationData data;
+		if (attachments != null) {
+			i = attachments.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				//if (!removedFiles.contains(data)) 
+					ids.add(data.getId());
+			}
+		}
+		
+		if (l.size() > 0) {
+			i = l.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!ids.contains(data.getId()))
+					r.add(data);
+			}
+		}
+		
+		Registry reg = MetadataViewerAgent.getRegistry();
+		if (r.size() == 0) {
+			UserNotifier un = reg.getUserNotifier();
+			un.notifyInfo("Existing Files", "No files found.");
+			return;
+		}
+		SelectionWizard wizard = new SelectionWizard(
+										reg.getTaskBar().getFrame(), r);
+		IconManager icons = IconManager.getInstance();
+		wizard.setTitle("Upload Files Selection" , "Select files already " +
+				"updloaded to the server", 
+				icons.getIcon(IconManager.ATTACHMENT_48));
+		wizard.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+					Collection l = (Collection) evt.getNewValue();
+					if (l == null || l.size() == 0) return;
+			    	handleFilesEnter(l);
+				}
+			}
+		
+		});
+		UIUtilities.centerAndShow(wizard);
+	}	
+	
 	/**
 	 * Attaches the passed file.
 	 * 
@@ -805,21 +949,26 @@ class AnnotationDataUI
 		DocComponent doc;
 		File f;
 		boolean exist = false;
+		Object data;
 		if (components != null && components.length > 0) {
 			for (int i = 0; i < components.length; i++) {
 				if (components[i] instanceof DocComponent) {
 					doc = (DocComponent) components[i];
-					if (doc.getData() instanceof File) {
-						f = (File) doc.getData();
+					data = doc.getData();
+					if (data instanceof File) {
 						list.add(doc);
+						f = (File) doc.getData();
 						if (f.equals(file)) exist = true;
+					} else if ((data instanceof FileAnnotationData) 
+							&& doc.isAdded()) {
+						list.add(doc);
 					}
 				}
 			}
 		}
 		if (!exist) {
 			docFlag = true;
-			doc = new DocComponent(file, model);
+			doc = new DocComponent(file, model, true);
 			doc.addPropertyChangeListener(controller);
 			list.add(doc);
 			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
@@ -829,24 +978,68 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Removes the passed file from the display.
+	 * Removes the file from the list.
 	 * 
 	 * @param file The file to remove.
 	 */
-	void removeAttachedFile(File file)
-	{ 
+	private void removeFile(File file)
+	{
 		Component[] components = docPane.getComponents();
 		List<DocComponent> list = new ArrayList<DocComponent>();
 		DocComponent doc;
 		int count = 0;
+		Object data;
 		if (components != null && components.length > 0) {
 			File f;
 			for (int i = 0; i < components.length; i++) {
 				if (components[i] instanceof DocComponent) {
 					doc = (DocComponent) components[i];
-					if (doc.getData() instanceof File) {
-						f = (File) doc.getData();
+					data = doc.getData();
+					if (data instanceof File) {
+						f = (File) data;
 						if (!f.equals(file)) {
+							count++;
+							list.add(doc);
+						}
+					} else if ((data instanceof FileAnnotationData) 
+							&& doc.isAdded()) {
+						count++;
+						list.add(doc);
+					}
+				}
+			}
+		}
+		docFlag = (count != 0);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+		layoutAttachments(list);
+	}
+	
+	/**
+	 * Removes the file from the list.
+	 * 
+	 * @param file The file to remove.
+	 */
+	private void removeFile(FileAnnotationData file)
+	{
+		Component[] components = docPane.getComponents();
+		List<DocComponent> list = new ArrayList<DocComponent>();
+		DocComponent doc;
+		int count = 0;
+		Object data;
+		if (components != null && components.length > 0) {
+			FileAnnotationData f;
+			for (int i = 0; i < components.length; i++) {
+				if (components[i] instanceof DocComponent) {
+					doc = (DocComponent) components[i];
+					data = doc.getData();
+					if (data instanceof File) {
+						count++;
+						list.add(doc);
+					} else if ((data instanceof FileAnnotationData) 
+							&& doc.isAdded()) {
+						f = (FileAnnotationData) data;
+						if (f.getId() != file.getId()) {
 							count++;
 							list.add(doc);
 						}
@@ -858,6 +1051,18 @@ class AnnotationDataUI
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 				Boolean.TRUE);
 		layoutAttachments(list);
+	}
+	
+	/**
+	 * Removes the passed file from the display.
+	 * 
+	 * @param file The file to remove.
+	 */
+	void removeAttachedFile(Object file)
+	{ 
+		if (file instanceof File) removeFile((File) file);
+		else if (file instanceof FileAnnotationData)
+			removeFile((FileAnnotationData) file);
 	}
 	
 	/**
@@ -1024,7 +1229,7 @@ class AnnotationDataUI
 		urlPane.removeAll();
 		urlPane.add(new URLComponent(null, model));
 		docPane.removeAll();
-		docPane.add(new DocComponent(null, model));
+		docPane.add(new DocComponent(null, model, false));
 		tagFlag = false;
 		urlFlag = false;
 		docFlag = false;

@@ -302,11 +302,38 @@ public class IconManager
     /** The <code>Files Explorer</code> icon. */
     public static int           FILES_EXPLORER = 82;
     
+    /** The <code>File</code> icon. */
+    public static int           FILE = 83;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_PDF = 84;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_TEXT = 85;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_EDITOR = 86;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_WORD = 87;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_EXCEL = 88;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_PPT = 89;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_XML = 90;
+    
+    /** The <code>File</code> icon. */
+    public static int           FILE_HTML = 91;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 82;
+    private static int          MAX_ID = 91;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -394,10 +421,20 @@ public class IconManager
         relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
         relPaths[SCREEN_ANNOTATED] =
         	"nuvola_folder_blue_open_modified_screen_annotated16.png";
-        relPaths[PLATE_ANNOTATED] ="plate_annotated16.png";
-        relPaths[PLATE] ="plate16.png";
-        relPaths[EDITOR] ="omeroEditorLink16.png";
-        relPaths[FILES_EXPLORER] ="omeroEditorLink16.png";
+        relPaths[PLATE_ANNOTATED] = "plate_annotated16.png";
+        relPaths[PLATE] = "plate16.png";
+        relPaths[EDITOR] = "omeroEditorLink16.png";
+        relPaths[FILES_EXPLORER] = "nuvola_attach16.png";
+        relPaths[FILE] = "nuvola_attach16.png";
+        
+        relPaths[FILE_PDF] = "nuvola_acroread16.png";
+        relPaths[FILE_TEXT] = "nuvola_txt16.png";
+        relPaths[FILE_WORD] = "alienOSX_Microsoft_Word16.png";
+        relPaths[FILE_PPT] = "alienOSX_Microsoft_PowerPoint16.png";
+        relPaths[FILE_EXCEL] = "alienOSX_Microsoft_Excel16.png";
+        relPaths[FILE_XML] = "txt_xml16.png";
+        relPaths[FILE_HTML] = "txt_html16.png";
+        relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
     }
     
     /** The sole instance. */

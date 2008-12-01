@@ -198,6 +198,12 @@
         <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
         <config>editor.xml</config>
     </agent>
+    <agent>
+        <name>FSImporter</name>
+        <active>true</active>
+        <class>org.openmicroscopy.shoola.agents.fsimporter.FSImporterAgent</class>
+        <config>fsimporter.xml</config>
+    </agent>
     </structuredEntry>
   </agents>
   

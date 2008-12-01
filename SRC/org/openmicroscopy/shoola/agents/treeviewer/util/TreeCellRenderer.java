@@ -43,9 +43,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -79,6 +81,9 @@ public class TreeCellRenderer
     /** The ID of the current user. */
     private long				userID;
 
+    /** Filter to identify protocol file. */
+    private EditorFileFilter 	filter;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * If an icon is passed, the passed icon is set
@@ -115,6 +120,30 @@ public class TreeCellRenderer
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.PLATE_ANNOTATED);
         	else icon = icons.getIcon(IconManager.PLATE);
+        } else if (usrObject instanceof FileAnnotationData) {
+        	FileAnnotationData data = (FileAnnotationData) usrObject;
+        	String format = data.getFileFormat();
+        	if (FileAnnotationData.PDF.equals(format)) 
+        		icon = icons.getIcon(IconManager.FILE_PDF);
+        	else if (FileAnnotationData.TEXT.equals(format) ||
+        			FileAnnotationData.CSV.equals(format)) 
+        		icon = icons.getIcon(IconManager.FILE_TEXT);
+        	else if (FileAnnotationData.HTML.equals(format) ||
+        			FileAnnotationData.HTM.equals(format)) 
+        		icon = icons.getIcon(IconManager.FILE_HTML);
+        	else if (FileAnnotationData.MS_POWER_POINT.equals(format) ||
+        			FileAnnotationData.MS_POWER_POINT_SHOW.equals(format)) 
+        		icon = icons.getIcon(IconManager.FILE_PPT);
+        	else if (FileAnnotationData.MS_WORD.equals(format)) 
+        		icon = icons.getIcon(IconManager.FILE_WORD);
+        	else if (FileAnnotationData.MS_EXCEL.equals(format)) 
+        		icon = icons.getIcon(IconManager.FILE_EXCEL);
+        	else if (FileAnnotationData.XML.equals(format) ||
+        			FileAnnotationData.RTF.equals(format)) {
+        		if (filter.accept(data.getFileName()))
+        			icon = icons.getIcon(IconManager.FILE_EDITOR);
+        		else icon = icons.getIcon(IconManager.FILE_XML);
+        	} else icon = icons.getIcon(IconManager.FILE);
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (usrObject instanceof String)
@@ -150,7 +179,7 @@ public class TreeCellRenderer
         	(ExperimenterData) TreeViewerAgent.getRegistry().lookup(
         			LookupNames.CURRENT_USER_DETAILS);
         userID = exp.getId();
-      
+        filter = new EditorFileFilter();
     }
     
     /** Creates a new instance. */

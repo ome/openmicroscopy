@@ -66,6 +66,9 @@ public class ColouredButton
 	/** The foreground color when the color of the button is light. */
 	private static final Color	FOREGROUND_LIGHT = Color.GRAY.darker();
 	
+	private static final Color	DEFAULT = new Color(255, 255, 255, 
+											(int) (255*0.5));
+	
     /** The UI for this button. */
     private ColouredButtonUI uiDelegate;
 	

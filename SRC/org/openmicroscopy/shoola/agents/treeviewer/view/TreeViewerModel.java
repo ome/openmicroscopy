@@ -220,27 +220,27 @@ class TreeViewerModel
 	{
 		Browser browser = 
 			BrowserFactory.createBrowser(Browser.PROJECT_EXPLORER, 
-					component, experimenter);
+					component, experimenter, true);
 		selectedBrowser = browser;
 		browser.setSelected(true);
-		browsers.put(new Integer(Browser.PROJECT_EXPLORER), browser);
+		browsers.put(Browser.PROJECT_EXPLORER, browser);
 		browser = BrowserFactory.createBrowser(Browser.SCREENS_EXPLORER,
-									component, experimenter);
-		browsers.put(new Integer(Browser.SCREENS_EXPLORER), browser);
+									component, experimenter, false);
+		browsers.put(Browser.SCREENS_EXPLORER, browser);
 		browser = BrowserFactory.createBrowser(Browser.TAGS_EXPLORER,
-				component, experimenter);
-		browsers.put(new Integer(Browser.TAGS_EXPLORER), browser);
-		browser = BrowserFactory.createBrowser(Browser.FILES_EXPLORER,
-				component, experimenter);
-		browsers.put(new Integer(Browser.FILES_EXPLORER), browser);
+				component, experimenter, true);
+		browsers.put(Browser.TAGS_EXPLORER, browser);
 		/*
 		browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
 				component, experimenter);
 		browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
 		*/
 		browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER,
-				component, experimenter);
-		browsers.put(new Integer(Browser.IMAGES_EXPLORER), browser);
+				component, experimenter, true);
+		browsers.put(Browser.IMAGES_EXPLORER, browser);
+		browser = BrowserFactory.createBrowser(Browser.FILES_EXPLORER,
+				component, experimenter, false);
+		browsers.put(Browser.FILES_EXPLORER, browser);
 	}
 
 	/**

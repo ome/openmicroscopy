@@ -259,6 +259,14 @@ class GeneralPaneUI
     	repaint();
 	}
 	
+	/** Sets the existing attachments. */
+	void setExistingAttachments()
+	{
+		annotationUI.setExistingAttachments();
+		revalidate();
+    	repaint();
+	}
+	
 	/** Shows the image's info. */
     void setChannelData()
     { 
@@ -325,7 +333,7 @@ class GeneralPaneUI
 	 * 
 	 * @param file The file to remove.
 	 */
-	void removeAttachedFile(File file)
+	void removeAttachedFile(Object file)
 	{ 
 		annotationUI.removeAttachedFile(file);
 	}

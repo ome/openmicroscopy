@@ -374,8 +374,9 @@ public class StructuredAnnotationLoader
     			}
     			break;
 			case ATTACHMENT:
-				loadCall = loadAttachments(object.getClass(), object.getId(), 
-										userID);
+				Class klass = null;
+				if (object != null) klass = object.getClass();
+				loadCall = loadAttachments(klass, object.getId(), userID);
 				break;
 			case TAG:
 				loadCall = loadTags(object.getClass(), object.getId(), userID);

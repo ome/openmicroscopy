@@ -34,6 +34,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
@@ -46,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -88,17 +90,6 @@ class MetadataHandlerViewImpl
 		BatchCallTree cmd = new StructuredAnnotationLoader(
 			 	StructuredAnnotationLoader.ATTACHMENT, rootType, rootID, 
 			 	userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadAttachments(long, AgentEventListener)
-	 */
-	public CallHandle loadAttachments(long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(
-			 	StructuredAnnotationLoader.ATTACHMENT, null, -1, userID);
 		return cmd.exec(observer);
 	}
 	
@@ -345,6 +336,21 @@ class MetadataHandlerViewImpl
 			                         AgentEventListener observer)
 	{
 		BatchCallTree cmd = new TagsLoader(level, userID);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Saves the file back to the server.
+	 * 
+	 * @param file				The file to save back to the server.
+	 * @param originalFileID	The id of the file if previously saved.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle saveFile(FileAnnotationData file, long originalFileID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ArchivedFilesSaver(file, originalFileID);
 		return cmd.exec(observer);
 	}
 	

@@ -288,6 +288,7 @@ class EditorComponent
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
 		view.setExistingAttachements();
+		setStatus(false);
 	}
 	
 	/** 
@@ -448,6 +449,16 @@ class EditorComponent
 		model.setChannelAcquisitionData(index, data);
 		view.setChannelAcquisitionData(index);
 		view.setStatus(false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#loadExistingAttachments()
+	 */
+	public void loadExistingAttachments()
+	{
+		model.loadExistingAttachments();
+		setStatus(true);
 	}
 	
 }

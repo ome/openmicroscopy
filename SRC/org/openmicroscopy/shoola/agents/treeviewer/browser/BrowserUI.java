@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 
@@ -254,6 +255,8 @@ class BrowserUI
                 Object o = d.getUserObject();
                 if (o instanceof ImageData) {
                 	model.viewImage(d);
+                } else if (o instanceof FileAnnotationData) {
+                	model.openFile(d);
                 }
             }
         }

@@ -85,7 +85,7 @@ public class ExperimenterDataLoader
     public static final int TAGS = 3;
     
     /** Indicates that the root node is of type <code>Image</code>. */
-    public static final int ATTACHMENTS = 4;
+    public static final int FILES = 4;
     
     /** 
      * Flag to indicate if the images are also retrieved.
@@ -123,7 +123,7 @@ public class ExperimenterDataLoader
             case PROJECT: return ProjectData.class;
             case DATASET: return DatasetData.class; 
             case TAGS: return TagAnnotationData.class;
-            case ATTACHMENTS: return FileAnnotationData.class;
+            case FILES: return FileAnnotationData.class;
         }
         return null;
     }
@@ -198,7 +198,8 @@ public class ExperimenterDataLoader
 					handle = dmView.loadTags(id, images, exp.getId(), this);
 			} 
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
-    		handle = mhView.loadAttachments(exp.getId(), this);
+    		handle = mhView.loadExistingAnnotations(rootNodeType, null, 
+    				exp.getId(), this);
     	} else {
     		if (parent == null) {
         		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
@@ -226,7 +227,7 @@ public class ExperimenterDataLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         if (FileAnnotationData.class.equals(rootNodeType)) {
-        	//viewer.setUploadedFiles((Collection) result);
+        	viewer.setExperimenterData(expNode, (Collection) result);
         	return;
         }
         if (parent == null) 

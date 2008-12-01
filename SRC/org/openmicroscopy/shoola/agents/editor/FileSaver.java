@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.editor.FileLoader 
+ * org.openmicroscopy.shoola.agents.editor.FileSaver 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor;
 
 
+
 //Java imports
 import java.io.File;
 
@@ -32,10 +33,11 @@ import java.io.File;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.FileAnnotationData;
 
 /** 
- * Loads the file to edit. 
- * This class calls one of the <code>loadFile</code> method in the
+ * Saves the file back to the server.
+ * This class calls one of the <code>saveFile</code> method in the
  * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -46,54 +48,59 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since 3.0-Beta3
+ * @since 3.0-Beta4
  */
-public class FileLoader 
+public class FileSaver 
 	extends EditorLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
     
-    /** The id of the file to load. */
-    private long 				fileID;
-    
-    /** The size of the file to load. */
-    private long 				fileSize;
-    
     /** Utility file where the raw data are loaded. */
     private File				file;
+    
+    /** The id of the file previously saved. */
+    private long 				originalID;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The Editor this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param fileName	The name of the file to edit.
-     * @param fileID	The id of the file to load.
-     * @param fileSize	The size of the file to load.
+     * @param viewer		The Editor this data loader is for.
+     *                 	 	Mustn't be <code>null</code>.
+     * @param file			The file to save back to the server.
      */
-	public FileLoader(Editor viewer, String fileName, long fileID, 
-				long fileSize)
+	public FileSaver(Editor viewer, File file)
 	{
-		super(viewer);
-		if (fileID < 0)
-			throw new IllegalArgumentException("ID not valid.");
-		if (fileSize <= 0)
-			throw new IllegalArgumentException("The file's size should " +
-					"be positive.");
-		this.fileID = fileID;
-		this.fileSize = fileSize;
-		file = new File(fileName);
+		this(viewer, file, -1);
 	}
 	
 	/**
-	 * Loads the file.
+     * Creates a new instance.
+     * 
+     * @param viewer		The Editor this data loader is for.
+     *                 	 	Mustn't be <code>null</code>.
+     * @param file			The file to save back to the server.
+     * @param originalID	The id of thet file if previously saved, or
+     * 						<code>-1</code> if not previously saved.
+     */
+	public FileSaver(Editor viewer, File file, long originalID)
+	{
+		super(viewer);
+		if (file == null)
+			throw new IllegalArgumentException("No file to save.");
+		this.file = file;
+		this.originalID = originalID;
+	}
+	
+	/**
+	 * Saves the file.
 	 * @see EditorLoader#load()
 	 */
 	public void load()
 	{
-		handle = mhView.loadFile(file, fileID, fileSize, this);
+		FileAnnotationData data = new FileAnnotationData(file);
+		handle = mhView.saveFile(data, originalID, this);
 	}
 
 	/**
@@ -109,13 +116,8 @@ public class FileLoader
 	public void handleResult(Object result)
 	{
 		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-		File file = (File) result;
-		if (file.exists()) {
-			viewer.setFileToEdit(file);
-			// don't need to keep a copy. Delete the local copy after 
-			// opening in viewer. 
-			file.delete();
-		}
+		viewer.onFileSave((Boolean) result);
+		file.delete();
 	}
-    
+	
 }

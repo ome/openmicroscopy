@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.AnnotationData;
 import pojos.ChannelData;
+import pojos.FileAnnotationData;
 
 /** 
  * The Editor's controller.
@@ -76,20 +77,23 @@ class EditorControl
 	/** Bound property indicating that the save status has been modified. */
 	static final String SAVE_PROPERTY = "save";
 	
-	/** Action id indicating to attach documents. */
-	static final int	ADD_DOCS = 0;
+	/** Action id indicating to upload attach documents . */
+	static final int	ADD_LOCAL_DOCS = 0;
+	
+	/** Action id indicating to upload attach documents . */
+	static final int	ADD_UPLOADED_DOCS = 1;
 	
 	/** Action id indicating to attach documents. */
-	static final int	ADD_TAGS = 1;
+	static final int	ADD_TAGS = 2;
 	
 	/** Action ID to save the data. */
-	static final int 	SAVE = 2;
+	static final int 	SAVE = 3;
 	
 	/** Action ID to download archived files. */
-	static final int	DOWNLOAD = 3;
+	static final int	DOWNLOAD = 4;
 
 	/** Action ID to display the acquisition metadata. */
-	static final int	ACQUISITION_METADATA = 4;
+	static final int	ACQUISITION_METADATA = 5;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -206,10 +210,16 @@ class EditorControl
 			view.attachFile((File) evt.getNewValue());
 		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
-			if (object instanceof File)
-				view.removeAttachedFile((File) object);
-			else if (object instanceof AnnotationData)
-				model.deleteAnnotation((AnnotationData) object);
+			if (object instanceof DocComponent) {
+				DocComponent doc = (DocComponent) object;
+				Object data = doc.getData();
+				if (data instanceof File) view.removeAttachedFile(data);
+				else if ((data instanceof FileAnnotationData) &&
+						doc.isAdded())
+					view.removeAttachedFile(data);
+				else if (object instanceof AnnotationData)
+					model.deleteAnnotation((AnnotationData) object);
+			}
 		} 
 	}
 
@@ -221,8 +231,11 @@ class EditorControl
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case ADD_DOCS:
+			case ADD_LOCAL_DOCS:
 				selectFileToAttach();
+				break;
+			case ADD_UPLOADED_DOCS:
+				model.loadExistingAttachments();
 				break;
 			case SAVE:
 				view.saveData();

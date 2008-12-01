@@ -1234,7 +1234,7 @@ class OMEROGateway
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("uid", omero.rtypes.rlong(userID));
-			sql += " and link.details.owner.id = :uid";
+			sql += " where link.details.owner.id = :uid";
 			return service.findAllByQuery(sql, p);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
@@ -1242,7 +1242,6 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
 	
 	/**
 	 * Retrieves the images contained in containers specified by the 
@@ -2315,14 +2314,15 @@ class OMEROGateway
 	 * Uploads the passed file to the server and returns the 
 	 * original file i.e. the server object.
 	 * 
-	 * @param file		The file to upload.
-	 * @param format	The format of the file.
+	 * @param file		     The file to upload.
+	 * @param format		 The format of the file.
+	 * @param originalFileID The id of the file or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	OriginalFile uploadFile(File file, String format)
+	OriginalFile uploadFile(File file, String format, long originalFileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null)
@@ -2331,18 +2331,21 @@ class OMEROGateway
 		RawFileStorePrx store = getRawFileService();
 		OriginalFile save = null;
 		try {
-			Format f = (Format) getQueryService().findByString(
-					Format.class.getName(), "value", format);
-			OriginalFile oFile = new OriginalFileI();
-			oFile.setName(omero.rtypes.rstring(file.getName()));
-			oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
-			oFile.setSize(omero.rtypes.rlong(file.length()));
-			oFile.setSha1(omero.rtypes.rstring("pending"));
-			oFile.setFormat(f);
+			if (originalFileID <= 0) {
+				Format f = (Format) getQueryService().findByString(
+						Format.class.getName(), "value", format);
+				OriginalFile oFile = new OriginalFileI();
+				oFile.setName(omero.rtypes.rstring(file.getName()));
+				oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
+				oFile.setSize(omero.rtypes.rlong(file.length()));
+				oFile.setSha1(omero.rtypes.rstring("pending"));
+				oFile.setFormat(f);
+				
+				save = (OriginalFile) saveAndReturnObject(oFile, null);
+				//service.saveAndReturnObject(oFile);
+				store.setFileId(save.getId().getValue());
+			} else store.setFileId(originalFileID);
 			
-			save = (OriginalFile) saveAndReturnObject(oFile, null);
-			//service.saveAndReturnObject(oFile);
-			store.setFileId(save.getId().getValue());
 		} catch (Exception e) {
 			handleException(e, "Cannot set the file's id.");
 		}
@@ -4109,4 +4112,6 @@ class OMEROGateway
 		}
 		return new ArrayList<IObject>();
 	}
+	
+	
 }

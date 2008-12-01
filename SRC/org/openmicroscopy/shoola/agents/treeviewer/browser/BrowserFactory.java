@@ -53,14 +53,19 @@ public class BrowserFactory
      * @param parent        Reference to the parent. 
      *                      Mustn't be <code>null</code>.  
      * @param experimenter  The experimenter this browser is for. 
+     * @param display		Pass <code>true</code> to indicate that the 
+     * 						browser will be displayed, <code>false</code>
+     * 						otherwise.
      * @return See above.
      */
     public static Browser createBrowser(int browserType, TreeViewer parent, 
-    								ExperimenterData experimenter)
+    								ExperimenterData experimenter, boolean
+    								display)
     {
         if (parent == null)
             throw new IllegalArgumentException("No parent.");
         BrowserModel model = new BrowserModel(browserType, parent);
+        model.setDisplayed(display);
         BrowserComponent component = new BrowserComponent(model);
         model.initialize(component);
         component.initialize(experimenter);

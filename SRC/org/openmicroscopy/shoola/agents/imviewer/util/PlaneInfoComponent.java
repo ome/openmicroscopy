@@ -94,7 +94,10 @@ public class PlaneInfoComponent
 		setIcon(icon);
 		addMouseListener(new MouseAdapter() {
 		
-			@Override
+			/**
+			 * Shows information
+			 * @see MouseAdapter#mousePressed(MouseEvent)
+			 */
 			public void mousePressed(MouseEvent e) {
 				showInfo();
 			}

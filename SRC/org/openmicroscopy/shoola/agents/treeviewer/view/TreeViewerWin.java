@@ -249,6 +249,7 @@ class TreeViewerWin
         browser = (Browser) browsers.get(new Integer(Browser.IMAGES_EXPLORER));
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
+        menu.add(item);
         item = new JCheckBoxMenuItem();
         browser = (Browser) browsers.get(new Integer(Browser.FILES_EXPLORER));
         item.setSelected(browser.isDisplayed());

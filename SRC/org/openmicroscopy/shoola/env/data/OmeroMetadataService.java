@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 
 /** 
  * List of methods to retrieve metadata.
@@ -612,6 +613,20 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveAcquisitionData(Object refObject)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Saves the file back to the server.
+	 * 
+	 * @param file				The file to save.
+	 * @param originalFileID	The id of the file is previously saved.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object archivedFile(FileAnnotationData file, long originalFileID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

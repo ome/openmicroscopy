@@ -299,4 +299,7 @@ public interface Editor
 	 */
 	public void loadChannelAcquisitionData(ChannelData channel);
 
+	/** Loads the existing attachments. */
+	public void loadExistingAttachments();
+
 }

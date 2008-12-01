@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -317,6 +318,27 @@ public class TreeViewerTranslator
     }
     
     /**
+     * Transforms a {@link FileAnnotationData} into a visualisation object i.e.
+     * a {@link TreeImageNode}.
+     * 
+     * @param data      The {@link FileAnnotationData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.                 
+     * @return See above.
+     */
+    private static TreeImageDisplay transformFile(FileAnnotationData data, 
+    			long userID, long groupID)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageNode node = new TreeImageNode(data);
+        formatToolTipFor(node);
+        return node;
+    }
+    
+    /**
      * Transforms a {@link ProjectData} into a visualisation object i.e.
      * a {@link TreeImageSet}. The {@link DatasetData datasets} are also
      * transformed and linked to the newly created {@link TreeImageSet}.
@@ -465,6 +487,10 @@ public class TreeViewerTranslator
                 			groupID));
                 } else if (ho instanceof WellData) {
                 	results.add(transformWell((WellData) ho, userID, groupID));
+                } else if (ho instanceof FileAnnotationData) {
+                	child = transformFile((FileAnnotationData) ho, userID, 
+    			            groupID);
+    				results.add(child);
                 }
             }   
         }

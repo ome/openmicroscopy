@@ -61,6 +61,8 @@ public interface Editor
 	/** Flag to denote the <i>Discarded</i> state. */
 	public static final int     DISCARDED = 4;
 
+	/** Flag to denote the <i>Saving</i> state. */
+	public static final int     SAVING = 5;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
@@ -143,7 +145,7 @@ public interface Editor
 	 * If the current file is local, saves there, overwriting the old file. 
 	 * If file is on server...
 	 */
-	public boolean saveCurrentFile();
+	public void saveCurrentFile();
 	
 	/**
 	 * Saves to the specified file, and remembers file location in model.
@@ -153,4 +155,11 @@ public interface Editor
 	 * @return			True if the saving was successful
 	 */
 	public boolean saveFileAs(File file);
+	
+	/**
+	 * 
+	 * @param result
+	 */
+	public void onFileSave(boolean result);
+	
 }

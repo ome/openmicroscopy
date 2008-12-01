@@ -33,6 +33,7 @@ import javax.swing.tree.TreeModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
+import org.openmicroscopy.shoola.agents.editor.FileSaver;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
@@ -245,26 +246,28 @@ class EditorModel
 	Browser getBrowser() { return browser; }
 
 	/**
-	 * Saves the current file.
-	 * If file is a local file, saves the file there. 
+	 * Saves the locally the current file.
 	 * If file came from the server, saves the file there. 
-	 * If the file is not saved anywhere, returns false.
+	 * If the file is not saved anywhere, returns <code>false</code>,
+	 * otherwise returns <code>true</code>.
 	 * Delegates to {@link #saveFile(File)} to do the saving.
+	 * 
+	 * @return See above.
 	 */
-	boolean saveCurrentFile() 
+	boolean saveLocalFile() 
 	{
-		// if no fileID, file is local. 
-		if (fileID == 0) {
-			if ((fileToEdit != null) && (fileToEdit.exists())) {
-				return saveFile(fileToEdit);
-			} 
-			// didn't save. 
-			return false;
-
-		} else {
-			//TODO save to server.
-			return false;
-		}
+		if (fileToEdit != null && fileToEdit.exists()) {
+			return saveFile(fileToEdit);
+		} 
+		return false;
+	}
+	
+	void fireFileSaving(File file)
+	{
+		saveFile(file);
+		currentLoader = new FileSaver(component, file, fileID);
+		currentLoader.load();
+		state = Editor.SAVING;
 	}
 	
 	/**
@@ -288,6 +291,13 @@ class EditorModel
 	}
 	
 	/**
+	 * Sets the state.
+	 * 
+	 * @param state The value to set.
+	 */
+	void setState(int state) { this.state = state; }
+	
+	/**
 	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
 	 * 
 	 * @param file
@@ -298,4 +308,5 @@ class EditorModel
 		UPEexport xmlExport = new UPEEditorExport();
 		return xmlExport.export(getBrowser().getTreeModel(), file);
 	}
+	
 }

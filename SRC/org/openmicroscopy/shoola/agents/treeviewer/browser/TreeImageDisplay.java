@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -417,6 +418,8 @@ public abstract class TreeImageDisplay
         	return ((ScreenData) obj).getName();
         else if (obj instanceof PlateData)
         	return ((PlateData) obj).getName();
+        else if (obj instanceof FileAnnotationData)
+        	return ((FileAnnotationData) obj).getFileName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
@@ -437,6 +440,8 @@ public abstract class TreeImageDisplay
         } else if (uo instanceof ExperimenterData)
         	return getNodeName();
         else if (uo instanceof PlateData)
+        	return getNodeName();
+        else if (uo instanceof FileAnnotationData)
         	return getNodeName();
         else if (uo instanceof String && numberItems < 0) 
         	return name;

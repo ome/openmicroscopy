@@ -78,6 +78,9 @@ class DocComponent
 	/** Component displaying the file name. */
 	private JLabel		label;
 	
+	/** Flag indicating if the element has been added. */
+	private boolean		added;
+	
 	/**
 	 * Formats the passed annotation.
 	 * 
@@ -124,6 +127,13 @@ class DocComponent
 		}
 	}
 	
+	/** Fires a property to delete the attachment. */
+	private void delete()
+	{
+		firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
+				null, this);
+	}
+	
 	/** Initializes the {@link #deleteButton}. */
 	private void initButton()
 	{
@@ -138,11 +148,7 @@ class DocComponent
 			 * Fires a property change to delete the attachment.
 			 * @see ActionListener#actionPerformed(ActionEvent)
 			 */
-			public void actionPerformed(ActionEvent e)
-			{
-				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
-						null, data);
-			}
+			public void actionPerformed(ActionEvent e) { delete(); }
 		
 		});
 	}
@@ -160,7 +166,11 @@ class DocComponent
 				FileAnnotationData f = (FileAnnotationData) data;
 				label.setToolTipText(formatTootTip(f));
 				label.setText(EditorUtil.getPartialName(
-						f.getContentAsString()));
+						f.getFileName()));
+				if (added) {
+					initButton();
+					label.setForeground(Color.BLUE);
+				}
 			} else if (data instanceof File) {
 				initButton();
 				File f = (File) data;
@@ -206,13 +216,16 @@ class DocComponent
 	 * 
 	 * @param data	The document annotation. 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param added Pass <code>true</code> to indicate that the document is 
+	 * 				added, <code>false</code> otherwise.
 	 */
-	DocComponent(Object data, EditorModel model)
+	DocComponent(Object data, EditorModel model, boolean added)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No Model.");
 		this.model = model;
 		this.data = data;
+		this.added = added;
 		initComponents();
 		buildGUI();
 	}
@@ -223,5 +236,14 @@ class DocComponent
 	 * @return See above.
 	 */
 	Object getData() { return data; }
+	
+	/**
+	 * Returns <code>true</code> if the component has been added, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAdded() { return added; }
+	
 	
 }

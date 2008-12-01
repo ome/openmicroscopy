@@ -37,6 +37,7 @@ import javax.swing.JTree;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
@@ -541,6 +542,9 @@ class BrowserModel
 				break;
 			case Browser.TAGS_EXPLORER:
 				index = ExperimenterDataLoader.TAGS;
+				break;
+			case Browser.FILES_EXPLORER:
+				index = ExperimenterDataLoader.FILES;
 		}
 		currentLoader = new ExperimenterDataLoader(component, index, expNode);
         currentLoader.load();
@@ -568,8 +572,8 @@ class BrowserModel
 			case Browser.SCREENS_EXPLORER:
 				klass = ScreenData.class;
 				break;
-			//case Browser.FILES_EXPLORER:
-				//klass = FileAnnotationData.class;
+			case Browser.FILES_EXPLORER:
+				klass = FileAnnotationData.class;
 		}
         state = Browser.LOADING_DATA;
         if (klass == null) return;
@@ -663,6 +667,21 @@ class BrowserModel
 		Rectangle r = parent.getUI().getBounds();
 		ViewImage evt = new ViewImage(image, r);
     	evt.setContext(pObject, gpObject);
+		TreeViewerAgent.getRegistry().getEventBus().post(evt);
+	}
+	
+	/**
+	 * Opens the file hosted by the passed node.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void openFile(TreeImageDisplay node)
+	{
+		if (node == null) return;
+		FileAnnotationData data = (FileAnnotationData) node.getUserObject();
+    	String name = data.getFileName();
+		long size = data.getFileSize();
+		EditFileEvent evt = new EditFileEvent(name, data.getFileID(), size);
 		TreeViewerAgent.getRegistry().getEventBus().post(evt);
 	}
 	

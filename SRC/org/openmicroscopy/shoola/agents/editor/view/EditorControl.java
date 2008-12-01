@@ -225,6 +225,9 @@ class EditorControl
 			case Editor.LOADING:
 				model.setStatus("Loading...", false);
 				break;
+			case Editor.SAVING:
+				model.setStatus("Saving...", false);
+				break;
 			case Editor.READY:
 				model.setStatus("", true);
 				break;

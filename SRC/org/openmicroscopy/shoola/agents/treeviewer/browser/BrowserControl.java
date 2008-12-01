@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -167,7 +168,6 @@ class BrowserControl
      */
     void onNodeNavigation(TreeImageDisplay display, boolean expanded)
     {
-    	
     	if (!expanded) {
     		model.cancel();
     		return;
@@ -264,10 +264,11 @@ class BrowserControl
         	else if (ProjectData.class.equals(ref)) text = "projects.";
         	else if (DatasetData.class.equals(ref)) text = "datasets.";
         	else if (TagAnnotationData.class.equals(ref)) text = "tags.";
-        	 UserNotifier un = 
-                 TreeViewerAgent.getRegistry().getUserNotifier();
-             un.notifyInfo("Tree selection", "You can only select "+text);
-             view.removeTreePaths(toRemove);
+        	else if (FileAnnotationData.class.equals(ref)) text = "files.";
+        	UserNotifier un = 
+        		TreeViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo("Tree selection", "You can only select "+text);
+        	view.removeTreePaths(toRemove);
     	}
     	paths = tree.getSelectionPaths();
     	

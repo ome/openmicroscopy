@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -110,16 +111,6 @@ public interface MetadataHandlerView
 	public CallHandle loadAttachments(Class nodeType, long nodeID, long userID,
 			AgentEventListener observer);
 
-	/**
-	 * Loads all the files uploaded to the server by the passed user
-	 * or all the uploaded files if the user is <code>-1</code>.
-	 * 
-	 * @param userID	The user's ID or <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadAttachments(long userID, AgentEventListener observer);
-	
 	/**
 	 * Loads all the containers containing the specified object.
 	 * Retrieves the files if the userID is not <code>-1</code>.
@@ -370,5 +361,16 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadExistingTags(int level, long userID, 
 			                  AgentEventListener observer);
+	
+	/**
+	 * Saves the file back to the server.
+	 * 
+	 * @param file				The file to save back to the server.
+	 * @param originalFileID	The id of the file if previously saved.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle saveFile(FileAnnotationData file, long originalFileID, 
+			AgentEventListener observer);
 	
 }

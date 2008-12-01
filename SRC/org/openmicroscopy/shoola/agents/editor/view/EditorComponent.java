@@ -25,12 +25,18 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.io.File;
 
+import javax.swing.Action;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.MicroFormatsExport;
 import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -261,18 +267,45 @@ class EditorComponent
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * Saves the file in model. 
-	 * 
 	 * @see Editor#saveCurrentFile()
 	 */
-	public boolean saveCurrentFile() {
-		
-		return model.saveCurrentFile();
+	public void saveCurrentFile()
+	{
+		long fileID = model.getFileID();
+		//Try to save it locally.
+		if (fileID <= 0) {
+			boolean b = model.saveLocalFile();
+			if (b) {
+				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("File Saved", "The File has been saved locally.");
+			} else {
+				//This assumes that we are editing an existing file.
+				File toEdit = model.getFileToEdit();
+				if (toEdit != null) {
+					model.fireFileSaving(toEdit);
+				} else {
+					//Saves as
+					File test = new File("testSaveServer.pro.xml");
+					model.fireFileSaving(test);
+					fireStateChange();
+				}
+			}
+		} else {
+			//This assumes that we are editing an existing file.
+			File toEdit = model.getFileToEdit();
+			if (toEdit != null) {
+				model.fireFileSaving(toEdit);
+			} else {
+				//Saves as
+				File test = new File("testSaveServer.pro.xml");
+				model.fireFileSaving(test);
+				fireStateChange();
+			}
+		}
 	}
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * Saves to the specified file, and remembers file location in model
-	 * 
 	 * @see Editor#saveFileAs(File)
 	 */
 	public boolean saveFileAs(File file) {
@@ -283,4 +316,20 @@ class EditorComponent
 		}
 		return false;
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onFileSave(boolean)
+	 */
+	public void onFileSave(boolean result)
+	{
+		UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+		String message = 
+			"An error occured while saving the file to the server.";
+		if (result) message = "The File has been saved to the server.";
+		un.notifyInfo("File Saved", message);
+		model.setState(READY);
+		fireStateChange();
+	}
+	
 }

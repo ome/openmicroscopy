@@ -351,7 +351,13 @@ public class EditorUI
 	void passwordChanged() { userUI.passwordChanged(); }
 
 	/** Displays the wizard with the collection of files already uploaded. */
-	void setExistingAttachements() { }//attachmentsUI.showSelectionWizard(); }
+	void setExistingAttachements()
+	{ 
+		generalPane.setExistingAttachments();
+		revalidate();
+		repaint();
+	}
+	
 	
 	/** Displays the wizard with the collection of URLs already uploaded. */
 	void setExistingURLs() { }//linksUI.showSelectionWizard(); }
@@ -409,7 +415,7 @@ public class EditorUI
 	 * 
 	 * @param file The file to remove.
 	 */
-	void removeAttachedFile(File file)
+	void removeAttachedFile(Object file)
 	{
 		if (file == null) return;
 		generalPane.removeAttachedFile(file);

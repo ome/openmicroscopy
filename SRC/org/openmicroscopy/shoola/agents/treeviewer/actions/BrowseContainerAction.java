@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ScreenData;
@@ -110,7 +111,8 @@ public class BrowseContainerAction
             return;
         }
         if (ho == null || !(ho instanceof DataObject) ||
-        	ho instanceof ExperimenterData || ho instanceof ImageData) 
+        	ho instanceof ExperimenterData || ho instanceof ImageData ||
+        	ho instanceof FileAnnotationData) 
         	setEnabled(false);
         else {
             if (browser != null) {

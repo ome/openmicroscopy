@@ -25,15 +25,11 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
-
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * This Action allows users to choose a local 
@@ -55,10 +51,10 @@ public class SaveFileAction
 	private static final String 	NAME = "Save File";
 
 	/** The description of the action. */
-	private static final String 	DESCRIPTION = 
-		"Save the current file.";
+	private static final String 	DESCRIPTION = "Save the current file.";
 
-	/** Creates a new instance.
+	/** 
+	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
@@ -72,19 +68,12 @@ public class SaveFileAction
 	}
 
 	/**
-	 * Brings up on screen the {@link FileChooser}.
+	 * Saves the file currently edited.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		// returns true if file exists, is not null etc. 
-		if (model.saveCurrentFile()) {
-			org.openmicroscopy.shoola.agents.editor.uiComponents.
-					UIUtilities.showMessageDialog("File Saved", "File Saved");
-			// otherwise, need to Save As...
-		} else {
-			Action saveAs = new SaveFileAsAction(model);
-			saveAs.actionPerformed(e);
-		}
+		model.saveCurrentFile();
 	}
+	
 }

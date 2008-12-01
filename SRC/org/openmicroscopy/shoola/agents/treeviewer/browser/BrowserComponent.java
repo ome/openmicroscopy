@@ -1300,5 +1300,5 @@ class BrowserComponent
 	{
 		model.getParentModel().browseTimeInterval(node, set);
 	}
-
+	
 }
