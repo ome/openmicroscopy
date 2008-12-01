@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -175,7 +176,7 @@ public class DeleteAction
         }
         */
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
-        	(ho instanceof ImageData)) {
+        	(ho instanceof ImageData) || (ho instanceof FileAnnotationData)) {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
         	else {

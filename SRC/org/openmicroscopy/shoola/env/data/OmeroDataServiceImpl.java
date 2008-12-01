@@ -47,6 +47,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.LongAnnotation;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -66,6 +67,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -1151,6 +1153,34 @@ class OmeroDataServiceImpl
 				}
 			}
 			return deleteDataset(object);
+		} else if (data instanceof FileAnnotationData) {
+			List<Long> ids = new ArrayList<Long>();
+			ids.add(data.getId());
+			List l = gateway.findAnnotationLinks(ImageData.class.getName(), -1, 
+					ids);
+			if (l != null && l.size() > 0) {
+				object.setBlocker(l);
+				return object;
+			}
+			l = gateway.findAnnotationLinks(DatasetData.class.getName(), -1, 
+					ids);
+			if (l != null && l.size() > 0) {
+				object.setBlocker(l);
+				return object;
+			}
+			l = gateway.findAnnotationLinks(ProjectData.class.getName(), -1, 
+					ids);
+			if (l != null && l.size() > 0) {
+				object.setBlocker(l);
+				return object;
+			}
+			//not link, we can delete
+			long originalFileID = ((FileAnnotationData) data).getFileID();
+			gateway.deleteObject(
+					gateway.findIObject(data.asIObject()));
+			gateway.deleteObject(
+					gateway.findIObject(OriginalFile.class.getName(), 
+							originalFileID));
 		}
 		return object;
 	}

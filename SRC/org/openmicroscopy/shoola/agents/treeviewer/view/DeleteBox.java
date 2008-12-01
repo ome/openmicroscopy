@@ -186,6 +186,9 @@ public class DeleteBox
 			p.add(withoutContent);
 			p.add(withAnnotation);
 			p.add(typesPane);
+		} else if (FileAnnotationData.class.equals(type)) {
+			add = true;
+			//p.add(typesPane);
 		}
 		if (add)
 			addBodyComponent(p);
@@ -216,6 +219,9 @@ public class DeleteBox
 			buffer.append(DEFAULT_TEXT+" project"+end);
 			buffer.append("\n");
 			buffer.append("If yes, ");
+		} else if (FileAnnotationData.class.equals(type)) {
+			buffer.append(DEFAULT_TEXT+" file"+end);
+			buffer.append("\n");
 		}
 		return buffer.toString();
 	}
