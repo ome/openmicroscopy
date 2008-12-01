@@ -1162,12 +1162,14 @@ class AnnotationDataUI
 			List<File> notSupported = new ArrayList<File>();
 			FileAnnotationData data = null;
 			File f;
+			Object d;
 			Component[] components = docPane.getComponents();
 			if (components != null && components.length > 0) {
 				for (int i = 0; i < components.length; i++) {
 					if (components[i] instanceof DocComponent) {
 						doc = (DocComponent) components[i];
-						if (doc.getData() instanceof File) {
+						d = doc.getData();
+						if (d instanceof File) {
 							f = (File) doc.getData();
 							try {
 								data = new FileAnnotationData(f);
@@ -1176,6 +1178,9 @@ class AnnotationDataUI
 								data = null;
 							}
 							if (data != null) l.add(data);
+						} else if (d instanceof FileAnnotationData) {
+							if (doc.isAdded())
+								l.add((FileAnnotationData) d);
 						}
 					}
 				}
