@@ -28,6 +28,10 @@ package org.openmicroscopy.shoola.util.file;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -97,6 +101,40 @@ class SheetInfo
 		return cell;
 	}
 	
+	/**
+	 * Autosize column, columnIndex. 
+	 * @param columnIndex
+	 */
+	public void sizeColumnToFit(int columnIndex)
+	{
+		sheet.autoSizeColumn((short)columnIndex);
+	}
+	
+
+	/**
+	 * Autosize all columns to fit contents. 
+	 */
+	public void sizeAllColumnsToFit()
+	{
+		Map<Integer, Integer> colMap = new HashMap<Integer,Integer>();
+		Iterator<HSSFRow> rowIterator = sheet.rowIterator();
+		while(rowIterator.hasNext())
+		{
+			HSSFRow row = rowIterator.next();
+			Iterator<HSSFCell> cellIterator = row.cellIterator();
+			while(cellIterator.hasNext())
+			{
+				HSSFCell cell = cellIterator.next();
+				colMap.put(cell.getColumnIndex(), cell.getRowIndex());
+			}
+		}
+		Iterator<Integer> colIterator = colMap.keySet().iterator();
+		while(colIterator.hasNext())
+		{
+			int col = colIterator.next();
+			sizeColumnToFit(col);
+		}
+	}
 	/**
 	 * Get the last cell column written to in row rowIndex.
 	 * @param rowIndex see above.

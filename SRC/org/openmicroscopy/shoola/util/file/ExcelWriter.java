@@ -44,6 +44,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -298,7 +299,24 @@ public class ExcelWriter
 		HSSFCellStyle cellStyle = getCellStyle(style);
 		cell.setCellStyle(cellStyle);
 	}
-
+	
+	/**
+	 * Autosize column, columnIndex to fit contents. 
+	 * @param columnIndex see above.
+	 */
+	public void sizeColumnToFit(int columnIndex)
+	{
+		currentSheet.sizeColumnToFit(columnIndex);
+	}
+	
+	/**
+	 * Autosize all columns to fit contents. 
+	 */
+	public void sizeAllColumnsToFit()
+	{
+		currentSheet.sizeAllColumnsToFit();
+	}
+	
 	/**
 	 * Writes the column headers to the spreadsheet.
 	 * 
