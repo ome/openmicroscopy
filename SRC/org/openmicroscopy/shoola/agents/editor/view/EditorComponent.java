@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.view;
 import java.io.File;
 
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 
 //Third-party libraries
 
@@ -284,8 +285,15 @@ class EditorComponent
 				if (toEdit != null) {
 					model.fireFileSaving(toEdit);
 				} else {
-					//Saves as
-					File test = new File("testSaveServer.pro.xml");
+					//Saves as...
+					// Temporary fix to allow user to enter name...
+					String fileName = JOptionPane.showInputDialog(null, 
+							"Please enter a file name",
+							"Save File to Server", JOptionPane.QUESTION_MESSAGE);
+					if (! fileName.endsWith(".pro.xml")) {
+						fileName = fileName + ".pro.xml";
+					}
+					File test = new File(fileName);
 					model.fireFileSaving(test);
 					fireStateChange();
 				}
