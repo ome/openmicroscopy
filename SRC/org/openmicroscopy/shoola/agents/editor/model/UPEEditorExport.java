@@ -57,6 +57,13 @@ import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 public class UPEEditorExport 
 	extends UPEexport {
 
+	/**
+	 * This overrides this method of {@link UPEexport} with a null 
+	 * implementation, since the description is not added to the step, but
+	 * is included in context with the parameters. 
+	 * 
+	 * @see UPEexport#addStepDescription(IField, IXMLElement)
+	 */
 	protected void addStepDescription(IField field, IXMLElement step) {	}
 	
 	/**
@@ -64,6 +71,8 @@ public class UPEEditorExport
 	 * as required by the OMERO.editor data structure. 
 	 * This is not currently supported by the 'UPE' file format, which is 
 	 * produced by the superclass. 
+	 * 
+	 * @see UPEexport#addParameters(IField, IXMLElement)
 	 */
 	protected void addParameters(IField field, IXMLElement step) 
 	{
@@ -98,8 +107,7 @@ public class UPEEditorExport
 	 * ENUMERATION, with the associated additional attributes. Otherwise
 	 * will be TEXT. No other types supported as yet. 
 	 * 
-	 * @param param			The parameter object 
-	 * @return				A new XML Element that defines the parameter
+	 * @see UPEexport#createParamElement(IParam)
 	 */
 	protected IXMLElement createParamElement(IParam param) 
 	{

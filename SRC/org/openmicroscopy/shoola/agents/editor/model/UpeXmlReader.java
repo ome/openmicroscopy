@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -53,7 +54,8 @@ import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
  * This class is used for reading 'UPE' Universal Protocol Exchange XML files,
  * and building a treeModel of 'Fields' and 'Parameters'.
  * It reads most details that iLAP saves to 'UPE' 
- * (except parameter description, parameter necessity, parameter deleteable).
+ * (except parameter description, parameter necessity, parameter deleteable,
+ * step notes, protocol-info revision).
  * Also ignores 'STEP_GROUP' vv 'SPLIT_STEP' differences.
  * It also reads some OMERO.editor specific info: putting the parameters
  * in context with descriptions. 
@@ -212,6 +214,15 @@ public class UpeXmlReader {
 		return param;
 	}
 	
+	/**
+	 * This method is used for table parameters, where the XML encodes tabular
+	 * data using HTML tags. 
+	 * It copies the data from the HTML table to the {@link MutableTableModel},
+	 * which is assumed to be empty when this method is called.  
+	 * 
+	 * @param upeParam		The XML element containing the 'table' element
+	 * @param tModel		The table model to save data to
+	 */
 	private static void buildTableModel(IXMLElement upeParam, 
 												MutableTableModel tModel)
 	{
@@ -245,6 +256,33 @@ public class UpeXmlReader {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This is a recursive method that creates a Tree from the 
+	 * XML element <code>upeStep</code>. This step should contain any 
+	 * child steps within a "step-children" element. 
+	 * This method returns a {@link DefaultMutableTreeNode} that is the root
+	 * of the new tree.
+	 * 
+	 * @param upeStep	The root of the XML tree structure. 
+	 * @return			see above. 
+	 */
+	private static DefaultMutableTreeNode upeBuildFieldTree(IXMLElement upeStep) {
+		
+		IField field = upeCreateField(upeStep);
+		DefaultMutableTreeNode fieldNode = new FieldNode(field);
+		
+		IXMLElement childSteps = upeStep.getFirstChildNamed("step-children");
+		if (childSteps != null) {
+			List<IXMLElement> children = childSteps.getChildrenNamed("step");
+			DefaultMutableTreeNode node;
+			for (IXMLElement child : children) {
+				node = upeBuildFieldTree(child);	// recursively build tree
+				fieldNode.add(node);
+			}
+		}
+		return fieldNode;
 	}
 
 	/**
@@ -362,6 +400,48 @@ public class UpeXmlReader {
 		protName = getChildContent(protocolInfo, "description");
 		rootField.addContent(new TextContent(protName));
 		
+		// place new Field in a node
+		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
+		
+		
+		// process the steps of this protocol, creating a field for each
+		IXMLElement steps = protocol.getFirstChildNamed("steps");
+		List<IXMLElement> stepList = steps.getChildren();
+		
+		DefaultMutableTreeNode treeNode;
+		for (IXMLElement step : stepList) {
+			treeNode = upeBuildFieldTree(step);
+			rootNode.add(treeNode);
+		}
+		
+		return new DefaultTreeModel(rootNode);
+	}
+
+	/**
+	 * Builds an OMERO.editor treeModel, from a UPE file that has a list of
+	 * steps, with step hierarchy defined by a path within each step.
+	 * E.g. path = "001/002" indicates that a step is the second child of
+	 * step with path = "001".
+	 * This format will not be used in future, so this method can be removed 
+	 * as soon as the UPE format has stabilised. 
+	 * 
+	 * @param xHtmlFile
+	 * @return
+	 */
+	static TreeModel getTreeUPEStepList(IXMLElement root) {
+		
+		// parse the top elements...
+		IXMLElement protocol = root.getFirstChildNamed("protocol");
+		IXMLElement protocolInfo = protocol.
+									getFirstChildNamed("protocol-information");
+		
+		// create a protocol root field and add name, description
+		IField rootField = new Field();
+		String protName = getChildContent(protocolInfo, "name");
+		rootField.setAttribute(Field.FIELD_NAME, protName);
+		protName = getChildContent(protocolInfo, "description");
+		rootField.addContent(new TextContent(protName));
+		
 		// A map to hold new fields, according to their path, so new children
 		// can be added to their previously created parents, id's by path
 		Map<String, DefaultMutableTreeNode> fieldMap = new HashMap
@@ -395,5 +475,4 @@ public class UpeXmlReader {
 		
 		return new DefaultTreeModel(rootNode);
 	}
-
 }
