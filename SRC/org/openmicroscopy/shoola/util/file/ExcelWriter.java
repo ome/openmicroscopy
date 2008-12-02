@@ -123,6 +123,13 @@ public class ExcelWriter
 	/** Cell Border Underline. */
 	public final static String CELLBORDER_UNDERLINE = "cellborder_underline";
 	
+	/** Cell Border topline. */
+	public final static String CELLBORDER_TOPLINE = "cellborder_topline";
+
+	/** Cell Border Underline and top line. */
+	public final static String CELLBORDER_UNDERLINE_TOPLINE =
+												"cellborder_underline_topline";
+
 	/** The default name of a sheet. */
 	private static final String		DEFAULT_NAME = "Sheet";
 	
@@ -197,6 +204,19 @@ public class ExcelWriter
 		style.setBottomBorderColor(HSSFColor.BLACK.index);
 		styleMap.put(CELLBORDER_UNDERLINE, style);
 
+		style = workbook.createCellStyle();
+		style.setFont(fontMap.get(DEFAULT));
+		style.setBorderTop(style.BORDER_THIN);
+		style.setTopBorderColor(HSSFColor.BLACK.index);
+		styleMap.put(CELLBORDER_TOPLINE, style);
+
+		style = workbook.createCellStyle();
+		style.setFont(fontMap.get(DEFAULT));
+		style.setBorderTop(style.BORDER_THIN);
+		style.setTopBorderColor(HSSFColor.BLACK.index);
+		style.setBorderBottom(style.BORDER_THIN);
+		style.setBottomBorderColor(HSSFColor.BLACK.index);
+		styleMap.put(CELLBORDER_UNDERLINE_TOPLINE, style);
 	}
 
 	/** Creates the fonts that are going to be used in the styles. */
