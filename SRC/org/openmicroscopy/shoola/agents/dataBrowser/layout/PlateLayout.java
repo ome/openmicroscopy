@@ -257,4 +257,10 @@ public class PlateLayout
      */
 	public void setImagesPerRow(int number) {}
 	
+	 /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#getImagesPerRow()
+     */
+	public int getImagesPerRow() { return 0; }
+	
 }

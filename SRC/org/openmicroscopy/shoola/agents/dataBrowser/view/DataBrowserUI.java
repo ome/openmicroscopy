@@ -481,5 +481,5 @@ class DataBrowserUI
 			return ((WellsModel) model).getFieldsNumber();
 		return -1;
 	}
-	
+
 }

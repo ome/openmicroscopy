@@ -267,6 +267,16 @@ class DataBrowserControl
 	void viewField(int field) { model.viewField(field); }
 	
 	/**
+	 * Forwards to the model to create a report.
+	 * 
+	 * @param name The name of the file.
+	 */
+	void createReport(String name)
+	{
+		model.createReport(name);
+	}
+	
+	/**
 	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -325,5 +335,7 @@ class DataBrowserControl
 			if (b) view.viewSelectedNode();
 		}
 	}
+
+
 
 }

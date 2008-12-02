@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -35,7 +37,9 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 
@@ -465,4 +469,22 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	public boolean isImagesModel();
+
+	/**
+	 * Sets the data for the report.
+	 * 
+	 * @param data 	The data to add to report.
+	 * @param types	The types of annotation to add to the report.
+	 * @param path	The name of the report.
+	 */
+	public void setReportData(Map<ImageNode, StructuredDataResults> data, 
+			List<Class> types, String path);
+
+	/**
+	 * Creates a report.
+	 * 
+	 * @param name The name of the report.
+	 */
+	public void createReport(String name);
+	
 }

@@ -31,6 +31,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.Box;
@@ -38,6 +40,8 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -47,6 +51,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -59,8 +64,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -107,6 +114,9 @@ class DataBrowserToolBar
 	/** ID to bring up the metadata browser. */
 	private static final int	ITEMS_PER_ROW = 14;
 
+	/** ID to bring up the metadata browser. */
+	private static final int	REPORT = 15;
+	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 	
@@ -172,6 +182,9 @@ class DataBrowserToolBar
 	
 	/** Indicates how many images are shown. */
 	private JLabel				filteringLabel;
+	
+	/** Button to create an image Tags report. */
+	private JButton				reportButton;
 	
 	/**
 	 * Creates the menu displaying various management options options.
@@ -406,6 +419,12 @@ class DataBrowserToolBar
 		saveButton = new JButton(
 				controller.getAction(DataBrowserControl.SAVE_AS));
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
+		
+		reportButton = new JButton();
+		reportButton.setToolTipText("Write a report.");
+		reportButton.setIcon(icons.getIcon(IconManager.REPORT));
+		reportButton.addActionListener(this);
+		reportButton.setActionCommand(""+REPORT);
 	}
 	
 	/**
@@ -431,6 +450,7 @@ class DataBrowserToolBar
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(rollOverButton);
 		bar.add(createDatasetButton);
+		bar.add(reportButton);
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(itemsPerRow);
@@ -493,6 +513,26 @@ class DataBrowserToolBar
 			view.setItemsPerRow(row);
 			//manageMenu.setVisible(false);
 		}
+	}
+	
+	/** Creates a report. */
+	private void report()
+	{
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
+		filterList.add(filter);
+		JFrame frame = DataBrowserAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser =
+			new FileChooser(frame, FileChooser.SAVE, "Create a report", 
+					"Create a tag report", filterList);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.REPORT_48));
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) chooser.setCurrentDirectory(f);
+		int option = chooser.showDialog();
+		if (option != JFileChooser.APPROVE_OPTION) return;
+		File  file = chooser.getFormattedSelectedFile();
+		controller.createReport(file.getAbsolutePath());
 	}
 	
 	/**
@@ -692,6 +732,9 @@ class DataBrowserToolBar
 			case DataBrowserUI.SORT_BY_NAME:
 			case DataBrowserUI.SORT_BY_DATE:
 				view.sortBy(index);
+				break;
+			case REPORT:
+				report();
 		}
 	}
 	

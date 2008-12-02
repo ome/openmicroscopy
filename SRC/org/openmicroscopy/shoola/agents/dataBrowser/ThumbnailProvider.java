@@ -65,10 +65,10 @@ public class ThumbnailProvider
 {
     
     /** The maximum width of the thumbnail. */
-    static final int            THUMB_MAX_WIDTH = Factory.THUMB_DEFAULT_WIDTH; 
+    public static final int		THUMB_MAX_WIDTH = Factory.THUMB_DEFAULT_WIDTH; 
     
     /** The maximum height of the thumbnail. */
-    static final int            THUMB_MAX_HEIGHT = Factory.THUMB_DEFAULT_HEIGHT;
+    public static final int     THUMB_MAX_HEIGHT = Factory.THUMB_DEFAULT_HEIGHT;
     
     /** 
      * The magnification factor used when the thumbnail of max size 
@@ -338,4 +338,5 @@ public class ThumbnailProvider
 	{ 
 		return new Dimension(originalWidth, originalHeight);
 	}
+	
 }

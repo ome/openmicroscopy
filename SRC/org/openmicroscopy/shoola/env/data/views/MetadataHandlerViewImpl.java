@@ -171,6 +171,19 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadStructuredData(List, long, boolean,
+	 * 											AgentEventListener)
+	 */
+	public CallHandle loadStructuredData(List<DataObject> data, long userID, 
+									boolean viewed, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(
+						StructuredAnnotationLoader.ALL, data, userID, viewed);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadTextualAnnotations(Class, long, long, 
 	 * 											AgentEventListener)
 	 */

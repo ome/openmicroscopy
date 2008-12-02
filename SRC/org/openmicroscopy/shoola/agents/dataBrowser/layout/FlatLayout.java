@@ -146,4 +146,10 @@ class FlatLayout
      */
 	public void setImagesPerRow(int number) { itemsPerRow = number; }
    
+	 /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#getImagesPerRow()
+     */
+	public int getImagesPerRow() { return itemsPerRow; }
+	
 }

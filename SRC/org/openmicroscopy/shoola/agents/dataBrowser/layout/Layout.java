@@ -84,4 +84,11 @@ public interface Layout
      */
     public void setImagesPerRow(int number);
     
+    /**
+     * Returns the number of images per row.
+     * 
+     * @return See above.
+     */
+    public int getImagesPerRow();
+    
 }

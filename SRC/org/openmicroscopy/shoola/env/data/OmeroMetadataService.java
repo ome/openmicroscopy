@@ -228,11 +228,14 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Loads data related to the specified object
+	 * Loads data related to the specified object.
 	 * 
 	 * @param object 	The object to handle.
      * @param userID	The id of the user who added attachments to the object 
      * 					or <code>-1</code> if the user is not specified.
+     * @param viewed	Pass <code>true</code> to load the rendering settings 
+	 * 					related to the objects, <code>false<code>
+	 * 					otherwise.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -240,9 +243,28 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public StructuredDataResults loadStructuredData(DataObject object, 
-													long userID)
+													long userID, boolean viewed)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Loads data related to the specified objects
+	 * 
+	 * @param data 		The objects to handle.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @param viewed	Pass <code>true</code> to load the rendering settings 
+	 * 					related to the objects, <code>false<code>
+	 * 					otherwise.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Map loadStructuredData(List<DataObject> data, long userID, 
+								boolean viewed)
+		throws DSOutOfServiceException, DSAccessException;
+	
 	/**
 	 * Loads the collection of objects containing information about the 
 	 * user who viewed the image i.e. rating, rendering settings.

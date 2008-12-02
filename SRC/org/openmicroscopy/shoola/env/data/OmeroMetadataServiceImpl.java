@@ -636,10 +636,10 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadStructuredData(DataObject, long)
+	 * @see OmeroMetadataService#loadStructuredData(DataObject, long, boolean)
 	 */
 	public StructuredDataResults loadStructuredData(DataObject object, 
-			                                        long userID) 
+			                                        long userID, boolean viewed) 
 	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (object == null)
@@ -709,7 +709,7 @@ class OmeroMetadataServiceImpl
 			results.setAttachments(attachments);
 		}
 	
-		if (object instanceof ImageData) {
+		if ((object instanceof ImageData) && viewed) {
 			ImageData img = (ImageData) object;
 			try {
 				results.setArchived(gateway.hasArchivedFiles(
@@ -722,9 +722,33 @@ class OmeroMetadataServiceImpl
 		        context.getLogger().error(this, msg);
 		        results.setArchived(false);
 			}
-			
 			results.setViewedBy(loadViewedBy(img.getId(), 
 								img.getDefaultPixels().getId()));
+		}
+		return results;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadStructuredData(List, long, boolean)
+	 */
+	public Map loadStructuredData(List<DataObject> data, long userID, 
+								boolean viewed) 
+	    throws DSOutOfServiceException, DSAccessException 
+	{
+		if (data == null)
+			throw new IllegalArgumentException("Object not valid.");
+		
+		Map<Long, StructuredDataResults> 
+			results = new HashMap<Long, StructuredDataResults>();
+		Iterator<DataObject> i = data.iterator();
+		DataObject node;
+		while (i.hasNext()) {
+			node = i.next();
+			if (node != null) {
+				results.put(node.getId(), 
+						loadStructuredData(node, userID, viewed));
+			}
 		}
 		return results;
 	}

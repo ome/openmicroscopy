@@ -23,7 +23,8 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
-import java.awt.Cursor;
+import java.awt.Cursor; 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JComponent;
@@ -40,6 +42,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
@@ -50,7 +53,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -737,9 +744,6 @@ class DataBrowserComponent
 	{
 		if (!isImagesModel()) return;
 		Browser browser = model.getBrowser();
-		
-		List<ImageNode> nodes = browser.getVisibleImageNodes();
-		Iterator<ImageNode> i;
 	}
 
 	/**
@@ -750,6 +754,160 @@ class DataBrowserComponent
 	{
 		if (model.getState() == DISCARDED) return false;
 		return model.isImagesModel();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setReportData(Collection, List, String)
+	 */
+	public void setReportData(Map<ImageNode, StructuredDataResults> data, 
+			List<Class> types, String name)
+	{
+		if (data == null || data.size() == 0) return;
+		UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+		//tags for now
+		Iterator<ImageNode> i = data.keySet().iterator();
+		ImageNode node;
+		Map<Long, List> tagImageMap = new HashMap<Long, List>();
+		Map<Long, TagAnnotationData> 
+			tagMap = new HashMap<Long, TagAnnotationData>();
+		StructuredDataResults r;
+		Collection l;
+		Iterator k;
+		TagAnnotationData tag;
+		long id;
+		List nodes;
+		Map<Object, Integer> rowImage = new HashMap<Object, Integer>();
+		try {
+			ExcelWriter writer = new ExcelWriter(name);
+			writer.openFile();
+			writer.createSheet("Tags");
+			//write tags
+
+			String imageName;
+			int col = 0;
+			int row = 0;
+			
+			writer.setCellStyle(row, col, row, col+1, ExcelWriter.BOLD_DEFAULT);
+			writer.writeElement(row, col, "id");
+			writer.writeElement(row, col+1, "name");
+			row++;
+			while (i.hasNext()) {
+				node = i.next();
+				imageName = node.toString();
+				rowImage.put(node.getHierarchyObject(), row);
+				writer.writeElement(row, col, (
+						(DataObject) node.getHierarchyObject()).getId());
+				writer.writeElement(row, col+1, imageName);
+				row++;
+				r = data.get(node);
+				l = r.getTags();
+				if (l != null) {
+					k = l.iterator();
+					while (k.hasNext()) {
+						tag = (TagAnnotationData) k.next();
+						id = tag.getId();
+						nodes = tagImageMap.get(id);
+						if (!tagMap.containsKey(id))
+							tagMap.put(id, tag);
+						if (nodes == null) {
+							nodes = new ArrayList();
+							tagImageMap.put(id, nodes);
+						}
+						nodes.add(node.getHierarchyObject());
+					}
+				}
+			}
+			
+			col = 2;
+			row = 0;
+			k = tagMap.keySet().iterator();
+			Object object;
+			int value;
+			int numberOfImages = data.size();
+			int count;
+			while (k.hasNext()) {
+				row = 0;
+				count = 0;
+				id = (Long) k.next();
+				tag = tagMap.get(id);
+				writer.setCellStyle(row, col, ExcelWriter.BOLD_DEFAULT);
+				writer.writeElement(row, col, tag.getTagValue());
+				nodes = tagImageMap.get(id);
+				i = data.keySet().iterator();
+				while (i.hasNext()) {
+					count++;
+					node = i.next();
+					object = node.getHierarchyObject();
+					row = rowImage.get(object);
+					value = 0;
+					if (nodes.contains(object)) value = 1;
+					writer.setCellStyle(row, col, ExcelWriter.INTEGER);
+					writer.writeElement(row, col, value);
+				}
+				writer.setCellStyle(count+1, col, 
+							ExcelWriter.CELLBORDER_TOPLINE);
+				writer.setCellStyle(row, col, ExcelWriter.INTEGER);
+				writer.writeElement(count+1, col, nodes.size());
+				writer.setCellStyle(count+2, col, 
+						ExcelWriter.TWODECIMALPOINTS);
+				writer.writeElement(count+2, col, 
+						((double) nodes.size()/numberOfImages)*100+"%");
+				col++;
+			}
+			writer.sizeAllColumnsToFit();
+			//second sheet
+			writer.createSheet("Thumbnails");
+			i = data.keySet().iterator();
+			//ready to build report
+			BufferedImage thumbnail;
+			int n = model.getBrowser().getSelectedLayout().getImagesPerRow();
+			row = 0;
+			col = 0;
+			int w = ThumbnailProvider.THUMB_MAX_WIDTH/2;
+			int h = ThumbnailProvider.THUMB_MAX_HEIGHT/2;
+			count = 0;
+			while (i.hasNext()) {
+				node = i.next();
+				id = ((DataObject) node.getHierarchyObject()).getId();
+				imageName = node.toString();
+				thumbnail = node.getThumbnail().getFullScaleThumb();
+				writer.addImageToWorkbook(imageName, thumbnail); 
+				writer.writeImage(row, col, w, h, imageName);
+				writer.writeElement(row+3, col, id);
+				if (count < n) {
+					col++;
+				} else {
+					col = 0;
+					row = row+4;
+				}
+				count++;
+			}
+			writer.close();
+			un.notifyInfo("Report", 
+					"The report has been successfully created.");
+			
+		} catch (Exception e) {
+			Logger logger = DataBrowserAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print("Error while writing report.");
+	        msg.print(e);
+	        logger.error(this, msg);
+	        un.notifyInfo("Report", 
+	        		"An error occurs while creating the report.");
+		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#createReport(String)
+	 */
+	public void createReport(String name)
+	{
+		Browser browser = model.getBrowser();
+		Set nodes = browser.getImageNodes();
+		List<Class> types = new ArrayList<Class>();
+		model.fireReportLoading(nodes, types, name);
 	}
 	
 }

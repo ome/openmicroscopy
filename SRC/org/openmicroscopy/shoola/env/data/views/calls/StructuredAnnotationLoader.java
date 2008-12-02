@@ -228,7 +228,31 @@ public class StructuredAnnotationLoader
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadStructuredData(object, userID);
+                result = os.loadStructuredData(object, userID, true);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the ratings related to the object
+     * identified by the class and the id.
+     * 
+     * @param data		The objects.
+     * @param userID	The id of the user who tagged the object or 
+     * 					<code>-1</code> if the user is not specified.
+     * @param viewed	Pass <code>true</code> to load the rendering settings 
+	 * 					related to the objects, <code>false<code>
+	 * 					otherwise.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadStructuredData(final List<DataObject> data, 
+    									final long userID, final boolean viewed)
+    {
+        return new BatchCall("Loading Ratings") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.loadStructuredData(data, userID, viewed);
             }
         };
     }
@@ -345,6 +369,17 @@ public class StructuredAnnotationLoader
 			default:
 				throw new IllegalArgumentException("Index not supported.");
     	}
+    }
+    
+    public StructuredAnnotationLoader(int index, List<DataObject> data, long 
+    		userID, boolean viewed)
+    {
+    	switch (index) {
+			case ALL:
+				loadCall = loadStructuredData(data, userID, viewed);
+				break;
+			
+		}
     }
     
     /**

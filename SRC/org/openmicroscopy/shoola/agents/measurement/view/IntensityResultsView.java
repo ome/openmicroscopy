@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -65,6 +66,7 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -417,19 +419,16 @@ class IntensityResultsView
 		results.repaint();
 	}
 	
-	/**
-	 * Save the results of the table to a csv file.
-	 *
-	 */
+	/** Save the results of the table to a csv file. */
 	private void saveResults()
 	{
-		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new CSVFilter();
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
 		filterList.add(filter);
-		FileChooser chooser=
-			new FileChooser(view, FileChooser.SAVE, "Save Results to Excel", "Save the " +
-				"Results data to a file which can be loaded by a spreadsheet.",
-				filterList);
+		FileChooser chooser =
+			new FileChooser(view, FileChooser.SAVE, "Save Results to Excel", 
+					"Save the Results data to a file which can be loaded by " +
+					"a spreadsheet.", filterList);
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) chooser.setCurrentDirectory(f);
 		int option = chooser.showDialog();

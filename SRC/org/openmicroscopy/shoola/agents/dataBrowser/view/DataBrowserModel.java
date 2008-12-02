@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
+import org.openmicroscopy.shoola.agents.dataBrowser.ReportLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
@@ -461,6 +462,21 @@ abstract class DataBrowserModel
 			p = (DataObject) grandParent;
 		DataObjectCreator loader = new DataObjectCreator(component, p, data, 
 														images);
+		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous data retrieval for writing the report.
+	 * 
+	 * @param images 	The images to handle.
+	 * @param types	 	The types of data to report.
+	 * @param name 		The name of the report.
+	 */
+	void fireReportLoading(Collection images, List<Class> types,
+			String name)
+	{
+		ReportLoader loader = new ReportLoader(component, types, 
+				sorter.sort(images), name);
 		loader.load();
 	}
 	
