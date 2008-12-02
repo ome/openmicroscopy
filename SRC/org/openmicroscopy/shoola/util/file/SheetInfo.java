@@ -102,74 +102,80 @@ class SheetInfo
 	}
 	
 	/**
-	 * Autosize column, columnIndex. 
-	 * @param columnIndex
+	 * Autosizes column, columnIndex. 
+	 * 
+	 * @param columnIndex The index of the column.
 	 */
-	public void sizeColumnToFit(int columnIndex)
+	void sizeColumnToFit(int columnIndex)
 	{
-		sheet.autoSizeColumn((short)columnIndex);
+		sheet.autoSizeColumn((short) columnIndex);
 	}
 	
-
 	/**
-	 * Autosize all columns to fit contents. 
+	 * Autosizes all columns to fit contents. 
 	 */
-	public void sizeAllColumnsToFit()
+	void sizeAllColumnsToFit()
 	{
 		Map<Integer, Integer> colMap = new HashMap<Integer,Integer>();
 		Iterator<HSSFRow> rowIterator = sheet.rowIterator();
-		while(rowIterator.hasNext())
+		HSSFCell cell;
+		HSSFRow row;
+		Iterator<HSSFCell> cellIterator;
+		while (rowIterator.hasNext())
 		{
-			HSSFRow row = rowIterator.next();
-			Iterator<HSSFCell> cellIterator = row.cellIterator();
-			while(cellIterator.hasNext())
+			row = rowIterator.next();
+			cellIterator = row.cellIterator();
+			while (cellIterator.hasNext())
 			{
-				HSSFCell cell = cellIterator.next();
+				cell = cellIterator.next();
 				colMap.put(cell.getColumnIndex(), cell.getRowIndex());
 			}
 		}
 		Iterator<Integer> colIterator = colMap.keySet().iterator();
+		int col;
 		while(colIterator.hasNext())
 		{
-			int col = colIterator.next();
+			col = colIterator.next();
 			sizeColumnToFit(col);
 		}
 	}
 	
 	/**
-	 * Set the height of the rows [rowStart, rowEnd] to rowHeight in px
+	 * Sets the height of the rows [rowStart, rowEnd] to rowHeight in px.
+	 * 
 	 * @param rowStart see above.
 	 * @param rowEnd see above.
 	 * @param rowHeight see above.
 	 */
-	public void setRowHeight(int rowStart, int rowEnd, int rowHeight)
+	void setRowHeight(int rowStart, int rowEnd, int rowHeight)
 	{
-		for(int index = rowStart ; index <= rowEnd ; index++)
-		{
-			HSSFRow row = sheet.getRow(index);
-			row.setHeight((short)rowHeight);
-		}
+		for (int index = rowStart ; index <= rowEnd ; index++)
+			setRowHeight(index, rowHeight);
 	}
 	
 	/**
-	 * Set the height of the row rowIndex to rowHeight in px
-	 * @param rowIndex see above.
-	 * @param rowHeight see above.
+	 * Sets the height of the row rowIndex to rowHeight in px.
+	 * 
+	 * @param rowIndex 	The index of the row.
+	 * @param rowHeight The height of the row.
 	 */
-	public void setRowHeight(int rowIndex, int rowHeight)
+	void setRowHeight(int rowIndex, int rowHeight)
 	{
 		HSSFRow row = sheet.getRow(rowIndex);
-		row.setHeight((short)rowHeight);
+		if (row == null) row = sheet.createRow(rowIndex);
+		row.setHeight((short) rowHeight);
 	}
 	
 	/**
-	 * Get the last cell column written to in row rowIndex.
-	 * @param rowIndex see above.
-	 * @return see above.
+	 * Returns the last cell column written to in row rowIndex.
+	 * 
+	 * @param rowIndex The index of the row.
+	 * @return See above.
 	 */
-	public int getMaxColumn(int rowIndex)
+	int getMaxColumn(int rowIndex)
 	{
 		HSSFRow row = sheet.getRow(rowIndex);
+		if (row == null) return 0;
 		return row.getLastCellNum();
 	}
 

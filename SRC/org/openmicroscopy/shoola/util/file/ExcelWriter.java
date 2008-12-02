@@ -45,7 +45,6 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -70,6 +69,7 @@ import org.openmicroscopy.shoola.util.image.io.WriterImage;
  */
 public class ExcelWriter
 {	
+	
 	/** Hyperlink fonts. */
 	public final  static String HYPERLINK = "hyperlink";
 	
@@ -195,27 +195,27 @@ public class ExcelWriter
 		style = workbook.createCellStyle();
 		style.setFont(fontMap.get(DEFAULT));
 		df = workbook.createDataFormat();
-		style.setDataFormat(df.getFormat("#"));
+		style.setDataFormat(df.getFormat("0"));
 		styleMap.put(INTEGER, style);
 		
 		
 		style = workbook.createCellStyle();
 		style.setFont(fontMap.get(DEFAULT));
-		style.setBorderBottom(style.BORDER_THIN);
+		style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
 		style.setBottomBorderColor(HSSFColor.BLACK.index);
 		styleMap.put(CELLBORDER_UNDERLINE, style);
 
 		style = workbook.createCellStyle();
 		style.setFont(fontMap.get(DEFAULT));
-		style.setBorderTop(style.BORDER_THIN);
+		style.setBorderTop(HSSFCellStyle.BORDER_THIN);
 		style.setTopBorderColor(HSSFColor.BLACK.index);
 		styleMap.put(CELLBORDER_TOPLINE, style);
 
 		style = workbook.createCellStyle();
 		style.setFont(fontMap.get(DEFAULT));
-		style.setBorderTop(style.BORDER_THIN);
+		style.setBorderTop(HSSFCellStyle.BORDER_THIN);
 		style.setTopBorderColor(HSSFColor.BLACK.index);
-		style.setBorderBottom(style.BORDER_THIN);
+		style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
 		style.setBottomBorderColor(HSSFColor.BLACK.index);
 		styleMap.put(CELLBORDER_UNDERLINE_TOPLINE, style);
 	}
@@ -316,19 +316,6 @@ public class ExcelWriter
 	}
 	
 	/**
-	 * Sets the cell Style for cell at row and col.
-	 * 
-	 * @param row see above.
-	 * @param col see above.
-	 * @param style see above.
-	 */
-	public void setCellStyle(int row, int col, String style)
-	{
-		HSSFCell cell = getCell(row, col);
-		setCellStyle(cell, style);
-	}
-	
-	/**
 	 * Sets the cell Style for cell.
 	 * 
 	 * @param cell see above.
@@ -379,8 +366,8 @@ public class ExcelWriter
 	}
 	
 	/**
-	 * Get the size of the image of size [width, height] in pixels in cells 
-	 * [width, height]
+	 * Returns the size of the image of size [width, height] in pixels in cells 
+	 * [width, height].
 	 * @param width see above.
 	 * @param height see above.
 	 * @return see above.
@@ -463,25 +450,6 @@ public class ExcelWriter
 	{
 		return (element instanceof Double || element instanceof Integer ||
 			element instanceof Float || element instanceof Long);
-	}
-	
-	/**
-	 * Converts the element to a number.
-	 * 
-	 * @param element The element to handle.
-	 * @return See above.
-	 */
-	private double toNumber(Object element)
-	{
-		if (element instanceof Double)
-			return (Double) element;
-		if (element instanceof Integer)
-			return (Integer) element;
-		if (element instanceof Float)
-			return (Float) element;
-		else if (element instanceof Long)
-			return (Long) element;
-		return 0;
 	}
 	
 	/**
@@ -786,19 +754,18 @@ public class ExcelWriter
 		if (value == null)
 			throw new IllegalArgumentException("No object to write.");
 		HSSFCell cell = currentSheet.getCell(rowIndex, columnIndex);
-		if(isNumber(value))
+		if (isNumber(value))
 		{
-			if(value instanceof Integer)
-				cell.setCellValue((Integer)value);
-			if(value instanceof Double)
-				cell.setCellValue((Double)value);
-			if(value instanceof Float)
-				cell.setCellValue((Float)value);
-			if(value instanceof Double)
-				cell.setCellValue((Double)value);
-			if(value instanceof Boolean)
-				cell.setCellValue((Boolean)value);
-		}
+			if (value instanceof Integer)
+				cell.setCellValue((Integer) value);
+			else if (value instanceof Double)
+				cell.setCellValue((Double) value);
+			else if(value instanceof Float)
+				cell.setCellValue((Float) value);
+			else if (value instanceof Long)
+				cell.setCellValue((Long)value);
+		} else if (value instanceof Boolean)
+			cell.setCellValue((Boolean) value);
 		else
 			cell.setCellValue(new HSSFRichTextString(value.toString()));
 		currentSheet.setCurrentRow(rowIndex);
@@ -820,7 +787,6 @@ public class ExcelWriter
 			throw new IllegalArgumentException("Index not valid.");
 		if (values == null)
 			throw new IllegalArgumentException("No object to write.");
-		HSSFCell cell; 
 		currentSheet.setCurrentRow(rowIndex+1);
 		for (int i = 0 ; i < values.length; i++)
 			writeElement(rowIndex, columnIndex+i,values[i]);
@@ -844,7 +810,6 @@ public class ExcelWriter
 			throw new IllegalArgumentException("Index not valid.");
 		if (values == null)
 			throw new IllegalArgumentException("No object to write.");
-		HSSFCell cell; 
 		for (int i = 0 ; i < values.length; i++)
 			writeElement(rowIndex+i, columnIndex,values[i]);
 		currentSheet.setCurrentRow(rowIndex+values.length);
@@ -933,6 +898,20 @@ public class ExcelWriter
 	public String[] getFonts()
 	{
 		return (String[]) fontMap.keySet().toArray();
+	}
+	
+	
+	/**
+	 * Sets the cell Style for cell at row and col.
+	 * 
+	 * @param row see above.
+	 * @param col see above.
+	 * @param style see above.
+	 */
+	public void setCellStyle(int row, int col, String style)
+	{
+		HSSFCell cell = getCell(row, col);
+		setCellStyle(cell, style);
 	}
 	
 }
