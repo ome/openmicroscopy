@@ -21,7 +21,9 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats;
+package ome.formats.enums;
+
+import ome.model.IEnum;
 
 /**
  * @author "Brian W. Loranger"
@@ -31,19 +33,20 @@ public class EnumerationException extends RuntimeException
     private static final long serialVersionUID = 1L;
 
     /** The enumeration class that was used in a failed enumeration lookup. */
-    private Class  failureClass;
+    private Class<? extends IEnum>  failureClass;
 
     /** The enumeration value that was used in a failed enumeration lookup. */
     private String value;
 
-    public EnumerationException(String message, Class klass, String value)
+    public EnumerationException(String message, Class<? extends IEnum> klass,
+    		                    String value)
     {
         super(message);
         this.failureClass = klass;
         this.value = value;
     }
 
-    public Class getFailureClass()
+    public Class<? extends IEnum> getFailureClass()
     {
         return failureClass;
     }

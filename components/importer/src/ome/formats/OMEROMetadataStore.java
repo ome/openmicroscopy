@@ -102,6 +102,8 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.api.IRepositoryInfo;
 import ome.conditions.SessionException;
+import ome.formats.enums.EnumerationProvider;
+import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.MetaLightSource;
 
 import org.apache.commons.logging.Log;
@@ -155,10 +157,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /** A list of lightsource objects */
     private Map<String, IObject> lsidMap = new HashMap<String, IObject>();
-    
-    /** Enumeration cache. */
-    private Map<Class<? extends IObject>, List<IObject>> enumCache = 
-        new HashMap<Class<? extends IObject>, List<IObject>>();
         
     private Vector<WellSample> wsVector = new Vector<WellSample>();
 
@@ -167,6 +165,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * HashMap.
      */
     private Map<Pixels, List<PlaneInfo>> planeInfoCache = null;
+    
+    /** Our enumeration provider. */
+    private EnumerationProvider enumProvider;
 
     private RawFileStore    rawFileStore;
 
@@ -269,7 +270,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         pservice = sf.createRawPixelsStore();
         rawFileStore = sf.createRawFileStore();
         iInfo = sf.getRepositoryInfoService();
-
+        enumProvider = new IQueryEnumProvider(iQuery);
     }
 
 
@@ -320,95 +321,22 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         imageList = (List<Image>) root;
     }
     
-    /**
-     * Creates an unloaded copy of an enumeration object.
-     * @param enumeration Enumeration to copy.
-     * @return See above.
-     */
-    private IEnum copyEnumeration(IEnum enumeration)
-    {
-        Class<? extends IEnum> klass = enumeration.getClass();
-        try
-        {
-            Constructor<? extends IObject> constructor = 
-                klass.getDeclaredConstructor(
-                    new Class[] { Long.class, boolean.class });
-            return (IEnum) constructor.newInstance(
-                new Object[] { enumeration.getId(), false });
-        }
-        catch (Exception e)
-        {
-            String m = "Unable to copy enumeration: " + enumeration;
-            log.error(m, e);
-            throw new EnumerationException(m, klass, enumeration.getValue());
-        }
-    }
-
-    /**
-     * Retrieves a server side enumeration.
-     *
-     * @param klass the enumeration's class from <code>ome.model.enum</code>
-     * @param value the enumeration's string value.
-     * @return enumeration object.
-     */
-    private IObject getEnumeration(Class<? extends IObject> klass, String value)
-    {
-        if (klass == null)
-            throw new NullPointerException("Expecting not-null klass.");
-        if (value == null)
-        {
-            log.warn("Not performing query for enumeration " + klass +
-                     " with value of null.");
-            return null;
-        }
-        if (value.length() == 0)
-        {
-            log.warn("Not performing query for enumeration " + klass +
-                     " with value of zero length.");
-            return null;
-        }
-        
-
-        if (!enumCache.containsKey(klass))
-        {
-            checkSF();
-            List<IObject> enumerations = 
-                (List<IObject>) iQuery.findAll(klass, null);
-            if (enumerations == null)
-                throw new EnumerationException("Problem finding enumeration: ",
-                                               klass, value);
-            enumCache.put(klass, enumerations);
-        }
-        
-        List<IObject> enumerations = enumCache.get(klass);
-        IEnum otherEnumeration = null;
-        for (IObject object : enumerations)
-        {
-            IEnum enumeration = (IEnum) object;
-            if (value.equals(enumeration.getValue()))
-            {
-                return copyEnumeration(enumeration);
-            }
-            else if (enumeration.getValue().equals("Other"))
-            {
-                otherEnumeration = copyEnumeration(enumeration);
-            }
-        }
-        if (otherEnumeration != null)
-        {
-            log.debug("Enumeration '" + value + "' does not exist in '" + klass + "' setting to 'Other'");
-            return otherEnumeration;
-        }
-        throw new EnumerationException("Problem finding enumeration: ",
-                                       klass, value);
-    }
-
     public long getExperimenterID()
     {
         return sf.getAdminService().getEventContext().getCurrentUserId();
     }
 
-
+    /**
+     * Retrieves a given enumeration from the current enumeration provider.
+     * @param klass Enumeration type.
+     * @param value Enumeration value.
+     * @return See above.
+     */
+    private IEnum getEnumeration(Class<? extends IEnum> klass, String value)
+    {
+    	return enumProvider.getEnumeration(klass, value, false);
+    }
+    
     /**
      * This method maps an existing ome lsid to the lsidMap as well
      * as setting the currentID to the ome lsid.
