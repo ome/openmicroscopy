@@ -231,6 +231,9 @@ class EditorControl
 			case Editor.READY:
 				model.setStatus("", true);
 				break;
+			case Editor.NEW:
+				model.setStatus("", true);
+				break;
 		}
 	}
 

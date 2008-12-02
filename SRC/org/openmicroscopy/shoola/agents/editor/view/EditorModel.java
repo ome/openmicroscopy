@@ -209,14 +209,21 @@ class EditorModel
 	
 	/**
 	 * Sets the file to edit.
+	 * If the file cannot be read by {@link TreeModelFactory#getTree()} then
+	 * the state of this model is re-set to {@link Editor#NEW}.
 	 * 
 	 * @param file The file to edit.
 	 */
 	boolean setFileToEdit(File file)
 	{
 		TreeModel treeModel = TreeModelFactory.getTree(file);
-		if (treeModel == null)
+		if (treeModel == null) {
+			fileToEdit = null;
+			state = Editor.NEW;
+			fileName = EditorFactory.BLANK_MODEL;
+			// browser.setTreeModel(null);
 			return false;
+		}
 		
 		fileToEdit = file;
 		fileName = file.getName();
