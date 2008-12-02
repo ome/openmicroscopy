@@ -99,6 +99,9 @@ public class ExcelWriter
 	public final static String ITALIC_UNDERLINE_DEFAULT = 
 									"italic_underline_default";
 
+	/** plain 12pt. font. */
+	public final static String PLAIN_12 = "plain_12";
+
 	/** plain 14pt. font. */
 	public final static String PLAIN_14 = "plain_14";
 	
@@ -116,6 +119,9 @@ public class ExcelWriter
 	
 	/** integer number format. */
 	public final static String INTEGER = "integer";
+	
+	/** Cell Border Underline. */
+	public final static String CELLBORDER_UNDERLINE = "cellborder_underline";
 	
 	/** The default name of a sheet. */
 	private static final String		DEFAULT_NAME = "Sheet";
@@ -183,6 +189,14 @@ public class ExcelWriter
 		df = workbook.createDataFormat();
 		style.setDataFormat(df.getFormat("#"));
 		styleMap.put(INTEGER, style);
+		
+		
+		style = workbook.createCellStyle();
+		style.setFont(fontMap.get(DEFAULT));
+		style.setBorderBottom(style.BORDER_THIN);
+		style.setBottomBorderColor(HSSFColor.BLACK.index);
+		styleMap.put(CELLBORDER_UNDERLINE, style);
+
 	}
 
 	/** Creates the fonts that are going to be used in the styles. */
@@ -239,6 +253,11 @@ public class ExcelWriter
     	font.setUnderline(HSSFFont.U_SINGLE);
     	fontMap.put(BOLD_UNDERLINE_DEFAULT, font);
     	
+    	/* 12 point font. */
+    	font = workbook.createFont();
+    	font.setFontHeightInPoints((short) 12);
+    	fontMap.put(PLAIN_12, font);
+
     	/* 14 point font. */
     	font = workbook.createFont();
     	font.setFontHeightInPoints((short) 14);
