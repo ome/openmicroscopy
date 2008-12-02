@@ -519,11 +519,8 @@ public class ExcelWriter
 				element = getElement(tableModel.getValueAt(rowCount, 
 						columnCount), elementRowCount);
 				setCellStyle(cell, TWODECIMALPOINTS);
-				if (isNumber(element))
-					cell.setCellValue(toNumber(element));
-				else
-					cell.setCellValue(new HSSFRichTextString(
-							element.toString()));
+				writeElement(currentSheet.getCurrentRow()+
+						elementRowCount,startColumn + columnCount, element);
 			}
 		}
 		currentSheet.setCurrentRow(currentSheet.getCurrentRow()+maxRows);
@@ -765,8 +762,8 @@ public class ExcelWriter
 		{
 			key = it.next();
 			value = map.get(key);
-			writeElement(rowIndex, columnIndex, key.toString());
-			writeElement(rowIndex, columnIndex+1, value.toString());
+			writeElement(rowIndex, columnIndex, key);
+			writeElement(rowIndex, columnIndex+1, value);
 			rowIndex++;
 		}
 		currentSheet.setCurrentRow(rowIndex);
@@ -789,8 +786,22 @@ public class ExcelWriter
 		if (value == null)
 			throw new IllegalArgumentException("No object to write.");
 		HSSFCell cell = currentSheet.getCell(rowIndex, columnIndex);
-		cell.setCellValue(new HSSFRichTextString(value.toString()));
-		currentSheet.setCurrentRow(rowIndex+1);
+		if(isNumber(value))
+		{
+			if(value instanceof Integer)
+				cell.setCellValue((Integer)value);
+			if(value instanceof Double)
+				cell.setCellValue((Double)value);
+			if(value instanceof Float)
+				cell.setCellValue((Float)value);
+			if(value instanceof Double)
+				cell.setCellValue((Double)value);
+			if(value instanceof Boolean)
+				cell.setCellValue((Boolean)value);
+		}
+		else
+			cell.setCellValue(new HSSFRichTextString(value.toString()));
+		currentSheet.setCurrentRow(rowIndex);
 		return currentSheet.getCurrentRow();
 	}
 	
@@ -812,10 +823,7 @@ public class ExcelWriter
 		HSSFCell cell; 
 		currentSheet.setCurrentRow(rowIndex+1);
 		for (int i = 0 ; i < values.length; i++)
-		{
-			cell = currentSheet.getCell(rowIndex, columnIndex+i);
-			cell.setCellValue(new HSSFRichTextString(values[i].toString()));
-		}
+			writeElement(rowIndex, columnIndex+i,values[i]);
 		return currentSheet.getCurrentRow();
 	}
 	
@@ -838,10 +846,7 @@ public class ExcelWriter
 			throw new IllegalArgumentException("No object to write.");
 		HSSFCell cell; 
 		for (int i = 0 ; i < values.length; i++)
-		{
-			cell = currentSheet.getCell(rowIndex+i, columnIndex);
-			cell.setCellValue(new HSSFRichTextString(values[i].toString()));
-		}
+			writeElement(rowIndex+i, columnIndex,values[i]);
 		currentSheet.setCurrentRow(rowIndex+values.length);
 		return currentSheet.getCurrentRow();
 	}
