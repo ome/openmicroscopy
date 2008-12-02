@@ -392,7 +392,7 @@ public class TicketsUpTo500Test extends TestCase {
         planeInfo.setTheZ(1);
         planeInfo.setTheC(1);
         planeInfo.setTheT(1);
-        planeInfo.setTimestamp(0F);
+        planeInfo.setDeltaT(0F);
         return planeInfo;
     }
 

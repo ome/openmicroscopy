@@ -161,14 +161,14 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         pi1.setTheZ(new Integer(1));
         pi1.setPixels(p);
         pi1.setExposureTime(new Float(10));
-        pi1.setTimestamp(new Float(-11));
+        pi1.setDeltaT(new Float(-11));
 
         pi2.setTheC(new Integer(1));
         pi2.setTheT(new Integer(1));
         pi2.setTheZ(new Integer(1));
         pi2.setPixels(p);
         pi2.setExposureTime(new Float(100));
-        pi2.setTimestamp(new Float(-193));
+        pi2.setDeltaT(new Float(-193));
 
         p.addPlaneInfo(pi1);
         p.addPlaneInfo(pi2);
