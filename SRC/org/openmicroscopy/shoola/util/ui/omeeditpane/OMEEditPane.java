@@ -64,16 +64,16 @@ public class OMEEditPane
 	public static String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
 	
 	/** Regex expression defining Thumbnail [Thumbnail: id 30]. */
-	public static String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]*[a-zA-Z0-9]+[ ]*\\]";
+	public static String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
 
 	/** Regex expression defining Dataset [Dataset: id 30]. */
-	public static String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]*[a-zA-Z0-9]+[ ]*\\]";
+	public static String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
 
 	/** Regex expression defining Project [Project: id 30]. */
-	public static String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]*[a-zA-Z0-9]+[ ]*\\]";
+	public static String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
 	
 	/** Regex expression defining Image [Image: id 30]. */
-	public static String IMAGEREGEX = "\\[(Image|image):[ ]*(id|ID|name|Name)[ ]*[a-zA-Z0-9]+[ ]*\\]";
+	public static String IMAGEREGEX = "\\[(Image|image):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
 	
 	/** Regex expression defining Wiki Heading. */
 	public static String HEADINGREGEX = "(^[=]{3}[ ]+"+SENTENCEREGEX+"[ ]+[=]{3}[ ]*$|^[=]{2}[ ]+"+SENTENCEREGEX+"[ ]+[=]{2}[ ]*$|^[=]{1}[ ]+"+SENTENCEREGEX+"[ ]+[=]{1}[ ]*$)";
