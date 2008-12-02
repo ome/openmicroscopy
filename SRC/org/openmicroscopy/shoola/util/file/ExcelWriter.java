@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.file;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -375,6 +376,24 @@ public class ExcelWriter
 	public void setRowHeight(int rowIndex, int rowHeight)
 	{
 		currentSheet.setRowHeight(rowIndex, rowHeight);
+	}
+	
+	/**
+	 * Get the size of the image of size [width, height] in pixels in cells 
+	 * [width, height]
+	 * @param width see above.
+	 * @param height see above.
+	 * @return see above.
+	 */
+	public Dimension getImageSize(int width, int height)
+	{
+		Dimension d = new Dimension();
+		double remainderWidth =  (width%68)/68.0;
+		int widthInCells = width/68;
+		double remainderHeight = (height%18)/18.0;
+		int heightInCells = (height/18);
+		d.setSize(widthInCells, heightInCells);
+		return d;
 	}
 	
 	/**
