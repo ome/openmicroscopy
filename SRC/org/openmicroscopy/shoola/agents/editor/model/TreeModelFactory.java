@@ -459,11 +459,12 @@ public class TreeModelFactory
 	/**
 	 * Stub for creating a tree from XML file of several types. 
 	 * 
+	 * 
 	 * @param xHtmlFile
 	 * @return
 	 */
 	public static TreeModel getTree(File xHtmlFile) {
-		
+		// TODO return an Object (TreeModel if file was read OK, or String if not)
 		IXMLElement root = null;
 		
 		String errMsg = null;

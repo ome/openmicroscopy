@@ -164,7 +164,10 @@ public class EditableTree
 	 */
 	public void setModel(TreeModel treeModel) {
 		super.setModel(treeModel);
-		treeModel.addTreeModelListener(this);
+		
+		if (treeModel != null) {
+			treeModel.addTreeModelListener(this);
+		}
 	}
 
 	/**

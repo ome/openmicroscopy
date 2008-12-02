@@ -243,6 +243,7 @@ class BrowserUI
     	textView.setTreeModel(tm);
     	treeDisplay.setModel(tm);
     	
+    	if (tm != null)
     	tm.addTreeModelListener(editorPanel);
     	
     	// make sure that the controller is in sync with tabbed pane view.

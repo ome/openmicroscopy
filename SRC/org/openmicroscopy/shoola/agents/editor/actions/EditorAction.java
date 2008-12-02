@@ -129,6 +129,10 @@ public abstract class EditorAction
 				break;
 			case Editor.READY:
 				setEnabled(true);
+				break;
+			case Editor.NEW:
+				setEnabled(true);
+				break;
 		}
         onStateChange();
     }
