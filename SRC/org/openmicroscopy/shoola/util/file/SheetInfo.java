@@ -135,6 +135,33 @@ class SheetInfo
 			sizeColumnToFit(col);
 		}
 	}
+	
+	/**
+	 * Set the height of the rows [rowStart, rowEnd] to rowHeight in px
+	 * @param rowStart see above.
+	 * @param rowEnd see above.
+	 * @param rowHeight see above.
+	 */
+	public void setRowHeight(int rowStart, int rowEnd, int rowHeight)
+	{
+		for(int index = rowStart ; index <= rowEnd ; index++)
+		{
+			HSSFRow row = sheet.getRow(index);
+			row.setHeight((short)rowHeight);
+		}
+	}
+	
+	/**
+	 * Set the height of the row rowIndex to rowHeight in px
+	 * @param rowIndex see above.
+	 * @param rowHeight see above.
+	 */
+	public void setRowHeight(int rowIndex, int rowHeight)
+	{
+		HSSFRow row = sheet.getRow(rowIndex);
+		row.setHeight((short)rowHeight);
+	}
+	
 	/**
 	 * Get the last cell column written to in row rowIndex.
 	 * @param rowIndex see above.

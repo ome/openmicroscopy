@@ -357,6 +357,27 @@ public class ExcelWriter
 	}
 	
 	/**
+	 * Set the height of the rows [rowStart, rowEnd] to rowHeight in px
+	 * @param rowStart see above.
+	 * @param rowEnd see above.
+	 * @param rowHeight see above.
+	 */
+	public void setRowHeight(int rowStart, int rowEnd, int rowHeight)
+	{
+		currentSheet.setRowHeight(rowStart, rowEnd, rowHeight);
+	}
+	
+	/**
+	 * Set the height of the row rowIndex to rowHeight in px
+	 * @param rowIndex see above.
+	 * @param rowHeight see above.
+	 */
+	public void setRowHeight(int rowIndex, int rowHeight)
+	{
+		currentSheet.setRowHeight(rowIndex, rowHeight);
+	}
+	
+	/**
 	 * Writes the column headers to the spreadsheet.
 	 * 
 	 * @param startColumn see above.
