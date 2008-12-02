@@ -184,7 +184,7 @@ public class MutableTableModel
     {
     	ArrayList<Object> newRow = new ArrayList<Object>();
     	for (int i=0; i<getColumnCount(); i++) {
-    		newRow.add(" ");
+    		newRow.add("");
     	}
         data.add(newRow);
         
@@ -200,7 +200,7 @@ public class MutableTableModel
     {
     	ArrayList<Object> newRow = new ArrayList<Object>();
     	for (int i=0; i<getColumnCount(); i++) {
-    		newRow.add(" ");
+    		newRow.add("");
     	}
     	int newRowIndex = addAtThisRow;
     	if (newRowIndex > data.size()) {
