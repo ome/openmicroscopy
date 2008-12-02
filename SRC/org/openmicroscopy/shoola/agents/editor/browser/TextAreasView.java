@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,7 +35,9 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeModelEvent;
@@ -151,6 +154,9 @@ public class TextAreasView
 	/**
 	 * Iterates through all the text components contained in this UI and 
 	 * if they are {@link FieldTextArea} objects, the selection is refreshed.
+	 * This is needed to de-select all fields that are not selected.
+	 * If the parent of this UI is a {@link JViewport}, scroll to selected field
+	 * 
 	 * This method is called when the {@link #navTree} selection changes.
 	 */
 	private void refreshSelection()
@@ -160,6 +166,25 @@ public class TextAreasView
 			comp = getComponent(i);
 			if (comp instanceof FieldTextArea) {
 				((FieldTextArea)comp).refreshSelection();
+			}
+			
+			if (navTree.getSelectionCount() == 0)	return;
+			
+			TreePath path = navTree.getSelectionPath();
+			JPanel selectedField = textAreas.get(path);
+			if (selectedField != null) {
+				Rectangle rect = selectedField.getBounds();
+				int y = (int)rect.getY();
+				
+				if (getParent() instanceof JViewport) {
+					JViewport scroller = (JViewport)getParent();
+					// if the selected field is not wholly visible..
+					// scroll to show it.
+					//scroller.scrollRectToVisible() doesn't work up the page!
+					if (! scroller.getViewRect().contains(rect)) {
+						scroller.setViewPosition(new Point(0, y));
+					}
+				}
 			}
 		}
 	}
@@ -249,6 +274,8 @@ public class TextAreasView
 	 * Attempts to refresh the nodes affected by the event, identifying the
 	 * nodes within the {@link #textAreas} map by their {@link TreePath} and 
 	 * calling {@link FieldTextArea#refreshText()} to update their text. 
+	 * Don't want to update the text of all fields, as the scroll pane will 
+	 * scroll to the last updated (bottom of page). 
 	 * 
 	 * @see TreeModelListener#treeNodesChanged(TreeModelEvent)
 	 */
