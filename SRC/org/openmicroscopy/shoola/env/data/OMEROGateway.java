@@ -3830,7 +3830,7 @@ class OMEROGateway
         sb.append("left outer join fetch img.objectiveSettings as os ");
         sb.append("left outer join fetch os.objective as objective ");
         sb.append("left outer join fetch objective.immersion as im ");
-        sb.append("left outer join fetch objective.coating as co ");
+        sb.append("left outer join fetch objective.correction as co ");
         sb.append("where img.id = :id");
         param.addLong("id", imageID);
         try {

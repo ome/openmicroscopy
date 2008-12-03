@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 
 import pojos.DataObject;
@@ -122,8 +123,10 @@ class ImporterModel
 	 */
 	void cancel()
 	{
-		if (currentLoader != null)
+		if (currentLoader != null) {
 			currentLoader.cancel();
+			currentLoader = null;
+		}
 		state = Importer.READY;
 	}
 	
@@ -144,7 +147,7 @@ class ImporterModel
 	/**
 	 * Fires an asynchronous call to import the images.
 	 * 
-	 * @param data The file to import	
+	 * @param data The file to import.
 	 */
 	void fireImportData(File[] data)
 	{
@@ -152,6 +155,19 @@ class ImporterModel
 		for (int i = 0; i < data.length; i++)
 			files.add(data[i]);
 		currentLoader = new ImagesImporter(component, container, files);
+		currentLoader.load();
+		state = Importer.IMPORTING;
+	}
+	
+	/**
+	 * Fires an asynchronous call to monitor the specified directory.
+	 * 
+	 * @param directory The directory to monitor.
+	 */
+	void fireMonitorDirectory(File directory)
+	{
+		if (currentLoader != null) cancel();
+		currentLoader = new DirectoryMonitor(component, directory, container);
 		currentLoader.load();
 		state = Importer.IMPORTING;
 	}

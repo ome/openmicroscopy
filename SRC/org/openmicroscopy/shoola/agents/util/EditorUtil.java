@@ -1355,7 +1355,7 @@ public class EditorUtil
 		details.put(POSITION_Y, new Float(0));
 		details.put(POSITION_Z, new Float(0));
     	if (plane != null) {
-    		RFloat o = plane.getTimestamp();
+    		RFloat o = plane.getDeltaT();
     		if (o != null) 
     			details.put(DELTA_T, o.getValue());	
     		o = plane.getExposureTime();

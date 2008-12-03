@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.io.File;
 import java.util.List;
 
 //Third-party libraries
@@ -39,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
+import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
@@ -248,6 +250,18 @@ class ImageDataViewImpl
      */
 	public CallHandle importImages(DataObject container, List<Object> images, 
 			long userID, long groupID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ImagesImporter(container, images, userID, 
+				groupID);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#monitorDirectory(File, DataObject, AgentEventListener)
+     */
+	public CallHandle monitorDirectory(File directory, DataObject container, 
+			AgentEventListener observer)
 	{
 		// TODO Auto-generated method stub
 		return null;

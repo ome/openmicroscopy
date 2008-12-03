@@ -99,6 +99,9 @@ class ImporterControl
 		if (ImporterChooserDialog.IMPORT_PROPERTY.equals(name)) {
 			File[] data = (File[]) evt.getNewValue();
 			model.importData(data);
+		} else if (ImporterChooserDialog.MONITOR_PROPERTY.equals(name)) {
+			File dir = (File) evt.getNewValue();
+			model.monitorDirectory(dir);
 		}
 		
 	}

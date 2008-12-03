@@ -37,8 +37,8 @@ import java.util.Set;
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
 import omero.model.Binning;
-import omero.model.Coating;
 import omero.model.ContrastMethod;
+import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.Illumination;
@@ -48,7 +48,6 @@ import omero.model.LaserType;
 import omero.model.Medium;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
-
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -85,7 +84,7 @@ public interface OmeroMetadataService
 	public static final String IMMERSION = Immersion.class.getName();
 	
 	/** Identified the <code>Correction</code> enumeration. */
-	public static final String CORRECTION = Coating.class.getName();
+	public static final String CORRECTION = Correction.class.getName();
 	
 	/** Identified the <code>Medium</code> enumeration. */
 	public static final String MEDIUM = Medium.class.getName();

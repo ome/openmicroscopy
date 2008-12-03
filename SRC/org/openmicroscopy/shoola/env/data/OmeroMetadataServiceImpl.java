@@ -42,7 +42,7 @@ import org.apache.commons.collections.ListUtils;
 //Application-internal dependencies
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
-import omero.model.Coating;
+import omero.model.Correction;
 import omero.model.DatasetAnnotationLink;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -202,7 +202,7 @@ class OmeroMetadataServiceImpl
 				objective.setImmersion((Immersion) object);
 			object = data.getCorrectionAsEnum();
 			if (object != null)
-					objective.setCoating((Coating) object);
+					objective.setCorrection((Correction) object);
 			objective.setWorkingDistance(
 					omero.rtypes.rfloat(data.getWorkingDistance()));
 		}

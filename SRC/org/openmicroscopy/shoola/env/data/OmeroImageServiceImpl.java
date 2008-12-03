@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
@@ -84,6 +85,9 @@ class OmeroImageServiceImpl
 
 	/** The collection of supported file filters. */
 	private List<FileFilter>		filters;
+	
+	/** The sole system view instance. */
+	private FileSystemView			systemView;
 	
 	/** Uses it to gain access to the container's services. */
 	private Registry                context;

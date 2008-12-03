@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter 
+ * org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,21 +23,20 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 
-
 //Java imports
-import java.util.List;
+import java.io.File;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import pojos.DataObject;
 
 /** 
- * Imports the images.
- * This class calls one of the <code>importImages</code> methods in the
- * <code>ImageDataView</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,45 +48,44 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImagesImporter 
+public class DirectoryMonitor 
 	extends DataImporterLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle	handle; 
     
+    /** The directory to monitor. */
+    private File		directory;
+    
     /** The container where to import the images into. */
     private DataObject 	container;
     
-    /** The collection of images to import. */
-    private List<Object> images;
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param viewer	The Importer this data loader is for.
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
-	 * @param container	The container where to import the image to.
-	 * @param images	The images to import.
-	 */
-	public ImagesImporter(Importer viewer, DataObject container, 
-			List<Object> images)
+     * @param directory	The directory to monitor.
+     * @param container	The container where to import the image to.
+     */
+	public DirectoryMonitor(Importer viewer, File directory, 
+			DataObject container)
 	{
 		super(viewer);
-		if (images == null || images.size() == 0)
-			throw new IllegalArgumentException("No images to import.");
-		this.images = images;
+		if (directory == null || !directory.isDirectory())
+			throw new IllegalArgumentException("No directory to monitor.");
+		this.directory = directory;
 		this.container = container;
 	}
-
+	
 	/** 
-	 * Starts the import.
+	 * Monitors the directory.
 	 * @see DataImporterLoader#load()
 	 */
 	public void load()
 	{
-		handle = ivView.importImages(container, images, 
-				getCurrentUserID(), -1, this);
+		handle = ivView.monitorDirectory(directory, container, this);
 	}
 	
 	/** 
@@ -104,5 +102,5 @@ public class ImagesImporter
     {
         if (viewer.getState() == Importer.DISCARDED) return;  //Async cancel.
     }
-
+    
 }

@@ -74,6 +74,9 @@ public class ImporterChooserDialog
 	/** Bound property indicating to import the selected files. */
 	public static final String		IMPORT_PROPERTY = "import";
 	
+	/** Bound property indicating to monitor the selected directory. */
+	public static final String		MONITOR_PROPERTY = "monitor";
+	
 	/** Identifies the <code>Cancel</code> action. */
 	private static final int 		CANCEL = 0;
 	
@@ -212,6 +215,8 @@ public class ImporterChooserDialog
 			un.notifyInfo("Import", "Please select a directory to monitor.");
 			return;
 		}
+		chooser.approveSelection();
+		firePropertyChange(MONITOR_PROPERTY, null, file);
 	}
 	
 	/**

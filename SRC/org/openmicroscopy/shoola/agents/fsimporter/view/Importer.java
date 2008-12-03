@@ -22,15 +22,14 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-import java.io.File;
-
-import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
  * Defines the interface provided by the fs importer component. 
@@ -100,5 +99,12 @@ public interface Importer
 	 * @param data The data to import.
 	 */
 	public void importData(File[] data);
+
+	/**
+	 * Monitors the passed directory.
+	 * 
+	 * @param dir The directory to monitor.
+	 */
+	public void monitorDirectory(File dir);
 	
 }

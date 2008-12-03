@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JFileChooser;

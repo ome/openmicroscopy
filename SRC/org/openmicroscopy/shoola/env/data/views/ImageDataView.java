@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.io.File;
 import java.util.List;
 
 //Third-party libraries
@@ -234,5 +235,17 @@ public interface ImageDataView
 	 */
 	public CallHandle importImages(DataObject container, List<Object> images, 
 			long userID, long groupID, AgentEventListener observer);
+
+	/**
+	 * Monitors the passed directory.
+	 * 
+	 * @param directory	The directory to monitor.
+	 * @param container The container where to import the images into or 
+	 * 					<code>null</code>.
+	 * @param observer	Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle monitorDirectory(File directory, DataObject container, 
+				AgentEventListener observer);
 	
 }

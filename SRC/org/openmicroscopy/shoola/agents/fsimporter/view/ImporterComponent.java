@@ -149,5 +149,21 @@ class ImporterComponent
 		model.fireImportData(data);
 		fireStateChange();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#monitorDirectory(File)
+	 */
+	public void monitorDirectory(File dir)
+	{
+		if (model.getState() != READY) return;
+		if (dir == null || !dir.isDirectory()) {
+			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Import", "No directory to monitor.");
+			return;
+		}
+		model.fireMonitorDirectory(dir);
+		fireStateChange();
+	}
 	
 }

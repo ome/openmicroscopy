@@ -32,8 +32,8 @@ import omero.RString;
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
 import omero.model.Binning;
-import omero.model.Coating;
 import omero.model.ContrastMethod;
+import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.Illumination;
@@ -92,8 +92,8 @@ public class EnumerationObject
 		RString value = null;
 		if (object instanceof Immersion)
 			value = ((Immersion) object).getValue();
-		else if (object instanceof Coating)
-			value = ((Coating) object).getValue();
+		else if (object instanceof Correction)
+			value = ((Correction) object).getValue();
 		else if (object instanceof Medium)
 			value = ((Medium) object).getValue();
 		else if (object instanceof DetectorType)
