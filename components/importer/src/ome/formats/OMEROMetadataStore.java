@@ -3722,4 +3722,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         throw new RuntimeException("Not implemented yet.");
     }
 */
+    public void setEnumerationProvider(EnumerationProvider enumProvider)
+    {
+        this.enumProvider = enumProvider;
+    }
+    
+    public EnumerationProvider getEnumerationProvider()
+    {
+        return enumProvider;
+        
+    }
 }

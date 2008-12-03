@@ -27,8 +27,6 @@ public class TestServiceFactory extends ServiceFactory
 {
     public IAdmin adminService = new TestAdminService();
     
-    public IQuery queryService = new TestQueryService();
-    
     public TestServiceFactory()
     {
         super(new OmeroContext("haxxor.xml"));
@@ -116,7 +114,7 @@ public class TestServiceFactory extends ServiceFactory
     @Override
     public IQuery getQueryService()
     {
-        return queryService;
+        return null;
     }
 
     @Override
