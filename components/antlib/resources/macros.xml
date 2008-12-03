@@ -40,6 +40,7 @@
             <element name="args" implicit="yes"/>
             <sequential>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
+                    <env key="ICE_HOME" value="${ice.home}"/>
                     <arg value="${omero.home}/target/scons/scons.py"/>
                     <args/>
                 </exec>

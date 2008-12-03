@@ -23,7 +23,9 @@ omerocpp_dir = os.path.abspath( os.path.join( top, "components", "tools", "Omero
 # Relative
 resources = os.path.abspath("resources")
 generated = os.path.abspath("generated")
-
+# Support ICE_HOME
+if os.environ.has_key("ICE_HOME"):
+    ice_home = os.path.abspath( os.environ["ICE_HOME"] )
 
 def jdep(DEPMAP, target):
     """
@@ -129,12 +131,16 @@ class OmeroEnvironment(SConsEnvironment):
             self.Append(CPPFLAGS=self.Split("-O0 -g -Wall"))
         # CPPPATH
         self.AppendUnique(CPPPATH=blitz_generated)
+        if ice_home:
+            self.Append(CPPPATH=os.path.join(ice_home, "include"))
         if os.environ.has_key("CPPPATH"):
             self.AppendUnique(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
         if os.path.exists("/opt/local/include"):
             self.AppendUnique(CPPPATH=["/opt/local/include"])
         # LIBPATH
         self.AppendUnique(LIBPATH=omerocpp_dir)
+        if ice_home:
+            self.Append(LIBPATH=os.path.join(ice_home, "lib"))
         if os.environ.has_key("LIBPATH"):
             self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
         if os.path.exists("/opt/local/lib"):
