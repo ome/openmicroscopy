@@ -31,13 +31,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.filechooser.FileFilter;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -348,7 +349,11 @@ public class ViewerSorter
             result = compareTreeViewNodes((TreeViewNode) o1, (TreeViewNode) o2);
         else if (o1 instanceof Timestamp)
         	result = compareTimestamps((Timestamp) o1, (Timestamp) o2);
-        else result = compareObjects(o1, o2);
+        else if (o1 instanceof FileFilter)
+        	result = compareStrings(((FileFilter) o1).getDescription(), 
+        			((FileFilter) o2).getDescription());
+        else  
+        	result = compareObjects(o1, o2);
            
         if (result != 0) return ascending ? result : -result;
         return result;

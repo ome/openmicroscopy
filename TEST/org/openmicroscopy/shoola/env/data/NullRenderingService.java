@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.filechooser.FileFilter;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -41,6 +43,8 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -234,31 +238,31 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#loadAcquisitionData(Object)
-     */
-	public Object loadAcquisitionData(Object refObject) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#saveAcquisitionData(Object)
-     */
-	public Object saveAcquisitionData(Object refObject) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
      * @see OmeroImageService#loadPlaneInfo(long)
      */
 	public Collection loadPlaneInfo(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getSupportedFileFilters()
+     */
+	public List<FileFilter> getSupportedFileFilters()
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#importImages(DataObject, List, long, long)
+     */
+	public Object importImages(DataObject container, List<Object> images, 
+			long userID, long groupID) 
+		throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

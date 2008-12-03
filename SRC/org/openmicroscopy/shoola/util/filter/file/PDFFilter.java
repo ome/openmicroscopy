@@ -52,11 +52,23 @@ public class PDFFilter
     public static final String  TEXT = "pdf";
 
 	/** The possible extensions. */
-	private static final String[] extensions;
+	private static final String[] 	extensions;
+	
+	/** The description of the filter. */
+	private static final String		description;
 	
 	static {
 		extensions = new String[1];
 		extensions[0] = TEXT;
+		
+		String s = "Adobe PDF (";
+		for (int i = 0; i < extensions.length; i++) {
+			s += "*."+extensions[i];
+			if (i < extensions.length-1)
+				s += ", ";
+		}
+		s += ")";
+		description = s;
 	}
 	
 	/**
@@ -75,7 +87,7 @@ public class PDFFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-    public String getDescription() { return "Adobe PDF (.pdf)"; }
+    public String getDescription() { return description; }
         
     /**
      * Overriden to accept file with the declared file extensions.

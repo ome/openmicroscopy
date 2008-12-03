@@ -51,14 +51,33 @@ public class DVFilter
 {
 	
 	/** File extension. */
-	public static final String 	DV = "dv";
+	public static final String 		DV = "dv";
+	
+	/** File extension. */
+	public static final String 		R3D = "r3d";
+	
+	/** File extension. */
+	public static final String 		R3D_D3D = "r3d_d3d";
 	
 	/** The possible extensions. */
-	private static final String[] extensions;
+	private static final String[] 	extensions;
+	
+	/** The description of the filter. */
+	private static final String		description;
 	
 	static {
-		extensions = new String[1];
+		extensions = new String[3];
 		extensions[0] = DV;
+		extensions[1] = R3D;
+		extensions[2] = R3D_D3D;
+		String s = "Deltavision (";
+		for (int i = 0; i < extensions.length; i++) {
+			s += "*."+extensions[i];
+			if (i < extensions.length-1)
+				s += ", ";
+		}
+		s += ")";
+		description = s;
 	}
 	
 	/**
@@ -77,7 +96,7 @@ public class DVFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-	public String getDescription() { return "DV images"; }
+	public String getDescription() { return description; }
 		
     /**
      * Overriden to accept file with the declared file extensions.

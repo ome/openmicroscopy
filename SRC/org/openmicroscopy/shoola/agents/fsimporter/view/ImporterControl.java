@@ -24,7 +24,13 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 
+
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImporterChooserDialog;
 
 //Third-party libraries
 
@@ -44,6 +50,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
  * @since 3.0-Beta4
  */
 class ImporterControl
+	implements PropertyChangeListener
 {
 
 	/** 
@@ -53,7 +60,7 @@ class ImporterControl
 	private Importer 		model;
 	
 	/** Reference to the View. */
-	private ImporterUI	view;
+	private ImporterUI		view;
 
 	/**
 	 * Creates a new instance.
@@ -80,6 +87,20 @@ class ImporterControl
 	{
 		if (view == null) throw new NullPointerException("No view.");
 		this.view = view;
+	}
+
+	/**
+	 * Reacts to property changes.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ImporterChooserDialog.IMPORT_PROPERTY.equals(name)) {
+			File[] data = (File[]) evt.getNewValue();
+			model.importData(data);
+		}
+		
 	}
 	
 }

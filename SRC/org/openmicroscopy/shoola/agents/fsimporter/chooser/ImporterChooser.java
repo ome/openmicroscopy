@@ -20,32 +20,27 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.view;
+package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
-import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.DVFilter;
-import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
-import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
-import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Customized file chooser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,9 +54,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ImporterChooser 
 	extends JFileChooser
-	implements DocumentListener
 {
-
+	
 	/** The text area where to enter the name of the file to save. */
     private JTextField	nameArea;
     
@@ -72,74 +66,54 @@ class ImporterChooser
     											JTextField.class);
     	if (nameArea != null) {
     		//nameArea.setText(model.getPartialImageName());
-    		nameArea.getDocument().addDocumentListener(this);
+    		//nameArea.getDocument().addDocumentListener(this);
     	}
     }
     
-	/** Initializes the filters. */
-	private void initFilters()
+	/** 
+	 * Initializes the filters. 
+	 * @param filters The collection of file filters.
+	 */
+	private void initFilters(List<FileFilter> filters)
 	{
-		setAcceptAllFileFilterUsed(false);
-        setDialogType(SAVE_DIALOG);
-        setFileSelectionMode(FILES_ONLY);
-        addChoosableFileFilter(new DVFilter()); 
-        addChoosableFileFilter(new BMPFilter()); 
-        addChoosableFileFilter(new JPEGFilter()); 
-        PNGFilter filter = new PNGFilter();
-        addChoosableFileFilter(filter); 
-        addChoosableFileFilter(new TIFFFilter());
-        setFileFilter(filter);
+		//setAcceptAllFileFilterUsed(false);
+        //setDialogType(SAVE_DIALOG);
+        //setFileSelectionMode(FILES_ONLY);
+		if (filters != null) {
+			ViewerSorter sorter = new ViewerSorter();
+			List l = sorter.sort(filters);
+			Iterator i = l.iterator();
+			while (i.hasNext()) 
+				addChoosableFileFilter((FileFilter) i.next());
+		}
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param fsv The file system view.
+	 * @param fsv 		The file system view.
+	 * @param filters 	The collection of supported filters.
 	 */
-	ImporterChooser(FileSystemView fsv)
+	ImporterChooser(FileSystemView fsv, List<FileFilter> filters)
 	{
 		if (fsv != null) setFileSystemView(fsv);
 		initComponents();
-		initFilters();
+		initFilters(filters);
 		setControlButtonsAreShown(false);
 	}
 	
 	/**
-	 * Returns all the extension supported.
+	 * Returns the selected directory or <code>null</code> if no directory 
+	 * selected.
 	 * 
 	 * @return See above.
 	 */
-	List<String> getSupportedExtensions()
+	File getSelectedDirectory()
 	{
-		FileFilter[] filters = getChoosableFileFilters();
-		List<String> extensions = new ArrayList<String>();
-		FileFilter filter;
-		String[] ext;
-		for (int i = 0; i < filters.length; i++) {
-			filter = filters[i];
-			if (filter instanceof CustomizedFileFilter) {
-				ext = ((CustomizedFileFilter) filter).getExtensions();
-				for (int j = 0; j < ext.length; j++) {
-					extensions.add(ext[j]);
-				}
-			}
-		}
-		return extensions;
+		File f = getSelectedFile();
+		if (f.isDirectory()) return f;
+		return null;
 	}
-
-	public void changedUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void insertUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void removeUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-    
+	
 }
+

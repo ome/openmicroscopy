@@ -118,10 +118,7 @@ public class DataServicesFactory
 
 	/** The metadata service adapter. */
 	private OmeroMetadataService 	ms;
-	
-	/** The fs service adapter. */
-	private OmeroFSService			fs;
-	
+
     /** 
      * The timer used to establish disconner from an <code>OMERO</code>
      * server.
@@ -185,7 +182,6 @@ public class DataServicesFactory
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
         
         //fs stuff
-        fs = new OmeroFSServiceImpl(omeroGateway, registry);
         fsConfig = loadConfig(c.resolveConfigFile(FS_CONFIG_FILE));
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
@@ -307,13 +303,6 @@ public class DataServicesFactory
     public OmeroMetadataService getMS() { return ms; }
     
     /**
-     * Returns the {@link OmeroDataService}.
-     * 
-     * @return See above.
-     */
-    public OmeroFSService getFS() { return fs; }
-    
-    /**
      * Returns the {@link LoginService}. 
      * 
      * @return See above.
@@ -342,7 +331,7 @@ public class DataServicesFactory
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
         //fs stuff
-        //
+        //replace Server string in fs config
         
         boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);

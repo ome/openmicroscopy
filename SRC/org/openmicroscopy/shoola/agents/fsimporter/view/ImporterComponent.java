@@ -24,6 +24,11 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import java.io.File;
+
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 //Third-party libraries
 
@@ -52,6 +57,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
  * @since 3.0-Beta4
  */
 class ImporterComponent 
+	extends AbstractComponent
 	implements Importer
 {
 
@@ -109,18 +115,39 @@ class ImporterComponent
 	 */
 	public void discard()
 	{
-		// TODO Auto-generated method stub
-		
+		if (model.getState() == DISCARDED)
+			model.discard();
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#getState()
 	 */
-	public int getState()
+	public int getState() { return model.getState(); }
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#cancel()
+	 */
+	public void cancel()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		model.cancel();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#importData(File[])
+	 */
+	public void importData(File[] data)
+	{
+		if (model.getState() != READY) return;
+		if (data == null || data.length == 0) {
+			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Import", "No images to import.");
+			return;
+		}
+		model.fireImportData(data);
+		fireStateChange();
 	}
 	
 }

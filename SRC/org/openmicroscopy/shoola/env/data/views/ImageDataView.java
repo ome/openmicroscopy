@@ -32,11 +32,10 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
-import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import pojos.DataObject;
 import pojos.PixelsData;
 
 /** 
@@ -219,6 +218,21 @@ public interface ImageDataView
      * @param observer	Callback handler.
      * @return See above.
      */
-	public CallHandle loadChannelMetadataEnumerations(AgentEventListener observer);
+	public CallHandle loadChannelMetadataEnumerations(
+								AgentEventListener observer);
+	
+	/**
+	 * Imports the collection of images into the specified container.
+	 *  
+	 * @param container The container where to import the images into or 
+	 * 					<code>null</code>.
+	 * @param images	The images to import. Mustn't be <code>null</code>.
+	 * @param userID	The id of the user.
+	 * @param groupID	The id of the group.
+	 * @param observer	Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle importImages(DataObject container, List<Object> images, 
+			long userID, long groupID, AgentEventListener observer);
 	
 }

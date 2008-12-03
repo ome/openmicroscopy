@@ -22,6 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
+import java.io.File;
+
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 //Java imports
 
 //Third-party libraries
@@ -49,6 +53,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
  * @since 3.0-Beta4
  */
 public interface Importer
+	extends ObservableComponent
 {
 
 	/** Flag to denote the <i>New</i> state. */
@@ -59,6 +64,9 @@ public interface Importer
 
 	/** Flag to denote the <i>Discarded</i> state. */
 	public static final int     DISCARDED = 3;
+	
+	/** Flag to denote the <i>Importing</i> state. */
+	public static final int     IMPORTING = 4;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
@@ -82,5 +90,15 @@ public interface Importer
 	 * @return One of the state flags defined by this interface.
 	 */
 	public int getState();
+	
+	/** Cancels any ongoing data loading. */
+	public void cancel();
+
+	/**
+	 * Imports the specified files.
+	 * 
+	 * @param data The data to import.
+	 */
+	public void importData(File[] data);
 	
 }

@@ -34,29 +34,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.model.Channel;
-import omero.model.Coating;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImagingEnvironment;
-import omero.model.ImagingEnvironmentI;
-import omero.model.Immersion;
-import omero.model.Medium;
-import omero.model.Objective;
-import omero.model.ObjectiveI;
-import omero.model.ObjectiveSettings;
-import omero.model.ObjectiveSettingsI;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
-import omero.model.StageLabel;
-import omero.model.StageLabelI;
 import omero.romio.PlaneDef;
-import omero.sys.PojoOptions;
 import omero.util.PojoOptionsI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -69,9 +58,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -93,6 +82,9 @@ class OmeroImageServiceImpl
  	implements OmeroImageService
 {
 
+	/** The collection of supported file filters. */
+	private List<FileFilter>		filters;
+	
 	/** Uses it to gain access to the container's services. */
 	private Registry                context;
 
@@ -508,6 +500,29 @@ class OmeroImageServiceImpl
 	{
 		Collection planes = gateway.loadPlaneInfo(pixelsID);
 		return planes;
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#importImages(DataObject, List, long, long)
+	 */
+	public Object importImages(DataObject container, List<Object> images, 
+			long userID, long groupID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		// TODO Auto-generated method stub
+		return new ArrayList();
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getSupportedFileFilters()
+	 */
+	public List<FileFilter> getSupportedFileFilters()
+	{
+		if (filters != null) return filters;
+		filters = new ArrayList<FileFilter>();
+		return filters;
 	}
 	
 }

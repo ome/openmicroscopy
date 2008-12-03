@@ -528,7 +528,7 @@ class ImViewerComponent
 	public void discard()
 	{
 		switch (model.getState()) {
-			case DISCARDED:
+			//case DISCARDED:
 			case LOADING_RENDERING_CONTROL:
 				model.discard();
 				fireStateChange();

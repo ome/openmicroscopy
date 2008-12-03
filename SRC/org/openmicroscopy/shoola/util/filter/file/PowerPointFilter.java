@@ -55,12 +55,23 @@ public class PowerPointFilter
     public static final String  PPT = "ppt";
 
 	/** The possible extensions. */
-	private static final String[] extensions;
+	private static final String[] 	extensions;
 	
+	/** The description of the filter. */
+	private static final String		description;
 	static {
 		extensions = new String[2];
 		extensions[0] = PPS;
 		extensions[1] = PPT;
+		
+		String s = "Microsoft PowerPoint (";
+		for (int i = 0; i < extensions.length; i++) {
+			s += "*."+extensions[i];
+			if (i < extensions.length-1)
+				s += ", ";
+		}
+		s += ")";
+		description = s;
 	}
 	
 	/**
@@ -79,10 +90,7 @@ public class PowerPointFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-    public String getDescription()
-    { 
-    	return "Microsoft PowerPoint (.ppt, .pps)"; 
-    }
+    public String getDescription() { return description; }
         
     /**
      * Overriden to accept file with the declared file extensions.

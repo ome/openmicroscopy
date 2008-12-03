@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import pojos.DataObject;
 import pojos.PixelsData;
 
 
@@ -238,6 +239,18 @@ class ImageDataViewImpl
 	{
 		BatchCallTree cmd = new EnumerationLoader(EnumerationLoader.IMAGE);
 		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#importImages(DataObject, List, long, long,
+     * AgentEventListener)
+     */
+	public CallHandle importImages(DataObject container, List<Object> images, 
+			long userID, long groupID, AgentEventListener observer)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

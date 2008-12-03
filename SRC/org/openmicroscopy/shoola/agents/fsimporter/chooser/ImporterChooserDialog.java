@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.view;
+package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
@@ -30,6 +30,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -38,12 +40,16 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -60,11 +66,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class ImporterChooserDialog 
+public class ImporterChooserDialog 
 	extends JDialog
 	implements ActionListener
 {
 
+	/** Bound property indicating to import the selected files. */
+	public static final String		IMPORT_PROPERTY = "import";
+	
 	/** Identifies the <code>Cancel</code> action. */
 	private static final int 		CANCEL = 0;
 	
@@ -184,8 +193,25 @@ class ImporterChooserDialog
 	/** Import the file. */
 	private void importFile()
 	{
-		File f = chooser.getSelectedFile();
+		File[] files = chooser.getSelectedFiles();
+		if (files == null || files.length == 0) {
+			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Import", "Please select a file to import.");
+			return;
+		}
 		chooser.approveSelection();
+		firePropertyChange(IMPORT_PROPERTY, null, files);
+	}
+	
+	/** Monitors the selected directory. */
+	private void monitorDirectory()
+	{
+		File file = chooser.getSelectedDirectory();
+		if (file == null) {
+			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Import", "Please select a directory to monitor.");
+			return;
+		}
 	}
 	
 	/**
@@ -194,10 +220,13 @@ class ImporterChooserDialog
 	 * @param parent The parent of the dialog.
 	 * @param fsv	 The file system view.
 	 */
-	ImporterChooserDialog(JFrame parent, FileSystemView fsv)
+	public ImporterChooserDialog(JFrame parent, FileSystemView fsv)
 	{
 		super(parent);
-		chooser = new ImporterChooser(fsv);
+		Registry reg = ImporterAgent.getRegistry();
+		List<FileFilter> filters = 
+			reg.getImageService().getSupportedFileFilters();
+		chooser = new ImporterChooser(fsv, filters);
 		initComponents();
 		buildGUI();
 		pack();
@@ -218,7 +247,7 @@ class ImporterChooserDialog
 				importFile();
 				break;
 			case MONITOR:
-				
+				monitorDirectory();
 				break;
 		}
 	}

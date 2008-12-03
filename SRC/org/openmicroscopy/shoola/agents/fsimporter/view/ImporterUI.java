@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImporterChooserDialog;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -49,13 +50,13 @@ class ImporterUI
 {
 
 	/** Reference to the model. */
-	private ImporterModel 		model;
+	private ImporterModel 			model;
 	
 	/** Reference to the control. */
-	private ImporterControl 		controller;
+	private ImporterControl			controller;
 	
 	/** The chooser. */
-	private ImporterChooserDialog			chooser;
+	private ImporterChooserDialog	chooser;
 	
 	/** Creates a new instance. */
 	ImporterUI()
@@ -80,6 +81,7 @@ class ImporterUI
 	{
 		if (chooser == null) {
 			chooser = new ImporterChooserDialog(this, null);
+			chooser.addPropertyChangeListener(controller);
 		}
 		UIUtilities.centerAndShow(chooser);
 	}

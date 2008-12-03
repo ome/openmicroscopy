@@ -56,13 +56,37 @@ public class TIFFFilter
     /** Possible file extension. */
 	public static final String 	TIF = "tif";
 	
+	 /** Possible file extension. */
+	public static final String 	TF_2 = "tf2";
+	
+	 /** Possible file extension. */
+	public static final String 	TF_8 = "tf8";
+	
+	 /** Possible file extension. */
+	public static final String 	BTF = "btf";
+	
 	/** The possible extensions. */
-	private static final String[] extensions;
+	private static final String[] 	extensions;
+	
+	/** The description of the filter. */
+	private static final String		description;
 	
 	static {
-		extensions = new String[2];
+		extensions = new String[5];
 		extensions[0] = TIFF;
 		extensions[1] = TIF;
+		extensions[2] = TF_2;
+		extensions[3] = TF_8;
+		extensions[4] = BTF;
+		
+		String s = "Tagged Image File Format (";
+		for (int i = 0; i < extensions.length; i++) {
+			s += "*."+extensions[i];
+			if (i < extensions.length-1)
+				s += ", ";
+		}
+		s += ")";
+		description = s;
 	}
 	
 	/**
@@ -81,7 +105,7 @@ public class TIFFFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-	public String getDescription() { return "TIFF images"; }
+	public String getDescription() { return description; }
 		
     /**
      * Overriden to accept file with the declared file extensions.

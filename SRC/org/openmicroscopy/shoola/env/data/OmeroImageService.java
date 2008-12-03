@@ -30,6 +30,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.filechooser.FileFilter;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -39,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -373,5 +377,30 @@ public interface OmeroImageService
 	 */
 	public Collection loadPlaneInfo(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Imports the collection of images into the specified container.
+	 *  
+	 * @param container The container where to import the images into or 
+	 * 					<code>null</code>.
+	 * @param images	The images to import. Mustn't be <code>null</code>.
+	 * @param userID	The id of the user.
+	 * @param groupID	The id of the group.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object importImages(DataObject container, List<Object> images, 
+			long userID, long groupID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Returns the collection of file filters supported.
+	 * 
+	 * @return See above.
+	 */
+	public List<FileFilter> getSupportedFileFilters();
 	
 }

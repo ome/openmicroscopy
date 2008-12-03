@@ -22,6 +22,13 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
+
 import pojos.DataObject;
 
 
@@ -54,13 +61,19 @@ class ImporterModel
 {
 
 	/** Holds one of the state flags defined by {@link Importer}. */
-	private int				state;
+	private int					state;
 
 	/** Reference to the component that embeds this model. */
-	protected Importer	component;
+	protected Importer			component;
 
 	/** The object where to import the images. */
-	private DataObject		container;
+	private DataObject			container;
+	
+	/** 
+	 * Will either be a data loader or
+	 * <code>null</code> depending on the current state. 
+	 */
+	private DataImporterLoader 	currentLoader;
 	
 	/** Creates a new instance. */
 	ImporterModel()
@@ -109,6 +122,8 @@ class ImporterModel
 	 */
 	void cancel()
 	{
+		if (currentLoader != null)
+			currentLoader.cancel();
 		state = Importer.READY;
 	}
 	
@@ -125,5 +140,20 @@ class ImporterModel
 	 * @return See above.
 	 */
 	DataObject getContainer() { return container; }
+
+	/**
+	 * Fires an asynchronous call to import the images.
+	 * 
+	 * @param data The file to import	
+	 */
+	void fireImportData(File[] data)
+	{
+		List<Object> files = new ArrayList<Object>(data.length);
+		for (int i = 0; i < data.length; i++)
+			files.add(data[i]);
+		currentLoader = new ImagesImporter(component, container, files);
+		currentLoader.load();
+		state = Importer.IMPORTING;
+	}
 	
 }

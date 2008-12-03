@@ -52,11 +52,22 @@ public class ExcelFilter
     public static final String  EXCEL = "xls";
 
 	/** The possible extensions. */
-	private static final String[] extensions;
+	private static final String[] 	extensions;
+	
+	/** The description of the filter. */
+	private static final String		description;
 	
 	static {
 		extensions = new String[1];
 		extensions[0] = EXCEL;
+		String s = "Microsoft Excel (";
+		for (int i = 0; i < extensions.length; i++) {
+			s += "*."+extensions[i];
+			if (i < extensions.length-1)
+				s += ", ";
+		}
+		s += ")";
+		description = s;
 	}
 	
 	/**
@@ -75,7 +86,7 @@ public class ExcelFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-    public String getDescription() { return "Microsoft Excel (.xls)"; }
+    public String getDescription() { return description; }
         
     /**
      * Overriden to accept file with the declared file extensions.
