@@ -201,7 +201,7 @@ namespace omero {
 	    this->val = val;
 	}
 
-	RInternalI::~RInternal() {}
+	RInternalI::~RInternalI() {}
 
 	omero::InternalPtr RInternalI::getValue(const Ice::Current& current) { return this->val; }
 
