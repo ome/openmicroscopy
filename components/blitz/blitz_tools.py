@@ -140,7 +140,7 @@ class OmeroEnvironment(SConsEnvironment):
         # LIBPATH
         self.AppendUnique(LIBPATH=omerocpp_dir)
         if ice_home:
-            self.Append(LIBPATH=os.path.join(ice_home, "lib"))
+            self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
         if os.environ.has_key("LIBPATH"):
             self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
         if os.path.exists("/opt/local/lib"):
