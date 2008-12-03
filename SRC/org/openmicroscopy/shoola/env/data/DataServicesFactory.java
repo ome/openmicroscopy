@@ -24,10 +24,12 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -65,11 +67,14 @@ import pojos.GroupData;
 public class DataServicesFactory
 {
 	
+	/** The name of the fs configuration file in the config directory. */
+	private static final String		FS_CONFIG_FILE = "fs.config";
+	
 	/**
 	 * The default amount of time, in milliseconds, that the 
 	 * application should wait before exiting if the server is not responding. 
 	 */
-	private static final int				EXIT_TIMEOUT = 10000;
+	private static final int		EXIT_TIMEOUT = 10000;
 	
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
@@ -114,12 +119,36 @@ public class DataServicesFactory
 	/** The metadata service adapter. */
 	private OmeroMetadataService 	ms;
 	
+	/** The fs service adapter. */
+	private OmeroFSService			fs;
+	
     /** 
      * The timer used to establish disconner from an <code>OMERO</code>
      * server.
      */
     private Timer 					timer;
     
+    private Properties 				fsConfig;
+    
+    /**
+	 * Reads in the specified file as a property object.
+	 * 
+	 * @param file	Absolute pathname to the file.
+	 * @return	The content of the file as a property object or
+	 * 			<code>null</code> if an error occured.
+	 */
+	private static Properties loadConfig(String file)
+	{
+		Properties config = new Properties();
+		try { 
+			FileInputStream fis = new FileInputStream(file);
+			config.load(fis);
+		} catch (Exception e) {
+			return null;
+		}
+		return config;
+	}
+	
     /** Initiliazes the timer. */
     private void initTimer()
     {
@@ -154,6 +183,10 @@ public class DataServicesFactory
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
         is = new OmeroImageServiceImpl(omeroGateway, registry);
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
+        
+        //fs stuff
+        fs = new OmeroFSServiceImpl(omeroGateway, registry);
+        fsConfig = loadConfig(c.resolveConfigFile(FS_CONFIG_FILE));
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
         if (omeroGateway.isUpgradeRequired()) {
@@ -274,6 +307,13 @@ public class DataServicesFactory
     public OmeroMetadataService getMS() { return ms; }
     
     /**
+     * Returns the {@link OmeroDataService}.
+     * 
+     * @return See above.
+     */
+    public OmeroFSService getFS() { return fs; }
+    
+    /**
      * Returns the {@link LoginService}. 
      * 
      * @return See above.
@@ -301,6 +341,9 @@ public class DataServicesFactory
                                                     uc.getHostName(),
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
+        //fs stuff
+        //
+        
         boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, fastConnection);
@@ -344,8 +387,6 @@ public class DataServicesFactory
 			agentInfo.getRegistry().bind(LookupNames.USERS_DETAILS, exps);
 			agentInfo.getRegistry().bind(LookupNames.CONNECTION_SPEED, 
 					fastConnection);
-			//agentInfo.getRegistry().bind(
-			//        LookupNames.USER_CREDENTIALS, uc);
 		}
 	}
 	

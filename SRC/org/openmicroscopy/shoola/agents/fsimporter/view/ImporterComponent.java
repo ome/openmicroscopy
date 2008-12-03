@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterComponent 
+ * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterComponent 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -30,16 +30,16 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Application-internal dependencies
 
 /** 
- * Implements the {@link FSImporter} interface to provide the functionality
+ * Implements the {@link Importer} interface to provide the functionality
  * required of the hierarchy viewer component.
  * This class is the component hub and embeds the component's MVC triad.
  * It manages the component's state machine and fires state change 
  * notifications as appropriate, but delegates actual functionality to the
  * MVC sub-components.
  *
- * @see org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterModel
- * @see org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterUI
- * @see org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterControl
+ * @see org.openmicroscopy.shoola.agents.fsimporter.view.ImporterModel
+ * @see org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUI
+ * @see org.openmicroscopy.shoola.agents.fsimporter.view.ImporterControl
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,18 +51,18 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
  * </small>
  * @since 3.0-Beta4
  */
-class FSImporterComponent 
-	implements FSImporter
+class ImporterComponent 
+	implements Importer
 {
 
 	/** The Model sub-component. */
-	private FSImporterModel 	model;
+	private ImporterModel 	model;
 	
 	/** The Controller sub-component. */
-	private FSImporterControl 	controller;
+	private ImporterControl 	controller;
 	
 	/** The View sub-component. */
-	private FSImporterUI 		view;
+	private ImporterUI 		view;
 	
 	/**
 	 * Creates a new instance.
@@ -71,12 +71,12 @@ class FSImporterComponent
 	 * 
 	 * @param model The Model sub-component. Mustn't be <code>null</code>.
 	 */
-	FSImporterComponent(FSImporterModel model)
+	ImporterComponent(ImporterModel model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
-		controller = new FSImporterControl(this);
-		view = new FSImporterUI();
+		controller = new ImporterControl(this);
+		view = new ImporterUI();
 	}
 
 	/** Links up the MVC triad. */
@@ -87,8 +87,8 @@ class FSImporterComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link FSImporter} interface.
-	 * @see FSImporter#activate()
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#activate()
 	 */
 	public void activate()
 	{
@@ -104,8 +104,8 @@ class FSImporterComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link FSImporter} interface.
-	 * @see FSImporter#discard()
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#discard()
 	 */
 	public void discard()
 	{
@@ -114,8 +114,8 @@ class FSImporterComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link FSImporter} interface.
-	 * @see FSImporter#getState()
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#getState()
 	 */
 	public int getState()
 	{

@@ -61,6 +61,12 @@ public class XMLFilter
 		extensions[0] = XML;
 	}
 	
+	/**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtensions()
+	 */
+	public String[] getExtensions() { return extensions; }
+	
     /**
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()

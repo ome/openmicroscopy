@@ -134,6 +134,17 @@ public class RegExFileFilter
     	return accept(file.getName());
     }
 
+	/**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtensions()
+	 */
+	public String[] getExtensions()
+	{ 
+		String[] extensions = new String[1];
+		extensions[0] = originalEx;
+		return extensions; 
+	}
+	
     /**
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()

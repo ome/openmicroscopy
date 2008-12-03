@@ -54,8 +54,7 @@ public class LoggerFactory
 {
 	
 	/** The name of the log configuration file in the config directory. */
-	public static final String		LOG_CONFIG_FILE = "log4j.config";
-	
+	private static final String		LOG_CONFIG_FILE = "log4j.config";
 	
 	/**
 	 * Creates a new {@link Logger}.

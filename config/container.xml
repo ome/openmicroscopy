@@ -199,10 +199,10 @@
         <config>editor.xml</config>
     </agent>
     <agent>
-        <name>FSImporter</name>
+        <name>Importer</name>
         <active>true</active>
-        <class>org.openmicroscopy.shoola.agents.fsimporter.FSImporterAgent</class>
-        <config>fsimporter.xml</config>
+        <class>org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent</class>
+        <config>importer.xml</config>
     </agent>
     </structuredEntry>
   </agents>

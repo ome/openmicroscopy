@@ -63,6 +63,12 @@ public class CSVFilter
 	
 	/**
 	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtensions()
+	 */
+	public String[] getExtensions() { return extensions; }
+	
+	/**
+	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
 	 */
 	public String getExtension() { return CSV; }

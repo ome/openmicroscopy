@@ -23,10 +23,8 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
-
 import java.awt.Dimension;
 import java.awt.Rectangle;
-
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 
@@ -48,49 +46,86 @@ import javax.swing.Scrollable;
  */
 public class ScrollablePanel 
 	extends JPanel 
-	implements Scrollable {
+	implements Scrollable
+{
 
+	/** The default increment value. */
+	private static int INCREMENT = 50;
+	
+	/** Teh increment value. */
+	private int increment;
+	
+	/** The unit increment. */
+	private int unitIncrement;
+	
+	/** Creates a default instance. */
+	public ScrollablePanel()
+	{
+		this(INCREMENT);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param increment The increment value.
+	 */
+	public ScrollablePanel(int increment)
+	{
+		if (increment < 0) increment = INCREMENT;
+		this.increment = increment;
+		unitIncrement = 1;
+	}
+	
+	/**
+	 * Sets the unit. 
+	 * 
+	 * @param unitIncrement The value to set.
+	 */
+	public void setUnitIncrement(int unitIncrement)
+	{
+		this.unitIncrement = unitIncrement;
+	}
+	
 	/**
 	 * Implemented as required by the {@link Scrollable} interface.
 	 * Null implementation.
+	 * @see Scrollable#getPreferredScrollableViewportSize()
 	 */
-	public Dimension getPreferredScrollableViewportSize() {
-		return null;
-	}
+	public Dimension getPreferredScrollableViewportSize() { return null; }
 
 	/**
 	 * Implemented as required by the {@link Scrollable} interface.
-	 * Returns 50;
+	 * @see Scrollable#getScrollableBlockIncrement(Rectangle, int, int)
 	 */
 	public int getScrollableBlockIncrement(Rectangle visibleRect,
-			int orientation, int direction) {
-		return 50;
+			int orientation, int direction) 
+	{
+		return increment;
 	}
 
 	/**
 	 * Implemented as required by the {@link Scrollable} interface.
-	 * Returns false'
+	 * Returns <code>false</code>.
+	 * @see Scrollable#getScrollableTracksViewportHeight()
 	 */
-	public boolean getScrollableTracksViewportHeight() {
-		return false;
-	}
+	public boolean getScrollableTracksViewportHeight() { return false; }
 
 	/**
 	 * Implemented as specified by the {@link Scrollable} interface.
-	 * Returns true, so that the panel stays the same size as 
+	 * Returns <code>true</code>, so that the panel stays the same size as 
 	 * the view-port in which it is displayed. 
+	 * @see Scrollable#getScrollableTracksViewportWidth()
 	 */
-	public boolean getScrollableTracksViewportWidth() {
-		return true;
-	}
+	public boolean getScrollableTracksViewportWidth() { return true; }
 
 	/**
 	 * Implemented as required by the {@link Scrollable} interface.
-	 * Returns 1;
+	 * @see Scrollable#getScrollableUnitIncrement(Rectangle, int, int)
 	 */
 	public int getScrollableUnitIncrement(Rectangle visibleRect,
-			int orientation, int direction) {
-		return 1;
+			int orientation, int direction)
+	{
+		return unitIncrement;
 	}
 
 }

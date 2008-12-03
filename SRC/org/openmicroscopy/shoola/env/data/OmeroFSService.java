@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterControl 
+ * org.openmicroscopy.shoola.env.data.OmeroFSService 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,18 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.view;
-
+package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * The {@link FSImporter}'s controller. 
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,43 +43,14 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
  * </small>
  * @since 3.0-Beta4
  */
-class FSImporterControl
+public interface OmeroFSService
 {
 
-	/** 
-	 * Reference to the {@link FSImporter} component, which, in this context,
-	 * is regarded as the Model.
-	 */
-	private FSImporter 		model;
-	
-	/** Reference to the View. */
-	private FSImporterUI	view;
-
 	/**
-	 * Creates a new instance.
-	 * The {@link #initialize(FSImportUI) initialize} method 
-	 * should be called straight 
-	 * after to link this Controller to the other MVC components.
+	 * Returns a file system view.
 	 * 
-	 * @param model  Reference to the {@link FSImporter} component, which, in 
-	 *               this context, is regarded as the Model.
-	 *               Mustn't be <code>null</code>.
+	 * @return See above
 	 */
-	FSImporterControl(FSImporter model)
-	{
-		if (model == null) throw new NullPointerException("No model.");
-		this.model = model;
-	}
-	
-	/**
-	 * Links this Controller to its View.
-	 * 
-	 * @param view   Reference to the View. Mustn't be <code>null</code>.
-	 */
-	void initialize(FSImporterUI view)
-	{
-		if (view == null) throw new NullPointerException("No view.");
-		this.view = view;
-	}
+	public FileSystemView getFSFileView();
 	
 }

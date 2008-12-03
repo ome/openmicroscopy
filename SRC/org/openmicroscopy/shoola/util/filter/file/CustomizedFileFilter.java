@@ -92,4 +92,11 @@ public abstract class CustomizedFileFilter
 	 */
 	public abstract String getExtension();
 	
+	/**
+	 * Returns the supported extensions.
+	 * 
+	 * @return See above
+	 */
+	public abstract String[] getExtensions();
+	
 }

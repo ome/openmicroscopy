@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<agent name="FSImporter">
+<agent name="Importer">
    <resources>
      <iconFactories>
 	<!-- This entry is turned into an instance of: 

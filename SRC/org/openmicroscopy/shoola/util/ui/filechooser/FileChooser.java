@@ -427,6 +427,17 @@ public class FileChooser
     }
 
     /**
+     * Shows the chooser dialog. 
+     * 
+     * @return The option selected.
+     */
+    public int centerDialog()
+    {
+	    UIUtilities.centerAndShow(this);
+	    return option;
+    }
+    
+    /**
      * Sets the text of the <code>Approve</code> button.
      * 
      * @param text The value to set.

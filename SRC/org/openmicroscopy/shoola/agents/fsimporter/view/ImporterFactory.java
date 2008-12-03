@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterFactory 
+ * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -33,15 +33,15 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.FSImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 import pojos.DataObject;
 
 /** 
- * Factory to create {@link FSImporter} component.
- * This class keeps track of the {@link FSImporter} instance that has been 
- * created and is not yet in the {@link FSImporter#DISCARDED} state.
+ * Factory to create {@link Importer} component.
+ * This class keeps track of the {@link Importer} instance that has been 
+ * created and is not yet in the {@link Importer#DISCARDED} state.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,7 +53,7 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class FSImporterFactory 
+public class ImporterFactory 
 	implements ChangeListener
 {
 
@@ -64,28 +64,28 @@ public class FSImporterFactory
 	private static final String MENU_NAME = "FS importer";
 	
 	/** The sole instance. */
-	private static final FSImporterFactory  singleton = new FSImporterFactory();
+	private static final ImporterFactory  singleton = new ImporterFactory();
 	
 	/**
-	 * Returns a {@link FSImporter}.
+	 * Returns a {@link Importer}.
 	 *  
 	 * @return See above.
 	 */
-	public static FSImporter getImporter()
+	public static Importer getImporter()
 	{
-		FSImporterModel model = new FSImporterModel();
+		ImporterModel model = new ImporterModel();
 		return singleton.getImporter(model);
 	}
 	
 	/**
-	 * Returns a {@link FSImporter}.
+	 * Returns a {@link Importer}.
 	 *  
 	 * @param container The container where to import the images into.
 	 * @return See above.
 	 */
-	public static FSImporter getImporter(DataObject container)
+	public static Importer getImporter(DataObject container)
 	{
-		FSImporterModel model = new FSImporterModel();
+		ImporterModel model = new ImporterModel();
 		model.setContainer(container);
 		return singleton.getImporter(model);
 	}
@@ -112,13 +112,13 @@ public class FSImporterFactory
 	static void attachWindowMenuToTaskBar()
 	{
 		if (isWindowMenuAttachedToTaskBar()) return;
-		TaskBar tb = FSImporterAgent.getRegistry().getTaskBar();
+		TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
 		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
 		singleton.isAttached = true;
 	}
 	
 	/** The tracked component. */
-	private FSImporter importer;
+	private Importer importer;
 	
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
@@ -130,7 +130,7 @@ public class FSImporterFactory
 	private JMenu   	windowMenu;
 	
 	/** Creates a new instance. */
-	private FSImporterFactory()
+	private ImporterFactory()
 	{
 		isAttached = false;
 		windowMenu = new JMenu(MENU_NAME);
@@ -141,12 +141,12 @@ public class FSImporterFactory
 	 * <code>model</code>.
 	 * 
 	 * @param model	The Model.
-	 * @return A {@link FSImporter}.
+	 * @return A {@link Importer}.
 	 */
-	private FSImporter getImporter(FSImporterModel model)
+	private Importer getImporter(ImporterModel model)
 	{
 		if (importer != null) return importer;
-		FSImporterComponent comp = new FSImporterComponent(model);
+		ImporterComponent comp = new ImporterComponent(model);
 		model.initialize(comp);
 		//comp.addChangeListener(this);
 		importer = comp;
@@ -160,8 +160,8 @@ public class FSImporterFactory
 	 */ 
 	public void stateChanged(ChangeEvent ce)
 	{
-		FSImporterComponent comp = (FSImporterComponent) ce.getSource();
-		if (comp.getState() == FSImporter.DISCARDED) importer = null;
+		ImporterComponent comp = (ImporterComponent) ce.getSource();
+		if (comp.getState() == Importer.DISCARDED) importer = null;
 	}
 	
 }

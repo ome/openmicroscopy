@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterModel 
+ * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -36,7 +36,7 @@ import pojos.DataObject;
  * This class tracks the <code>FSImporter</code>'s state and knows how to
  * initiate data retrievals. It also knows how to store and manipulate
  * the results. This class  provide  a suitable data loader. 
- * The {@link FSImporterComponent} intercepts the 
+ * The {@link ImporterComponent} intercepts the 
  * results of data loadings, feeds them back to this class and fires state
  * transitions as appropriate.
  *
@@ -50,22 +50,22 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-class FSImporterModel
+class ImporterModel
 {
 
-	/** Holds one of the state flags defined by {@link FSImporter}. */
+	/** Holds one of the state flags defined by {@link Importer}. */
 	private int				state;
 
 	/** Reference to the component that embeds this model. */
-	protected FSImporter	component;
+	protected Importer	component;
 
 	/** The object where to import the images. */
 	private DataObject		container;
 	
 	/** Creates a new instance. */
-	FSImporterModel()
+	ImporterModel()
 	{
-		state = FSImporter.NEW;
+		state = Importer.NEW;
 	}
 	
 	/**
@@ -74,7 +74,7 @@ class FSImporterModel
 	 * 
 	 * @param component The embedding component.
 	 */
-	void initialize(FSImporter component)
+	void initialize(Importer component)
 	{
 		this.component = component;
 	}
@@ -82,7 +82,7 @@ class FSImporterModel
 	/**
 	 * Returns the current state.
 	 * 
-	 * @return One of the flags defined by the {@link FSImporter} interface.  
+	 * @return One of the flags defined by the {@link Importer} interface.  
 	 */
 	int getState() { return state; }    
 
@@ -94,22 +94,22 @@ class FSImporterModel
 	void setState(int state) { this.state = state; }
 	
 	/**
-	 * Sets the object in the {@link FSImporter#DISCARDED} state.
+	 * Sets the object in the {@link Importer#DISCARDED} state.
 	 * Any ongoing data loading will be cancelled.
 	 */
 	void discard()
 	{
 		cancel();
-		state = FSImporter.DISCARDED;
+		state = Importer.DISCARDED;
 	}
 
 	/**
-	 * Sets the object in the {@link FSImporter#READY} state.
+	 * Sets the object in the {@link Importer#READY} state.
 	 * Any ongoing data loading will be cancelled.
 	 */
 	void cancel()
 	{
-		state = FSImporter.READY;
+		state = Importer.READY;
 	}
 	
 	/**

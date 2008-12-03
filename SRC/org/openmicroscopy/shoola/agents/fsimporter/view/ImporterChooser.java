@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSChooser 
+ * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterChooser 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class FSChooser 
+class ImporterChooser 
 	extends JFileChooser
 	implements DocumentListener
 {
@@ -96,7 +96,7 @@ class FSChooser
 	 * 
 	 * @param fsv The file system view.
 	 */
-	FSChooser(FileSystemView fsv)
+	ImporterChooser(FileSystemView fsv)
 	{
 		if (fsv != null) setFileSystemView(fsv);
 		initComponents();

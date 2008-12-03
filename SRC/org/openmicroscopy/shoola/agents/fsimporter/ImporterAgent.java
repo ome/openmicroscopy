@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.FSImporterAgent 
+ * org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -31,8 +31,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.fsimporter.LoadFSImporter;
-import org.openmicroscopy.shoola.agents.fsimporter.view.FSImporter;
-import org.openmicroscopy.shoola.agents.fsimporter.view.FSImporterFactory;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -54,7 +54,7 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class FSImporterAgent 
+public class ImporterAgent 
 	implements Agent, AgentEventListener
 {
 
@@ -87,12 +87,12 @@ public class FSImporterAgent
     private void handleLoadFS(LoadFSImporter evt)
     {
     	if (evt == null) return;
-    	FSImporter importer = FSImporterFactory.getImporter(evt.getContainer());
+    	Importer importer = ImporterFactory.getImporter(evt.getContainer());
     	if (importer != null) importer.activate();
     }
     
 	/** Creates a new instance. */
-	public FSImporterAgent() {}
+	public ImporterAgent() {}
 	
 	 /**
      * Implemented as specified by {@link Agent}.

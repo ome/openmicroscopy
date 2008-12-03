@@ -90,7 +90,7 @@ public class IconManager
     public static IconManager getInstance() 
     { 
         if (singleton == null) 
-            singleton = new IconManager(FSImporterAgent.getRegistry());
+            singleton = new IconManager(ImporterAgent.getRegistry());
         return singleton; 
     }
     

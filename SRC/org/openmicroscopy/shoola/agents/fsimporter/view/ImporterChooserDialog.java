@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSChooserDialog 
+ * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterChooserDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class FSChooserDialog 
+class ImporterChooserDialog 
 	extends JDialog
 	implements ActionListener
 {
@@ -96,7 +96,7 @@ class FSChooserDialog
     private static final Dimension	H_SPACER_SIZE = new Dimension(3, 10);
     
 	/** The chooser used. */
-	private FSChooser	chooser;
+	private ImporterChooser	chooser;
 	
 	 /** 
      * Replaces the <code>CancelButton</code> provided by the 
@@ -194,10 +194,10 @@ class FSChooserDialog
 	 * @param parent The parent of the dialog.
 	 * @param fsv	 The file system view.
 	 */
-	FSChooserDialog(JFrame parent, FileSystemView fsv)
+	ImporterChooserDialog(JFrame parent, FileSystemView fsv)
 	{
 		super(parent);
-		chooser = new FSChooser(fsv);
+		chooser = new ImporterChooser(fsv);
 		initComponents();
 		buildGUI();
 		pack();
