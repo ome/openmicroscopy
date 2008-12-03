@@ -130,6 +130,18 @@ public class FieldPanel
 	 */
 	public static final String 		OPEN_URL_CMD = "openUrl";
 	
+	/**	
+	 * An ActionCommmand for adding a table for displaying multiple
+	 * values for each parameter. 
+	 */
+	public static final String 		ADD_TABLE_CMD = "addFieldTable";
+	
+	/**
+	 * An ActionCommand for removing a table that displays multiple values
+	 * for each parameter. 
+	 */
+	public static final String 		REMOVE_TABLE_CMD = "removeFieldTable";
+	
 	/**
 	 * The source of data that this field is displaying and editing. 
 	 */
@@ -251,15 +263,21 @@ public class FieldPanel
 		
 		// Button for adding a table for display of parameter data
 		Icon paramTableIcon = iconManager.getIcon(IconManager.ADD_TABLE_ICON);
-		fieldTableButton = new CustomButton(paramTableIcon);
-		fieldTableButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.addFieldTable(field, tree, treeNode);
-			}
-		});
-		fieldTableButton.setToolTipText("Add a table for parameter values, " +
+		Icon removeTableIcon = iconManager.getIcon(IconManager.REMOVE_TABLE_ICON);
+		fieldTableButton = new CustomButton();
+		fieldTableButton.addActionListener(this);
+		if (field.getTableData() == null) {
+			fieldTableButton.setToolTipText("Add a table for parameter values, " +
 				"so that multiple values can be set for each parameter");
-		fieldTableButton.setVisible(AddFieldTableEdit.canDo(field));
+			fieldTableButton.setVisible(AddFieldTableEdit.canDo(field));
+			fieldTableButton.setIcon(paramTableIcon);
+			fieldTableButton.setActionCommand(ADD_TABLE_CMD);
+		} else {
+			fieldTableButton.setToolTipText("Remove table for parameter values");
+			fieldTableButton.setIcon(removeTableIcon);
+			fieldTableButton.setActionCommand(REMOVE_TABLE_CMD);
+		}
+		
 	}
 	
 	/**
@@ -694,6 +712,14 @@ public class FieldPanel
 		
 		else if (LOAD_DEFAULTS_CMD.equals(cmd)) {
 			loadDefaultValue();
+		}
+		
+		else if (ADD_TABLE_CMD.equals(cmd)) {
+			controller.addFieldTable(field, tree, treeNode);
+		}
+		
+		else if (REMOVE_TABLE_CMD.equals(cmd)) {
+			controller.removeFieldTable(field, tree, treeNode);
 		}
 	}
 	

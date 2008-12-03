@@ -430,4 +430,18 @@ public class BrowserControl
 		UndoableEdit edit = new AddFieldTableEdit(field, tree, node);
 		undoSupport.postEdit(edit);
 	}
+	
+	/**
+	 * Removes tableModel from the field, but doesn't delete the data 
+	 * held by parameters. 
+	 * 
+	 * @param field		The field to add a new tableModel to.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void removeFieldTable(IField field, JTree tree, TreeNode node)
+	{
+		UndoableEdit edit = new AddFieldTableEdit(field, tree, node, null);
+		undoSupport.postEdit(edit);
+	}
 }

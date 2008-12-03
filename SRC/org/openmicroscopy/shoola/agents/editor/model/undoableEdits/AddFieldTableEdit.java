@@ -126,11 +126,27 @@ extends AbstractUndoableEdit {
 	}
 	
 	/**
+	 * Creates an instance and performs the edit, 
+	 * Adding the tableModel <code>tableModel</code> to the field, and replacing
+	 * any previous tableModel. 
+	 * 
+	 * @param field		The field to add a new tableModel to.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 * @param tableModel	The tableModel to replace existing 
+	 */
+	public AddFieldTableEdit(IField field, JTree tree, TreeNode node, 
+							TableModel tableModel) {
+		
+		initialise(field, tree, node, tableModel);
+	}
+	
+	/**
 	 * This method allow you to test whether a field should be allowed to 
 	 * have a table of parameter values. 
 	 * 
 	 * @param newField
-	 * @return
+	 * @return			true if the field has parameters to display
 	 */
 	public static boolean canDo(IField newField) 
 	{	
@@ -138,9 +154,6 @@ extends AbstractUndoableEdit {
 		if (newField.getAtomicParams().size() == 0) {
 			return false;
 		}
-		// don't want to add table if it already exists!
-		if (newField.getTableData() != null)
-			return false;
 		
 		return true;
 	}
