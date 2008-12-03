@@ -29,10 +29,16 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.fsimporter.LoadFSImporter;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
+
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -64,6 +70,12 @@ public class CreateCmd
     /** Indicates to create a <code>Screen</code>. */
     public static final int SCREEN = 3;
     
+    /** Indicates to create a <code>Screen</code>. */
+    public static final int PLATE = 4;
+    
+    /** Indicates to import an <code>Image</code>. */
+    public static final int IMAGE = 5;
+    
     /** Reference to the model. */
     private TreeViewer  model;
     
@@ -89,7 +101,9 @@ public class CreateCmd
             case PROJECT: return new ProjectData();
             case DATASET: return new DatasetData(); 
             case SCREEN: return new ScreenData(); 
-            case TAG: return new TagAnnotationData("foo");
+            case TAG: return new TagAnnotationData("");
+            case PLATE: return new PlateData();
+            case IMAGE: return new ImageData();
             default:
                 throw new IllegalArgumentException("Type not supported");
         }
@@ -127,7 +141,15 @@ public class CreateCmd
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
         //model.showProperties(userObject, TreeViewer.CREATE_EDITOR);
-        model.createDataObject(userObject, withParent);
+        if (userObject instanceof ImageData) {
+        	Object object = browser.getLastSelectedDisplay().getUserObject();
+        	if (object instanceof DatasetData) {
+        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+            	bus.post(new LoadFSImporter((DatasetData) object));
+        	}
+        	
+        } else
+        	model.createDataObject(userObject, withParent);
     }
     
 }

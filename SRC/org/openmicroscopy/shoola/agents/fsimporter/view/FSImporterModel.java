@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
+import pojos.DataObject;
+
 
 //Java imports
 
@@ -57,6 +59,9 @@ class FSImporterModel
 	/** Reference to the component that embeds this model. */
 	protected FSImporter	component;
 
+	/** The object where to import the images. */
+	private DataObject		container;
+	
 	/** Creates a new instance. */
 	FSImporterModel()
 	{
@@ -106,5 +111,19 @@ class FSImporterModel
 	{
 		state = FSImporter.READY;
 	}
+	
+	/**
+	 * Sets the container. 
+	 * 
+	 * @param container
+	 */
+	void setContainer(DataObject container) { this.container = container; }
+	
+	/**
+	 * Returns the container.
+	 * 
+	 * @return See above.
+	 */
+	DataObject getContainer() { return container; }
 	
 }

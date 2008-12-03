@@ -36,6 +36,8 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.fsimporter.FSImporterAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
+import pojos.DataObject;
+
 /** 
  * Factory to create {@link FSImporter} component.
  * This class keeps track of the {@link FSImporter} instance that has been 
@@ -72,6 +74,19 @@ public class FSImporterFactory
 	public static FSImporter getImporter()
 	{
 		FSImporterModel model = new FSImporterModel();
+		return singleton.getImporter(model);
+	}
+	
+	/**
+	 * Returns a {@link FSImporter}.
+	 *  
+	 * @param container The container where to import the images into.
+	 * @return See above.
+	 */
+	public static FSImporter getImporter(DataObject container)
+	{
+		FSImporterModel model = new FSImporterModel();
+		model.setContainer(container);
 		return singleton.getImporter(model);
 	}
 	

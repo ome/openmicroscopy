@@ -529,7 +529,7 @@ class DataBrowserToolBar
 		chooser.setTitleIcon(icons.getIcon(IconManager.REPORT_48));
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) chooser.setCurrentDirectory(f);
-		int option = chooser.showDialog();
+		int option = chooser.centerDialog();
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
 		controller.createReport(file.getAbsolutePath());

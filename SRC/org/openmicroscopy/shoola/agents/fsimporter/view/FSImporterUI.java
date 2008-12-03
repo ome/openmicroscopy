@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -53,6 +54,9 @@ class FSImporterUI
 	/** Reference to the control. */
 	private FSImporterControl 		controller;
 	
+	/** The chooser. */
+	private FSChooserDialog			chooser;
+	
 	/** Creates a new instance. */
 	FSImporterUI()
 	{
@@ -70,5 +74,15 @@ class FSImporterUI
 		this.model = model;
 		this.controller = controller;
 	}
+	
+	/** Creates or recycles a <code>FSChooserDialog</code>. */
+	void setDialogOnScreen()
+	{
+		if (chooser == null) {
+			chooser = new FSChooserDialog(this, null);
+		}
+		UIUtilities.centerAndShow(chooser);
+	}
+	
 	
 }

@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.events.fsimporter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.DataObject;
 
 
 /** 
@@ -48,11 +49,24 @@ public class LoadFSImporter
 	extends RequestEvent
 {
 
-	/** Creates a new instance. */
+	/** The container where to load the image. */
+	private DataObject container;
 	
-	public LoadFSImporter()
+	/**
+	 *  Creates a new instance. 
+	 * 
+	 * @param container The container where to load the image.
+	 */
+	public LoadFSImporter(DataObject container)
 	{
-		
+		this.container = container;
 	}
+	
+	/**
+	 * Returns the container.
+	 * 
+	 * @return See above.
+	 */
+	public DataObject getContainer() { return container; }
 	
 }

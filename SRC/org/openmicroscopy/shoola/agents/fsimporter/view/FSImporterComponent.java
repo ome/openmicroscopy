@@ -94,7 +94,7 @@ class FSImporterComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				view.setOnScreen();
+				view.setDialogOnScreen();
 				model.setState(READY);
 				break;
 			case DISCARDED:

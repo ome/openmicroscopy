@@ -87,7 +87,7 @@ public class FSImporterAgent
     private void handleLoadFS(LoadFSImporter evt)
     {
     	if (evt == null) return;
-    	FSImporter importer = FSImporterFactory.getImporter();
+    	FSImporter importer = FSImporterFactory.getImporter(evt.getContainer());
     	if (importer != null) importer.activate();
     }
     

@@ -329,11 +329,14 @@ public class IconManager
     /** The <code>File</code> icon. */
     public static int           FILE_HTML = 91;
     
+    /** The <code>File</code> icon. */
+    public static int           IMPORTER = 92;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 91;
+    private static int          MAX_ID = 92;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -426,7 +429,6 @@ public class IconManager
         relPaths[EDITOR] = "omeroEditorLink16.png";
         relPaths[FILES_EXPLORER] = "nuvola_attach16.png";
         relPaths[FILE] = "nuvola_attach16.png";
-        
         relPaths[FILE_PDF] = "nuvola_acroread16.png";
         relPaths[FILE_TEXT] = "nuvola_txt16.png";
         relPaths[FILE_WORD] = "alienOSX_Microsoft_Word16.png";
@@ -435,6 +437,7 @@ public class IconManager
         relPaths[FILE_XML] = "txt_xml16.png";
         relPaths[FILE_HTML] = "txt_html16.png";
         relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
+        relPaths[IMPORTER] = "omeroImporterLink16.png";
     }
     
     /** The sole instance. */

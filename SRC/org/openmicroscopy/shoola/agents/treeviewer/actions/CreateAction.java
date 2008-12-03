@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Creates a new <code>DataObject</code> of the corresponding type.
@@ -63,8 +64,11 @@ public class CreateAction
     /** The name of the action for the creation of a <code>Dataset</code>. */
     private static final String NAME_DATASET = "New Dataset...";
     
+    /** The name of the action for the creation of a <code>Plate</code>. */
+    private static final String NAME_PLATE = "New Plate...";
+    
    /** The name of the action for the creation of a <code>Image</code>. */
-    private static final String NAME_IMAGE = "Import Image...";
+    private static final String NAME_IMAGE = "Import...";
     
     /** 
      * Description of the action if the selected node is a <code>Dataset</code>.
@@ -72,6 +76,12 @@ public class CreateAction
     private static final String DESCRIPTION_DATASET = "Create a new dataset " +
     		"and add it to the selected project.";
  
+    /** 
+     * Description of the action if the selected node is a <code>Plate</code>.
+     */
+    private static final String DESCRIPTION_PLATE = "Create a new plate " +
+    		"and add it to the selected screen.";
+    
     /** 
      * Description of the action if the selected node is a <code>Image</code>.
      */
@@ -130,9 +140,19 @@ public class CreateAction
            
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+        } else if (ho instanceof ScreenData) {
+        	 setEnabled(model.isObjectWritable(ho));
+             name = NAME_PLATE; 
+             nodeType = CreateCmd.PLATE;
+            
+             putValue(Action.SHORT_DESCRIPTION, 
+                     UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
         } else if (ho instanceof DatasetData) {
             setEnabled(model.isObjectWritable(ho));
-            setEnabled(false);
+            //setEnabled(false);
+            nodeType = CreateCmd.IMAGE;
+            IconManager im = IconManager.getInstance();
+            putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
