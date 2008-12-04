@@ -1022,6 +1022,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         }
     }
 
+    public void setObjectiveIris(Boolean iris, int instrumentIndex,
+            int objectiveIndex)
+    {
+        try
+        {
+            delegate.setObjectiveIris(rbool(iris), instrumentIndex, objectiveIndex);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
     public void setObjectiveCalibratedMagnification(
             Float calibratedMagnification, int instrumentIndex,
             int objectiveIndex)
@@ -2419,14 +2432,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         {
             throw new RuntimeException(e);
         }
-    }
-
-    public void setObjectiveIris(Boolean iris, int instrumentIndex,
-            int objectiveIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
     }
     
 /*
