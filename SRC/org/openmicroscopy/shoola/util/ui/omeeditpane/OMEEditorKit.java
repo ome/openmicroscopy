@@ -25,13 +25,9 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 //Java imports
 
-import java.awt.Font;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JEditorPane;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
@@ -78,7 +74,10 @@ public class OMEEditorKit
 		this.formatMap = formatters;
 	}
 	  
-	@Override
+	/**
+	 * Get the view of the edit component.
+	 * @return see above.
+	 */
 	public ViewFactory getViewFactory() 
 	{
 		return this;

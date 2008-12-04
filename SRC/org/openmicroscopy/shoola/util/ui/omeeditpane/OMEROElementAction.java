@@ -48,9 +48,15 @@ public class OMEROElementAction
 	implements SelectionAction
 {
 
+	/** The type of the element action. */
+	private String 	type;
+	
+	/** The value of the type. */
+	private String	value;
+	
 	/**
 	 * Override
-	 * @see omeeditpane.SelectionAction#onSelection(java.lang.String)
+	 * {@see omeeditpane.SelectionAction#onSelection(java.lang.String)}
 	 */
 	public void onSelection(String selectedText)
 	{
@@ -65,9 +71,8 @@ public class OMEROElementAction
 		     index++; 
 		 }
 		 
-		 String type = tok[1];
-		 String value = tok[2];
-		 
+		 type = tok[1];
+		 value = tok[2];
 	}	
 	
 }
