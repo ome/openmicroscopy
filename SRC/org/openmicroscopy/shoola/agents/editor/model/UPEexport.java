@@ -76,9 +76,13 @@ public class UPEexport {
 		"PUBLIC \"-//Universal Protocol Exchange Format//DTD upe 1.0//EN\" " +
 		"\"http://genome.tugraz.at/iLAP/upe/upe.dtd\">";
 
+	/**
+	 * Reference to a style-sheet, so that when the XML is viewed in a 
+	 * browser (NOT FireFox!) the XML is transformed with remote stylesheet. 
+	 */
 	public static final String 		UPE_STYLESHEET ="<?xml-stylesheet " +
-		"href=\"http://genome.tugraz.at/iLAP/upe/upe2html.xsl\" " + 
-		"type=\"text/xsl\"?>";
+	"href=\"http://users.openmicroscopy.org.uk/~will/schemas/upeEditor2html.xsl\""
+	+ " type=\"text/xsl\"?>";
 
 	/**
 	 * A recursive method that traverses the treeModel, building an 
