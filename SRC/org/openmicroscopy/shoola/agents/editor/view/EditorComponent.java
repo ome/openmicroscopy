@@ -25,18 +25,13 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.io.File;
 
-import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
-import org.openmicroscopy.shoola.agents.editor.model.MicroFormatsExport;
-import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 

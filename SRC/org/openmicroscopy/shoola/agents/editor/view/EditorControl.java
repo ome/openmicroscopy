@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.NewBlankFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
+import org.openmicroscopy.shoola.agents.editor.actions.OpenWwwFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
 
@@ -80,6 +81,9 @@ class EditorControl
 	/** Identifies the <code>Save UPE File</code> Action. */
 	static final Integer	SAVE_FILE = new Integer(5);
 	
+	/** Identifies the <code>Open file from web</code> Action. */
+	static final Integer	OPEN_WWW_FILE = new Integer(6);
+	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
 	 * is regarded as the Model.
@@ -100,6 +104,7 @@ class EditorControl
 		actionsMap.put(SAVE_FILE_AS, new SaveFileAsAction(model));
 		actionsMap.put(NEW_BLANK_FILE, new NewBlankFileAction(model));
 		actionsMap.put(SAVE_FILE, new SaveFileAction(model));
+		actionsMap.put(OPEN_WWW_FILE, new OpenWwwFileAction(model));
 	}
 	
 	/** 
