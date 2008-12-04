@@ -28,6 +28,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
 import omero.RString;
@@ -89,7 +90,7 @@ public class ImageAcquisitionData
 	private Immersion			immersion;
 	
 	/** The objective's correction. */
-	private Correction				correction;
+	private Correction			correction;
 	
 	/**
 	 * Returns the objective if any.
@@ -376,6 +377,35 @@ public class ImageAcquisitionData
 		RString value = obj.getModel();
 		if (value == null) return "";
 		return value.getValue();
+	}
+	
+	/**
+	 * Returns a boolean flag if the value has been set, <code>null</code> 
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public Object hasIris()
+	{
+		if (objective == null) return null;
+		Objective obj = objective.getObjective();
+		if (obj == null) return null;
+		RBool value = obj.getIris();
+		if (value == null) return null;
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the iris flag.
+	 * 
+	 * @param iris The value to set.
+	 */
+	public void setIris(boolean iris)
+	{
+		objectiveDirty = true;
+		Objective ob = objective.getObjective();
+		if (ob == null) ob = new ObjectiveI();
+		ob.setIris(omero.rtypes.rbool(iris));
 	}
 	
 	/**
