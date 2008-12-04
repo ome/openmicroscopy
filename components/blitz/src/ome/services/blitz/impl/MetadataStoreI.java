@@ -1861,6 +1861,24 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
+    public void setObjectiveIris_async(
+            final AMD_MetadataStore_setObjectiveID __cb, final RBoolean iris,
+            final int instrumentIndex, final int objectiveIndex,
+            final Current __current) throws ServerError {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        store.setObjectiveIris(iris.getValue(), instrumentIndex,
+                                objectiveIndex);
+                        return null;
+                    }
+                }));
+    }
+
     public void setObjectiveImmersion_async(
             final AMD_MetadataStore_setObjectiveImmersion __cb,
             final RString immersion, final int instrumentIndex,
