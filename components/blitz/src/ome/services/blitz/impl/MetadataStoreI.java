@@ -1862,7 +1862,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void setObjectiveIris_async(
-            final AMD_MetadataStore_setObjectiveID __cb, final RBoolean iris,
+            final AMD_MetadataStore_setObjectiveID __cb, final RBool iris,
             final int instrumentIndex, final int objectiveIndex,
             final Current __current) throws ServerError {
 

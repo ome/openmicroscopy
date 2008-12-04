@@ -113,7 +113,7 @@ module omero {
 		void setDetectorType(RString type, int instrumentIndex, int detectorIndex) throws ServerError;
 		void setDetectorVoltage(RFloat voltage, int instrumentIndex, int detectorIndex) throws ServerError;
 		void setObjectiveID(RString id, int instrumentIndex, int objectiveIndex)  throws ServerError;
-		void setObjectiveIris(RBoolean iris, int instrumentIndex, int objectiveIndex)  throws ServerError;
+		void setObjectiveIris(RBool iris, int instrumentIndex, int objectiveIndex)  throws ServerError;
 		void setObjectiveCalibratedMagnification(RFloat calibratedMagnification, int instrumentIndex, int objectiveIndex)  throws ServerError;
 		void setObjectiveImmersion(RString immersion, int instrumentIndex, int objectiveIndex)  throws ServerError;
 		void setObjectiveLensNA(RFloat lensNA, int instrumentIndex, int objectiveIndex) throws ServerError;
