@@ -168,7 +168,7 @@ public class UrlChooser
 		
 		String headerMessage= "Choose an example file to open.";
 		Icon headerIcon = IconManager.getInstance().getIcon(
-				IconManager.CREATE);
+				IconManager.WWW_FOLDER_ICON_48);
 		
 		//this.setPreferredSize(new Dimension(panelWidth, 400));
 		
