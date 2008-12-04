@@ -309,6 +309,16 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-powerpoint';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-word';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'CW';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'Single';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'QSwitched';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'Repetitive';
+insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_pulse'),-35,0,0,0,'ModeLocked';
 insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_lasertype'),-35,0,0,0,'Excimer';
 insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
@@ -325,16 +335,6 @@ insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_lasertype'),-35,0,0,0,'FreeElectron';
 insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_lasertype'),-35,0,0,0,'Unknown';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'CW';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'Single';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'QSwitched';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'Repetitive';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_pulse'),-35,0,0,0,'ModeLocked';
 insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_jobstatus'),-35,0,0,0,'Submitted';
 insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
@@ -399,22 +399,6 @@ insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_illumination'),-35,0,0,0,'Oblique';
 insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_illumination'),-35,0,0,0,'NonLinear';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Achro';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Achromat';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluor';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fl';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluar';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Neofluar';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Fluotar';
-insert into aberrationcorrection (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_aberrationcorrection'),-35,0,0,0,'Apo';
 insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_photometricinterpretation'),-35,0,0,0,'RGB';
 insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
@@ -428,6 +412,8 @@ insert into photometricinterpretation (id,permissions,owner_id,group_id,creation
 insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_photometricinterpretation'),-35,0,0,0,'ColorMap';
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Unknown';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_correction'),-35,0,0,0,'UV';
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_correction'),-35,0,0,0,'PlanApo';
@@ -438,9 +424,21 @@ insert into correction (id,permissions,owner_id,group_id,creation_id,value)
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_correction'),-35,0,0,0,'VioletCorrected';
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_correction'),-35,0,0,0,'Other';
+    select nextval('seq_correction'),-35,0,0,0,'Achro';
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_correction'),-35,0,0,0,'Unknown';
+    select nextval('seq_correction'),-35,0,0,0,'Achromat';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Fluor';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Fl';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Fluar';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Neofluar';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Fluotar';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Apo';
 insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_eventtype'),-35,0,0,0,'Import';
 insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
@@ -519,12 +517,6 @@ insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_microscopetype'),-35,0,0,0,'Electrophysiology';
 insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_microscopetype'),-35,0,0,0,'Unknown';
-insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_irisdiaphragm'),-35,0,0,0,'I';
-insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_irisdiaphragm'),-35,0,0,0,'Iris';
-insert into irisdiaphragm (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_irisdiaphragm'),-35,0,0,0,'W/Iris';
 insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_dimensionorder'),-35,0,0,0,'XYZCT';
 insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)

@@ -314,6 +314,7 @@
 			<optional name="immersion" type="ome.model.enums.Immersion"/>
 			<optional name="correction" type="ome.model.enums.Correction"/><!-- called Correction in model -->
 			<optional name="workingDistance" type="float"/>
+			<optional name="iris" type="boolean"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
@@ -423,16 +424,6 @@
 		<entry name="Unknown"/>
 	</enum>
 <!-- Object Entity -->
-	<enum id="ome.model.enums.AberrationCorrection"><!--TODO: not in model - Not used elsewhere in mappings-->
-		<entry name="Achro"/>
-		<entry name="Achromat"/>
-		<entry name="Fluor"/>
-		<entry name="Fl"/>
-		<entry name="Fluar"/>
-		<entry name="Neofluar"/>
-		<entry name="Fluotar"/>
-		<entry name="Apo"/>
-	</enum>
 	<enum id="ome.model.enums.Immersion">
 		<entry name="Oil"/>
 		<entry name="Water"/>
@@ -443,20 +434,24 @@
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
+	
 	<enum id="ome.model.enums.Correction">
+		<entry name="Unknown"/>
 		<entry name="UV"/>
 		<entry name="PlanApo"/>
 		<entry name="PlanFluor"/>
 		<entry name="SuperFluor"/>
 		<entry name="VioletCorrected"/>
-		<entry name="Other"/>
-		<entry name="Unknown"/>
+		<entry name="Achro"/>
+		<entry name="Achromat"/>
+		<entry name="Fluor"/>
+		<entry name="Fl"/>
+		<entry name="Fluar"/>
+		<entry name="Neofluar"/>
+		<entry name="Fluotar"/>
+		<entry name="Apo"/>
 	</enum>
-	<enum id="ome.model.enums.IrisDiaphragm"><!--TODO: not in model - Not used elsewhere in mappings-->
-		<entry name="I"/>
-		<entry name="Iris"/>
-		<entry name="W/Iris"/>
-	</enum>
+
 <!-- OriginalFile Entity -->
 	<enum id="ome.model.enums.Format"><!-- not in model but used by OriginalFile-->
 		<entry name="PNG"/>

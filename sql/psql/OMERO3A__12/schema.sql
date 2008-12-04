@@ -1,15 +1,4 @@
 
-    create table aberrationcorrection (
-        id int8 not null,
-        permissions int8 not null,
-        value varchar(255) not null unique,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        primary key (id)
-    );;
-
     create table acquisitionmode (
         id int8 not null,
         permissions int8 not null,
@@ -1123,17 +1112,6 @@
         primary key (id)
     );;
 
-    create table irisdiaphragm (
-        id int8 not null,
-        permissions int8 not null,
-        value varchar(255) not null unique,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        primary key (id)
-    );;
-
     create table job (
         id int8 not null,
         permissions int8 not null,
@@ -1471,6 +1449,7 @@
         id int8 not null,
         calibratedMagnification double precision,
         permissions int8 not null,
+        iris bool,
         lensNA double precision,
         manufacturer varchar(255),
         model varchar(255),
@@ -2184,26 +2163,6 @@
         primary key (id),
         unique (parent, child)
     );;
-
-    alter table aberrationcorrection 
-        add constraint FKaberrationcorrection_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;;
-
-    alter table aberrationcorrection 
-        add constraint FKaberrationcorrection_creation_id_event 
-        foreign key (creation_id) 
-        references event;;
-
-    alter table aberrationcorrection 
-        add constraint FKaberrationcorrection_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;;
-
-    alter table aberrationcorrection 
-        add constraint FKaberrationcorrection_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;;
 
     alter table acquisitionmode 
         add constraint FKacquisitionmode_owner_id_experimenter 
@@ -3977,26 +3936,6 @@
 
     alter table instrument 
         add constraint FKinstrument_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;;
-
-    alter table irisdiaphragm 
-        add constraint FKirisdiaphragm_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;;
-
-    alter table irisdiaphragm 
-        add constraint FKirisdiaphragm_creation_id_event 
-        foreign key (creation_id) 
-        references event;;
-
-    alter table irisdiaphragm 
-        add constraint FKirisdiaphragm_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;;
-
-    alter table irisdiaphragm 
-        add constraint FKirisdiaphragm_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;;
 
@@ -6005,8 +5944,6 @@
         foreign key (external_id) 
         references externalinfo;;
 
-    create sequence seq_aberrationcorrection;;
-
     create sequence seq_acquisitionmode;;
 
     create sequence seq_annotation;;
@@ -6122,8 +6059,6 @@
     create sequence seq_immersion;;
 
     create sequence seq_instrument;;
-
-    create sequence seq_irisdiaphragm;;
 
     create sequence seq_job;;
 
