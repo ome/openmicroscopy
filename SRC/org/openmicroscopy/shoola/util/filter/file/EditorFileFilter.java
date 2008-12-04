@@ -48,8 +48,11 @@ public class EditorFileFilter
 	extends CustomizedFileFilter
 {
 	
-	/** Possible file extensions. */
+	/** Possible file extension. */
 	public static final String 	PRO_XML = "pro.xml";
+	
+	/** Possible file extension. */
+	public static final String 	UPE_XML = "upe.xml";
 	
 	/** The possible extensions. */
 	private static final String[] 	extensions;
@@ -58,8 +61,9 @@ public class EditorFileFilter
 	private static final String		description;
 	
 	static {
-		extensions = new String[1];
-		extensions[0] = PRO_XML;
+		extensions = new String[2];
+		extensions[0] = UPE_XML;
+		extensions[1] = PRO_XML;
 		String s = "OMERO.Editor (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];

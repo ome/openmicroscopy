@@ -120,7 +120,7 @@ public class SaveFileAsAction
 			FileFilter filter = new EditorFileFilter();
 				if (! filter.accept(file)) {
 					String filePath = file.getAbsolutePath();
-					filePath = filePath + "." + EditorFileFilter.PRO_XML;
+					filePath = filePath + "." + EditorFileFilter.UPE_XML;
 					file = new File(filePath);
 				}
 				
