@@ -2420,6 +2420,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             throw new RuntimeException(e);
         }
     }
+
+    public void setObjectiveIris(Boolean iris, int instrumentIndex,
+            int objectiveIndex)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
     
 /*
     public void setLogicalChannelPinholeSize(Float a, int b, int c)

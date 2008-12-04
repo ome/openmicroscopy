@@ -2501,6 +2501,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return (Objective) lsidMap.get(currentLSID);
     }
     
+    public void setObjectiveIris(Boolean iris, int instrumentIndex,
+            int objectiveIndex)
+    {
+        log.debug(String.format(
+                "setObjectiveIris[%b] instrumentIndex[%d] objectiveIndex[%d]",
+                iris, instrumentIndex, objectiveIndex));
+        
+        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
+        if (objective != null && iris != null) // fix for older ome formats
+            objective.setIris(iris.booleanValue());
+    }
+    
     public void setObjectiveCalibratedMagnification(
             Float calibratedMagnification, int instrumentIndex, int objectiveIndex) 
     {
