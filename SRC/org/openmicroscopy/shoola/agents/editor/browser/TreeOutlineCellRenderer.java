@@ -98,21 +98,13 @@ public class TreeOutlineCellRenderer
 				IField field = (IField)object;
 				toolTipText = field.getToolTipText();
 				
-				String text = field.getAttribute(Field.FIELD_NAME);
+				String text = getFieldDisplayName(field);
 				
 				if (field.getContentCount() < 1) {
 					paramIcon = imF.getIcon(IconManager.TEXT_LINE_ICON);
-					// if no name set
-					if ((text == null) || (text.trim().length() == 0)) {
-						text = "Field Name";
-					}
+					
 				} else {
 					IFieldContent content = field.getContentAt(0);
-					
-					// if no name set, use content for name
-					if ((text == null) || (text.trim().length() == 0)) {
-						text = content.toString();
-					}
 					
 					String paramType = TextParam.TEXT_BOX_PARAM;
 					
@@ -143,9 +135,6 @@ public class TreeOutlineCellRenderer
 						paramIcon = imF.getIcon(IconManager.NUMBER);
 				}
 				
-				if (text.length() > MAX_CHARS) { 
-					text = text.substring(0, MAX_CHARS-1) + "..";
-				}
 				setText(text);
 				
 			}
@@ -160,5 +149,37 @@ public class TreeOutlineCellRenderer
         }
 
         return this;
+	}
+	
+	/**
+	 * A method for getting a nice display name for the field, using the 
+	 * name attribute, or (if not set) use some content. 
+	 * 
+	 * @param field			The field. 
+	 * @return				A display String
+	 */
+	public static String getFieldDisplayName(IField field)
+	{
+		String text = field.getAttribute(Field.FIELD_NAME);
+		
+		if (field.getContentCount() < 1) {
+			// if no name set
+			if ((text == null) || (text.trim().length() == 0)) {
+				text = "Field Name";
+			}
+		} else {
+			IFieldContent content = field.getContentAt(0);
+			
+			// if no name set, use content for name
+			if ((text == null) || (text.trim().length() == 0)) {
+				text = content.toString();
+			}
+		}
+		
+		if (text.length() > MAX_CHARS) { 
+			text = text.substring(0, MAX_CHARS-1) + "..";
+		}
+		
+		return text;
 	}
 }

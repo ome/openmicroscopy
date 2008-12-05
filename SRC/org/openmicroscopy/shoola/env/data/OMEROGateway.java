@@ -1039,7 +1039,7 @@ class OMEROGateway
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", ""+5000);
 			connected = true;
-			fillEnumerations();
+			//fillEnumerations();
 			return getUserDetails(userName);
 		} catch (Throwable e) {
 			connected = false;

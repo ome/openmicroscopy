@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 
+import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -36,6 +37,8 @@ import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeModel;
+
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 //Third-party libraries
 
@@ -110,6 +113,8 @@ class BrowserUI
      */
     private TextAreasView 			textView;
     
+    private MetadataUI 		metadataUI;
+    
     
     /**
      * Initialises the JTrees for this UI.
@@ -120,6 +125,8 @@ class BrowserUI
     	treeDisplay = new EditableTree(controller, navTree);
     	
     	textView = new TextAreasView(navTree, controller);
+    	
+    	metadataUI = new MetadataUI(this, model.getTreeModel(), controller);
     	
     	int state = model.getState();
     	if (state == Browser.TREE_EDIT)
@@ -136,12 +143,20 @@ class BrowserUI
     {
     	setLayout(new BorderLayout(0, 0));
 
+    	//Box previewContainer = Box.createVerticalBox();
+    	//previewContainer.add(metadataUI);
+        JPanel previewPanel = new ScrollablePanel();
+        previewPanel.setLayout(new BorderLayout());
+        previewPanel.setBackground(null);
+        previewPanel.add(metadataUI, BorderLayout.NORTH);
+        previewPanel.add(navTree, BorderLayout.WEST);
+         
     	JSplitPane leftSplitPane = new JSplitPane();
     	leftSplitPane.setOneTouchExpandable(true);
     	leftSplitPane.setDividerLocation(220);
     	leftSplitPane.setResizeWeight(0.3);
     	leftSplitPane.setBorder(null);
-        leftSplitPane.setLeftComponent(new JScrollPane(navTree));
+    	leftSplitPane.setLeftComponent(new JScrollPane(previewPanel));
         
         rightSplitPane = new JSplitPane();
         rightSplitPane.setOneTouchExpandable(true);
@@ -242,6 +257,7 @@ class BrowserUI
     	//TODO  need to merge these componenets into a single UI class.
     	textView.setTreeModel(tm);
     	treeDisplay.setModel(tm);
+    	metadataUI.setTreeModel(tm);
     	
     	if (tm != null)
     	tm.addTreeModelListener(editorPanel);

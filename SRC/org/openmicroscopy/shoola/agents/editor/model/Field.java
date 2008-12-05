@@ -203,7 +203,9 @@ public class Field
 	 * For display etc. Simply returns the name...
 	 */
 	public String toString() {
-		return getAttribute(FIELD_NAME);
+		String name = getAttribute(FIELD_NAME);
+		
+		return (name == null ? "Field Name" : name);
 	}
 
 	/**
