@@ -5,9 +5,9 @@
 """
 
 try:
-    import pyinotify
-except:
     from pyinotify import pyinotify
+except:
+    import pyinotify
 
 import threading
 import sys, traceback
@@ -77,23 +77,23 @@ class Monitor(threading.Thread):
 
 
         wm = pyinotify.WatchManager()
-	pr = ProcessEvent(id=monitorId, func=self.callback)
-	self.notifier = pyinotify.ThreadedNotifier(wm, pr)
+        pr = ProcessEvent(id=monitorId, func=self.callback)
+        self.notifier = pyinotify.ThreadedNotifier(wm, pr)
         
         if str(eventType) == 'Create':
             wm.add_watch(pathsToMonitor, pyinotify.EventsCodes.IN_CLOSE_WRITE)
 
     def callback(self, id, eventPath):
         """
-            Callback required by FSEvents.FSEventStream.
+            Callback used by ProcessEvent methods
         
             :Parameters:
                     
                 id : string
-		    watch id.
+		        watch id.
                     
                 eventPath : string
-                    File paths of the event.
+                File paths of the event.
                     
             :return: No explicit return value.
             

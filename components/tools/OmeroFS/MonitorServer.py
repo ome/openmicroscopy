@@ -166,7 +166,7 @@ class MonitorServerI(monitors.MonitorServer):
 
         self.proxies[monitorId] = proxy    
 
-        log.info('Monitor id = ' + monitorId + ' created')
+        log.info('Monitor id = ' + monitorId + ' created. Proxy: ' + str(proxy))
 
         return monitorId
     
@@ -251,7 +251,7 @@ class MonitorServerI(monitors.MonitorServer):
             Raise an exception if the monitor does no exist.
         
         """
-        
+        log.info('Monitor id = ' + id + ' state requested')
         # *****  TO BE IMPLEMENTED  *****
         # If monitor exists return state
         # otherwise raise an exception (no subscription).
@@ -443,7 +443,7 @@ class MonitorServerI(monitors.MonitorServer):
         	raise monitors.OmeroFSError('File ID  ' + str(fileId) + ' not on this FSServer')       
 
         try:
-            size = pathModule.path(pathString).atime
+            size = pathModule.path(pathString).size
         except Exception, e:
     		log.error('Failed to get  ' + str(fileId) + ' size : ' +  str(e))
         	raise monitors.OmeroFSError('Failed to get  ' + str(fileId) + ' size : '  + str(e))       

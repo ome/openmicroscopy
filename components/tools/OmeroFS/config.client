@@ -1,7 +1,26 @@
-omerofs.MonitorServer=FSServer:tcp -p 10001
+# This is an example config file loaded by runFSClient.py
+
+# The endpoint of the example FS server
+#
+omerofs.MonitorServer=FSServer:tcp -h mage.openmicroscopy.org.uk -p 10002
+
+# The local endpoint can't be specified here as the ip address is dynamically allocated.
+# This means that all adapters' IP addresses are sent as endpoints to the server.
+# Some of these will be unreachable, e.g. Parallels, and so a short timeout is needed
+# 100 milliseconds should be more than enough for a local network test.
+#
 omerofs.MonitorClient.Endpoints=tcp
 
+Ice.Override.ConnectTimeout=100
+
+# Enable to log network calls.
 #
+#Ice.Trace.Network=3
+#Ice.Trace.Locator=2
+#Ice.Trace.Protocol=1
+#Ice.Trace.Retry=2
+#
+
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1
