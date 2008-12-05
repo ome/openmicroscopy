@@ -33,7 +33,7 @@ import java.util.Comparator;
 //Application-internal dependencies
 
 /** 
- * 
+ * Locates the position of the text.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,115 +45,110 @@ import java.util.Comparator;
  * </small>
  * @since OME3.0
  */
-public class Position
+class Position
 	implements Comparable<Position>, Comparator
 {	
-	/** Start position of the text object. */
-	public int start;
 	
-	/** End position of the text object. */
-	public int end;
+	/** The start position of the text object. */
+	private int start;
+	
+	/** The end position of the text object. */
+	private int end;
 	
 	/**
-	 * Instantiate the class. 
-	 * @param start start position of the char.
-	 * @param end end position of the char.
+	 * Creates a new instance. 
+	 * 
+	 * @param start	The start position of the char.
+	 * @param end 	The end position of the char.
 	 */
-	public Position(int start, int end)
+	Position(int start, int end)
 	{
 		this.start = start;
 		this.end = end;
 	}
 	
 	/**
-	 * Does the position contain position with start(p0) and end(p1)
-	 * @param p0 see above.
-	 * @param p1 see above.
-	 * @return see above.
+	 * Returns the start position of the text object.
+	 * 
+	 * @return See above.
 	 */
-	public boolean contains(int p0, int p1)
-	{
-		if(start<=p0 && end >= p1)
-			return true;
-		return false;
-	}
+	int getStart() { return start; }
+	
+	/**
+	 * Returns the end position of the text object.
+	 * 
+	 * @return See above.
+	 */
+	int getEnd() { return end; }
+	
+	/**
+	 * Returns <code>true</code> if the position contains position 
+	 * with start(p0) and end(p1), <code>false</code> otherwise.
+	 * 
+	 * @param p0 See above.
+	 * @param p1 See above.
+	 * @return See above.
+	 */
+	boolean contains(int p0, int p1) { return (start <= p0 && end >= p1); }
 
 	/**
-	 * Does the position contain p.
-	 * @param p see above.
-	 * @return see above.
+	 * Returns <code>true</code> if the position contains position
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param p See above.
+	 * @return See above.
 	 */
-	public boolean contains(Position p)
-	{
-		return contains(p.start, p.end);
-	}
+	boolean contains(Position p) { return contains(p.start, p.end); }
 	
 	/**
-	 * Is position within p.
-	 * @param p see above.
-	 * @return see above.
+	 * Returns <code>true</code> if the position is within position p
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param p See above.
+	 * @return See above.
 	 */
-	public boolean within(Position p)
-	{
-		return within(p.start, p.end);
-	}
+	boolean within(Position p) { return within(p.start, p.end); }
 
-	
 	/**
-	 * Is the position within position with start(p0) and end(p1)
-	 * @param p0 see above.
-	 * @param p1 see above.
-	 * @return see above.
+	 * Returns <code>true</code> if the position is within position with 
+	 * start(p0) and end(p1), <code>false</code> otherwise.
+	 * 
+	 * @param p0 See above.
+	 * @param p1 See above.
+	 * @return See above.
 	 */
-	public boolean within(int p0, int p1)
+	boolean within(int p0, int p1)
 	{
-		if(p0<=start && p1 >= end)
-			return true;
-		return false;
+		return (p0 <= start && p1 >= end);
 	}
 	
 	/**
-	 * Does the position p overlap this position.
+	 * Returns <code>true</code> the position p overlaps this position,
+	 * <code>false</code> otherwise.
+	 * 
 	 * @param p as above.
 	 * @return see above.
 	 */
-	public boolean overlaps(Position p)
+	boolean overlaps(Position p)
 	{
-		if(p.within(this))
-			return true;
-		if(within(p))
-			return true;
-		if(p.start>start && p.start < end)
-			return true;
-		if(p.end>start && p.end < end)
-			return true;
+		if (p.within(this)) return true;
+		if (within(p)) return true;
+		if (p.start > start && p.start < end) return true;
+		if (p.end > start && p.end < end) return true;
 		return false;
 	}
 	
 	/**
-	 * Return the length of the object; where position is the characters
+	 * Returns the length of the object; where position is the characters
 	 * [start, end] 
-	 * @return see above.
+	 * 
+	 * @return See above.
 	 */
-	public int length()
-	{
-		return end-start+1;
-	}
-	
-	/**
-	 * Overridden to control if the passed object equals the current one.
-	 * @see java.lang.Object#equals(Object)
-	 */
-	public boolean equals(Object obj)
-	{
-		if (!(obj instanceof Position)) return false;
-		Position comp = (Position) obj;
-		return (comp.start == this.start && comp.end == this.end);
-	}
-	
+	int length() { return end-start+1; }
+
 	/**
 	 * Overridden to control if the passed object is <,> or = the current one.
-	 * @see java.lang.Comparable#compare(Object , Object )
+	 * @see java.lang.Comparable#compare(Object, Object)
 	 */
 	public int compare(Object o1, Object o2)
 	{
@@ -189,20 +184,27 @@ public class Position
 	 * Returns the string of the position.
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString()
-	{
-		return "["+start+","+end+"]";
-	}
+	public String toString() { return "["+start+","+end+"]"; }
 
 	/**
-	 * Overridden to control if the passed object is <,> or = the current one.
-	 * @see java.lang.Object#compareTo(Object o1)
+	 * Control if the passed object is <,> or = the current one.
+	 * @see Comparable#compareTo(ObjectPosition)
 	 */
 	public int compareTo(Position o)
 	{
 		return compare(this, o);
 	}
 	
+	/**
+	 * Overridden to control if the passed object equals the current one.
+	 * @see java.lang.Object#equals(Object)
+	 */
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof Position)) return false;
+		Position comp = (Position) obj;
+		return (comp.start == this.start && comp.end == this.end);
+	}
 	
 }
 

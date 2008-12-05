@@ -35,7 +35,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 
 /** 
- * 
+ * Launch the specified url.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

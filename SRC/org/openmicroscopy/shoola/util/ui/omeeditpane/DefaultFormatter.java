@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Graphics;
-
 import javax.swing.JEditorPane;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
@@ -37,7 +35,7 @@ import javax.swing.text.Utilities;
 //Application-internal dependencies
 
 /** 
- * 
+ * Default formatter, set the default color.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,15 +52,15 @@ public class DefaultFormatter
 {
 
 	/**
-	 * Overrides, 
-	 * {@see omeeditpane.Formatter#formatText(JEditorPane, Segment, 
-	 * int, int, Graphics, TabExpander, int, int, int)
+	 * Implemented as specified by the {@link Formatter} I/F.
+	 * @see Formatter#formatText(JEditorPane, Segment, int, int, Graphics, 
+	 * 		TabExpander, int, int, int)
 	 */
-    public int formatText(JEditorPane editor, Segment s, int x, int y, Graphics g, 
-			   TabExpander e, int startOffset, int p0, int p1) 
+    public int formatText(JEditorPane editor, Segment s, int x, int y, 
+    		Graphics g, TabExpander e, int startOffset, int p0, int p1) 
     {
  	
-    	g.setColor(Color.black);
+    	g.setColor(editor.getForeground());
     	return Utilities.drawTabbedText(s, x, y, g, e, startOffset);
     }
 	

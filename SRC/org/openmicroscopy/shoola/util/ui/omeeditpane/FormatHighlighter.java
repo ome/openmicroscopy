@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -38,7 +37,7 @@ import javax.swing.text.JTextComponent;
 //Application-internal dependencies
 
 /** 
- * 
+ * Highlight text and draws an underline.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,44 +49,53 @@ import javax.swing.text.JTextComponent;
  * </small>
  * @since OME3.0
  */
-public class FormatHighlighter
+class FormatHighlighter
 	implements Highlighter.HighlightPainter
  {
-	/** colour of the highlighter. */
-	Color colour;
 	
-	/**
-	 * Instantiate the Formatter. 
-	 * @param colour the colour of the formats. 
-	 */
-	public FormatHighlighter(Color colour) 
+	/** The tickness of the line. */
+	private int		thickness;
+	
+	/** Creates a new instance. */
+	FormatHighlighter() 
     {
-		this.colour = colour;
+		this(2);
     }
 	
 	/**
-	 * paint a thick line under one line of text, from r extending rightward to
+	 * Creates a new instance.
+	 * 
+	 * @param thickness The thickness of the underline.
+	 */
+	FormatHighlighter(int thickness) 
+    {
+		this.thickness = thickness;
+    }
+	
+	
+	/**
+	 * Paints a thick line under one line of text, from r extending rightward to
 	 * x2
-	 * @param g the graphics context
-	 * @param r the rectangle to draw.
-	 * @param x2, final extend of the text. 
+	 * 
+	 * @param g 	The graphics context
+	 * @param r 	The rectangle to draw.
+	 * @param x2 	The final extend of the text. 
 	 */
 	private void paintLine(Graphics g, Rectangle r, int x2) 
 	{
-		int ytop = r.y + r.height - 3;
-	    g.fillRect(r.x, ytop, x2 - r.x, 3);
+		int ytop = r.y+r.height-3;
+	    g.fillRect(r.x, ytop, x2-r.x, thickness);
 	}
 
 	/**
-	 * Overrides,{@see Highlighter.HighlightPainter#paint(Graphics, int, int, Shape, 
-	 * JTextComponent) 
-	 * paint the formatter for the component c, with graphics context g anbd
-	 * from text elements p0 to p1.
-	 * 
+	 * Overridden to paint the formatter for the component c, with graphics 
+	 * context g and from text elements p0 to p1.
+	 * @see Highlighter.HighlightPainter#paint(Graphics, int, int, Shape, 
+	 * JTextComponent)
 	 */
-	public void paint(Graphics g, int p0, int p1, Shape bounds, JTextComponent c) 
+	public void paint(Graphics g, int p0, int p1, Shape bounds, 
+					JTextComponent c) 
 	{
-		
 		Rectangle r0 = null, r1 = null, rbounds = bounds.getBounds();
 		int xmax = rbounds.x + rbounds.width; // x coordinate of right edge
 		try 

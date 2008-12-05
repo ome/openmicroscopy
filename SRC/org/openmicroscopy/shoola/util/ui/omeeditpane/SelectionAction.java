@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 //Application-internal dependencies
 
 /** 
- * 
+ * Interface that every action should extends.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
-
 import java.util.Map;
-
 import javax.swing.JEditorPane;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
@@ -40,7 +38,7 @@ import javax.swing.text.ViewFactory;
 //Application-internal dependencies
 
 /** 
- * 
+ * Sets of styles to format the wiki text. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,31 +50,34 @@ import javax.swing.text.ViewFactory;
  * </small>
  * @since OME3.0
  */
-public class OMEEditorKit
+class OMEEditorKit
 	extends StyledEditorKit
 	implements ViewFactory
 {
+	
 	/** The editor pane for the kit. */
-	private JEditorPane editorPane;
+	private JEditorPane 						editorPane;
 
 	/** The format map of the editor pane, mapping regex, and format.*/
-	Map<String, FormatSelectionAction>			formatMap;
+	private Map<String, FormatSelectionAction>	formatMap;
 	
 	/** The view of the editorpane. */
-	private WikiView view;
+	private WikiView 							view;
 	
 	/**
-	 * Create the editor kit.
-	 * @param formatters
+	 * Creates the editor kit.
+	 * 
+	 * @param formatters The available formatters.
 	 */
-	public OMEEditorKit(Map<String, FormatSelectionAction> formatters)
+	OMEEditorKit(Map<String, FormatSelectionAction> formatters)
 	{
 		this.formatMap = formatters;
 	}
-	  
+	
 	/**
-	 * Get the view of the edit component.
-	 * @return see above.
+	 * Returns the view of the edit component.
+	 * 
+	 * @return See above.
 	 */
 	public ViewFactory getViewFactory() 
 	{
@@ -95,27 +96,24 @@ public class OMEEditorKit
 	}
 	
 	/**
-	 * Get the view.
-	 * @return see above.
+	 * Returns the view.
+	 * 
+	 * @return See above.
 	 */
-	public WikiView getView()
-	{
-		return view;
-	}
+	public WikiView getView() { return view; }
 	
 	/**
-	 * Install the View on the given EditorPane.  This is called by Swing and
-	 * can be used to do anything you need on the JEditorPane control.  Here
-	 * I set some default Actions.
-	 * 
-	 * @param editorPane
+	 * Installs the View on the given EditorPane. This is called by Swing and
+	 * can be used to do anything you need on the JEditorPane control.  No 
+	 * default actions set. 
+	 * @see StyledEditorKit#install(JEditorPane)
 	 */
-	@Override
 	public void install(JEditorPane editorPane) 
 	{
 		super.install(editorPane);
 		this.editorPane = editorPane;
-		Keymap km_parent = JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP);
+		Keymap km_parent = JTextComponent.getKeymap(
+				JTextComponent.DEFAULT_KEYMAP);
 		Keymap km_new = JTextComponent.addKeymap(null, km_parent);
 		editorPane.setKeymap(km_new);
 	}

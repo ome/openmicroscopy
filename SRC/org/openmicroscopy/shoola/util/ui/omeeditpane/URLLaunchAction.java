@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.omeeditpane.ClickSelectionAction 
+ * org.openmicroscopy.shoola.util.ui.omeeditpane.URLLaunchAction 
  *
-  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,38 +22,48 @@
  */
 package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 
 /** 
- * 
+ * Action to launch an url.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class ClickSelectionAction
+class URLLaunchAction 
 	implements SelectionAction
 {
 
+	/** Reference to the launcher. */
+	private BrowserLauncher launcher;
+	
+	/** Creates a new instance. */
+	URLLaunchAction()
+	{
+		launcher = new BrowserLauncher();
+	}
+	
 	/**
-	 * Implemented as speficied by 
+	 * Implemented as specified by {@link SelectionAction} I/F
 	 * @see SelectionAction#onSelection(String)
 	 */
 	public void onSelection(String selectedText)
 	{
-		System.err.println("Selected : " + selectedText);
-	}	
+		if (selectedText == null) return;
+		launcher.openURL(selectedText.trim());
+	}
 
 }
-
-

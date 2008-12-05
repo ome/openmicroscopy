@@ -24,8 +24,8 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Graphics;
-
 import javax.swing.JEditorPane;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
@@ -35,7 +35,7 @@ import javax.swing.text.TabExpander;
 //Application-internal dependencies
 
 /** 
- * 
+ * Interface that any formatter should implement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,21 +49,34 @@ import javax.swing.text.TabExpander;
  */
 public interface Formatter
 {	
+	
+	/** The default color. */
+	public static final Color DEFAULT_COLOR = Color.BLACK;
+	
+	/** The default color for url. */
+	public static final Color DEFAULT_URL = Color.BLUE;
+	
+	/** The default color for image, dataset etc linkages. */
+	public static final Color DEFAULT_LINK = Color.RED;
+	
 	/**
-	 * Format the text for the editor on segment s starting at position p0, p1
-	 * @param editor The editor.
-	 * @param s segment of text.
-	 * @param x x position in the doc.
-	 * @param y y position in the doc.
-	 * @param g The graphics context.
-	 * @param e tabbed expander.
-	 * @param startOffset Starting offset for the text.
-	 * @param p0 see above.
-	 * @param p1 see above.
-	 * @return last position of text.
+	 * Formats the text for the editor on segment s starting at position 
+	 * <code>(p0, p1)</code>. Returns the last position of the text.
+	 * 
+	 * @param editor 		The editor.
+	 * @param s 			The segment of text.
+	 * @param x 			The x-position in the document.
+	 * @param y 			The y-position in the document.
+	 * @param g 			The graphics context.
+	 * @param e 			The tabbed expander.
+	 * @param startOffset 	The starting offset for the text.
+	 * @param p0 			The starting position.
+	 * @param p1 			The starting position.
+	 * @return See above.
 	 */
-	public int formatText(JEditorPane editor, Segment s, int x, int y, Graphics g, 
-			   TabExpander e, int startOffset, int p0, int p1) ;
+	public int formatText(JEditorPane editor, Segment s, int x, int y, 
+			Graphics g, TabExpander e, int startOffset, int p0, int p1);
+	
 }
 
 

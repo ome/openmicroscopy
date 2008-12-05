@@ -355,35 +355,38 @@ public class IconManager
     /** ID of the <code>Backward</code> icon. */
     public static final int ACQUISITION = 100;
     
-    /** The <code>File</code> icon. */
+    /** The <code>PDF File</code> icon. */
     public static final int	FILE_PDF = 101;
     
-    /** The <code>File</code> icon. */
+    /** The <code>Text File</code> icon. */
     public static final int	FILE_TEXT = 102;
     
-    /** The <code>File</code> icon. */
+    /** The <code>Editor File</code> icon. */
     public static final int	FILE_EDITOR = 103;
     
-    /** The <code>File</code> icon. */
+    /** The <code>Word File</code> icon. */
     public static final int	FILE_WORD = 104;
     
-    /** The <code>File</code> icon. */
+    /** The <code>Excel File</code> icon. */
     public static final int	FILE_EXCEL = 105;
     
-    /** The <code>File</code> icon. */
+    /** The <code>PPT file</code> icon. */
     public static final int	FILE_PPT = 106;
     
-    /** The <code>File</code> icon. */
+    /** The <code>XML File</code> icon. */
     public static final int	FILE_XML = 107;
     
-    /** The <code>File</code> icon. */
+    /** The <code>HTML File</code> icon. */
     public static final int	FILE_HTML = 108;
+    
+    /** The <code>Hyperlink</code> icon. */
+    public static final int	HYPERLINK = 109;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 108;
+    private static int      MAX_ID = 109;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -500,6 +503,7 @@ public class IconManager
         relPaths[FILE_XML] = "txt_xml16.png";
         relPaths[FILE_HTML] = "txt_html16.png";
         relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
+        relPaths[HYPERLINK] = "nuvola_browser16.png";
     }
     
     /** 

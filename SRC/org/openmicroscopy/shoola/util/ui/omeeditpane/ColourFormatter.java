@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 //Java imports
 import java.awt.Color;
 import java.awt.Graphics;
-
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
@@ -40,7 +39,7 @@ import javax.swing.text.Utilities;
 //Application-internal dependencies
 
 /** 
- * 
+ * Formats the color.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,16 +56,17 @@ public class ColourFormatter
 {
 
 	/** Colour of the formatter. */
-	private Color colour;
+	private Color 				colour;
 	
 	/** Underline the text in the formatter. */
-	private boolean underline;
+	private boolean 			underline;
 	
 	/** Formatter of the hightlighter. */
-	private FormatHighlighter formatHighlighter;
+	private FormatHighlighter 	formatHighlighter;
 	
 	/**
-	 * Set the colour and no underline for the formatter.  
+	 * Sets the colour and no underline for the formatter.  
+	 * 
 	 * @param colour see above.
 	 */
 	public ColourFormatter(Color colour)
@@ -81,33 +81,31 @@ public class ColourFormatter
 	 */
 	public ColourFormatter(Color colour, boolean underline)
 	{
+		if (colour == null)
+			this.colour = Formatter.DEFAULT_COLOR;
 		this.colour = colour;
 		this.underline = underline;
-		formatHighlighter = new FormatHighlighter(colour);
+		formatHighlighter = new FormatHighlighter();
 	}
 	
 	/**
-	 * see {@link omeeditpane.Formatter#formatText(JEditorPane, Segment, 
-	 * int, int, Graphics, TabExpander, int, int, int)
+	 * Implemented as specified by the {@link Formatter} I/F.
+	 * @see Formatter#formatText(JEditorPane, Segment, int, int, Graphics, 
+	 * 		TabExpander, int, int, int)
 	 */
-    public int formatText(JEditorPane editor, Segment s, int x, int y, Graphics g, 
-			   TabExpander e, int startOffset, int p0, int p1) 
+    public int formatText(JEditorPane editor, Segment s, int x, int y, 
+    		Graphics g, TabExpander e, int startOffset, int p0, int p1) 
     {
  		int newX;
     	g.setColor(colour);
     	newX =  Utilities.drawTabbedText(s, x, y, g, e, startOffset);
     	Highlighter hilite = editor.getHighlighter();
-    	if(underline)
-    	{
+    	if (underline) {
     		try
     		{
     			hilite.addHighlight(p0, p1, formatHighlighter);
     		}
-    		catch (BadLocationException e1)
-    		{
-    			// TODO Auto-generated catch block
-    			e1.printStackTrace();
-    		}
+    		catch (BadLocationException e1) {}
     	}
     	return newX;
     }

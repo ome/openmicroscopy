@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +33,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -48,7 +46,7 @@ import javax.swing.text.Utilities;
 //Application-internal dependencies
 
 /** 
- * 
+ * The View.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,86 +58,85 @@ import javax.swing.text.Utilities;
  * </small>
  * @since OME3.0
  */
-public class WikiView
+class WikiView
 	extends PlainView
 { 
-	/** The editor pane this view represents. */
-	JEditorPane 								editorPane;
 	
-	/** Map holding the point(start, and end) locations of the regex as value. */
-	Map<Position, String>						tokenLocations; 	
+	/** The editor pane this view represents. */
+	private JEditorPane							editorPane;
+	
+	/** Map holding the point(start and end) locations of the regex as value. */
+	private Map<Position, String>				tokenLocations; 	
 	
 	/**  The map of regex and the list of positions for that regex */
-	Map<String, List<Position>> 				regexMap;
+	private Map<String, List<Position>> 		regexMap;
 	
 	/** Map of the regex vs Formatter. */
-	Map<String, FormatSelectionAction>			formatMap;
+	private Map<String, FormatSelectionAction>	formatMap;
 	
 	/**
-	 * Get the list of all regex in regex map.
-	 * @return see above.
+	 * Returns the list of all regex in regex map.
+	 * 
+	 * @return See above.
 	 */
-	public String[] getRegexList()
+	String[] getRegexList()
 	{
-		return (String[])regexMap.keySet().toArray();
+		return (String[]) regexMap.keySet().toArray();
 	}
 	
 	/**
-	 * Get the positionList
-	 * @param regex see above.
-	 * @return see above.
+	 * Returns the list o position.
+	 * 
+	 * @param regex The key.
+	 * @return Eee above.
 	 */
-	public List<Position> getPositionList(String regex)
+	List<Position> getPositionList(String regex)
 	{
 		return regexMap.get(regex);
 	}
 	
 	/**
-	 * Parse the text, and find all the regex, and map the token positions to 
+	 * Parses the text, and find all the regex, and map the token positions to 
 	 * it. 
-	 * @param text see above.
+	 * 
+	 * @param text The text to parse.
 	 */
-	public void parse(String text)
+	private void parse(String text)
 	{
 		createTokenMaps();
 		Iterator<String> regexIterator = formatMap.keySet().iterator();
-		while(regexIterator.hasNext())
+		List<Position> positionList;
+		String regex;
+		while (regexIterator.hasNext())
 		{
-			String regex = regexIterator.next();
-			List<Position> positionList = createPositionList(regex);
-			try
-			{
-				findAllExpressions(text, regex, positionList);
-				regexMap.put(regex, positionList);
-			}
-			catch (BadLocationException e)
-			{
-				// Stupid exception, never going to happen. 
-				e.printStackTrace();
-			}
+			regex = regexIterator.next();
+			positionList = createPositionList(regex);
+			findAllExpressions(text, regex, positionList);
+			regexMap.put(regex, positionList);
 		}
 	}
 	
 	/**
-	 * Find all the regex in the text, add it to the positionList.
-	 * @param text see above.
-	 * @param regex see above.
-	 * @param positionList see above.
-	 * @throws BadLocationException stupid exception that cannot occur. 
+	 * Finds all the regex in the text, add it to the positionList.
+	 * 
+	 * @param text 	The text to handle.
+	 * @param regex The regular expression.
+	 * @param positionList The list of position.
 	 */
 	private void findAllExpressions(String text, String regex, 
 			List<Position> positionList) 
-	throws BadLocationException
 	{
 		positionList.clear();
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(text);
-		while(matcher.find())
+		int s, e;
+		Position p;
+		while (matcher.find())
 		{
-			int s = matcher.start();
-			int e = matcher.end();
-			Position p = new Position(s, e);
-			if(alreadyMatched(p))
+			s = matcher.start();
+			e = matcher.end();
+			p = new Position(s, e);
+			if (alreadyMatched(p))
 				continue;
 			positionList.add(p);
 			tokenLocations.put(p, regex);
@@ -147,22 +144,22 @@ public class WikiView
 	}
 	
 	/**
-	 * has the text in position p been already matched by the another 
-	 * regex and been places in tokenLocations.
-	 * @param p see above.
-	 * @return see above.
+	 * Returns <code>true</code> if the text in position p been already 
+	 * matched by the another regex and been places in tokenLocations,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param p The position to handle.
+	 * @return See above.
 	 */
 	private boolean alreadyMatched(Position p)
 	{
 		Iterator<Position> positionIterator = tokenLocations.keySet().iterator();
-		
-		while(positionIterator.hasNext())
+		Position mapPosition;
+		while (positionIterator.hasNext())
 		{
-			Position mapPosition = positionIterator.next();
-			if(mapPosition.contains(p))
-			{
+			mapPosition = positionIterator.next();
+			if (mapPosition.contains(p))
 				return true;
-			}
 		}
 		return false;
 	}
@@ -176,9 +173,7 @@ public class WikiView
 		return tokenLocations;
 	}
 	
-	/**
-	 * Create the token location maps. 
-	 */
+	/** Creates the token location maps. */
 	private void createTokenMaps()
 	{
 		tokenLocations = new TreeMap<Position, String>();
@@ -186,14 +181,15 @@ public class WikiView
 	}
 	
 	/**
-	 * Create the position list for
-	 * @param regex
-	 * @return see above
+	 * Creates the position list for.
+	 * 
+	 * @param regex The regular expression to handle.
+	 * @return See above
 	 */
 	private List<Position> createPositionList(String regex)
 	{
 		List<Position> positionList;
-		if(!regexMap.containsKey(regex))
+		if (!regexMap.containsKey(regex))
 		{
 			positionList = new ArrayList<Position>();
 			regexMap.put(regex, positionList);
@@ -204,12 +200,13 @@ public class WikiView
 	}
 	
 	/**
-	 * Instantiate the wikiview.
+	 * Creates a new instance.
+	 * 
 	 * @param elem see above.
 	 * @param formatMap the map of regex and formatters to apply.
 	 * @param editorPane the component this resides in.
 	 */
-	public WikiView(Element elem,  Map<String, FormatSelectionAction> formatMap, 
+	WikiView(Element elem, Map<String, FormatSelectionAction> formatMap, 
 							JEditorPane editorPane)
 	{
 		super(elem);
@@ -240,26 +237,28 @@ public class WikiView
 		while(positionIterator.hasNext())
 		{
 			p = positionIterator.next();
-			if (i < p.start) 
+			if (i < p.getStart()) 
 			{ 
-				graphics.setColor(Color.black);
-				doc.getText(p0 + i, p.start - i, segment);
+				//graphics.setColor(Color.black);
+				graphics.setColor(editorPane.getForeground());
+				doc.getText(p0+i, p.getStart()-i, segment);
 				x = Utilities.drawTabbedText(segment, x, y, graphics, this, i);
 			}
 			
-			i = p.end;
-			doc.getText(p0 + p.start, i - p.start, segment);
+			i = p.getEnd();
+			doc.getText(p0+p.getStart(), i-p.getStart(), segment);
 			String regex = tokenLocations.get(p);
 			FormatSelectionAction fs = formatMap.get(regex);
-			x = fs.getFormatter().formatText(editorPane, segment, x, y, graphics, this, i,
-														p.start, p.end);
+			x = fs.getFormatter().formatText(editorPane, segment, x, y, 
+					graphics, this, i, p.getStart(), p.getEnd());
 		}
 		
 		// 	Paint possible remaining text black
 		if (i < text.length()) 
 		{
-			graphics.setColor(Color.black);
-			doc.getText(p0 + i, text.length() - i, segment);
+			//graphics.setColor(Color.black);
+			graphics.setColor(editorPane.getForeground());
+			doc.getText(p0+i, text.length()-i, segment);
 			x = Utilities.drawTabbedText(segment, x, y, graphics, this, i);
 		}
 		return x;
@@ -277,30 +276,32 @@ public class WikiView
 	}
 	   
 	/**
-	 * Get the selection action for the token at index. 
+	 * Returns the selection action for the token at index. 
+	 * 
 	 * @param index see above.
 	 * @return the selectionAction.
 	 */
-	public SelectionAction getSelectionAction(int index)
+	SelectionAction getSelectionAction(int index)
 	{
 		Document doc = getDocument();
 		try
 		{
 			parse(doc.getText(0, doc.getLength()));
 		}
-		catch (BadLocationException e)
+		catch (BadLocationException e) {}
+		Iterator<Position> 
+			positionIterator = tokenLocations.keySet().iterator();
+		Position p;
+		String regex;
+		FormatSelectionAction fsa;
+		while (positionIterator.hasNext())
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Iterator<Position> positionIterator = tokenLocations.keySet().iterator();
-		while(positionIterator.hasNext())
-		{
-			Position p = positionIterator.next();
-			if(p.contains(index, index))
+			p = positionIterator.next();
+			if (p.contains(index, index))
 			{
-				String regex = tokenLocations.get(p);
-				FormatSelectionAction fsa = formatMap.get(regex);
+				regex = tokenLocations.get(p);
+				fsa = formatMap.get(regex);
+				if (fsa == null) return null;
 				return fsa.getSelectionAction();
 			}
 		}
@@ -308,22 +309,25 @@ public class WikiView
 	}
 	
 	/**
-	 * Get the selected text for the token at index. 
+	 * Returns the selected text for the token at index. 
+	 * 
 	 * @param index see above.
 	 * @return the text.
 	 */
-	public String getSelectedText(int index)
+	String getSelectedText(int index)
 	{
 		Document doc = getDocument();
-		Iterator<Position> positionIterator = tokenLocations.keySet().iterator();
-		while(positionIterator.hasNext())
+		Iterator<Position> 
+			positionIterator = tokenLocations.keySet().iterator();
+		Position p;
+		while (positionIterator.hasNext())
 		{
-			Position p = positionIterator.next();
-			if(p.contains(index, index))
+			p = positionIterator.next();
+			if (p.contains(index, index))
 			{
 				try
 				{
-					return doc.getText(p.start, p.length());
+					return doc.getText(p.getStart(), p.length());
 				}
 				catch (BadLocationException e)
 				{
@@ -340,8 +344,7 @@ public class WikiView
 			return "";
 		}
 	}
-	
-	
+
 }
     
 

@@ -24,18 +24,19 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
 import javax.swing.JTextPane;
-import javax.swing.text.BadLocationException;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * The component where the text is added to.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,91 +48,70 @@ import javax.swing.text.BadLocationException;
  * </small>
  * @since OME3.0
  */
-public class OMEEditPane
+class OMEEditPane
 	extends JTextPane
 {
 	
-	/** Regex expression for text. */
-	public static String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;]*";
-	
-	/** Regex for a sentence. */
-	public static String SENTENCEREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,. ;]*";
-	
-	/** Regex for a sequence of characters. */
-	public static String CHARACTERREGEX = "[a-zA-Z]+[a-zA-Z0-9]+";
-	
-	/** Regex for a wiki link. */
-	public static String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
-	
-	/** Regex expression defining Thumbnail [Thumbnail: id 30]. */
-	public static String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
-
-	/** Regex expression defining Dataset [Dataset: id 30]. */
-	public static String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
-
-	/** Regex expression defining Project [Project: id 30]. */
-	public static String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
-	
-	/** Regex expression defining Image [Image: id 30]. */
-	public static String IMAGEREGEX = "\\[(Image|image):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
-	
-	/** Regex expression defining Wiki Heading. */
-	public static String HEADINGREGEX = "(^[=]{3}[ ]+"+SENTENCEREGEX+"[ ]+[=]{3}[ ]*$|^[=]{2}[ ]+"+SENTENCEREGEX+"[ ]+[=]{2}[ ]*$|^[=]{1}[ ]+"+SENTENCEREGEX+"[ ]+[=]{1}[ ]*$)";
-			
-	/** Regex for a bullet list. */
-	public static String BULLETREGEX = "^\\*[ ]+"+SENTENCEREGEX;
-
-	/** Regex for bold. */
-	public static String BOLDREGEX = "'''"+SENTENCEREGEX+"'''";
-
-	/** Italic regex. */
-	public static String ITALICREGEX = "''"+SENTENCEREGEX+"''";
-
-	/** Italic and bold regex. */
-	public static String ITALICBOLDREGEX = "'''''"+SENTENCEREGEX+"'''''";
-
-	/** Indent regex. */
-	public static String INDENTREGEX = "^[:]+"+SENTENCEREGEX+"$";
-		
-	/** Regex expression defining url. */
-	public static String URLREGEX = "(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-	
-	/** Regex for names linked regex. */
-	public static String NAMEDLINKREGEX = "\\["+URLREGEX+"[ ]+"+SENTENCEREGEX+"\\]";
+	/** The type of the document. */
+	private static String DOC_TYPE = "text/wiki";
 	
 	/** The editor kit	 */
-	private OMEEditorKit	editorKit;
+	private OMEEditorKit		editorKit;
+	
+	/** Reference to the main component. */
+	private OMEWikiComponent 	component;
 	
 	/**
-	 * Define the OMEEditPane, create the default maps, and styles. 
-	 * @param formatters the formatters for the text.
+	 * Handles the text selection.
+	 * 
+	 * @param e The event to handle.
 	 */
-	public OMEEditPane(Map<String, FormatSelectionAction> formatters)
-	{
-		super();
-		editorKit = new OMEEditorKit(formatters);
-		this.setEditorKitForContentType("text/wiki", editorKit);
-	    this.setContentType("text/wiki");
-	}
-	
-	/**
-	 * Called when the mouse is pressed and calls the actionPerformed event for
-	 * the appropriate SelectionAction of the formatter.value.
-	 * @param e mouse event.
-	 * @throws BadLocationException if the mouse is outside text.
-	 */
-	public void onSelection(MouseEvent e) throws BadLocationException
+	private void onTextSelection(MouseEvent e)
 	{
 		int index = viewToModel(new Point(e.getX(), e.getY()));
 		WikiView view = editorKit.getView();
-		SelectionAction selectionAction = view.getSelectionAction(index);
-		if(selectionAction != null)
-		{
-			selectionAction.onSelection(view.getSelectedText(index));
-		}
+		SelectionAction action = view.getSelectionAction(index);
+		component.onSelection(action, view.getSelectedText(index), 
+				e.getClickCount());
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * Initializes the default maps and styles.
+	 *  
+	 * @param component	 Reference to the main component. 
+	 * @param formatters The formatters for the text.
+	 */
+	OMEEditPane(OMEWikiComponent component, 
+			Map<String, FormatSelectionAction> formatters)
+	{
+		super();
+		this.component = component;
+		editorKit = new OMEEditorKit(formatters);
+		setEditorKitForContentType(DOC_TYPE, editorKit);
+	    setContentType(DOC_TYPE);
+	    addMouseListener(new MouseAdapter() {
+		
+			/**
+			 * Handles text selection.
+			 * @see MouseAdapter#mouseClicked(MouseEvent)
+			 */
+			public void mouseClicked(MouseEvent e) {
+				onTextSelection(e);
+			}
+		
+		});
+	}
 	
+	/**
+	 * Overridden to set the foreground color of the {@link #pane}.
+	 * @see JTextPane#setForeground(Color)
+	 */
+	public void setForeground(Color color)
+	{
+		super.setForeground(color);
+	}
+	 
 }
 
 
