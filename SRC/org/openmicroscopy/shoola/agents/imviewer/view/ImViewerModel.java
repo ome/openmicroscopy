@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -60,6 +61,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -243,6 +245,9 @@ class ImViewerModel
     /** The plane information. */
     private Map<Integer, PlaneInfo>		planeInfos;
     
+    /** The id of the image. */
+    private long						imageID;
+    
     /**
 	 * Transforms 3D coords into linear coords.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -307,6 +312,31 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Creates a new instance.
+	 * 
+	 * @param imageID 	The id of the image.
+	 * @param bounds	The bounds of the component invoking the 
+	 *                  {@link ImViewer}.
+	 */
+	ImViewerModel(long imageID, Rectangle bounds)
+	{
+		this.imageID = imageID;
+		requesterBounds = bounds;
+		state = ImViewer.NEW;
+		initMagnificationFactor = false;
+		sizeX = sizeY = -1;
+		zoomFitToWindow = false; 
+		tabbedIndex = ImViewer.VIEW_INDEX;
+		textVisible = true;
+		movieIndex = -1;
+		loaders = new HashMap<Integer, DataLoader>();
+		metadataViewer = null;
+		metadataLoaded = false;
+		currentPixelsID = -1;
+		selectedUserID = -1;
+	}
+	
+	/**
 	 * Creates a new object and sets its state to {@link ImViewer#NEW}.
 	 * 
 	 * @param image  	The image.
@@ -340,7 +370,7 @@ class ImViewerModel
 	void initialize(ImViewer component)
 	{ 
 		this.component = component;
-		browser = BrowserFactory.createBrowser(component, image.getId(), 
+		browser = BrowserFactory.createBrowser(component, getImageID(), 
 										ImViewerFactory.getPreferences());
 	}
 	
@@ -394,8 +424,23 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	String getImageName() { return image.getName(); }
+	String getImageName()
+	{ 
+		if (image == null) return "";
+		return image.getName(); 
+	}
 
+	/** 
+	 * Returns the name of image and id.
+	 * 
+	 * @return See above.
+	 */
+	String getImageTitle()
+	{
+		return EditorUtil.getPartialName(getImageName())+
+				" [ID: "+getImageID()+"]";
+	}
+	
 	/**
 	 * Returns the current state.
 	 * 
@@ -974,11 +1019,23 @@ class ImViewerModel
 	BufferedImage getAnnotateImage() { return browser.getAnnotateImage(); }
 
 	/**
+	 * Returns <code>true</code> if the image has been loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImageLoaded() { return (image != null); }
+	
+	/**
 	 * Returns the ID of the viewed image.
 	 * 
 	 * @return See above.
 	 */
-	long getImageID() { return image.getId(); }
+	long getImageID()
+	{ 
+		if (image == null) return imageID;
+		return image.getId(); 
+	}
 
 	/** 
 	 * Saves the rendering settings. 
@@ -1551,5 +1608,25 @@ class ImViewerModel
 		} catch (Exception e) {}
     	return null;
     }
-    
+
+    /** Loads the image before doing anything else. */
+	void fireImageLoading()
+	{
+		ImageDataLoader loader = new ImageDataLoader(component, getImageID());
+		loader.load();
+		state = ImViewer.LOADING_IMAGE_DATA;
+	}
+	
+	/** 
+	 * Sets the image data.
+	 * 
+	 * @param image The value to set.
+	 */
+	void setImageData(ImageData image)
+	{
+		this.image = image;
+		metadataViewer = MetadataViewerFactory.getViewer(image, false);
+		currentPixelsID = image.getDefaultPixels().getId();
+	}
+	
 }

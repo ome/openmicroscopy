@@ -775,11 +775,12 @@ class ImViewerUI
 		double[][] tlq = {{TableLayout.FILL}, {TableLayout.FILL}};
 		annotatorPanel.setLayout(new TableLayout(tlq));
 		//annotatorPanel.add(browser.getAnnotator(), "0, 0");
+		/*
 		model.getMetadataView().addExternalComponent(browser.getAnnotator(), 
 											MetadataViewer.TOP_LEFT);
 		
 		annotatorPanel.add(model.getMetadataView().getUI(), "0, 0");
-		
+		*/
 		tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
 				annotatorPanel, "", ImViewer.ANNOTATOR_INDEX);
 

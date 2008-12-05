@@ -116,9 +116,9 @@ public interface ImViewer
 
 	/** Flag to denote the <i>Rendering control loaded</i> state. */
 	public static final int     RENDERING_CONTROL_LOADED = 9;
-
-	/** Flag to denote the <i>Classification</i> state. */
-	public static final int     CLASSIFICATION = 10;
+	
+	/** Flag to denote the <i>Loading Image Data</i> state. */
+	public static final int     LOADING_IMAGE_DATA = 10;
 
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
@@ -914,5 +914,12 @@ public interface ImViewer
      * @param collection The collection of plane info objects.
      */
 	public void setPlaneInfo(Collection collection);
+
+	/**
+	 * Sets the image data.
+	 * 
+	 * @param data The image to set.
+	 */
+	public void setImageData(ImageData data);
 	
 }

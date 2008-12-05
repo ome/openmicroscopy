@@ -404,8 +404,7 @@ class ImViewerComponent
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
 		controller = new ImViewerControl();
-		view = new ImViewerUI(model.getImageName()+
-				" [ID: "+model.getImageID()+"]");
+		view = new ImViewerUI(model.getImageTitle());
 	}
 
 	/** Links up the MVC triad. */
@@ -509,7 +508,9 @@ class ImViewerComponent
 		switch (state) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
-				model.fireRenderingControlLoading(model.getPixelsID());
+				if (model.isImageLoaded())
+					model.fireRenderingControlLoading(model.getPixelsID());
+				else model.fireImageLoading();
 				fireStateChange();
 				break;
 			case DISCARDED:
@@ -2621,6 +2622,23 @@ class ImViewerComponent
 		if (collection == null) return;
 		model.setPlaneInfo(collection);
 		view.setPlaneInfoStatus();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setImageData(ImageData)
+	 */
+	public void setImageData(ImageData data)
+	{
+		if (model.getState() != LOADING_IMAGE_DATA)
+			throw new IllegalArgumentException("This method can only be " +
+					"invoked in the LOADING_IMAGE_DATA.");
+		if (data == null)
+			throw new IllegalArgumentException("No image to set.");
+		model.setImageData(data);
+		view.setTitle(model.getImageTitle());
+		model.fireRenderingControlLoading(model.getPixelsID());
+		fireStateChange();
 	}
     
 }

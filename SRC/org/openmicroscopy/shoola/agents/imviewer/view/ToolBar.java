@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -199,6 +198,7 @@ class ToolBar
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
+    	/*
     	List<PixelsData> pixelsSets = view.getPixelsSets();
     	if (pixelsSets != null && pixelsSets.size() > 1) {
     		Iterator<PixelsData> i = pixelsSets.iterator();
@@ -217,7 +217,7 @@ class ToolBar
             pixelsBox.setSelectedIndex(selectedIndex);
             pixelsBox.addActionListener(this);
     	}
-        
+        */
     	compressionBox = EditorUtil.createComboBox(compression, 0);//new JComboBox(compression);
     	compressionBox.setBackground(getBackground());
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);

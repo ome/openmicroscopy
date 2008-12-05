@@ -124,7 +124,6 @@ public class ImViewerFactory
 	 * @param image  	The image to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
-	 * @param ownerID	The id of the owner of the image.
 	 * @return See above.
 	 */
 	public static ImViewer getImageViewer(ImageData image, Rectangle bounds)
@@ -133,6 +132,20 @@ public class ImViewerFactory
 		return singleton.getViewer(model);
 	}
 
+	/**
+	 * Returns a viewer to display the image corresponding to the specified id.
+	 * 
+	 * @param imageID  	The image to view.
+	 * @param bounds    The bounds of the component invoking the 
+	 *                  {@link ImViewer}.
+	 * @return See above.
+	 */
+	public static ImViewer getImageViewer(long imageID, Rectangle bounds)
+	{
+		ImViewerModel model = new ImViewerModel(imageID, bounds);
+		return singleton.getViewer(model);
+	}
+	
 	/**
 	 * Returns the viewer if any, identified by the passed pixels ID.
 	 * 

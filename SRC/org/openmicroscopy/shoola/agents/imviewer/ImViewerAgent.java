@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 
@@ -115,8 +117,13 @@ public class ImViewerAgent
     private void handleViewImage(ViewImage evt)
     {
         if (evt == null) return;
-        ImViewer view = ImViewerFactory.getImageViewer(evt.getImage(),
-                                        evt.getRequesterBounds());
+        ImageData image = evt.getImage();
+        Rectangle r = evt.getRequesterBounds();
+        ImViewer view;
+        if (image != null)
+        	view = ImViewerFactory.getImageViewer(image, r);
+        else
+        	view = ImViewerFactory.getImageViewer(evt.getImageID(), r);;
         if (view != null) {
         	view.activate(evt.getSettings(), evt.getSelectedUserID());
         	view.setContext(evt.getParent(), evt.getGrandParent());
