@@ -11,8 +11,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
-import ome.model.containers.Dataset;
-
 /**
  * A better-looking table than JTable. In particular, on Mac OS this looks
  * more like a Cocoa table than the default Aqua LAF manages.
@@ -310,8 +308,9 @@ public class ETable extends JTable {
         } else if (colIndex == 1) {
             String[] pd = (getValueAt(rowIndex, colIndex).toString()).split("/");
             
+            // Broken, ca
             tooltip = "<html>Project: " + pd[0] + ", id: " + getModel().getValueAt(rowIndex, 6).toString() + "<br>" +
-                "Dataset: " + pd[1] + ", id: " + ((Dataset) getModel().getValueAt(rowIndex, 3)).getId() + "</html>";
+                "Dataset: " + pd[1] + ", id: " + getModel().getValueAt(rowIndex, 3).toString() + "</html>";
         } else if (colIndex == 2)
         {
             String status = getValueAt(rowIndex, colIndex).toString();

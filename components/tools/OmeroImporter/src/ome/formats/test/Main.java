@@ -7,8 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import ome.model.core.Pixels;
-
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
@@ -32,7 +30,7 @@ public class Main
     private MinMaxCalculator    reader;
     
     //private OMEROMetadataStore store;
-    private Pixels pixels;
+    //private Pixels pixels;
     
     private int                sizeC;
     private int                sizeT;
