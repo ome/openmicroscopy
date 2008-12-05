@@ -24,14 +24,13 @@ package org.openmicroscopy.shoola.util.file;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -117,17 +116,17 @@ class SheetInfo
 	void sizeAllColumnsToFit()
 	{
 		Map<Integer, Integer> colMap = new HashMap<Integer,Integer>();
-		Iterator<HSSFRow> rowIterator = sheet.rowIterator();
+		Iterator rowIterator = sheet.rowIterator();
 		HSSFCell cell;
 		HSSFRow row;
-		Iterator<HSSFCell> cellIterator;
+		Iterator k;
 		while (rowIterator.hasNext())
 		{
-			row = rowIterator.next();
-			cellIterator = row.cellIterator();
-			while (cellIterator.hasNext())
+			row = (HSSFRow) rowIterator.next();
+			k = row.cellIterator();
+			while (k.hasNext())
 			{
-				cell = cellIterator.next();
+				cell = (HSSFCell) k.next();
 				colMap.put(cell.getColumnIndex(), cell.getRowIndex());
 			}
 		}
