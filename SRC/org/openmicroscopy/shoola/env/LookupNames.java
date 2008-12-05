@@ -202,7 +202,10 @@ public class LookupNames
     
     
     //For blitz
+    /** The value to replace in the FS config file. */
+    public static final String FS_HOSTNAME = "HOSTNAME";
     
-    public static final String ICE_HOSTNAME = "HOSTNAME";
+    /** The value to replace in the FS config file. */
+    public static final String FS_DEFAUL_DIR = "/services/FS/defaultDirectory";
     
 }

@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
@@ -261,7 +262,18 @@ public class NullRenderingService
      */
 	public Object importImages(DataObject container, List<Object> images, 
 			long userID, long groupID) 
-		throws DSOutOfServiceException, DSAccessException {
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	public FileSystemView getFSFileSystemView() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object monitor(String path, DataObject container, 
+			long userID, long groupID) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -87,6 +87,20 @@ class ImporterChooser
 		}
 	}
 	
+	/** 
+	 * Initiliazes the chooser. 
+	 * 
+	 * @param filters 	The collection of supported filters.
+	 */
+	private void initialize(List<FileFilter> filters)
+	{
+		initComponents();
+		initFilters(filters);
+		setControlButtonsAreShown(false);
+		File f = getFileSystemView().getDefaultDirectory();
+		if (f != null) setSelectedFile(f);
+	}
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -95,10 +109,19 @@ class ImporterChooser
 	 */
 	ImporterChooser(FileSystemView fsv, List<FileFilter> filters)
 	{
-		if (fsv != null) setFileSystemView(fsv);
-		initComponents();
-		initFilters(filters);
-		setControlButtonsAreShown(false);
+		super(fsv.getDefaultDirectory(), fsv);
+		initialize(filters);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param filters 	The collection of supported filters.
+	 */
+	ImporterChooser(List<FileFilter> filters)
+	{
+		super();
+		initialize(filters);
 	}
 	
 	/**

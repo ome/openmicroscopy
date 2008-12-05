@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -46,8 +45,8 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -82,11 +81,14 @@ class TextualAnnotationsUI
 	/** Action id to show the previous comments. */
 	private static final int	MORE = 3;
 	
+	/** Reference to the control. */
+	private EditorControl 		controller;
+	
 	/**
 	 * Area displaying the latest textual annotation made by 
 	 * the currently logged in user if any. 
 	 */
-	private MultilineLabel 		commentArea;
+	private OMEWikiComponent	commentArea;
 	
 	/** Display the other comments. */
 	private JPanel				moreComponent;
@@ -172,10 +174,12 @@ class TextualAnnotationsUI
 		hideComponent = UIUtilities.buildComponentPanel(hideButton, 0, 0);
 		hideComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
-		commentArea = new MultilineLabel();
-		commentArea.addFocusListener(this);
+		commentArea = new OMEWikiComponent();
+		commentArea.addPropertyChangeListener(controller);
+		commentArea.setDefaultText(DEFAULT_TEXT);
+		//commentArea.addFocusListener(this);
 		commentArea.setText(DEFAULT_TEXT);
-		commentArea.setEditable(true);
+		//commentArea.setEditable(true);
 		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 	}
@@ -200,9 +204,9 @@ class TextualAnnotationsUI
 	 */
 	private void setAreaText(String text)
 	{
-		commentArea.getDocument().removeDocumentListener(this);
+		commentArea.removeDocumentListener(this);
 		commentArea.setText(text);
-		commentArea.getDocument().addDocumentListener(this);
+		commentArea.addDocumentListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -231,11 +235,15 @@ class TextualAnnotationsUI
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param model 		Reference to the model. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param controller 	Reference to the controller. 
+	 * 						Mustn't be <code>null</code>.
 	 */
-	TextualAnnotationsUI(EditorModel model)
+	TextualAnnotationsUI(EditorModel model, EditorControl controller)
 	{
 		super(model);
+		this.controller = controller;
 		title = TITLE;
 		initComponents();
 		buildGUI();
@@ -381,9 +389,9 @@ class TextualAnnotationsUI
 		if (src == commentArea) {
 			text = commentArea.getText();
 			if (text == null || text.length() == 0) {
-				commentArea.getDocument().removeDocumentListener(this);
+				commentArea.removeDocumentListener(this);
 				commentArea.setText(DEFAULT_TEXT);
-				commentArea.getDocument().addDocumentListener(this);
+				commentArea.addDocumentListener(this);
 			}
 		}
 	}

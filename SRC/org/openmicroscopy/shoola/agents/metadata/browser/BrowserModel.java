@@ -108,7 +108,9 @@ class BrowserModel
 	 */
 	TreeBrowserDisplay getLastSelectedNode()
 	{ 
-		return selectedNodes.get(selectedNodes.size()-1); 
+		int n = selectedNodes.size();
+		if (n == 0) return null;
+		return selectedNodes.get(n-1); 
 	}
 
 	/**

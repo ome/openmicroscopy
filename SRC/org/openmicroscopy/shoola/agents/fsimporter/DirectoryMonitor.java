@@ -73,7 +73,7 @@ public class DirectoryMonitor
 			DataObject container)
 	{
 		super(viewer);
-		if (directory == null || !directory.isDirectory())
+		if (directory == null)
 			throw new IllegalArgumentException("No directory to monitor.");
 		this.directory = directory;
 		this.container = container;
@@ -85,7 +85,8 @@ public class DirectoryMonitor
 	 */
 	public void load()
 	{
-		handle = ivView.monitorDirectory(directory, container, this);
+		handle = ivView.monitorDirectory(directory, container, 
+				getCurrentUserID(), -1, this);
 	}
 	
 	/** 

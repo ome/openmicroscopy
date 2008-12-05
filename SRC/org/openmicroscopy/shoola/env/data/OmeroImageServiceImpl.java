@@ -37,6 +37,8 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
+import loci.formats.ImageReader;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -86,8 +88,8 @@ class OmeroImageServiceImpl
 	/** The collection of supported file filters. */
 	private List<FileFilter>		filters;
 	
-	/** The sole system view instance. */
-	private FileSystemView			systemView;
+	/** The extensions of the supported files formats. */
+	private String[]				supportedExtensions;
 	
 	/** Uses it to gain access to the container's services. */
 	private Registry                context;
@@ -525,8 +527,62 @@ class OmeroImageServiceImpl
 	public List<FileFilter> getSupportedFileFilters()
 	{
 		if (filters != null) return filters;
+		//Retrieve values from bio-formats
 		filters = new ArrayList<FileFilter>();
+		//improve that code.
+		ImageReader reader = new ImageReader();
+		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
+		if (array != null) {
+			for (int i = 0; i < array.length; i++) {
+				filters.add(array[i]);
+			}	
+		}
 		return filters;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getFSFileSystemView()
+	 */
+	public FileSystemView getFSFileSystemView()
+	{
+		String path = (String) context.lookup(LookupNames.FS_DEFAUL_DIR);
+		return gateway.getFSFileSystemView(path);
+	}
+	
+	public Object monitor(String directory, DataObject container, 
+			long userID, long groupID)
+	{
+		if (supportedExtensions == null) {
+			List<FileFilter> l = getSupportedFileFilters();
+			Iterator<FileFilter> i = l.iterator();
+			List<String> formats = new ArrayList<String>();
+			String description;
+			String regEx = "\\*";
+			String[] terms;
+			String v;
+			while (i.hasNext()) {
+				description = (i.next()).getDescription();
+				terms = description.split(regEx);
+				for (int j = 1; j < terms.length; j++) {
+					v = terms[j].trim();
+					v = v.replaceAll(",", "");
+					if (v.endsWith(")"))
+						v = v.substring(0, v.length()-1);
+					formats.add(v);
+				}
+			}
+			supportedExtensions = new String[formats.size()];
+			Iterator<String> k = formats.iterator();
+			int index = 0;
+			
+			while (k.hasNext()) {
+				supportedExtensions[index] = k.next();
+				index++;
+			}
+		}
+		gateway.monitor(directory, supportedExtensions, container);
+		return true;
 	}
 	
 }

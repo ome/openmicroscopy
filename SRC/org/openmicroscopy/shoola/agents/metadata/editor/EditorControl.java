@@ -41,9 +41,11 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
@@ -53,6 +55,9 @@ import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
@@ -133,6 +138,17 @@ class EditorControl
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
+	}
+	
+	/**
+	 * Posts an event to view the image.
+	 * 
+	 * @param imageID The id of the image to view.
+	 */
+	private void viewImage(long imageID)
+	{
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		bus.post(new ViewImage(imageID, null));
 	}
 	
 	/**
@@ -220,7 +236,12 @@ class EditorControl
 				else if (object instanceof AnnotationData)
 					model.deleteAnnotation((AnnotationData) object);
 			}
-		} 
+		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
+			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			if (object.getIndex() == WikiDataObject.IMAGE) {
+				viewImage(object.getId());
+			}
+		}
 	}
 
 	/**

@@ -40,16 +40,29 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import monitors.EventType;
+import monitors.MonitorClientPrx;
+import monitors.MonitorServerPrx;
+import monitors.PathMode;
+
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+
+import Ice.Communicator;
+import Ice.ObjectAdapter;
+import Ice.ObjectPrx;
+import ome.formats.OMEROMetadataStore;
 import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.DataAccessException;
@@ -197,49 +210,62 @@ class OMEROGateway
 	 * The number of thumbnails already retrieved. Resets to <code>0</code>
 	 * when the value equals {@link #MAX_RETRIEVAL}.
 	 */
-	private int						thumbRetrieval;
+	private int										thumbRetrieval;
 	
 	/**
 	 * The entry point provided by the connection library to access the various
 	 * <i>OMERO</i> services.
 	 */
-	private ServiceFactoryPrx 		entry;
+	private ServiceFactoryPrx 						entry;
 
 	/** The thumbnail service. */
-	private ThumbnailStorePrx		thumbnailService;
+	private ThumbnailStorePrx						thumbnailService;
 
 	/** The raw file store. */
-	private RawFileStorePrx			fileStore;
+	private RawFileStorePrx							fileStore;
 	
 	/** The search stateful service. */
-	private SearchPrx				searchService;
+	private SearchPrx								searchService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
-	private boolean                 connected;
+	private boolean                 				connected;
 
 	/** 
 	 * Used whenever a broken link is detected to get the Login Service and
 	 * try reestabishing a valid link to <i>OMERO</i>. 
 	 */
-	private DataServicesFactory     dsFactory;
+	private DataServicesFactory     				dsFactory;
 
 	/** The compression level. */
-	private float					compression;
+	private float									compression;
 	
 	/** The port to connect. */
-	private int						port;
+	private int										port;
 	
 	/** The port to connect. */
-	private String					hostName;
+	private String									hostName;
 	
 	/** 
 	 * The Blitz client object, this is the entry point to the 
 	 * OMERO.Blitz Server. 
 	 */
-	private client 					blitzClient;
+	private client 									blitzClient;
 
 	/** Map hosting the enumeration required for metadata. */
-	private Map<String, List<EnumerationObject>>  		enumerations;
+	private Map<String, List<EnumerationObject>>	enumerations;
+	
+	//fs Testing stuff
+	/** The sole system view instance. */
+	private FileSystemView							systemView;
+	
+	//tmp
+	private static MonitorServerPrx					monitorPrx;
+	
+	/** Collection of monitors to end if any.*/
+	private List<String>							monitorIDs;
+	
+	private OMEROMetadataStore						metadataStore;
+	//
 	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
@@ -686,6 +712,16 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the ice communicator.
+	 * 
+	 * @return See above.
+	 */
+	private Communicator getIceCommunicator()
+	{
+		return entry.ice_getCommunicator();
+	}
+	
+	/**
 	 * Checks if some default rendering settings have to be created
 	 * for the specified set of pixels.
 	 * 
@@ -1032,12 +1068,15 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
+			//TMP
+			
 			compression = compressionLevel;
 			this.hostName = hostName;
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", ""+5000);
+			metadataStore = new OMEROMetadataStore(entry);
 			connected = true;
 			//fillEnumerations();
 			return getUserDetails(userName);
@@ -1047,6 +1086,17 @@ class OMEROGateway
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e);  
 		} 
+	}
+	
+	void startFS(Properties fsConfig)
+	{
+		monitorIDs = new ArrayList<String>();
+		ObjectPrx base = getIceCommunicator().stringToProxy(
+				fsConfig.getProperty("omerofs.MonitorServer"));
+		monitorPrx = monitors.MonitorServerPrxHelper.uncheckedCast(
+				base.ice_twoway());
+		String key = "omerofs.MonitorClient.Endpoints";
+		blitzClient.getProperties().setProperty(key, fsConfig.getProperty(key));
 	}
 	
 	/** 
@@ -1067,6 +1117,7 @@ class OMEROGateway
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
+			metadataStore = new OMEROMetadataStore(entry);
 			connected = true;
 		} catch (Throwable e) {
 			connected = false;
@@ -1081,6 +1132,14 @@ class OMEROGateway
 	{
 		connected = false;
 		try {
+			Iterator<String> i = monitorIDs.iterator();
+			String id;
+			while (i.hasNext()) {
+				id = i.next();
+				monitorPrx.stopMonitor(id);
+				monitorPrx.destroyMonitor(id);
+			}
+			monitorIDs.clear();
 			if (thumbnailService != null) thumbnailService.close();
 			if (fileStore != null) fileStore.close();
 			thumbnailService = null;
@@ -1089,6 +1148,7 @@ class OMEROGateway
 			blitzClient.closeSession();
 			entry = null;
 			blitzClient = null;
+			metadataStore = null;
 		} catch (Exception e) {
 			//session already dead.
 		}
@@ -3607,8 +3667,7 @@ class OMEROGateway
 	        ParametersI param = new ParametersI();
 			param.addLong("id", imageID);
 	        return (ImageData) PojoMapper.asDataObject(
-	        		getQueryService().findByQuery(sb.toString(), param)
-	        		);
+	        		getQueryService().findByQuery(sb.toString(), param));
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}
@@ -4113,5 +4172,55 @@ class OMEROGateway
 		return new ArrayList<IObject>();
 	}
 	
+	/**
+	 * Returns the fs file system view.
+	 * 
+	 * @param defaultPath The default directory.
+	 * @return See above.
+	 */
+	FileSystemView getFSFileSystemView(String defaultPath)
+	{
+		if (systemView != null) return systemView;
+		systemView = new FSFileSystemView(defaultPath, monitorPrx);
+		return systemView;
+	}
+	
+	/**
+	 * Monitors the specified directory.
+	 * 
+	 * @param directory The directory to watch.
+	 * @param whiteList	The types of images to watch.
+	 * @return See above.
+	 */
+	Object monitor(String directory, String[] whiteList, DataObject container)
+	{
+		String[] blackList = new String[1];
+		blackList[0] = "";
+		MonitorClientImpl mClient = new MonitorClientImpl(metadataStore, 
+				container);
+		Communicator c = getIceCommunicator();
+		String name = "monitorClient";
+		ObjectAdapter adapter = c.createObjectAdapter("omerofs.MonitorClient");
+		adapter.add(mClient, c.stringToIdentity(name));
+		adapter.activate();
+
+		MonitorClientPrx mClientProxy =
+			monitors.MonitorClientPrxHelper.uncheckedCast(                
+				adapter.createProxy(c.stringToIdentity(name)));
+		try {
+			String id = monitorPrx.createMonitor(EventType.Create, directory, 
+					whiteList, blackList, PathMode.Flat, mClientProxy);
+			monitorIDs.add(id);
+			monitorPrx.startMonitor(id);
+			System.err.println(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	//tmp
+	static MonitorServerPrx getMonitorServer() { return monitorPrx; }
 	
 }

@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
+import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
@@ -261,10 +262,22 @@ class ImageDataViewImpl
      * @see ImageDataView#monitorDirectory(File, DataObject, AgentEventListener)
      */
 	public CallHandle monitorDirectory(File directory, DataObject container, 
+			long userID, long groupID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ImagesImporter(container, directory, userID, 
+				groupID);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadImage(long, long, AgentEventListener)
+     */
+	public CallHandle loadImage(long imageID, long userID,
 			AgentEventListener observer)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		BatchCallTree cmd = new ImagesLoader(imageID, userID);
+		return cmd.exec(observer);
 	}
 	
 }

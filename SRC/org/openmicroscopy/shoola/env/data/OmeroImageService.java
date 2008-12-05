@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
@@ -402,5 +403,15 @@ public interface OmeroImageService
 	 * @return See above.
 	 */
 	public List<FileFilter> getSupportedFileFilters();
+	
+	/**
+	 * Returns the file system allowing to connect to fs
+	 * 
+	 * @return See above.
+	 */
+	public FileSystemView getFSFileSystemView();
+	
+	public Object monitor(String path, DataObject container, 
+			long userID, long groupID);
 	
 }

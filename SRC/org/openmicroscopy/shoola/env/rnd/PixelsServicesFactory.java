@@ -97,6 +97,7 @@ public class PixelsServicesFactory
 	public static RndProxyDef convert(RenderingDef rndDef)
 	{
 		if (rndDef == null) return null;
+		
 		RndProxyDef proxy = new RndProxyDef();
 		proxy.setDefaultZ(rndDef.getDefaultZ().getValue());
 		proxy.setDefaultT(rndDef.getDefaultT().getValue());

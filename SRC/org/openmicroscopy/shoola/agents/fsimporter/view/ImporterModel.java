@@ -29,6 +29,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 
 import pojos.DataObject;
 

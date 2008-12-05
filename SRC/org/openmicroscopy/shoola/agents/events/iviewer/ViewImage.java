@@ -78,19 +78,38 @@ public class ViewImage
      */
     private DataObject	grandParent;
     
+    /** The id of the image to view. Used when no <code>ImageData</code>set. */
+    private long		imageID;
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param imageID  	The id of the image to view.
+     * @param bounds    The bounds of the component posting the event.
+     */
+    public ViewImage(long imageID, Rectangle bounds)
+    {
+        if (imageID< 0l) 
+            throw new IllegalArgumentException("Image ID not valid.");
+        this.imageID = imageID;
+        requesterBounds = bounds;
+        selectedUserID = -1;
+    }
+    
     /**
      * Creates a new instance.
      * 
      * @param image   	The image to view.
      * @param bounds    The bounds of the component posting the event.
      */
-    public ViewImage(ImageData	image, Rectangle bounds)
+    public ViewImage(ImageData image, Rectangle bounds)
     {
         if (image == null) 
             throw new IllegalArgumentException("Image not null.");
         this.image = image;
         requesterBounds = bounds;
         selectedUserID = -1;
+        imageID = -1;
     }
     
     /**
@@ -106,6 +125,13 @@ public class ViewImage
     	this.parent = parent;
     	this.grandParent = grandParent;
     }
+    
+    /**
+     * Returns the id of the image to view. 
+     * 
+     * @return See above.
+     */
+    public long getImageID() { return imageID; }
     
     /**
      * Returns the parent of the image or <code>null</code> 

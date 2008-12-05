@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -392,6 +393,16 @@ public class NullOmeroPojoService
      * @see OmeroDataService#delete(Collection)
      */
 	public Object delete(Collection<DeletableObject> objects) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getImage(long, long)
+     */
+	public ImageData getImage(long imageID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

@@ -242,10 +242,14 @@ public interface ImageDataView
 	 * @param directory	The directory to monitor.
 	 * @param container The container where to import the images into or 
 	 * 					<code>null</code>.
+	 * @param userID	The id of the user.
+	 * @param groupID	The id of the group.
 	 * @param observer	Callback handler.
 	 * @return See above.
 	 */
 	public CallHandle monitorDirectory(File directory, DataObject container, 
-				AgentEventListener observer);
+			long userID, long groupID, AgentEventListener observer);
 	
+	public CallHandle loadImage(long imageID, long userID, 
+			AgentEventListener observer);
 }

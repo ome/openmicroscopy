@@ -68,12 +68,6 @@ import pojos.ChannelData;
 class ChannelAcquisitionComponent
 	extends JPanel
 {
-
-	/** Indicates if a boolean has been set to <code>true</code>. */
-	private static final String 	BOOLEAN_YES = "Yes";
-	
-	/** Indicates if a boolean has been set to <code>false</code>. */
-	private static final String 	BOOLEAN_NO = "No";
 	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI					parent;
@@ -190,8 +184,8 @@ class ChannelAcquisitionComponent
 		laserPulseBox = EditorUtil.createComboBox(l);
 		
 		String[] values = new String[3];
-		values[0] = BOOLEAN_YES;
-		values[1] = BOOLEAN_NO;
+		values[0] = AcquisitionDataUI.BOOLEAN_YES;
+		values[1] = AcquisitionDataUI.BOOLEAN_NO;
 		values[2] = AnnotationDataUI.NO_SET_TEXT;
 		laserTuneableBox = EditorUtil.createComboBox(values);
 		laserPockelCellBox = EditorUtil.createComboBox(values);
@@ -310,21 +304,31 @@ class ChannelAcquisitionComponent
             		boolean b;
             		if (value != null) {
             			b = (Boolean) value;
-            			if (b) laserTuneableBox.setSelectedItem(BOOLEAN_YES);
-            			else laserTuneableBox.setSelectedItem(BOOLEAN_NO);
+            			if (b) 
+            				laserTuneableBox.setSelectedItem(
+            						AcquisitionDataUI.BOOLEAN_YES);
+            			else 
+            				laserTuneableBox.setSelectedItem(
+            						AcquisitionDataUI.BOOLEAN_NO);
             		} else 
             			laserTuneableBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
+            		laserTuneableBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserTuneableBox;
             	} else if (key.equals(EditorUtil.POCKEL_CELL)) {
             		boolean b;
             		if (value != null) {
             			b = (Boolean) value;
-            			if (b) laserPockelCellBox.setSelectedItem(BOOLEAN_YES);
-            			else laserPockelCellBox.setSelectedItem(BOOLEAN_NO);
+            			if (b) 
+            				laserPockelCellBox.setSelectedItem(
+            					AcquisitionDataUI.BOOLEAN_YES);
+            			else 
+            				laserPockelCellBox.setSelectedItem(
+            						AcquisitionDataUI.BOOLEAN_NO);
             		} else 
             			laserPockelCellBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
+            		laserPockelCellBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserPockelCellBox;
             	} 
             } else if (ChannelAcquisitionData.ARC.equals(kind)) {

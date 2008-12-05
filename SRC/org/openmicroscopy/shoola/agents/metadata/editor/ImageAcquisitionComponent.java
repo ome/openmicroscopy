@@ -82,6 +82,9 @@ class ImageAcquisitionComponent
 	/** The component hosting the various medium values. */
 	private OMEComboBox 						mediumBox;
 	
+	/** The component displaying the iris option for an objective. */
+	private OMEComboBox							irisBox;
+	
 	/** The fields displaying the metadata. */
 	private Map<String, AcquisitionComponent> 	fieldsObjective;
 	
@@ -166,6 +169,12 @@ class ImageAcquisitionComponent
 		l = model.getImageEnumerations(Editor.MEDIUM);
 		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
 		mediumBox = EditorUtil.createComboBox(l);
+		String[] values = new String[3];
+		values[0] = AcquisitionDataUI.BOOLEAN_YES;
+		values[1] = AcquisitionDataUI.BOOLEAN_NO;
+		values[2] = AnnotationDataUI.NO_SET_TEXT;
+		irisBox = EditorUtil.createComboBox(values);
+		
 		fieldsObjective = new LinkedHashMap<String, AcquisitionComponent>();
 		fieldsEnv = new LinkedHashMap<String, AcquisitionComponent>();
 		fieldsStage = new LinkedHashMap<String, AcquisitionComponent>();
@@ -241,6 +250,18 @@ class ImageAcquisitionComponent
 				if (selected != null) mediumBox.setSelectedItem(selected);
 				area = mediumBox;
 				mediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
+			} else if (key.equals(EditorUtil.IRIS)) {
+				boolean b;
+        		if (value != null) {
+        			b = (Boolean) value;
+        			if (b) 
+        				irisBox.setSelectedItem(AcquisitionDataUI.BOOLEAN_YES);
+        			else irisBox.setSelectedItem(AcquisitionDataUI.BOOLEAN_NO);
+        		} else 
+        			irisBox.setSelectedItem(
+        					AnnotationDataUI.NO_SET_TEXT);
+        		irisBox.setEditedColor(UIUtilities.EDITED_COLOR);
+        		area = irisBox;
 			} else {
 				if (value instanceof Number) {
 					area = UIUtilities.createComponent(

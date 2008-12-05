@@ -100,7 +100,7 @@ class ImporterComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				view.setDialogOnScreen();
+				controller.setDialogOnScreen();
 				model.setState(READY);
 				break;
 			case DISCARDED:
@@ -157,7 +157,7 @@ class ImporterComponent
 	public void monitorDirectory(File dir)
 	{
 		if (model.getState() != READY) return;
-		if (dir == null || !dir.isDirectory()) {
+		if (dir == null) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Import", "No directory to monitor.");
 			return;

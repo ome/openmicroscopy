@@ -55,7 +55,7 @@ import pojos.ImageData;
 * @since OME2.2
 */
 public interface DataManagerView
-  extends DataServicesView
+ 	extends DataServicesView
 {
 	
 	/**

@@ -48,6 +48,7 @@ import javax.swing.filechooser.FileSystemView;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -75,7 +76,7 @@ public class ImporterChooserDialog
 	public static final String		IMPORT_PROPERTY = "import";
 	
 	/** Bound property indicating to monitor the selected directory. */
-	public static final String		MONITOR_PROPERTY = "monitor";
+	public static final String		MONITOR_PROPERTY = "monitorFS";
 	
 	/** Identifies the <code>Cancel</code> action. */
 	private static final int 		CANCEL = 0;
@@ -142,7 +143,7 @@ public class ImporterChooserDialog
 		monitorButton.setActionCommand(""+MONITOR);
 		monitorButton.setToolTipText(
 				UIUtilities.formatToolTipText(MONITOR_DESCRIPTION));
-	    getRootPane().setDefaultButton(saveButton);
+	    //getRootPane().setDefaultButton(saveButton);
 	}
 
     /**
@@ -192,7 +193,7 @@ public class ImporterChooserDialog
 		setVisible(false);
 		dispose();
 	}
-	
+
 	/** Import the file. */
 	private void importFile()
 	{
@@ -215,7 +216,7 @@ public class ImporterChooserDialog
 			un.notifyInfo("Import", "Please select a directory to monitor.");
 			return;
 		}
-		chooser.approveSelection();
+		//chooser.approveSelection();
 		firePropertyChange(MONITOR_PROPERTY, null, file);
 	}
 	
@@ -231,10 +232,12 @@ public class ImporterChooserDialog
 		Registry reg = ImporterAgent.getRegistry();
 		List<FileFilter> filters = 
 			reg.getImageService().getSupportedFileFilters();
-		chooser = new ImporterChooser(fsv, filters);
+		if (fsv == null)
+			chooser = new ImporterChooser(filters);
+		else chooser = new ImporterChooser(fsv, filters);
 		initComponents();
 		buildGUI();
-		pack();
+		//pack();
 	}
 
 	/** 

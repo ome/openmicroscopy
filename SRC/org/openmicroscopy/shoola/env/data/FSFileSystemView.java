@@ -30,9 +30,11 @@ import java.net.URI;
 import javax.swing.filechooser.FileSystemView;
 
 
+
 //Third-party libraries
 
 //Application-internal dependencies
+import monitors.MonitorServerPrx;
 
 
 /** 
@@ -52,25 +54,54 @@ public class FSFileSystemView
 	extends FileSystemView
 {
 
-	private static final String FS_NAME = "omero-fs://";
+	/** Default name. */
+	static final String FS_NAME = "omero-fs://";
 	
 	/** The default file directory. */
-	private FSFile defaultDirectory;
+	private FSFile 				defaultDirectory;
+	
+	/** Reference to the proxy. */
+	private MonitorServerPrx 	server;
 	
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param defaultPath
+	 * @param defaultPath	The default path.
+	 * @param server		Reference to the monitor service.
 	 */
-	FSFileSystemView(String defaultPath)
+	FSFileSystemView(String defaultPath, MonitorServerPrx server)
 	{
-		if (defaultPath != null) {
+		if (server == null)
+			throw new IllegalArgumentException("No server specified.");
+		this.server = server;
+		if (defaultPath != null && defaultPath.trim().length() > 0) {
 			try {
-				defaultDirectory = new FSFile(new URI(FS_NAME+defaultPath));
+				String s = FS_NAME+defaultPath;
+				defaultDirectory = new FSFile(new URI(s));
+				setDefaultDirectory(defaultDirectory);
 			} catch (Exception e) {}
 		}
 	}
 	
+	/**
+     * Sets the default directory.
+     * 
+     * @param file The default directory.
+     */
+    public void setDefaultDirectory(File file)
+    {
+    	if (file == null) return;
+    	if (file instanceof FSFile)
+    		defaultDirectory = (FSFile) file;
+    }
+    
+    /**
+     * Returns the default directory.
+     * 
+     * @return See above.
+     */
+    public File getDefaultDirectory() { return defaultDirectory; }
+    
 	/**
 	 * Overridden to return a file of the correct type.
 	 * @see FileSystemView#createNewFolder(File)
@@ -97,7 +128,9 @@ public class FSFileSystemView
 	    		return new FSFile(uri);
 	    	}
 	    	return null;
-	    } catch (Exception e) {}//ignore
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }//ignore
 	    return null;
 	}
 	
@@ -125,10 +158,12 @@ public class FSFileSystemView
 	 */
     public boolean isRoot(File f)
     {
+    	if (f == null) return false;
+    	/*
         if (f instanceof FSFile) {
         	FSFile fsFile = (FSFile) f;
             f = new File(fsFile.getPath());
-        }
+        }*/
         return super.isRoot(f);
     }
     
@@ -141,26 +176,34 @@ public class FSFileSystemView
         try {
             return new FSFile[] { new FSFile(new URI(FS_NAME)) };
         } catch (Exception e) {}
-        return null;
+        return new FSFile[0];
     }
-    
+ 
     /**
-     * Sets the default directory.
-     * 
-     * @param file The default directory.
+     *  Overridden to handle <code>FSFile</code>.
+     *  @see FileSystemView#getFiles(File, boolean)
      */
-    public void setDefaultDirectory(File file)
+    public File[] getFiles(File dir, boolean useFileHiding)
     {
-    	if (file == null) return;
-    	if (file instanceof FSFile)
-    		defaultDirectory = (FSFile) file;
+    	if (dir == null) return null;
+    	String root = dir.getPath();
+    	if (dir instanceof FSFile) {
+    		root = ((FSFile) dir).getPath();
+    	}
+    	FSFile[] files = null;
+    	try {
+    		String[] paths = server.getDirectory(root, "*");
+    		if (paths == null) return files;
+    		files = new FSFile[paths.length];
+    		for (int i = 0; i < paths.length; i++)
+				files[i] = new FSFile(new URI(FS_NAME+paths[i]));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	return files;
     }
     
-    /**
-     * Returns the default directory.
-     * 
-     * @return See above.
-     */
-    public File getDefaultDirectory() { return defaultDirectory; }
-    
+    public Boolean isTraversable(File f) { return false;
+        }
 }

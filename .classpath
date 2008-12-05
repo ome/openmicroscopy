@@ -29,5 +29,8 @@
 	<classpathentry kind="lib" path="LIB/jaxrpc-1.1.jar"/>
 	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-3.2-FINAL-20081019.jar"/>
+	<classpathentry kind="lib" path="LIB/loci_tools.jar"/>
+	<classpathentry kind="lib" path="LIB/monitors.jar"/>
+	<classpathentry kind="lib" path="LIB/OmeroImporter.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

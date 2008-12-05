@@ -116,7 +116,7 @@ class GeneralPaneUI
 		}
 		
 		propertiesUI = new PropertiesUI(model);
-		textualAnnotationsUI = new TextualAnnotationsUI(model);
+		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
 		annotationUI = new AnnotationDataUI(model, controller);
 
 		components = new ArrayList<AnnotationUI>();

@@ -331,7 +331,19 @@ public class DataServicesFactory
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
         //fs stuff
+        
         //replace Server string in fs config
+        Iterator k = fsConfig.keySet().iterator();
+        String value, key;
+        String regex = LookupNames.FS_HOSTNAME;
+        while (k.hasNext()) {
+        	key = (String) k.next();
+			value = fsConfig.getProperty(key);
+			value = value.replaceAll(regex, uc.getHostName());
+			fsConfig.setProperty(key, value);
+		}
+        omeroGateway.startFS(fsConfig);
+        
         
         boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);

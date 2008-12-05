@@ -40,6 +40,9 @@
       <port>4063</port>
     </structuredEntry>
     
+    <!-- default fs directory -->
+    <entry name="/services/FS/defaultDirectory">/home/cblackburn/tmp/</entry>
+    
     <!-- The maximum number of times that the Login Service should attempt
          to restore a valid link to OMERO server in the background. 
          Non-positive values will be ignored and the internal default will

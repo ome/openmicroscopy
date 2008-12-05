@@ -328,6 +328,9 @@ public class EditorUtil
 	public static final String	FREQUENCY_MULTIPLICATION =
 									"Frequency Multiplication";
 	
+	/** Identifies the <code>Iris</code> of the objective. */
+	public static final String	IRIS = "Iris";
+	
 	/** Identifies the unset fields. */
 	public static final String	NOT_SET = "NotSet";
 	
@@ -944,7 +947,7 @@ public class EditorUtil
         details.put(CORRECTION_COLLAR, new Float(0));
     	details.put(MEDIUM, "");
     	details.put(REFRACTIVE_INDEX, new Float(0));
-        
+    	details.put(IRIS, null);
         if (data == null) {
         	notSet.add(MODEL);
         	notSet.add(MANUFACTURER);
@@ -958,9 +961,15 @@ public class EditorUtil
         	notSet.add(CORRECTION_COLLAR);
     		notSet.add(MEDIUM);
     		notSet.add(REFRACTIVE_INDEX);
+    		notSet.add(IRIS);
         	details.put(NOT_SET, notSet);
         	return details;
         }
+        Object o = data.hasIris();
+    	if (o == null) {
+    		notSet.add(IRIS);
+    	}
+    	details.put(IRIS, o);
         String s = data.getModel();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MODEL);

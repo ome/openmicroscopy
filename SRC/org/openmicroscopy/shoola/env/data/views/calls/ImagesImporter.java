@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
+import java.io.File;
 import java.util.List;
 
 //Third-party libraries
@@ -79,6 +80,30 @@ public class ImagesImporter
         };
     }
     
+    /**
+     * Creates a a {@link BatchCall} to import the images.
+     * 
+     * @param container The container where to import the images into or 
+	 * 					<code>null</code>.
+	 * @param directory	The directory to monitor. Mustn't be <code>null</code>.
+	 * @param userID	The id of the user.
+	 * @param groupID	The id of the group.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final DataObject container, 
+    						final File directory, final long userID, 
+    						final long groupID)
+    {
+        return new BatchCall("Importing images: ") {
+            public void doCall() throws Exception
+            {
+                OmeroImageService os = context.getImageService();
+				results = os.monitor(directory.getAbsolutePath(), container, 
+						userID, groupID);
+            }
+        };
+    }
+    
 	 /**
      * Adds the {@link #loadCall} to the computation tree.
      * 
@@ -109,6 +134,24 @@ public class ImagesImporter
     	if (images == null || images.size() == 0)
     		throw new IllegalArgumentException("No images to import.");
     	loadCall = makeBatchCall(container, images, userID, groupID);
+    }
+    
+    /**
+     * Creates a new instance. If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the call.
+	 * 
+     * @param container The container where to import the images into or 
+	 * 					<code>null</code>.
+	 * @param directory	The directory to monitor. Mustn't be <code>null</code>.
+	 * @param userID	The id of the user.
+	 * @param groupID	The id of the group.
+     */
+    public ImagesImporter(DataObject container, File directory, 
+    					long userID, long groupID)
+    {
+    	if (directory == null)
+    		throw new IllegalArgumentException("No directory to monitor.");
+    	loadCall = makeBatchCall(container, directory, userID, groupID);
     }
     
 }

@@ -76,6 +76,12 @@ class AcquisitionDataUI
 	/** Text to hide the unset fields. */
 	static final String					HIDE_UNSET = "Hide unset fields";
 	
+	/** Indicates if a boolean has been set to <code>true</code>. */
+	static final String 				BOOLEAN_YES = "Yes";
+	
+	/** Indicates if a boolean has been set to <code>false</code>. */
+	static final String 				BOOLEAN_NO = "No";
+	
 	/** The default text of the channel. */
 	private static final String			DEFAULT_CHANNEL_TEXT = "Channel ";
 	

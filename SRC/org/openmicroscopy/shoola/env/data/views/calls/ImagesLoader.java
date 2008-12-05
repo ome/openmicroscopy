@@ -57,7 +57,7 @@ public class ImagesLoader
 {
 	
     /** The results of the call. */
-    private Set         results;
+    private Object        results;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
@@ -75,6 +75,24 @@ public class ImagesLoader
             {
                 OmeroDataService os = context.getDataService();
                 results = os.getExperimenterImages(userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the passed image
+     * 
+     * @param imageID	The id of the image.
+     * @param userID	The ID of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final long imageID, final long userID)
+    {
+        return new BatchCall("Loading user's images: ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                results = os.getImage(imageID, userID);
             }
         };
     }
@@ -183,5 +201,17 @@ public class ImagesLoader
     {
     	loadCall = makeBatchCall(startTime, endTime, userID);
     }
+    
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param imageID		The id of the image.
+     * @param rootLevelID	The ID of the user.
+     */
+    public ImagesLoader(long imageID, long rootLevelID)
+    {
+        loadCall = makeBatchCall(imageID, rootLevelID);
+    }
+
     
 }

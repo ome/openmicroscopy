@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -636,6 +637,19 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Object delete(Collection<DeletableObject> objects)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Returns the image object corresponding to the passed id.
+	 * 
+	 * @param imageID	The id of the image.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public ImageData getImage(long imageID, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }
