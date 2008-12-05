@@ -64,21 +64,41 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     
     private PlaneInfo pInfo;
 
+    private void initialize()
+    	throws ServerError
+    {
+    	 iUpdate = serviceFactory.getUpdateService();
+         iQuery = serviceFactory.getQueryService();
+         iAdmin = serviceFactory.getAdminService();
+         rawFileStore = serviceFactory.createRawFileStore();
+         rawPixelStore = serviceFactory.createRawPixelsStore();
+         iRepoInfo = serviceFactory.getRepositoryInfoService();
+         iPojos = serviceFactory.getPojosService();
+         
+         
+         delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));        
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param serviceFactory The factory. Mustn't be <code>null</code>.
+     */
+    public OMEROMetadataStore(ServiceFactoryPrx serviceFactory)
+    	throws ServerError
+    {
+    	if (serviceFactory == null)
+    		throw new IllegalArgumentException("No factory.");
+    	this.serviceFactory = serviceFactory;
+    	initialize();
+    }
+    
     public OMEROMetadataStore(String username, String password, String server,
             String port) throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         client c = new client(server);
         serviceFactory = c.createSession(username, password);
-        iUpdate = serviceFactory.getUpdateService();
-        iQuery = serviceFactory.getQueryService();
-        iAdmin = serviceFactory.getAdminService();
-        rawFileStore = serviceFactory.createRawFileStore();
-        rawPixelStore = serviceFactory.createRawPixelsStore();
-        iRepoInfo = serviceFactory.getRepositoryInfoService();
-        iPojos = serviceFactory.getPojosService();
-        
-        
-        delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));        
+        initialize();
     }
 
     /* (non-Javadoc)
