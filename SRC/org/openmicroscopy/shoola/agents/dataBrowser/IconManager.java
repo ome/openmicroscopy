@@ -32,7 +32,14 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 /** 
- * 
+ * Provides the icons used by the TreeViewer.
+ * <p>The icons are retrieved by first calling the 
+ * {@link #getInstance() getInstance} method and then the 
+ * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
+ * by the static constants within this class &#151; icons will be retrieved
+ * from the TreeViewer's graphics bundle, which implies that its
+ * configuration has been read in (this happens during the initialization
+ * procedure).</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -165,11 +172,14 @@ public class IconManager
     /** The <code>Report 48</code> icon. */
     public static int			REPORT_48 = 38;
     
+    /** The <code>Report 48</code> icon. */
+    public static int			SAVE_AS_48 = 39;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 38;
+    private static int          MAX_ID = 39;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -215,6 +225,7 @@ public class IconManager
         relPaths[SAVE_AS] = "nuvola_filesave16.png";
         relPaths[REPORT] = "nuvola_view_text16.png";
         relPaths[REPORT_48] = "nuvola_view_text48.png";
+        relPaths[SAVE_AS_48] = "nuvola_filesaveas48.png";
     }
     
     /** The sole instance. */

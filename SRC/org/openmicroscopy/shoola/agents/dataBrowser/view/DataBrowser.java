@@ -459,8 +459,12 @@ public interface DataBrowser
 	 */
 	public void viewField(int field);
 	
-	/** Saves the displayed thumbnails as a single image. */
-	public void saveThumbnails();
+	/** 
+	 * Saves the displayed thumbnails as a single image. 
+	 * 
+	 * @param name The name of the file.
+	 */
+	public void saveThumbnails(String name);
 	
 	/**
 	 * Returns <code>true</code> if the model is of type

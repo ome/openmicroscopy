@@ -25,15 +25,25 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * Saves the displayed thumbnails as a single image.
@@ -54,7 +64,7 @@ public class SaveAction
 
     /** Description of the action. */
     private static final String DESCRIPTION = "Save the thumbnails " +
-    		"displayed as a single image.";
+    		"displayed in a Microsoft Excel file.";
     
     /** 
      * Enables the action when the state is {@link DataBrowser#READY}.
@@ -85,6 +95,23 @@ public class SaveAction
      * Reloads the thumbnails.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.saveThumbnails(); }
+    public void actionPerformed(ActionEvent e) { 
+    	List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
+		filterList.add(filter);
+		JFrame frame = DataBrowserAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser =
+			new FileChooser(frame, FileChooser.SAVE, "Save thumbnails", 
+					"Save the images", filterList);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.SAVE_AS_48));
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) chooser.setCurrentDirectory(f);
+		int option = chooser.centerDialog();
+		if (option != JFileChooser.APPROVE_OPTION) return;
+		File  file = chooser.getFormattedSelectedFile();
+		if (file != null)
+    		model.saveThumbnails(file.getAbsolutePath()); 
+    }
     
 }

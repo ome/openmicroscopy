@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Cursor; 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JComponent;
@@ -738,12 +736,77 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#saveThumbnails()
+	 * @see DataBrowser#saveThumbnails(String)
 	 */
-	public void saveThumbnails()
+	public void saveThumbnails(String name)
 	{
 		if (!isImagesModel()) return;
 		Browser browser = model.getBrowser();
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+		if (nodes == null || nodes.size() == 0) {
+			un.notifyInfo("Create Report", "No images to save");
+			return;
+		}
+		Iterator<ImageNode> i = nodes.iterator();
+		ImageNode node;
+		try {
+			ExcelWriter writer = new ExcelWriter(name);
+			writer.openFile();
+			writer.createSheet("Thumbnails");
+//			ready to build report
+			BufferedImage thumbnail;
+			int n = model.getBrowser().getSelectedLayout().getImagesPerRow();
+			int row = 0;
+			int col = 0;
+			int w = ThumbnailProvider.THUMB_MAX_WIDTH/2;
+			int h = ThumbnailProvider.THUMB_MAX_HEIGHT/2;
+			int count = 0;
+			long id;
+			String imageName;
+			while (i.hasNext()) {
+				node = i.next();
+				id = ((DataObject) node.getHierarchyObject()).getId();
+				imageName = node.toString();
+				thumbnail = node.getThumbnail().getFullScaleThumb();
+				writer.addImageToWorkbook(imageName, thumbnail); 
+				writer.writeImage(row, col, w, h, imageName);
+				writer.writeElement(row+3, col, id);
+				if (count < n) {
+					col++;
+				} else {
+					col = 0;
+					row = row+4;
+				}
+				count++;
+			}
+			
+
+			writer.createSheet("Legend");
+			i = nodes.iterator();
+			row = 0;
+			col = 0;
+			writer.setCellStyle(row, col, row, col+1, ExcelWriter.BOLD_DEFAULT);
+			writer.writeElement(row, col, "id");
+			writer.writeElement(row, col+1, "name");
+			row++;
+			while (i.hasNext()) {
+				node = i.next();
+				imageName = node.toString();
+				writer.writeElement(row, col, (
+						(DataObject) node.getHierarchyObject()).getId());
+				writer.writeElement(row, col+1, imageName);
+				row++;
+			}
+			writer.close();
+		} catch (Exception e) {
+			Logger logger = DataBrowserAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print("Error while saving.");
+	        msg.print(e);
+	        logger.error(this, msg);
+	        un.notifyInfo("Report", "An error occurs while saving the file.");
+		}
 	}
 
 	/**
@@ -905,7 +968,12 @@ class DataBrowserComponent
 	public void createReport(String name)
 	{
 		Browser browser = model.getBrowser();
-		Set nodes = browser.getImageNodes();
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		if (nodes == null || nodes.size() == 0) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Create Report", "No images displayed");
+			return;
+		}
 		List<Class> types = new ArrayList<Class>();
 		model.fireReportLoading(nodes, types, name);
 	}
