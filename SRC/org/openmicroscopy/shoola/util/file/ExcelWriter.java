@@ -854,7 +854,7 @@ public class ExcelWriter
 
 	    HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
 	    link.setAddress(URL);
-	    cell.setHyperlink(link);
+	    //cell.setHyperlink(link);
 	    setCellStyle(cell, HYPERLINK);
 	}
 	

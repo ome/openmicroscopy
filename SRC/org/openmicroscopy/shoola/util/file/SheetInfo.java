@@ -91,12 +91,10 @@ class SheetInfo
 	 */
 	HSSFCell getCell(int rowIndex, int columnIndex)
 	{
-		HSSFRow row;
-		HSSFCell cell;
-		row = sheet.getRow(rowIndex);
+		HSSFRow row = null;//sheet.getRow(rowIndex);
 		if (row == null) row = sheet.createRow(rowIndex);
-		cell = row.getCell(columnIndex);
-		if (cell == null) cell = row.createCell(columnIndex);
+		HSSFCell cell = null;//row.getCell(columnIndex);
+		//if (cell == null) cell = row.createCell(columnIndex);
 		return cell;
 	}
 	
@@ -115,6 +113,7 @@ class SheetInfo
 	 */
 	void sizeAllColumnsToFit()
 	{
+		/*
 		Map<Integer, Integer> colMap = new HashMap<Integer,Integer>();
 		Iterator rowIterator = sheet.rowIterator();
 		HSSFCell cell;
@@ -132,11 +131,12 @@ class SheetInfo
 		}
 		Iterator<Integer> colIterator = colMap.keySet().iterator();
 		int col;
-		while(colIterator.hasNext())
+		while (colIterator.hasNext())
 		{
 			col = colIterator.next();
 			sizeColumnToFit(col);
 		}
+		*/
 	}
 	
 	/**
