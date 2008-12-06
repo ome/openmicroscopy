@@ -101,7 +101,7 @@ public class CreateCmd
             case PROJECT: return new ProjectData();
             case DATASET: return new DatasetData(); 
             case SCREEN: return new ScreenData(); 
-            case TAG: return new TagAnnotationData("");
+            case TAG: return new TagAnnotationData("foo");
             case PLATE: return new PlateData();
             case IMAGE: return new ImageData();
             default:

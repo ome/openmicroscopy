@@ -654,7 +654,7 @@ public class ExcelWriter
 	 * @param column 	The selected column.
 	 * @return Ssee above.
 	 */
-	public HSSFCell getCell(int row , int column)
+	private HSSFCell getCell(int row , int column)
 	{
 		if (currentSheet == null) return null;
 		return currentSheet.getCell(row, column);
@@ -662,6 +662,7 @@ public class ExcelWriter
 	
 	/**
 	 * Return the maximum column a value has been entered in for row. 
+	 * 
 	 * @param row see above.
 	 * @return see above.
 	 */

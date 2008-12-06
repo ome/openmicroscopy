@@ -91,11 +91,32 @@ class SheetInfo
 	 */
 	HSSFCell getCell(int rowIndex, int columnIndex)
 	{
+		/*
 		HSSFRow row = null;//sheet.getRow(rowIndex);
-		if (row == null) row = sheet.createRow(rowIndex);
-		HSSFCell cell = null;//row.getCell(columnIndex);
-		//if (cell == null) cell = row.createCell(columnIndex);
-		return cell;
+		
+		int first = sheet.getFirstRowNum();
+		int last = sheet.getLastRowNum();
+		if (rowIndex >= first && rowIndex <= last)
+			sheet.getRow(rowIndex);
+		if (row == null) {
+			row = sheet.createRow(rowIndex);
+			return row.createCell((short) columnIndex);
+		}
+		first = row.getFirstCellNum();
+		last = row.getLastCellNum();
+		if (columnIndex >= first && columnIndex <= last)
+			return row.getCell((short) columnIndex);
+		
+		return row.createCell((short) columnIndex);
+		*/
+		HSSFRow row = sheet.getRow(rowIndex);
+		if (row == null) {
+			row = sheet.createRow(rowIndex);
+			return row.createCell((short) columnIndex);
+		}
+		HSSFCell cell = row.getCell((short) columnIndex);
+		if (cell != null) return cell;
+		return row.createCell((short) columnIndex);
 	}
 	
 	/**
@@ -113,9 +134,20 @@ class SheetInfo
 	 */
 	void sizeAllColumnsToFit()
 	{
+		HSSFRow row;
+		int n;
+		int first = sheet.getFirstRowNum();
+		int last = sheet.getLastRowNum();
+		for (int i = first; i <= last; i++) {
+			row = sheet.getRow(i);
+			n = row.getLastCellNum();
+			for (int j = 0; j < n; j++) {
+				sizeColumnToFit(j);
+			}
+		}
 		/*
 		Map<Integer, Integer> colMap = new HashMap<Integer,Integer>();
-		Iterator rowIterator = sheet.rowIterator();
+		Iterator rowIterator = sheet.iterator();//sheet.rowIterator();
 		HSSFCell cell;
 		HSSFRow row;
 		Iterator k;
