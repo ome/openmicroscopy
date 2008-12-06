@@ -80,6 +80,7 @@ import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * The Model component in the <code>EditorViewer</code> MVC triad.
@@ -661,6 +662,20 @@ class EditorModel
 		textualAnnotationsByDate = (List) getTextualAnnotations();
 		sortAnnotationByDate(textualAnnotationsByDate);
 		return textualAnnotationsByDate;
+	}
+	
+	/**
+	 * Returns the annotation made by the currently selected user.
+	 * 
+	 * @return See above.
+	 */
+	TextualAnnotationData getLastUserAnnotation()
+	{
+		Map<Long, List> m = getTextualAnnotationByOwner();
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		List l = m.get(userID);
+		if (l == null || l.size() == 0) return null;
+		return (TextualAnnotationData) l.get(l.size()-1);
 	}
 	
 	/**

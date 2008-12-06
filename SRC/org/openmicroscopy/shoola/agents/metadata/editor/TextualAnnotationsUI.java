@@ -150,7 +150,7 @@ class TextualAnnotationsUI
 		if (m.size() >= 1 && !m.containsKey(userID)) return true;
 		return false;
 	}
-	
+
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -255,6 +255,11 @@ class TextualAnnotationsUI
 	 */
 	protected void buildUI()
 	{
+		TextualAnnotationData data = model.getLastUserAnnotation();
+		if (data != null) {
+			setAreaText(data.getText());
+			originalText = data.getText();
+		}
 		TableLayout layout = (TableLayout) getLayout();
 		layout.setRow(1, 0);
 		layout.setRow(2, 0);

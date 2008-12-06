@@ -258,7 +258,7 @@ public class OMEWikiComponent
 				WikiDataObject object = new WikiDataObject(index, id);
 				firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
 			}
-		} else {
+		} else if ((action instanceof URLLaunchAction) && count == 2) {
 			action.onSelection(text);
 		}
 	}
