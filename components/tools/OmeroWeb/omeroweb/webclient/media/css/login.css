@@ -1,0 +1,29 @@
+#login-logo {
+    margin: 5% auto 5px auto;
+    background-color: #000;
+    border: 1px solid #555;
+    width: 551px;
+}
+#login {
+    margin: 0px auto;
+    background-color: #000;
+    border: 1px solid #555;
+    width: 551px;
+}
+
+#login table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#login form {
+    padding: 5px;
+    color: #fff;
+}
+#login td {
+    text-align: left;
+    padding: 5px ;
+}
+#login th {
+    font-weight: bold;
+}

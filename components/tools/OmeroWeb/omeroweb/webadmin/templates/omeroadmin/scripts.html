@@ -1,0 +1,71 @@
+{% extends "omeroadmin/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/table.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block title %}{% trans "Scripts" %}{% endblock %}
+
+{% block jscript %}
+
+    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.quicksearch.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() 
+        { 
+            $("#scriptTable").tablesorter( {sortList: [[1,0]]} ); 
+        } 
+    );
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('table#scriptTable tbody tr').quicksearch({
+            attached: "table.tablesorter",
+            position: "before",
+            stripeRowClass: null,
+            labelText: '{% trans "Filter" %}:',
+            inputText: '{% trans "search" %}',
+            loaderImg: '{% get_webadmin_static_url %}/images/spinner.gif',
+        });
+
+    })
+</script>
+
+{% endblock %}
+
+{% block content %}
+<p><img src="{% get_webadmin_static_url %}/images/add.png" alt="add" title="add"> <a href="{% get_webadmin_root_url %}/script/new/">{% trans "Add new script" %}</a></p>
+
+<h2>Scripts</h2>
+{% if controller.scriptsCount %}
+<table id="scriptTable" class="tablesorter"> 
+    <thead> 
+        <tr> 
+            <th>{% trans "Actions" %}</th> 
+            <th>{% trans "Name" %}</th> 
+        </tr> 
+    </thead> 
+    <tbody>
+    {% for k,v in controller.scripts.iteritems %}
+        <tr>
+          <td class="action">
+            <img src="{% get_webadmin_static_url %}/images/del.png" alt="delete" title="delete"> 
+            <a href="{% get_webadmin_root_url %}/script/edit/{{ k }}/"><img src="{% get_webadmin_static_url %}/images/edit.png" alt="edit" title="edit"></a>
+          </td>
+          <td class="link">{{ v }}</td>
+        </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>{% trans "No scripts currently available." %}</p>
+{% endif %}
+
+{% endblock %}

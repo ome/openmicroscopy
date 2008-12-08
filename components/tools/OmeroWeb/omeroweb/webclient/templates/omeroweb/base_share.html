@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/menu.css" type="text/css" />
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/basket.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    
+    {% block link %}{% endblock %}
+
+    <link rel="shortcut icon" href="{% get_webclient_static_url %}/images/ome.ico" type="image/x-icon" />
+
+    <title>WebClient {% block title %}{% endblock %}</title>
+
+    {% block jscript %}{% endblock %}
+
+    {% block script %}{% endblock %}
+
+</head>
+<body>
+    <div id="shared_menu">
+        <h1>Go back to <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a></h1>
+    </div>
+    <div id="content">{% block content %}{% endblock %}</div>
+    
+    <div id="footer"><p>All material &copy;2008 OMERO Team</p></div>
+
+</body>
+</html>

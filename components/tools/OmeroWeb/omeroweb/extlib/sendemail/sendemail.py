@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Send email
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -26,25 +37,25 @@ from django.conf import settings
 logger = logging.getLogger('sendemail')
 SLEEPTIME = 60
 
-class SendEmial(threading.Thread):
+class SendEmail(threading.Thread):
 
     smtp_server = None
     message = None
 
     def __init__(self):
-        super(SendEmial, self).__init__()
+        super(SendEmail, self).__init__()
         self.setDaemon(True)
         self.smtp_server = settings.EMAIL_SMTP_SERVER
         self.thread_timeout = False
         self.to_send = list()
         self.start()
-
+    
     def run (self):
         """ this thread lives forever, pinging whatever connection exists to keep it's services alive """
-        logger.debug("Starting thread...")
+        logger.info("Starting sendemail thread...")
         while not (self.thread_timeout):
             try:
-                logger.debug("%i email in the queue." % (len(self.to_send)))
+                logger.info("%i emails in the queue." % (len(self.to_send)))
                 if len(self.to_send) > 0:
                     try:
                         email = self.to_send[0]
@@ -78,10 +89,10 @@ class SendEmial(threading.Thread):
     def __del__ (self):
         logger.debug("Garbage Collector KICK IN")
 
-    def create_error_message(self, app, error):
+    def create_error_message(self, app, user, error):
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
-        msgRoot['Subject'] = 'OMERO.%s - error message' % (app)
+        msgRoot['Subject'] = 'OMERO.%s - error message by %s' % (app, user)
         msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
         msgRoot['To'] = settings.EMAIL_ADMIN_ADDRESS
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
@@ -98,4 +109,38 @@ class SendEmial(threading.Thread):
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
         self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.EMAIL_ADMIN_ADDRESS]})
+    
+    def create_share_message(self, host, blitz_id, user, share_id, share_content, recipients):
+        app = settings.WEBCLIENT_ROOT_BASE
+        # Create the root message and fill in the from, to, and subject headers
+        msgRoot = MIMEMultipart('related')
+        try:
+            msgRoot['Subject'] = 'OMERO.%s - %s %s shares with you some data' % (app, user.firstName.val, user.lastName.val)
+        except:
+            msgRoot['Subject'] = 'OMERO.%s - unknown person shares with you some data' % (app)
+        try:
+            msgRoot['From'] = '%s <%s>' % (user.omeName.val, user.email.val)
+        except:
+            msgRoot['From'] = 'Unknown'
+        #msgRoot['To'] = self.recipients
+        msgRoot.preamble = 'This is a multi-part message in MIME format.'
+        msgAlternative = MIMEMultipart('alternative')
+        msgRoot.attach(msgAlternative)
+        
+        email_txt = "%s/email_share.txt" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
+        email_html = "%s/email_share.html" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
 
+        contentAlternative = open(email_txt, 'r').read() % (host, share_id, blitz_id, share_content, user.firstName.val, user.lastName.val)
+        msgText = MIMEText(contentAlternative)
+        msgAlternative.attach(msgText)
+        content = open(email_html, 'r').read() % (host, share_id, blitz_id, host, share_id, blitz_id, share_content, user.firstName.val, user.lastName.val)
+        msgText = MIMEText(content, 'html')
+        msgAlternative.attach(msgText)
+
+        fp = open(settings.STATIC_LOGO, 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+
+        msgImage.add_header('Content-ID', '<image1>')
+        msgRoot.attach(msgImage)
+        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": recipients})

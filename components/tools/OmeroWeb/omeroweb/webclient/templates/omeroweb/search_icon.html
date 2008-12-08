@@ -1,0 +1,111 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/datepicker.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/thickbox.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.datepicker.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.slider.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/thickbox/thickbox.js"></script>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/slider.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
+    <script>
+      $(document).ready(function(){
+          $('#dateperiodinput').datepicker({rangeSelect: true, firstDay: 1, dateFormat: 'yy-mm-dd', rangeSeparator: '_'});
+          
+          $('ul#products li.product').quicksearch({
+              attached: "div.slider",
+              position: "before",
+              stripeRowClass: null,
+              labelText: 'Filter:',
+              inputText: 'search',
+              loaderImg: '/webclient/static/images/tree/spinner.gif',
+          });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <form action="{% get_webclient_root_url %}/search/" method="GET">
+        <table>
+            <tr><th>Query *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/></td></tr>
+            <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
+            <tr><th>Interval:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/></td></tr>
+            <tr><th>In *:</th><td>
+                <input  type="checkbox" name="image" {{ controller.criteria.image }} />image <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />dataset  <input type="checkbox" name="project" {{ controller.criteria.project }} />project <input type="checkbox" name="annotation" />annotation <input type="checkbox" name="tag" />tag
+            </td></tr>
+        </table>
+        <input type="hidden" name="view" value="{{ nav.view }}" />
+        <input type="submit" value="Search" /> <input type="button" value="Back" onClick="history.back()" />
+    </form>
+
+    {% if controller.resultsSize %}
+    <div><h1>Results ({{ controller.resultsSize }} items):</h1></div>
+    
+    <div id="view"> | View <a href="{% get_webclient_root_url %}/search/?view=table{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/search/?view=icon{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
+
+    
+    <div class="slider">
+        <div class="slider_products"> 
+            <div class="slider_text">Zoom:</div>
+            <div class='small_label'></div> 
+            <div class='slider_bar'> 
+                <div id="slider_callout"></div> 
+                <div id='slider1_handle' class='slider_handle'></div> 
+            </div> 
+            <div class='large_label'></div> 
+        </div>
+    </div>
+    <div class="clear"> </div>
+
+    <ul id="products">
+        {% for c in controller.projects %}
+            <li class="product"><em>{{ c.name }}</em>
+                {% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder64.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder64.png" title="{{ c.name }}" alt="project"/></a>{% endifnotequal %}<br/>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line12.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+            </li>
+        {% endfor %}
+        {% for c in controller.datasets %}
+            <li class="product"><em>{{ c.name }}</em>
+                {% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/dataset/{{ c.id }}/?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder_image64.png" alt="dataset" title="{{ c.name }}"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/dataset/{{ c.id }}/?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder_image64.png" alt="dataset" title="{{ c.name }}"/></a>{% endifnotequal %}<br/>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line12.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+            </li>
+        {% endfor %}
+        {% for c in controller.images %}
+            <li class="product"><em>{{ c.name }}</em>
+                {% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/image/{{ c.id }}/"><img id="{{ c.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/{{ c.id }}/" alt="image" title="{{ c.name }}"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/image/{{ c.id }}/"><img id="{{ c.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/{{ c.id }}/" alt="image" title="{{ c.name }}"/></a>{% endifnotequal %}
+                <a href="#" onclick="popup('','_blank',{{ c.id }}); return false;"><img src="{% get_webclient_static_url %}/images/kview12.png" alt="v" title="view"/></a><a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=760" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.name }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter12.png" alt="p" title="presentation"/></a>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line12.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <div>No results. Fill the form.</div>
+    {% endif %}
+
+{% endblock %}

@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# WebAdmin views definitions.
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -25,7 +36,6 @@ import traceback
 import logging
 
 from time import time
-from StringIO import StringIO
 
 from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
@@ -42,7 +52,7 @@ from django.views import debug
 
 from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
-from controller.script import BaseScripts
+from controller.script import BaseScripts, BaseScript
 from controller.drivespace import BaseDriveSpace
 
 from models import Gateway, LoginForm, ExperimenterForm, ExperimenterLdapForm, \
@@ -50,7 +60,6 @@ from models import Gateway, LoginForm, ExperimenterForm, ExperimenterLdapForm, \
                    ContainedExperimentersForm
 
 from extlib.gateway import BlitzGateway
-from extlib.sendemail.sendemail import SendEmial
 
 logger = logging.getLogger('views')
 
@@ -59,8 +68,8 @@ connectors = {}
 logger.info("INIT '%s'" % os.getpid())
 
 try:
-    if settings.EMAIL_ERROR_NOTIFICATION:
-        emailsender = SendEmial()
+    if settings.EMAIL_NOTIFICATION:
+        import omeroweb.extlib.sendemail.handlesender as sender
 except:
     logger.error(traceback.format_exc())
 
@@ -79,14 +88,14 @@ def timeit (func):
 @timeit
 def getConnection (request):
     session_key = None
-    client_base = None
+    server = None
     
     # gets Http session or create new one
     session_key = request.session.session_key
     
-    # gets server base
+    # gets host base
     try:
-        client_base = request.session['base']
+        server = request.session['server']
     except KeyError:
         return None
     
@@ -107,8 +116,8 @@ def getConnection (request):
     
     # builds connection key for current session
     conn_key = None
-    if (client_base and session_key) is not None:
-        conn_key = 'S:' + str(request.session.session_key) + '#' + str(client_base)
+    if (server and session_key) is not None:
+        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
     else:
         return None
     
@@ -126,9 +135,9 @@ def getConnection (request):
         except KeyError:
             # retrives the connection from login parameters
             try:
-                if request.session['server']: pass
+                if request.session['host']: pass
                 if request.session['port']: pass
-                if request.session['login']: pass
+                if request.session['username']: pass
                 if request.session['password']: pass
             except KeyError:
                 logger.error(traceback.format_exc())
@@ -136,7 +145,7 @@ def getConnection (request):
             else:
                 # login parameters found, create the connection
                 try:
-                    conn = BlitzGateway(request.session['server'], request.session['port'], request.session['login'], request.session['password'])
+                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
                     conn.connect()
                     request.session['sessionUuid'] = conn.getEventContext().sessionUuid
                     request.session['groupId'] = conn.getEventContext().groupId
@@ -151,7 +160,7 @@ def getConnection (request):
         else:
             # retrieves connection from sessionUuid, join to existing session
             try:
-                conn = BlitzGateway(request.session['server'], request.session['port'], request.session['login'], request.session['password'], request.session['sessionUuid'])
+                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
                 conn.connect()
                 request.session['sessionUuid'] = conn.getEventContext().sessionUuid
                 request.session['groupId'] = conn.getEventContext().groupId
@@ -172,16 +181,16 @@ def getConnection (request):
             connectors[conn_key] = None
             logger.debug("Connection '%s' is no longer available" % (conn_key))
             try:
-                if request.session['server']: pass
+                if request.session['host']: pass
                 if request.session['port']: pass
-                if request.session['login']: pass
+                if request.session['username']: pass
                 if request.session['password']: pass
             except KeyError:
                 logger.error(traceback.format_exc())
                 raise sys.exc_info()[1]
             else:
                 try:
-                    conn = BlitzGateway(request.session['server'], request.session['port'], request.session['login'], request.session['password'], request.session['sessionUuid'])
+                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
                     conn.connect()
                     request.session['sessionUuid'] = conn.getEventContext().sessionUuid
                     request.session['groupId'] = conn.getEventContext().groupId
@@ -208,9 +217,9 @@ def isAdminConnected (f):
             conn = getConnection(request)
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect("/%s/?error=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__))
+            return HttpResponseRedirect("/%s/login/?error=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__))
         if conn is None:
-            return HttpResponseRedirect("/%s/?error=%s" % (settings.WEBADMIN_ROOT_BASE, "Error: Connection does not exist"))
+            return HttpResponseRedirect("/%s/login/" % (settings.WEBADMIN_ROOT_BASE))
         if not conn.getEventContext().isAdmin:
             return page_not_found(request, "404.html")
         kwargs["conn"] = conn
@@ -226,9 +235,9 @@ def isUserConnected (f):
             conn = getConnection(request)
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect("/%s/?error=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__))
+            return HttpResponseRedirect("/%s/login/?error=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__))
         if conn is None:
-            return HttpResponseRedirect("/%s/?error=%s" % (settings.WEBADMIN_ROOT_BASE, "Error: Connection does not exist"))
+            return HttpResponseRedirect("/%s/login/" % (settings.WEBADMIN_ROOT_BASE))
         kwargs["conn"] = conn
         return f(request, *args, **kwargs)
 
@@ -237,32 +246,44 @@ def isUserConnected (f):
 ################################################################################
 # views controll
 
-def index(request):
+def login(request):
     
-    if request.method == 'POST' and request.POST.get('base'):
-        blitz = Gateway.objects.get(pk=request.POST.get('base'))
-        request.session['base'] = blitz.id
-        request.session['server'] = blitz.server
+    if request.method == 'POST' and request.REQUEST['server']:
+        blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+        request.session['server'] = blitz.id
+        request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['login'] = request.POST.get('login')
-        request.session['password'] = request.POST.get('password')
+        request.session['username'] = request.REQUEST['username']
+        request.session['password'] = request.REQUEST['password']
     
+    try:
+        error = request.REQUEST['error']
+    except:
+        error = None
+        
     conn = None
-    error = None
     try:
         conn = getConnection(request)
     except Exception, x:
-        logger.error(traceback.format_exc())
+        #logger.error(traceback.format_exc())
         error = x.__class__.__name__
     
-    if conn is None:
-        template = "login.html"
+    if conn is not None:
+        return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+    else:
+        
+        try:
+            request.session['server'] = request.REQUEST['server']
+        except:
+            pass
+        
+        template = "omeroadmin/login.html"
         if request.method == 'POST':
-            form = LoginForm(data=request.POST.copy())
+            form = LoginForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.session['base'])
-                data = {'base': unicode(blitz[0].id), 'login':unicode(request.session['login']), 'password':unicode(request.session['password']) }
+                blitz = Gateway.objects.filter(id=request.session['server'])
+                data = {'server': unicode(blitz[0].id), 'username':unicode(request.session['username']), 'password':unicode(request.session['password']) }
                 form = LoginForm(data=data)
             except:
                 form = LoginForm()
@@ -271,34 +292,41 @@ def index(request):
         c = Context(request, context)
         rsp = t.render(c)
         return HttpResponse(rsp)
-    else:
-        if conn.getEventContext().isAdmin:
-            return HttpResponseRedirect("/%s/experimenters/" % (settings.WEBADMIN_ROOT_BASE))
-        else:
-            return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
 
 @isUserConnected
-def logout(request, **kwargs):
+def index(request, **kwargs):
+    
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
     
+    if conn.getEventContext().isAdmin:
+        return HttpResponseRedirect("/%s/experimenters/" % (settings.WEBADMIN_ROOT_BASE))
+    else:
+        return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+
+def logout(request):
     try:
-        session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
-        if connectors.has_key(session_key):
-            conn.seppuku()
-            del connectors[session_key]
+        conn = getConnection(request)
     except:
         logger.error(traceback.format_exc())
+    else:
+        try:
+            session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
+            if connectors.has_key(session_key):
+                conn.seppuku()
+                del connectors[session_key]
+        except:
+            logger.error(traceback.format_exc())
     
     try:
-        del request.session['base']
+        del request.session['server']
     except KeyError:
         logger.error(traceback.format_exc())
     try:
-        del request.session['server']
+        del request.session['host']
     except KeyError:
         logger.error(traceback.format_exc())
     try:
@@ -306,7 +334,7 @@ def logout(request, **kwargs):
     except KeyError:
         logger.error(traceback.format_exc())
     try:
-        del request.session['login']
+        del request.session['username']
     except KeyError:
         logger.error(traceback.format_exc())
     try:
@@ -324,7 +352,7 @@ def logout(request, **kwargs):
 @isAdminConnected
 def experimenters(request, **kwargs):
     experimenters = True
-    template = "experimenters.html"
+    template = "omeroadmin/experimenters.html"
     
     conn = None
     try:
@@ -346,7 +374,7 @@ def experimenters(request, **kwargs):
 @isAdminConnected
 def manage_experimenter(request, action, eid=None, **kwargs):
     experimenters = True
-    template = "experimenter_form.html"
+    template = "omeroadmin/experimenter_form.html"
     
     conn = None
     try:
@@ -363,28 +391,34 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
-        name_check = conn.checkOmeName(request.POST.get('omename').encode('utf8'))
-        email_check = conn.checkEmail(request.POST.get('email').encode('utf8'))
-        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check, passwd_check=True)
+        name_check = conn.checkOmeName(request.REQUEST['omename'])
+        email_check = conn.checkEmail(request.REQUEST['email'])
+        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check, passwd_check=True)
         if form.is_valid():
-            omeName = request.POST.get('omename').encode('utf8')
-            firstName = request.POST.get('first_name').encode('utf8')
-            middleName = request.POST.get('middle_name').encode('utf8')
-            lastName = request.POST.get('last_name').encode('utf8')
-            email = request.POST.get('email').encode('utf8')
-            institution = request.POST.get('institution').encode('utf8')
+            omeName = request.REQUEST['omename']
+            firstName = request.REQUEST['first_name']
+            middleName = request.REQUEST['middle_name']
+            lastName = request.REQUEST['last_name']
+            email = request.REQUEST['email']
+            institution = request.REQUEST['institution']
             admin = False
-            if request.POST.get('administrator'):
-                admin = True
+            try:
+                if request.REQUEST['administrator']:
+                    admin = True
+            except:
+                pass
             active = False
-            if request.POST.get('active'):
-                active = True
-            defaultGroup = request.POST.get('default_group').encode('utf8')
+            try:
+                if request.REQUEST['active']:
+                    active = True
+            except:
+                pass
+            defaultGroup = request.REQUEST['default_group']
             otherGroups = request.POST.getlist('other_groups')
-            if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
+            if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
                 password = "ome"
             else:
-                password = request.POST.get('password').encode('utf8')
+                password = request.REQUEST['password']
             controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
             return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -405,29 +439,35 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                                     'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == 'save':
-        name_check = conn.checkOmeName(request.POST.get('omename').encode('utf8'), controller.experimenter.omeName)
-        email_check = conn.checkEmail(request.POST.get('email').encode('utf8'), controller.experimenter.email)
+        name_check = conn.checkOmeName(request.REQUEST['omename'], controller.experimenter.omeName)
+        email_check = conn.checkEmail(request.REQUEST['email'], controller.experimenter.email)
         form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
         if form.is_valid():
-            omeName = request.POST.get('omename').encode('utf8')
-            firstName = request.POST.get('first_name').encode('utf8')
-            middleName = request.POST.get('middle_name').encode('utf8')
-            lastName = request.POST.get('last_name').encode('utf8')
-            email = request.POST.get('email').encode('utf8')
-            institution = request.POST.get('institution').encode('utf8')
+            omeName = request.REQUEST['omename']
+            firstName = request.REQUEST['first_name']
+            middleName = request.REQUEST['middle_name']
+            lastName = request.REQUEST['last_name']
+            email = request.REQUEST['email']
+            institution = request.REQUEST['institution']
             admin = False
-            if request.POST.get('administrator'):
-                admin = True
+            try:
+                if request.REQUEST['administrator']:
+                    admin = True
+            except:
+                pass
             active = False
-            if request.POST.get('active'):
-                active = True
-            defaultGroup = request.POST.get('default_group').encode('utf8')
+            try:
+                if request.REQUEST['active']:
+                    active = True
+            except:
+                pass
+            defaultGroup = request.REQUEST['default_group']
             otherGroups = request.POST.getlist('other_groups')
             try:
-                if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
+                if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
                     password = None
                 else:
-                    password = request.POST.get('password').encode('utf8')
+                    password = request.REQUEST['password']
             except:
                 password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
@@ -444,11 +484,10 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-
 @isAdminConnected
 def groups(request, **kwargs):
     groups = True
-    template = "groups.html"
+    template = "omeroadmin/groups.html"
     
     conn = None
     try:
@@ -470,7 +509,7 @@ def groups(request, **kwargs):
 @isAdminConnected
 def manage_group(request, action, gid=None, **kwargs):
     groups = True
-    template = "group_form.html"
+    template = "omeroadmin/group_form.html"
     
     conn = None
     try:
@@ -487,12 +526,12 @@ def manage_group(request, action, gid=None, **kwargs):
         form = GroupForm(initial={'experimenters':controller.experimenters})
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
-        name_check = conn.checkGroupName(request.POST.get('name').encode('utf8'))
+        name_check = conn.checkGroupName(request.REQUEST['name'])
         form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
         if form.is_valid():
-            name = request.POST.get('name').encode('utf8')
-            description = request.POST.get('description').encode('utf8')
-            owner = request.POST.get('owner').encode('utf8')
+            name = request.REQUEST['name']
+            description = request.REQUEST['description']
+            owner = request.REQUEST['owner']
             controller.createGroup(name, owner, description)
             return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -501,17 +540,17 @@ def manage_group(request, action, gid=None, **kwargs):
                                      'owner': controller.group.details.owner.id.val, 'experimenters':controller.experimenters})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == 'save':
-        name_check = conn.checkGroupName(request.POST.get('name').encode('utf8'), controller.group.name)
+        name_check = conn.checkGroupName(request.REQUEST['name'], controller.group.name)
         form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
         if form.is_valid():
-            name = request.POST.get('name').encode('utf8')
-            description = request.POST.get('description').encode('utf8')
-            owner = request.POST.get('owner').encode('utf8')
+            name = request.REQUEST['name']
+            description = request.REQUEST['description']
+            owner = request.REQUEST['owner']
             controller.updateGroup(name, owner, description)
             return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == "update":
-        template = "group_edit.html"
+        template = "omeroadmin/group_edit.html"
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         if not form.is_valid():
@@ -521,7 +560,7 @@ def manage_group(request, action, gid=None, **kwargs):
             return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     elif action == "members":
-        template = "group_edit.html"
+        template = "omeroadmin/group_edit.html"
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
@@ -533,7 +572,6 @@ def manage_group(request, action, gid=None, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-
 @isAdminConnected
 def ldap(request, **kwargs):
     return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
@@ -541,7 +579,7 @@ def ldap(request, **kwargs):
 @isAdminConnected
 def scripts(request, **kwargs):
     scripts = True
-    template = "scripts.html"
+    template = "omeroadmin/scripts.html"
     
     conn = None
     try:
@@ -563,7 +601,7 @@ def scripts(request, **kwargs):
 @isAdminConnected
 def manage_script(request, action, sc_id=None, **kwargs):
     scripts = True
-    template = "script_form.html"
+    template = "omeroadmin/script_form.html"
     
     conn = None
     try:
@@ -573,7 +611,7 @@ def manage_script(request, action, sc_id=None, **kwargs):
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
-    controller = BaseScripts(conn, sc_id)
+    controller = BaseScript(conn)
     
     if action == 'new':
         form = ScriptForm(initial={'script':controller.script})
@@ -585,6 +623,7 @@ def manage_script(request, action, sc_id=None, **kwargs):
             return HttpResponseRedirect("/%s/scripts/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == "edit":
+        controller.getScript(sc_id)
         form = ScriptForm(initial={'name':controller.details.val.path.val, 'content':controller.script, 'size':controller.details.val.size.val})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'sc_id': sc_id}
     else:
@@ -602,7 +641,7 @@ def imports(request, **kwargs):
 @isUserConnected
 def my_account(request, action=None, **kwargs):
     myaccount = True
-    template = "myaccount.html"
+    template = "omeroadmin/myaccount.html"
     
     conn = None
     try:
@@ -619,17 +658,17 @@ def my_account(request, action=None, **kwargs):
     if action == "save":
         form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
         if form.is_valid():
-            firstName = request.POST.get('first_name').encode('utf8')
-            middleName = request.POST.get('middle_name').encode('utf8')
-            lastName = request.POST.get('last_name').encode('utf8')
-            email = request.POST.get('email').encode('utf8')
-            institution = request.POST.get('institution').encode('utf8')
-            defaultGroup = request.POST.get('default_group').encode('utf8')
+            firstName = request.REQUEST['first_name']
+            middleName = request.REQUEST['middle_name']
+            lastName = request.REQUEST['last_name']
+            email = request.REQUEST['email']
+            institution = request.REQUEST['institution']
+            defaultGroup = request.REQUEST['default_group']
             try:
-                if request.POST.get('password').encode('utf8') is None or request.POST.get('password').encode('utf8') == "":
+                if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
                     password = None
                 else:
-                    password = request.POST.get('password').encode('utf8')
+                    password = request.REQUEST['password']
             except:
                 password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
@@ -655,7 +694,7 @@ def my_account(request, action=None, **kwargs):
 @isUserConnected
 def drivespace(request, **kwargs):
     drivespace = True
-    template = "drivespace.html"
+    template = "omeroadmin/drivespace.html"
     
     conn = None
     try:
@@ -691,6 +730,12 @@ def piechart(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
+    from StringIO import StringIO
+    from PIL import Image as PILImage
+    
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    
     controller = BaseDriveSpace(conn)
     controller.pieChartData()
     
@@ -700,39 +745,26 @@ def piechart(request, **kwargs):
         keys.append(str(item[0]))
         values.append(long(item[1]))
     
-    try:
-        from PIL import Image as PILImage
-    except:
-        return HttpResponse('<center>Error: Please install PILImage.</center>')
-    try:
-        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        from matplotlib.figure import Figure
-    except:
-        return HttpResponse('<center>Error: Please install matplotlib.</center>')
-        
-    try:
-        fig = Figure()
-        canvas = FigureCanvas(fig)
-        ax = fig.add_subplot(111)
+    fig = Figure()
+    canvas = FigureCanvas(fig)
+    ax = fig.add_subplot(111)
 
-        explode = list()
-        explode.append(0.1)
-        for e in controller.topTen:
-            explode.append(0)
-        explode.remove(0)
+    explode = list()
+    explode.append(0.1)
+    for e in controller.topTen:
+        explode.append(0)
+    explode.remove(0)
 
-        ax.pie(values, labels=tuple(keys), explode=tuple(explode), autopct='%1.1f%%', shadow=False)
-        ax.set_title(_("Repository information status"))
-        ax.grid(True)
-        canvas.draw()
-        size = canvas.get_renderer().get_canvas_width_height()
-        buf=canvas.tostring_rgb()
-        im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
-        imdata=StringIO()
-        im.save(imdata, format='PNG')
-        return HttpResponse(imdata.getvalue(), mimetype='image/png')
-    except:
-        return HttpResponse('<center>Error: Chart could not be generated.</center>')
+    ax.pie(values, labels=tuple(keys), explode=tuple(explode), autopct='%1.1f%%', shadow=False)
+    ax.set_title(_("Repository information status"))
+    ax.grid(True)
+    canvas.draw()
+    size = canvas.get_renderer().get_canvas_width_height()
+    buf=canvas.tostring_rgb()
+    im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
+    imdata=StringIO()
+    im.save(imdata, format='PNG')
+    return HttpResponse(imdata.getvalue(), mimetype='image/png')
 
 ################################################################################
 # handlers
@@ -741,24 +773,54 @@ def handler404(request):
     logger.error('handler404: Page not found')
     exc_info = sys.exc_info()
     logger.error(traceback.format_exc())
-    if settings.EMAIL_ERROR_NOTIFICATION:
+    if settings.EMAIL_NOTIFICATION:
         try:
-            emailsender.create_error_message("webadmin", debug.technical_404_response(request, exc_info[1]))
+            sender.handler().create_error_message("webadmin", request.session['username'], debug.technical_404_response(request, exc_info[1]))
             logger.debug('handler404: Email to queue')
         except:
             logger.error('handler404: Email could not be sent')
             logger.error(traceback.format_exc())
+            try:
+                fileObj = open(("%s/error404-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
+                fileObj.write(str(debug.technical_404_response(request, *exc_info)))
+                fileObj.close() 
+            except:
+                logger.error('handler404: Error could not be saved.')
+                logger.error(traceback.format_exc())
+    else:
+        try:
+            fileObj = open(("%s/error404-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
+            fileObj.write(str(debug.technical_404_response(request, *exc_info)))
+            fileObj.close() 
+        except:
+            logger.error('handler404: Error could not be saved.')
+            logger.error(traceback.format_exc()) 
     return page_not_found(request, "404.html")
 
 def handler500(request):
     logger.error('handler500: Server error')
     exc_info = sys.exc_info()
     logger.error(traceback.format_exc())
-    if settings.EMAIL_ERROR_NOTIFICATION:
+    if settings.EMAIL_NOTIFICATION:
         try:
-            emailsender.create_error_message("webadmin", debug.technical_500_response(request, *exc_info))
+            sender.handler().create_error_message("webadmin", request.session['username'], debug.technical_500_response(request, *exc_info))
             logger.debug('handler500: Email to queue')
         except:
             logger.error('handler500: Email could not be sent')
+            logger.error(traceback.format_exc())
+            try:
+                fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
+                fileObj.write(str(debug.technical_500_response(request, *exc_info)))
+                fileObj.close() 
+            except:
+                logger.error('handler500: Error could not be saved.')
+                logger.error(traceback.format_exc())
+    else:
+        try:
+            fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
+            fileObj.write(str(debug.technical_500_response(request, *exc_info)))
+            fileObj.close() 
+        except:
+            logger.error('handler500: Error could not be saved.')
             logger.error(traceback.format_exc())
     return server_error(request, "500.html")

@@ -1,0 +1,74 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    
+    <script>
+        $(document).ready(function(){
+            $("a.loadData").click(function()
+            {
+                $("div#hierarchy").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#hierarchy").load("{% get_webclient_root_url %}/hierarchy/image/{{ manager.image.id }}/", 
+                    function() {  
+                        $("a.loadData").remove();                        
+                    });
+                return false; 
+            });
+            $("a.loadAnnotation").click(function()
+            {
+                $("div#annotation").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ manager.image.id }}/?url={{ url }}", function() {  
+                        $("a.loadAnnotation").remove();                        
+                    });
+                return false; 
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+
+<h1>Image: {{ manager.image.name }} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></h1>
+<div>
+    {{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></div>
+
+<h1>More: <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a></h1>
+<ul>
+    <li>Owner: {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</li>
+    <li>Image Size: (X: {{ manager.image.getWidth }}px, Y: {{ manager.image.getHeight }}px, Z: {{ manager.image.z_count }}, T: {{ manager.image.t_count }})
+    <li>Pixel Size: (X: {{ manager.image.getPixelSizeX|floatformat:4 }}&micro;m, Y: {{ manager.image.getPixelSizeY|floatformat:4 }}&micro;m, Z: {{ manager.image.getPixelSizeZ|floatformat:4 }}&micro;m)</li>
+</ul>
+
+<div><a href="#" class="loadData">Show the hierarchy structure.</a></div>
+<div id="hierarchy"> </div>
+
+<div><a href="#" class="loadAnnotation">Show annotations.</a></div>
+{% endblock %}

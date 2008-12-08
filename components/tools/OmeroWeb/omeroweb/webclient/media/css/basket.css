@@ -1,0 +1,28 @@
+#cart {
+    
+}
+.project {
+    border: 1px solid #bbb ;
+    float:left;
+    max-width: 1000px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.datasetInProject {
+    
+    float:left;
+    width: 450px;
+    padding: 10px;
+}
+.dataset {
+    border: 1px solid #bbb ;
+    float:left;
+    width: 450px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.imageInDataset {
+}
+.image {
+    padding: 10px;
+}

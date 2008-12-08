@@ -1,0 +1,58 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+	<link rel="stylesheet" href="{% get_webclient_static_url %}/css/calendar.css" type="text/css" />
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="calendar">
+	<div class="cal_nav">
+		<div style="float: left; width: 20%; text-align:left; font-weight: bold;">
+			<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.last_month.year }}/{{ controller.last_month.month }}/">{{ controller.last_month_name }} {{ controller.last_month.year }} </a>
+		</div>
+		<div style="float: right;width: 20%; text-align: right; font-weight: bold;">
+			<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.next_month.year }}/{{ controller.next_month.month }}/">{{ controller.next_month_name }} {{ controller.next_month.year }}</a>
+		</div>
+		<div style="text-align: center;">{{ controller.month_name }}</div>
+	</div>
+	<table>
+		<thead>
+		{% for day_label in  controller.week_day_labels %}
+			<th class="calendar_day">{{ day_label }}</th>
+		{% endfor %}
+		</thead>
+		<tbody>
+		{% for week in controller.cal_weeks %}
+		<tr class="calendar_week">
+			{% for day in week %}
+				{% if not day.cell.day %}<td class="not_calendar_day"></td>
+				{% else %}
+					<td class="calendar_day">
+						<div class="calendar_numerical_day"><a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ day.cell.day }}/">{{ day.cell.day }}</a></div>
+						<div class="calendar_items">
+							{% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}<table>
+								<tr><td>{% if day.cell.counter.rdCounter %}<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ day.cell.day }}/?history_type=renderdef"><img src="{% get_webclient_static_url %}/images/rdef16.png" /></a>({{ day.cell.counter.rdCounter }}){% endif %}</td></tr>
+								<tr><td>{% if day.cell.counter.imgCounter %}<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ day.cell.day }}/?history_type=image"><img src="{% get_webclient_static_url %}/images/image16.png" /></a>({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
+								<tr><td>{% if day.cell.counter.dsCounter %}<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ day.cell.day }}/?history_type=dataset"><img src="{% get_webclient_static_url %}/images/folder_image16.png" /></a>({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
+								<tr><td>{% if day.cell.counter.prCounter %}<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ day.cell.day }}/?history_type=project"><img src="{% get_webclient_static_url %}/images/folder16.png" /></a>({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
+							</table>{% endif %}
+						</div>
+				</td>
+				{% endif %}
+			{% endfor %}
+		</tr>
+		{% endfor %}</tbody>
+	</table>
+</div>
+{% endblock %}

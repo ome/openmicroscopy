@@ -7,31 +7,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/layout.css" type="text/css" />
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
     <link rel="shortcut icon" href="{% get_webadmin_static_url %}/images/ome.ico" type="image/x-icon" />
     
-    <title>{% trans "WebAdmin - Error 500" %}</title>
+    <title>{% trans "Web - Error 500" %}</title>
     
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/js/popup.js"></script> 
-
 </head>
 <body>
-<div id="wrapper">
-<div id="header">
-    <div id="banner">
-    </div>
-    <div class="nav">
-        <div id="navigation">
-            <ul>
-                <li><a href="{% get_webadmin_root_url %}/">{% trans "Home" %}</a></li>
-                <li><a href="{% get_webadmin_root_url %}/logout/">{% trans "Logout" %}</a></li>
-                <li><a href="javascript:openHelp()">{% trans "Help" %}</a></li>
-            </ul>
-        </div>
-    </div>
-    {% block content %}{% endblock %}
+<div id="main" class="error"><h1>
+    MENU: <a href="{% get_webadmin_root_url %}/">{% trans "Webadmin" %}</a> or 
+    <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a>
+</h1>
+{% block content %}{% endblock %}
 </div>
-
 <div id="footer"><p>{% trans "All material &copy;2008 OMERO Team" %}</p></div>
 
 </div>

@@ -5,7 +5,7 @@ table.formTable td {
 	padding: 3px;
 }
 input.button {
-	background: #ddd url(/webadmin/static/images/button_bg.gif) left center repeat-x;
+	background: #ddd ;
 	border:1px solid #919191;
 	color:#000000;
 	font-weight:bold;
@@ -30,11 +30,9 @@ table.formTable td.pickListRight {
 	width: auto;
 }
 .pickListSelected {
-	background: url(/webadmin/static/images/tiny_selected.gif) 1px top no-repeat;
 	padding-top: 6px;
 }
 .pickListAvailable {
-	background: url(/webadmin/static/images/tiny_available.gif) 1px top no-repeat;
 	padding-top: 6px;
 }
 table.formTable td.pickListButtons {

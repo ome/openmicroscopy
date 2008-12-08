@@ -1,0 +1,35 @@
+{% extends "omeroweb/main.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block header %}
+<div id="path">
+    <div id="basket"><a href="{% get_webclient_root_url %}/basket/"><img src="{% get_webclient_static_url %}/images/basket.png" /> BASKET</a> contains <span id="cartTotal">{{ nav.basket }}</span> {% ifequal nav.basket 1 %}item{% else %}items{% endifequal %}</div>
+    <div id="logout">
+        | {% for field in form_active_group %} group: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
+        | <a href="{% get_webclient_root_url %}/myaccount/details/">My account</a> | <a href="{% get_webclient_root_url %}/logout/">Logout</a> |
+    </div>
+    
+</div>
+
+<div id="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb">{{ eContext.user.omeName }}@<a href="{% get_webclient_root_url %}/"/>{{ nav.blitz }}</a></li>
+        {% for b in eContext.breadcrumb %}
+            <li class="breadcrumb"> > {{ b|safe }}</li>
+        {% endfor %}
+    </ol>
+</div>
+
+<div class="clear"> </div>
+
+{% endblock %}
+
+{% block center %}
+    <div id="main">{% block main %}{% endblock %}</div>
+    <div id="content">{% block content %}{% endblock %}</div>
+{% endblock %}
+
+{% block advice %}
+    {% include "omeroweb/advice.html" %}
+{% endblock %}

@@ -1,0 +1,5 @@
+{% load custom_tags %}
+
+{% for d in basket.subcontainer %}
+    <li id='img-{{ d.id }}' >{{ d.id }} {{ d.shortName }} <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> (by {{d.getOwner}})</li>
+{% endfor %}

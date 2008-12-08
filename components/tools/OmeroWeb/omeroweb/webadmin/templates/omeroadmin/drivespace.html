@@ -1,0 +1,44 @@
+{% extends "omeroadmin/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block title %}{% trans "Drive space" %}{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript">
+        $(function () {
+            var img = new Image();
+            $(img).load(function () {
+                //$(this).css('display', 'none'); // .hide() doesn't work in Safari when the element isn't on the DOM already
+                $(this).hide();
+                $('#piechart').removeClass('loading').append(this);
+                $(this).fadeIn();
+            }).error(function () {
+                // notify the user that the image could not be loaded
+                $('#piechart').removeClass('loading')
+                $('#piechart').html('<p class="error">Piechart could not be displayed. Please check log file to solve the problem.</p>').show();
+                }).attr('src', '{% get_webadmin_root_url %}/piechart/');
+            });
+    </script>
+{% endblock %}
+
+{% block content %}
+<h2>{% trans "Drive space" %}</h2>
+
+<p>{% trans "Pie-chart shows usage of main hard drive." %}</p>
+<br/>
+
+<div id="piechart" class="loading"></div>
+
+<br/>
+<p>{% trans "Free space" %}: {{ driveSpace.free }} [KB]</p>
+<p>{% trans "Used space" %}: {{ driveSpace.used }} [KB]</p>
+
+<p>{% trans "Top ten list" %}:</p>
+<ol>
+{% for item in topTen %}
+    <li>{{ item.0 }} - {{ item.1 }} [KB]</li>
+{% endfor %}
+</ul>
+{% endblock %}

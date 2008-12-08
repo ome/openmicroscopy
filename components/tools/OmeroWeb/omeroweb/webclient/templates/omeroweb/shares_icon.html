@@ -1,0 +1,115 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.slider.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/slider.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
+    <script>
+      $(document).ready(function(){
+          $('ul#products li.product').quicksearch({
+                attached: "div.slider",
+                position: "before",
+                stripeRowClass: null,
+                labelText: 'Filter:',
+                inputText: 'search',
+                loaderImg: '/webclient/static/images/tree/spinner.gif',
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+<h1>Shares and discussions </h1>
+
+{% if share.oshSize or share.mshSize %}
+
+<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
+
+<div class="slider">
+    <div class="slider_products"> 
+        <div class="slider_text">Zoom:</div>
+        <div class='small_label'></div> 
+        <div class='slider_bar'> 
+            <div id="slider_callout"></div> 
+            <div id='slider1_handle' class='slider_handle'></div> 
+        </div> 
+        <div class='large_label'></div> 
+    </div>
+</div>
+<div class="clear"> </div>
+
+<ul id="products">
+    {% if share.oshSize %}
+    <li><h1>My shares and discussions ({{ share.oshSize }} items):</h1></li>
+    <li class="clear"></li>
+        {% for c in share.ownShares %}
+        <li class="product"><em>{{ c.shortMessage }}</em>
+            <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
+                {% if c.active %}
+                    <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% else %}
+                    <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% endif %}
+            </a>
+            <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line12.png" alt="e" title="edit"/></a>
+            {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+        </li>
+        {% endfor %}
+    <li class="clear"></li>
+    {% endif %}    
+    {% if share.mshSize %}
+    <li><h1>Shared and discussed with me ({{ share.mshSize }} items):</h1></li>
+    <li class="clear"></li>
+        {% for c in share.memberShares %}
+        <li class="product"><em>{{ c.shortMessage }}</em>
+            <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">
+                {% if c.active %}
+                    <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% else %}
+                    <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% endif %}
+            </a>
+            {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+        </li>
+        {% endfor %}
+    <li class="clear"></li>
+    {% endif %}
+</ul>
+{% else %}
+    No data.
+{% endif %}
+<div class="clear"> </div>
+
+
+{% endblock %}

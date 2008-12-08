@@ -162,10 +162,6 @@ h2 {
     margin-left: 5px;
 }
 
-p {
-    margin-left: 5px;
-}
-
 #list {
     min-height: 370px;
 }
@@ -209,14 +205,20 @@ td.input {
 
 form ul.errorlist {
     list-style: none;
-    color: #f00;
-    margin: 2px;
+    color: #e3646f;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
 
-.errorText {
-    color: red;
-    text-decoration: overline;
+.error {
+    list-style: none;
+    color: #e3646f;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
+
 
 .document {
     text-decoration: none
@@ -228,4 +230,8 @@ form ul.errorlist {
 
 #clear {
     clear: both;
+}
+
+#piechart.loading {
+  background: url(/webadmin/static/images/spinner.gif) no-repeat center center;
 }

@@ -1,0 +1,46 @@
+{% extends "omeroweb/base_image_zoom.html" %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+{% endblock %}
+
+{% block script %} 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("a.loadAnnotation").click(function()
+            {
+                $("div#annotation").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ image.image.id }}/?url={{ url }}", function() {  
+                        $("a.loadAnnotation").remove();                        
+                    });
+                return false; 
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+<div><center>
+    <a href="#" onclick="popup('','_blank','{{ image.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/big/{{ image.image.id }}/" alt="image" title="{{ image.image.name }}"/></a></center>
+    <div><h1>Description: </h1>
+        {{ image.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
+    </div>
+</div>
+
+<div><a href="#" class="loadAnnotation">Show annotations.</a></div>
+<div id="annotation"></div>
+{% endblock %}

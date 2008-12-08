@@ -1,0 +1,74 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+{% endblock %}
+
+{% block main %}
+
+{% if manager.project %}
+    <h1>Create new dataset</h1>
+{% else %}
+    <h1>Create new project or dataset</h1>
+{% endif %}
+
+{% endblock %}
+{% block content %}
+
+{% if form %}
+<div>
+    <h1>Form</h1>
+    {% if manager.project %}
+        <form action="{% get_webclient_root_url %}/action/addnew/project/{{ manager.project.id }}/?url={{url}}" method="post">
+    {% else %}
+        <form action="{% get_webclient_root_url %}/action/addnew/?url={{url}}" method="post">
+    {% endif %}
+    <table class="forms">
+        {% if not manager.project %}
+            <tr><th><label for="id_folder_type">Folder type</label>*</th>
+                <td><select name="folder_type" id="id_folder_type">
+                    <option value="project">Project</option>
+                    <option value="dataset">Dataset</option>
+                </select></td><td><br/></td>
+            </tr>
+        {% else %}
+            <tr><th><label for="id_folder_type">Folder type</label>*</th>
+                <td><select name="folder_type" id="id_folder_type">
+                    <option value="dataset">Dataset</option>
+                </select></td><td><br/></td>
+            </tr>
+        {% endif %}
+        {% for field in form %}
+            <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
+                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+            </tr>
+        {% endfor %}
+            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+        </table>
+    </form>
+    <script type="text/javascript">
+        var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+        googie_spell.decorateTextarea("id_description", null, "600px");
+    </script>
+</div>
+
+{% endif %}
+
+{% endblock %}
+

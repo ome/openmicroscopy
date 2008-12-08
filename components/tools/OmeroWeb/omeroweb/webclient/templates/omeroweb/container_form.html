@@ -1,0 +1,69 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+{% endblock %}
+
+{% block main %}
+    {% if manager.project %}
+        <h1>Edit project</h1>
+    {% endif %}
+    {% if manager.dataset %}
+        <h1>Edit dataset</h1>
+    {% endif %}
+    {% if image.image %}
+        <h1>Edit image</h1>
+    {% endif %}
+    
+{% endblock %}
+
+{% block content %}
+
+{% if form %}
+<div>
+    
+    {% if manager.project %}
+        <form action="{% get_webclient_root_url %}/action/save/project/{{ manager.project.id }}/?url={{url}}" method="post">
+    {% endif %}
+    {% if manager.dataset %}
+        <form action="{% get_webclient_root_url %}/action/save/dataset/{{ manager.dataset.id }}/?url={{url}}" method="post">
+    {% endif %}
+    {% if manager.image %}
+        <form action="{% get_webclient_root_url %}/action/save/image/{{ manager.image.id }}/?url={{url}}" method="post">
+    {% endif %}
+    <table class="forms">
+        {% for field in form %}
+            <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
+                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+        <input type="submit" value="Save" />
+    </form>
+    <script type="text/javascript">
+        var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+        googie_spell.decorateTextarea("id_description", null, "600px");
+    </script>
+</div>
+
+{% endif %}
+
+{% endblock %}

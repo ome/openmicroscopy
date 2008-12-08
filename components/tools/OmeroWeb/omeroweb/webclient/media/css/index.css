@@ -1,0 +1,11 @@
+#left_panel {
+    margin-right: 10px; 
+    width: 48%;
+    float: left;
+}
+
+#right_panel {
+    margin-left: 10px; 
+    width: 48%;
+    float: right;
+}

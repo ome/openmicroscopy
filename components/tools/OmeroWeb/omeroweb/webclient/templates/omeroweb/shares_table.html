@@ -1,0 +1,147 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/datepicker.css" type="text/css" />
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/table.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.datepicker.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.slider.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tablesorter.js"></script>
+    
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/slider.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% if share.oshSize %}
+            $('div table#shareTable tbody tr').quicksearch({
+                attached: "div table#shareTable.tablesorter",
+                position: "before",
+                stripeRowClass: null,
+                labelText: 'Filter:',
+                inputText: '...',
+                loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
+            });
+            {% endif %}
+            {% if share.mshSize %}
+            $('div table#sharedTable tbody tr').quicksearch({
+                attached: "div table#sharedTable.tablesorter",
+                position: "before",
+                stripeRowClass: null,
+                labelText: 'Filter:',
+                inputText: '...',
+                loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
+            });
+            {% endif %}
+        })
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() 
+            { 
+                $("#shareTable").tablesorter( {sortList: [[2,0], [0,0]]} ); 
+                $("#sharedTable").tablesorter( {sortList: [[2,0], [0,0]]} ); 
+            } 
+        );
+    </script>
+{% endblock %}
+
+{% block content %}
+
+<h1>Shares and discussions </h1>
+
+<h1>My shares and discussions ({{ share.oshSize }} items):</h1>
+
+{% if share.oshSize %}
+
+<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
+
+<table id="shareTable" class="tablesorter"> 
+<thead> 
+<tr> 
+    <th>Type</th> 
+    <th>Description</th> 
+    <th>Date</th>
+    <th>Items</th>
+    <th>Comments</th>
+    <th>Actions</th> 
+</tr> 
+</thead> 
+<tbody> 
+    {% for c in share.ownShares %}
+    <tr> 
+        <td>{% if c.active %}
+            <img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+        {% else %}
+            <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+        {% endif %}</td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a></td> 
+        <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
+        <td>{{ c.itemCount }}</td>
+        <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>
+        <td>(id:{{ c.id }}) <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a><a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td> 
+    </tr> 
+    {% endfor %}
+</tbody> 
+</table>
+{% endif %}
+
+<div class="clear"> </div>
+
+{% if share.mshSize %}
+
+<h1>Shared and discussed with me ({{ share.mshSize }} items):</h1>
+
+<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
+
+<table id="sharedTable" class="tablesorter"> 
+<thead> 
+<tr> 
+    <th>Type</th> 
+    <th>Description</th> 
+    <th>Date</th>
+    <th>Items</th>
+    <th>Comments</th>
+</tr>
+</thead> 
+<tbody> 
+    {% for c in share.memberShares %}
+    <tr> 
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{% if c.active %}
+            <img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+        {% else %}
+            <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+        {% endif %}</a></td> 
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a></td> 
+        <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
+        <td>{{ c.itemCount }}</td>
+        <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>
+    </tr>
+    {% endfor %}
+</tbody> 
+</table>
+{% endif %}
+
+<div class="clear"> </div>
+
+{% endblock %}

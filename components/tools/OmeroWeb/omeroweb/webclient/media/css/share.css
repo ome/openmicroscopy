@@ -1,0 +1,110 @@
+#cart {
+    
+}
+.project {
+    float:left;
+    max-width: 1000px;
+    padding: 10px;
+}
+.datasetInProject {
+    float:left;
+    width: 450px;
+    padding: 10px;
+}
+.dataset {
+    float:left;
+    width: 450px;
+    padding: 10px;
+}
+.imageInDataset {
+}
+.image {
+    padding: 10px;
+}
+
+
+#shared_menu {
+    margin: 0;
+    padding: 0 10px;
+    border-bottom:1px solid #BBBBBB;
+}
+
+/* comment display page */
+#comment_wrapper {
+    padding-bottom: 10px;
+    width:590px;
+    padding-left: 40px;
+    background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom left;
+}
+#comment {
+    background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
+    width:590px;
+}
+#comment .head {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: bold;
+    background:transparent url(/webclient/static/images/comment/comment_cap.png) no-repeat scroll 0 0;
+    height:15px;
+    margin-bottom:-15px;
+    padding: 10px 0 0 20px;
+}
+#comment .timestamp {
+    font-size: 10px;
+    font-style: normal;
+	color: #666666;
+}
+#comment .head cite {
+	font-size: 100%;
+	font-weight: bold;
+	font-style: normal;
+}
+#comment .body {
+    margin:20px 20px;
+    min-height:50px;
+}
+#comment .footer {
+    background:transparent url(/webclient/static/images/comment/comment_foot.png) no-repeat scroll 0 0;
+    height:45px;
+    margin-top:-38px;
+}
+
+#comment_wrapper_rev {
+    padding-bottom: 10px;
+    width:590px;
+    padding-right: 40px;
+    background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom right;
+}
+#comment_rev {
+    background:transparent url(/webclient/static/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
+    width:590px;
+}
+#comment_rev .head {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: bold;
+    background:transparent url(/webclient/static/images/comment/comment_cap_rev.png) no-repeat scroll 0 0;
+    height:37px;
+    margin-bottom:-37px;
+    padding: 10px 0 0 20px;
+}
+#comment_rev .timestamp {
+    font-size: 10px;
+    font-style: normal;
+	color: #666666;
+}
+#comment_rev .head cite {
+	font-size: 100%;
+	font-weight: bold;
+	font-style: normal;
+}
+#comment_rev .body {
+    margin:20px 20px;
+    min-height:65px;
+}
+#comment_rev .footer {
+    background:transparent url(/webclient/static/images/comment/comment_foot_rev.png) no-repeat scroll 0 0;
+    height:45px;
+    margin-top:-38px;
+}
+

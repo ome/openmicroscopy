@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Script controller
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -27,10 +38,11 @@ class BaseScript(BaseController):
     script = None
     details = None
     
-    def __init__(self, conn, sc_id):
+    def __init__(self, conn):
         BaseController.__init__(self, conn)
+        
+    def getScript(self, sc_id):
         for k,v in self.conn.getScriptwithDetails(sc_id).iteritems():
             self.script = k
             self.details = v
-    
     

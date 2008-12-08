@@ -1,0 +1,140 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+	<link rel="stylesheet" href="{% get_webclient_static_url %}/css/thickbox.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/calendar.css" type="text/css" />
+	<link rel="stylesheet" href="{% get_webclient_static_url %}/css/table.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/thickbox/thickbox.js"></script>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function() 
+            { 
+                $("#historyTable").tablesorter( {sortList: [[1,0],[3,0]]} ); 
+            } 
+        );
+    </script>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('div table#historyTable tbody tr').quicksearch({
+                attached: "table.tablesorter",
+                position: "before",
+                stripeRowClass: null,
+                labelText: 'Filter:',
+                inputText: 'search',
+                loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
+            });
+
+        })
+    </script>
+{% endblock %}
+
+{% block advice %}
+	<p>This is the random advice box for the selected menu. If you want to do something please read it.</p>
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }} ({{ controller.day_items_size }}/{{ controller.total_items_size }} items)</h1>
+
+{% if form_history_type %}
+<div id="view"><form action="{% get_webclient_root_url %}/groupdata/?view=icon" method="POST">
+    <input type="hidden" name="filter" value="group">
+<table>
+  <tbody>
+    {% for field in form_history_type %}
+    <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</form></div>
+{% endif %}
+
+{% if controller.day_items_size %}
+<table id="historyTable" class="tablesorter"> 
+<thead> 
+<tr> 
+    <th>Type</th> 
+    <th>Name</th> 
+    <th>Description</th> 
+    <th>Date</th>
+    <th>Tag</th> 
+    <th>Actions</th> 
+</tr>
+</thead> 
+<tbody> 
+    {% for i in controller.day_items %}
+    {% for c in i.project %}
+    <tr> 
+        <td class="product">{% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?view=table&filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder16.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/?view=table"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder16.png" title="{{ c.name }}" alt="project"/></a>{% endifnotequal %}</td> 
+        <td>{% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?view=table&filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/?view=table">{{ c.shortName }}</a>{% endifnotequal %}</td> 
+        <td>{{ c.shortDescription }}</td> 
+        <td>{{ c.creationEventDate }}</td>
+        <td>{{ c.details.group.name.val }}</td> 
+        <td>(id:{{ c.id }}) {% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
+    </tr>
+    {% endfor %}
+    {% for c in i.dataset %}
+    <tr> 
+        <td class="product">{% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/dataset/{{ c.id }}/?view=table&filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image16.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/dataset/{{ c.id }}/?view=table"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image16.png" title="{{ c.name }}" alt="project"/></a>{% endifnotequal %}</td> 
+        <td>{% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/dataset/{{ c.id }}/?view=table&filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/mydata/dataset/{{ c.id }}/?view=table">{{ c.shortName }}</a>{% endifnotequal %}</td> 
+        <td>{{ c.shortDescription }}</td> 
+        <td>{{ c.creationEventDate }}</td>
+        <td>{{ c.details.group.name.val }}</td> 
+        <td>(id:{{ c.id }}) {% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
+    </tr>
+    {% endfor %}
+    {% for c in i.image %}
+    <tr> 
+        <td class="product">{% ifnotequal c.details.owner.id.val controller.eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image16.png" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image16.png" title="{{ c.name }}" alt="image"/></a>{% endifnotequal %}</td> 
+        <td><a href="{% get_webclient_root_url %}/mydata/image/{{ c.id }}/">{{ c.shortName }}</a></td> 
+        <td>{{ c.shortDescription }}</td> 
+        <td>{{ c.creationEventDate }}</td>
+        <td>{{ c.details.group.name.val }}</td>
+        <td>(id:{{ c.id }}) <a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a><a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=760" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.name }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% ifnotequal c.details.owner.id.val controller.eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>{% endif %}</td> 
+    </tr>
+    {% endfor %}
+    {% for c in i.rdef %}
+    <tr> 
+        <td class="product"><a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;"><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef16.png" title="{{ c.getImage.name }}" alt="image"/></a></td> 
+        <td><a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;">{{ c.getImage.shortName }}</a></td> 
+        <td>by {{ c.getOwner }}</td> 
+        <td>{{ c.creationEventDate }}</td>
+        <td>{{ c.details.group.name.val }}</td>
+        <td>(id:{{ c.id }}) <a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.getImage.name }}" alt="image"/></a></td> 
+    </tr>
+    {% endfor %}
+    {% endfor %}
+</tbody> 
+</table>
+
+{% else %}
+<div class="clear"></div>
+<div>No data.</div>
+{% endif %}
+
+
+{% endblock %}

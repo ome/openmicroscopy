@@ -1,0 +1,16 @@
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% if controller.lastImportedImages %}
+    <table>
+        <tbody>
+        <tr><td>{% for im in controller.lastImportedImages %}
+            <a class="product" href="{% get_webclient_root_url %}/mydata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/32/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>
+            {% endfor %}</td></tr>
+        </tbody>
+    </table>
+{% else %}
+    <div class="error"><p>No data imported. Please change your active group (on the menu bar) or import some images or look into someone else's data.</p></div>
+{% endif %}
+

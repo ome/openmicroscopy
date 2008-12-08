@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Custom forms
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -16,8 +27,8 @@ from django.forms.widgets import Select, SelectMultiple, MultipleHiddenInput
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
-
-# Group list for group form
+        
+# Group queryset iterator for group form
 class GroupQuerySetIterator(object):
     def __init__(self, queryset, empty_label, cache_choices):
         self.queryset = queryset
@@ -130,7 +141,7 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
                     final_values.append(val)
         return final_values
 
-# Experimenter list for group form
+# Experimenter queryset iterator for experimenter form
 class ExperimenterQuerySetIterator(object):
     def __init__(self, queryset, empty_label, cache_choices):
         self.queryset = queryset
@@ -168,7 +179,7 @@ class ExperimenterQuerySetIterator(object):
                 oid = obj.id.val
             else:
                 oid = obj.id
-            
+
             yield (oid, smart_unicode(name))
         # Clear the QuerySet cache if required.
         #if not self.cache_choices:

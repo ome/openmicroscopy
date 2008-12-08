@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Experimenter controller
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -12,10 +23,10 @@
 #
 
 import omero
-
 from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
+
 from webadmin.controller import BaseController
 
 class BaseExperimenters(BaseController):
@@ -132,14 +143,14 @@ class BaseExperimenter(BaseController):
     
     def updateMyAccount(self, firstName, lastName, email, dGroup, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj
-        up_exp.firstName = rstring(firstName)
-        up_exp.middleName = rstring(middleName)
-        up_exp.lastName = rstring(lastName)
-        up_exp.email = rstring(email)
-        up_exp.institution = rstring(institution)
+        up_exp.firstName = rstring(str(firstName))
+        up_exp.middleName = rstring(str(middleName))
+        up_exp.lastName = rstring(str(lastName))
+        up_exp.email = rstring(str(email))
+        up_exp.institution = rstring(str(institution))
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
-        self.conn.updateMyAccount(up_exp, defaultGroup, password)
+        self.conn.updateMyAccount(up_exp, defaultGroup, rstring(str(password)))
     
     def isActive(self):
         for ob in self.experimenter.copyGroupExperimenterMap():
@@ -155,12 +166,12 @@ class BaseExperimenter(BaseController):
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring(omeName)
-        new_exp.firstName = rstring(firstName)
-        new_exp.middleName = rstring(middleName)
-        new_exp.lastName = rstring(lastName)
-        new_exp.email = rstring(email)
-        new_exp.institution = rstring(institution)
+        new_exp.omeName = rstring(str(omeName))
+        new_exp.firstName = rstring(str(firstName))
+        new_exp.middleName = rstring(str(middleName))
+        new_exp.lastName = rstring(str(lastName))
+        new_exp.email = rstring(str(email))
+        new_exp.institution = rstring(str(institution))
         
         listOfGroups = set()
         # default group
@@ -190,16 +201,16 @@ class BaseExperimenter(BaseController):
                     pass
                 elif long(og) == g.id:
                     listOfGroups.add(g._obj)
-        self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), password)
+        self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), rstring(str(password)))
     
     def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj
-        up_exp.omeName = rstring(omeName)
-        up_exp.firstName = rstring(firstName)
-        up_exp.middleName = rstring(middleName)
-        up_exp.lastName = rstring(lastName)
-        up_exp.email = rstring(email)
-        up_exp.institution = rstring(institution)
+        up_exp.omeName = rstring(str(omeName))
+        up_exp.firstName = rstring(str(firstName))
+        up_exp.middleName = rstring(str(middleName))
+        up_exp.lastName = rstring(str(lastName))
+        up_exp.email = rstring(str(email))
+        up_exp.institution = rstring(str(institution))
         
         # old list of groups
         old_groups = list()
@@ -267,7 +278,7 @@ class BaseExperimenter(BaseController):
         for g in rm_grs:
             print g.id.val, g.name.val'''
         
-        self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs, password)
+        self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs, rstring(str(password)))
     
     def deleteExperimenter(self):
         self.conn.deleteExperimenter(self.experimenter._obj)

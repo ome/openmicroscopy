@@ -3,8 +3,8 @@
     "model": "webadmin.gateway",
     "pk": 1,
     "fields": {
-      "base_path": "omero",
-      "server": "localhost",
+      "server": "omero",
+      "host": "localhost",
       "port": 4063
     }
   }

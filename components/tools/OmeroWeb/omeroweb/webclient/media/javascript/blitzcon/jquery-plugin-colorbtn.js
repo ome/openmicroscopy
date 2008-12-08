@@ -1,0 +1,97 @@
+/**
+ * Colored button triggering a color picker plugin for JQuery.
+ *
+ * Todo: better documentation and example usage.
+ *
+ * Depends on jquery, farbtastic, jquery-plugin-postit
+ *
+ * Author: C. Neves <carlos@glencoesoftware.com>
+ *
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ *
+ */
+
+$.fn.colorbtn = function(cfg) {
+  return this.each(function(){
+    this.cfg = {
+      prefix: cfg && cfg.prefix ? cfg.prefix : "cbpicker"
+    };
+
+    var colors = ["f00", "0f0", "00f", "fff", "000", "", "808080", "ffc800", "ff0", "4b0082", "ee82ee"];
+
+    /* The basic setup */
+    var self = jQuery(this);
+
+    var callback = function (color) {
+      self.css('background-color', color);
+    };
+    var null_cb = function (color) {};
+
+    this._prepare_picker = function () {
+      self.addClass(this.cfg.prefix);
+      jQuery("body").prepend('<div id="'+this.cfg.prefix+'-box"></div>');
+      var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1><div id="'+this.cfg.prefix+'"></div>');
+      var picker = jQuery.farbtastic("#"+this.cfg.prefix);
+      box.postit().append('<div style="text-align: center;"></div>');
+      var btns = box.find('div:last');
+      var btn_click = function () {
+        picker.setColor('#'+rgbToHex(jQuery(this).css("background-color")));
+      };
+      for (e in colors) {
+        if (colors[e] == "") {
+          btns.append('<br />');
+	} else {
+          btns.append('<button style="background-color: #'+colors[e]+'">&nbsp;</button>');
+          btns.find('button:last').click(btn_click);
+        }
+      }
+      btns.append('<br /><button style="width: 5em;" id="'+this.cfg.prefix+'-defc">&nbsp;</button>');
+      btns.find('button:last').click(btn_click);
+    }
+
+    this.show_picker = function () {
+      if (jQuery("#"+this.cfg.prefix+"-box").length == 0) {
+	this._prepare_picker();
+      }
+      jQuery('.'+this.cfg.prefix).removeClass('picking');
+      jQuery.farbtastic("#"+this.cfg.prefix).linkTo(null_cb).setColor('#'+rgbToHex(self.css("background-color"))).linkTo(callback);
+      jQuery("#"+this.cfg.prefix+"-defc").css("background-color", self.css("background-color"));
+      jQuery("#"+this.cfg.prefix+"-box").show();
+      self.addClass('picking');
+  }
+
+    this.hide_picker = function () {
+      jQuery("#"+this.cfg.prefix+"-box").hide();
+      self.removeClass('picking');
+    }
+
+    /* Event handlers */
+    self.click(this.show_picker);
+  });
+}
+
+  function rgbToHex(rgb) {
+    if (rgb.substring(0,1) == '#') {
+      return rgb.substring(1);
+    }
+    var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(rgb);
+    if (!rgbvals) return rgb;
+    var rval = parseInt(rgbvals[1]).toString(16);
+    var gval = parseInt(rgbvals[2]).toString(16);
+    var bval = parseInt(rgbvals[3]).toString(16);
+    if (rval.length == 1) rval = '0' + rval;
+    if (gval.length == 1) gval = '0' + gval;
+    if (bval.length == 1) bval = '0' + bval;
+    return (
+      rval +
+      gval +
+      bval
+    ).toUpperCase(); 
+  }
+

@@ -1,0 +1,238 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.simple.tree.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+
+    <script type="text/javascript">
+    var simpleTreeCollection;
+    $(document).ready(function(){
+        simpleTreeCollection = $('.simpleTree').simpleTree({
+            autoclose: false,
+            afterClick:function(node){
+                var obj = $(node).attr('id').split("-");
+                if (obj[0] == 'pr') {
+                    $("div#view").html('| View <a href="{% get_webclient_root_url %}/mydata/project/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/mydata/project/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> | New <a href="{% get_webclient_root_url %}/action/new/project/'+obj[1]+'/"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new"></a> |');
+                    
+                    $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                    $("div#context").load('{% get_webclient_root_url %}/tree_details/project/'+obj[1]+'/');
+                    
+                } else if (obj[0] == 'ds') {
+                    $("div#view").html('| View <a href="{% get_webclient_root_url %}/mydata/dataset/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/mydata/dataset/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> |');
+
+                    $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                    $("div#context").load('{% get_webclient_root_url %}/tree_details/dataset/'+obj[1]+'/');
+                    
+                } else if (obj[0] == 'img') {
+                    $("div#view").html('| View <a href="{% get_webclient_root_url %}/mydata/image/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/mydata/image/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> |');
+
+                    $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                    $("div#context").load('{% get_webclient_root_url %}/tree_details/image/'+obj[1]+'/');
+                    
+                }
+            },
+            afterDblClick:function(node){
+                //alert("text-"+$('span:first',node).text());
+            },
+            afterMove:function(destination, source, pos){
+                //alert("destination-"+$('span:first',destination).html()+" source-"+$('span:first',source).text()+" pos-"+pos);
+                //alert("destination-"+$(destination).attr('id')+" source-"+$(source).attr('id')+" pos-"+pos);
+            },
+            afterAjax:function(){
+                //alert('Loaded');
+            },
+            animate:true
+            //,docToFolderConvert:true
+            });
+
+    });
+    </script>
+
+{% endblock %}
+
+{% block main %}
+
+{% if form_users %}
+<div class="box">
+    {% for field in form_users %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
+</div>
+{% endif %}
+
+{% if form_mygroups %}
+<div class="box">&nbsp;
+    {% for field in form_mygroups %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
+</div>
+{% endif %}
+
+<div class="clear"></div>
+
+{% if manager.c_size or manager.c_mg_size %}
+    {% if manager.c_size %}
+        {% if manager.experimenter %}
+            <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
+        {% else %}
+            <h1>My data ({{ manager.c_size }} items):</h1>
+        {% endif %}
+    {% endif %}
+    {% if manager.c_mg_size %}
+        {% if manager.myGroup %}
+            <h1>{{ manager.myGroup.name }}'s data ({{ manager.c_mg_size }} items):</h1>
+        {% endif %}
+    {% endif %}
+{% else %}
+    {% ifequal nav.menu 'mydata' %}
+        <h1>My data (no item):</h1>
+    {% else %}
+        <h1>Data (no item):</h1>
+    {% endifequal %}
+{% endif %}
+    
+<div id="view"> 
+{% ifequal nav.menu "mydata" %}
+        | View <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"/></a> |
+{% else %}
+    {% ifequal nav.menu "collaboration" %}
+            {% ifequal nav.whos "share" %} | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> |
+            {% endifequal %}
+            {% ifequal nav.whos "userdata" %} | View <a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/userdata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"/></a> |
+            {% endifequal %}
+            {% ifequal nav.whos "groupdata" %} | View <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/groupdata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"/></a> |
+            {% endifequal %}
+
+    {% endifequal %}
+{% endifequal %}
+{% if not manager.image %}
+    {% if manager.project %}
+        New <a href="{% get_webclient_root_url %}/action/new/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
+    {% else %}
+        {% if not manager.dataset %}
+            New <a href="{% get_webclient_root_url %}/action/new/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
+        {% endif %}
+    {% endif %}
+{% endif %}
+</div>
+    
+    <div class="clear"> </div>
+
+{% endblock %}
+{% block content %}
+
+{% include "omeroweb/message.html" %}
+<div class="clear"> </div>
+
+{% if not manager.c_mg_size and not manager.c_size %}
+    <h1>No data.</h1>
+{% else %}
+    
+    {% if manager.c_size %}
+    <div id="tree">
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+        <ul>
+            {% for c in manager.containers.projects %}
+            <li id='pr-{{ c.id }}'><span>{{ c.id }}  {{ c.name }}</span> {% ifequal c.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/> ({{c.getOwner}} {{c.details.group.name.val}} {{c.details.permissions}}){% endifnotequal %}
+                <ul>
+                    {% if c.copyDatasetLinks %}
+                    {% for d in c.listChildren %}
+                        <li id='ds-{{ d.id }}' ><span>{{ d.id }} {{ d.name }}</span> {% ifequal d.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% ifnotequal d.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/> ({{c.getOwner}} {{c.details.group.name.val}} {{c.details.permissions}}){% endifnotequal %}
+                            <ul class="ajax">
+                                {% ifnotequal d.details.owner.id.val eContext.context.userId %}
+                                    <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/userdata/dataset/{{ d.id }}/?view=tree}</li>
+                                {% else %}
+                                    <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/dataset/{{ d.id }}/?view=tree}</li>
+                                {% endifnotequal %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                    {% else %}
+                        <li class="line-last"/>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endfor %}
+            {% for c in manager.containers.datasets %}
+                <li id='ds-{{ c.id }}'><span>{{ c.id }} {{ c.name }}</span> {% ifequal c.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/> ({{c.getOwner}} {{c.details.group.name.val}} {{c.details.permissions}}){% endifnotequal %}
+                    <ul class="ajax">
+                        {% ifnotequal d.details.owner.id.val eContext.context.userId %}
+                            <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/userdata/dataset/{{ c.id }}/?view=tree}</li>
+                        {% else %}
+                            <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/dataset/{{ c.id }}/?view=tree}</li>
+                        {% endifnotequal %}
+                    </ul>
+                </li>
+            {% endfor %}
+            {% for d in manager.containers.images %}
+                <li id='img-{{ d.id }}'><span> {{ d.id }} {{ d.shortName }}</span> <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> {% ifequal d.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% ifnotequal d.details.owner.id.val eContext.context.userId %}({{d.getOwner}} {{d.details.group.name.val}} {{d.details.permissions}}){% endifnotequal %}</li>
+            {% endfor %}
+        </ul>
+    </li></ul>
+    </div>
+    {% endif %}
+
+    {% if manager.c_mg_size %}
+    <div id="tree">
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ eContext.groupName }}@{{ nav.blitz }}</span>
+        <ul>
+            {% for c in manager.containersMyGroups.projects %}
+            <li id='pr-{{ c.id }}'><span>{{ c.id }}  {{ c.name }}</span> {% ifequal c.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/> ({{c.getOwner}} {{c.details.group.name.val}} {{c.details.permissions}}){% endifnotequal %}
+                <ul>
+                    {% if c.copyDatasetLinks %}
+                    {% for d in c.listChildren %}
+                        <li id='ds-{{ d.id }}' ><span>{{ d.id }} {{ d.name }}</span> {% ifequal d.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% ifnotequal d.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/> ({{c.getOwner}} {{c.details.group.name.val}} {{c.details.permissions}}){% endifnotequal %}
+                            <ul class="ajax">
+                                <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/groupdata/dataset/{{ d.id }}/?view=tree}</li>
+                            </ul>
+                        </li>
+                    {% endfor %}
+                    {% else %}
+                        <li class="line-last"/>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endfor %}
+            {% for c in manager.containersMyGroups.datasets %}
+                <li id='ds-{{ c.id }}'><span>{{ c.id }} {{ c.name }}</span> {% ifequal c.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/> ({{c.getOwner}} {{c.details.group.name.val}} {{c.details.permissions}}){% endifnotequal %}
+                    <ul class="ajax">
+                        <li id='{{ c.id }}'>{url:{% get_webclient_root_url %}/groupdata/dataset/{{ c.id }}/?view=tree}</li>
+                    </ul>
+                </li>
+            {% endfor %}
+            {% for d in manager.containersMyGroups.images %}
+                <li id='img-{{ d.id }}'><span> {{ d.id }} {{ d.shortName }}</span> <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> {% ifequal d.details.owner.id.val eContext.context.userId %}<a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>{% endifequal %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% ifnotequal d.details.owner.id.val eContext.context.userId %}({{d.getOwner}} {{d.details.group.name.val}} {{d.details.permissions}}){% endifnotequal %}</li>
+            {% endfor %}
+        </ul>
+    </li></ul>
+    </div>
+    {% endif %}
+
+{% endif %}
+
+<div id="context"> </div>
+
+<div class="clear"> </div>
+
+{% endblock %}
+
+{% block advice %}
+    {% include "omeroweb/advice.html" %}
+{% endblock %}

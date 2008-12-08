@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Group controller
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -12,9 +23,9 @@
 #
 
 import omero
-
 from omero.rtypes import *
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
+
 from webadmin.controller import BaseController
 
 class BaseGroups(BaseController):
@@ -83,12 +94,12 @@ class BaseGroup(BaseController):
         rm_exps = list()
         for om in old_members:
             for a in available:
-                if om.id == long(a.encode('utf8')):
+                if om.id == long(str(a)):
                     rm_exps.append(om._obj)
         for oa in old_available:
             flag = False
             for a in available:
-                if oa.id == long(a.encode('utf8')):
+                if oa.id == long(str(a)):
                     flag = True
             if not flag:
                 add_exps.append(oa._obj)
@@ -101,15 +112,15 @@ class BaseGroup(BaseController):
     
     def createGroup(self, name, eid, description=None):
         new_gr = ExperimenterGroupI()
-        new_gr.name = rstring(name)
-        new_gr.description = rstring(description)
-        gr_owner = self.conn.getExperimenter(eid)._obj
+        new_gr.name = rstring(str(name))
+        new_gr.description = rstring(str(description))
+        gr_owner = self.conn.getExperimenter(long(eid))._obj
         self.conn.createGroup(new_gr, gr_owner)
     
     def updateGroup(self, name, eid, description=None):
         up_gr = self.group._obj
-        up_gr.name = rstring(name)
-        up_gr.description = rstring(description)
-        gr_owner = self.conn.getExperimenter(eid)._obj
+        up_gr.name = rstring(str(name))
+        up_gr.description = rstring(str(description))
+        gr_owner = self.conn.getExperimenter(long(eid))._obj
         up_gr.details.owner = gr_owner
         self.conn.updateGroup(up_gr, gr_owner)

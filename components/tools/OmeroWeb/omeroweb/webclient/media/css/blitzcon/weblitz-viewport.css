@@ -1,0 +1,170 @@
+/**
+ * snippet_viewport - style definitions
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+.weblitz-viewport-vp {
+  position: relative;
+  display: block;
+  border: 1px solid;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #ddd;
+  top: 0px;
+  left: 15px;
+}
+
+.weblitz-viewport-top { 
+  position: relative;
+  height: 100%;
+}
+
+.weblitz-viewport-bot { 
+  position: relative;
+  left: 15px;
+  height: 15px;
+  bottom: 0px;
+}
+
+.weblitz-viewport-msg {
+  display: none;
+  color: #F30;
+  font-weight: bold;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  z-index: 1000;
+}
+
+/* Customizing the jquery-plugin-viewportImage classes */
+
+.image-viewer { 
+  position: relative;
+}
+
+.vslider { 
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  display: block;
+  top: 0px;
+  left: 1px;
+}
+
+.hslider { 
+  position: relative;
+  height: 10px;
+  bottom: -3px;
+  display: block;
+  font-size: 0.1em;
+}
+
+.slider-line { 
+  width: 100%;
+  background: #F30;
+  font-size: 0.1em;
+}
+
+.slider-handle { 
+  background: #184A89;
+  font-size: 0.1em;
+  left: 0%; 
+}
+
+/*
+#wblitz-imgarea { 
+  position: absolute;
+  clear: both;
+  display: block;
+  top: 65px;
+  left: 0px;
+  height: 600;
+  width: 800;
+}
+
+#wblitz-imgcanvas {
+  position: relative;
+  display: block;
+  border: 1px solid;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #ddd;
+}
+
+
+#wblitz-image-vpi { 
+  cursor: -moz-grab;
+  cursor: url('/webclient/static/images/blitzcon/openhand.cur'), pointer, auto;
+}
+
+#wblitz-message { 
+  color: #F30;
+  font-weight: bold;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  z-index: 1000;
+}
+
+#z-slider {
+  position: relative;
+  margin: 0px;
+  padding: 0px;
+  display: block;
+  float: left;
+  width: 20px;
+  _width: 15px;
+  height: 100%;
+  /* bottom: 0px; */
+}
+
+#z-slider *.slider-line { 
+  height: expression(document.getElementById('z-slider').clientHeight - 30);
+  margin: 0px 3px;
+  width: 10px;
+  background: #F30;
+}
+
+#t-slider {
+  position: relative;
+  margin: 0px;
+  padding: 0px;
+  display: block;
+  height: 20px;
+  _height: 15px;
+  width: 100%;
+  clear: both;
+}
+
+#t-slider *.slider-line { 
+  margin: 2px 0px;
+  height: 10px;
+  _height: 13px;
+  background: #F30;
+}
+
+.draggable {
+  cursor: -moz-grab;
+  cursor: url('/webclient/static/images/blitzcon/openhand.cur'), pointer, auto;
+}
+
+.ondrag {
+  cursor: -moz-grabbing;
+  cursor: url('/webclient/static/images/blitzcon/closedhand.cur'), hand, auto;
+}
+
+
+*/

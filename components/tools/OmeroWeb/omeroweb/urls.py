@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Main urls resolver
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -15,10 +26,13 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 
 from omeroweb.webadmin.models import Gateway
+from omeroweb.webclient.models import Advice, CategoryAdvice
 
 # make admin enable
 admin.autodiscover()
 admin.site.register(Gateway)
+admin.site.register(Advice)
+admin.site.register(CategoryAdvice)
 
 # error handler
 handler404 = "omeroweb.webadmin.views.handler404"
@@ -28,4 +42,6 @@ handler500 = "omeroweb.webadmin.views.handler500"
 urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     (r'^webadmin/', include('omeroweb.webadmin.urls')),
+    (r'^webclient/', include('omeroweb.webclient.urls')),
+    #(r'^images/', include('omeroweb.weblitzviewer.urls')),
 )

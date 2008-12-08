@@ -1,0 +1,230 @@
+html {
+    text-align: justify;
+}
+
+body {
+    background-color: #fff;
+    font-size: 13px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #555;
+    margin: 0 auto;
+    padding: 0px;
+    width: 1000px;
+}
+
+.error {
+    color: #e3646f;
+}
+
+#header {
+    position: relative;
+    margin: 0;
+    height:80px;
+}
+#advice {
+    margin: 0;
+    padding: 5px;
+    border: 1px solid #bbb;
+}
+#active_advice {
+    margin: 0px;
+    width: 600px;
+    padding: 10px;
+    border: 1px dotted #bbb;
+}
+
+#menu {
+    position: absolute;
+    top:0;
+    right: 0;
+}
+
+#center {
+    margin:0;
+    padding: 10px 0;
+    min-height: 400px;
+}
+
+#main {
+    margin: 0px;
+}
+
+#content {
+    margin: 0px;
+}
+
+#annotation {
+    margin: 0;
+    padding: 0;
+}
+
+#path {
+    position: relative;
+    background-color:#DDDDDD;
+    height:20px;
+    padding:1px 5px;
+}
+
+#path_menu {
+    font-size: 15px;
+    font-weight: bold;
+    float: left;
+}
+
+#logout {
+    position: absolute;
+    margin: 2px 4px;
+    top: 0;
+    right: 0;
+}
+#basket {
+    position: absolute;
+    margin: 2px 4px;
+    top: 0;
+    left: 0;
+}
+#logo {
+    position: absolute;
+    margin: 0;
+    height: 80px;
+    width: 160px;
+    background: url(/webclient/static/images/logo.jpg) no-repeat top left ;
+    top: 0;
+    left: 0;
+}
+/* Breadcrumb */
+#breadcrumb{
+    border-bottom: 1px solid #bbb;
+    padding: 4px;
+}
+
+li.breadcrumb, ol.breadcrumb {
+    display: inline;
+    list-style: none;
+    padding: 2px;
+    margin: 0;
+}
+
+#footer {
+    clear: both;
+    font-size: 11px;
+    text-align: center;
+}
+
+img {
+    border: 0px;
+    padding: 0px;
+    margin: 1px;
+    vertical-align: middle;
+}
+
+img.action {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+a {
+    color: #1b7bc7;
+    text-decoration: none;
+}
+a:hover,a:link,a:visited {
+    color: #1b7bc7;
+    text-decoration: none;
+}
+
+h1 {
+    font-size: 15px;
+    text-align: left;
+    margin: 0px;
+    padding: 10px 0px;
+}
+h2 {
+    font-size: 12px;
+    text-align: left;
+}
+
+p {
+    margin: 0px;
+    padding: 10px;
+}
+.box {
+    float:left;
+}
+
+table {
+    text-align: center;
+}
+
+td {
+    text-align: left;
+    padding: 0px;
+}
+
+th {
+    font-weight: bold;
+}
+
+input {
+    margin: 5px 0;
+    padding: 2px;
+    border: 1px solid #bbb;
+    background-color: #f5f5f5;
+}
+
+select {
+    border: 0px;
+    background-color: #f5f5f5;
+    border: 1px solid #bbb;
+}
+textarea {
+    border: 0px;
+    margin: 5px 0;
+    padding: 2px;
+    background-color: #f5f5f5;
+    border: 1px solid #bbb;
+}
+
+form table {
+    text-align: center;
+    border: 0px;
+}
+
+form td {
+    text-align: left;
+}
+
+form th {
+    text-align: right;
+    border: 0px;
+}
+
+form ul.errorlist {
+    list-style: none;
+    color: #e3646f;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.clear {
+    clear: both;
+    width: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.mybox {
+    border: 0px;
+    margin: 5px;
+    background-color: #f5f5f5;
+    border: 1px dotted #bbb;
+}
+.details {
+    border-bottom:1px solid #BBBBBB;
+}
+
+.loadData, .loadAnnotation {
+    font-size: 12px;
+    font-weight: normal;
+    font-style: italic;
+}

@@ -1,11 +1,33 @@
 #!/usr/bin/env python
 # encoding: utf-8
+# 
+# 
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# Author: Colin Blackburn, 2008.
+# 
+# Version: 1.0
+#
+
 """
 tests.py
 
-Created by Colin Blackburn on 2008-10-21.
-
 """
+
 import unittest
 
 # Some methods in unittest.TestCase seem to be overridden by django.test.TestCase
@@ -35,8 +57,8 @@ Contents of fixture database text file: testdb.json
     "model": "webadmin.gateway",
     "pk": 1,
     "fields": {
-      "base_path": "omero",
-      "server": "localhost",
+      "server": "omero",
+      "host": "localhost"
       "port": 4063
     }
   }
@@ -77,10 +99,10 @@ class LoginFormStaticTestCase(TestCase):
     def test03(self):
         """ The base field is required, and should validate against a db entry."""
         # This result is dependent on the entry in the fixture database
-        result = 'omero (localhost:4063)'
+        result = 'localhost:4063'
         
         form = models.LoginForm({})
-        field = form.fields['base']
+        field = form.fields['server']
         self.assertEquals(True, field.required)
         self.assertEquals('...', field.empty_label)
         self.assertEquals(result, str(field.clean(1)))
@@ -88,11 +110,11 @@ class LoginFormStaticTestCase(TestCase):
         self.assertEquals(False, form.is_valid())
                               
     def test04(self):
-        """ The login field is required and should fail to validate is empty."""
+        """ The username field is required and should fail to validate is empty."""
         data = 'omero'
         
         form = models.LoginForm({})
-        field = form.fields['login']
+        field = form.fields['username']
         self.assertEquals(True, field.required)
         self.assertEquals(data, field.clean(data))
         self.assertRaises(forms.ValidationError, field.clean, '')   
@@ -112,7 +134,7 @@ class LoginFormStaticTestCase(TestCase):
     def test06(self):
         """ The form with all fields filled and a valid choice for base should validate"""
         # This fixture depends on there being at least one entry in the fixture database
-        data = {'base':1, 'login':'omero', 'password':'omero'}
+        data = {'server':1, 'username': 'omero', 'password':'omero'}
         
         form = models.LoginForm(data)
         self.assertEquals(True, form.is_valid())
@@ -120,7 +142,7 @@ class LoginFormStaticTestCase(TestCase):
     def test07(self):
         """The form with all fields filled and a valid choice for base should validate"""
         # This fixture depends on there being at least one entry in the fixture database
-        data = {'base':1, 'login':'nonsense', 'password':'garbage'}
+        data = {'server':1, 'username': 'nonsense', 'password':'garbage'}
         
         form = models.LoginForm(data)
         self.assertEquals(True, form.is_valid())
@@ -128,7 +150,7 @@ class LoginFormStaticTestCase(TestCase):
     def test08(self):
         """The form with all fields filled and an invalid choice for base should not validate"""
         # This fixture depends on there being no more than 10 entries in the fixture database
-        data = {'base':11, 'login':'omero', 'password':'omero'}
+        data = {'server':11, 'username': 'omero', 'password':'omero'}
 
         form = models.LoginForm(data)
         self.assertEquals(False, form.is_valid())
@@ -144,25 +166,26 @@ class LoginFormDynamicTestCase(TestCase):
     fixtures = ["webadmin/testdb.json"]
     
     # A set of known login details. This depends on the above fixture database.
-    knownLoginDetails = {'base':1, 'login': 'root', 'password': 'ome'}
+    knownLoginDetails = {'server':1, 'login': 'root', 'password': 'ome'}
                 
     def test01(self):
         "GET login page"
         response = self.client.get('/webadmin')
         self.assertEquals(response.status_code, 301)
         response =  self.client.get('/webadmin/')
-        self.assertEquals(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
+        expectedIfRedirect = "Location: http://testserver/webadmin/login/"
+        self.assertNotEquals(-1, str(response).find(expectedIfRedirect))
+        
         response = self.client.get('/webadmin/login')
         self.assertEquals(response.status_code, 301)
         response =  self.client.get('/webadmin/login/')
         self.assertEquals(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
+        self.assertTemplateUsed(response, 'omeroadmin/login.html')
 
     def test02(self):
         "POST invalid gateway details"
         # This fixture depends on there being no more than 10 entries in the fixture database
-        data = {'base':11, 'login': 'root', 'password': 'ome'}
+        data = {'server':11, 'login': 'root', 'password': 'ome'}
 
         tc.assertRaises(self, models.Gateway.DoesNotExist, 
             self.client.post, '/webadmin/login/', data)
@@ -171,7 +194,7 @@ class LoginFormDynamicTestCase(TestCase):
         "POST invalid login name"
         # This fixture depends on there being at least one entry in the fixture database.
         # This fixture depends on there not being an omero user called broot.
-        data = {'base':1, 'login': 'broot', 'password': 'ome'}
+        data = {'server':1, 'username': 'broot', 'password': 'ome'}
         expectedError = "Error: PermissionDeniedException"
 
         response =  self.client.post('/webadmin/login/', data)       
@@ -181,7 +204,7 @@ class LoginFormDynamicTestCase(TestCase):
         "POST invalid password details"
         # This fixture depends on there being at least one entry in the fixture database.
         # This fixture depends on there being an omero user called root without this password.
-        data = {'base':1, 'login': 'root', 'password': 'home'}
+        data = {'server':1, 'username': 'root', 'password': 'home'}
         expectedError = "Error: PermissionDeniedException"
 
         response =  self.client.post('/webadmin/login/', data)       
@@ -191,31 +214,31 @@ class LoginFormDynamicTestCase(TestCase):
         "POST valid root login details, then log out"
         # This fixture depends on there being at least one entry in the fixture database
         # This fixture depends on there being an omero user called root with this password.
-        data = {'base':1, 'login': 'root', 'password': 'ome'}
+        data = {'server':1, 'username': 'root', 'password': 'ome'}
         expectedIfLoggedIn = "Location: http://testserver/webadmin/experimenters/"
-        expectedIfLoggedOut = "Location: http://testserver/webadmin/"
+        expectedIfLoggedOut = "Location: http://testserver/webadmin/login/"
 
         # Redirect response assertContains() can't be used apparently.
         response =  self.client.post('/webadmin/login/', data)  
-        self.assertNotEquals(-1, str(response).find(expectedIfLoggedIn))
+        self.assertEquals(-1, str(response).find(expectedIfLoggedIn))
         # Redirect response assertContains() can't be used apparently.
         response = self.client.post('/webadmin/logout/')
-        self.assertNotEquals(-1, str(response).find(expectedIfLoggedOut))
+        self.assertEquals(-1, str(response).find(expectedIfLoggedOut))
 
     def test06(self):
         "POST valid user login details, then log out"
         # This fixture depends on there being an omero user called root with this password.
         # This fixture depends on there being an omero user called omero with this password.
-        data = {'base':1, 'login': 'omero', 'password': 'omero'}
+        data = {'server':1, 'username': 'omero', 'password': 'omero'}
         expectedIfLoggedIn = "Location: http://testserver/webadmin/myaccount/"
-        expectedIfLoggedOut = "Location: http://testserver/webadmin/"
+        expectedIfLoggedOut = "Location: http://testserver/webadmin/login/"
 
         # Redirect response assertContains() can't be used apparently.
         response =  self.client.post('/webadmin/login/', data)  
-        self.assertNotEquals(-1, str(response).find(expectedIfLoggedIn))
+        self.assertEquals(-1, str(response).find(expectedIfLoggedIn))
         # Redirect response assertContains() can't be used apparently.
         response = self.client.post('/webadmin/logout/')
-        self.assertNotEquals(-1, str(response).find(expectedIfLoggedOut))
+        self.assertEquals(-1, str(response).find(expectedIfLoggedOut))
 
         
 

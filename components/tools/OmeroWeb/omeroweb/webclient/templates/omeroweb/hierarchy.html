@@ -1,0 +1,138 @@
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+<div>
+{% if manager.project or manager.dataset %}
+    {% if manager.project %}
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+        <ul>
+            <li class="line"> </li>
+            <li id="pr-{{ manager.project.id }}" class="folder-close-last-static" style="position: static;">
+                <span>{{ manager.project.id }} {{ manager.project.name }}</span> 
+                {% ifnotequal manager.project.details.owner.id.val eContext.context.userId %}
+                    <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                {% endifnotequal %}
+            </li>
+            <li class="line-last"/>
+        </ul>
+    </li>
+    </ul>
+
+    {% endif %}
+
+    {% if manager.dataset %}
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+        <ul>
+            <li class="line"> </li>
+            {% if manager.dataset.copyProjectLinks %}
+            {% for c in manager.dataset.copyProjectLinks %}
+            <li id="pr-{{ c.parent.id.val }}" class="folder-open-last-static" style="position: static;">
+                <span><a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/{{ c.parent.id.val }}/?view={{ nav.view }}">{{ c.parent.id.val }} {{ c.parent.name.val }}</a></span> 
+                {% ifnotequal c.parent.details.owner.id.val eContext.context.userId %}
+                    <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                {% endifnotequal %}
+                <ul style="overflow: visible; display: block;">
+                    <li class="line"> </li>
+                    <li id="ds-{{ manager.dataset.id }}" class="subfolder-close-last-static" style="position: static;">
+                        <span>{{ manager.dataset.id }} {{ manager.dataset.name }}</span> 
+                        {% ifnotequal c.parent.details.owner.id.val eContext.context.userId %}
+                            <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                        {% endifnotequal %}
+                    </li>
+                    <li class="line-last"/>
+                </ul>
+            </li>
+            {% endfor %}
+            {% else %}
+            <li id="ds-{{ manager.dataset.id }}" class="subfolder-close-last-static" style="position: static;">
+                <span>{{ manager.dataset.id }} {{ manager.dataset.name }}</span> 
+                {% ifnotequal manager.dataset.details.owner.id.val eContext.context.userId %}
+                    <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                {% endifnotequal %}
+            </li>
+            {% endif %}
+            <li class="line-last"/>
+        </ul>
+    </li>
+    </ul>
+
+    {% endif %}
+{% else %}
+    {% if manager.image %}
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+        <ul>
+            {% if manager.image.copyDatasetLinks %}
+            {% for c in manager.hierarchy %}
+            <li class="line"> </li>
+            {% if c.copyDatasetLinks %}
+            <li id="pr-{{ c.id.val }}" class="folder-open-last-static" style="position: static;">
+                <span><a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/{{ c.id.val }}/?view={{ nav.view }}">{{ c.id.val }} {{ c.name.val }}</a></span> 
+                {% ifnotequal c.details.owner.id.val eContext.context.userId %}
+                    <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                {% endifnotequal %}
+                <ul style="overflow: visible; display: block;">
+                    {% if c.copyDatasetLinks %}
+                    {% for d in c.copyDatasetLinks %}
+                    <li class="line"> </li>
+                    <li id="ds-{{ d.child.id.val }}" class="subfolder-open-last-static" style="position: static;">
+                        <span><a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/{{ c.id.val }}/dataset/{{ d.child.id.val }}/?view={{ nav.view }}">{{ d.child.id.val }} {{ d.child.name.val }}</a></span>
+                        {% ifnotequal d.child.details.owner.id.val eContext.context.userId %}
+                            <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                        {% endifnotequal %}
+                        <ul style="overflow: visible; display: block;">
+                            <li class="line"> </li>
+                            <li id='{{ manager.image.id }}' class="doc-last">
+                                <span>{{ manager.image.id }} {{ manager.image.name }}</span>
+                                {% ifnotequal manager.image.details.owner.id.val eContext.context.userId %}
+                                    <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                                {% endifnotequal %}
+                            </li>
+                            <li class="line-last"/>
+                        </ul>
+                    </li>
+                    <li class="line-last"/>
+                    {% endfor %}
+                    {% endif %}
+                </ul>
+            </li>
+            {% else %}
+            <li id="ds-{{ c.id.val }}" class="subfolder-open-last-static" style="position: static;">
+                <span><a href="{% get_webclient_root_url %}/{{ nav.whos }}/dataset/{{ c.id.val }}/?view={{ nav.view }}">{{ c.id.val }} {{ c.name.val }}</a></span> 
+                {% ifnotequal c.details.owner.id.val eContext.context.userId %}
+                    <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                {% endifnotequal %}
+                <ul style="overflow: visible; display: block;">
+                    <li class="line"> </li>
+                    <li id='{{ manager.image.id }}' class="doc-last">
+                        <span>{{ manager.image.id }} {{ manager.image.name }}</span> 
+                        {% ifnotequal manager.image.details.owner.id.val eContext.context.userId %}
+                            <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                        {% endifnotequal %}
+                    </li>
+                    <li class="line-last"/>
+                </ul>
+            </li>
+            {% endif %}
+            </li><li class="line-last"/>
+            {% endfor %}
+            {% else %}
+                <li class="line"> </li>
+                <li id='{{ manager.image.id }}' class="doc-last">
+                    <span>{{ manager.image.id }} {{ manager.image.name }}</span> 
+                    {% ifnotequal manager.image.details.owner.id.val eContext.context.userId %}
+                        <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
+                    {% endifnotequal %}
+                </li>
+            {% endif %}
+        </ul>
+    </li>
+    </ul>
+    {% else %}
+        <p>No hierarchy</a>
+    {% endif %}
+{% endif %}
+</div>

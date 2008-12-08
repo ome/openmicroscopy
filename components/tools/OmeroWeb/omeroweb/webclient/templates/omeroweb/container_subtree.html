@@ -1,0 +1,8 @@
+{% load custom_tags %}
+
+{% for d in manager.subcontainers %}
+    {% ifnotequal d.details.owner.id.val eContext.context.userId %}<li id='img-{{ d.id }}' class="coursor">{{ d.id }} {{ d.shortName }}
+    {% else %}<li id='img-{{ d.id }}'><span>{{ d.id }} {{ d.shortName }}</span>
+    {% endifnotequal %} 
+    <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a>{% ifequal d.details.owner.id.val eContext.context.userId %} <a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="l" title="locked"/>{% endifequal %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</li>
+{% endfor %}

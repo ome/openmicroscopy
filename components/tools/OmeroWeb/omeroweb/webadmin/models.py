@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # 
-# Models and forms
 # 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
@@ -26,12 +37,12 @@ from custom_forms import GroupModelChoiceField, GroupModelMultipleChoiceField, E
 # Model
 
 class Gateway(models.Model):
-    base_path = models.CharField(max_length=20)
-    server = models.CharField(max_length=2000)
+    server = models.CharField(max_length=100)
+    host = models.CharField(max_length=100)
     port = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
-        name = "%s (%s:%s)" % (self.base_path, self.server, self.port)
+        name = "%s:%s" % (self.host, self.port)
         return name
 
 ##################################################################
@@ -68,9 +79,9 @@ class OmeNameField(forms.Field):
 
 class LoginForm(forms.Form):
     
-    base = forms.ModelChoiceField(Gateway.objects.all(), empty_label="...")
-    login = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':25}))
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':25}))
+    server = forms.ModelChoiceField(Gateway.objects.all(), empty_label="...")
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
 
 class ExperimenterForm(forms.Form):
 
@@ -146,9 +157,6 @@ class ExperimenterLdapForm(forms.Form):
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
-    
-    def clean_default_group(self):
-        print "aaa"
     
     def clean_omename(self):
         if self.name_check:

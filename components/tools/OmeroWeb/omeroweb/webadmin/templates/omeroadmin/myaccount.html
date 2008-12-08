@@ -1,0 +1,28 @@
+{% extends "omeroadmin/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block title %}{% trans "My account" %}{% endblock %}
+
+{% block content %}
+<div>
+<h1>{% trans "My account" %}</h1>
+
+<p>{% trans "Fields marked with an * are mandatory." %}</p>
+<br/>
+
+<form action="{% get_webadmin_root_url %}/myaccount/save/" method="POST">
+<table>
+  <tbody>
+    {% for field in form %}
+    <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+    {% endfor %}
+    {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>{% endif %}
+  </tbody>
+  <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+</table>
+</form>
+
+</div>
+{% endblock %}

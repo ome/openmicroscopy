@@ -1,0 +1,76 @@
+{% extends "omeroweb/base.html" %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/index.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script>
+        $(document).ready(function(){
+            
+            $("div#last_imports").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+            $("div#last_imports").load("{% get_webclient_root_url %}/last_imports/");
+            
+            $("div#my_data").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+            $("div#my_data").load("{% get_webclient_root_url %}/my_data/");
+            
+            $("div#comments").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+            $("div#comments").load("{% get_webclient_root_url %}/most_recent/");
+                        
+            $("a.loadData").click(function()
+            {
+                $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#context").load("{% get_webclient_root_url %}/context/", function()  
+                    {  
+                        $("a.loadData").remove();
+                    });
+                return false; 
+            });
+
+        });
+      </script>
+    
+{% endblock %}
+
+{% block content %}
+    
+    <div id="left_panel">
+        
+        <h1>My data:</h1>
+        <div id="my_data"></div>
+        
+        <h1>My tasks:</h1>
+        <div><p>Currently you have no task. Go to the calendar and set one.</p></div>
+    </div>
+    
+    <div id="right_panel">
+        <h1>My last imports for group '{{ controller.eContext.context.groupName }}':</h1>
+        <div id="last_imports"></div>
+        
+        <h1>Most recent comments:</h1>
+        <div id="comments"></div>
+        
+        <h1>My context: <a href="#" class="loadData">more</a></h1>
+        <div id="context"> </div>
+    </div>
+    
+{% endblock %}
+
+{% block advice %}
+    {% include "omeroweb/advice.html" %}
+{% endblock %}

@@ -1,22 +1,9 @@
-#!/usr/bin/env python
-# 
-# Project settings
-# 
-# Copyright (c) 2008 University of Dundee. All rights reserved.
-# This file is distributed under the same license as the OMERO package.
-# Use is subject to license terms supplied in LICENSE.txt
-# 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
-# Version: 1.0
-#
-
 import os.path
 import datetime
 import logging
 
 # Django settings for webadmin project.
-DEBUG = False # if True handler404 and handler500 works only when False
+DEBUG = True # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -25,6 +12,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Database settings
 DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = 'db.sqlite3'   # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
@@ -32,8 +20,12 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
+# Test database name
+TEST_DATABASE_NAME = 'test-db.sqlite3'
+
 # Admin error notification
-EMAIL_ERROR_NOTIFICATION = False
+# when is turn below parameters should be set, this option require DEBUG = False
+EMAIL_NOTIFICATION = False
 EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
 EMAIL_ADMIN_ADDRESS = 'admin@domain' # email address
 EMAIL_SMTP_SERVER = 'smtp.domain'
@@ -44,6 +36,7 @@ EMAIL_SMTP_SERVER = 'smtp.domain'
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
 TIME_ZONE = 'Europe/London GB GB-Eire'
+FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
 # Language code for this installation. All choices can be found here:
 # http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -86,18 +79,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
 )
 
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
-SESSION_COOKIE_AGE = 86400 # 1 day in sec
-FILE_UPLOAD_TEMP_DIR = '/tmp'
-FILE_UPLOAD_MAX_MEMORY_SIZE = 100000 #default 2621440
-
 ROOT_URLCONF = 'omeroweb.urls'
 
+# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
 TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
 )
 
 INSTALLED_APPS = (
@@ -108,9 +97,30 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'omeroweb.webadmin',
+    'omeroweb.webclient',
 )
 
-# Logs
+# cookies config
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
+SESSION_COOKIE_AGE = 86400 # 1 day in sec
+
+# file upload settings
+FILE_UPLOAD_TEMP_DIR = '/tmp'
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100000 #default 2621440
+
+# APPLICATIONS CONFIG
+
+# BASE config
+WEBADMIN_ROOT_BASE = 'webadmin'
+WEBCLIENT_ROOT_BASE = 'webclient'
+
+WEBCLIENT_STATIC_LOGO = os.path.join(os.path.join(os.path.dirname(__file__), 'media'), "images", 'logo.jpg').replace('\\','/')
+STATIC_ROOT = os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media').replace('\\','/')
+STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.jpg').replace('\\','/')
+DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
+
+# LOGS
+# to change the log place, please specify new path
 LOGDIR = os.path.join(os.path.dirname(__file__), 'logs')
 if not os.path.isdir(LOGDIR):
     try:
@@ -132,7 +142,7 @@ if DEBUG:
     logging.getLogger().setLevel(logging.DEBUG)
     
 else:
-    LOGFILE = ('info-%s.log' % str(datetime.date.today()))
+    LOGFILE = ('info-%s.log' % str(datetime.datetime.now())) #datetime.date.today()
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%a, %d %b %Y %H:%M:%S',
@@ -140,9 +150,4 @@ else:
                         filemode='w')
 
 logging.info("Application Started...")
-
-# WEBADMIN config
-WEBADMIN_ROOT_BASE = 'webadmin'
-WEBADMIN_ROOT_URL = 'http://localhost:8000/webadmin'
-WEBADMIN_STATIC_URL = 'http://localhost:8000/webadmin/static'
 
