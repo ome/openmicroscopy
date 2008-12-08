@@ -44,10 +44,10 @@ import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 
 
-public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
+public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 {
     /** Logger for this class. */
-    private static Log     log    = LogFactory.getLog(OMEROMetadataStore.class);
+    private static Log     log    = LogFactory.getLog(OMEROMetadataStoreClient.class);
     
     MetadataStorePrx delegate;
     
@@ -84,7 +84,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * 
      * @param serviceFactory The factory. Mustn't be <code>null</code>.
      */
-    public OMEROMetadataStore(ServiceFactoryPrx serviceFactory)
+    public OMEROMetadataStoreClient(ServiceFactoryPrx serviceFactory)
     	throws ServerError
     {
     	if (serviceFactory == null)
@@ -93,7 +93,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	initialize();
     }
     
-    public OMEROMetadataStore(String username, String password, String server,
+    public OMEROMetadataStoreClient(String username, String password, String server,
             String port) throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         client c = new client(server);

@@ -31,7 +31,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
 
@@ -75,7 +75,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private Preferences        userPrefs = Preferences
                                                  .userNodeForPackage(LoginHandler.class);
 
-    private OMEROMetadataStore store;
+    private OMEROMetadataStoreClient store;
     
     public LoginDialog         dialog;
     
@@ -323,7 +323,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {
         try
         {
-            store = new OMEROMetadataStore(username, password, server, port);
+            store = new OMEROMetadataStoreClient(username, password, server, port);
             store.getProjects();
             
         } catch (Exception e)
@@ -335,7 +335,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return true;
     }
 
-    public OMEROMetadataStore getMetadataStore()
+    public OMEROMetadataStoreClient getMetadataStore()
     {
         return store;
     }

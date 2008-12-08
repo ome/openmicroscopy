@@ -42,7 +42,7 @@ import javax.swing.UIManager;
 
 import layout.TableLayout;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.GuiCommonElements;
 
 import static omero.rtypes.*;
@@ -80,11 +80,11 @@ public class AddDatasetDialog extends JDialog implements ActionListener
     
     Dataset                 dataset;
     
-    OMEROMetadataStore      store;
+    OMEROMetadataStoreClient      store;
 
     Project                 project;
     
-    AddDatasetDialog(Window owner, String title, Boolean modal, Project project, OMEROMetadataStore store)
+    AddDatasetDialog(Window owner, String title, Boolean modal, Project project, OMEROMetadataStoreClient store)
     {
         this.project = project;
         this.store = store;

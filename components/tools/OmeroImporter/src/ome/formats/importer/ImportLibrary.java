@@ -30,7 +30,7 @@ import java.util.List;
 
 import loci.formats.FormatException;
 import loci.common.DataTools;
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +49,7 @@ import omero.model.ImageI;
 import omero.model.Pixels;
 
 /**
- * support class for the proper usage of {@link OMEROMetadataStore} and
+ * support class for the proper usage of {@link OMEROMetadataStoreClient} and
  * {@link FormatReader} instances. This library was factored out of
  * {@link ImportHandler} to support {@link ImportFixture} The general workflow
  * for this class (as seen in {@link ImportFixture} is: <code>
@@ -67,7 +67,7 @@ import omero.model.Pixels;
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
  * @see FormatReader
- * @see OMEROMetadataStore
+ * @see OMEROMetadataStoreClient
  * @see ImportHandler
  * @see ImportFixture
  * @since 3.0-M3
@@ -93,7 +93,7 @@ public class ImportLibrary implements IObservable
 
     private Dataset           dataset;
 
-    private OMEROMetadataStore store;
+    private OMEROMetadataStoreClient store;
 
     private OMEROWrapper       reader;
 
@@ -123,7 +123,7 @@ public class ImportLibrary implements IObservable
      * @param reader not null
      * @param fads2 not null, length > 0
      */
-    public ImportLibrary(OMEROMetadataStore store, OMEROWrapper reader)
+    public ImportLibrary(OMEROMetadataStoreClient store, OMEROWrapper reader)
     {
         this.store = store;
         this.reader = reader;
@@ -171,7 +171,7 @@ public class ImportLibrary implements IObservable
         return fads;
     }
 
-    /** gets {@link Image} instance from {@link OMEROMetadataStore} */
+    /** gets {@link Image} instance from {@link OMEROMetadataStoreClient} */
     @SuppressWarnings("unchecked")
 	public List<Image> getRoot()
     {
@@ -241,7 +241,7 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * uses the {@link OMEROMetadataStore} to save the current {@link Pixels} to
+     * uses the {@link OMEROMetadataStoreClient} to save the current {@link Pixels} to
      * the database.
      * 
      * @return the newly created {@link Pixels} id.

@@ -1,0 +1,17 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="importer-common"
+      status="integration"/>
+  <configurations>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
+  </configurations>
+  <publications>
+    <artifact name="importer-common" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="build,test,client,server->default">
+  </dependencies>
+</ivy-module>

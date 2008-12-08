@@ -22,7 +22,7 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import omero.ResourceError;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -56,12 +56,12 @@ public class ImportHandler
     @SuppressWarnings("unused")
     private static Log      log = LogFactory.getLog(ImportHandler.class);
     
-    private OMEROMetadataStore store;
+    private OMEROMetadataStoreClient store;
     
     private int numOfPendings = 0;
     private int numOfDone = 0;
 
-    public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStore store,
+    public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStoreClient store,
             OMEROWrapper reader, ImportContainer[] importContainer)
     {
         this.importContainer = importContainer;

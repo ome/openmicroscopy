@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 
 import layout.TableLayout;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -49,9 +49,9 @@ public class AddProjectDialog extends JDialog implements ActionListener
     
     Project                project;
     
-    OMEROMetadataStore      store;
+    OMEROMetadataStoreClient      store;
     
-    AddProjectDialog(Window owner, String title, Boolean modal, OMEROMetadataStore store)
+    AddProjectDialog(Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
         this.owner = owner;

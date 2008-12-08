@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import loci.formats.FormatReader;
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import omero.model.DatasetI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
- * @see OMEROMetadataStore
+ * @see OMEROMetadataStoreClient
  * @see ExampleUnitTest
  * @since 3.0-M3
  */
@@ -46,7 +46,7 @@ public class ImportFixture
     @SuppressWarnings("unused")
     private String             user, pass, host, port;
 
-    private OMEROMetadataStore store;
+    private OMEROMetadataStoreClient store;
 
     private OMEROWrapper       reader;
 
@@ -54,12 +54,12 @@ public class ImportFixture
 
     private Map<File,DatasetI>  fads = new HashMap<File,DatasetI>();
     
-    public ImportFixture(OMEROMetadataStore store)
+    public ImportFixture(OMEROMetadataStoreClient store)
     {
         this(store, new OMEROWrapper());
     }
 
-    public ImportFixture(OMEROMetadataStore store, OMEROWrapper reader)
+    public ImportFixture(OMEROMetadataStoreClient store, OMEROWrapper reader)
     {
         this.store = store;
         this.reader = reader;
@@ -94,7 +94,7 @@ public class ImportFixture
     }
 
     /**
-     * sets {@link ImportLibrary}, {@link OMEROMetadataStore}, and file array
+     * sets {@link ImportLibrary}, {@link OMEROMetadataStoreClient}, and file array
      * to null. Also attempts to call {@link FormatReader#close()}.
      */
     public void tearDown()

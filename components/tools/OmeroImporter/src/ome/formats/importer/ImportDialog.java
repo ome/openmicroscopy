@@ -36,7 +36,7 @@ import javax.swing.UIManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.util.GuiCommonElements.WholeNumberField;
@@ -111,7 +111,7 @@ public class ImportDialog extends JDialog implements ActionListener
     @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(ImportDialog.class);
 
-    public OMEROMetadataStore store;
+    public OMEROMetadataStoreClient store;
 
     private Preferences    userPrefs = 
         Preferences.userNodeForPackage(ImportDialog.class);
@@ -122,7 +122,7 @@ public class ImportDialog extends JDialog implements ActionListener
     public Integer numOfDirectories = userPrefs.getInt("savedNumOfDirs", 0);
 
 
-    ImportDialog(JFrame owner, String title, boolean modal, OMEROMetadataStore store)
+    ImportDialog(JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         super(owner);
         this.store = store;

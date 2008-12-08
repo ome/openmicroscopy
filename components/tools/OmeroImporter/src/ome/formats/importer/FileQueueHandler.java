@@ -31,7 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -49,7 +49,7 @@ public class FileQueueHandler
     
     @SuppressWarnings("unused")
     public ImportHandler       importHandler;
-    private OMEROMetadataStore  store;
+    private OMEROMetadataStoreClient  store;
  
     private OMEROWrapper    reader;
     

@@ -2599,10 +2599,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         log.debug(String.format(
                 "setObjectiveCorrection[%s] instrumentIndex[%d] detectorIndex[%d]",
                 correction, instrumentIndex, objectiveIndex));
-        
-        if (correction.equals(" Plan Apo"))
-            correction = "PlanApo";
-        
+               
         Objective objective = getObjective(instrumentIndex, objectiveIndex); 
         if (objective != null)
             objective.setCorrection((Correction) getEnumeration(Correction.class, correction));

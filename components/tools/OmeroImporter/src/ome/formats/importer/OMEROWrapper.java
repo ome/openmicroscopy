@@ -13,9 +13,8 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.in.APNGReader;
 import loci.formats.in.LeicaReader;
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import omero.model.ChannelI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
@@ -160,8 +159,8 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         if (minMaxSet == null)
         {
-            OMEROMetadataStore store = 
-                (OMEROMetadataStore) reader.getMetadataStore();
+            OMEROMetadataStoreClient store = 
+                (OMEROMetadataStoreClient) reader.getMetadataStore();
             int series = reader.getSeries();
             Pixels p = store.getPixels(series);
             ChannelI c = (ChannelI) p.getChannel(p.getSizeC().getValue() - 1);
@@ -193,7 +192,7 @@ public class OMEROWrapper extends MinMaxCalculator
      {
          if (md != null)
          {
-             OMEROMetadataStore store = (OMEROMetadataStore) reader.getMetadataStore();
+             OMEROMetadataStoreClient store = (OMEROMetadataStoreClient) reader.getMetadataStore();
              store.populateSHA1(md, id);  
          }
      }
@@ -202,8 +201,8 @@ public class OMEROWrapper extends MinMaxCalculator
      {
          if (isMinMaxSet() == false)
          {
-             OMEROMetadataStore store = 
-                 (OMEROMetadataStore) reader.getMetadataStore();
+             OMEROMetadataStoreClient store = 
+                 (OMEROMetadataStoreClient) reader.getMetadataStore();
              store.populateMinMax(id, i);
          }
      }
@@ -215,9 +214,9 @@ public class OMEROWrapper extends MinMaxCalculator
      }
      
      @Override
-    public OMEROMetadataStore getMetadataStore()
+    public OMEROMetadataStoreClient getMetadataStore()
     {
-    	 return (OMEROMetadataStore) super.getMetadataStore();
+    	 return (OMEROMetadataStoreClient) super.getMetadataStore();
     }
      
     /**

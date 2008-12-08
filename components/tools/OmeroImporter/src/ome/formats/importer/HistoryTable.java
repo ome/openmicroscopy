@@ -42,7 +42,7 @@ import org.jdesktop.swingx.JXDatePicker;
 
 import layout.TableLayout;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
@@ -108,7 +108,7 @@ public class HistoryTable
     
     public static HistoryDB db = null;
     long experimenterID;
-    private OMEROMetadataStore store;
+    private OMEROMetadataStoreClient store;
     JOutlookBar outlookBar = new JOutlookBar();
 
     JList todayList = new JList(outlookBar.today);

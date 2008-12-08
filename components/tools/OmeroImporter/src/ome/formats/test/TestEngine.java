@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
-import ome.formats.OMEROMetadataStore;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.model.Dataset;
@@ -24,7 +24,7 @@ public class TestEngine
     public static boolean populateIniFiles = false;
     public static String  rootDirectory;
     
-    private OMEROMetadataStore store;
+    private OMEROMetadataStoreClient store;
     private ImportLibrary importLibrary;
     private OMEROWrapper wrapper;
 
@@ -35,7 +35,7 @@ public class TestEngine
         wrapper = new OMEROWrapper();
         
         // Login
-        store = new OMEROMetadataStore("root", "ome", "mage.openmicroscopy.org.uk", "1099");
+        store = new OMEROMetadataStoreClient("root", "ome", "mage.openmicroscopy.org.uk", "1099");
         importLibrary = new ImportLibrary(store, wrapper);
         
         // Create a time stamp and use it for the project name

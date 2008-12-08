@@ -26,7 +26,6 @@ package ome.formats.importer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import loci.formats.FormatTools;
 
 /**
  * A class which represents an entire 2D plane.
@@ -35,19 +34,29 @@ import loci.formats.FormatTools;
  */
 public class Plane2D {
 
-  /** Contains the plane data. */
-  private ByteBuffer data;
+    // enums from loci.formats.FormatTools.
+    public static final int INT8 = 0;
+    public static final int UINT8 = 1;
+    public static final int INT16 = 2;
+    public static final int UINT16 = 3;
+    public static final int INT32 = 4;
+    public static final int UINT32 = 5;
+    public static final int FLOAT = 6;
+    public static final int DOUBLE = 7;
 
-  /** How many bytes make up a pixel value. */
-  private int bytesPerPixel;
+    /** Contains the plane data. */
+    private ByteBuffer data;
 
-  /** The Java type that we're using for pixel value retrieval */
-  private int type;
+    /** How many bytes make up a pixel value. */
+    private int bytesPerPixel;
 
-  /** Number of pixels along the <i>X</i>-axis. */
-  private int sizeX;
+    /** The Java type that we're using for pixel value retrieval */
+    private int type;
 
-  /** Number of pixels along the <i>Y</i>-axis. */
+    /** Number of pixels along the <i>X</i>-axis. */
+    private int sizeX;
+
+    /** Number of pixels along the <i>Y</i>-axis. */
   @SuppressWarnings("unused")
 private int sizeY;
 
@@ -70,7 +79,7 @@ private int sizeY;
     this.data.order(isLittleEndian ?
       ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
 
-    this.bytesPerPixel = FormatTools.getBytesPerPixel(type);
+    this.bytesPerPixel = getBytesPerPixel(type);
   }
 
   /**
@@ -84,25 +93,50 @@ private int sizeY;
     int offset = ((sizeX * y) + x) * bytesPerPixel;
 
     switch (type) {
-      case FormatTools.INT8:
+      case INT8:
         return data.get(offset);
-      case FormatTools.INT16:
+      case INT16:
         return data.getShort(offset);
-      case FormatTools.INT32:
+      case INT32:
         return data.getInt(offset);
-      case FormatTools.FLOAT:
+      case FLOAT:
         return data.getFloat(offset);
-      case FormatTools.DOUBLE:
+      case DOUBLE:
         return data.getDouble(offset);
-      case FormatTools.UINT8:
+      case UINT8:
         return (short) (data.get(offset) & 0xFF);
-      case FormatTools.UINT16:
+      case UINT16:
         return (int) (data.getShort(offset) & 0xFFFF);
-      case FormatTools.UINT32:
+      case UINT32:
         return (long) (data.getInt(offset) & 0xFFFFFFFFL);
     }
     // This should never happen.
     throw new RuntimeException("Woah nelly! Something is very wrong.");
+  }
+  
+  /**
+   * Retrieves how many bytes per pixel the current plane or section has.
+   * @param pixelType the pixel type as retrieved from
+   *   {@link IFormatReader#getPixelType()}.
+   * @return the number of bytes per pixel.
+   * @see IFormatReader#getPixelType()
+   */
+  public static int getBytesPerPixel(int pixelType) {
+    switch (pixelType) {
+      case INT8:
+      case UINT8:
+        return 1;
+      case INT16:
+      case UINT16:
+        return 2;
+      case INT32:
+      case UINT32:
+      case FLOAT:
+        return 4;
+      case DOUBLE:
+        return 8;
+    }
+    throw new IllegalArgumentException("Unknown pixel type: " + pixelType);
   }
   
   /**
