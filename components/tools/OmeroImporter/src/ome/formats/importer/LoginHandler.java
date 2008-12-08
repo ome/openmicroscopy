@@ -26,6 +26,8 @@ import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
@@ -33,6 +35,7 @@ import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
+import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
@@ -77,6 +80,10 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
     private OMEROMetadataStoreClient store;
     
+    private ClientKeepAlive    keepAlive = new ClientKeepAlive();
+    
+    private ScheduledThreadPoolExecutor executor;
+       
     public LoginDialog         dialog;
     
     public LoginFrame          frame;
@@ -326,6 +333,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             store = new OMEROMetadataStoreClient(username, password, server, port);
             store.getProjects();
             
+            if (executor == null)
+            {
+                executor = new ScheduledThreadPoolExecutor(1);
+                executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
+            }
+            keepAlive.setClient(store);
+                        
         } catch (Exception e)
         {
             log.error("Login failure.", e);
@@ -335,6 +349,14 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return true;
     }
 
+
+    public void logout()
+    {
+        executor.shutdown();
+        executor = null;
+        log.debug("LoginHandler logout called. Keepalive shutdown.");
+    }
+    
     public OMEROMetadataStoreClient getMetadataStore()
     {
         return store;

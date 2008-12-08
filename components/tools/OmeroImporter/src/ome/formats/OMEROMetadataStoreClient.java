@@ -12,6 +12,7 @@ import Glacier2.PermissionDeniedException;
 
 import static omero.rtypes.*;
 import omero.RType;
+import omero.RemovedSessionException;
 import omero.ServerError;
 import omero.client;
 import omero.api.IAdminPrx;
@@ -24,6 +25,7 @@ import omero.api.MetadataStorePrxHelper;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceInterfacePrx;
 import omero.constants.METADATASTORE;
 import omero.model.BooleanAnnotation;
 import omero.model.Dataset;
@@ -101,6 +103,21 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         initialize();
     }
 
+    public void ping()
+    {
+        serviceFactory.keepAllAlive(new ServiceInterfacePrx[] 
+                {iQuery, iAdmin, rawFileStore, rawPixelStore, iRepoInfo, iPojos, iUpdate});
+        
+        log.debug("KeepAlive ping");
+
+    }
+    
+    
+    public void logout()
+    {
+        serviceFactory.destroy();
+    }
+    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#createRoot()
      */

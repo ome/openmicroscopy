@@ -492,6 +492,7 @@ public class Main extends JFrame
                 loggedIn = false;
                 appendToOutputLn("> Logged out.");
                 statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
+                loginHandler.logout();
                 loginHandler = null;
             } else 
             {                
