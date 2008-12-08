@@ -13,5 +13,6 @@
     <artifact name="importer-common" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="build,test,client,server->default">
+    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
   </dependencies>
 </ivy-module>
