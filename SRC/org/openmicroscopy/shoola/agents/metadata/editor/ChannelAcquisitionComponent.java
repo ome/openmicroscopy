@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -152,7 +153,7 @@ class ChannelAcquisitionComponent
 	
 	/** Reference to the Model. */
 	private EditorModel							model;
-	
+
 	/** Initializes the components */
 	private void initComponents()
 	{
@@ -567,6 +568,9 @@ class ChannelAcquisitionComponent
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	fieldsGeneral.clear();
+    	fieldsDetector.clear();
+    	fieldsLight.clear();
     	setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		parent.layoutFields(detectorPane, unsetDetector, fieldsDetector, 
@@ -578,8 +582,12 @@ class ChannelAcquisitionComponent
     	add(generalPane);;
     	add(detectorPane);
     	add(lightPane);
+
+    	parent.attachListener(fieldsGeneral);
+    	parent.attachListener(fieldsDetector);
+    	parent.attachListener(fieldsLight);
     }
-    
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -616,9 +624,38 @@ class ChannelAcquisitionComponent
 	    			channel.getIndex());
 			transformDetectorSource(EditorUtil.transformDetector(data));
 			transformLightSource(EditorUtil.transformLightSource(data));
-			
 			removeAll();
 			buildGUI();
 		}
 	}
+
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave()
+	{
+		boolean b = parent.hasDataToSave(fieldsGeneral);
+		if (b) return true;
+		b = parent.hasDataToSave(fieldsDetector);
+		if (b) return true;
+		b = parent.hasDataToSave(fieldsLight);
+		if (b) return true;
+		return false;
+	}
+	
+	/**
+	 * Prepares the data to save.
+	 * 
+	 * @return See above.
+	 */
+	List<Object> prepareDataToSave()
+	{
+		List<Object> data = new ArrayList<Object>();
+		if (!hasDataToSave()) return data;
+		return data;
+	}
+	
 }

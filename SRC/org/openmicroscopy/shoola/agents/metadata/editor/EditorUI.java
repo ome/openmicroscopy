@@ -42,6 +42,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Application-internal dependencies
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -184,6 +185,9 @@ public class EditorUI
 	void setRootObject()
 	{
 		Object uo = model.getRefObject();
+		setDataToSave(false);
+		toolBar.buildUI();
+		toolBar.setStatus(false);
 		if (!(uo instanceof DataObject)) {
 			setDataToSave(false);
 			toolBar.buildUI();
@@ -246,7 +250,12 @@ public class EditorUI
 			return;
 		}
 		//if (!model.isMultiSelection()) propertiesUI.updateDataObject();
-		generalPane.saveData();
+		//
+		List<AnnotationData>[] array = generalPane.prepareDataToSave();
+		List<AnnotationData> toAdd = array[0];
+		List<AnnotationData> toRemove = array[1];
+		List<Object> metadata = acquisitionPane.prepareDataToSave();
+		model.fireAnnotationSaving(toAdd, toRemove, metadata);
 	}
 
 	/** Lays out the thumbnails. */
@@ -314,9 +323,10 @@ public class EditorUI
 			//	return false;
 			//}
 		}
-		
-		return generalPane.hasDataToSave();
-
+		boolean b = generalPane.hasDataToSave();
+		if (b) return b;
+		//Check metadata.
+		return acquisitionPane.hasDataToSave();
 	}
     
 	/** Clears data to save. */
@@ -357,8 +367,7 @@ public class EditorUI
 		revalidate();
 		repaint();
 	}
-	
-	
+
 	/** Displays the wizard with the collection of URLs already uploaded. */
 	void setExistingURLs() { }//linksUI.showSelectionWizard(); }
 	 
@@ -427,10 +436,14 @@ public class EditorUI
 		acquisitionPane.setImageAcquisitionData();
 	}
 
+	/**
+	 * Sets the acquisition data for the passed channel.
+	 * 
+	 * @param index The index of the channel.
+	 */
 	void setChannelAcquisitionData(int index)
 	{
 		acquisitionPane.setChannelAcquisitionData(index);
-		
 	}
 	
 }

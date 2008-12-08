@@ -295,10 +295,11 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#saveData(List, List, DataObject)
+	 * @see MetadataViewer#saveData(List, List, List, DataObject)
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
-				List<AnnotationData> toRemove, DataObject data)
+				List<AnnotationData> toRemove, List<Object> metadata,
+				DataObject data)
 	{
 		if (data == null) return;
 		Object refObject = model.getRefObject();

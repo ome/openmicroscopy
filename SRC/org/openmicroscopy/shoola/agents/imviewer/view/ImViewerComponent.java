@@ -312,12 +312,14 @@ class ImViewerComponent
 			showBox = true;
 		}
 		JCheckBox annotationBox = null;
+		/*
 		if (model.hasMetadataToSave()) {
 			annotationBox = new JCheckBox(ANNOTATION);
 			annotationBox.setSelected(true);
 			p.add(annotationBox);
 			showBox = true;
 		}
+		*/
 		msg.addBodyComponent(p);
 		List<SaveEventBox> boxes = null;
 		SaveEventBox box;
@@ -382,7 +384,8 @@ class ImViewerComponent
 	private void notifyProjection(String message, ImageData image)
 	{
 		String text = message;
-		text += "\n Do you want to launch a viewer with the projected image.";
+		text += "\n";
+		text += "Do you want to launch a viewer with the projected image?";
 		
 		MessageBox msg = new MessageBox(view, "Projection", text);
 		int option = msg.centerMsgBox();
@@ -2591,7 +2594,7 @@ class ImViewerComponent
 		String message;
 		if (result)
 			message = "The projected image and the rendering settings \n have" +
-					" been successfully created.";
+					"been successfully created.";
 		else
 			message = "An error has occurred while copying the " +
 			"rendering settings of the projected image.";

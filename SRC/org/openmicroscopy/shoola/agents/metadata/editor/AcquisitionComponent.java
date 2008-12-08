@@ -24,8 +24,15 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -45,6 +52,7 @@ import javax.swing.JLabel;
  * @since 3.0-Beta4
  */
 class AcquisitionComponent
+	extends JComponent
 {
 
 	/** Component displaying the name of the field. */
@@ -56,6 +64,41 @@ class AcquisitionComponent
 	/** Flag indicating if the field has been set or not. */
 	private boolean		setField;
 	
+	/** Flag indicating the value of the {@link #area} component 
+	 * has been modified.
+	 */
+	private boolean		dirty;
+	
+	/** The selected object. */
+	private Object		value;
+	
+	/**
+	 * Returns the original value of the {@link #area}.
+	 * 
+	 * @return See above.
+	 */
+	private Object getValue()
+	{
+		if (area instanceof JComboBox) {
+			JComboBox c = (JComboBox) area;
+			return c.getSelectedItem(); 
+		} else if (area instanceof JTextComponent) {
+			JTextComponent c = (JTextComponent) area;
+			return c.getText();
+		} 
+		return null;
+	}
+	
+	/** Fires a property to enable the save action. */
+	private void notifyDataToSave()
+	{
+		dirty = true;
+		Object v = getValue();
+		if (value != null && value.equals(v)) dirty = false;
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -64,10 +107,12 @@ class AcquisitionComponent
 	 */
 	AcquisitionComponent(JLabel label, JComponent area)
 	{
+		dirty = false;
 		this.label = label;
 		this.area = area;
 		setField = true;
 		label.setLabelFor(area);
+		value = getValue();
 	}
 	
 	/**
@@ -100,4 +145,47 @@ class AcquisitionComponent
 	 */
 	JComponent getArea() { return area; }
 	
+	/**
+	 * Returns <code>true</code> if the value of the {@link #area} has been 
+	 * modified, <code>false</code> otherwise.
+	 *  
+	 * @return See above.
+	 */
+	boolean isDirty() { return dirty; }
+	
+	/**
+	 * Adds the passed property listener.
+	 * 
+	 * @param listener The listener to add.
+	 */
+	void attachListener(PropertyChangeListener listener)
+	{
+		addPropertyChangeListener(listener);
+		if (area instanceof JComboBox) {
+			JComboBox c = (JComboBox) area;
+			c.addActionListener(new ActionListener() {
+				
+				public void actionPerformed(ActionEvent e) {
+					notifyDataToSave();
+				}
+			
+			});
+		} else if (area instanceof JTextComponent) {
+			JTextComponent c = (JTextComponent) area;
+			c.getDocument().addDocumentListener(new DocumentListener() {
+			
+				public void removeUpdate(DocumentEvent e) {
+					notifyDataToSave();
+				}
+			
+				public void insertUpdate(DocumentEvent e) {
+					notifyDataToSave();
+				}
+			
+				public void changedUpdate(DocumentEvent e) {}
+			
+			});
+		} 
+	}
+
 }

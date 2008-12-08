@@ -1100,13 +1100,13 @@ class EditorModel
 	 * 
 	 * @param toAdd		The annotation to save.
 	 * @param toRemove	The annotation to remove.
+	 * @param metadata	The metadata to save.
 	 */
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
-			List<AnnotationData> toRemove)
+			List<AnnotationData> toRemove, List<Object> metadata)
 	{
 		if (refObject instanceof DataObject)
-			parent.saveData(toAdd, toRemove, (DataObject) refObject);
-		//else parent.saveData(toAdd, toRemove, null);
+			parent.saveData(toAdd, toRemove, metadata, (DataObject) refObject);
 	}
 	
 	/**
@@ -1116,7 +1116,7 @@ class EditorModel
 	 */
 	void fireDataObjectSaving(ExperimenterData exp)
 	{
-		parent.saveData(null, null, exp);
+		parent.saveData(null, null, null, exp);
 	}
 	
 	/**

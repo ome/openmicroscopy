@@ -306,7 +306,6 @@ class ImageAcquisitionComponent
 		label = new JLabel();
 		Font font = label.getFont();
 		int sizeLabel = font.getSize()-2;
-		Object selected;
 		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetStage == null) {
@@ -365,7 +364,6 @@ class ImageAcquisitionComponent
 		label = new JLabel();
 		Font font = label.getFont();
 		int sizeLabel = font.getSize()-2;
-		Object selected;
 		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetEnv == null) {
@@ -387,11 +385,6 @@ class ImageAcquisitionComponent
 			if (value instanceof Number) {
 				area = UIUtilities.createComponent(
 						NumericalTextField.class, null);
-				if (EditorUtil.HUMIDITY.equals(key) ||
-						EditorUtil.CO2_PERCENT.equals(key)) {
-					//((NumericalTextField) area).setMinimum(0.0);
-					//((NumericalTextField) area).setMaximum(1.0);
-				}
 				if (EditorUtil.TEMPERATURE.equals(key)) {
 					((NumericalTextField) area).setMinimum(-Double.MAX_VALUE);
 					((NumericalTextField) area).setNegativeAccepted(true);
@@ -424,6 +417,8 @@ class ImageAcquisitionComponent
 	private void buildGUI()
 	{
 		fieldsObjective.clear();
+		fieldsEnv.clear();
+		fieldsStage.clear();
 		ImageAcquisitionData data = model.getImageAcquisitionData();
 		transformObjective(EditorUtil.transformObjective(data));
 		transformEnv(EditorUtil.transformImageEnvironment(data));
@@ -436,6 +431,9 @@ class ImageAcquisitionComponent
 		add(objectivePane);
 		add(envPane);
 		add(stagePane);
+		parent.attachListener(fieldsObjective);
+		parent.attachListener(fieldsStage);
+		parent.attachListener(fieldsEnv);
 	}
 	
 	/**
@@ -471,6 +469,34 @@ class ImageAcquisitionComponent
 	{
 		init = false;
 		removeAll();
+	}
+
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave()
+	{
+		boolean b = parent.hasDataToSave(fieldsObjective);
+		if (b) return true;
+		b = parent.hasDataToSave(fieldsEnv);
+		if (b) return true;
+		b = parent.hasDataToSave(fieldsStage);
+		if (b) return true;
+		return false;
+	}
+	
+	/**
+	 * Prepares the data to save.
+	 * 
+	 * @return See above.
+	 */
+	ImageAcquisitionData prepareDataToSave()
+	{
+		if (!hasDataToSave()) return null;
+		return null;
 	}
 	
 }

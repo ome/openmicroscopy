@@ -211,9 +211,14 @@ class GeneralPaneUI
 		browserTaskPane.setTitle(s);
 		layout.setRow(n-1, h);
 	}
-   
-	/** Save data. */
-	void saveData()
+	
+	/** 
+	 * Returns an array of size 2 with the collection of 
+	 * annotation to save. 
+	 * 
+	 * @return See above.
+	 */
+	List<AnnotationData>[] prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
@@ -232,7 +237,11 @@ class GeneralPaneUI
 		l = textualAnnotationsUI.getAnnotationToRemove();
 		if (l != null && l.size() > 0)
 			toRemove.addAll(l);
-		model.fireAnnotationSaving(toAdd, toRemove);
+		List<AnnotationData>[] array = new List[2];
+		array[0] = toAdd;
+		array[1] = toRemove;
+		return array;
+		
 	}
 	
 	/** Updates display when the new root node is set. */

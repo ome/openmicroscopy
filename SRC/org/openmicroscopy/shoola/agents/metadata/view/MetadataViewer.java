@@ -204,10 +204,12 @@ public interface MetadataViewer
 	 * 
 	 * @param toAdd		The annotations to add or update.
 	 * @param toRemove	The annotations to remove.
+	 * @param metadata	The metadata to save.
 	 * @param data		The data object to annotate.
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
-						List<AnnotationData> toRemove, DataObject data);
+						List<AnnotationData> toRemove, List<Object> metadata,
+						DataObject data);
 	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>

@@ -192,6 +192,37 @@ class AcquisitionDataUI
 	}
 	
 	/**
+	 * Attaches listener to each item of the map.
+	 * 
+	 * @param map The map to handle.
+	 */
+	void attachListener(Map<String, AcquisitionComponent> map)
+	{
+		Iterator<String> i = map.keySet().iterator();
+		while (i.hasNext())
+			map.get(i.next()).attachListener(controller);
+	}
+	
+	/**
+	 * Returns <code>true</code> if one of the components has been modified,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param map The map to handle.
+	 * @return See above.
+	 */
+	boolean hasDataToSave(Map<String, AcquisitionComponent> map)
+	{
+		if (map == null) return false;
+		Iterator<String> i = map.keySet().iterator();
+		AcquisitionComponent comp;
+		while (i.hasNext()) {
+			comp = map.get(i.next());
+			if (comp.isDirty()) return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Formats the button used to hide or show the unset fields
 	 * for acquisition metadata.
 	 * 
@@ -376,6 +407,45 @@ class AcquisitionDataUI
 		repaint();
 		if (!imagePane.isCollapsed())
 			controller.loadImageAcquisitionData();
+	}
+	
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave()
+	{
+		boolean b = imageAcquisition.hasDataToSave();
+		if (b) return b;
+		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
+		while (i.hasNext()) {
+			b = i.next().hasDataToSave();
+			if (b) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Prepares the data to save.
+	 * 
+	 * @return See above.
+	 */
+	List<Object> prepareDataToSave()
+	{
+		List<Object> data = new ArrayList<Object>();
+		if (!hasDataToSave()) return data;
+		Object object = imageAcquisition.prepareDataToSave();
+		if (object != null) data.add(object);
+		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
+		List<Object> objects;
+		while (i.hasNext()) {
+			objects = i.next().prepareDataToSave();
+			if (objects.size() > 0)
+				data.addAll(objects);
+		}
+		return data;
 	}
 	
 	/**
