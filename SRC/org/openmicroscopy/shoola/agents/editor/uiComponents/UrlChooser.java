@@ -90,8 +90,9 @@ public class UrlChooser
 	 * Clicking on the links in this page will place the link URL in the urlField. 
 	 */
 	public static final String DEMO_FILES_URL = "http://cvs.openmicroscopy." +
-			"org.uk/snapshots/omero/editor/demoFiles/beta4/";
+			"org.uk/snapshots/omero/editor/demoFiles/beta4/index.html";
 
+	private static int 				fileNameIncrementer = 1;
 	/**
 	 * A text field to display the selected URL, or allow users 
 	 * to type their own.
@@ -125,7 +126,7 @@ public class UrlChooser
 		Registry reg = EditorAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
 		try {
-			String newFileName = "downloadedFile";
+			String newFileName = "downloadedFile" + fileNameIncrementer++;
 			File downloadedFile = FileDownload.downloadFile(url, newFileName);
 			model.openLocalFile(downloadedFile);
 			downloadedFile.delete();

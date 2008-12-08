@@ -332,7 +332,7 @@ public class FieldPanel
 			JTable table = new ParamValuesTable(field);
 			// put the table in a UI with buttons for adding and deleting rows
 			TableEditUI tableUI = new TableEditUI(table);
-			
+			tableUI.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
 			addFieldComponent(tableUI);
 			
 		} else {

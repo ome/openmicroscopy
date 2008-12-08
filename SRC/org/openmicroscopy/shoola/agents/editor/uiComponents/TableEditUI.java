@@ -44,6 +44,7 @@ import javax.swing.table.TableModel;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.model.tables.IMutableTableModel;
 
 /** 
@@ -268,6 +269,9 @@ public class TableEditUI
 				}
 			}
 		}
+		// used to notify parents that the panel needs different size. 
+		firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, 
+				null, getPreferredSize());
 	}
 	
 	/**
