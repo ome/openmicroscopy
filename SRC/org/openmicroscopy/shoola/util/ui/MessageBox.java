@@ -140,6 +140,7 @@ public class MessageBox
 	{
 		super(owner, title, message, icon);
 		setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		pack();
 	}
 	
 	/**
@@ -156,6 +157,7 @@ public class MessageBox
 	{
 		super(owner, title, message, icon);
 		setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		pack();
 	}
 	
     /**
@@ -165,7 +167,7 @@ public class MessageBox
      */
     public int showMsgBox()
     {
-    	setLocation(this.getParent().getLocation());
+    	setLocation(getParent().getLocation());
     	setVisible(true);
     	return option;	
     }

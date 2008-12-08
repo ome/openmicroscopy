@@ -232,6 +232,7 @@ class AnnotationDataUI
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		tagsPane = new JTextPane();
+		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		tagsPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		tagsPane.setText(DEFAULT_TEXT);
 		tagsPane.addFocusListener(this);
@@ -659,6 +660,7 @@ class AnnotationDataUI
 		startAutoComplete();
 		String name = tagsPane.getText();
 		setSelectedTextValue(name.split(SearchUtil.COMMA_SEPARATOR));
+		tagFlag = true;
 	}
 	
 	/**
@@ -1289,6 +1291,8 @@ class AnnotationDataUI
 	public void insertUpdate(DocumentEvent e)
 	{
 		handleTextInsert();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
 	}
 
 	/**

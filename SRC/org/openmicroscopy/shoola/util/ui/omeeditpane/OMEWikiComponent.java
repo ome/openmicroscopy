@@ -41,7 +41,6 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.event.DocumentListener;
 
-
 //Third-party libraries
 
 //Application-internal dependencies

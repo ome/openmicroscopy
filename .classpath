@@ -32,5 +32,6 @@
 	<classpathentry kind="lib" path="LIB/loci_tools.jar"/>
 	<classpathentry kind="lib" path="LIB/monitors.jar"/>
 	<classpathentry kind="lib" path="LIB/OmeroImporter.jar"/>
+	<classpathentry kind="lib" path="LIB/importer_common.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

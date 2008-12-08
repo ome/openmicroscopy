@@ -213,7 +213,7 @@ class TextualAnnotationsUI
 	private void buildGUI()
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		double[][] size = {{DEFAULT_WIDTH}, {60, 0, 0}};
+		double[][] size = {{TableLayout.FILL}, {150, 0, 0}};
     	setLayout(new TableLayout(size));
     	JScrollPane pane = new JScrollPane(commentArea);
     	pane.setBorder(null);
