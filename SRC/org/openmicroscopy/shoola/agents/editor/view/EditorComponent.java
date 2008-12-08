@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.view;
 import java.io.File;
 
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -33,6 +34,7 @@ import javax.swing.JOptionPane;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -275,23 +277,24 @@ class EditorComponent
 				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("File Saved", "The File has been saved locally.");
 			} else {
-				//This assumes that we are editing an existing file.
-				File toEdit = model.getFileToEdit();
-				if (toEdit != null) {
-					model.fireFileSaving(toEdit);
-				} else {
-					//Saves as...
-					// Temporary fix to allow user to enter name...
-					String fileName = JOptionPane.showInputDialog(null, 
-							"Please enter a file name",
-							"Save File to Server", JOptionPane.QUESTION_MESSAGE);
-					if (! fileName.endsWith(".pro.xml")) {
-						fileName = fileName + ".pro.xml";
-					}
-					File test = new File(fileName);
-					model.fireFileSaving(test);
-					fireStateChange();
+				// If attempt to save locally returns false, file doesn't exist,
+				// If currently edited file isn't null, save it to server.
+				
+				//Saves As...
+				// Temporary fix to allow user to enter name...
+				String fileName = JOptionPane.showInputDialog(null, 
+						"Please enter a file name",
+						"Save File to Server", JOptionPane.QUESTION_MESSAGE);
+				if (fileName == null)	return;
+				
+				FileFilter editor = new EditorFileFilter();
+				if (! editor.accept(new File(fileName))) {
+					fileName = fileName + "." + EditorFileFilter.UPE_XML;
 				}
+				File test = new File(fileName);
+				model.fireFileSaving(test);
+				fireStateChange();
+				
 			}
 		} else {
 			//This assumes that we are editing an existing file.

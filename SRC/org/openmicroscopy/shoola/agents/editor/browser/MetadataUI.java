@@ -97,7 +97,7 @@ class MetadataUI
 		imageAcquisition = new MetadataPanelsComponent(this, model);
 		imageAcquisition.addPropertyChangeListener(this);
 		imagePane = EditorUtil.createTaskPane("OMERO.editor");
-		imagePane.setCollapsed(false);
+		// imagePane.setCollapsed(false);
 		imagePane.add(imageAcquisition);
 		imagePane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
@@ -191,8 +191,6 @@ class MetadataUI
                  c.gridwidth = GridBagConstraints.REMAINDER;     //end row
                  c.fill = GridBagConstraints.HORIZONTAL;
                  c.weightx = 1.0;
-                 System.out.println("AcquisitionDataUI layoutFields comp: " + 
-                		 comp.getLabel().getText());
                  pane.add(comp.getArea(), c);  
             } 
         }

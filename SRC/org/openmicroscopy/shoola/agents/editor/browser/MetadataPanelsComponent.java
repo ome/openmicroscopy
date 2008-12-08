@@ -180,11 +180,17 @@ class MetadataPanelsComponent
 				if (units != null) {
 					key = key + " (" + units + ")";
 				}
-				((NumericalTextField) area).setText(""+value); // must be number
+				((NumericalTextField) area).setNumberType(Float.class);
 				((NumericalTextField) area).setNegativeAccepted(true);
+				((NumericalTextField) area).setText(""+value); // must be number
 				((NumericalTextField) area).setEditedColor(
 						UIUtilities.EDITED_COLOR);
 			} else {
+				if (TextParam.TEXT_LINE_PARAM.equals(paramType)) {
+					// if text field, value is in the value attribute
+					value = param.getAttribute(TextParam.PARAM_VALUE);
+					// TODO implement the 'value' for other parameter types
+				}
 				area = UIUtilities.createComponent(OMETextArea.class, 
 						null);
 				if (value == null || value.equals(""))

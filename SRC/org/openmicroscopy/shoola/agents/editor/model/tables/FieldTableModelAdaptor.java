@@ -111,7 +111,11 @@ public class FieldTableModelAdaptor
 		if (columnIndex > params.size())
 			return null;
 		
-		return params.get(columnIndex).getValueAt(rowIndex);
+		IParam param = params.get(columnIndex);
+		if (param.getValueCount()-1 < rowIndex)
+			return null;
+		
+		return param.getValueAt(rowIndex);
 	}
 	
 	/**
@@ -175,10 +179,12 @@ public class FieldTableModelAdaptor
     		 return Object.class;
     	 
     	 // JTable should render the Boolean as a check-box
-    	 Object obj = params.get(col).getValueAt(0);
+    	 if (params.get(col).getValueCount() > 0) {
+    		 Object obj = params.get(col).getValueAt(0);
     	 
-    	 if (obj != null) {
-    		 return obj.getClass();
+    		 if (obj != null) {
+    			 return obj.getClass();
+    		 }
     	 }
          return Object.class;
      }

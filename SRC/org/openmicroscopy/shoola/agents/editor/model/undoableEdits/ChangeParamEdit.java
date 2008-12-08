@@ -38,6 +38,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 
 /** 
@@ -76,6 +77,11 @@ public class ChangeParamEdit
 	 * The new Parameter (null if not adding a parameter)
 	 */
 	private IFieldContent 	oldParam;
+	
+	/**
+	 * Need to copy name of parameter from old to new. 
+	 */
+	private String 			oldParamName;
 	
 	/**
 	 * The index of the parameter to change. 
@@ -164,7 +170,11 @@ public class ChangeParamEdit
 		
 		this.node = node;
 		
-		oldParam = field.getContentAt(paramIndex);
+		if (field.getContentCount() > paramIndex) {
+			oldParam = field.getContentAt(paramIndex);
+		} else {
+			new RuntimeException("ChangeParam edit index out of bounds");
+		}
 		
 		doEdit();
 	}
@@ -195,11 +205,15 @@ public class ChangeParamEdit
 	{
 		if (!canDo()) return;
 		
-		if (field.getContentCount() > paramIndex) {
+		if (oldParam != null) {
+			oldParamName = oldParam.getAttribute(AbstractParam.PARAM_NAME); 
 			paramIndex = field.removeContent(oldParam);	
 		}
-		if (newParam != null)
+		
+		if (newParam != null) {
+			newParam.setAttribute(AbstractParam.PARAM_NAME, oldParamName);
 			field.addContent(paramIndex, newParam);
+		}
 		
 		notifySelectStartEdit();
 	}
