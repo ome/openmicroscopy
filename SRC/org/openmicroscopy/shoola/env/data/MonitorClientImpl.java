@@ -54,19 +54,28 @@ class MonitorClientImpl
 	extends _MonitorClientDisp
 {
 
-	private DataObject container;
+	/** The container where to import the image. */
+	private DataObject 			container;
 	
-	private OMEROMetadataStore metadataStore;
+	/** Reference to the metadata store. */
+	private OMEROMetadataStore	metadataStore;
 	
-	private OMEROWrapper reader;
-	
+	/**
+	 * Imports the image. 
+	 * 
+	 * @param path The path to the image.
+	 */
 	private void importImage(String path)
 	{
+		OMEROWrapper reader = new OMEROWrapper();
 		ImportLibrary lib = new ImportLibrary(metadataStore, reader);
 		lib.setDataset(container.asDataset());
 		try {
+			long start = System.currentTimeMillis();
+			System.err.println("start import "+path);
 			lib.importImage(new File(path), 0, 0, 1, path, false);
 			metadataStore.createRoot();
+			System.err.println("End import: "+(System.currentTimeMillis()-start));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -75,7 +84,7 @@ class MonitorClientImpl
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param gateway
+	 * @param metadataStore
 	 * @param container
 	 */
 	MonitorClientImpl(OMEROMetadataStore metadataStore,
@@ -83,7 +92,6 @@ class MonitorClientImpl
 	{
 		this.container = container;
 		this.metadataStore = metadataStore;
-		reader = new OMEROWrapper();
 	}
 	
 	/**

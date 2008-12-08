@@ -91,19 +91,6 @@ public class TaskBarManager
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
 	
-	/** Array of supported browsers. */
-	private static final String[]	BROWSERS_UNIX;
-	
-	static {
-		BROWSERS_UNIX = new String[6];
-		BROWSERS_UNIX[0] = "firefox";
-		BROWSERS_UNIX[1] = "opera";
-		BROWSERS_UNIX[2] = "konqueror";
-		BROWSERS_UNIX[3] = "epiphany";
-		BROWSERS_UNIX[4] = "mozilla";
-		BROWSERS_UNIX[5] = "netscape";
-	}
-	
 
 	/** The view this controller is managing. */
 	private TaskBarView				view;
@@ -157,39 +144,6 @@ public class TaskBarManager
 				AbstractIconManager.getOMEIcon());
 		launcher.openURL(url);
 		if (suDialog != null) suDialog.close();
-		/*
-		String osName = System.getProperty("os.name");
-		try {
-			if (osName.startsWith("Mac OS")) {
-				Class fileMgr = Class.forName("com.apple.eio.FileManager");
-				Method openURL = fileMgr.getDeclaredMethod("openURL",
-											new Class[] {String.class});
-				openURL.invoke(null, new Object[] {url});
-				if (suDialog != null) suDialog.close();
-			}
-			else if (osName.startsWith("Windows"))
-				Runtime.getRuntime().exec(
-						"rundll32 url.dll,FileProtocolHandler "+url);
-			else { //assume Unix or Linux
-				String browser = null;
-				for (int count = 0; count < BROWSERS_UNIX.length && 
-					browser == null; count++)
-					if (Runtime.getRuntime().exec(
-							new String[] {"which", 
-										BROWSERS_UNIX[count]}).waitFor() == 0)
-						browser = BROWSERS_UNIX[count];
-				if (browser == null)
-					throw new Exception("Could not find web browser");
-				else {
-					Runtime.getRuntime().exec(new String[] {browser, url});
-					if (suDialog != null) suDialog.close();
-				}
-			}
-		} catch (Exception e) {
-			UserNotifier un = container.getRegistry().getUserNotifier();
-			un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
-		}
-		*/
 	}
 	
 	/**
@@ -390,8 +344,7 @@ public class TaskBarManager
 		}
 		*/
 		
-        MessageBox msg;
-        msg = new MessageBox(view, "Exit application", 
+        MessageBox msg = new MessageBox(view, "Exit application", 
     			"Do you really want to close the application?", 
     			icons.getIcon(IconManager.QUESTION));
         int option = msg.centerMsgBox();

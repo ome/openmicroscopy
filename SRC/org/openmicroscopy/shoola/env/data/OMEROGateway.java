@@ -1095,8 +1095,14 @@ class OMEROGateway
 				fsConfig.getProperty("omerofs.MonitorServer"));
 		monitorPrx = monitors.MonitorServerPrxHelper.uncheckedCast(
 				base.ice_twoway());
-		String key = "omerofs.MonitorClient.Endpoints";
-		blitzClient.getProperties().setProperty(key, fsConfig.getProperty(key));
+		Iterator i = fsConfig.keySet().iterator();
+		String key;
+		while (i.hasNext()) {
+			key = (String) i.next();
+			if (!("omerofs.MonitorServer".equals(key)))
+				blitzClient.getProperties().setProperty(key, 
+						fsConfig.getProperty(key));
+		}
 	}
 	
 	/** 
@@ -4208,6 +4214,7 @@ class OMEROGateway
 			monitors.MonitorClientPrxHelper.uncheckedCast(                
 				adapter.createProxy(c.stringToIdentity(name)));
 		try {
+			System.err.println(directory);
 			String id = monitorPrx.createMonitor(EventType.Create, directory, 
 					whiteList, blackList, PathMode.Flat, mClientProxy);
 			monitorIDs.add(id);

@@ -96,7 +96,7 @@ public class ImporterChooserDialog
 						"Monitor the selected directory.";
 	
     /** Brief description of the action performed by this widget. */
-    private static final String     NOTE = "Import the selected file" +
+    private static final String     NOTE = "Import the selected file " +
     		"or monitor a directory.";
     
     /** Brief description of the action performed by this widget. */
@@ -210,7 +210,7 @@ public class ImporterChooserDialog
 	/** Monitors the selected directory. */
 	private void monitorDirectory()
 	{
-		File file = chooser.getSelectedDirectory();
+		File file = chooser.getFSDefaultDirectory();//chooser.getSelectedDirectory();//chooser.getFSDefaultDirectory();
 		if (file == null) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Import", "Please select a directory to monitor.");

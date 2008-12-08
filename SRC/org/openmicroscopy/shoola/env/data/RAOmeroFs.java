@@ -90,6 +90,7 @@ public class RAOmeroFs implements IRandomAccess {
 		  length = server.getSize(path);
 		  return length;//server.getSize(path);
 	} catch (Exception e) {
+		e.printStackTrace();
 		throw new IOException(e.getMessage());
 	}
   }
@@ -99,7 +100,6 @@ public class RAOmeroFs implements IRandomAccess {
   }
 
   public ByteBuffer read(long off, int len) {
-	  System.err.println("Reading " + len + " bytes from " + off);
 	  byte[] block = null;
 	  try {
 		  block = server.readBlock(path, off, len);
@@ -134,7 +134,6 @@ public class RAOmeroFs implements IRandomAccess {
 	  byte[] block;
 	  try {
 		  block = server.readBlock(path, fp, len);
-		  System.err.println(off+" "+len+" "+fp+" "+length);
 	  } catch (Exception e) {
 		  throw new IOException(e.getMessage());
 	  }

@@ -101,6 +101,7 @@ class ImporterChooser
 		if (f != null) setSelectedFile(f);
 	}
 
+	private FileSystemView fsv;
 	/**
 	 * Creates a new instance.
 	 * 
@@ -109,10 +110,13 @@ class ImporterChooser
 	 */
 	ImporterChooser(FileSystemView fsv, List<FileFilter> filters)
 	{
-		super(fsv.getDefaultDirectory(), fsv);
+		//super(fsv.getDefaultDirectory(), fsv);
+		this.fsv = fsv;
 		initialize(filters);
 	}
 
+	File getFSDefaultDirectory() { return fsv.getDefaultDirectory(); }
+	
 	/**
 	 * Creates a new instance.
 	 * 

@@ -105,6 +105,8 @@ public class RandomAccessStream extends InputStream implements DataInput {
    * around the given file.
    */
   public RandomAccessStream(String file) throws IOException {
+    //File f = new File(Location.getMappedId(file));
+	  /*
     File f = new File(Location.getMappedId(file));
     f = f.getAbsoluteFile();
     if (Location.getMappedFile(file) != null) {
@@ -202,6 +204,11 @@ public class RandomAccessStream extends InputStream implements DataInput {
       length = raf.length();
     }
     else throw new IOException("File not found : " + file);
+    */
+	  String[] array = file.split("omero-fs:");
+	  file = RAOmeroFs.FS_NAME+array[1];
+	  raf = new RAOmeroFs(file); //file
+      length = raf.length();
     this.file = file;
     fp = 0;
     afp = 0;

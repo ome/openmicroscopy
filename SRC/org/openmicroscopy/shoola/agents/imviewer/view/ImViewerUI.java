@@ -85,7 +85,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -96,7 +95,6 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -781,8 +779,8 @@ class ImViewerUI
 		
 		annotatorPanel.add(model.getMetadataView().getUI(), "0, 0");
 		*/
-		tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
-				annotatorPanel, "", ImViewer.ANNOTATOR_INDEX);
+		//tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
+		//		annotatorPanel, "", ImViewer.ANNOTATOR_INDEX);
 
 		gridViewPanel = new ClosableTabbedPaneComponent(ImViewer.GRID_INDEX, 
 				browser.getGridViewTitle(),  browser.getGridViewIcon(), "");

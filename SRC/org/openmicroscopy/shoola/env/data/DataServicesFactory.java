@@ -76,6 +76,9 @@ public class DataServicesFactory
 	 */
 	private static final int		EXIT_TIMEOUT = 10000;
 	
+	/** The time after which a question will be asked to the user. */
+	private static final int		IDLE_TIME = 3600000;
+	
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
@@ -124,6 +127,9 @@ public class DataServicesFactory
      * server.
      */
     private Timer 					timer;
+    
+    /** The starting time in milliseconds. */
+    private long					start;
     
     private Properties 				fsConfig;
     
@@ -239,6 +245,57 @@ public class DataServicesFactory
 	 */
 	void sessionExpiredExit()
 	{
+		long time = System.currentTimeMillis();
+		long diff = time-start;
+		
+		if (diff<IDLE_TIME) {
+			start = time;
+			//reconnect 
+			try {
+        		UserCredentials uc = (UserCredentials) 
+    				container.getRegistry().lookup(
+    						LookupNames.USER_CREDENTIALS);
+        		initTimer();
+    			((OmeroImageServiceImpl) is).shutDown();
+    			omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
+    			timer.cancel();
+			} catch (Exception e) {
+				UserNotifier un = registry.getUserNotifier();
+				un.notifyInfo("Reconnect", "An error while trying to " +
+						"reconnect.\n The application will now exit. ");
+				exitApplication();
+			}
+		} else { //ask user
+			MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
+					"Time out", "Your session has expired.\n" +
+					"The changes you might have made have not been " +
+					"saved. \n" +
+					"To do so, you will need to reactivate " +
+			"the session.");
+			msg.setYesText("Reconnect");
+			msg.setNoText("Exit");
+			try {
+				if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
+					exitApplication();
+				} else {
+					try {
+						UserCredentials uc = (UserCredentials) 
+						container.getRegistry().lookup(
+								LookupNames.USER_CREDENTIALS);
+						initTimer();
+						((OmeroImageServiceImpl) is).shutDown();
+						omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
+						timer.cancel();
+					} catch (Exception e) {
+						UserNotifier un = registry.getUserNotifier();
+						un.notifyInfo("Reconnect", "An error while trying to " +
+						"reconnect.\n The application will now exit. ");
+						exitApplication();
+					}
+				}
+			} catch (Exception e) {}
+		}
+		/*
 		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
 							"Time out", "Your session has expired.\n" +
     						"The changes you might have made have not been " +
@@ -267,6 +324,7 @@ public class DataServicesFactory
     			}
             }
 		} catch (Exception e) {}
+		*/
 	}
 	
 	/**
@@ -389,6 +447,9 @@ public class DataServicesFactory
 			agentInfo.getRegistry().bind(LookupNames.CONNECTION_SPEED, 
 					fastConnection);
 		}
+		
+		//set the start time
+		start = System.currentTimeMillis();
 	}
 	
 	/**
