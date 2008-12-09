@@ -146,6 +146,13 @@ class AcquisitionComponent
 	JComponent getArea() { return area; }
 	
 	/**
+	 * Returns the value of the {@link #area} component.
+	 * 
+	 * @return See above.
+	 */
+	Object getAreaValue() { return getValue(); }
+	
+	/**
 	 * Returns <code>true</code> if the value of the {@link #area} has been 
 	 * modified, <code>false</code> otherwise.
 	 *  

@@ -63,6 +63,9 @@ public class DataSaver
 	/** The annotation to remove from the data object. */
 	private List<AnnotationData> 	toRemove;
 	
+	/** The acquisition metadata. */
+	private List<Object> 			acquisitionMetadata;
+	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -75,9 +78,11 @@ public class DataSaver
 	 * 						Mustn't be <code>null</code>.
 	 * @param toAdd			The collection of annotations to add.
 	 * @param toRemove		The collection of annotations to remove.
+	 * @param acquisitionMetadata 
 	 */
 	public DataSaver(MetadataViewer viewer, Collection<DataObject> data,
-					 List<AnnotationData> toAdd, List<AnnotationData> toRemove)
+					 List<AnnotationData> toAdd, List<AnnotationData> toRemove,
+					 List<Object> acquisitionMetadata)
 	{
 		super(viewer, null);
 		if (data == null)
@@ -85,6 +90,7 @@ public class DataSaver
 		this.data = data;
 		this.toAdd = toAdd;
 		this.toRemove = toRemove;
+		this.acquisitionMetadata = acquisitionMetadata;
 	}
 	
 	/** 
@@ -94,7 +100,8 @@ public class DataSaver
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.saveData(data, toAdd, toRemove, userID, this);
+		handle = mhView.saveData(data, toAdd, toRemove, acquisitionMetadata, 
+								userID, this);
 	}
 	
 	/** 

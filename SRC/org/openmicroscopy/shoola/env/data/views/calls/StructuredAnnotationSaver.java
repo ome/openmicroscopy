@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -68,17 +69,24 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
+     * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadCall(final Collection<DataObject> data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
-    		final long userID)
+    		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
+            	if (metadata != null) {
+            		Iterator<Object> i = metadata.iterator();
+            		while (i.hasNext()) {
+						os.saveAcquisitionData(i.next()) ;
+					}
+            	}
             	result = os.saveData(data, toAdd, toRemove, userID);
             }
         };
@@ -92,17 +100,24 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
+     * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadBatchCall(final Collection<DataObject> data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
-    		final long userID)
+    		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
+            	if (metadata != null) {
+            		Iterator<Object> i = metadata.iterator();
+            		while (i.hasNext()) {
+						os.saveAcquisitionData(i.next()) ;
+					}
+            	}
             	result = os.saveBatchData(data, toAdd, toRemove, userID);
             }
         };
@@ -116,17 +131,24 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
+     * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadBatchCall(final TimeRefObject data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
-    		final long userID)
+    		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
+            	if (metadata != null) {
+            		Iterator<Object> i = metadata.iterator();
+            		while (i.hasNext()) {
+						os.saveAcquisitionData(i.next()) ;
+					}
+            	}
             	result = os.saveBatchData(data, toAdd, toRemove, userID);
             }
         };
@@ -150,20 +172,21 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
+     * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @param batch		Pass <code>true</code> to indicate that it is a batch
      * 					annotation, <code>false</code> otherwise.
      */
     public StructuredAnnotationSaver(Collection<DataObject> data, 
-    		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long
-    		userID, boolean batch)
+    		List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+    		List<Object> metadata, long userID, boolean batch)
     {
     	if (data == null)
     		throw new IllegalArgumentException("No object to save.");
     	if (batch)
-    		loadCall = loadBatchCall(data, toAdd, toRemove, userID);
+    		loadCall = loadBatchCall(data, toAdd, toRemove, metadata, userID);
     	else 
-    		loadCall = loadCall(data, toAdd, toRemove, userID);
+    		loadCall = loadCall(data, toAdd, toRemove, metadata, userID);
     }
     
     /**
@@ -180,7 +203,7 @@ public class StructuredAnnotationSaver
     {
     	if (timeRefObject == null)
     		throw new IllegalArgumentException("No time period sepecified.");
-    	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, userID);
+    	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, null, userID);
     }
     
 }

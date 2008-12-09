@@ -322,14 +322,14 @@ class MetadataViewerComponent
 		
 		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
-			model.fireSaving(toAdd, toRemove, toSave);
+			model.fireSaving(toAdd, toRemove, metadata, toSave);
 		} else if (refObject instanceof ScreenData) {
-			model.fireSaving(toAdd, toRemove, toSave);
+			model.fireSaving(toAdd, toRemove, metadata, toSave);
 		} else if (refObject instanceof PlateData) {
 //			Only update properties. 
 			//TODO:Improve code
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, toSave);
+				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}
 			dialog = initMessageDialog();
@@ -350,14 +350,14 @@ class MetadataViewerComponent
 			if (option == MessageBox.YES_OPTION) {
 				//toSave.add(data);
 				if (single.isSelected()) 
-					model.fireSaving(toAdd, toRemove, toSave);
+					model.fireSaving(toAdd, toRemove, metadata, toSave);
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
 		} else if (refObject instanceof DatasetData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, toSave);
+				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}
 			dialog = initMessageDialog();
@@ -379,29 +379,29 @@ class MetadataViewerComponent
 			if (option == MessageBox.YES_OPTION) {
 				//toSave.add(data);
 				if (single.isSelected()) 
-					model.fireSaving(toAdd, toRemove, toSave);
+					model.fireSaving(toAdd, toRemove, metadata, toSave);
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
 		} else if (refObject instanceof ImageData) {
-			model.fireSaving(toAdd, toRemove, toSave);
+			model.fireSaving(toAdd, toRemove, metadata, toSave);
 		} else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, toSave);
+				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}	
 			TagAnnotationData tag = (TagAnnotationData) refObject;
 			Set set = tag.getTags();
 			if (set != null) {
-				model.fireSaving(toAdd, toRemove, toSave);
+				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}
 			set = tag.getImages();
 			boolean toAsk = false;
 			if (set != null && set.size() > 0) toAsk = true;
 			if (!toAsk) {
-				model.fireSaving(toAdd, toRemove, toSave);
+				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}
 			dialog = initMessageDialog();
@@ -423,7 +423,7 @@ class MetadataViewerComponent
 			if (option == MessageBox.YES_OPTION) {
 				//toSave.add(data);
 				if (single.isSelected()) 
-					model.fireSaving(toAdd, toRemove, toSave);
+					model.fireSaving(toAdd, toRemove, metadata, toSave);
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
@@ -566,18 +566,6 @@ class MetadataViewerComponent
 	public void setStatus(boolean busy)
 	{
 		model.getEditor().setStatus(busy);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#showManufacturer(JComponent, Point)
-	 */
-	public void showManufacturer(JComponent comp, Point point)
-	{
-		TinyDialog d = new TinyDialog(view, comp, TinyDialog.CLOSE_ONLY);
-		d.pack();
-		d.setLocation(point);
-		d.setVisible(true);
 	}
 	
 }

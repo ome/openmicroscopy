@@ -3893,6 +3893,7 @@ class OMEROGateway
 		sb.append("left outer join fetch img.position as position ");
         sb.append("left outer join fetch img.condition as condition ");
         sb.append("left outer join fetch img.objectiveSettings as os ");
+        sb.append("left outer join fetch os.medium as me ");
         sb.append("left outer join fetch os.objective as objective ");
         sb.append("left outer join fetch objective.immersion as im ");
         sb.append("left outer join fetch objective.correction as co ");

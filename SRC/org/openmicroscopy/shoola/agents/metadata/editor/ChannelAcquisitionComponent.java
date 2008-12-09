@@ -44,6 +44,11 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.AcquisitionMode;
+import omero.model.ContrastMethod;
+import omero.model.Illumination;
+import omero.model.Immersion;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -645,7 +650,7 @@ class ChannelAcquisitionComponent
 		if (b) return true;
 		return false;
 	}
-	
+
 	/**
 	 * Prepares the data to save.
 	 * 
@@ -655,6 +660,82 @@ class ChannelAcquisitionComponent
 	{
 		List<Object> data = new ArrayList<Object>();
 		if (!hasDataToSave()) return data;
+		String key;
+		AcquisitionComponent comp;
+		Object value;
+		EnumerationObject enumObject;
+		
+		Iterator<String> i; 
+		if (channel.isDirty()) {
+			i = fieldsGeneral.keySet().iterator();
+			while (i.hasNext()) {
+				key = i.next();
+				comp = fieldsGeneral.get(key);
+				if (comp.isDirty()) {
+					value = comp.getAreaValue();
+					if (EditorUtil.NAME.equals(key)) {
+						channel.setName((String) value);
+					} else if (EditorUtil.PIN_HOLE_SIZE.equals(key)) {
+						channel.setPinholeSize((Float) value);
+					} else if (EditorUtil.ND_FILTER.equals(key)) {
+						channel.setNDFilter((Float) value);
+					} else if (EditorUtil.POCKEL_CELL.equals(key)) {
+						channel.setPockelCell((Integer) value);
+					} else if (EditorUtil.EM_WAVE.equals(key)) {
+							channel.setEmissionWavelength((Integer) value);
+					} else if (EditorUtil.EX_WAVE.equals(key)) {
+						channel.setExcitationWavelength((Integer) value);
+					} else if (EditorUtil.ILLUMINATION.equals(key)) {
+						enumObject = (EnumerationObject) value;
+						channel.setIllumination(
+								(Illumination) enumObject.getObject());
+					} else if (EditorUtil.MODE.equals(key)) {
+						enumObject = (EnumerationObject) value;
+						channel.setMode(
+								(AcquisitionMode) enumObject.getObject());
+					} else if (EditorUtil.CONTRAST_METHOD.equals(key)) {
+						enumObject = (EnumerationObject) value;
+						channel.setContrastMethod(
+								(ContrastMethod) enumObject.getObject());
+					}
+				}
+			}
+			data.add(channel);
+		}
+		
+		boolean added = false;
+		ChannelAcquisitionData metadata = model.getChannelAcquisitionData(
+    			channel.getIndex());
+		i = fieldsDetector.keySet().iterator();
+		
+		while (i.hasNext()) {
+			key = i.next();
+			comp = fieldsDetector.get(key);
+			if (comp.isDirty()) {
+				value = comp.getAreaValue();
+				if (EditorUtil.MODEL.equals(key)) {
+					metadata.setDetectorModel((String) value);
+				} else if (EditorUtil.MANUFACTURER.equals(key)) {
+					metadata.setDetectorManufacturer((String) value);
+				} else if (EditorUtil.SERIAL_NUMBER.equals(key)) {
+					metadata.setDetectorSerialNumber((String) value);
+				} else if (EditorUtil.GAIN.equals(key)) {
+					//metadata.setPockelCell((Integer) value);
+				} else if (EditorUtil.VOLTAGE.equals(key)) {
+					//metadata.setEmissionWavelength((Integer) value);
+				} else if (EditorUtil.OFFSET.equals(key)) {
+					//channel.setExcitationWavelength((Integer) value);
+				} else if (EditorUtil.READ_OUT_RATE.equals(key)) {
+					//	channel.setExcitationWavelength((Integer) value);
+				} else if (EditorUtil.ZOOM.equals(key)) {
+					metadata.setDetectorZoom((Float) value);
+				} else if (EditorUtil.AMPLIFICATION.equals(key)) {
+					metadata.setDetectorAmplificationGain((Float) value);
+				}
+			}
+			added = true;
+			data.add(metadata);
+		}
 		return data;
 	}
 	

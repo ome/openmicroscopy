@@ -42,6 +42,10 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Correction;
+import omero.model.Immersion;
+import omero.model.Medium;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -496,7 +500,91 @@ class ImageAcquisitionComponent
 	ImageAcquisitionData prepareDataToSave()
 	{
 		if (!hasDataToSave()) return null;
-		return null;
+		ImageAcquisitionData data = model.getImageAcquisitionData();
+		String key;
+		AcquisitionComponent comp;
+		Object value;
+		EnumerationObject enumObject;
+		
+		Iterator<String> i = fieldsObjective.keySet().iterator();
+		//objective
+		while (i.hasNext()) {
+			key = i.next();
+			comp = fieldsObjective.get(key);
+			if (comp.isDirty()) {
+				value = comp.getAreaValue();
+				if (EditorUtil.MODEL.equals(key)) {
+					data.setModel((String) value);
+				} else if (EditorUtil.MANUFACTURER.equals(key)) {
+					data.setManufacturer((String) value);
+				} else if (EditorUtil.SERIAL_NUMBER.equals(key)) {
+					data.setSerialNumber((String) value);
+				} else if (EditorUtil.NOMINAL_MAGNIFICATION.equals(key)) {
+					data.setNominalMagnification((Integer) value);
+				} else if (EditorUtil.CALIBRATED_MAGNIFICATION.equals(key)) {
+					data.setCalibratedMagnification((Float) value);
+				} else if (EditorUtil.LENSNA.equals(key)) {
+					data.setLensNA((Float) value);
+				} else if (EditorUtil.IMMERSION.equals(key)) {
+					enumObject = (EnumerationObject) value;
+					data.setImmersion((Immersion) enumObject.getObject());
+				} else if (EditorUtil.CORRECTION.equals(key)) {
+					enumObject = (EnumerationObject) value;
+					data.setCorrection((Correction) enumObject.getObject());
+				} else if (EditorUtil.WORKING_DISTANCE.equals(key)) {
+					data.setWorkingDistance((Float) value);
+				} else if (EditorUtil.MEDIUM.equals(key)) {
+					enumObject = (EnumerationObject) value;
+					data.setMedium((Medium) enumObject.getObject());
+				} else if (EditorUtil.REFRACTIVE_INDEX.equals(key)) {
+					data.setRefractiveIndex((Float) value);
+				} else if (EditorUtil.IRIS.equals(key)) {
+					data.setIris((Boolean) value);
+				} else if (EditorUtil.CORRECTION_COLLAR.equals(key)) {
+					data.setCorrectionCollar((Float) value);
+				} 
+			}
+		}
+		
+		//environment
+		i = fieldsEnv.keySet().iterator();
+		while (i.hasNext()) {
+			key = i.next();
+			comp = fieldsEnv.get(key);
+			if (comp.isDirty()) {
+				value = comp.getAreaValue();
+				if (EditorUtil.TEMPERATURE.equals(key)) {
+					data.setTemperature((Float) value);
+				} else if (EditorUtil.AIR_PRESSURE.equals(key)) {
+					data.setAirPressure((Float) value);
+				} else if (EditorUtil.HUMIDITY.equals(key)) {
+					data.setHumidity((Float) value);
+				} else if (EditorUtil.CO2_PERCENT.equals(key)) {
+					data.setCo2Percent((Float) value);
+				}
+			}
+		}
+		
+		//stage label
+
+		i = fieldsStage.keySet().iterator();
+		while (i.hasNext()) {
+			key = i.next();
+			comp = fieldsStage.get(key);
+			if (comp.isDirty()) {
+				value = comp.getAreaValue();
+				if (EditorUtil.NAME.equals(key)) {
+					data.setLabelName((String) value);
+				} else if (EditorUtil.POSITION_X.equals(key)) {
+					data.setPositionX((Float) value);
+				} else if (EditorUtil.POSITION_Y.equals(key)) {
+					data.setPositionY((Float) value);
+				} else if (EditorUtil.POSITION_Z.equals(key)) {
+					data.setPositionZ((Float) value);
+				}
+			}
+		}
+		return data;
 	}
 	
 }

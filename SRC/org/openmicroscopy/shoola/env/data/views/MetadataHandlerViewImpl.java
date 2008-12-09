@@ -216,10 +216,10 @@ class MetadataHandlerViewImpl
 	 */
 	public CallHandle saveData(Collection<DataObject> data, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			long userID, AgentEventListener observer)
+			List<Object> metadata, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-									toAdd, toRemove, userID, false);
+									toAdd, toRemove, metadata, userID, false);
 		return cmd.exec(observer);
 	}
 
@@ -233,7 +233,7 @@ class MetadataHandlerViewImpl
 			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-									toAdd, toRemove, userID, true);
+									toAdd, toRemove, null, userID, true);
 		return cmd.exec(observer);
 	}
 

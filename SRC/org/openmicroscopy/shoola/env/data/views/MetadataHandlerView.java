@@ -245,13 +245,15 @@ public interface MetadataHandlerView
 	 * @param data		The data objects to handle.
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param metadata	The acquisition metadata.
 	 * @param userID	The id of the user.
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveData(Collection<DataObject> data, 
 					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-						long userID, AgentEventListener observer);
+					List<Object> metadata,	long userID, 
+					AgentEventListener observer);
 	
 	/**
 	 * Saves the objects contained in the passed <code>DataObject</code>s, 

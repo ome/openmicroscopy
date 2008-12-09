@@ -52,6 +52,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
 import omero.model.Immersion;
+import omero.model.LogicalChannel;
 import omero.model.Medium;
 import omero.model.Objective;
 import omero.model.ObjectiveI;
@@ -76,6 +77,7 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
+import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -114,10 +116,43 @@ class OmeroMetadataServiceImpl
 	private OMEROGateway            gateway;
 
 	/**
+	 * Saves the logical channel.
+	 * 
+	 * @param data The data to save
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 * @throws DSAccessException
+	 */
+	private void saveChannelData(ChannelData data)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		LogicalChannel lc = data.asChannel().getLogicalChannel();
+		ModelMapper.unloadCollections(lc);
+		gateway.updateObject(lc, (new PojoOptions()).map());
+	}
+	
+	/**
+	 * Saves the metadata linked to a logical channel.
+	 * 
+	 * @param data The data to save
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 * @throws DSAccessException
+	 */
+	private void saveChannelAcquisitionData(ChannelAcquisitionData data)
+	{
+		LogicalChannel lc = (LogicalChannel) data.asIObject();
+	}
+	
+	/**
 	 * Saves the metadata linked to an image.
 	 * 
-	 * @param data
-	 * @throws DSOutOfServiceException
+	 * @param data The data to save
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
 	 * @throws DSAccessException
 	 */
 	private void saveImageAcquisitionData(ImageAcquisitionData data)
@@ -125,7 +160,6 @@ class OmeroMetadataServiceImpl
 	{
 		Image image = data.asImage();
 		long id;
-		String value;
 		IObject object;
 		//stage Label
 		List<IObject> toCreate = new ArrayList<IObject>();
@@ -202,7 +236,7 @@ class OmeroMetadataServiceImpl
 				objective.setImmersion((Immersion) object);
 			object = data.getCorrectionAsEnum();
 			if (object != null)
-					objective.setCorrection((Correction) object);
+				objective.setCorrection((Correction) object);
 			objective.setWorkingDistance(
 					omero.rtypes.rfloat(data.getWorkingDistance()));
 		}
@@ -1856,7 +1890,11 @@ class OmeroMetadataServiceImpl
 			
 			return null;//loadAcquisitionData(data.asImage());
 		} else if (refObject instanceof ChannelData) {
-			
+			ChannelData data = (ChannelData) refObject;
+			saveChannelData(data);
+		} else if (refObject instanceof ChannelAcquisitionData) {
+			ChannelAcquisitionData data = (ChannelAcquisitionData) refObject;
+			saveChannelAcquisitionData(data);
 		}
 		return null;
 	}

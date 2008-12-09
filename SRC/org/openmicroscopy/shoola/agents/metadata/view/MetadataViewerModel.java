@@ -319,12 +319,14 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param metadata	The acquisition metadata to save.
 	 * @param data		The object to update.
 	 */
 	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-					Collection<DataObject> data)
+					List<Object> metadata, Collection<DataObject> data)
 	{
-		DataSaver loader = new DataSaver(component, data, toAdd, toRemove);
+		DataSaver loader = new DataSaver(component, data, toAdd, toRemove, 
+				metadata);
 		loader.load();
 		state = MetadataViewer.SAVING;
 	}
