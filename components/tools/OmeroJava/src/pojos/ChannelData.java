@@ -37,6 +37,7 @@ import omero.model.AcquisitionMode;
 import omero.model.Channel;
 import omero.model.ChannelI;
 import omero.model.ContrastMethod;
+import omero.model.Correction;
 import omero.model.Illumination;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
@@ -63,7 +64,16 @@ public class ChannelData
     public final static String ANNOTATIONS = ChannelI.ANNOTATIONLINKS;
     
     /** The index of the channel. */
-    private int index;
+    private int 			index;
+    
+    /** The acquisition mode. */
+    private AcquisitionMode mode;
+    
+    /** The illumination. */
+    private Illumination	illumination;
+    
+    /** The contrast method. */
+    private ContrastMethod	contrastMethod;
     
 	/** 
 	 * Creates a new instance. 
@@ -72,7 +82,7 @@ public class ChannelData
 	 */
     public ChannelData(int index)
     {
-        setDirty(true);
+        setDirty(false);
         setValue(new ChannelI());
         this.index = index;
     }
@@ -91,6 +101,7 @@ public class ChannelData
             throw new IllegalArgumentException("Object cannot null.");
         this.index = index;
         setValue(channel);
+        setDirty(false);
     }
     
     /**
@@ -219,6 +230,7 @@ public class ChannelData
      */
     public String getIllumination()
     { 
+    	if (illumination != null) return illumination.getValue().getValue();
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return null;
     	Illumination value =  lc.getIllumination();
@@ -233,6 +245,7 @@ public class ChannelData
      */
     public String getContrastMethod()
     { 
+    	if (contrastMethod != null) return contrastMethod.getValue().getValue();
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return null;
     	ContrastMethod value =  lc.getContrastMethod();
@@ -247,6 +260,7 @@ public class ChannelData
      */
     public String getMode()
     { 
+    	if (mode != null) return mode.getValue().getValue();
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return null;
     	AcquisitionMode value =  lc.getMode();
@@ -282,4 +296,135 @@ public class ChannelData
 		return 1.0;
     }
     
+    /**
+     * Sets the pinhole size. 
+     * 
+     * @param value The value to set.
+     */
+    public void setPinholeSize(float value)
+    {
+    	if (value < 0) return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setPinHoleSize(
+        		omero.rtypes.rfloat(value));
+    }
+    
+    /**
+     * Sets the ND filter.
+     * 
+     * @param value The value to set.
+     */
+    public void setNDFilter(float value)
+    {
+    	if (value < 0) return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setNdFilter(omero.rtypes.rfloat(value));
+    }
+    
+    /**
+     * Sets the fluor.
+     * 
+     * @param value The value to set.
+     */
+    public void setFluor(String value)
+    {
+    	 if (value == null) return;
+         setDirty(true);
+         asChannel().getLogicalChannel().setFluor(omero.rtypes.rstring(value));
+    }
+    
+    /**
+     * Sets the emission wavelength.
+     * 
+     * @param value The value to set.
+     */
+    public void setEmissionWavelength(int value)
+    {
+    	if (value < 0) return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setEmissionWave(
+        		omero.rtypes.rint(value));
+    }
+    
+    /**
+     * Sets the excitation wavelength.
+     * 
+     * @param value The value to set.
+     */
+    public void setExcitationWavelength(int value)
+    {
+    	if (value < 0) return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setExcitationWave(
+        		omero.rtypes.rint(value));
+    }
+ 
+    /**
+     * Sets the pockel cell.
+     * 
+     * @param value The value to set.
+     */
+    public void setPockelCell(int value)
+    {
+    	if (value < 0) return;
+    	LogicalChannel lc = asChannel().getLogicalChannel();
+    	if (lc == null) return;
+    	setDirty(true);
+    	lc.setPockelCellSetting(omero.rtypes.rint(value));
+    }
+    
+    /**
+     * Sets the illumiation value.
+     * 
+     * @param illumination The value to set.
+     */
+    public void setIllumination(Illumination illumination)
+    {
+    	setDirty(true);
+    	this.illumination = illumination;
+    }
+    
+    /**
+     * Sets the acquisition mode value.
+     * 
+     * @param mode The value to set.
+     */
+    public void setMode(AcquisitionMode mode)
+    {
+    	setDirty(true);
+    	this.mode = mode;
+    }
+    
+    /**
+     * Sets the contrast method value.
+     * 
+     * @param contrastMethod The value to set.
+     */
+    public void setContrastMethod(ContrastMethod contrastMethod)
+    {
+    	setDirty(true);
+    	this.contrastMethod = contrastMethod;
+    }
+    
+    /**
+	 * Returns the acquisition enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public AcquisitionMode getModeAsEnum() { return mode; }
+	
+	/**
+	 * Returns the illumination enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public Illumination getIlluminationAsEnum() { return illumination; }
+	
+	/**
+	 * Returns the contrast method enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public ContrastMethod getContrastMethodAsEnum() { return contrastMethod; }
+	
 }

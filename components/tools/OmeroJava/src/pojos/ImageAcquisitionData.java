@@ -768,7 +768,7 @@ public class ImageAcquisitionData
 	public Immersion getImmersionAsEnum() { return immersion; }
 	
 	/**
-	 * Returns the immersion enumeration value.
+	 * Returns the correction enumeration value.
 	 * 
 	 * @return See above.
 	 */

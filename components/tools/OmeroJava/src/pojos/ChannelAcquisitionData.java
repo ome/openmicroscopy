@@ -37,7 +37,9 @@ import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
 import omero.model.Detector;
+import omero.model.DetectorI;
 import omero.model.DetectorSettings;
+import omero.model.DetectorSettingsI;
 import omero.model.DetectorType;
 import omero.model.Filament;
 import omero.model.FilamentType;
@@ -48,6 +50,7 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightSettings;
+import omero.model.LightSettingsI;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Pulse;
@@ -102,6 +105,30 @@ public class ChannelAcquisitionData
 	
 	/** The light source. */
 	private LightSource			ligthSource;
+	
+	/** Flag indicating if the detector is dirty. */
+	private boolean				detectorDirty;
+	
+	/** Flag indicating if the detector settings is dirty. */
+	private boolean				detectorSettingsDirty;
+	
+	/** Flag indicating if the detector settings is dirty. */
+	private boolean				ligthSourceSettingsDirty;
+	
+	/** Flag indicating if the detector settings is dirty. */
+	private boolean				ligthSourceDirty;
+	
+	/** The detector settings binning. */
+	private Binning 			binning;
+	
+	/** The detector's type. */
+	private DetectorType 		detectorType;
+	
+	/** 
+	 * Sets the type of light to create. One of the constants defined by 
+	 * this class.
+	 */
+	private String				lightType;
 	
 	/**
 	 * Returns the source of light.
@@ -203,6 +230,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getDetectorSettingsBinning()
 	{
+		if (binning != null) return binning.getValue().getValue();
 		if (detectorSettings == null) return "";
 		Binning value = detectorSettings.getBinning();
 		if (value == null) return "";
@@ -286,6 +314,7 @@ public class ChannelAcquisitionData
 	 */
 	public String getDetectorType()
 	{
+		if (detectorType != null) return detectorType.getValue().getValue();
 		Detector detector = getDetector();
 		if (detector == null) return "";
 		DetectorType type = detector.getType();
@@ -742,5 +771,307 @@ public class ChannelAcquisitionData
 	{
 		this.ligthSource = lightSource;
 	}
+	
+	/**
+	 * Sets the serial number of the light source.
+	 * 
+	 * @param number The value to set.
+	 */
+	public void setLightSourceSerialNumber(String number)
+	{
+		ligthSourceDirty = true;
+		LightSource light = getLightSource();
+		if (light == null) return;
+		light.setSerialNumber(omero.rtypes.rstring(number));
+	}
+	
+	/**
+	 * Sets the model of the light source.
+	 * 
+	 * @param model The value to set.
+	 */
+	public void setLightSourceModel(String model)
+	{
+		ligthSourceDirty = true;
+		LightSource light = getLightSource();
+		if (light == null) return;
+		light.setModel(omero.rtypes.rstring(model));
+	}
+
+	/**
+	 * Sets the manufacturer of the light source.
+	 * 
+	 * @param manufacturer The value to set.
+	 */
+	public void setLightSourceManufacturer(String manufacturer)
+	{
+		ligthSourceDirty = true;
+		LightSource light = getLightSource();
+		if (light == null) return;
+		light.setManufacturer(omero.rtypes.rstring(manufacturer));
+	}
+	
+	/**
+	 * Sets the model of the light source.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setLightSourcePower(float value)
+	{
+		ligthSourceDirty = true;
+		LightSource light = getLightSource();
+		if (light == null) return;
+		light.setPower(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the attenuation of the light settings.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setLigthSettingsAttenuation(float value)
+	{
+		ligthSourceSettingsDirty = true;
+		if (lightSettings == null) lightSettings = new LightSettingsI();
+		lightSettings.setAttenuation(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Returns the wavelength of the ligth source.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setLigthSettingsWavelength(int value)
+	{
+		ligthSourceSettingsDirty = true;
+		if (lightSettings == null) lightSettings = new LightSettingsI();
+		lightSettings.setWavelength(omero.rtypes.rint(value));
+	}
+	
+	/**
+	 * Sets the serial number of the detector.
+	 * 
+	 * @param number The value to set.
+	 */
+	public void setDetectorSerialNumber(String number)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setSerialNumber(omero.rtypes.rstring(number));
+	}
+	
+	/**
+	 * Sets the model of the detector.
+	 * 
+	 * @param model The value to set.
+	 */
+	public void setDetectorModel(String model)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setModel(omero.rtypes.rstring(model));
+	}
+
+	/**
+	 * Sets the manufacturer of the detector.
+	 * 
+	 * @param manufacturer The value to set.
+	 */
+	public void setDetectorManufacturer(String manufacturer)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setManufacturer(omero.rtypes.rstring(manufacturer));
+	}
+
+	/**
+	 * Sets the detector's gain.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorAmplificationGain(float value)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setAmplificationGain(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector's gain.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorGain(float value)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setGain(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector's offset.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorOffset(float value)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setOffsetValue(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector's voltage.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorVoltage(float value)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setVoltage(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector's zoom.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorZoom(float value)
+	{
+		detectorDirty = true;
+		Detector d = getDetector();
+		if (d == null) d = new DetectorI();
+		d.setZoom(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector's type.
+	 * 
+	 * @param detectorType The value to set.
+	 */
+	public void setDetectorType(DetectorType detectorType)
+	{
+		detectorDirty = true;
+		this.detectorType = detectorType;
+	}
+
+	/**
+	 * Sets the detector's setting offset.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorSettingOffset(float value)
+	{
+		detectorSettingsDirty = true;
+		if (detectorSettings == null) 
+			detectorSettings = new DetectorSettingsI();
+		detectorSettings.setOffsetValue(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector setting's gain.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorSettingsGain(float value)
+	{
+		detectorSettingsDirty = true;
+		if (detectorSettings == null) 
+			detectorSettings = new DetectorSettingsI();
+		detectorSettings.setGain(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector setting's read out rate.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorSettingsReadOutRate(float value)
+	{
+		detectorSettingsDirty = true;
+		if (detectorSettings == null) 
+			detectorSettings = new DetectorSettingsI();
+		detectorSettings.setReadOutRate(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector setting's valtage.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setDetectorSettingsVoltage(float value)
+	{
+		detectorSettingsDirty = true;
+		if (detectorSettings == null) 
+			detectorSettings = new DetectorSettingsI();
+		detectorSettings.setVoltage(omero.rtypes.rfloat(value));
+	}
+	
+	/**
+	 * Sets the detector's binning.
+	 * 
+	 * @param binning The value to set.
+	 */
+	public void setDetectorSettingBinning(Binning binning)
+	{
+		this.binning = binning;
+	}
+	
+	/**
+	 * Returns the binning enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public Binning getDetectorBinningAsEnum() { return binning; }
+	
+	/**
+	 * Returns the binning enumeration value.
+	 * 
+	 * @return See above.
+	 */
+	public DetectorType getDetectorTypeAsEnum() { return detectorType; }
+	
+	/**
+	 * Returns <code>true</code> if the detector has been updated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isDetectorDirty() { return detectorDirty; }
+	
+	/**
+	 * Returns <code>true</code> if the detector settings has been updated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isDetectorSettingsDirty() { return detectorSettingsDirty; }
+	
+	/**
+	 * Returns <code>true</code> if the light source settings has been updated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isLightSourceSettingsDirty()
+	{ 
+		return ligthSourceSettingsDirty; 
+	}
+	
+	/**
+	 * Returns <code>true</code> if the light source has been updated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isLightSourceDirty() { return ligthSourceDirty;  }
 	
 }
