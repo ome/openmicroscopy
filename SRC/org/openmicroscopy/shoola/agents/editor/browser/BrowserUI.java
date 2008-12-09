@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 
-import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -37,6 +36,7 @@ import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
@@ -253,17 +253,22 @@ class BrowserUI
     	TreeModel tm = model.getTreeModel();
     	
     	navTree.setModel(tm);
+    	metadataUI.setTreeModel(tm);
     	
     	//TODO  need to merge these componenets into a single UI class.
     	textView.setTreeModel(tm);
     	treeDisplay.setModel(tm);
-    	metadataUI.setTreeModel(tm);
     	
     	if (tm != null)
     	tm.addTreeModelListener(editorPanel);
     	
     	// make sure that the controller is in sync with tabbed pane view.
     	updateViewingMode();
+    	
+    	// select the root
+    	TreePath rootPath = navTree.getPathForRow(0);
+    	if (rootPath != null)
+    		navTree.setSelectionPath(rootPath);
     }
     
     /**
