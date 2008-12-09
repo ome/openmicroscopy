@@ -1690,7 +1690,6 @@ def search(request, **kwargs):
     try:
         if request.method == 'GET' and request.REQUEST['query']: 
             pass
-        #TODO remove update basket to separate method !!! problem with double click ???
     except:
         controller.criteria['image'] = 'CHECKED'
     else:
