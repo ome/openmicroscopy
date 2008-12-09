@@ -1075,6 +1075,7 @@ class BlitzGateway (threading.Thread):
             if settings.EMAIL_NOTIFICATION:
                 import omeroweb.extlib.sendemail.handlesender as sender
         except:
+            sender = None
             logger.error(traceback.format_exc())
         else:
             recipients = list()
@@ -1084,7 +1085,8 @@ class BlitzGateway (threading.Thread):
                         recipients.append(m.email.val)
                     except:
                         logger.error(traceback.format_exc())
-            sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, message, recipients)
+            if sender is not None:
+                sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, message, recipients)
     
     def updateShare (self, share_id, message, expiretion, members, enable):
         sh = self.getShareService()

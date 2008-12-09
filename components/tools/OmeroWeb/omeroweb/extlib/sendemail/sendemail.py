@@ -94,7 +94,7 @@ class SendEmail(threading.Thread):
         msgRoot = MIMEMultipart('related')
         msgRoot['Subject'] = 'OMERO.%s - error message by %s' % (app, user)
         msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
-        msgRoot['To'] = settings.EMAIL_ADMIN_ADDRESS
+        msgRoot['To'] = settings.ADMINS[0][1]
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
@@ -108,7 +108,7 @@ class SendEmail(threading.Thread):
         content = open(email_html, 'r').read() % (error)
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
-        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.EMAIL_ADMIN_ADDRESS]})
+        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.ADMINS[0][1]]})
     
     def create_share_message(self, host, blitz_id, user, share_id, share_content, recipients):
         app = settings.WEBCLIENT_ROOT_BASE
