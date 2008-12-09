@@ -970,9 +970,9 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
 
 @isUserConnected
 def manage_annotations(request, o_type, o_id, **kwargs):
-    
+    url = None
     try:
-        url = request.REQUEST['url']  
+        url = kwargs["url"]  
     except:
         pass
     
@@ -1006,6 +1006,13 @@ def manage_annotations(request, o_type, o_id, **kwargs):
 @isUserConnected
 def manage_tree_details(request, c_type, c_id, **kwargs):
     template = "omeroweb/container_tree_details.html"
+    
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        pass
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -1016,7 +1023,7 @@ def manage_tree_details(request, c_type, c_id, **kwargs):
     
     manager = BaseContainer(conn, c_type, c_id)
     
-    context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
 
     t = template_loader.get_template(template)
     c = Context(request,context)

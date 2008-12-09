@@ -20,12 +20,22 @@
 #products li {
     border: 0px;
     float: left;
-    text-align: left;
-    margin: 3px 3px 3px 0px;
+    text-align: center;
+    margin: 5px 3px 10px;
+    width: 160px;
 }
 #products li.owner_name{
-    margin: 20px 5px 0px 0px;
+    font-size: 15px;
+    text-align: left;
+    margin: 0px;
+    padding: 5px;
     font-weight: bold;
+    width: 99%;
+    border-bottom: 1px solid #bbb;
+}
+#products li.clear{
+    clear:both;
+    width: 0;
 }
 
 em {
@@ -65,4 +75,26 @@ div.cloud {
     font-size: 12px;
     font-weight: normal;
     font-style: italic;
+}
+
+.project {
+    float: left;
+    width: 75%;
+}
+.dataset {
+    float: left;
+    width: 75%;
+}
+.image {
+    float: left;
+    width: 75%;
+}
+.basket {
+    float: right;
+    border: 1px solid #bbb;
+    background-color: #fff;
+    padding: 5px;
+}
+.center {
+    text-align: center;
 }

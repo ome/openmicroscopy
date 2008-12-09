@@ -11,6 +11,9 @@ body {
     padding: 0px;
     width: 1000px;
 }
+body.zoom {
+    width: 100%;
+}
 
 .error {
     color: #e3646f;
@@ -47,10 +50,14 @@ body {
 
 #main {
     margin: 0px;
+    position: relative;
 }
 
 #content {
-    margin: 0px;
+    margin: 20px 0 0;
+}
+#content_zoom {
+    margin: 10px;
 }
 
 #annotation {
@@ -135,8 +142,8 @@ a:hover,a:link,a:visited {
 h1 {
     font-size: 15px;
     text-align: left;
-    margin: 0px;
-    padding: 10px 0px;
+    margin: 0;
+    padding: 10px 0;
 }
 h2 {
     font-size: 12px;

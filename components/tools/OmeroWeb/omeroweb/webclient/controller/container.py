@@ -192,7 +192,7 @@ class BaseContainer(BaseController):
         if len(user_set) > 0:
             experimenters = self.conn.getExperimenters(user_set)
             for e in experimenters:
-                self.containersMyGroups[e.id]={'name': "%s<br/>%s" % (e.firstName, e.lastName), 'projects': list(), 'datasets': list(), 'images': list()}
+                self.containersMyGroups[e.id]={'name': e.getFullName(), 'projects': list(), 'datasets': list(), 'images': list()}
         
             for pr in pr_mygroups:
                 self.containersMyGroups[pr.details.owner.id.val]['projects'].append(pr)
@@ -214,7 +214,7 @@ class BaseContainer(BaseController):
         if len(user_set) > 0:
             experimenters = self.conn.getExperimenters(user_set)
             for e in experimenters:
-                self.containersMyGroups[e.id]={'name': "%s<br/>%s" % (e.firstName, e.lastName), 'datasets': list()}
+                self.containersMyGroups[e.id]={'name': e.getFullName(), 'datasets': list()}
 
             for ds in ds_mygroups:
                 self.containersMyGroups[ds.details.owner.id.val]['datasets'].append(ds)
@@ -232,7 +232,7 @@ class BaseContainer(BaseController):
         if len(user_set) > 0:
             experimenters = self.conn.getExperimenters(user_set)
             for e in experimenters:
-                self.containersMyGroups[e.id]={'name': "%s<br/>%s" % (e.firstName, e.lastName), 'images': list()}
+                self.containersMyGroups[e.id]={'name': e.getFullName(), 'images': list()}
 
             for im in im_mygroups:
                 self.containersMyGroups[im.details.owner.id.val]['images'].append(im)
@@ -256,7 +256,10 @@ class BaseContainer(BaseController):
     def updateImage(self, name, description, permissions):
         img = self.image._obj
         img.name = rstring(str(name))
-        img.description = rstring(str(description))
+        if description != "" :
+            img.description = rstring(str(description))
+        else:
+            img.description = None
         self.objectPermissions(img, permissions)
         self.conn.updateObject(img)
     
@@ -325,7 +328,10 @@ class BaseContainer(BaseController):
     def updateDataset(self, name, description, permissions):
         container = self.dataset._obj
         container.name = rstring(str(name))
-        container.description = rstring(str(description))
+        if description != "" :
+            container.description = rstring(str(description))
+        else:
+            container.description = None
         self.objectPermissions(container, permissions)
         for l_ds in container.copyProjectLinks():
             self.objectPermissions(l_ds,permissions)
@@ -334,16 +340,19 @@ class BaseContainer(BaseController):
     def updateProject(self, name, description, permissions):
         container = self.project._obj
         container.name = rstring(str(name))
-        container.description = rstring(str(description))
+        if description != "" :
+            container.description = rstring(str(description))
+        else:
+            container.description = None
         self.objectPermissions(container, permissions)
         self.conn.updateObject(container)
 
     def createDataset(self, name, description, permissions):
         ds = DatasetI()
         self.objectPermissions(ds, permissions)
-        
         ds.name = rstring(str(name))
-        ds.description = rstring(str(description))
+        if description != "" :
+            ds.description = rstring(str(description))
         if self.project is not None:
             l_ds = ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
@@ -357,7 +366,9 @@ class BaseContainer(BaseController):
         pr = ProjectI()
         self.objectPermissions(pr, permissions)
         pr.name = rstring(str(name))
-        pr.description = rstring(str(description))
+        if description != "" :
+            pr.description = rstring(str(description))
+        
         res = self.conn.createObject(pr)
         return res
     

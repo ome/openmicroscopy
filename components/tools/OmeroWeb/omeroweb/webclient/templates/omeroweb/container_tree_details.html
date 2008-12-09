@@ -34,6 +34,9 @@
     <div><h1>{{ manager.image.name }}: <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></h1>
         {{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
+    
+    <div><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/150/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></div>
+    
     <h1>More: <a href="#" onclick="toBasket('image', '{{ image.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a></h1>
     <ul>
         <li>Owner: {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ image.image.details.permissions }})</li>

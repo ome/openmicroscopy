@@ -1572,6 +1572,18 @@ class BlitzObjectWrapper (object):
             logger.debug(traceback.format_exc())
             return self._obj.name.val
     
+    def tinyName(self):
+        try:
+            name = self._obj.name.val
+            l = len(name)
+            if l < 20:
+                return name
+            elif l >= 20:
+                return "%s...%s" % (name[:10], name[l-8:])
+        except:
+            logger.debug(traceback.format_exc())
+            return self._obj.name.val
+    
     def shortDescription(self):
         try:
             desc = self._obj.description
