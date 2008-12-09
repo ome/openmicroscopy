@@ -49,12 +49,12 @@ body.zoom {
 }
 
 #main {
-    margin: 0px;
+    margin: 0 0 20px;
     position: relative;
 }
 
 #content {
-    margin: 20px 0 0;
+    margin: 0;
 }
 #content_zoom {
     margin: 10px;

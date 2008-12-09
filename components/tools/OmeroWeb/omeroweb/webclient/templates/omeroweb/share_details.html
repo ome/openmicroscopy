@@ -1,4 +1,4 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_share.html" %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -33,13 +33,13 @@
     </script>
 {% endblock %}
 
-{% block content %}
+{% block center %}
     
     <h1>Hi
         {% for m in share.membersInShare %}
             <a href="mailto:{{ m.email }}">{{ m.getFullName }}</a>,
         {% endfor %} 
-        {{ share.share.details.getOwner }} would like to {% if share.projectInShare or share.datasetInShare or share.imageInShare %}share{% else %}discuss{% endif %} below content.</h1>
+        {{ share.share.details.getOwner }} would like to {% if share.projectInShare or share.datasetInShare or share.imageInShare %}share{% else %}discuss{% endif %} below content. <a href="{% get_webclient_root_url %}/share/edit/{{ share.share.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></h1>
 
     <div id="share_content"></div>
     

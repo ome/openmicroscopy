@@ -20,7 +20,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
 {% endblock %}
 
-{% block main %}
+{% block center %}
 
 {% if manager.project %}
     <h1>Create new dataset</h1>
@@ -28,8 +28,6 @@
     <h1>Create new project or dataset</h1>
 {% endif %}
 
-{% endblock %}
-{% block content %}
 
 {% if form %}
 <div>

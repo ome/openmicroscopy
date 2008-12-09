@@ -34,16 +34,16 @@
           $('#id_expiretion').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
       });
     </script>
+
 {% endblock %}
 
-{% block content %}
-    
+{% block center %}
+
 {% ifequal basket.sizeOfBasket 0 %}
     <h1>Create new discussion about:</h1>
     
 {% else %}
     <h1>Create new share with {{ basket.sizeOfBasket }} items:</h1>
-
     <div id="cart">
     <h1>Containers</h1>
     {% if basket.prSize %}
@@ -72,7 +72,7 @@
     {% if basket.dsSize %}
     <div class="clear"></div>
     {% for d in basket.datasetInBasket %}
-    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/><a href="#" onclick="fromBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/editdelete16.png" alt="b" title="basket"/></a>
+    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" /><a href="#" onclick="fromBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/editdelete16.png" alt="b" title="basket"/></a>
         {% if d.copyImageLinks %}
         {% for e in d.listChildren %}
         <div class="imageInDataset"><ul id="products">
@@ -104,6 +104,7 @@
     </div>
     <div class="clear"></div>
 {% endifequal %}
+
 
     <div>
         <form action="{% get_webclient_root_url %}/share/create/" method="post">

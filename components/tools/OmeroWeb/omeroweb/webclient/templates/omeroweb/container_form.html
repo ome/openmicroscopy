@@ -22,20 +22,17 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
 {% endblock %}
 
-{% block main %}
-    {% if manager.project %}
-        <h1>Edit project</h1>
-    {% endif %}
-    {% if manager.dataset %}
-        <h1>Edit dataset</h1>
-    {% endif %}
-    {% if image.image %}
-        <h1>Edit image</h1>
-    {% endif %}
-    
-{% endblock %}
+{% block center %}
 
-{% block content %}
+{% if manager.project %}
+    <h1>Edit project</h1>
+{% endif %}
+{% if manager.dataset %}
+    <h1>Edit dataset</h1>
+{% endif %}
+{% if image.image %}
+    <h1>Edit image</h1>
+{% endif %}
 
 {% if form %}
 <div>

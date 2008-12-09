@@ -1,4 +1,4 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_share.html" %}
 {% load markup %}
 {% load custom_tags %}
 
@@ -33,13 +33,16 @@
     
 {% endblock %}
 
-{% block content %}
+{% block center %}
+
 {% ifequal share.sizeOfShare 0 %}
     <h1>Edit discussion about:</h1>
     
 {% else %}
     <h1>Edit share with {{ share.sizeOfShare }} items:</h1>
+{% endifequal %}
 
+{% ifnotequal share.sizeOfShare 0 %}
     <div id="cart">
     <h1>Containers</h1>
     {% if share.prSize %}
@@ -68,7 +71,7 @@
     {% if share.dsSize %}
     <div class="clear"></div>
     {% for d in share.datasetInShare %}
-    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/><a href=""><img src="{% get_webclient_static_url %}/images/editdelete16.png" alt="b" title="basket"/></a>
+    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" /><a href=""><img src="{% get_webclient_static_url %}/images/editdelete16.png" alt="b" title="basket"/></a>
         {% if d.copyImageLinks %}
         {% for e in d.listChildren %}
         <div class="imageInDataset"><ul id="products">
@@ -99,7 +102,7 @@
     
     </div>
     <div class="clear"></div>
-{% endifequal %}
+{% endifnotequal %}
 
     <div>
         <form action="{% get_webclient_root_url %}/share/save/{{ share.share.id }}/" method="post">

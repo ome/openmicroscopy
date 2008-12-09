@@ -1443,7 +1443,7 @@ def manage_share(request, action, oid=None, **kwargs):
     elif action == 'delete':
         return HttpResponseRedirect("/%s/shares/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == 'view':
-        template = "omeroweb/share_details_active.html"
+        template = "omeroweb/share_details.html"
         share.getShare(oid)
         share.getComments(oid)
         form = ShareCommentForm()
@@ -1875,6 +1875,8 @@ def history_details(request, menu, year, month, day, **kwargs):
     cal_type = None
     try:
         cal_type = request.REQUEST['history_type']
+        if cal_type == "all":
+            cal_type = None
     except:
         cal_type = None
     

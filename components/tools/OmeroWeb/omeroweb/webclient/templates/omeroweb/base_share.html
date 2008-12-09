@@ -23,11 +23,11 @@
     {% block script %}{% endblock %}
 
 </head>
-<body>
+<body class="share">
     <div id="shared_menu">
-        <h1>Go back to <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a></h1>
+        <h1>Go back to <a href="{% get_webclient_root_url %}/share/">{% trans "Webclient" %}</a></h1>
     </div>
-    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="content">{% block center %}{% endblock %}</div>
     
     <div id="footer"><p>All material &copy;2008 OMERO Team</p></div>
 

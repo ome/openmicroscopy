@@ -47,7 +47,7 @@
     </script>
 {% endblock %}
 
-{% block main %}
+{% block center %}
 
 <div class="image">
     <h1>Image: {{ manager.image.name }} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></h1>
@@ -57,9 +57,6 @@
 <div class="basket">
     <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">Add image to the basket <img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>
 </div>
-{% endblock %}
-
-{% block content %}
 
 <div><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></div>
 

@@ -2063,6 +2063,21 @@ class ShareWrapper (BlitzObjectWrapper):
             logger.debug(traceback.format_exc())
             return self._obj.message.val
     
+    def tinyMessage(self):
+        try:
+            msg = self._obj.message.val
+            l = len(msg)
+            if l < 20:
+                return msg
+            elif l >= 20:
+                return "%s..." % (msg[:20])
+        except:
+            logger.debug(traceback.format_exc())
+            return self._obj.message.val
+    
+    def getMembersCount(self):
+        return "None"
+    
     def getCommentsSize(self):
         return len(list(self._conn.getComments(self.id)))
         

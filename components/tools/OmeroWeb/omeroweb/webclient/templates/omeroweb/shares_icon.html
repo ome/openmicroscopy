@@ -48,7 +48,7 @@
     </script>
 {% endblock %}
 
-{% block content %}
+{% block center %}
 
 <h1>Shares and discussions </h1>
 
@@ -71,7 +71,7 @@
 
 <ul id="products">
     {% if share.oshSize %}
-    <li><h1>My shares and discussions ({{ share.oshSize }} items):</h1></li>
+    <li class="header_name"><h1>Owned by me ({{ share.oshSize }} items):</h1></li>
     <li class="clear"></li>
         {% for c in share.ownShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
@@ -82,14 +82,13 @@
                     <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% endif %}
             </a>
-            <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line12.png" alt="e" title="edit"/></a>
-            {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+            <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
         </li>
         {% endfor %}
     <li class="clear"></li>
     {% endif %}    
     {% if share.mshSize %}
-    <li><h1>Shared and discussed with me ({{ share.mshSize }} items):</h1></li>
+    <li class="header_name"><h1>Shared with me ({{ share.mshSize }} items):</h1></li>
     <li class="clear"></li>
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
@@ -100,7 +99,7 @@
                     <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% endif %}
             </a>
-            {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}
+            <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
         </li>
         {% endfor %}
     <li class="clear"></li>

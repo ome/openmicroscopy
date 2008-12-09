@@ -66,11 +66,11 @@
     </script>
 {% endblock %}
 
-{% block content %}
+{% block center %}
 
 <h1>Shares and discussions </h1>
 
-<h1>My shares and discussions ({{ share.oshSize }} items):</h1>
+<h1>Owned by me ({{ share.oshSize }} items):</h1>
 
 {% if share.oshSize %}
 
@@ -81,8 +81,9 @@
 <tr> 
     <th>Type</th> 
     <th>Description</th> 
-    <th>Date</th>
+    <th>Start - End</th>
     <th>Items</th>
+    <th>Members</th>
     <th>Comments</th>
     <th>Actions</th> 
 </tr> 
@@ -98,8 +99,9 @@
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a></td> 
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
+        <td>{{ c.getMembersCount }}</td>
         <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>
-        <td>(id:{{ c.id }}) <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a><a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a><a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td> 
     </tr> 
     {% endfor %}
 </tbody> 
@@ -110,7 +112,7 @@
 
 {% if share.mshSize %}
 
-<h1>Shared and discussed with me ({{ share.mshSize }} items):</h1>
+<h1>Shared with me ({{ share.mshSize }} items):</h1>
 
 <div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
 
@@ -119,8 +121,9 @@
 <tr> 
     <th>Type</th> 
     <th>Description</th> 
-    <th>Date</th>
+    <th>Start - End</th>
     <th>Items</th>
+    <th>Members</th>
     <th>Comments</th>
 </tr>
 </thead> 
@@ -135,6 +138,7 @@
         <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a></td> 
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
+        <td>{{ c.getMembersCount }}</td>
         <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>
     </tr>
     {% endfor %}

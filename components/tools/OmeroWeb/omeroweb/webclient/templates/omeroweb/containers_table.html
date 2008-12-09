@@ -88,7 +88,7 @@
     </script>
 {% endblock %}
 
-{% block main %}
+{% block center %}
 
 {% if form_users %}
 <div class="box">
@@ -115,11 +115,6 @@
         </div>
     {% endif %}
 {% endif %}
-
-{% endblock %}
-
-
-{% block content %}
 
 {% if manager.c_size or manager.c_mg_size %}
     {% if manager.c_size %}
@@ -177,8 +172,7 @@
     <tr> 
         <th>Type</th> 
         <th>Name</th> 
-        <th>Description</th> 
-        <th>Date</th>
+        <th>Created</th>
         <th>Tag</th> 
         <th>Actions</th> 
     </tr> 
@@ -188,30 +182,27 @@
         <tr> 
             <td class="product">{% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% endifnotequal %}</td> 
             <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a>{% endifnotequal %}</td> 
-            <td>{{ c.shortDescription }}</td> 
             <td>{{ c.creationEventDate }}</td>
             <td>{{ c.details.group.name.val }}</td> 
-            <td>(id:{{ c.id }}) {% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td> 
+            <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td> 
         </tr> 
         {% endfor %}
         {% for c in manager.containers.datasets %}
         <tr> 
             <td class="product">{% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% endifnotequal %}</td> 
             <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a>{% endifnotequal %}</td> 
-            <td>{{ c.shortDescription }}</td> 
             <td>{{ c.creationEventDate }}</td>
             <td>{{ c.details.group.name.val }}</td> 
-            <td>(id:{{ c.id }}) {% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
+            <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
         </tr> 
         {% endfor %}
         {% for c in manager.containers.images %}
         <tr> 
             <td class="product">{% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% endifnotequal %}</td> 
             <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a>{% endifnotequal %}</a></td> 
-            <td>{{ c.shortDescription }}</td> 
             <td>{{ c.creationEventDate }}</td>
             <td>{{ c.details.group.name.val }}</td>
-            <td>(id:{{ c.id }}) <a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a><a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=760" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.name }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>{% endif %}</td> 
+            <td><a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a><a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=760" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.name }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>{% endif %}</td> 
         </tr> 
         {% endfor %}
     </tbody> 
@@ -226,9 +217,8 @@
     <tr> 
         <th>Type</th> 
         <th>Name</th> 
-        <th>Description</th> 
         <th>Owner</th> 
-        <th>Date</th>
+        <th>Created</th>
         <th>Tag</th> 
         <th>Actions</th> 
     </tr> 
@@ -243,29 +233,27 @@
                 <td>{{ c.getOwner }}</td>  
                 <td>{{ c.creationEventDate }}</td>
                 <td>{{ c.details.group.name.val }}</td> 
-                <td>(id:{{ c.id }}) {% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
+                <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
             </tr>
             {% endfor %}
             {% for c in v.datasets %}
             <tr> 
                 <td class="product"><a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a></td> 
                 <td><a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}">{{ c.shortName }}</a></td> 
-                <td>{{ c.shortDescription }}</td> 
-                <td>{{ c.getOwner }}</td> 
+                    <td>{{ c.getOwner }}</td> 
                 <td>{{ c.creationEventDate }}</td>
                 <td>{{ c.details.group.name.val }}</td> 
-                <td>(id:{{ c.id }}) {% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
+                <td>{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</td>
             </tr>
             {% endfor %}
             {% for c in v.images %}
             <tr> 
                 <td class="product"><a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a></td> 
                 <td><a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a></td> 
-                <td>{{ c.shortDescription }}</td> 
-                <td>{{ c.getOwner }}</td> 
+                    <td>{{ c.getOwner }}</td> 
                 <td>{{ c.creationEventDate }}</td>
                 <td>{{ c.details.group.name.val }}</td>
-                <td>(id:{{ c.id }}) <a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a><a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=760" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.name }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>{% endif %}</td> 
+                <td><a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a><a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=760" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.name }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% ifnotequal c.details.owner.id.val eContext.context.userId %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% else %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ c.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a><a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>{% endif %}</td> 
             </tr>
             {% endfor %}
         {% endfor %}

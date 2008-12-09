@@ -24,20 +24,21 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
 {% endblock %}
 
-{% block content %}
+{% block center %}
 
 {% ifequal basket.sizeOfBasket 0 %}
+
     <h1>Your basket is empty.</h1>
-    
     <div class="error"><p>Your basket is empty. Please add some of your bio-data from <a href="{% get_webclient_root_url %}/mydata/">My data</a> or initiate a discussion.</p></div>
-    
     <div>Available actions: 
         <input type="submit" name="action" value="Discuss" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/> 
+        <input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/> 
     </div>
-{% else %}
     
-    <h1>Your basket containes {{ basket.sizeOfBasket }} items:</h1>
+{% else %}
 
+    <h1>Your basket containes {{ basket.sizeOfBasket }} items:</h1>
+    
     <div id="cart">
     {% if basket.prSize or basket.dsSize %}
     <h1>Containers</h1>
@@ -87,7 +88,6 @@
     <div class="clear"></div>
     <h1>Orphaned images</h1>
     <div class="image"><ul id="products">
-        <li class="clear"> </li>
         {% for e in basket.imageInBasket %}
             <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
                 <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ e.name }}"/></a>
@@ -104,13 +104,9 @@
     <div class="clear"></div>
     <br/>
     <div>Available actions: 
-        {% ifequal basket.sizeOfBasket 0 %}
-            <input type="submit" name="action" value="Discuss" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/> 
-        {% else %}
-            <input type="submit" name="action" value="Share" onClick="location.href='{% get_webclient_root_url %}/basket/toshare/'"/> 
-            <input type="submit" name="action" value="Annotate" onClick="location.href='{% get_webclient_root_url %}/basket/toannotate/'"/> 
-            <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>
-        {% endifequal %}
+        <input type="submit" name="action" value="Share" onClick="location.href='{% get_webclient_root_url %}/basket/toshare/'"/> 
+        <input type="submit" name="action" value="Annotate" onClick="location.href='{% get_webclient_root_url %}/basket/toannotate/'"/> 
+        <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>
         <input type="submit" name="action" value="Empty" onClick="location.href='{% get_webclient_root_url %}/empty/'"/>
     </div>
     

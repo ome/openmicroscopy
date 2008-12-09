@@ -141,6 +141,7 @@ class ActiveGroupForm(forms.Form):
 
 class HistoryTypeForm(forms.Form):
     HISTORY_CHOICES = (
+        ('all', '---------'),
         ('project', 'Projects'),
         ('dataset', 'Datasets'),
         ('image', 'Images'),

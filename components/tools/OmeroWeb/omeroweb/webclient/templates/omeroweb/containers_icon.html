@@ -85,7 +85,7 @@
     </script>
 {% endblock %}
 
-{% block main %}
+{% block center %}
 
 {% if form_users %}
 <div class="box">
@@ -114,10 +114,6 @@
 {% endif %}
 
 <div class="clear"></div>
-
-{% endblock %}
-
-{% block content %}
 
 {% if manager.c_size or manager.c_mg_size %}
     {% if manager.c_size %}
@@ -210,12 +206,12 @@
         <li class="owner_name">{{ v.name|safe }}</li>
             {% for c in v.projects %}
              <li class="product"><em>{{ c.name }}</em>
-                 <a href="{% get_webclient_root_url %}/groupdata/project/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder64.png" title="{{ c.name }}" alt="project"/></a><div class="center">{{ c.tinyName }}{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
+                 <a href="{% get_webclient_root_url %}/groupdata/project/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder64.png" title="{{ c.name }}" alt="project"/></a><div class="center">{{ c.tinyName }}</div><div class="center">{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
              </li>
             {% endfor %}
             {% for c in v.datasets %}
             <li class="product"><em>{{ c.name }}</em>
-                <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder_image64.png" alt="dataset" title="{{ c.name }}"/></a><div class="center">{{ c.tinyName }}{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
+                <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% get_webclient_static_url %}/images/folder_image64.png" alt="dataset" title="{{ c.name }}"/></a><div class="center">{{ c.tinyName }}</div><div class="center">{% ifnotequal c.details.owner.id.val eContext.context.userId %}<img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endifnotequal %}{% if c.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
             </li>
             {% endfor %}
             {% for c in v.images %}
