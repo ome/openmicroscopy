@@ -3,7 +3,7 @@ import datetime
 import logging
 
 # Django settings for webadmin project.
-DEBUG = True # if True handler404 and handler500 works only when False
+DEBUG = False # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -25,7 +25,7 @@ TEST_DATABASE_NAME = 'test-db.sqlite3'
 
 # Admin error notification
 # when is turn below parameters should be set, this option require DEBUG = False
-EMAIL_NOTIFICATION = True
+EMAIL_NOTIFICATION = False
 EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
 EMAIL_ADMIN_ADDRESS = 'admin@domain' # email address
 EMAIL_SMTP_SERVER = 'smtp.domain'
