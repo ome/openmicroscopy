@@ -13,6 +13,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.accordion.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
@@ -45,31 +46,104 @@
             });
         });
     </script>
+    <script>
+        $(document).ready(function(){
+            $("#metadata").accordion( { 
+                autoHeight: false,
+                active: false,
+                navigation: true, 
+            });
+        });
+      </script>
+
 {% endblock %}
 
 {% block center %}
 
 <div class="image">
-    <h1>Image: {{ manager.image.name }} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></h1>
+    <h1>Image: {{ manager.image.name }} {% if manager.image.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
     {{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
 </div>
 
+{% if manager.image.isOwned %}
 <div class="basket">
     <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">Add image to the basket <img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>
 </div>
-
+{% endif %}
 <div class="clear"></div>
-<div><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></div>
 
-<h1>More: </h1>
-<ul>
-    <li>Owner: {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</li>
-    <li>Image Size: (X: {{ manager.image.getWidth }}px, Y: {{ manager.image.getHeight }}px, Z: {{ manager.image.z_count }}, T: {{ manager.image.t_count }})
-    <li>Pixel Size: (X: {{ manager.image.getPixelSizeX|floatformat:4 }}&micro;m, Y: {{ manager.image.getPixelSizeY|floatformat:4 }}&micro;m, Z: {{ manager.image.getPixelSizeZ|floatformat:4 }}&micro;m)</li>
+<div class="thumbnail">
+    <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a>
+    
+    <p>by {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
+    
+    <h1>More: </h1>
+    <div><a href="#" class="loadData">Show the hierarchy structure.</a></div>
+    <div id="hierarchy"> </div>
+</div>
+
+<div class="metadata"><h1>Metadata: </h1>
+
+<ul id="metadata" class="ui-accordion-container" >
+    <li><a href='#'>General:</a>
+        <div>
+            <p>Aquasition date: {{ manager.image.getAquaDate }}</p>
+            <p>Image: X: {{ manager.image.getWidth }}px, Y: {{ manager.image.getHeight }}px, Z: {{ manager.image.z_count }}, T: {{ manager.image.t_count }}</p>
+            <p>Pixel: X: {{ manager.image.getPixelSizeX|floatformat:4 }}&micro;m, Y: {{ manager.image.getPixelSizeY|floatformat:4 }}&micro;m, Z: {{ manager.image.getPixelSizeZ|floatformat:4 }}&micro;m)</p>
+        </div>
+    </li>
+    <li><a href='#'>Objective:</a>
+        <div>
+        {% if manager.image.getObjectiveSettings.correctionCollar or manager.image.getObjectiveSettings.medium or manager.image.getObjectiveSettings.refractiveIndex or manager.image.getObjectiveSettings.manufacturer or manager.image.getObjectiveSettings.model or manager.image.getObjectiveSettings.serialNumber or manager.image.getObjectiveSettings.nominalMagnification or manager.image.getObjectiveSettings.calibratedMagnification or manager.image.getObjectiveSettings.lensNA or manager.image.getObjectiveSettings.immersion or manager.image.getObjectiveSettings.correction or manager.image.getObjectiveSettings.workingDistance or manager.image.getObjectiveSettings.iris or manager.image.getInstrument.microscope or manager.image.getInstrument.detectorLoaded or manager.image.getInstrument.objectiveLoaded or manager.image.getInstrument.lightSourceLoaded or manager.image.getInstrument.filterLoaded or manager.image.getInstrument.dichroicLoaded or manager.image.getInstrument.filterSetLoaded or manager.image.getInstrument.otfLoaded %}
+        
+            {% if manager.image.getObjectiveSettings.correctionCollar %}<p>Correction collar: {{ manager.image.getObjectiveSettings.correctionCollar|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.medium %}<p>Medium: {{ manager.image.getObjectiveSettings.medium|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.refractiveIndex %}<p>Refractive Index: {{ manager.image.getObjectiveSettings.refractiveIndex|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.manufacturer %}<p>Manufacturer: {{ manager.image.getObjective.manufacturer|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.model %}<p>Model: {{ manager.image.getObjective.model|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.serialNumber %}<p>Serial number: {{ manager.image.getObjective.serialNumber|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.nominalMagnification %}<p>Nominal magnification: {{ manager.image.getObjective.nominalMagnification|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.calibratedMagnification %}<p>Calibrated magnification: {{ manager.image.getObjective.calibratedMagnification|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.lensNA %}<p>Lens NA: {{ manager.image.getObjective.lensNA|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.immersion %}<p>Immersion:{{ manager.image.getObjective.immersion|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.correction %}<p>Correction: {{ manager.image.getObjective.correction|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.workingDistance %}<p>Working distance: {{ manager.image.getObjective.workingDistance|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getObjectiveSettings.iris %}<p>Iris: {{ manager.image.getObjective.iris|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.microscope %}<p>Microscope: {{ manager.image.getInstrument.microscope|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.detectorLoaded %}<p>Detector sequence: {{ manager.image.getInstrument.detectorSeq|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.objectiveLoaded %}<p>Objective sequence: {{ manager.image.getInstrument.objectiveSeq|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.lightSourceLoaded %}<p>Light source sequence: {{ manager.image.getInstrument.lightSourceSeq|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.filterLoaded %}<p>Filter sequence: {{ manager.image.getInstrument.filterSeq|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.dichroicLoaded %}<p>Dichroic sequence: {{ manager.image.getInstrument.dichroicSeq|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.filterSetLoaded %}<p>Filter set sequence: {{ manager.image.getInstrument.filterSetSeq|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getInstrument.otfLoaded %}<p>OTF sequence: {{ manager.image.getInstrument.otfSeq|default_if_none:"-" }}</p>{% endif %}
+            {% else %}
+                <p>Not specified</p>
+            {% endif %}
+        </div>
+    </li>
+    <li><a href='#'>Environment:</a>
+        <div>
+            {% if manager.image.getCondition.temperature or manager.image.getCondition.airPressure or manager.image.getCondition.humidity or manager.image.getCondition.co2percent %}
+            
+            {% if manager.image.getCondition.temperature %}<p>Temperature: {{ manager.image.getCondition.temperature|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getCondition.airPressure %}<p>Air pressure: {{ manager.image.getCondition.airPressure|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getCondition.humidity %}<p>Humidity: {{ manager.image.getCondition.humidity|default_if_none:"-" }}</p>{% endif %}
+            {% if manager.image.getCondition.co2percent %}<p>CO2 %: {{ manager.image.getCondition.co2percent|default_if_none:"-" }}</p>{% endif %}
+            {% else %}
+                <p>Not specified</p>
+            {% endif %}
+        </div>
+    </li>
+    <li><a href='#'>Position:</a>
+        <div>
+            <p>{{ manager.image.position }}</p>
+        </div>
+    </li>
 </ul>
 
-<div><a href="#" class="loadData">Show the hierarchy structure.</a></div>
-<div id="hierarchy"> </div>
+</div>
+<div class="clear"></div>
 
 <div><a href="#" class="loadAnnotation">Show annotations.</a></div>
 {% endblock %}

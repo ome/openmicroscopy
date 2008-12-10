@@ -80,12 +80,11 @@
 <thead> 
 <tr> 
     <th>Type</th> 
-    <th>Description</th> 
+    <th>Name</th> 
     <th>Start - End</th>
     <th>Items</th>
     <th>Members</th>
     <th>Comments</th>
-    <th>Actions</th> 
 </tr> 
 </thead> 
 <tbody> 
@@ -96,12 +95,11 @@
         {% else %}
             <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% endif %}</td> 
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a></td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td> 
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>
         <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a><a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td> 
     </tr> 
     {% endfor %}
 </tbody> 
@@ -120,7 +118,7 @@
 <thead> 
 <tr> 
     <th>Type</th> 
-    <th>Description</th> 
+    <th>Name</th> 
     <th>Start - End</th>
     <th>Items</th>
     <th>Members</th>
@@ -135,7 +133,7 @@
         {% else %}
             <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% endif %}</a></td> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a></td> 
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td> 
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>

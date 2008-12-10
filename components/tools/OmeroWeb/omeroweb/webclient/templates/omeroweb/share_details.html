@@ -60,7 +60,7 @@
     
     {% if share.cmSize %}
         {% for cm in share.comments %}
-            {% ifequal cm.details.owner.id.val eContext.context.userId %}
+            {% if cm.isOwned %}
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
                     <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }}</div>
@@ -78,7 +78,7 @@
                 </div>
                 </div>
                 <br/>
-            {% endifequal %}
+            {% endif %}
             
         {% endfor %}
         <div class="comment_bottom"> </div>

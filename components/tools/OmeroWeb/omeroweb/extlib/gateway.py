@@ -826,8 +826,18 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group left outer join fetch im.datasetLinks dil " \
-              "left outer join fetch dil.parent d where im.id=:oid "
+        sql = "select im from Image im " \
+              "join fetch im.details.owner join fetch im.details.group " \
+              "left outer join fetch im.datasetLinks dil " \
+              "left outer join fetch dil.parent d " \
+              "left outer join fetch im.position as position " \
+              "left outer join fetch im.condition as condition " \
+              "left outer join fetch im.objectiveSettings as os " \
+              "left outer join fetch os.medium as medium " \
+              "left outer join fetch os.objective as objective " \
+              "left outer join fetch objective.immersion as immersion " \
+              "left outer join fetch objective.correction as co " \
+              "where im.id=:oid "
         img = query_serv.findByQuery(sql,p)
         return ImageWrapper(self, img)
 
@@ -1521,7 +1531,13 @@ class BlitzObjectWrapper (object):
         else:
             return self._obj.details.permissions.getGroupWrite()
     
-    def isOwnedByMe(self):
+    def isOwned(self):
+        if self._obj.details.owner.id.val == self._conn.getEventContext().userId:
+            return True
+        else:
+            return False
+    
+    def isEditable(self):
         if self._obj.details.owner.id.val == self._conn.getEventContext().userId:
             return True
         else:
@@ -1581,7 +1597,7 @@ class BlitzObjectWrapper (object):
             if l < 20:
                 return name
             elif l >= 20:
-                return "%s...%s" % (name[:10], name[l-8:])
+                return "%s...%s" % (name[:9], name[l-8:])
         except:
             logger.debug(traceback.format_exc())
             return self._obj.name.val
@@ -1620,6 +1636,8 @@ class BlitzObjectWrapper (object):
             rv = getattr(self._obj, attr)
             if hasattr(rv, 'val'):
                 return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
+            elif hasattr(rv, 'value'):
+                return isinstance(rv.value.val, StringType) and rv.value.val.decode('utf8') or rv.value.val
             return rv
         logger.error("AttributeError: '%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
         logger.error(traceback.format_stack())
@@ -1803,6 +1821,18 @@ def assert_pixels (func):
         return func(self, *args, **kwargs)
     return wrapped
 
+class ImageConditionWrapper (BlitzObjectWrapper):
+    pass
+
+class ImageObjectiveSettingsWrapper (BlitzObjectWrapper):
+    pass
+
+class ImageObjectiveWrapper (BlitzObjectWrapper):
+    pass
+
+class ImageInstrumentWrapper (BlitzObjectWrapper):
+    pass
+
 class ImageWrapper (BlitzObjectWrapper):
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
@@ -1846,13 +1876,36 @@ class ImageWrapper (BlitzObjectWrapper):
         try:
             import time
             query = self._conn.getQueryService()
-            event = query.findByQuery("select e from Event e where id = %i" % self._obj.details.creationEvent.id.val, None)
+            param = omero.sys.Parameters()
+            param.map = {} 
+            param.map["id"] = rlong(long(self._obj.details.creationEvent.id.val))
+            sql = "select e from Event e where id = :id"
+            event = query.findByQuery(sql, param)
             return time.ctime(event.time.val / 1000)
         except:
             logger.debug(traceback.format_exc())
-            self._date = "Today"
             return "Today"
-
+    
+    def getAquaDate(self):
+        try:
+            import time
+            return time.ctime(self._obj.acquisitionDate.val / 1000)
+        except:
+            logger.debug(traceback.format_exc())
+            return "unknown"
+    
+    def getCondition(self):
+        return ImageConditionWrapper(self._conn, self._obj.condition)
+    
+    def getObjectiveSettings(self):
+        return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
+    
+    def getObjective(self):
+        return ImageObjectiveWrapper(self._conn, self._obj.objectiveSettings.objective)
+        
+    def getInstrument(self):
+        return ImageInstrumentWrapper(self._conn, self._obj.objectiveSettings.objective.instrument)
+    
     def getThumbnail (self, size=(120,120)):
         try:
             self._loadPixels()

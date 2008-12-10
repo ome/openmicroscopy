@@ -102,6 +102,30 @@ div.cloud {
     background-color: #fff;
     padding: 5px;
 }
+.thumbnail {
+    float: left;
+    width: 50%;
+}
+.metadata {
+    float: right;
+    background-color: #fff;
+    padding: 5px;
+}
 .center {
     text-align: center;
+}
+
+.ui-accordion-container {
+    list-style-type:none;
+    margin:0;
+    padding:0;
+    width: 350px;
+}
+.ui-accordion-header {
+    border-bottom: 1px solid #bbb;
+    padding: 1px 5px;
+    display:block;
+    height:20px;
+    position:relative;
+    text-decoration:none;
 }

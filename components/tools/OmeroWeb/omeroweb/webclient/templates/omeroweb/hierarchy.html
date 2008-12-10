@@ -11,9 +11,9 @@
             <li class="line"> </li>
             <li id="pr-{{ manager.project.id }}" class="folder-close-last-static" style="position: static;">
                 <span>{{ manager.project.id }} {{ manager.project.name }}</span> 
-                {% ifnotequal manager.project.details.owner.id.val eContext.context.userId %}
+                {% if not manager.project.isOwned %}
                     <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>
-                {% endifnotequal %}
+                {% endif %}
             </li>
             <li class="line-last"/>
         </ul>
