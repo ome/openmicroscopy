@@ -479,6 +479,7 @@ public class TreeModelFactory
 			root = (IXMLElement) parser.parse();
 		} catch (Exception ex) {
 			
+			ex.printStackTrace();
 			errMsg = "Error reading XML file: " + ex.toString();
 		} 
 		

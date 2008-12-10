@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction 
+ * org.openmicroscopy.shoola.agents.editor.actions.SaveLocallyCmd 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,19 +23,19 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-import java.awt.event.ActionEvent;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -43,9 +43,9 @@ import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
+
 /** 
- * This Action allows users to choose a local 
- * location to save an OMERO.editor file.
+ * Allows users to choose a local file to save the currently-edit file to. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -53,46 +53,39 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class SaveFileAsAction 
-	extends EditorAction
-	implements PropertyChangeListener
-{
+public class SaveLocallyCmd 
+	implements ActionCmd,
+	PropertyChangeListener {
 	
-	/** The description of the action. */
-	private static final String 	NAME = "Save File As...";
-	
-	/** The description of the action. */
-	private static final String 	DESCRIPTION = 
-		"Save as Local File on your computer";
+	/** Reference to the model */
+	private Editor 					model;
 	
 	/** Collection of supported file formats. */
 	private List<FileFilter>		filters;
 	
-	/** Creates a new instance.
+	/**
+	 * Creates an instance.
 	 * 
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 * @param model		The {@link Editor} model for saving. 
 	 */
-	public SaveFileAsAction(Editor model)
+	SaveLocallyCmd(Editor model) 
 	{
-		super(model);
-		setEnabled(true);
-		setName(NAME);
-		setDescription(DESCRIPTION);
-		setIcon(IconManager.SAVE_AS_ICON);
-	
+		this.model = model;
+		
 		filters = new ArrayList<FileFilter>();
 		filters.add(new EditorFileFilter());
 		filters.add(new HTMLFilter());
 	}
-	
+
 	/**
-	 * Brings up on screen the {@link FileChooser}.
-	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 * Implemented as specified by the {@link ActionCmd} interface. 
+	 * Opens a file chooser for users to choose a local file to save their 
+	 * file to. 
 	 */
-	public void actionPerformed(ActionEvent e) 
-	{
+	public void execute() {
+		
 		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
 				"Save File", "Choose a location and name to save the file", 
 				filters);
@@ -102,8 +95,10 @@ public class SaveFileAsAction
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
+		
 	}
-	
+
+
 	/**
 	 * Responds to the user choosing a file to save.
 	 * Calls {@link XMLexport#export(javax.swing.tree.TreeModel, File)}
@@ -134,8 +129,8 @@ public class SaveFileAsAction
 				}
 			}
 			
-			model.saveFileAs(file);
+			model.saveFileLocally(file);
 		}
 	}
-
+	
 }

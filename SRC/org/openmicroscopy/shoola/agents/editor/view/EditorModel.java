@@ -263,6 +263,8 @@ class EditorModel
 	 */
 	boolean saveLocalFile() 
 	{
+		// fileToEdit will not exist if not already saved 
+		// (or working with file on the server)
 		if (fileToEdit != null && fileToEdit.exists()) {
 			return saveFile(fileToEdit);
 		} 

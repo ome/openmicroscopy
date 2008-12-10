@@ -284,11 +284,14 @@ public class IconManager
     /** The <code>WWW-Folder-48</code> icon. */
     public  static int			WWW_FOLDER_ICON_48 = 72;
     
+    /** The <code>Save to Server</code> icon. */
+    public  static int			SAVE_SERVER_ICON = 73;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 72;
+    private static int          MAX_ID = 73;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -373,6 +376,7 @@ public class IconManager
         relPaths[REMOVE_TABLE_ICON] = "nuvola_remove_table16.png";
         relPaths[WWW_FOLDER_ICON] = "nuvola_folder_http16.png";
         relPaths[WWW_FOLDER_ICON_48] = "nuvola_folder_html48.png";
+        relPaths[SAVE_SERVER_ICON] = "nuvola_save_server16.png";
     }
     
     

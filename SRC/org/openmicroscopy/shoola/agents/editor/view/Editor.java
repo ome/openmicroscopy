@@ -145,7 +145,7 @@ public interface Editor
 	 * If the current file is local, saves there, overwriting the old file. 
 	 * If file is on server...
 	 */
-	public void saveCurrentFile();
+	public boolean saveCurrentFile();
 	
 	/**
 	 * Saves to the specified file, and remembers file location in model.
@@ -154,7 +154,15 @@ public interface Editor
 	 * 
 	 * @return			True if the saving was successful
 	 */
-	public boolean saveFileAs(File file);
+	public boolean saveFileLocally(File file);
+	
+	/**
+	 * Saves the currently edited file to the server as a new file with
+	 * the given name.
+	 * 
+	 * @param fileName		The name to give the new file on the server. 
+	 */
+	public void saveFileServer(String fileName);
 	
 	/**
 	 * 

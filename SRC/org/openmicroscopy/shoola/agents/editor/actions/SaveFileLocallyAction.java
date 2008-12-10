@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction 
+ * org.openmicroscopy.shoola.agents.editor.actions.SaveFileAsAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -25,19 +25,18 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 
-import javax.swing.JOptionPane;
-
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * This Action allows users to choose a local 
- * location to save an OMERO.editor file. 
+ * location to save an OMERO.editor file. Delegates this functionality to 
+ * the {@link SaveLocallyCmd} command. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -47,63 +46,37 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * </small>
  * @since OME3.0
  */
-public class SaveFileAction 
+public class SaveFileLocallyAction 
 	extends EditorAction
 {
-
+	
 	/** The description of the action. */
-	private static final String 	NAME = "Save File";
-
+	private static final String 	NAME = "Save File As...";
+	
 	/** The description of the action. */
-	private static final String 	DESCRIPTION = "Save the current file.";
-
-	/** 
-	 * Creates a new instance.
+	private static final String 	DESCRIPTION = 
+		"Save as Local File on your computer";
+	
+	/** Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public SaveFileAction(Editor model)
+	public SaveFileLocallyAction(Editor model)
 	{
 		super(model);
 		setEnabled(true);
 		setName(NAME);
 		setDescription(DESCRIPTION);
-		setIcon(IconManager.SAVE_ICON);
+		setIcon(IconManager.SAVE_AS_ICON);
 	}
-
+	
 	/**
-	 * Saves the file currently edited.
+	 * Brings up on screen the {@link FileChooser}.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		// saves current file locally OR to server
-		boolean saved = model.saveCurrentFile();
-		
-		if (! saved) {
-			
-			//Custom button text
-			Object[] options = {"Save to Server",
-			                    "Save locally",
-			                    "Cancel"};
-			int n = JOptionPane.showOptionDialog(null,
-			    "Would you like to save this file locally, or save it to " +
-			    "the OMERO.server?",
-			    "Save As...",
-			    JOptionPane.YES_NO_CANCEL_OPTION,
-			    JOptionPane.QUESTION_MESSAGE,
-			    null,
-			    options,
-			    options[2]);
-			
-			if (n == 0) {
-				ActionCmd save = new SaveServerCmd(model);
-				save.execute();
-			} else if (n == 1) {
-				ActionCmd save = new SaveLocallyCmd(model);
-				save.execute();
-			}
-		}
+		ActionCmd save = new SaveLocallyCmd(model);
+		save.execute();
 	}
-	
 }

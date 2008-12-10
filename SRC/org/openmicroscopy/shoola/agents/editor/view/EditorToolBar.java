@@ -66,7 +66,8 @@ class EditorToolBar
 		addAction(EditorControl.OPEN_LOCAL_FILE, bar);
 		addAction(EditorControl.OPEN_WWW_FILE, bar);
 		addAction(EditorControl.SAVE_FILE, bar);
-		addAction(EditorControl.SAVE_FILE_AS, bar);
+		addAction(EditorControl.SAVE_FILE_LOCALLY, bar);
+		addAction(EditorControl.SAVE_FILE_SERVER, bar);
 		addAction(EditorControl.NEW_BLANK_FILE, bar);
 		return bar;
 	}
