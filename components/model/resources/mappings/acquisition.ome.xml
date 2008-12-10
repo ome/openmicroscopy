@@ -437,6 +437,7 @@
 	
 	<enum id="ome.model.enums.Correction">
 		<entry name="Unknown"/>
+		<entry name="Other"/>
 		<entry name="UV"/>
 		<entry name="PlanApo"/>
 		<entry name="PlanFluor"/>

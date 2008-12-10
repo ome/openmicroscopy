@@ -414,6 +414,8 @@ insert into photometricinterpretation (id,permissions,owner_id,group_id,creation
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_correction'),-35,0,0,0,'Unknown';
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_correction'),-35,0,0,0,'Other';
+insert into correction (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_correction'),-35,0,0,0,'UV';
 insert into correction (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_correction'),-35,0,0,0,'PlanApo';
