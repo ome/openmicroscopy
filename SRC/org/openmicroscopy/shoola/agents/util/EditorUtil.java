@@ -1459,6 +1459,7 @@ public class EditorUtil
 		taskPane.setCollapsed(true);
 		Font font = taskPane.getFont();
 		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
+		
 		return taskPane;
 	}
 	
