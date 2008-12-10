@@ -175,7 +175,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.populateMinMax(id.getValue(), i.getValue());
+                        store.populateMinMax(toJavaType(id), toJavaType(i));
                         return null;
                     }
                 }));
@@ -206,7 +206,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setArcPower(power.getValue(), instrumentIndex,
+                        store.setArcPower(toJavaType(power), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -224,7 +224,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setArcType(type.getValue(), instrumentIndex,
+                        store.setArcType(toJavaType(type), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -243,7 +243,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setChannelComponentColorDomain(colorDomain.getValue(),
+                        store.setChannelComponentColorDomain(toJavaType(colorDomain),
                                 imageIndex, logicalChannelIndex,
                                 channelComponentIndex);
                         return null;
@@ -263,7 +263,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setChannelComponentIndex(index.getValue(), imageIndex,
+                        store.setChannelComponentIndex(toJavaType(index), imageIndex,
                                 logicalChannelIndex, channelComponentIndex);
                         return null;
                     }
@@ -282,8 +282,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setChannelGlobalMinMax(channelIdx, globalMin.getValue(),
-                                globalMax.getValue(), pixelsIndex.getValue());
+                        store.setChannelGlobalMinMax(channelIdx, toJavaType(globalMin),
+                                toJavaType(globalMax), toJavaType(pixelsIndex));
                         return null;
                     }
                 }));
@@ -300,7 +300,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorGain(gain.getValue(), instrumentIndex,
+                        store.setDetectorGain(toJavaType(gain), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -318,7 +318,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorID(id.getValue(), instrumentIndex,
+                        store.setDetectorID(toJavaType(id), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -337,7 +337,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorManufacturer(manufacturer.getValue(),
+                        store.setDetectorManufacturer(toJavaType(manufacturer),
                                 instrumentIndex, detectorIndex);
                         return null;
                     }
@@ -355,7 +355,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorModel(model.getValue(), instrumentIndex,
+                        store.setDetectorModel(toJavaType(model), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -374,7 +374,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorNodeID(nodeID.getValue(), instrumentIndex,
+                        store.setDetectorNodeID(toJavaType(nodeID), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -393,7 +393,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorOffset(offset.getValue(), instrumentIndex,
+                        store.setDetectorOffset(toJavaType(offset), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -412,7 +412,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorSerialNumber(serialNumber.getValue(),
+                        store.setDetectorSerialNumber(toJavaType(serialNumber),
                                 instrumentIndex, detectorIndex);
                         return null;
                     }
@@ -431,7 +431,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsDetector(detector.getValue(),
+                        store.setDetectorSettingsDetector(toJavaType(detector),
                                 imageIndex, logicalChannelIndex);
                         return null;
                     }
@@ -450,7 +450,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsGain(gain.getValue(), imageIndex,
+                        store.setDetectorSettingsGain(toJavaType(gain), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -469,7 +469,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsOffset(offset.getValue(), imageIndex,
+                        store.setDetectorSettingsOffset(toJavaType(offset), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -487,7 +487,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorType(type.getValue(), instrumentIndex,
+                        store.setDetectorType(toJavaType(type), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -506,7 +506,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorVoltage(voltage.getValue(), instrumentIndex,
+                        store.setDetectorVoltage(toJavaType(voltage), instrumentIndex,
                                 detectorIndex);
                         return null;
                     }
@@ -524,7 +524,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDimensionsPhysicalSizeX(physicalSizeX.getValue(),
+                        store.setDimensionsPhysicalSizeX(toJavaType(physicalSizeX),
                                 imageIndex, pixelsIndex);
                         return null;
                     }
@@ -542,7 +542,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDimensionsPhysicalSizeY(physicalSizeY.getValue(),
+                        store.setDimensionsPhysicalSizeY(toJavaType(physicalSizeY),
                                 imageIndex, pixelsIndex);
                         return null;
                     }
@@ -560,7 +560,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDimensionsPhysicalSizeZ(physicalSizeZ.getValue(),
+                        store.setDimensionsPhysicalSizeZ(toJavaType(physicalSizeZ),
                                 imageIndex, pixelsIndex);
                         return null;
                     }
@@ -578,7 +578,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDimensionsTimeIncrement(timeIncrement.getValue(),
+                        store.setDimensionsTimeIncrement(toJavaType(timeIncrement),
                                 imageIndex, pixelsIndex);
                         return null;
                     }
@@ -596,7 +596,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDimensionsWaveIncrement(waveIncrement.getValue(),
+                        store.setDimensionsWaveIncrement(toJavaType(waveIncrement),
                                 imageIndex, pixelsIndex);
                         return null;
                     }
@@ -614,7 +614,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDimensionsWaveStart(waveStart.getValue(), imageIndex,
+                        store.setDimensionsWaveStart(toJavaType(waveStart), imageIndex,
                                 pixelsIndex);
                         return null;
                     }
@@ -631,7 +631,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsID(id.getValue(), imageIndex);
+                        store.setDisplayOptionsID(toJavaType(id), imageIndex);
                         return null;
                     }
                 }));
@@ -648,7 +648,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsNodeID(nodeID.getValue(), imageIndex);
+                        store.setDisplayOptionsNodeID(toJavaType(nodeID), imageIndex);
                         return null;
                     }
                 }));
@@ -665,7 +665,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsProjectionZStart(start.getValue(),
+                        store.setDisplayOptionsProjectionZStart(toJavaType(start),
                                 imageIndex);
                         return null;
                     }
@@ -683,7 +683,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsProjectionZStop(stop.getValue(),
+                        store.setDisplayOptionsProjectionZStop(toJavaType(stop),
                                 imageIndex);
                         return null;
                     }
@@ -702,7 +702,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setDisplayOptionsTimeTStart(start.getValue(),
+                                .setDisplayOptionsTimeTStart(toJavaType(start),
                                         imageIndex);
                         return null;
                     }
@@ -720,7 +720,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsTimeTStop(stop.getValue(), imageIndex);
+                        store.setDisplayOptionsTimeTStop(toJavaType(stop), imageIndex);
                         return null;
                     }
                 }));
@@ -737,7 +737,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsZoom(zoom.getValue(), imageIndex);
+                        store.setDisplayOptionsZoom(toJavaType(zoom), imageIndex);
                         return null;
                     }
                 }));
@@ -754,7 +754,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setExperimenterDataDirectory(dataDirectory.getValue(),
+                        store.setExperimenterDataDirectory(toJavaType(dataDirectory),
                                 experimenterIndex);
                         return null;
                     }
@@ -773,7 +773,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setExperimenterEmail(email.getValue(),
+                                .setExperimenterEmail(toJavaType(email),
                                         experimenterIndex);
                         return null;
                     }
@@ -791,7 +791,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setExperimenterFirstName(firstName.getValue(),
+                        store.setExperimenterFirstName(toJavaType(firstName),
                                 experimenterIndex);
                         return null;
                     }
@@ -809,7 +809,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setExperimenterID(id.getValue(), experimenterIndex);
+                        store.setExperimenterID(toJavaType(id), experimenterIndex);
                         return null;
                     }
                 }));
@@ -826,7 +826,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setExperimenterInstitution(institution.getValue(),
+                        store.setExperimenterInstitution(toJavaType(institution),
                                 experimenterIndex);
                         return null;
                     }
@@ -844,7 +844,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setExperimenterLastName(lastName.getValue(),
+                        store.setExperimenterLastName(toJavaType(lastName),
                                 experimenterIndex);
                         return null;
                     }
@@ -862,7 +862,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setExperimenterNodeID(nodeID.getValue(),
+                        store.setExperimenterNodeID(toJavaType(nodeID),
                                 experimenterIndex);
                         return null;
                     }
@@ -880,7 +880,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setFilamentPower(power.getValue(), instrumentIndex,
+                        store.setFilamentPower(toJavaType(power), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -898,7 +898,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setFilamentType(type.getValue(), instrumentIndex,
+                        store.setFilamentType(toJavaType(type), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -917,7 +917,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setImageCreationDate(creationDate.getValue(),
+                                .setImageCreationDate(toJavaType(creationDate),
                                         imageIndex);
                         return null;
                     }
@@ -935,7 +935,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImageDescription(description.getValue(), imageIndex);
+                        store.setImageDescription(toJavaType(description), imageIndex);
                         return null;
                     }
                 }));
@@ -951,7 +951,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImageID(id.getValue(), imageIndex);
+                        store.setImageID(toJavaType(id), imageIndex);
                         return null;
                     }
                 }));
@@ -968,7 +968,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImageInstrumentRef(instrumentRef.getValue(),
+                        store.setImageInstrumentRef(toJavaType(instrumentRef),
                                 imageIndex);
                         return null;
                     }
@@ -985,7 +985,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImageName(name.getValue(), imageIndex);
+                        store.setImageName(toJavaType(name), imageIndex);
                         return null;
                     }
                 }));
@@ -1001,7 +1001,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImageNodeID(nodeID.getValue(), imageIndex);
+                        store.setImageNodeID(toJavaType(nodeID), imageIndex);
                         return null;
                     }
                 }));
@@ -1018,7 +1018,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentAirPressure(airPressure.getValue(),
+                        store.setImagingEnvironmentAirPressure(toJavaType(airPressure),
                                 imageIndex);
                         return null;
                     }
@@ -1036,7 +1036,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentCO2Percent(percent.getValue(),
+                        store.setImagingEnvironmentCO2Percent(toJavaType(percent),
                                 imageIndex);
                         return null;
                     }
@@ -1054,7 +1054,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentHumidity(humidity.getValue(),
+                        store.setImagingEnvironmentHumidity(toJavaType(humidity),
                                 imageIndex);
                         return null;
                     }
@@ -1072,7 +1072,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentTemperature(temperature.getValue(),
+                        store.setImagingEnvironmentTemperature(toJavaType(temperature),
                                 imageIndex);
                         return null;
                     }
@@ -1090,7 +1090,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setInstrumentID(id.getValue(), instrumentIndex);
+                        store.setInstrumentID(toJavaType(id), instrumentIndex);
                         return null;
                     }
                 }));
@@ -1107,7 +1107,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setInstrumentNodeID(nodeID.getValue(), instrumentIndex);
+                        store.setInstrumentNodeID(toJavaType(nodeID), instrumentIndex);
                         return null;
                     }
                 }));
@@ -1126,7 +1126,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLaserFrequencyMultiplication(
-                                frequencyMultiplication.getValue(), instrumentIndex,
+                                toJavaType(frequencyMultiplication), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1145,7 +1145,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLaserLaserMedium(laserMedium.getValue(),
+                        store.setLaserLaserMedium(toJavaType(laserMedium),
                                 instrumentIndex, lightSourceIndex);
                         return null;
                     }
@@ -1163,7 +1163,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLaserPower(power.getValue(), instrumentIndex,
+                        store.setLaserPower(toJavaType(power), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1181,7 +1181,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLaserPulse(pulse.getValue(), instrumentIndex,
+                        store.setLaserPulse(toJavaType(pulse), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1200,7 +1200,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLaserTuneable(tuneable.getValue(), instrumentIndex,
+                        store.setLaserTuneable(toJavaType(tuneable), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1218,7 +1218,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLaserType(type.getValue(), instrumentIndex,
+                        store.setLaserType(toJavaType(type), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1237,7 +1237,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLaserWavelength(wavelength.getValue(),
+                        store.setLaserWavelength(toJavaType(wavelength),
                                 instrumentIndex, lightSourceIndex);
                         return null;
                     }
@@ -1255,7 +1255,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLightSourceID(id.getValue(), instrumentIndex,
+                        store.setLightSourceID(toJavaType(id), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1274,7 +1274,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLightSourceManufacturer(manufacturer.getValue(),
+                        store.setLightSourceManufacturer(toJavaType(manufacturer),
                                 instrumentIndex, lightSourceIndex);
                         return null;
                     }
@@ -1292,7 +1292,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        store.setLightSourceModel(model.getValue(), instrumentIndex,
+                        store.setLightSourceModel(toJavaType(model), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1312,7 +1312,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLightSourceID(nodeID.getValue(), instrumentIndex,
+                        store.setLightSourceID(toJavaType(nodeID), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1331,7 +1331,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLightSourcePower(power.getValue(), instrumentIndex,
+                        store.setLightSourcePower(toJavaType(power), instrumentIndex,
                                 lightSourceIndex);
                         return null;
                     }
@@ -1350,7 +1350,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLightSourceSerialNumber(serialNumber.getValue(),
+                        store.setLightSourceSerialNumber(toJavaType(serialNumber),
                                 instrumentIndex, lightSourceIndex);
                         return null;
                     }
@@ -1370,7 +1370,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLightSourceSettingsAttenuation(
-                                attenuation.getValue(), imageIndex,
+                                toJavaType(attenuation), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1390,7 +1390,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLightSourceSettingsLightSource(
-                                lightSource.getValue(), imageIndex,
+                                toJavaType(lightSource), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1409,7 +1409,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLightSourceSettingsWavelength(wavelength.getValue(),
+                        store.setLightSourceSettingsWavelength(toJavaType(wavelength),
                                 imageIndex, logicalChannelIndex);
                         return null;
                     }
@@ -1429,7 +1429,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelContrastMethod(
-                                contrastMethod.getValue(), imageIndex,
+                                toJavaType(contrastMethod), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1448,7 +1448,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelEmWave(emWave.getValue(), imageIndex,
+                        store.setLogicalChannelEmWave(toJavaType(emWave), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1467,7 +1467,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelExWave(exWave.getValue(), imageIndex,
+                        store.setLogicalChannelExWave(toJavaType(exWave), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1486,7 +1486,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelFluor(fluor.getValue(), imageIndex,
+                        store.setLogicalChannelFluor(toJavaType(fluor), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1504,7 +1504,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelID(id.getValue(), imageIndex,
+                        store.setLogicalChannelID(toJavaType(id), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1524,7 +1524,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelIlluminationType(
-                                illuminationType.getValue(), imageIndex,
+                                toJavaType(illuminationType), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1543,7 +1543,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelMode(mode.getValue(), imageIndex,
+                        store.setLogicalChannelMode(toJavaType(mode), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1562,7 +1562,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelName(name.getValue(), imageIndex,
+                        store.setLogicalChannelName(toJavaType(name), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1581,7 +1581,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelNdFilter(ndFilter.getValue(),
+                        store.setLogicalChannelNdFilter(toJavaType(ndFilter),
                                 imageIndex, logicalChannelIndex);
                         return null;
                     }
@@ -1600,7 +1600,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelNodeID(nodeID.getValue(), imageIndex,
+                        store.setLogicalChannelNodeID(toJavaType(nodeID), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1620,7 +1620,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelPhotometricInterpretation(
-                                photometricInterpretation.getValue(), imageIndex,
+                                toJavaType(photometricInterpretation), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1639,7 +1639,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelPinholeSize(pinholeSize.getValue(),
+                        store.setLogicalChannelPinholeSize(toJavaType(pinholeSize),
                                 imageIndex, logicalChannelIndex);
                         return null;
                     }
@@ -1659,7 +1659,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelPockelCellSetting(
-                                pockelCellSetting.getValue(), imageIndex,
+                                toJavaType(pockelCellSetting), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1679,7 +1679,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelSamplesPerPixel(
-                                samplesPerPixel.getValue(), imageIndex,
+                                toJavaType(samplesPerPixel), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -1696,7 +1696,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setOTFID(id.getValue(), instrumentIndex, otfIndex);
+                        store.setOTFID(toJavaType(id), instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1712,7 +1712,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setOTFNodeID(nodeID.getValue(), instrumentIndex,
+                        store.setOTFNodeID(toJavaType(nodeID), instrumentIndex,
                                 otfIndex);
                         return null;
                     }
@@ -1731,7 +1731,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setOTFOpticalAxisAveraged(
-                                opticalAxisAveraged.getValue(), instrumentIndex,
+                                toJavaType(opticalAxisAveraged), instrumentIndex,
                                 otfIndex);
                         return null;
                     }
@@ -1748,7 +1748,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setOTFPath(path.getValue(), instrumentIndex, otfIndex);
+                        store.setOTFPath(toJavaType(path), instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1765,7 +1765,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setOTFPixelType(pixelType.getValue(), instrumentIndex,
+                        store.setOTFPixelType(toJavaType(pixelType), instrumentIndex,
                                 otfIndex);
                         return null;
                     }
@@ -1782,7 +1782,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setOTFSizeX(sizeX.getValue(), instrumentIndex, otfIndex);
+                        store.setOTFSizeX(toJavaType(sizeX), instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1798,7 +1798,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setOTFSizeY(sizeY.getValue(), instrumentIndex, otfIndex);
+                        store.setOTFSizeY(toJavaType(sizeY), instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1817,7 +1817,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setObjectiveCalibratedMagnification(
-                                calibratedMagnification.getValue(), instrumentIndex,
+                                toJavaType(calibratedMagnification), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -1836,7 +1836,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveCorrection(correction.getValue(),
+                        store.setObjectiveCorrection(toJavaType(correction),
                                 instrumentIndex, objectiveIndex);
                         return null;
                     }
@@ -1854,7 +1854,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveID(id.getValue(), instrumentIndex,
+                        store.setObjectiveID(toJavaType(id), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -1872,7 +1872,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveIris(iris.getValue(), instrumentIndex,
+                        store.setObjectiveIris(toJavaType(iris), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -1891,7 +1891,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveImmersion(immersion.getValue(),
+                        store.setObjectiveImmersion(toJavaType(immersion),
                                 instrumentIndex, objectiveIndex);
                         return null;
                     }
@@ -1910,7 +1910,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveLensNA(lensNA.getValue(), instrumentIndex,
+                        store.setObjectiveLensNA(toJavaType(lensNA), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -1929,7 +1929,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveManufacturer(manufacturer.getValue(),
+                        store.setObjectiveManufacturer(toJavaType(manufacturer),
                                 instrumentIndex, objectiveIndex);
                         return null;
                     }
@@ -1948,7 +1948,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveModel(model.getValue(), instrumentIndex,
+                        store.setObjectiveModel(toJavaType(model), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -1967,7 +1967,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveNodeID(nodeID.getValue(), instrumentIndex,
+                        store.setObjectiveNodeID(toJavaType(nodeID), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -1987,7 +1987,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setObjectiveNominalMagnification(
-                                nominalMagnification.getValue(), instrumentIndex,
+                                toJavaType(nominalMagnification), instrumentIndex,
                                 objectiveIndex);
                         return null;
                     }
@@ -2006,7 +2006,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveSerialNumber(serialNumber.getValue(),
+                        store.setObjectiveSerialNumber(toJavaType(serialNumber),
                                 instrumentIndex, objectiveIndex);
                         return null;
                     }
@@ -2025,7 +2025,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveWorkingDistance(workingDistance.getValue(),
+                        store.setObjectiveWorkingDistance(toJavaType(workingDistance),
                                 instrumentIndex, objectiveIndex);
                         return null;
                     }
@@ -2043,7 +2043,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPixelsBigEndian(bigEndian.getValue(), imageIndex,
+                        store.setPixelsBigEndian(toJavaType(bigEndian), imageIndex,
                                 pixelsIndex);
                         return null;
                     }
@@ -2061,7 +2061,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPixelsDimensionOrder(dimensionOrder.getValue(),
+                        store.setPixelsDimensionOrder(toJavaType(dimensionOrder),
                                 imageIndex, pixelsIndex);
                         return null;
                     }
@@ -2078,7 +2078,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPixelsID(id.getValue(), imageIndex, pixelsIndex);
+                        store.setPixelsID(toJavaType(id), imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
@@ -2095,7 +2095,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPixelsNodeID(nodeID.getValue(), imageIndex,
+                        store.setPixelsNodeID(toJavaType(nodeID), imageIndex,
                                 pixelsIndex);
                         return null;
                     }
@@ -2113,7 +2113,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPixelsPixelType(pixelType.getValue(), imageIndex,
+                        store.setPixelsPixelType(toJavaType(pixelType), imageIndex,
                                 pixelsIndex);
                         return null;
                     }
@@ -2132,7 +2132,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setPixelsSizeC(sizeC.getValue(), imageIndex,
+                                .setPixelsSizeC(toJavaType(sizeC), imageIndex,
                                         pixelsIndex);
                         return null;
                     }
@@ -2151,7 +2151,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setPixelsSizeT(sizeT.getValue(), imageIndex,
+                                .setPixelsSizeT(toJavaType(sizeT), imageIndex,
                                         pixelsIndex);
                         return null;
                     }
@@ -2170,7 +2170,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setPixelsSizeX(sizeX.getValue(), imageIndex,
+                                .setPixelsSizeX(toJavaType(sizeX), imageIndex,
                                         pixelsIndex);
                         return null;
                     }
@@ -2189,7 +2189,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setPixelsSizeY(sizeY.getValue(), imageIndex,
+                                .setPixelsSizeY(toJavaType(sizeY), imageIndex,
                                         pixelsIndex);
                         return null;
                     }
@@ -2208,7 +2208,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store
-                                .setPixelsSizeZ(sizeZ.getValue(), imageIndex,
+                                .setPixelsSizeZ(toJavaType(sizeZ), imageIndex,
                                         pixelsIndex);
                         return null;
                     }
@@ -2225,7 +2225,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheC(theC.getValue(), imageIndex, pixelsIndex,
+                        store.setPlaneTheC(toJavaType(theC), imageIndex, pixelsIndex,
                                 planeIndex);
                         return null;
                     }
@@ -2242,7 +2242,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheT(theT.getValue(), imageIndex, pixelsIndex,
+                        store.setPlaneTheT(toJavaType(theT), imageIndex, pixelsIndex,
                                 planeIndex);
                         return null;
                     }
@@ -2259,7 +2259,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheZ(theZ.getValue(), imageIndex, pixelsIndex,
+                        store.setPlaneTheZ(toJavaType(theZ), imageIndex, pixelsIndex,
                                 planeIndex);
                         return null;
                     }
@@ -2277,7 +2277,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlaneTimingDeltaT(deltaT.getValue(), imageIndex,
+                        store.setPlaneTimingDeltaT(toJavaType(deltaT), imageIndex,
                                 pixelsIndex, planeIndex);
                         return null;
                     }
@@ -2296,7 +2296,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlaneTimingExposureTime(exposureTime.getValue(),
+                        store.setPlaneTimingExposureTime(toJavaType(exposureTime),
                                 imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
@@ -2314,7 +2314,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlateDescription(description.getValue(), plateIndex);
+                        store.setPlateDescription(toJavaType(description), plateIndex);
                         return null;
                     }
                 }));
@@ -2332,7 +2332,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setPlateExternalIdentifier(
-                                externalIdentifier.getValue(), plateIndex);
+                                toJavaType(externalIdentifier), plateIndex);
                         return null;
                     }
                 }));
@@ -2348,7 +2348,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlateID(id.getValue(), plateIndex);
+                        store.setPlateID(toJavaType(id), plateIndex);
                         return null;
                     }
                 }));
@@ -2364,7 +2364,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlateName(name.getValue(), plateIndex);
+                        store.setPlateName(toJavaType(name), plateIndex);
                         return null;
                     }
                 }));
@@ -2380,7 +2380,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlateRefID(id.getValue(), screenIndex, plateRefIndex);
+                        store.setPlateRefID(toJavaType(id), screenIndex, plateRefIndex);
                         return null;
                     }
                 }));
@@ -2396,7 +2396,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus _status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPlateStatus(status.getValue(), plateIndex);
+                        store.setPlateStatus(toJavaType(status), plateIndex);
                         return null;
                     }
                 }));
@@ -2412,7 +2412,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIID(id.getValue(), imageIndex, roiIndex);
+                        store.setROIID(toJavaType(id), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2428,7 +2428,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROINodeID(nodeID.getValue(), imageIndex, roiIndex);
+                        store.setROINodeID(toJavaType(nodeID), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2444,7 +2444,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIT0(t0.getValue(), imageIndex, roiIndex);
+                        store.setROIT0(toJavaType(t0), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2460,7 +2460,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIT1(t1.getValue(), imageIndex, roiIndex);
+                        store.setROIT1(toJavaType(t1), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2476,7 +2476,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIX0(x0.getValue(), imageIndex, roiIndex);
+                        store.setROIX0(toJavaType(x0), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2492,7 +2492,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIX1(x1.getValue(), imageIndex, roiIndex);
+                        store.setROIX1(toJavaType(x1), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2508,7 +2508,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIY0(y0.getValue(), imageIndex, roiIndex);
+                        store.setROIY0(toJavaType(y0), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2524,7 +2524,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIY1(y1.getValue(), imageIndex, roiIndex);
+                        store.setROIY1(toJavaType(y1), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2540,7 +2540,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIZ0(z0.getValue(), imageIndex, roiIndex);
+                        store.setROIZ0(toJavaType(z0), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2556,7 +2556,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setROIZ1(z1.getValue(), imageIndex, roiIndex);
+                        store.setROIZ1(toJavaType(z1), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -2573,7 +2573,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setReagentDescription(description.getValue(),
+                        store.setReagentDescription(toJavaType(description),
                                 screenIndex, reagentIndex);
                         return null;
                     }
@@ -2590,7 +2590,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setReagentID(id.getValue(), screenIndex, reagentIndex);
+                        store.setReagentID(toJavaType(id), screenIndex, reagentIndex);
                         return null;
                     }
                 }));
@@ -2607,7 +2607,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setReagentName(name.getValue(), screenIndex,
+                        store.setReagentName(toJavaType(name), screenIndex,
                                 reagentIndex);
                         return null;
                     }
@@ -2626,7 +2626,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setReagentReagentIdentifier(
-                                reagentIdentifier.getValue(), screenIndex,
+                                toJavaType(reagentIdentifier), screenIndex,
                                 reagentIndex);
                         return null;
                     }
@@ -2667,7 +2667,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setScreenAcquisitionEndTime(endTime.getValue(),
+                        store.setScreenAcquisitionEndTime(toJavaType(endTime),
                                 screenIndex, screenAcquisitionIndex);
                         return null;
                     }
@@ -2686,7 +2686,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setScreenAcquisitionID(id.getValue(), screenIndex,
+                        store.setScreenAcquisitionID(toJavaType(id), screenIndex,
                                 screenAcquisitionIndex);
                         return null;
                     }
@@ -2705,7 +2705,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setScreenAcquisitionStartTime(startTime.getValue(),
+                        store.setScreenAcquisitionStartTime(toJavaType(startTime),
                                 screenIndex, screenAcquisitionIndex);
                         return null;
                     }
@@ -2722,7 +2722,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setScreenID(id.getValue(), screenIndex);
+                        store.setScreenID(toJavaType(id), screenIndex);
                         return null;
                     }
                 }));
@@ -2738,7 +2738,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setScreenName(name.getValue(), screenIndex);
+                        store.setScreenName(toJavaType(name), screenIndex);
                         return null;
                     }
                 }));
@@ -2756,7 +2756,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setScreenProtocolDescription(
-                                protocolDescription.getValue(), screenIndex);
+                                toJavaType(protocolDescription), screenIndex);
                         return null;
                     }
                 }));
@@ -2774,7 +2774,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setScreenProtocolIdentifier(
-                                protocolIdentifier.getValue(), screenIndex);
+                                toJavaType(protocolIdentifier), screenIndex);
                         return null;
                     }
                 }));
@@ -2792,7 +2792,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setScreenReagentSetDescription(
-                                reagentSetDescription.getValue(), screenIndex);
+                                toJavaType(reagentSetDescription), screenIndex);
                         return null;
                     }
                 }));
@@ -2808,7 +2808,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStageLabelName(name.getValue(), imageIndex);
+                        store.setStageLabelName(toJavaType(name), imageIndex);
                         return null;
                     }
                 }));
@@ -2824,7 +2824,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStageLabelX(x.getValue(), imageIndex);
+                        store.setStageLabelX(toJavaType(x), imageIndex);
                         return null;
                     }
                 }));
@@ -2840,7 +2840,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStageLabelY(y.getValue(), imageIndex);
+                        store.setStageLabelY(toJavaType(y), imageIndex);
                         return null;
                     }
                 }));
@@ -2856,7 +2856,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStageLabelZ(z.getValue(), imageIndex);
+                        store.setStageLabelZ(toJavaType(z), imageIndex);
                         return null;
                     }
                 }));
@@ -2874,7 +2874,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStagePositionPositionX(positionX.getValue(),
+                        store.setStagePositionPositionX(toJavaType(positionX),
                                 imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
@@ -2893,7 +2893,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStagePositionPositionY(positionY.getValue(),
+                        store.setStagePositionPositionY(toJavaType(positionY),
                                 imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
@@ -2912,7 +2912,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setStagePositionPositionZ(positionZ.getValue(),
+                        store.setStagePositionPositionZ(toJavaType(positionZ),
                                 imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
@@ -2929,7 +2929,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setPixelsId(id.getValue());
+                        store.setPixelsId(toJavaType(id));
                         return null;
                     }
                 }));
@@ -2947,7 +2947,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataFileName(fileName.getValue(), imageIndex,
+                        store.setTiffDataFileName(toJavaType(fileName), imageIndex,
                                 pixelsIndex, tiffDataIndex);
                         return null;
                     }
@@ -2966,7 +2966,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataFirstC(firstC.getValue(), imageIndex,
+                        store.setTiffDataFirstC(toJavaType(firstC), imageIndex,
                                 pixelsIndex, tiffDataIndex);
                         return null;
                     }
@@ -2985,7 +2985,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataFirstT(firstT.getValue(), imageIndex,
+                        store.setTiffDataFirstT(toJavaType(firstT), imageIndex,
                                 pixelsIndex, tiffDataIndex);
                         return null;
                     }
@@ -3004,7 +3004,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataFirstZ(firstZ.getValue(), imageIndex,
+                        store.setTiffDataFirstZ(toJavaType(firstZ), imageIndex,
                                 pixelsIndex, tiffDataIndex);
                         return null;
                     }
@@ -3023,7 +3023,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataIFD(ifd.getValue(), imageIndex, pixelsIndex,
+                        store.setTiffDataIFD(toJavaType(ifd), imageIndex, pixelsIndex,
                                 tiffDataIndex);
                         return null;
                     }
@@ -3042,7 +3042,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataNumPlanes(numPlanes.getValue(), imageIndex,
+                        store.setTiffDataNumPlanes(toJavaType(numPlanes), imageIndex,
                                 pixelsIndex, tiffDataIndex);
                         return null;
                     }
@@ -3061,7 +3061,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setTiffDataUUID(uuid.getValue(), imageIndex,
+                        store.setTiffDataUUID(toJavaType(uuid), imageIndex,
                                 pixelsIndex, tiffDataIndex);
                         return null;
                     }
@@ -3077,7 +3077,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setUUID(uuid.getValue());
+                        store.setUUID(toJavaType(uuid));
                         return null;
                     }
                 }));
@@ -3093,7 +3093,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellColumn(column.getValue(), plateIndex, wellIndex);
+                        store.setWellColumn(toJavaType(column), plateIndex, wellIndex);
                         return null;
                     }
                 }));
@@ -3111,7 +3111,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setWellExternalDescription(
-                                externalDescription.getValue(), plateIndex, wellIndex);
+                                toJavaType(externalDescription), plateIndex, wellIndex);
                         return null;
                     }
                 }));
@@ -3128,7 +3128,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellExternalIdentifier(externalIdentifier.getValue(),
+                        store.setWellExternalIdentifier(toJavaType(externalIdentifier),
                                 plateIndex, wellIndex);
                         return null;
                     }
@@ -3145,7 +3145,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellID(id.getValue(), plateIndex, wellIndex);
+                        store.setWellID(toJavaType(id), plateIndex, wellIndex);
                         return null;
                     }
                 }));
@@ -3161,7 +3161,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellRow(row.getValue(), plateIndex, wellIndex);
+                        store.setWellRow(toJavaType(row), plateIndex, wellIndex);
                         return null;
                     }
                 }));
@@ -3179,7 +3179,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellSampleID(id.getValue(), plateIndex, wellIndex,
+                        store.setWellSampleID(toJavaType(id), plateIndex, wellIndex,
                                 wellSampleIndex);
                         return null;
                     }
@@ -3198,7 +3198,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellSampleIndex(index.getValue(), plateIndex,
+                        store.setWellSampleIndex(toJavaType(index), plateIndex,
                                 wellIndex, wellSampleIndex);
                         return null;
                     }
@@ -3217,7 +3217,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellSamplePosX(posX.getValue(), plateIndex,
+                        store.setWellSamplePosX(toJavaType(posX), plateIndex,
                                 wellIndex, wellSampleIndex);
                         return null;
                     }
@@ -3236,7 +3236,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellSamplePosY(posY.getValue(), plateIndex,
+                        store.setWellSamplePosY(toJavaType(posY), plateIndex,
                                 wellIndex, wellSampleIndex);
                         return null;
                     }
@@ -3255,7 +3255,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellSampleTimepoint(timepoint.getValue(), plateIndex,
+                        store.setWellSampleTimepoint(toJavaType(timepoint), plateIndex,
                                 wellIndex, wellSampleIndex);
                         return null;
                     }
@@ -3272,7 +3272,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setWellType(type.getValue(), plateIndex, wellIndex);
+                        store.setWellType(toJavaType(type), plateIndex, wellIndex);
                         return null;
                     }
                 }));
@@ -3351,7 +3351,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsBinning(binning.getValue(),
+                        store.setDetectorSettingsBinning(toJavaType(binning),
                                                          imageIndex,
                                                          logicalChannelIndex);
                         return null;
@@ -3372,7 +3372,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setDetectorSettingsReadOutRate(
-                                readOutRate.getValue(), imageIndex,
+                                toJavaType(readOutRate), imageIndex,
                                 logicalChannelIndex);
                         return null;
                     }
@@ -3391,7 +3391,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsVoltage(voltage.getValue(),
+                        store.setDetectorSettingsVoltage(toJavaType(voltage),
                                                          imageIndex,
                                                          logicalChannelIndex);
                         return null;
@@ -3412,7 +3412,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsCorrectionCollar(
-                                correctionCollar.getValue(), imageIndex);
+                                toJavaType(correctionCollar), imageIndex);
                         return null;
                     }
                 }));
@@ -3429,7 +3429,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setObjectiveSettingsMedium(medium.getValue(),
+                        store.setObjectiveSettingsMedium(toJavaType(medium),
                                                          imageIndex);
                         return null;
                     }
@@ -3448,7 +3448,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsObjective(
-                                objective.getValue(), imageIndex);
+                                toJavaType(objective), imageIndex);
                         return null;
                     }
                 }));
@@ -3467,10 +3467,75 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsRefractiveIndex(
-                                refractiveIndex.getValue(), imageIndex);
+                                toJavaType(refractiveIndex), imageIndex);
                         return null;
                     }
                 }));
     }
 
+    /**
+     * Transforms an OMERO RType into the corresponding Java type.
+     * @param x OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is 
+     * <code>null</code>.
+     */
+    public Integer toJavaType(RInt x)
+    {
+        return x == null? null : x.getValue();
+    }
+    
+    /**
+     * Transforms an OMERO RType into the corresponding Java type.
+     * @param x OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is 
+     * <code>null</code>.
+     */
+    public Long toJavaType(RLong x)
+    {
+        return x == null? null : x.getValue();
+    }
+    
+    /**
+     * Transforms an OMERO RType into the corresponding Java type.
+     * @param x OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is 
+     * <code>null</code>.
+     */
+    public Boolean toJavaType(RBool x)
+    {
+        return x == null? null : x.getValue();
+    }
+    
+    /**
+     * Transforms an OMERO RType into the corresponding Java type.
+     * @param x OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is 
+     * <code>null</code>.
+     */
+    public Float toJavaType(RFloat x)
+    {
+        return x == null? null : x.getValue();
+    }
+    
+    /**
+     * Transforms an OMERO RType into the corresponding Java type.
+     * @param x OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is 
+     * <code>null</code>.
+     */
+    public Double toJavaType(RDouble x)
+    {
+        return x == null? null : x.getValue();
+    }
+    
+    /**
+     * Transforms an OMERO RType into the corresponding Java type.
+     * @param x OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is 
+     * <code>null</code>.
+     */
+    public String toJavaType(RString x)
+    {
+        return x == null? null : x.getValue();
+    }
 }

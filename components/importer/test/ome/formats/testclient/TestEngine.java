@@ -16,10 +16,11 @@ public class TestEngine
         OMEROMetadataStore store = new OMEROMetadataStore(sf);
         
         store.setEnumerationProvider(ep);
-        wrapper.setMetadataStore(store);
+        //wrapper.setMetadataStore(store);
         //wrapper.setId("/Users/TheBrain/test_images/dv/IAGFP-Noc01_R3D.dv");
         
-        wrapper.setId("/Users/TheBrain/test_images/lsm/C1.lsm");
+        wrapper.setId("/Users/callan/testimages/test.cake24.jpg");
+        wrapper.openImage(1);
         System.err.println("DONE BITCHES!");
     }
     
