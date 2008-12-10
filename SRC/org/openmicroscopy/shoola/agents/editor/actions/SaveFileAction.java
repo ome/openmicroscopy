@@ -30,10 +30,8 @@ import javax.swing.JOptionPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * This Action allows users to choose a local 
@@ -57,6 +55,12 @@ public class SaveFileAction
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = "Save the current file.";
 
+	/** Implement this method to disable the Save Action if no file is open. */
+	protected void onStateChange() {
+		int state = model.getState();
+		setEnabled(state == Editor.READY);
+	}
+	
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -69,10 +73,13 @@ public class SaveFileAction
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_ICON);
+		
+		// refresh enabled status
+		onStateChange();
 	}
 
 	/**
-	 * Saves the file currently edited.
+	 * Saves the currently edited file.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) 

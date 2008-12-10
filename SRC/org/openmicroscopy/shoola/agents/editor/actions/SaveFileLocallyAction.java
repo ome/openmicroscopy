@@ -57,6 +57,12 @@ public class SaveFileLocallyAction
 	private static final String 	DESCRIPTION = 
 		"Save as Local File on your computer";
 	
+	/** Implement this method to disable the Save Action if no file is open. */
+	protected void onStateChange() {
+		int state = model.getState();
+		setEnabled(state == Editor.READY);
+	}
+	
 	/** Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -68,6 +74,9 @@ public class SaveFileLocallyAction
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_AS_ICON);
+		
+		// refresh enabled status
+		onStateChange();
 	}
 	
 	/**

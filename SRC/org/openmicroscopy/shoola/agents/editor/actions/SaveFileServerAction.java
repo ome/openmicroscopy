@@ -56,6 +56,12 @@ public class SaveFileServerAction
 	private static final String 	DESCRIPTION = 
 		"Save the current file as a new file on the OMERO.server";
 	
+	/** Implement this method to disable the Save Action if no file is open. */
+	protected void onStateChange() {
+		int state = model.getState();
+		setEnabled(state == Editor.READY);
+	}
+	
 	/** Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -67,6 +73,9 @@ public class SaveFileServerAction
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_SERVER_ICON);
+		
+		// refresh enabled status
+		onStateChange();
 	}
 	
 	/**
