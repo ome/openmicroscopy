@@ -1,5 +1,5 @@
 /*
- * blitzgateway.service.RawFileStoreService 
+ * ome.services.blitz.omerogateway.ImageService 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,15 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.gateway;
+package ome.services.blitz.gateway.services;
+
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+import omero.ServerError;
 
 /** 
  * 
@@ -35,57 +43,24 @@ package ome.services.blitz.gateway;
  * </small>
  * @since OME3.0
  */
-public interface RawFileStoreService
+public interface GatewayService
 {	
 	/**
 	 * Keep service alive.
 	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
+	 * @throws DSAccessException
 	 */
-	public void keepAlive() throws omero.ServerError;
+	public void keepAlive() throws ServerError;
 
-	/**
-	 * Close the gateway for pixels = pixelsId
-	 * @param pixelsId see above.
-	 * @return true if the gateway was closed.
-	 * @throws omero.ServerError;
+	/** 
+	 * Close the service and all it's surrogate services.
+	 * @throws ServerError
 	 */
-	public boolean closeGateway(long fileId) throws omero.ServerError;
+	public void closeService() throws ServerError; 
+
 	
-	/**
-	 * Read from the file in the rawFileStore.
-	 * @param fileId id of the file to work on, 
-	 * @param position starting position to read from.
-	 * @param length 
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	byte[] read(long fileId, long position, int length) 
-							throws omero.ServerError;
 	
-	/**
-	 * Write the contents of the buffer to the the file starting from position
-	 * and for length bytes.
-	 * @param fileId id of the file to work on, 
-	 * @param buf see above.
-	 * @param position see above.
-	 * @param length see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	void write(long fileId, byte[] buf, long position, int length) 
-							throws omero.ServerError;
 	
-	/**
-	 * Does the file exist in the RawFileStore.
-	 * @param fileId id of the file to work on, 
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	boolean exists(long fileId) 
-							throws omero.ServerError;
 }
 
 

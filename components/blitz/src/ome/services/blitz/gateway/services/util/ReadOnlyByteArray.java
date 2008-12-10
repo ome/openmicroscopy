@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
- package ome.services.blitz.gateway;
+ package ome.services.blitz.gateway.services.util;
 
 //Java imports
 

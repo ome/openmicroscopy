@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.gateway;
+package ome.services.blitz.gateway.services;
 
 import omero.api.BufferedImage;
 import omero.model.Pixels;
@@ -40,12 +40,6 @@ import omero.model.Pixels;
  */
 public interface RenderingService
 {	
-	/**
-	 * Keep service alive.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public void keepAlive() throws omero.ServerError;
 
 	/**
 	 * Render image as Buffered image. 
@@ -176,23 +170,6 @@ public interface RenderingService
 	 * @throws DSAccessException
 	 */
 	double getChannelWindowEnd(Long pixelsId, int w) throws  omero.ServerError;
-
-	/**
-	 * Close the gateway for pixels = pixelsId
-	 * @param pixelsId see above.
-	 * @return true if the gateway was closed.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public boolean closeGateway(long pixelsId) throws omero.ServerError;
-	
-	/**
-	 * Does the gateway map contain the gateway for pixelsId.
-	 * @param pixelsId see above.
-	 * @return see above.
-	 */
-	public boolean containsGateway(long pixelsId);
-
 }
 
 

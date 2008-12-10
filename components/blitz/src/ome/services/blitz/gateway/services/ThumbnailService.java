@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.gateway;
+package ome.services.blitz.gateway.services;
 
 import java.util.List;
 import java.util.Map;
@@ -40,21 +40,7 @@ import java.util.Map;
  */
 public interface ThumbnailService
 {	
-	/**
-	 * Keep service alive.
-	 * @throws DSOutOfServiceException
-	 * @throwsomero.ServerError
-	 */
-	public void keepAlive() throws omero.ServerError;
-
-	/**
-	 * Close the gateway for pixels = pixelsId
-	 * @param pixelsId see above.
-	 * @return true if the gateway was closed.
-	 * @throws omero.ServerError
-	 */
-	public boolean closeGateway(long pixelsId) throws omero.ServerError;
-
+	
 	/**
 	 * Set the rendering def from the default to another.
 	 * @param pixelsId for pixelsId 

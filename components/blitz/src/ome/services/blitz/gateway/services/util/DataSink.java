@@ -20,12 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.gateway;
+package ome.services.blitz.gateway.services.util;
 
+import ome.services.blitz.gateway.services.ImageService;
 import omero.model.Pixels;
-
-
-
 
 
 /** 

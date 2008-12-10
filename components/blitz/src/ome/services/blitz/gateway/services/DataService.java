@@ -1,5 +1,5 @@
 /*
- * blitzgateway.service.DataServuce 
+ * ome.services.blitz.omerogateway.services.DataService 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,11 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.gateway;
+package ome.services.blitz.gateway.services;
 
+
+
+//Java imports
 import java.util.List;
 import java.util.Map;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import omero.ServerError;
 import omero.api.ContainerClass;
 import omero.model.Dataset;
 import omero.model.IObject;
@@ -44,16 +51,10 @@ import omero.model.Project;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-interface DataService
-{		
-	/**
-	 * Keep service alive.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	public void keepAlive() throws  omero.ServerError;
+public interface DataService
+{	
 
 	/**
 	 * Retrieves the images contained in containers specified by the 
@@ -286,6 +287,17 @@ interface DataService
 	  */
 	void deleteObject(IObject row) 
 							throws   omero.ServerError;
+	
+	/**
+	 * Update the pixels object in the server.
+	 * @param object see above.
+	 * @return The newly updated object.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Pixels updatePixels(Pixels object) 
+	throws ServerError;
+	
 }
 
 

@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.gateway;
+package ome.services.blitz.gateway.services;
 
 /** 
  * 
@@ -37,21 +37,6 @@ package ome.services.blitz.gateway;
  */
 public interface RawPixelsStoreService
 {	
-	/**
-	 * Keep service alive.
-	 * @throws DSOutOfServiceException
-	 * @throwsomero.ServerError
-	 */
-	public void keepAlive() throws omero.ServerError;
-	
-	/**
-	 * Close the gateway for pixels = pixelsId
-	 * @param pixelsId see above.
-	 * @return true if the gateway was closed.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public boolean closeGateway(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Get the plane size of the current image.
