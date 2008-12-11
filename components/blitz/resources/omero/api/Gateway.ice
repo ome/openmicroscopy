@@ -302,79 +302,6 @@ module omero {
                 throws omero::ServerError;
 
             /*
-             * Get the scripts from the iScript Service.
-             * @return All the available scripts in a map by id and name.
-             * @throws omero::ServerError
-             */
-            idempotent LongStringMap getScripts()
-                throws omero::ServerError;
-
-            /*
-             * Get the id of the script with name
-             * @param name name of the script.
-             * @return the id of the script.
-             * @throws omero::ServerError
-             */
-            idempotent long getScriptID(string name)
-                throws omero::ServerError;
-
-            /*
-             * Upload the script to the server.
-             * @param script script to upload
-             * @return id of the new script.
-             * @throws omero::ServerError
-             */
-            long uploadScript(string script)
-                throws omero::ServerError;
-
-            /*
-             * Get the script with id, this returns the actual script as a string.
-             * @param id id of the script to retrieve.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent string getScript(long id)
-                throws omero::ServerError;
-
-            /*
-             * Get the parameters the script takes, this is a map of the parameter name and type.
-             * @param id id of the script.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent StringRTypeMap getParams(long id)
-                throws omero::ServerError;
-
-            /*
-             * Run the script and get the results returned as a name , value map.
-             * @param id id of the script to run.
-             * @param map the map of parameters, values for inputs.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            StringRTypeMap runScript(long id, StringRTypeMap map)
-                throws omero::ServerError;
-
-            /*
-             * Delete the script with id from the server.
-             * @param id id of the script to delete.
-             * @throws omero::ServerError
-             */
-            void deleteScript(long id)
-                throws omero::ServerError;
-
-            /*
-             * Get the zSection stack from the pixels at timepoint t
-             * @param pixelId The pixelsId from the imageStack.
-             * @param c The channel.
-             * @param t The time-point.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent DoubleArrayArrayArray getPlaneStack(long pixelId, int c, int t)
-                throws omero::ServerError;
-
-            /*
              * Render the pixels for the zSection z and timePoint t.
              * @param pixelsId pixels id of the plane to render
              * @param z z section to render
@@ -398,18 +325,6 @@ module omero {
 				throws omero::ServerError;
 
             /*
-             * Render the pixels for the zSection z and timePoint t.
-             * @param pixelsId pixels id of the plane to render
-             * @param z z section to render
-             * @param t timepoint to render
-             * @return The pixels are returned as 4 bytes representing the r,g,b,a of
-             * image.
-             * @throws omero::ServerError
-             */
-            idempotent IntegerArray renderAsPackedInt(long pixelsId, int z, int t)
-				throws omero::ServerError;
-
-            /*
              * Set the active channels to be on or off in the rendering engine for
              * the pixels.
              * @param pixelsId the pixels id.
@@ -419,101 +334,6 @@ module omero {
              */
             void setActive(long pixelsId, int w, bool active)
 				throws omero::ServerError;
-
-            /*
-             * Is the channel active, turned on in the rendering engine.
-             * @param pixelsId the pixels id.
-             * @param w channel
-             * @return true if the channel active.
-             * @throws omero::ServerError
-             */
-            idempotent bool isActive(long pixelsId, int w)
-				throws omero::ServerError;
-
-            /*
-             * Get the default zSection of the image, this is the zSection the image
-             * should open on when an image viewer is loaded.
-             * @param pixelsId the pixelsId of the image.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent int getDefaultZ(long pixelsId)
-				throws omero::ServerError;
-
-            /*
-             * Get the default time-point of the image, this is the time-point the image
-             * should open on when an image viewer is loaded.
-             * @param pixelsId the pixelsId of the image.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent int getDefaultT(long pixelsId)
-				throws omero::ServerError;
-
-            /*
-             * Set the default zSection of the image, this is the zSection the image
-             * should open on when an image viewer is loaded.
-             * @param pixelsId the pixelsId of the image.
-             * @param z see above.
-             * @throws omero::ServerError
-             */
-            void setDefaultZ(long pixelsId, int z)
-				throws omero::ServerError;
-
-            /*
-             * Set the default timepoint of the image, this is the timepoint the image
-             * should open on when an image viewer is loaded.
-             * @param pixelsId the pixelsId of the image.
-             * @param t see above.
-             * @throws omero::ServerError
-             */
-            void setDefaultT(long pixelsId, int t)
-				throws omero::ServerError;
-
-            /*
-             * Set the channel Minimum, Maximum values, that map from image space to
-             * rendered space (3 channel, 8 bit, screen).
-             * @param pixelsId the pixelsId of the image the mapping applied to.
-             * @param w channel of the pixels.
-             * @param start The minimum value to map from.
-             * @param end The maximum value to map to.
-             * @throws omero::ServerError
-             */
-            void setChannelWindow(long pixelsId, int w, double start, double end)
-		throws omero::ServerError;
-
-            /*
-             * Get the channel Minimum value, that maps from image space to
-             * rendered space.
-             * @param pixelsId the pixelsId of the image the mapping applied to.
-             * @param w channel of the pixels.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent double getChannelWindowStart(long pixelsId, int w)
-		throws omero::ServerError;
-
-            /*
-             * Get the channel Maximum value, that maps from image space to
-             * rendered space.
-             * @param pixelsId the pixelsId of the image the mapping applied to.
-             * @param w channel of the pixels.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent double getChannelWindowEnd(long pixelsId, int w)
-		throws omero::ServerError;
-
-            /*
-             * Set the rendering definition of the rendering engine from the default
-             * to the one supplied. This allows for more than one rendering definition-
-             * mapping per pixels.
-             * @param pixelsId for pixelsId
-             * @param renderingDefId see above.
-             * @throws omero::ServerError
-             */
-            void setRenderingDefId(long pixelsId, long renderingDefId)
-		throws omero::ServerError;
 
             /*
              * Get the thumbnail of the image.
@@ -537,27 +357,6 @@ module omero {
              */
             idempotent LongByteArrayMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, LongList pixelsIds)
 		throws omero::ServerError;
-
-            /*
-             * Get a set of thumbnails from the pixelsId's in the list,
-             * maintaining aspect ratio.
-             * @param size size of thumbnail.
-             * @param pixelsIds list of ids.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent LongByteArrayMap getThumbnailBylongestSideSet(omero::RInt size, LongList pixelsIds)
-                throws omero::ServerError;
-
-            /*
-             * Get the thumbnail of the image, maintain aspect ratio.
-             * @param pixelsId for pixelsId
-             * @param size size of thumbnail.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent ByteArray getThumbnailBylongestSide(long pixelsId, omero::RInt size)
-                throws omero::ServerError;
 
             /*
              * Attach an image to a dataset.
@@ -595,69 +394,7 @@ module omero {
              */
             idempotent ImageList getImagesFromDataset(omero::model::Dataset dataset)
                 throws omero::ServerError;
-
-            /*
-             * Get the plane from the image with imageId.
-             * @param imageId see above.
-             * @param z zSection of the plane.
-             * @param c channel of the plane.
-             * @param t timepoint of the plane.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent DoubleArrayArray getPlaneFromImageAsDouble(long imageId, int z, int c, int t)
-				throws omero::ServerError;
-
-			/**
-			 * Get the plane from the image with imageId.
-			 * @param imageId see above.
-			 * @param z zSection of the plane.
-			 * @param c channel of the plane.
-			 * @param t timepoint of the plane.
-			 * @return see above.
-			 * @throws DSOutOfServiceException
-			 * @throws omero.ServerError
-			 */
-			idempotent LongArrayArray getPlaneFromImageAsLong(long imageId, int z, int c, int t) throws  omero::ServerError;
-
-
-			/**
-			 * Get the plane from the image with imageId.
-			 * @param imageId see above.
-			 * @param z zSection of the plane.
-			 * @param c channel of the plane.
-			 * @param t timepoint of the plane.
-			 * @return see above.
-			 * @throws DSOutOfServiceException
-			 * @throws omero.ServerError
-			 */
-			idempotent IntegerArrayArray getPlaneFromImageAsInteger(long imageId, int z, int c, int t) throws  omero::ServerError;
-
-
-			/**
-			 * Get the plane from the image with imageId.
-			 * @param imageId see above.
-			 * @param z zSection of the plane.
-			 * @param c channel of the plane.
-			 * @param t timepoint of the plane.
-			 * @return see above.
-			 * @throws DSOutOfServiceException
-			 * @throws omero.ServerError
-			 */
-			idempotent ShortArrayArray getPlaneFromImageAsShort(long imageId, int z, int c, int t) throws  omero::ServerError;
-	
-			/**
-			 * Get the plane from the image with imageId.
-			 * @param imageId see above.
-			 * @param z zSection of the plane.
-			 * @param c channel of the plane.
-			 * @param t timepoint of the plane.
-			 * @return see above.
-			 * @throws DSOutOfServiceException
-			 * @throws omero.ServerError
-			 */
-			idempotent ByteArrayArray getPlaneFromImageAsByte(long imageId, int z, int c, int t) throws  omero::ServerError;
-
+            
             /*
              * This is a helper method and makes no calls to the server. It
              * gets a list of all the dataset in a project if the project has already
@@ -775,6 +512,7 @@ module omero {
              */
             IObjectList saveAndReturnArray(IObjectList graph)
                  throws omero::ServerError;
+                 
             /*
              * Delete the object.
              * @param row the object.(commonly a row in db)
@@ -784,46 +522,11 @@ module omero {
                 throws omero::ServerError;
 
             /*
-             * Get the username.
-             * @return see above.
-             */
-            idempotent string getUsername()
-                throws omero::ServerError;
-
-            /*
              * Keep service alive.
              * @throws omero::ServerError
              */
             idempotent void keepAlive()
                 throws omero::ServerError;
-
-			/**
-			 * Close the renderingService for which is accessing pixels with id.
-			 * @param pixelsId see above.
-			 * @throws ServerError
-			 */
-			idempotent void closeRenderingService(long pixelsId) throws omero::ServerError;
-
-			/**
-			 * Close the PixelsStoreService for which is accessing pixels with id.
-			 * @param pixelsId see above.
-			 * @throws ServerError
-			 */
-			idempotent void closePixelsStoreService(long pixelsId) throws omero::ServerError;
-
-			/**
-			 * Close the fileService for which is accessing original file with id.
-			 * @param originalFile see above.
-			 * @throws ServerError
-			 */
-			idempotent void closeRawFileService(long fileId)  throws omero::ServerError;
-
-			/**
-			 * Close the ThumbnailService for which is accessing pixels  with id.
-			 * @param pixelsId see above.
-			 * @throws ServerError
-			 */
-			idempotent void closeThumbnailService(long pixelsId)  throws omero::ServerError;
 
         };
 
