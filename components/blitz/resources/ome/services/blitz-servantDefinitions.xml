@@ -188,7 +188,7 @@
 
   <bean id="omero.api.Gateway" class="omero.api._GatewayTie" singleton="false">
     <constructor-arg>
-        <bean class="ome.services.blitz.gateway.OmeroJavaService"/>
+        <bean class="ome.services.blitz.gateway.OmeroGateway"/>
     </constructor-arg>
   </bean>
 
