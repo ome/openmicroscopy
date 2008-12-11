@@ -46,9 +46,9 @@ UserName = char(handles.Settings.VariableValues{CurrentModuleNum,2});
 %defaultVAR03 = omero
 Password = char(handles.Settings.VariableValues{CurrentModuleNum,3});
 
-%pathnametextVAR04 = Enter path to where ice.Config file is located?
-%defaultVAR04 = .
-Pathname = char(handles.Settings.VariableValues{CurrentModuleNum,4});
+%pathnametextVAR04 = Enter the Hostname?
+%defaultVAR04 = localhost
+Hostname = char(handles.Settings.VariableValues{CurrentModuleNum,4});
 
 %textVAR05 = What do you want to call these images within CellProfiler?
 %defaultVAR05 = OrigBlue
@@ -106,7 +106,7 @@ drawnow
 %%% through this module.
 if SetBeingAnalyzed == 1
     iceConfigPath = strcat(Pathname,'/ice.config');
-    omeroService = createOmeroJavaService(iceConfigPath,UserName, Password);
+    omeroService = createOmeroJavaService(Hostname,UserName, Password);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Check that the Project, Dataset and images exist in Dataset. %
     %%% TODO:                                                        %
@@ -163,11 +163,11 @@ end
 %%% LOADING IMAGES EACH TIME %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 drawnow
-iceConfigPath = strcat(Pathname,'/ice.config');
-handles.Pipeline.('iceConfigPath') = iceConfigPath;
+
+handles.Pipeline.('Hostname') = Hostname;
 handles.Pipeline.('UserName') = UserName;
 handles.Pipeline.('Password') = Password;
-omeroService = createOmeroJavaService(iceConfigPath,UserName, Password);
+omeroService = createOmeroJavaService(Hostname,UserName, Password);
 
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.

@@ -34,7 +34,7 @@ elseif nargin == 4,
     c = str2num(varargin{3});
     handles = varargin{4};
     [pixelsId, z, t] = parseFileDetails(CurrentFileName);
-    LoadedImage = im2double(getPlane(omeroGateway, pixelsId, z, c, t))/65535;
+    LoadedImage = (getPlaneByType(omeroGateway, pixelsId, z, c, t));
 end
    
     

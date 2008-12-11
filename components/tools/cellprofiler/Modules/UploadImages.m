@@ -116,7 +116,7 @@ Methodology = char(handles.Settings.VariableValues{CurrentModuleNum,11});
 drawnow
 
 SetBeingAnalyzed = handles.Current.SetBeingAnalyzed;
-iceConfigPath = handles.Pipeline.('iceConfigPath');
+Hostname = handles.Pipeline.('HostName');
 UserName = handles.Pipeline.('UserName');
 Password = handles.Pipeline.('Password');
 
@@ -134,7 +134,7 @@ fieldname = strcat('FileCnt', num2str(SetBeingAnalyzed));
 currentFileDetails = handles.Pipeline.(fieldname);
 [pixelsId, z, t] = parseFileDetails(currentFileDetails);
     
-omeroService = createOmeroJavaService(iceConfigPath,UserName, Password);
+omeroService = createOmeroJavaService(Hostname,UserName, Password);
 if SetBeingAnalyzed == 1 
     %%% CREATE COPY OF THE CURRENT PIXELS.
     channelList = java.util.ArrayList;
