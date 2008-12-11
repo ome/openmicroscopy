@@ -79,7 +79,7 @@ class OmeNameField(forms.Field):
 
 class LoginForm(forms.Form):
     
-    server = forms.ModelChoiceField(Gateway.objects.all(), empty_label="...")
+    server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
 

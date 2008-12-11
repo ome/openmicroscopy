@@ -52,3 +52,4 @@ function fromBasket (productType, productId) {
         };
     }
 }
+

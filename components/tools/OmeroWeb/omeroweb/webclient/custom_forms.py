@@ -5,6 +5,13 @@ from django.utils.encoding import force_unicode
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
 
+from django.forms.fields import Field, EMPTY_VALUES
+from django.forms.widgets import Select
+from django.forms import ModelChoiceField, ValidationError
+from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_unicode
+
+
 import re
 
 class PermissionCheckboxSelectMultiple(SelectMultiple):
@@ -65,3 +72,68 @@ class UrlField(forms.Field):
     def is_valid_url(self, url):
         url_pat = re_http = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',re.IGNORECASE)
         return url_pat.match(url) is not None
+
+##################################################################
+# Metadata queryset iterator for group form
+
+class MetadataQuerySetIterator(object):
+    def __init__(self, queryset, empty_label, cache_choices):
+        self.queryset = queryset
+        self.empty_label = empty_label
+        self.cache_choices = cache_choices
+
+    def __iter__(self):
+        if self.empty_label is not None:
+            yield (u"", self.empty_label)
+        for obj in self.queryset:
+            if hasattr(obj.id, 'val'):
+                yield (obj.id.val, smart_unicode(obj.value.val))
+            else:
+                yield (obj.id, smart_unicode(obj.value))
+        # Clear the QuerySet cache if required.
+        #if not self.cache_choices:
+            #self.queryset._result_cache = None
+
+class MetadataModelChoiceField(ModelChoiceField):
+
+    def _get_choices(self):
+        # If self._choices is set, then somebody must have manually set
+        # the property self.choices. In this case, just return self._choices.
+        if hasattr(self, '_choices'):
+            return self._choices
+        # Otherwise, execute the QuerySet in self.queryset to determine the
+        # choices dynamically. Return a fresh QuerySetIterator that has not
+        # been consumed. Note that we're instantiating a new QuerySetIterator
+        # *each* time _get_choices() is called (and, thus, each time
+        # self.choices is accessed) so that we can ensure the QuerySet has not
+        # been consumed.
+        return MetadataQuerySetIterator(self.queryset, self.empty_label,
+                                self.cache_choices)
+
+    def _set_choices(self, value):
+        # This method is copied from ChoiceField._set_choices(). It's necessary
+        # because property() doesn't allow a subclass to overwrite only
+        # _get_choices without implementing _set_choices.
+        self._choices = self.widget.choices = list(value)
+
+    choices = property(_get_choices, _set_choices)
+
+    def clean(self, value):
+        Field.clean(self, value)
+        if value in EMPTY_VALUES:
+            return None
+        #try:
+            #value = self.queryset.get(pk=value)
+        #except self.queryset.model.DoesNotExist:
+            #raise ValidationError(self.error_messages['invalid_choice'])
+        res = False
+        for q in self.queryset:
+            if hasattr(q.id, 'val'):
+                if long(value) == q.id.val:
+                    res = True
+            else:
+                if long(value) == q.id:
+                    res = True
+        if not res:
+            raise ValidationError(self.error_messages['invalid_choice'])
+        return value

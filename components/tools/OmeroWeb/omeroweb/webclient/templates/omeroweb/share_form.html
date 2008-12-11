@@ -106,7 +106,7 @@
 
     <div>
         <form action="{% get_webclient_root_url %}/share/save/{{ share.share.id }}/" method="post">
-            <table class="forms">
+            <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td>

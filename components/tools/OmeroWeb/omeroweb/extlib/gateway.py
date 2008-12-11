@@ -830,6 +830,19 @@ class BlitzGateway (threading.Thread):
               "join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil " \
               "left outer join fetch dil.parent d " \
+              "where im.id=:oid "
+        img = query_serv.findByQuery(sql,p)
+        return ImageWrapper(self, img)
+    
+    def getImageWithMetadata (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        sql = "select im from Image im " \
+              "join fetch im.details.owner join fetch im.details.group " \
+              "left outer join fetch im.datasetLinks dil " \
+              "left outer join fetch dil.parent d " \
               "left outer join fetch im.position as position " \
               "left outer join fetch im.condition as condition " \
               "left outer join fetch im.objectiveSettings as os " \
@@ -942,6 +955,14 @@ class BlitzGateway (threading.Thread):
         f = self.createRawFileStore()
         f.setFileId(long(f_id))
         return f.read(0,100000)
+    
+    ################################################
+    ##   Enumeration
+    
+    def getEnumerationEntries(self, klass):
+        types = self.getTypesService()
+        for e in types.allEnumerations(str(klass)):
+            yield EnumerationWrapper(self, e)
     
     ################################################
     ##   Validators     
@@ -2164,3 +2185,6 @@ class SessionAnnotationLinkWrapper (BlitzObjectWrapper):
 class EventLogWrapper (BlitzObjectWrapper):
     LINK_CLASS = "EventLog"
     CHILD_WRAPPER_CLASS = None
+
+class EnumerationWrapper (BlitzObjectWrapper):
+    pass

@@ -161,7 +161,9 @@ p {
 table {
     text-align: center;
 }
-
+.forms {
+    margin-left: 10px;
+}
 td {
     text-align: left;
     padding: 0px;

@@ -37,7 +37,7 @@
     {% else %}
         <form action="{% get_webclient_root_url %}/action/addnew/?url={{url}}" method="post">
     {% endif %}
-    <table class="forms">
+    <table>
         {% if not manager.project %}
             <tr><th><label for="id_folder_type">Folder type</label>*</th>
                 <td><select name="folder_type" id="id_folder_type">

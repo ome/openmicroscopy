@@ -67,7 +67,8 @@ from controller.share import BaseShare
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter
 
 from models import ShareForm, ShareCommentForm, ContainerForm, TextAnnotationForm, UrlAnnotationForm, \
-                    UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, HistoryTypeForm
+                    UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, HistoryTypeForm, \
+                    MetadataEnvironmentForm, MetadataObjectiveForm
 from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm
 
 from omeroweb.webadmin.models import Gateway, LoginForm
@@ -688,6 +689,12 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         form_url = UrlAnnotationForm(initial={'link':'http://'})
         form_file = UploadFileForm()
     
+    form_environment = None
+    form_objective = None
+    if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
+        form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
+        form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+
     template = None
     if o3_type and o3_id:
         if o3_type == 'image':
@@ -726,7 +733,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -798,6 +805,12 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         form_comment = TextAnnotationForm()
         form_url = UrlAnnotationForm(initial={'link':'http://'})
         form_file = UploadFileForm()
+    
+    form_environment = None
+    form_objective = None
+    if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
+        form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
+        form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
     
     template = None
     if o3_type and o3_id:
@@ -917,6 +930,12 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         form_comment = TextAnnotationForm()
         form_url = UrlAnnotationForm(initial={'link':'http://'})
         form_file = UploadFileForm()
+    
+    form_environment = None
+    form_objective = None
+    if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
+        form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
+        form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
     
     template = None
     if o3_type and o3_id:
@@ -1052,6 +1071,19 @@ def manage_container_hierarchy(request, o_type=None, o_id=None, **kwargs):
 
 ###########################################################################
 # ACTIONS
+
+@isUserConnected
+def manage_metadata(request, o_type=None, o_id=None, **kwargs):
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    
+    
+    return HttpResponse('done')
 
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):

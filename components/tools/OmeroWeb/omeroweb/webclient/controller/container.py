@@ -67,13 +67,13 @@ class BaseContainer(BaseController):
             if o2_type == "dataset":
                 self.dataset = self.conn.getDataset(o2_id)
                 if o3_type == "image":
-                    self.image = self.conn.getImage(o3_id)
+                    self.image = self.conn.getImageWithMetadata(o3_id)
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
             if o2_type == "image":
-                self.image = self.conn.getImage(o2_id)
+                self.image = self.conn.getImageWithMetadata(o2_id)
         elif o1_type == "image":
-            self.image = self.conn.getImage(o1_id)
+            self.image = self.conn.getImageWithMetadata(o1_id)
             self.image._loadPixels()
     
     def buildBreadcrumb(self, menu):

@@ -46,7 +46,7 @@
     {% if manager.image %}
         <form action="{% get_webclient_root_url %}/action/save/image/{{ manager.image.id }}/?url={{url}}" method="post">
     {% endif %}
-    <table class="forms">
+    <table>
         {% for field in form %}
             <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
                 <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>

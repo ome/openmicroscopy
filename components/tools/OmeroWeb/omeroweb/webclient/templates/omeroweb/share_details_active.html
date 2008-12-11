@@ -88,7 +88,7 @@
     <h1>Leave a Reply</h1>
     <div>
         <form action="{% get_webclient_root_url %}/share/comment/{{ share.share.id }}/" method="post">
-            <table class="forms">
+            <table>
             {% for field in form %}
                 <tr>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>

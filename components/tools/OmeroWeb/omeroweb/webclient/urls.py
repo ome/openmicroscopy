@@ -69,6 +69,8 @@ urlpatterns = patterns('',
     ( r'^action/([a-z]+)/$', views.manage_action_containers ),
     ( r'^action/([a-z]+)/([a-z]+)/([0-9]+)/$', views.manage_action_containers ),    
     
+    ( r'^metadata/(?P<o_type>[a-z]+)/(?P<o_id>[0-9]+)/$', views.manage_metadata ),
+    
     ( r'^annotations/([a-z]+)/([0-9]+)/$', views.manage_annotations ),
     ( r'^annotation/([a-z]+)/([0-9]+)/$', views.manage_annotation ),
     ( r'^render_thumbnail/(?P<iid>[0-9]+)/$', views.render_thumbnail ),

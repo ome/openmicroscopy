@@ -54,7 +54,7 @@ class Advice(models.Model):
 
 #################################################################
 # Non-model Form
-from custom_forms import PermissionCheckboxSelectMultiple, MultiEmailField, UrlField
+from custom_forms import PermissionCheckboxSelectMultiple, MultiEmailField, UrlField, MetadataModelChoiceField
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         GroupModelChoiceField, ExperimenterModelMultipleChoiceField
 
@@ -149,3 +149,204 @@ class HistoryTypeForm(forms.Form):
     )
     
     data_type = forms.ChoiceField(choices=HISTORY_CHOICES,  widget=forms.Select(attrs={'onchange':'window.location.href=\'?history_type=\'+this.options[this.selectedIndex].value'}))
+
+class MetadataObjectiveForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(MetadataObjectiveForm, self).__init__(*args, **kwargs)
+        try:
+            if kwargs['initial']['image'].getObjectiveSettings():
+                
+                self.fields['correctionCollar'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().correctionCollar, label="Calibrated collar", required=False)
+                
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], initial=kwargs['initial']['image'].getObjectiveSettings().medium, empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+                
+                self.fields['refractiveIndex'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().refractiveIndex, label="Refractive index", required=False)
+                
+            else:
+                
+                self.fields['correctionCollar'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), label="Calibrated Collar", required=False)
+                
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+                
+                self.fields['refractiveIndex'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
+                
+        except:
+            
+            self.fields['correctionCollar'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), label="Calibrated Collar", required=False)
+            
+            self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+            
+            self.fields['refractiveIndex'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
+        
+        try:
+            if kwargs['initial']['image'].getObjective():
+                
+                self.fields['manufacturer'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['image'].getObjective().manufacturer, required=False)
+                
+                self.fields['model'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['image'].getObjective().model, required=False)
+                
+                self.fields['serialNumber'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['image'].getObjective().serialNumber, label="Serial number", required=False)
+                
+                self.fields['nominalMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().nominalMagnification, label="Nominal magnification", required=False)
+                
+                self.fields['calibratedMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().calibratedMagnification, label="Calibrated magnification", required=False)
+                
+                self.fields['lensNA'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), initial=kwargs['initial']['image'].getObjective().lensNA, label="Lens NA", required=False)
+                
+                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], initial=kwargs['initial']['image'].getObjective().immersion, empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
+                
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], initial=kwargs['initial']['image'].getObjective().correction, empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
+                
+                self.fields['workingDistance'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), initial=kwargs['initial']['image'].getObjective().workingDistance, label="Working distance", required=False)
+                
+                self.fields['iris'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.value);'}), initial=kwargs['initial']['image'].getObjective().iris, required=False)
+                
+            else:
+                self.fields['manufacturer'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
+                
+                self.fields['model'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), required=False)
+                
+                self.fields['serialNumber'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), required=False)
+                
+                self.fields['nominalMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), label="Nominal magnification", required=False)
+                
+                self.fields['calibratedMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), label="Calibrated magnification", required=False)
+                
+                self.fields['lensNA'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), label="Lens NA", required=False)
+                
+                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
+                
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
+                
+                self.fields['workingDistance'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
+                
+                self.fields['iris'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.value);'}), required=False)
+                
+        except:
+            
+            self.fields['manufacturer'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
+            
+            self.fields['model'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), required=False)
+            
+            self.fields['serialNumber'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), required=False)
+            
+            self.fields['nominalMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), label="Nominal magnification", required=False)
+            
+            self.fields['calibratedMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), label="Calibrated magnification", required=False)
+            
+            self.fields['lensNA'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), label="Lens NA", required=False)
+            
+            self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
+            
+            self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
+            
+            self.fields['workingDistance'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
+            
+            self.fields['iris'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.value);'}), required=False)
+        
+        self.fields.keyOrder = ['correction', 'correctionCollar', 'calibratedMagnification', 'immersion', 'iris', 'lensNA', 'manufacturer', 'medium', 'model', 'nominalMagnification', 'refractiveIndex', 'serialNumber', 'workingDistance'] 
+
+class MetadataInstrumentForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(MetadataInstrumentForm, self).__init__(*args, **kwargs)
+        try:
+            if kwargs['initial']['image'].getInstrument():
+                
+                self.fields['microscope'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().microscope, required=False)
+                
+                if kwargs['initial']['image'].getInstrument().detectorLoaded:
+                    self.fields['detectorSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().detectorSeq, required=False)
+                else:
+                    self.fields['detectorSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                if kwargs['initial']['image'].getInstrument().objectiveLoaded:
+                    self.fields['objectiveSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().objectiveSeq, required=False)
+                else:
+                    self.fields['objectiveSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                if kwargs['initial']['image'].getInstrument().lightSourceLoaded:
+                    self.fields['lightSourceSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().lightSourceSeq, required=False)
+                else:
+                    self.fields['lightSourceSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                if kwargs['initial']['image'].getInstrument().filterLoaded:
+                    self.fields['filterSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().filterSeq, required=False)
+                else:
+                    self.fields['filterSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                if kwargs['initial']['image'].getInstrument().dichroicLoaded:
+                    self.fields['dichroicSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().dichroicSeq, required=False)
+                else:
+                    self.fields['dichroicSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                if kwargs['initial']['image'].getInstrument().filterSetLoaded:
+                    self.fields['filterSetSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().filterSetSeq, required=False)
+                else:
+                    self.fields['filterSetSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                if kwargs['initial']['image'].getInstrument().otfLoaded:
+                    self.fields['otfSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().otfSeq, required=False)
+                else:
+                    self.fields['otfSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            else:
+                
+                self.fields['microscope'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['detectorSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['objectiveSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['lightSourceSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['filterSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['dichroicSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['filterSetSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+                self.fields['otfSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+                
+        except:
+
+            self.fields['microscope'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['detectorSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['objectiveSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['lightSourceSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['filterSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['dichroicSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['filterSetSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+            
+            self.fields['otfSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
+        
+        self.fields.keyOrder = ['microscope', 'detectorSeq', 'objectiveSeq', 'lightSourceSeq', 'filterSeq', 'dichroicSeq', 'filterSetSeq', 'otfSeq']
+    
+class MetadataEnvironmentForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(MetadataEnvironmentForm, self).__init__(*args, **kwargs)
+        try:
+            if kwargs['initial']['image'].getCondition():
+                self.fields['temperature'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().temperature, required=False)
+                self.fields['air_pressure'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().airPressure, required=False)
+                self.fields['humidity'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().humidity, required=False)
+                self.fields['co2percent'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().co2percent, label="CO2 [%]", required=False)
+            else:
+                self.fields['temperature'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
+                self.fields['air_pressure'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
+                self.fields['humidity'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
+                self.fields['co2percent'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), label="CO2 [%]", required=False)
+        except:
+            self.fields['temperature'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
+            self.fields['air_pressure'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
+            self.fields['humidity'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
+            self.fields['co2percent'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), label="CO2 [%]", required=False)
+        
+        self.fields.keyOrder = ['air_pressure', 'co2percent', 'humidity', 'temperature']
