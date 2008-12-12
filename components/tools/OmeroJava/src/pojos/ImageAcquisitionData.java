@@ -31,6 +31,7 @@ package pojos;
 import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
+import omero.RLong;
 import omero.RString;
 import omero.model.Correction;
 import omero.model.Image;
@@ -713,7 +714,9 @@ public class ImageAcquisitionData
 	public long getPositionId()
 	{
 		if (label == null) return -1;
-		return label.getId().getValue();
+		RLong id = label.getId();
+		if (id == null) return -1;
+		return id.getValue();
 	}
 	
 	/**
@@ -725,7 +728,9 @@ public class ImageAcquisitionData
 	public long getConditionId()
 	{
 		if (environment == null) return -1;
-		return environment.getId().getValue();
+		RLong id = environment.getId();
+		if (id == null) return -1;
+		return id.getValue();
 	}
 	
 	/**
@@ -737,7 +742,9 @@ public class ImageAcquisitionData
 	public long getObjectiveSettingsId()
 	{
 		if (objective == null) return -1;
-		return objective.getId().getValue();
+		RLong id = objective.getId();
+		if (id == null) return -1;
+		return id.getValue();
 	}
 	
 	/**
@@ -750,7 +757,9 @@ public class ImageAcquisitionData
 	{
 		Objective ob = getObjective();
 		if (ob == null) return -1;
-		return ob.getId().getValue();
+		RLong id = ob.getId();
+		if (id == null) return -1;
+		return id.getValue();
 	}
 
 	/**
