@@ -389,6 +389,15 @@ public class ImportLibrary implements IObservable
             store.setOriginalFiles(files, formatString);
         }
         
+        try {
+            if (formatString.equals("Micromanager"))
+            {
+                imageName = new File(file.getParent()).getName();
+                System.err.println("Parent is: " + imageName);
+                shortName = imageName;
+            } 
+        } catch (Exception e) {}
+        
         reader.getUsedFiles();
         
         List<Pixels> pixList = importMetadata(imageName);

@@ -143,7 +143,7 @@ public class IQueryEnumProvider implements EnumerationProvider
             return otherEnumeration;
         }
         // Step 4, fail hard we have no enumeration to return.
-        throw new EnumerationException("Problem finding enumeration: ",
+        throw new EnumerationException("Problem finding enumeration:" + value,
                                        klass, value);
     }
     
