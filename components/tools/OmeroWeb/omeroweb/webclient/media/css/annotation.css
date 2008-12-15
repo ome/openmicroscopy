@@ -1,23 +1,51 @@
-/* comment display page */
-#comment {
-    width: 650px;
-	padding: 0;
-	margin: 0;
-	background-color:#F9F9F9;
-    border-top:1px dotted #bbb;
+#annotation {
+    margin: 5px 0;
+    padding: 0;
+    min-height: 20px;
 }
-.comment_bottom {
-    width: 650px;
-    border-top:1px dotted #bbb;
+.loadData, .loadAnnotation {
+    font-size: 12px;
+    font-weight: normal;
+    font-style: italic;
+}
+#annotation_form {
+    border-top:1px solid #BBBBBB;
+    border-bottom:1px solid #BBBBBB;
+    height: 300px;
 }
 
+div.comment {
+    float: left;
+    width: 550px;
+}
+div.url {
+    float: right;
+    width: 400px;
+}
+div.file {
+    float: right;
+    width: 400px;
+}
+
+/* comment display page */
+#comment_wrapper {
+    padding-bottom: 10px;
+    width:590px;
+    padding-left: 40px;
+    background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom left;
+}
+#comment {
+    background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
+    width:590px;
+}
 #comment .head {
     font-size: 11px;
     font-style: normal;
     font-weight: bold;
-    margin: 0px 5px;
-    padding: 5px;
-	cursor: pointer;
+    background:transparent url(/webclient/static/images/comment/comment_cap.png) no-repeat scroll 0 0;
+    height:15px;
+    margin-bottom:-15px;
+    padding: 10px 0 0 20px;
 }
 #comment .timestamp {
     font-size: 10px;
@@ -30,10 +58,55 @@
 	font-style: normal;
 }
 #comment .body {
-	padding: 0px 10px;
+    margin:20px 20px;
+    min-height:50px;
 }
+#comment .footer {
+    background:transparent url(/webclient/static/images/comment/comment_foot.png) no-repeat scroll 0 0;
+    height:45px;
+    margin-top:-38px;
+}
+
+#comment_wrapper_rev {
+    padding-bottom: 10px;
+    width:590px;
+    padding-right: 40px;
+    background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom right;
+}
+#comment_rev {
+    background:transparent url(/webclient/static/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
+    width:590px;
+}
+#comment_rev .head {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: bold;
+    background:transparent url(/webclient/static/images/comment/comment_cap_rev.png) no-repeat scroll 0 0;
+    height:37px;
+    margin-bottom:-37px;
+    padding: 10px 0 0 20px;
+}
+#comment_rev .timestamp {
+    font-size: 10px;
+    font-style: normal;
+	color: #666666;
+}
+#comment_rev .head cite {
+	font-size: 100%;
+	font-weight: bold;
+	font-style: normal;
+}
+#comment_rev .body {
+    margin:20px 20px;
+    min-height:65px;
+}
+#comment_rev .footer {
+    background:transparent url(/webclient/static/images/comment/comment_foot_rev.png) no-repeat scroll 0 0;
+    height:45px;
+    margin-top:-38px;
+}
+
 
 .body_url {
 	padding: 0px 20px;
 }
-

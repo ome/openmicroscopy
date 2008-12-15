@@ -25,15 +25,9 @@ body.zoom {
     height:80px;
 }
 #advice {
-    margin: 0;
+    margin: 20px 0 0 0;
     padding: 5px;
     border: 1px solid #bbb;
-}
-#active_advice {
-    margin: 0px;
-    width: 600px;
-    padding: 10px;
-    border: 1px dotted #bbb;
 }
 
 #menu {
@@ -58,11 +52,6 @@ body.zoom {
 }
 #content_zoom {
     margin: 10px;
-}
-
-#annotation {
-    margin: 0;
-    padding: 0;
 }
 
 #path {
@@ -211,7 +200,7 @@ form ul.errorlist {
     list-style: none;
     color: #e3646f;
     margin: 0;
-    padding: 0;
+    padding: 10px 0 0;
     text-align: center;
 }
 
@@ -231,9 +220,6 @@ form ul.errorlist {
 .details {
     border-bottom:1px solid #BBBBBB;
 }
-
-.loadData, .loadAnnotation {
-    font-size: 12px;
-    font-weight: normal;
-    font-style: italic;
+.center {
+    text-align: center;
 }

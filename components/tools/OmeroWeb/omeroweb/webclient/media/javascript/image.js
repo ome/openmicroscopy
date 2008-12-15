@@ -14,7 +14,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
             },
             error: function(responce) {
                 $($('#id_'+metadata_type).parent().find('img')).remove()
-                alert("Cannot save "+metadata_type)
+                alert("Cannot save new value for "+metadata_type)
             }
         });
     }

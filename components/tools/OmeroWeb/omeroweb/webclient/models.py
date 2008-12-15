@@ -102,10 +102,10 @@ class ContainerForm(forms.Form):
     world = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
 
 class TextAnnotationForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 65}))
 
 class UrlAnnotationForm(forms.Form):
-    link = UrlField(widget=forms.TextInput(attrs={'size':61}))
+    link = UrlField(widget=forms.TextInput(attrs={'size':55}))
 
 class UploadFileForm(forms.Form):
     custom_file  = forms.FileField()

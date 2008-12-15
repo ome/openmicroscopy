@@ -1,8 +1,6 @@
 {% load custom_tags %}
 
 {% for d in manager.subcontainers %}
-    {% if d.isOwned %}<li id='img-{{ d.id }}'><span>{{ d.id }} {{ d.shortName }}</span>
-    {% else %}<li id='img-{{ d.id }}' class="coursor">{{ d.id }} {{ d.shortName }}
-    {% endif %} 
-    <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a>{% if d.isOwned %} <a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="l" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</li>
+    <li id='img-{{ d.id }}'><span>{{ d.id }} {{ d.shortName }}</span>
+    {% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a>{% if d.isOwned %} <a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% else %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="l" title="locked"/>{% endif %}</li>
 {% endfor %}

@@ -1,10 +1,14 @@
 #context {
     float: right;
-    width:460px;
+    width:380px;
 }
 
 #tree {
     float: left;
+    border-right:1px solid #BBBBBB;
+    min-height: 400px;
+    width: 600px;
+    padding-right: 10px;
 }
 
 .simpleTree

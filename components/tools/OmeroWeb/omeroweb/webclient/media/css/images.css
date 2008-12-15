@@ -104,17 +104,13 @@ div.cloud {
 }
 .thumbnail {
     float: left;
-    width: 50%;
+    width: 600px;
+    padding: 0;
 }
 .metadata {
     float: right;
-    background-color: #fff;
-    padding: 5px;
+    margin: -8px 0 20px 0;
 }
-.center {
-    text-align: center;
-}
-
 
 .ui-accordion-container {
     list-style-type:none;

@@ -655,7 +655,7 @@ def logout(request, **kwargs):
 # DATA MANAGEMENT request.session['nav']={"menu": "mydata", "whos": "mydata", "view": "table"}
 
 @isUserConnected
-def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
+def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, action=None, **kwargs):
     request.session['nav']['menu'] = 'mydata'
     request.session['nav']['whos'] = 'mydata'
     
@@ -683,11 +683,6 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     manager.buildBreadcrumb(whos)
         
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
-    
-    if o1_type and o1_id:
-        form_comment = TextAnnotationForm()
-        form_url = UrlAnnotationForm(initial={'link':'http://'})
-        form_file = UploadFileForm()
     
     form_environment = None
     form_objective = None
@@ -720,15 +715,80 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         else:
             manager.listMyRoots()
     
+    form_comment = None
+    form_url = None
+    form_file = None
+    try:
+        action = request.REQUEST["action"]
+    except:
+        if o1_type and o1_id:
+            form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+    else:
+        if action == "comment":
+            form_comment = TextAnnotationForm(data=request.REQUEST.copy())
+            if form_comment.is_valid():
+                content = request.REQUEST['content']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.saveDatasetTextAnnotation(content)
+                    elif o2_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.saveProjectTextAnnotation(content)
+                    elif o1_type == 'dataset':
+                        manager.saveDatasetTextAnnotation(content)
+                    elif o1_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        elif action == "url":
+            form_url = UrlAnnotationForm(data=request.REQUEST.copy())
+            if form_url.is_valid():
+                content = request.REQUEST['link']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.saveDatasetUrlAnnotation(content)
+                    elif o2_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.saveProjectUrlAnnotation(content)
+                    elif o1_type == 'dataset':
+                        manager.saveDatasetUrlAnnotation(content)
+                    elif o1_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_comment = TextAnnotationForm()
+            form_file = UploadFileForm()
+        elif action == "file":
+            form_file = UploadFileForm(request.REQUEST, request.FILES)
+            if form_file.is_valid():
+                f = request.FILES['custom_file']
+                #for chunk in f.chunks():
+                    #print chunk
+                form_file = UploadFileForm()
+            form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+    
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
     elif view == 'tree' and o1_type=='dataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
@@ -801,16 +861,76 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
     
-    if o1_type and o1_id:
-        form_comment = TextAnnotationForm()
-        form_url = UrlAnnotationForm(initial={'link':'http://'})
-        form_file = UploadFileForm()
-    
     form_environment = None
     form_objective = None
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+    
+    form_comment = None
+    form_url = None
+    form_file = None
+    try:
+        action = request.REQUEST["action"]
+    except:
+        if o1_type and o1_id:
+            form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+    else:
+        if action == "comment":
+            form_comment = TextAnnotationForm(data=request.REQUEST.copy())
+            if form_comment.is_valid():
+                content = request.REQUEST['content']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.saveDatasetTextAnnotation(content)
+                    elif o2_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.saveProjectTextAnnotation(content)
+                    elif o1_type == 'dataset':
+                        manager.saveDatasetTextAnnotation(content)
+                    elif o1_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        elif action == "url":
+            form_url = UrlAnnotationForm(data=request.REQUEST.copy())
+            if form_url.is_valid():
+                content = request.REQUEST['link']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.saveDatasetUrlAnnotation(content)
+                    elif o2_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.saveProjectUrlAnnotation(content)
+                    elif o1_type == 'dataset':
+                        manager.saveDatasetUrlAnnotation(content)
+                    elif o1_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_comment = TextAnnotationForm()
+            form_file = UploadFileForm()
+        elif action == "file":
+            form_file = UploadFileForm(request.REQUEST, request.FILES)
+            if form_file.is_valid():
+                f = request.FILES['custom_file']
+                #for chunk in f.chunks():
+                    #print chunk
+                form_file = UploadFileForm()
+            form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
     
     template = None
     if o3_type and o3_id:
@@ -846,18 +966,18 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
     elif view == 'tree' and o1_type=='dataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -926,16 +1046,76 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
     
-    if o1_type and o1_id:
-        form_comment = TextAnnotationForm()
-        form_url = UrlAnnotationForm(initial={'link':'http://'})
-        form_file = UploadFileForm()
-    
     form_environment = None
     form_objective = None
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+    
+    form_comment = None
+    form_url = None
+    form_file = None
+    try:
+        action = request.REQUEST["action"]
+    except:
+        if o1_type and o1_id:
+            form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+    else:
+        if action == "comment":
+            form_comment = TextAnnotationForm(data=request.REQUEST.copy())
+            if form_comment.is_valid():
+                content = request.REQUEST['content']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.saveDatasetTextAnnotation(content)
+                    elif o2_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.saveProjectTextAnnotation(content)
+                    elif o1_type == 'dataset':
+                        manager.saveDatasetTextAnnotation(content)
+                    elif o1_type == 'image':
+                        manager.saveImageTextAnnotation(content)
+                form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        elif action == "url":
+            form_url = UrlAnnotationForm(data=request.REQUEST.copy())
+            if form_url.is_valid():
+                content = request.REQUEST['link']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.saveDatasetUrlAnnotation(content)
+                    elif o2_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.saveProjectUrlAnnotation(content)
+                    elif o1_type == 'dataset':
+                        manager.saveDatasetUrlAnnotation(content)
+                    elif o1_type == 'image':
+                        manager.saveImageUrlAnnotation(content)
+                form_url = UrlAnnotationForm(initial={'link':'http://'})
+            form_comment = TextAnnotationForm()
+            form_file = UploadFileForm()
+        elif action == "file":
+            form_file = UploadFileForm(request.REQUEST, request.FILES)
+            if form_file.is_valid():
+                f = request.FILES['custom_file']
+                #for chunk in f.chunks():
+                    #print chunk
+                form_file = UploadFileForm()
+            form_comment = TextAnnotationForm()
+            form_url = UrlAnnotationForm(initial={'link':'http://'})
     
     template = None
     if o3_type and o3_id:
@@ -970,18 +1150,18 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                     
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
     elif view == 'tree' and o1_type=='dataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1995,10 +2175,10 @@ def render_thumbnail_details (request, iid, **kwargs):
     else:
         side = img.getHeight()
     size = 0
-    if side < 300:
+    if side < 400:
         size = side
     else:
-        size = 300
+        size = 400
     
     jpeg_data = img.getThumbnailByLongestSide(size=size)
     if jpeg_data is None:

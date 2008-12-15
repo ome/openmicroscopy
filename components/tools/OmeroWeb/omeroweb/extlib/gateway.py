@@ -1105,6 +1105,8 @@ class BlitzGateway (threading.Thread):
         try:
             if settings.EMAIL_NOTIFICATION:
                 import omeroweb.extlib.sendemail.handlesender as sender
+            else:
+                sender = None
         except:
             sender = None
             logger.error(traceback.format_exc())

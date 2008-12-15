@@ -1,25 +1,38 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-<div class="details"> </div>
-
 {% if manager.txannSize %}
 <h1>Comments:</h1>
     {% for tann in manager.text_annotations %}
-    <div id="comment">
-        <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> - {{ tann.creationEventDate }}</div>
-        <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
-    </div>
+    {% if tann.isOwned %}
+        <div id="comment_wrapper">
+        <div id="comment">
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> - {{ tann.creationEventDate }}</div>
+            <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
+            <div class="footer"></div>
+        </div>
+        </div>
+        <br/>
+    {% else %}
+        <div id="comment_wrapper_rev">
+        <div id="comment_rev">
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment on {{ tann.creationEventDate }}</div>
+            <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
+            <div class="footer"></div>
+        </div>
+        </div>
+        <br/>
+    {% endif %}
+    
     {% endfor %}
-    <div class="comment_bottom"> </div>
 {% endif %}
 
 {% if manager.urlannSize %}
 <h1>URLs:</h1>
     <div class="body_url">
-    {% for urlann in manager.url_annotations %}
+    <p>{% for urlann in manager.url_annotations %}
         {{ urlann.textValue|wikify|safe }}; 
-    {% endfor %}
+    {% endfor %}</p>
     </div>
 {% endif %}
 
@@ -35,57 +48,5 @@
 </table>
 {% endif %}
 
-{% if form_comment %}
-<div>
-    <h1>Add new comment:</h1>
-    {% if manager.dataset %}<form action="{% get_webclient_root_url %}/action/comment/dataset/{{ manager.dataset.id }}/?url={{ url }}" method="post">
-    {% else %}<form action="{% get_webclient_root_url %}/action/comment/project/{{ manager.project.id }}/?url={{ url }}" method="post">{% endif %}
-    <table>
-        {% for field in form_comment %}
-            <tr>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-            </tr>
-        {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-        </table>
-    </form>
-    <script type="text/javascript">
-        var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
-        googie_spell.decorateTextarea("id_content", null, "600px");
-    </script>
-</div>
-{% endif %}
 
-{% if form_url %}
-<div>
-    <h1>Add new url:</h1>
-    {% if manager.dataset %}<form action="{% get_webclient_root_url %}/action/url/dataset/{{ manager.dataset.id }}/?url={{ url }}" method="post">
-    {% else %}<form action="{% get_webclient_root_url %}/action/url/project/{{ manager.project.id }}/?url={{ url }}" method="post">{% endif %}
-    <table>
-        {% for field in form_url %}
-            <tr>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-            </tr>
-        {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-        </table>
-    </form>
-</div>
-{% endif %}
-
-{% if form_file %}
-<div>
-    <h1>Upload a file</h1>
-    {% if manager.project %}<form action="{% get_webclient_root_url %}/action/file/project/{{ manager.project.id }}/?url={{ url }}" method="post" enctype="multipart/form-data">{% endif %}
-    {% if manager.dataset %}<form action="{% get_webclient_root_url %}/action/file/dataset/{{ manager.dataset.id }}/?url={{ url }}" method="post" enctype="multipart/form-data">{% endif %}
-    <table>
-    {% for field in form_file %}
-        <tr>
-            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-        </tr>
-    {% endfor %}
-    </table>
-    <input type="submit" value="Upload" />
-    </form>
-</div>
-{% endif %}
+</iframe>
