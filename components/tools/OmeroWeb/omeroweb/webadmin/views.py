@@ -50,14 +50,16 @@ from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 
+from controller import BaseController
 from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
 from controller.script import BaseScripts, BaseScript
 from controller.drivespace import BaseDriveSpace
+from controller.uploadfile import BaseUploadFile
 
 from models import Gateway, LoginForm, ExperimenterForm, ExperimenterLdapForm, \
                    GroupForm, ScriptForm, MyAccountForm, MyAccountLdapForm, \
-                   ContainedExperimentersForm
+                   ContainedExperimentersForm, UploadFileForm
 
 from extlib.gateway import BlitzGateway
 
@@ -673,7 +675,14 @@ def my_account(request, action=None, **kwargs):
                 password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             logout(request)
-            return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+            return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+    elif action == "upload":
+        if request.method == 'POST':
+            form_file = UploadFileForm(request.POST, request.FILES)
+            if form_file.is_valid():
+                controller = BaseUploadFile(conn)
+                controller.attache_photo(request.FILES['photo'])
+                return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
     else:
         if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
             form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
@@ -686,10 +695,22 @@ def my_account(request, action=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
     
-    context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth}
+    form_file = UploadFileForm()
+    
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
+
+@isUserConnected
+def myphoto(request, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    photo = conn.getExperimenterPhoto()
+    return HttpResponse(photo, mimetype='image/jpeg')
 
 @isUserConnected
 def drivespace(request, **kwargs):

@@ -1,11 +1,23 @@
 #left_panel {
     margin-right: 10px; 
-    width: 48%;
-    float: left;
+    width: 490px;
+    min-height: 400px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-right:1px solid #BBBBBB;
 }
 
 #right_panel {
-    margin-left: 10px; 
-    width: 48%;
-    float: right;
+    margin:0; 
+    width: 490px;
+    min-height: 400px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.loadData {
+    font-size: 12px;
+    font-weight: normal;
+    font-style: italic;
 }

@@ -38,7 +38,7 @@ body.share {
 #comment_wrapper {
     padding-bottom: 10px;
     width:590px;
-    padding-left: 40px;
+    padding-left: 50px;
     background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom left;
 }
 #comment {
@@ -66,18 +66,18 @@ body.share {
 }
 #comment .body {
     margin:20px 20px;
-    min-height:50px;
 }
 #comment .footer {
     background:transparent url(/webclient/static/images/comment/comment_foot.png) no-repeat scroll 0 0;
     height:45px;
-    margin-top:-38px;
+    margin-top:-30px;
 }
 
 #comment_wrapper_rev {
     padding-bottom: 10px;
     width:590px;
-    padding-right: 40px;
+    padding-right: 50px;
+    margin-left: 50px;
     background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom right;
 }
 #comment_rev {
@@ -105,11 +105,10 @@ body.share {
 }
 #comment_rev .body {
     margin:20px 20px;
-    min-height:65px;
 }
 #comment_rev .footer {
     background:transparent url(/webclient/static/images/comment/comment_foot_rev.png) no-repeat scroll 0 0;
     height:45px;
-    margin-top:-38px;
+    margin-top:-30px;
 }
 

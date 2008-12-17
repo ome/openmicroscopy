@@ -79,13 +79,14 @@
         <p><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
     
         <p>by {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
+        <p><a href="">Send this image to email.</a></p>
     </center>
     
 </div>
 
 <div class="metadata"><h1>Metadata: </h1>
 
-<ul id="metadata" class="ui-accordion-container" >
+<ul id="metadata" class="ui-accordion-metadata" >
     <li><a href='#'>General:</a>
         <div>
             <p>Aquasition date: {{ manager.image.getAquaDate }}</p>

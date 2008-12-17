@@ -3,7 +3,7 @@
     padding: 0;
     min-height: 20px;
 }
-.loadData, .loadAnnotation {
+.loadAnnotation {
     font-size: 12px;
     font-weight: normal;
     font-style: italic;
@@ -31,7 +31,7 @@ div.file {
 #comment_wrapper {
     padding-bottom: 10px;
     width:590px;
-    padding-left: 40px;
+    padding-left: 50px;
     background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom left;
 }
 #comment {
@@ -59,18 +59,18 @@ div.file {
 }
 #comment .body {
     margin:20px 20px;
-    min-height:50px;
 }
 #comment .footer {
     background:transparent url(/webclient/static/images/comment/comment_foot.png) no-repeat scroll 0 0;
     height:45px;
-    margin-top:-38px;
+    margin-top:-30px;
 }
 
 #comment_wrapper_rev {
     padding-bottom: 10px;
     width:590px;
-    padding-right: 40px;
+    padding-right: 50px;
+    margin-left: 50px;
     background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom right;
 }
 #comment_rev {
@@ -98,12 +98,11 @@ div.file {
 }
 #comment_rev .body {
     margin:20px 20px;
-    min-height:65px;
 }
 #comment_rev .footer {
     background:transparent url(/webclient/static/images/comment/comment_foot_rev.png) no-repeat scroll 0 0;
     height:45px;
-    margin-top:-38px;
+    margin-top:-30px;
 }
 
 

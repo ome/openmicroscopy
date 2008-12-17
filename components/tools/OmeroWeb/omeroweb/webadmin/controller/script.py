@@ -29,7 +29,7 @@ class BaseScripts(BaseController):
     scripts = None
     scriptsCount = 0
 
-    def __init__(self, conn, sc_id=None,):
+    def __init__(self, conn, sc_id=None):
         BaseController.__init__(self, conn)
         self.scripts = self.conn.lookupScripts()
 

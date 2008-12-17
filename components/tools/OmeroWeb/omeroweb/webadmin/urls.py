@@ -52,6 +52,7 @@ urlpatterns = patterns('',
     ( r'^drivespace/$', views.drivespace),
 
     ( r'^piechart/$', views.piechart),
+    ( r'^myphoto/$', views.myphoto),
 
     # static
     ( r'^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') } ),

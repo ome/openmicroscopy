@@ -135,7 +135,7 @@ $.fn.simpleTree = function(opt){
 		};
 		TREE.setTreeNodes = function(obj, useParent){
 		    obj = useParent? obj.parent():obj;
-			$('li>span', obj).addClass('text')
+		    $('li>span', obj).addClass('text')
 			.bind('selectstart', function() {
 				return false;
 			}).click(function(){

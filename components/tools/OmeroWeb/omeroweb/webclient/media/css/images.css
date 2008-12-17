@@ -85,19 +85,18 @@ div.cloud {
 }
 
 .project {
-    float: left;
     width: 75%;
 }
 .dataset {
-    float: left;
     width: 75%;
 }
 .image {
-    float: left;
     width: 75%;
 }
 .basket {
-    float: right;
+    position: absolute;
+    top: 10px;
+    right: 0;
     border: 1px solid #bbb;
     background-color: #fff;
     padding: 5px;
@@ -112,7 +111,7 @@ div.cloud {
     margin: -8px 0 20px 0;
 }
 
-.ui-accordion-container {
+.ui-accordion-metadata {
     list-style-type:none;
     margin:0;
     padding:0;

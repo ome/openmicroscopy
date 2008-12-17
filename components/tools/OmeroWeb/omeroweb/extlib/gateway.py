@@ -952,9 +952,34 @@ class BlitzGateway (threading.Thread):
         return AnnotationWrapper(self, ann)
     
     def getFile(self, f_id):
-        f = self.createRawFileStore()
-        f.setFileId(long(f_id))
-        return f.read(0,100000)
+        store = self.createRawFileStore()
+        store.setFileId(long(f_id))
+        return store.read(0,100000)
+    
+    def getExperimenterPhoto(self, oid=None):
+        pojos = self.getPojosService()
+        ann = pojos.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
+        f = ann.getFile()
+        store = self.createRawFileStore()
+        store.setFileId(f.id.val)
+        return store.read(0,100000)
+    
+    def getFileFormt(self, format):
+        query_serv = self.getQueryService()
+        return query_serv.findByString("Format", "value", format);
+    
+    def saveFile(self, binary, oFile_id):
+        store = self.createRawFileStore()
+        store.setFileId(oFile_id);
+        pos = 0
+        rlen = 0
+        for chunk in binary.chunks():
+            rlen = len(chunk)
+            store.write(chunk, pos, rlen)
+            pos = pos + rlen
+    
+    
+    
     
     ################################################
     ##   Enumeration
