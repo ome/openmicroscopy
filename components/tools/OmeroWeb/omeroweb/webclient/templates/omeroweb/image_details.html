@@ -67,7 +67,7 @@
 
 {% if manager.image.isOwned %}
 <div class="basket">
-    <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">Add image to the basket <img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a>
+    <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">Pick image to the selection <img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>
 </div>
 {% endif %}
 <div class="clear"></div>

@@ -125,3 +125,8 @@ div.cloud {
     position:relative;
     text-decoration:none;
 }
+
+.box {
+    float:left;
+    margin:15px 0 10px 0;
+}

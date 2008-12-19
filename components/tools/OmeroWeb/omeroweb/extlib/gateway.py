@@ -1642,10 +1642,10 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 20:
+            if l < 17:
                 return name
-            elif l >= 20:
-                return "%s...%s" % (name[:9], name[l-8:])
+            elif l >= 17:
+                return "%s...%s" % (name[:7], name[l-7:])
         except:
             logger.debug(traceback.format_exc())
             return self._obj.name.val

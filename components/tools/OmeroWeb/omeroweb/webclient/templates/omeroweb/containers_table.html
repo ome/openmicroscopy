@@ -108,13 +108,13 @@
     <div class="dataset"><h1>Dataset: {{ manager.dataset.name }} {% if manager.dataset.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
         {{ manager.dataset.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
-    {% if manager.dataset.isOwned %}<div class="basket"><a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;">Add entire dataset to the basket <img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a></div>{% endif %}
+    {% if manager.dataset.isOwned %}<div class="basket"><a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;">Pick entire dataset to the selection <img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a></div>{% endif %}
 {% else %}
     {% if manager.project %}
         <div class="project"><h1>Project: {{ manager.project.name }} {% if manager.project.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
             {{ manager.project.description|default_if_none:"no description"|wikify|safe|linebreaks }}
         </div>
-        {% if manager.project.isOwned %}<div class="basket"><a href="#" onclick="toBasket('project', '{{ manager.project.id }}'); return false;">Add entire project to the basket <img src="{% get_webclient_static_url %}/images/basket12.png" alt="b" title="basket"/></a></div>{% endif %}
+        {% if manager.project.isOwned %}<div class="basket"><a href="#" onclick="toBasket('project', '{{ manager.project.id }}'); return false;">Pick entire project to the selection <img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a></div>{% endif %}
     {% endif %}
 {% endif %}
 

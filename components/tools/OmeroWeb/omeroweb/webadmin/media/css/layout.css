@@ -235,3 +235,11 @@ form ul.errorlist {
 #piechart.loading {
   background: url(/webadmin/static/images/spinner.gif) no-repeat center center;
 }
+
+
+div.myform {
+    float: left;
+}
+div.photo {
+    float: right;
+}

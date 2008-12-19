@@ -12,6 +12,7 @@
 <p>{% trans "Fields marked with an * are mandatory." %}</p>
 <br/>
 
+
 <div class="myform">
 <form action="{% get_webadmin_root_url %}/myaccount/save/" method="POST">
 <table>
@@ -25,23 +26,27 @@
 </table>
 </form>
 </div>
-<div class="photo"><img src="{% get_webadmin_root_url %}/myphoto/"></div>
 
-<h1>Upload your photo</h1>
-<div class="body">
-  <p>
-    <form enctype="multipart/form-data" method="post" action="{% get_webadmin_root_url %}/myaccount/upload/">
-        <table>
-          <tbody>
-            {% for field in form_file %}
-            <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
-            {% endfor %}
-            {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>{% endif %}
-          </tbody>
-          <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
-        </table>
-    </form>
-  </p>
+<div class="photo">
+    <h1><center><img src="{% get_webadmin_root_url %}/myphoto/" width="180" height="180"></center></h1>
+
+    <h1>Upload your photo</h1>
+    <div class="body">
+      <p>
+        <form enctype="multipart/form-data" method="post" action="{% get_webadmin_root_url %}/myaccount/upload/">
+            <table>
+              <tbody>
+                {% for field in form_file %}
+                <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+                {% endfor %}
+                {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>{% endif %}
+              </tbody>
+              <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
+            </table>
+        </form>
+      </p>
+    </div>
 </div>
+
 </div>
 {% endblock %}
