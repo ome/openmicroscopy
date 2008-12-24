@@ -222,7 +222,7 @@ public class IconManager
         relPaths[OWNER_8] = "nuvola_kdmconfig8.png";
         relPaths[IMAGE_ANNOTATED] = "tagged_image16.png";
         relPaths[SET_ORIGINAL_RND_SETTINGS] = "nuvola_redo16.png";
-        relPaths[SAVE_AS] = "nuvola_filesave16.png";
+        relPaths[SAVE_AS] = "nuvola_filesaveas16.png";
         relPaths[REPORT] = "nuvola_view_text16.png";
         relPaths[REPORT_48] = "nuvola_view_text48.png";
         relPaths[SAVE_AS_48] = "nuvola_filesaveas48.png";

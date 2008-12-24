@@ -248,6 +248,9 @@ class ImViewerModel
     /** The id of the image. */
     private long						imageID;
     
+    /** Copy of the original rendering settings.  */
+    private RndProxyDef					originalDef;
+    
     /**
 	 * Transforms 3D coords into linear coords.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -660,8 +663,8 @@ class ImViewerModel
 	void setRenderingControl(RenderingControl rndControl)
 	{
 		loaders.remove(RND);
-		this.currentRndControl = rndControl;
-		
+		currentRndControl = rndControl;
+		originalDef = currentRndControl.getRndSettingsCopy();
 		if (renderer == null) {
 			renderer = RendererFactory.createRenderer(component, rndControl,
 					ImViewerFactory.getPreferences());
@@ -1040,15 +1043,18 @@ class ImViewerModel
 	/** 
 	 * Saves the rendering settings. 
 	 * 
+	 * @param reset Pass <code>true</code> to reset the original settings,
+	 * 				<code>false</code> otherwise.
 	 * @throws RenderingServiceException 	If an error occured while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	void saveRndSettings()
+	void saveRndSettings(boolean reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (currentRndControl != null) {
-			RndProxyDef def = currentRndControl.saveCurrentSettings(); 
+			RndProxyDef def = currentRndControl.saveCurrentSettings();
+			if (reset) originalDef = def;
 			if (def != null) {
 				if (renderingSettings != null) 
 					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
@@ -1627,6 +1633,18 @@ class ImViewerModel
 		this.image = image;
 		metadataViewer = MetadataViewerFactory.getViewer(image, false);
 		currentPixelsID = image.getDefaultPixels().getId();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the rendering settings are original, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOriginalSettings()
+	{
+		if (currentRndControl == null) return true;
+		return currentRndControl.isOriginalSettings(originalDef);
 	}
 	
 }

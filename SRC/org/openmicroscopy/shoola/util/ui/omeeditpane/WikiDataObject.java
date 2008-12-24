@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 //Application-internal dependencies
 
 /** 
- * 
+ * Object hosting details about an OMERO object to launch.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,7 +57,7 @@ public class WikiDataObject
 	public static final int THUMBNAIL = 3;
 	
 	/** Indentifies a <code>Protocol</code>. */
-	public static final int PROTOCOL = 3;
+	public static final int PROTOCOL = 4;
 	
 	/** One of the constants defined by this class. */
 	private int index;
@@ -77,8 +77,8 @@ public class WikiDataObject
 			case DATASET:
 			case IMAGE:
 			case THUMBNAIL:
+			case PROTOCOL:
 				break;
-	
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}

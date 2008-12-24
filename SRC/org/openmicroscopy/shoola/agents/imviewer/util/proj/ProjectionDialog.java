@@ -545,6 +545,8 @@ public class ProjectionDialog
 	{
 		fillProjectionRef();
 		StringBuffer buf = new StringBuffer();
+		buf.append("Original Image: "+getImageName());
+		buf.append("\n");
 		buf.append("Projection type: "+PROJECTIONS.get(ref.getType()));
 		buf.append("\n");
 		buf.append("z-sections: "+(ref.getStartZ()+1)+"-"+(ref.getEndZ()+1));

@@ -88,6 +88,7 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
 import omero.model.Annotation;
@@ -224,8 +225,35 @@ class OMEROGateway
 	/** The raw file store. */
 	private RawFileStorePrx							fileStore;
 	
+	/** The raw pixels store. */
+	private RawPixelsStorePrx						pixelsStore;
+	
+	/** The Pojos service. */
+	private IPojosPrx								pojosService;
+	
+	/** The projection service. */
+	private IProjectionPrx							projService;
+	
 	/** The search stateful service. */
 	private SearchPrx								searchService;
+	
+	/** The Admin service. */
+	private IAdminPrx								adminService;
+	
+	/** The query service. */
+	private IQueryPrx								queryService;
+	
+	/** The rendering settings service. */
+	private IRenderingSettingsPrx					rndSettingsService;
+	
+	/** The repository service. */
+	private IRepositoryInfoPrx						repInfoService;
+	
+	/** The delete service. */
+	private IDeletePrx								deleteService;
+	
+	/** The pixels service. */
+	private IPixelsPrx								pixelsService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -253,6 +281,12 @@ class OMEROGateway
 
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>>	enumerations;
+	
+	/** Collection of services to keep alive. */
+	private List<ServiceInterfacePrx>				services;
+	
+	/** Collection of services to keep alive. */
+	private Map<Long, ServiceInterfacePrx>			reServices;
 	
 	//fs Testing stuff
 	/** The sole system view instance. */
@@ -436,7 +470,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			return entry.getRenderingSettingsService();
+			if (rndSettingsService == null) {
+				rndSettingsService = entry.getRenderingSettingsService(); 
+				services.add(rndSettingsService);
+			}
+			return rndSettingsService;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RenderingSettings service.");
 		}
@@ -455,7 +493,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			return entry.getRepositoryInfoService();
+			if (repInfoService == null) {
+				repInfoService = entry.getRepositoryInfoService(); 
+				services.add(repInfoService);
+			}
+			return repInfoService;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RepositoryInfo service.");
 		}
@@ -474,7 +516,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			return entry.getPojosService(); 
+			if (pojosService == null) {
+				pojosService = entry.getPojosService(); 
+				services.add(pojosService);
+			}
+			return pojosService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Pojos service.");
 		}
@@ -493,7 +539,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			return entry.getQueryService(); 
+			if (queryService == null) {
+				queryService = entry.getQueryService(); 
+				services.add(queryService);
+			}
+			return queryService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Query service.");
 		}
@@ -531,7 +581,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			return entry.getAdminService(); 
+			if (adminService == null) {
+				adminService = entry.getAdminService(); 
+				services.add(adminService);
+			}
+			return adminService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Admin service.");
 		}
@@ -550,7 +604,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			return entry.getDeleteService();
+			if (deleteService == null) {
+				deleteService = entry.getDeleteService(); 
+				services.add(deleteService);
+			}
+			return deleteService;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Delete service.");
 		}
@@ -573,10 +631,12 @@ class OMEROGateway
 				thumbRetrieval = 0;
 				//to be on the save side
 				if (thumbnailService != null) thumbnailService.close();
+				services.remove(thumbnailService);
 				thumbnailService = null;
 			}
 			if (thumbnailService == null) {
 				thumbnailService = entry.createThumbnailStore();
+				services.add(thumbnailService);
 			}
 			thumbRetrieval++;
 			return thumbnailService; 
@@ -598,15 +658,14 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			if (fileStore == null) {
-				fileStore = entry.createRawFileStore();
+			if (fileStore != null) {
+				services.remove(fileStore);
 				try {
 					fileStore.close();
-				} catch (Exception e) {
-					// Ignore the exception.
-				}
+				} catch (Exception e) {}
 			}
 			fileStore = entry.createRawFileStore();
+			services.add(fileStore);
 			return fileStore;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RawFileStore service.");
@@ -647,9 +706,17 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			return entry.createRawPixelsStore();
+			if (pixelsStore != null) {
+				services.remove(pixelsStore);
+				try {
+					pixelsStore.close();
+				} catch (Exception e) {}
+			}
+			pixelsStore = entry.createRawPixelsStore();
+			services.add(pixelsStore);
+			return pixelsStore;
 		} catch (Throwable e) {
-			handleException(e, "Cannot access RawFileStore service.");
+			handleException(e, "Cannot access RawPixelsStore service.");
 		}
 		return null;
 	}
@@ -666,7 +733,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			return entry.getPixelsService();
+			if (pixelsService == null) {
+				pixelsService = entry.getPixelsService(); 
+				services.add(pixelsService);
+			}
+			return pixelsService;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Pixels service.");
 		}
@@ -685,7 +756,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			searchService = entry.createSearchService();
+			if (searchService == null) {
+				searchService = entry.createSearchService(); 
+				services.add(searchService);
+			}
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Search service.");
 		}
@@ -704,7 +778,11 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			return entry.getProjectionService();
+			if (projService == null) {
+				projService = entry.getProjectionService(); 
+				services.add(projService);
+			}
+			return projService;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Pixels service.");
 		}
@@ -906,6 +984,8 @@ class OMEROGateway
 		this.port = port;
 		thumbRetrieval = 0;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
+		services = new ArrayList<ServiceInterfacePrx>();
+		reServices = new HashMap<Long, ServiceInterfacePrx>();
 	}
 	
 	/**
@@ -1155,6 +1235,17 @@ class OMEROGateway
 			entry = null;
 			blitzClient = null;
 			metadataStore = null;
+			pojosService = null;
+			projService = null;
+			searchService = null;
+			adminService = null;
+			queryService = null;
+			rndSettingsService = null;
+			repInfoService = null;
+			deleteService = null;
+			pixelsService = null;
+			services.clear();
+			reServices.clear();
 		} catch (Exception e) {
 			//session already dead.
 		}
@@ -1776,6 +1867,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			RenderingEnginePrx service = getRenderingService();
+			reServices.put(pixelsID,  service);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();
@@ -3579,6 +3671,25 @@ class OMEROGateway
 		}
 	}
 	
+	/** Keeps the services alive. */
+	void keepSessionAlive()
+	{
+		int n = services.size()+reServices.size();
+		ServiceInterfacePrx[] entries = new ServiceInterfacePrx[n];
+		Iterator<ServiceInterfacePrx> i = services.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			entries[index] = i.next();
+			index++;
+		}
+		Iterator<Long> j = reServices.keySet().iterator();
+		while (j.hasNext()) {
+			entries[index] = reServices.get(j.next());
+			index++;
+		}
+		entry.keepAllAlive(entries);
+	}
+	
 	//tmp
 	List getFileAnnotations(Set<Long> originalFiles) 
 		throws DSOutOfServiceException, DSAccessException
@@ -4226,6 +4337,16 @@ class OMEROGateway
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Removes the rendering service corresponding to the pixels set ID.
+	 * 
+	 * @param pixelsID The pixels set Id to handle.
+	 */
+	void removeREService(long pixelsID)
+	{
+		reServices.remove(pixelsID);
 	}
 	
 	//tmp

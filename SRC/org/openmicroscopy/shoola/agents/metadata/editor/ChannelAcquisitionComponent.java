@@ -47,8 +47,6 @@ import javax.swing.JPanel;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
-import omero.model.Immersion;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -75,6 +73,18 @@ class ChannelAcquisitionComponent
 	extends JPanel
 {
 	
+	/** Identifies the Laser type. */
+	private static final String LASER_TYPE = "Laser";
+	
+	/** Identifies the Arc type. */
+	private static final String ARC_TYPE = "Arc";
+	
+	/** Identifies the Filament type. */
+	private static final String FILAMENT_TYPE = "Filament";
+	
+	/** Identifies the Emitting Diode type. */
+	private static final String EMITTING_DIODE_TYPE = "Emitting Diode";
+	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI					parent;
 	
@@ -98,6 +108,9 @@ class ChannelAcquisitionComponent
 	
 	/** The component displaying the laser options. */
 	private OMEComboBox							laserMediumBox;
+	
+	/** The component displaying the types of supported ligth. */
+	private OMEComboBox							lightTypeBox;
 	
 	/** The component displaying the types of arc. */
 	private OMEComboBox							arcTypeBox;
@@ -159,22 +172,54 @@ class ChannelAcquisitionComponent
 	/** Reference to the Model. */
 	private EditorModel							model;
 
-	/** Initializes the components */
-	private void initComponents()
+	/** Resets the various boxes with enumerations. */
+	private void resetBoxes()
 	{
-		init = true;
-		List l = model.getChannelEnumerations(Editor.ILLUMINATION_TYPE);
-		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
-		illuminationBox = EditorUtil.createComboBox(l);
+		List<EnumerationObject> l; 
+		l = model.getChannelEnumerations(Editor.ILLUMINATION_TYPE);
+		EnumerationObject[] array = new EnumerationObject[l.size()+1];
+		Iterator<EnumerationObject> j = l.iterator();
+		int i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		illuminationBox = EditorUtil.createComboBox(array);
+		
 		l = model.getChannelEnumerations(Editor.CONTRAST_METHOD);
-		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
-		contrastMethodBox = EditorUtil.createComboBox(l);
+		array = new EnumerationObject[l.size()+1];
+		j = l.iterator();
+		i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		contrastMethodBox = EditorUtil.createComboBox(array);
+		
 		l = model.getChannelEnumerations(Editor.MODE);
-		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
-		modeBox = EditorUtil.createComboBox(l);
+		array = new EnumerationObject[l.size()+1];
+		j = l.iterator();
+		i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		modeBox = EditorUtil.createComboBox(array);
+		
 		l = model.getChannelEnumerations(Editor.BINNING);
-		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
-		binningBox = EditorUtil.createComboBox(l);
+		array = new EnumerationObject[l.size()+1];
+		j = l.iterator();
+		i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		binningBox = EditorUtil.createComboBox(array);
+		
 		l = model.getChannelEnumerations(Editor.DETECTOR_TYPE);
 		detectorBox = EditorUtil.createComboBox(l);
 		l = model.getChannelEnumerations(Editor.LASER_TYPE);
@@ -185,9 +230,23 @@ class ChannelAcquisitionComponent
 		filamentTypeBox = EditorUtil.createComboBox(l);
 		l = model.getChannelEnumerations(Editor.LASER_MEDIUM);
 		laserMediumBox = EditorUtil.createComboBox(l);
+		
 		l = model.getChannelEnumerations(Editor.LASER_PULSE);
-		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
-		laserPulseBox = EditorUtil.createComboBox(l);
+		array = new EnumerationObject[l.size()+1];
+		j = l.iterator();
+		i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		laserPulseBox = EditorUtil.createComboBox(array);
+	}
+	
+	/** Initializes the components */
+	private void initComponents()
+	{
+		resetBoxes();
 		
 		String[] values = new String[3];
 		values[0] = AcquisitionDataUI.BOOLEAN_YES;
@@ -195,10 +254,23 @@ class ChannelAcquisitionComponent
 		values[2] = AnnotationDataUI.NO_SET_TEXT;
 		laserTuneableBox = EditorUtil.createComboBox(values);
 		laserPockelCellBox = EditorUtil.createComboBox(values);
+		
+		values = new String[5];
+		values[0] = ARC_TYPE;
+		values[1] = EMITTING_DIODE_TYPE;
+		values[2] = FILAMENT_TYPE;
+		values[3] = LASER_TYPE;
+		values[4] = AnnotationDataUI.NO_SET_TEXT;
+		lightTypeBox = EditorUtil.createComboBox(values);
+		lightTypeBox.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				handleLightSourceSelection();
+			}
+		});
 		fieldsGeneral = new LinkedHashMap<String, AcquisitionComponent>();
 		fieldsDetector = new LinkedHashMap<String, AcquisitionComponent>();
 		fieldsLight = new LinkedHashMap<String, AcquisitionComponent>();
-		
 		
 		unsetDetector = null;
 		unsetDetectorShown = false;
@@ -218,7 +290,33 @@ class ChannelAcquisitionComponent
 		generalPane.setBorder(BorderFactory.createTitledBorder("Info"));
 		generalPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		generalPane.setLayout(new GridBagLayout());
+	}
+	
+	/** Handles the selection of the light source. */
+	private void handleLightSourceSelection()
+	{
+		ChannelAcquisitionData data = model.getChannelAcquisitionData(
+    			channel.getIndex());
+
+		String selected = (String) lightTypeBox.getSelectedItem();
+		String kind = "";
+		if (LASER_TYPE.equals(selected))
+			kind = ChannelAcquisitionData.LASER;
+		else if (FILAMENT_TYPE.equals(selected))
+			kind = ChannelAcquisitionData.FILAMENT;
+		else if (ARC_TYPE.equals(selected))
+			kind = ChannelAcquisitionData.ARC;
+		else if (EMITTING_DIODE_TYPE.equals(selected))
+			kind = ChannelAcquisitionData.LIGHT_EMITTING_DIODE;
 		
+		fieldsLight.clear();
+		Map<String, Object> d = EditorUtil.transformLightSource(kind, data);
+		d.remove(EditorUtil.LIGHT_TYPE);
+		transformLightSource(kind, d);
+		parent.layoutFields(lightPane, unsetLight, fieldsLight, 
+				unsetLightShown);
+		revalidate();
+		repaint();
 	}
 	
 	/** Shows or hides the unset fields. */
@@ -235,21 +333,20 @@ class ChannelAcquisitionComponent
 	/**
 	 * Transforms the light metadata.
 	 * 
-	 * @param details The value to transform.
+	 * @param kind 		The kind of light source.
+	 * @param details 	The value to transform.
 	 */
-	private void transformLightSource(Map<String, Object> details)
+	private void transformLightSource(String kind, Map<String, Object> details)
 	{
-		String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
-		details.remove(EditorUtil.LIGHT_TYPE);
 		String title = "Light Source";
 		if (ChannelAcquisitionData.LASER.equals(kind))
-			title = "Laser";
+			title = LASER_TYPE;
 		else if (ChannelAcquisitionData.ARC.equals(kind))
-			title = "Arc";
+			title = ARC_TYPE;
 		else if (ChannelAcquisitionData.FILAMENT.equals(kind))
-			title = "Filament";
+			title = FILAMENT_TYPE;
 		else if (ChannelAcquisitionData.LIGHT_EMITTING_DIODE.equals(kind))
-			title = "Emitting Diode";
+			title = EMITTING_DIODE_TYPE;
 		lightPane.setBorder(BorderFactory.createTitledBorder(title));
 		
 		AcquisitionComponent comp;
@@ -272,10 +369,11 @@ class ChannelAcquisitionComponent
 			});
 		}
 
+		boolean set;
 		Iterator i = details.keySet().iterator();
-
         while (i.hasNext()) {
             key = (String) i.next();
+            set = !notSet.contains(key);
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -283,27 +381,36 @@ class ChannelAcquisitionComponent
             	if (key.equals(EditorUtil.TYPE)) {
             		selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_TYPE, (String) value);
-                	if (selected != null) 
+                	if (selected != null) {
                 		laserTypeBox.setSelectedItem(selected);
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+    						set = false;
+                	}
                 	laserTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = laserTypeBox;
             	} else if (key.equals(EditorUtil.MEDIUM)) {
                 	selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_MEDIUM, 
                 			(String) value);
-                	if (selected != null) 
+                	if (selected != null) {
                 		laserMediumBox.setSelectedItem(selected);
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+    						set = false;
+                	}
                 	laserMediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = laserMediumBox;
             	} else if (key.equals(EditorUtil.PULSE)) {
             		selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_PULSE, 
                 			(String) value);
-                	if (selected != null) 
+                	if (selected != null) {
                 		laserPulseBox.setSelectedItem(selected);
-                	else 
+                	} else {
+                		set = false;
                 		laserPulseBox.setSelectedIndex(
                 				laserPulseBox.getItemCount()-1);
+                	}
+                		
                 	laserPulseBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = laserPulseBox;
             	} else if (key.equals(EditorUtil.TUNEABLE)) { 
@@ -316,9 +423,11 @@ class ChannelAcquisitionComponent
             			else 
             				laserTuneableBox.setSelectedItem(
             						AcquisitionDataUI.BOOLEAN_NO);
-            		} else 
+            		} else {
             			laserTuneableBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
+            			set = false;
+            		}
             		laserTuneableBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserTuneableBox;
             	} else if (key.equals(EditorUtil.POCKEL_CELL)) {
@@ -331,25 +440,48 @@ class ChannelAcquisitionComponent
             			else 
             				laserPockelCellBox.setSelectedItem(
             						AcquisitionDataUI.BOOLEAN_NO);
-            		} else 
+            		} else {
+            			set = false;
             			laserPockelCellBox.setSelectedItem(
             					AnnotationDataUI.NO_SET_TEXT);
+            		}
             		laserPockelCellBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserPockelCellBox;
             	} 
             } else if (ChannelAcquisitionData.ARC.equals(kind)) {
-            	selected = model.getChannelEnumerationSelected(Editor.ARC_TYPE, 
-            			(String) value);
-            	if (selected != null) arcTypeBox.setSelectedItem(selected);
-            	arcTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = arcTypeBox;
+            	if (key.equals(EditorUtil.TYPE)) {
+            		selected = model.getChannelEnumerationSelected(
+            				Editor.ARC_TYPE, (String) value);
+                	if (selected != null) {
+                		arcTypeBox.setSelectedItem(selected);
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+    						set = false;
+                	}
+                	arcTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
+                	area = arcTypeBox;
+            	}
             } else if (ChannelAcquisitionData.FILAMENT.equals(kind)) {
-            	selected = model.getChannelEnumerationSelected(
-            			Editor.FILAMENT_TYPE, (String) value);
-            	if (selected != null) filamentTypeBox.setSelectedItem(selected);
-            	filamentTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = filamentTypeBox;
-            } 
+            	if (key.equals(EditorUtil.TYPE)) {
+            		selected = model.getChannelEnumerationSelected(
+                			Editor.FILAMENT_TYPE, (String) value);
+                	if (selected != null) {
+                		filamentTypeBox.setSelectedItem(selected);
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+    						set = false;
+                	}
+                	filamentTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
+                	area = filamentTypeBox;
+            	}
+            } else if (ChannelAcquisitionData.LIGHT_EMITTING_DIODE.equals(
+            		kind)) {
+            	if (key.equals(EditorUtil.TYPE)) {
+            		
+                	area = new JLabel();
+            	}
+            } else {
+            	lightTypeBox.setSelectedIndex(lightTypeBox.getItemCount()-1);
+            	area = lightTypeBox;
+            }
             if (value instanceof Number) {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);
@@ -376,14 +508,17 @@ class ChannelAcquisitionComponent
             		key.equals(EditorUtil.MANUFACTURER) ||
             		key.equals(EditorUtil.SERIAL_NUMBER)) {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
-            	if (value == null || value.equals("")) 
-                	value = AnnotationUI.DEFAULT_TEXT;
+            	if (value == null || value.equals("")) {
+            		set = false;
+            		value = AnnotationUI.DEFAULT_TEXT;
+            	}
             	 ((OMETextArea) area).setEditable(false);
             	 ((OMETextArea) area).setText((String) value);
             	 ((OMETextArea) area).setEditedColor(
             			 UIUtilities.EDITED_COLOR);
             }
             if (area != null) {
+            	area.setEnabled(!set);
             	comp = new AcquisitionComponent(label, area);
     			comp.setSetField(!notSet.contains(key));
     			fieldsLight.put(key, comp);
@@ -430,8 +565,10 @@ class ChannelAcquisitionComponent
 		}
 
 		Iterator i = details.keySet().iterator();
+		boolean set;
 		while (i.hasNext()) {
             key = (String) i.next();
+            set = !notSet.contains(key);
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -439,14 +576,21 @@ class ChannelAcquisitionComponent
             	selected = model.getChannelEnumerationSelected(Editor.BINNING, 
             			(String) value);
             	if (selected != null) binningBox.setSelectedItem(selected);
-            	else binningBox.setSelectedIndex(binningBox.getItemCount()-1);
+            	else {
+            		set = false;
+            		binningBox.setSelectedIndex(binningBox.getItemCount()-1);
+            	}
             	binningBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = binningBox;
             } else if (key.equals(EditorUtil.TYPE)) {
             	selected = model.getChannelEnumerationSelected(
             			Editor.DETECTOR_TYPE, 
             			(String) value);
-            	if (selected != null) detectorBox.setSelectedItem(selected);
+            	if (selected != null) {
+            		detectorBox.setSelectedItem(selected);
+            		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+						set = false;
+            	}
             	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = detectorBox;
             } else if (value instanceof Number) {
@@ -467,6 +611,7 @@ class ChannelAcquisitionComponent
             	 ((OMETextArea) area).setText((String) value);
             	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             }
+            area.setEnabled(!set);
             comp = new AcquisitionComponent(label, area);
 			comp.setSetField(!notSet.contains(key));
 			fieldsDetector.put(key, comp);
@@ -512,8 +657,10 @@ class ChannelAcquisitionComponent
 		}
 
 		Iterator i = details.keySet().iterator();
+		boolean set;
 		while (i.hasNext()) {
             key = (String) i.next();
+            set = !notSet.contains(key);
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -522,8 +669,12 @@ class ChannelAcquisitionComponent
             			Editor.ILLUMINATION_TYPE, 
             			(String) value);
             	if (selected != null) illuminationBox.setSelectedItem(selected);
-            	else illuminationBox.setSelectedIndex(
-            			illuminationBox.getItemCount()-1);
+            	else {
+            		set = false;
+            		illuminationBox.setSelectedIndex(
+            				illuminationBox.getItemCount()-1);
+            	}
+            			
             	illuminationBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = illuminationBox;
             } else if (key.equals(EditorUtil.CONTRAST_METHOD)) {
@@ -532,15 +683,22 @@ class ChannelAcquisitionComponent
             			(String) value);
             	if (selected != null) 
             		contrastMethodBox.setSelectedItem(selected);
-            	else contrastMethodBox.setSelectedIndex(
-            			contrastMethodBox.getItemCount()-1);
+            	else {
+            		set = false;
+            		contrastMethodBox.setSelectedIndex(
+            				contrastMethodBox.getItemCount()-1);
+            	}
+            			
             	contrastMethodBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = contrastMethodBox;
             } else if (key.equals(EditorUtil.MODE)) {
             	selected = model.getChannelEnumerationSelected(Editor.MODE, 
             			(String) value);
             	if (selected != null) modeBox.setSelectedItem(selected);
-            	else modeBox.setSelectedIndex(modeBox.getItemCount()-1);
+            	else {
+            		set = false;
+            		modeBox.setSelectedIndex(modeBox.getItemCount()-1);
+            	}
             	modeBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = modeBox;
             } else {
@@ -556,14 +714,17 @@ class ChannelAcquisitionComponent
              				UIUtilities.EDITED_COLOR);
             	} else {
             		area = UIUtilities.createComponent(OMETextArea.class, null);
-                	if (value == null || value.equals(""))
-                    	value = AnnotationUI.DEFAULT_TEXT;
+                	if (value == null || value.equals("")) {
+                		set = false;
+                		value = AnnotationUI.DEFAULT_TEXT;
+                	}
                 	((OMETextArea) area).setEditable(false);
                 	((OMETextArea) area).setText((String) value);
                 	((OMETextArea) area).setEditedColor(
                 			UIUtilities.EDITED_COLOR);
             	}
             }
+            area.setEnabled(!set);
             comp = new AcquisitionComponent(label, area);
 			comp.setSetField(!notSet.contains(key));
 			fieldsGeneral.put(key, comp);
@@ -573,9 +734,6 @@ class ChannelAcquisitionComponent
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	fieldsGeneral.clear();
-    	fieldsDetector.clear();
-    	fieldsLight.clear();
     	setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		parent.layoutFields(detectorPane, unsetDetector, fieldsDetector, 
@@ -612,6 +770,7 @@ class ChannelAcquisitionComponent
 		this.model = model;
 		this.channel = channel;
 		this.parent = parent;
+		initComponents();
 	}
 	
 	/**
@@ -623,13 +782,21 @@ class ChannelAcquisitionComponent
 	{
 		if (channel.getIndex() != index) return;
 		if (!init) {
-			initComponents();
+			init = true;
+			resetBoxes();
+			removeAll();
+	    	fieldsGeneral.clear();
+	    	fieldsDetector.clear();
+	    	fieldsLight.clear();
 			transformGeneralSource(EditorUtil.transformChannelData(channel));
 			ChannelAcquisitionData data = model.getChannelAcquisitionData(
 	    			channel.getIndex());
 			transformDetectorSource(EditorUtil.transformDetector(data));
-			transformLightSource(EditorUtil.transformLightSource(data));
-			removeAll();
+			Map<String, Object> details = EditorUtil.transformLightSource(null, 
+					data);
+			String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
+			details.remove(EditorUtil.LIGHT_TYPE);
+			transformLightSource(kind, details);
 			buildGUI();
 		}
 	}
@@ -664,7 +831,7 @@ class ChannelAcquisitionComponent
 		AcquisitionComponent comp;
 		Object value;
 		EnumerationObject enumObject;
-		
+		Number number;
 		Iterator<String> i; 
 		if (channel.isDirty()) {
 			i = fieldsGeneral.keySet().iterator();
@@ -676,26 +843,44 @@ class ChannelAcquisitionComponent
 					if (EditorUtil.NAME.equals(key)) {
 						channel.setName((String) value);
 					} else if (EditorUtil.PIN_HOLE_SIZE.equals(key)) {
-						channel.setPinholeSize((Float) value);
+						number = UIUtilities.extractNumber((String) value, 
+								Float.class);
+						if (number != null)
+							channel.setPinholeSize((Float) number);
 					} else if (EditorUtil.ND_FILTER.equals(key)) {
-						channel.setNDFilter((Float) value);
+						number = UIUtilities.extractNumber((String) value, 
+								Float.class);
+						if (number != null)
+							channel.setNDFilter((Float) number);
 					} else if (EditorUtil.POCKEL_CELL.equals(key)) {
-						channel.setPockelCell((Integer) value);
+						number = UIUtilities.extractNumber((String) value, 
+								Integer.class);
+						if (number != null)
+							channel.setPockelCell((Integer) value);
 					} else if (EditorUtil.EM_WAVE.equals(key)) {
-							channel.setEmissionWavelength((Integer) value);
+						number = UIUtilities.extractNumber((String) value, 
+								Integer.class);
+						if (number != null)
+							channel.setEmissionWavelength((Integer) number);
 					} else if (EditorUtil.EX_WAVE.equals(key)) {
-						channel.setExcitationWavelength((Integer) value);
+						number = UIUtilities.extractNumber((String) value, 
+								Integer.class);
+						if (number != null)
+							channel.setExcitationWavelength((Integer) number);
 					} else if (EditorUtil.ILLUMINATION.equals(key)) {
 						enumObject = (EnumerationObject) value;
-						channel.setIllumination(
+						if (enumObject.getObject() instanceof Illumination)
+							channel.setIllumination(
 								(Illumination) enumObject.getObject());
 					} else if (EditorUtil.MODE.equals(key)) {
 						enumObject = (EnumerationObject) value;
-						channel.setMode(
+						if (enumObject.getObject() instanceof AcquisitionMode)
+							channel.setMode(
 								(AcquisitionMode) enumObject.getObject());
 					} else if (EditorUtil.CONTRAST_METHOD.equals(key)) {
 						enumObject = (EnumerationObject) value;
-						channel.setContrastMethod(
+						if (enumObject.getObject() instanceof ContrastMethod)
+							channel.setContrastMethod(
 								(ContrastMethod) enumObject.getObject());
 					}
 				}
@@ -728,9 +913,15 @@ class ChannelAcquisitionComponent
 				} else if (EditorUtil.READ_OUT_RATE.equals(key)) {
 					//	channel.setExcitationWavelength((Integer) value);
 				} else if (EditorUtil.ZOOM.equals(key)) {
-					metadata.setDetectorZoom((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null)
+						metadata.setDetectorZoom((Float) number);
 				} else if (EditorUtil.AMPLIFICATION.equals(key)) {
-					metadata.setDetectorAmplificationGain((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null)
+						metadata.setDetectorAmplificationGain((Float) number);
 				}
 			}
 			added = true;
@@ -738,5 +929,5 @@ class ChannelAcquisitionComponent
 		}
 		return data;
 	}
-	
+
 }

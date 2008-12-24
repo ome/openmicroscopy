@@ -68,6 +68,11 @@ class EditorUI
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
 	
+	/** 
+	 * Creates the file menu.
+	 * 
+	 * @return See above.
+	 */
 	private JMenu createMenu()
 	{
 		JMenu menu = new JMenu("File");

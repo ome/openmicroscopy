@@ -26,13 +26,18 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
+
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import pojos.TextualAnnotationData;
 
 /** 
@@ -70,7 +75,9 @@ class TextualAnnotationComponent
         area.setText(data.getText());
     	String owner = model.formatOwner(data);
 		String date = model.formatDate(data);
-		UIUtilities.setBoldTitledBorder(owner+" "+date, area);
+		TitledLineBorder border = new TitledLineBorder(owner+" "+date);
+		border.setTitleFont(area.getFont().deriveFont(Font.BOLD));
+		area.setBorder(border);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -107,6 +114,7 @@ class TextualAnnotationComponent
 	{
 		area.setOriginalBackground(color);
 		setBackground(color);
+		((TitledLineBorder) area.getBorder()).setLineColor(color);
 	}
 	
 }

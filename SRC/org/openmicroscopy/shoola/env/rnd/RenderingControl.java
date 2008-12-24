@@ -681,10 +681,19 @@ public interface RenderingControl
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
-	 * Returns a list of active channels.
+	 * Returns a list of the active channels.
 	 * 
 	 * @return See above.
 	 */
     public List<Integer> getActiveChannels();
+    
+    /**
+	 * Returns <code>true</code> if the rendering settings are original, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param original The original settings. Mustn't be <code>null</code>.
+	 * @return See above.
+	 */
+    public boolean isOriginalSettings(RndProxyDef original);
     
 }

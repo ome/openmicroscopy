@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -845,6 +846,7 @@ class DataBrowserComponent
 			ExcelWriter writer = new ExcelWriter(name);
 			writer.openFile();
 			writer.createSheet("Tags");
+			
 			//write tags
 
 			String imageName;
@@ -914,8 +916,10 @@ class DataBrowserComponent
 				writer.writeElement(count+1, col, nodes.size());
 				writer.setCellStyle(count+2, col, 
 						ExcelWriter.TWODECIMALPOINTS);
+				double v = (double) nodes.size()/numberOfImages;
+				
 				writer.writeElement(count+2, col, 
-						((double) nodes.size()/numberOfImages)*100+"%");
+						UIUtilities.FormatToDecimal(v*100)+"%");
 				col++;
 			}
 			writer.sizeAllColumnsToFit();

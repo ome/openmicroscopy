@@ -120,6 +120,8 @@ public class CreateAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
         if (selectedDisplay == null) {
             setEnabled(false);
             name = NAME;  
@@ -151,7 +153,6 @@ public class CreateAction
             setEnabled(model.isObjectWritable(ho));
             //setEnabled(false);
             nodeType = CreateCmd.IMAGE;
-            IconManager im = IconManager.getInstance();
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 

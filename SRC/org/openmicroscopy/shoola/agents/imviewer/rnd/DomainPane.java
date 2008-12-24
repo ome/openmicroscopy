@@ -56,7 +56,6 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -251,15 +250,12 @@ class DomainPane
         p.add(Box.createRigidArea(VBOX));
         for (int j = 0; j < data.length; j++) {
         	d = data[j];
-        	item = new ChannelToggleButton(""+d.getEmissionWavelength(), 
+        	item = new ChannelToggleButton(""+d.getChannelLabeling(), 
         							model.getChannelColor(j), j);
         	channelList.add(item);
         	item.setSelected(model.getSelectedChannel() == j);
-
         	item.setGrayedOut(gs);
         	item.addPropertyChangeListener(controller);
-        	item.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
-        	item.setMinimumSize(ChannelButton.DEFAULT_MIN_SIZE);
             p.add(item);
             p.add(Box.createRigidArea(VBOX));
         }

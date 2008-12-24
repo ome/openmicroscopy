@@ -160,25 +160,38 @@ class ImageAcquisitionComponent
 				unsetStageShown);
 	}
 	
-	/** Initiliases the components. */
-	private void initComponents()
+	/** Resets the various boxes with enumerations. */
+	private void resetBoxes()
 	{
-		init = true;
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		List l = model.getImageEnumerations(Editor.IMMERSION);
+		List<EnumerationObject> l; 	
+		l = model.getImageEnumerations(Editor.IMMERSION);
 		immersionBox = EditorUtil.createComboBox(l);
 		l = model.getImageEnumerations(Editor.CORRECTION);
 		coatingBox = EditorUtil.createComboBox(l);
 		l = model.getImageEnumerations(Editor.MEDIUM);
-		l.add(new EnumerationObject(AnnotationDataUI.NO_SET_TEXT));
-		mediumBox = EditorUtil.createComboBox(l);
+		EnumerationObject[] array = new EnumerationObject[l.size()+1];
+		Iterator<EnumerationObject> j = l.iterator();
+		int i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		mediumBox = EditorUtil.createComboBox(array);
+	}
+	
+	/** Initiliases the components. */
+	private void initComponents()
+	{
+		resetBoxes();
 		String[] values = new String[3];
 		values[0] = AcquisitionDataUI.BOOLEAN_YES;
 		values[1] = AcquisitionDataUI.BOOLEAN_NO;
 		values[2] = AnnotationDataUI.NO_SET_TEXT;
 		irisBox = EditorUtil.createComboBox(values);
 		
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		fieldsObjective = new LinkedHashMap<String, AcquisitionComponent>();
 		fieldsEnv = new LinkedHashMap<String, AcquisitionComponent>();
 		fieldsStage = new LinkedHashMap<String, AcquisitionComponent>();
@@ -229,41 +242,56 @@ class ImageAcquisitionComponent
 			});
 		}
 
+		boolean set;
+		boolean b;
 		Iterator i = details.keySet().iterator();
 		while (i.hasNext()) {
 			key = (String) i.next();
+			set = !notSet.contains(key);
 			value = details.get(key);
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			if (key.equals(EditorUtil.IMMERSION)) {
 				selected = model.getImageEnumerationSelected(
 						Editor.IMMERSION, (String) value);
-				if (selected != null) 
+				if (selected != null) {
 					immersionBox.setSelectedItem(selected);
+					if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+						set = false;
+				}
 				immersionBox.setEditedColor(UIUtilities.EDITED_COLOR);
 				area = immersionBox;
 			} else if (key.equals(EditorUtil.CORRECTION)) {
 				selected = model.getImageEnumerationSelected(
 						Editor.CORRECTION, (String) value);
-				if (selected != null) coatingBox.setSelectedItem(selected);
+				if (selected != null) {
+					coatingBox.setSelectedItem(selected);
+					if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+						set = false;
+				}
 				area = coatingBox;
 				coatingBox.setEditedColor(UIUtilities.EDITED_COLOR);
 			} else if (key.equals(EditorUtil.MEDIUM)) {
 				selected = model.getImageEnumerationSelected(
 						Editor.MEDIUM, (String) value);
-				if (selected != null) mediumBox.setSelectedItem(selected);
+				if (selected != null) {
+					mediumBox.setSelectedItem(selected);
+				} else {
+					set = false;
+					mediumBox.setSelectedIndex(mediumBox.getItemCount()-1);
+				}
 				area = mediumBox;
 				mediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
 			} else if (key.equals(EditorUtil.IRIS)) {
-				boolean b;
         		if (value != null) {
         			b = (Boolean) value;
         			if (b) 
         				irisBox.setSelectedItem(AcquisitionDataUI.BOOLEAN_YES);
         			else irisBox.setSelectedItem(AcquisitionDataUI.BOOLEAN_NO);
-        		} else 
-        			irisBox.setSelectedItem(
-        					AnnotationDataUI.NO_SET_TEXT);
+        		} else {
+        			set = false;
+        			irisBox.setSelectedItem(AnnotationDataUI.NO_SET_TEXT);
+        		}
         		irisBox.setEditedColor(UIUtilities.EDITED_COLOR);
         		area = irisBox;
 			} else {
@@ -289,6 +317,7 @@ class ImageAcquisitionComponent
 							UIUtilities.EDITED_COLOR);
 				}
 			}
+			area.setEnabled(!set);
 			comp = new AcquisitionComponent(label, area);
 			comp.setSetField(!notSet.contains(key));
 			fieldsObjective.put(key, comp);
@@ -321,16 +350,20 @@ class ImageAcquisitionComponent
 			});
 		}
 
+		boolean set;
 		Iterator i = details.keySet().iterator();
 		while (i.hasNext()) {
             key = (String) i.next();
+			set = !notSet.contains(key);
             value = details.get(key);
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (value instanceof String) {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
-                if (value == null || value.equals(""))
-                 	value = AnnotationUI.DEFAULT_TEXT;
+                if (value == null || value.equals("")) {
+                	value = AnnotationUI.DEFAULT_TEXT;
+                	set = false;
+                }
                 ((OMETextArea) area).setText((String) value);
            	 	((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             } else {
@@ -346,7 +379,7 @@ class ImageAcquisitionComponent
             			UIUtilities.EDITED_COLOR);
             	
             }
-            
+            area.setEnabled(!set);
             comp = new AcquisitionComponent(label, area);
 			comp.setSetField(!notSet.contains(key));
 			fieldsStage.put(key, comp);
@@ -379,9 +412,11 @@ class ImageAcquisitionComponent
 			});
 		}
 
+		boolean set;
 		Iterator i = details.keySet().iterator();
 		while (i.hasNext()) {
 			key = (String) i.next();
+			set = !notSet.contains(key);
 			value = details.get(key);
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -404,13 +439,15 @@ class ImageAcquisitionComponent
 			} else {
 				area = UIUtilities.createComponent(
 						OMETextArea.class, null);
-				if (value == null || value.equals(""))
+				if (value == null || value.equals("")) {
 					value = AnnotationUI.DEFAULT_TEXT;
+					set = false;
+				}
 				((OMETextArea) area).setText((String) value);
 				((OMETextArea) area).setEditedColor(
 						UIUtilities.EDITED_COLOR);
 			}
-
+			area.setEnabled(!set);
 			comp = new AcquisitionComponent(label, area);
 			comp.setSetField(!notSet.contains(key));
 			fieldsEnv.put(key, comp);
@@ -454,7 +491,7 @@ class ImageAcquisitionComponent
 			throw new IllegalArgumentException("No parent.");
 		this.parent = parent;
 		this.model = model;
-		//initComponents();
+		initComponents();
 		//buildGUI();
 	}
 	
@@ -462,10 +499,12 @@ class ImageAcquisitionComponent
 	void setImageAcquisitionData()
 	{
 		if (!init) {
-			initComponents();
+			init = true;
+			resetBoxes();
 			removeAll();
 			buildGUI();
 		}
+		
 	}
 	
 	/** Clears the data. */
@@ -508,6 +547,8 @@ class ImageAcquisitionComponent
 		
 		Iterator<String> i = fieldsObjective.keySet().iterator();
 		//objective
+		Number number;
+		Boolean bool;
 		while (i.hasNext()) {
 			key = i.next();
 			comp = fieldsObjective.get(key);
@@ -522,9 +563,14 @@ class ImageAcquisitionComponent
 				} else if (EditorUtil.NOMINAL_MAGNIFICATION.equals(key)) {
 					data.setNominalMagnification((Integer) value);
 				} else if (EditorUtil.CALIBRATED_MAGNIFICATION.equals(key)) {
-					data.setCalibratedMagnification((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null)
+						data.setCalibratedMagnification((Float) number);
 				} else if (EditorUtil.LENSNA.equals(key)) {
-					data.setLensNA((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setLensNA((Float) number);
 				} else if (EditorUtil.IMMERSION.equals(key)) {
 					enumObject = (EnumerationObject) value;
 					data.setImmersion((Immersion) enumObject.getObject());
@@ -532,35 +578,59 @@ class ImageAcquisitionComponent
 					enumObject = (EnumerationObject) value;
 					data.setCorrection((Correction) enumObject.getObject());
 				} else if (EditorUtil.WORKING_DISTANCE.equals(key)) {
-					data.setWorkingDistance((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setWorkingDistance((Float) number);
 				} else if (EditorUtil.MEDIUM.equals(key)) {
 					enumObject = (EnumerationObject) value;
-					data.setMedium((Medium) enumObject.getObject());
+					if (enumObject.getObject() instanceof Medium)
+						data.setMedium((Medium) enumObject.getObject());
 				} else if (EditorUtil.REFRACTIVE_INDEX.equals(key)) {
-					data.setRefractiveIndex((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setRefractiveIndex((Float) number);
 				} else if (EditorUtil.IRIS.equals(key)) {
-					data.setIris((Boolean) value);
+					bool = parent.convertToBoolean((String) value);
+					if (bool != null) data.setIris(bool);
 				} else if (EditorUtil.CORRECTION_COLLAR.equals(key)) {
-					data.setCorrectionCollar((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) 
+						data.setCorrectionCollar((Float) number);
 				} 
 			}
 		}
 		
 		//environment
 		i = fieldsEnv.keySet().iterator();
+		float v;
 		while (i.hasNext()) {
 			key = i.next();
 			comp = fieldsEnv.get(key);
 			if (comp.isDirty()) {
 				value = comp.getAreaValue();
 				if (EditorUtil.TEMPERATURE.equals(key)) {
-					data.setTemperature((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setTemperature((Float) number);
 				} else if (EditorUtil.AIR_PRESSURE.equals(key)) {
-					data.setAirPressure((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setAirPressure((Float) number);
 				} else if (EditorUtil.HUMIDITY.equals(key)) {
-					data.setHumidity((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) {
+						v = ((Float) number) /100;
+						data.setHumidity(v);
+					}
 				} else if (EditorUtil.CO2_PERCENT.equals(key)) {
-					data.setCo2Percent((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) {
+						v = ((Float) number) /100;
+						data.setCo2Percent(v);
+					}
 				}
 			}
 		}
@@ -576,11 +646,17 @@ class ImageAcquisitionComponent
 				if (EditorUtil.NAME.equals(key)) {
 					data.setLabelName((String) value);
 				} else if (EditorUtil.POSITION_X.equals(key)) {
-					data.setPositionX((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setPositionX((Float) number);
 				} else if (EditorUtil.POSITION_Y.equals(key)) {
-					data.setPositionY((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setPositionY((Float) number);
 				} else if (EditorUtil.POSITION_Z.equals(key)) {
-					data.setPositionZ((Float) value);
+					number = UIUtilities.extractNumber((String) value, 
+							Float.class);
+					if (number != null) data.setPositionZ((Float) number);
 				}
 			}
 		}

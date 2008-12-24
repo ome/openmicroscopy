@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -206,6 +205,7 @@ class OmeroImageServiceImpl
 	 */
 	public void shutDown(long pixelsID)
 	{
+		gateway.removeREService(pixelsID);
 		PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
 	}
 

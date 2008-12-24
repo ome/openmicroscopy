@@ -28,13 +28,14 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
+import javax.swing.LookAndFeel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Customised {@link JComboBox}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -95,6 +96,10 @@ public class OMEComboBox
 		setEditedColor(editedColor);
 		addActionListener(new ActionListener() {
 		
+			/**
+			 * Updates the colors.
+			 * @see ActionListener#actionPerformed(ActionEvent)
+			 */
 			public void actionPerformed(ActionEvent e) {
 				updateForeground();
 			}
@@ -136,5 +141,12 @@ public class OMEComboBox
 		this.editedColor = editedColor;
 	}
 
+	public void setBackground(Color c)
+	{
+		super.setBackground(c);
+		
+		//this.setUIProperty("ComboBox.disabledBackground", c);
+	}
+	
 }
 

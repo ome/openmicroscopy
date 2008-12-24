@@ -31,7 +31,9 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * Loads the file to edit. 
@@ -79,12 +81,9 @@ public class FileLoader
 		super(viewer);
 		if (fileID < 0)
 			throw new IllegalArgumentException("ID not valid.");
-		if (fileSize <= 0)
-			throw new IllegalArgumentException("The file's size should " +
-					"be positive.");
 		this.fileID = fileID;
 		this.fileSize = fileSize;
-		file = new File(fileName);
+		if (fileName != null) file = new File(fileName);
 	}
 	
 	/**
@@ -93,7 +92,10 @@ public class FileLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadFile(file, fileID, fileSize, this);
+		if (fileSize <= 0)
+			handle = mhView.loadFile(fileID, this);
+		else
+			handle = mhView.loadFile(file, fileID, fileSize, this);
 	}
 
 	/**
@@ -102,6 +104,23 @@ public class FileLoader
 	 */
 	public void cancel() { handle.cancel(); }
 
+	 /**
+     * Overridden to indicate that no file with the specified id 
+     * existed on the server.
+     * @see DSCallAdapter#handleException(Throwable)
+     */
+    public void handleException(Throwable exc) 
+    {
+    	String s = "Data Retrieval Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        registry.getUserNotifier().notifyInfo("Loading File.", "" +
+        		"The file with the specified id has not previously " +
+        		"been saved.\n Please check the id.");
+    }
+    
 	/**
 	 * Feeds the result back to the viewer.
 	 * @see EditorLoader#handleResult(Object)
@@ -114,7 +133,7 @@ public class FileLoader
 			viewer.setFileToEdit(file);
 			// don't need to keep a copy. Delete the local copy after 
 			// opening in viewer. 
-			//file.delete();
+			file.delete();
 		}
 	}
     

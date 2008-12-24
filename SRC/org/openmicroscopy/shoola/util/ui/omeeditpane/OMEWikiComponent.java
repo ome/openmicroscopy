@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -137,13 +139,13 @@ public class OMEWikiComponent
 		DEFAULT_FORMATTERS = new LinkedHashMap<String, FormatSelectionAction>();
 		DEFAULT_FORMATTERS.put(URLREGEX, 
 				new FormatSelectionAction(
-				new ColourFormatter(Formatter.DEFAULT_URL, true), 
+				new ColourFormatter(Formatter.DEFAULT_URL, false), 
 				new URLLaunchAction()));
 		DEFAULT_FORMATTERS.put(IMAGEREGEX, 
 				new FormatSelectionAction(
 				new ColourFormatter(Formatter.DEFAULT_LINK), 
 				new ElementSelectionAction(WikiDataObject.IMAGE)));
-		DEFAULT_FORMATTERS.put(IMAGEREGEX, 
+		DEFAULT_FORMATTERS.put(PROTOCOLREGEX, 
 				new FormatSelectionAction(
 				new ColourFormatter(Formatter.DEFAULT_LINK), 
 				new ElementSelectionAction(WikiDataObject.PROTOCOL)));
@@ -199,16 +201,22 @@ public class OMEWikiComponent
 		toolBar.setFloatable(false);
 		installDefaultToolBarAction();
 		Iterator<JButton> b = toolBarActions.iterator();
-		while (b.hasNext()) {
+		while (b.hasNext()) 
 			toolBar.add(b.next());
-		}
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(UIUtilities.buildComponentPanel(toolBar, 0, 0), BorderLayout.NORTH);
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(Box.createVerticalStrut(5));
+		JPanel bar = UIUtilities.buildComponentPanel(toolBar, 0, 0);
+		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(bar);
+		add(p, BorderLayout.NORTH);
 		add(pane, BorderLayout.CENTER);
 	}
 	
@@ -253,7 +261,7 @@ public class OMEWikiComponent
 			ElementSelectionAction a = (ElementSelectionAction) action;
 			int index = a.getWikiDataObjectIndex();
 			long id = a.getObjectID();
-			if (id >=0) {
+			if (id >= 0) {
 				WikiDataObject object = new WikiDataObject(index, id);
 				firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
 			}
@@ -371,16 +379,19 @@ public class OMEWikiComponent
 				if (isDefaultText(s))
 					setText(OMEWikiConstants.DEFAULT_IMAGE);
 				else setText(s+" "+OMEWikiConstants.DEFAULT_IMAGE);
+				pane.requestFocus();
 				break;
 			case HYPERLINK:
 				if (isDefaultText(s))
 					setText(OMEWikiConstants.DEFAULT_HYPERLINK);
 				else setText(s+" "+OMEWikiConstants.DEFAULT_HYPERLINK);
+				pane.requestFocus();
 				break;
 			case PROTOCOL:
 				if (isDefaultText(s))
 					setText(OMEWikiConstants.DEFAULT_PROTOCOL);
 				else setText(s+" "+OMEWikiConstants.DEFAULT_PROTOCOL);
+				pane.requestFocus();
 		}
 	}
 	

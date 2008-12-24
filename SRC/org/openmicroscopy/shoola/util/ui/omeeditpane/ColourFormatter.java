@@ -99,6 +99,7 @@ public class ColourFormatter
  		int newX;
     	g.setColor(colour);
     	newX =  Utilities.drawTabbedText(s, x, y, g, e, startOffset);
+    	
     	Highlighter hilite = editor.getHighlighter();
     	if (underline) {
     		try

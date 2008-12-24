@@ -907,20 +907,13 @@ class ImViewerUI
 					height += vExtra;
 					heightAdded = vExtra;
 				}
-				//
-				/*
-				height += 2*heightAdded;
-				heightAdded += historySplit.getDividerSize();
-				height += historySplit.getDividerSize()+
-							(refInsets.top+refInsets.bottom);
-							*/
 				width = restoreSize.width+d.width;
 				
 				// check when pref on, seems to be the problem
 				widthAdded = rendererSplit.getDividerSize();
 				width += rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
-				
+				rendererSplit.setResizeWeight(0.6);
 				addComponents(rendererSplit, tabs, rightComponent);
 				container.add(rendererSplit, BorderLayout.CENTER);
 				break;

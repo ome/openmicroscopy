@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.io.File;
-
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
@@ -78,7 +77,7 @@ class EditorModel
 	
 	/** The file retrieved either from the DB or local machine. */
 	private File			fileToEdit;
-	
+
 	/**	The browser component */
 	private Browser 		browser;
 	
@@ -90,6 +89,20 @@ class EditorModel
 	
 	/** Reference to the component that embeds this model. */
 	private Editor			component;
+	
+	/**
+	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
+	 * Returns <code>true</code> if the file can be parsed, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param file The file to save.
+	 * @return See above
+	 */
+	private boolean saveFile(File file)
+	{
+		UPEexport xmlExport = new UPEEditorExport();
+		return xmlExport.export(getBrowser().getTreeModel(), file);
+	}
 	
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
@@ -104,6 +117,18 @@ class EditorModel
 		this.fileID = fileID;
 		this.fileName = fileName;
 		this.fileSize = fileSize;
+	}
+	
+	/** 
+	 * Creates a new instance and sets the state to {@link Editor#NEW}.
+	 * 
+	 * @param fileID	The id of the file to edit.
+	 */
+	EditorModel(long fileID)
+	{
+		state = Editor.NEW;
+		this.fileID = fileID;
+		fileSize = 0;
 	}
 	
 	/**
@@ -213,6 +238,7 @@ class EditorModel
 	 * the state of this model is re-set to {@link Editor#NEW}.
 	 * 
 	 * @param file The file to edit.
+	 * @return See above.
 	 */
 	boolean setFileToEdit(File file)
 	{
@@ -224,7 +250,6 @@ class EditorModel
 			// browser.setTreeModel(null);
 			return false;
 		}
-		
 		fileToEdit = file;
 		fileName = file.getName();
 		browser.setTreeModel(treeModel);
@@ -271,6 +296,11 @@ class EditorModel
 		return false;
 	}
 	
+	/**
+	 * Starts an asynchronous call to save the passed file back to the server.
+	 * 
+	 * @param file The file to save.
+	 */
 	void fireFileSaving(File file)
 	{
 		saveFile(file);
@@ -305,17 +335,5 @@ class EditorModel
 	 * @param state The value to set.
 	 */
 	void setState(int state) { this.state = state; }
-	
-	/**
-	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
-	 * 
-	 * @param file
-	 * @return
-	 */
-	private boolean saveFile(File file)
-	{
-		UPEexport xmlExport = new UPEEditorExport();
-		return xmlExport.export(getBrowser().getTreeModel(), file);
-	}
 	
 }

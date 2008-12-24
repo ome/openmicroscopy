@@ -41,7 +41,7 @@
     </structuredEntry>
     
     <!-- default fs directory -->
-    <entry name="/services/FS/defaultDirectory">/home/cblackburn/tmp/</entry>
+    <entry name="/services/FS/defaultDirectory">/home/donald/tmp/</entry>
     
     <!-- The maximum number of times that the Login Service should attempt
          to restore a valid link to OMERO server in the background. 

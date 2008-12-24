@@ -220,7 +220,8 @@ class WikiView
 	 * int, int, int, int)
 	 */
 	protected int drawUnselectedText(Graphics graphics, int x, int y, int p0,
-			int p1) throws BadLocationException 
+			int p1) 
+		throws BadLocationException 
 	{
 		TextFormatter.removeHighlights(editorPane);
 		Document doc = getDocument();
@@ -234,12 +235,11 @@ class WikiView
 		Position p;
 		
 		Iterator<Position> positionIterator = tokenLocations.keySet().iterator();
-		while(positionIterator.hasNext())
+		while (positionIterator.hasNext())
 		{
 			p = positionIterator.next();
 			if (i < p.getStart()) 
 			{ 
-				//graphics.setColor(Color.black);
 				graphics.setColor(editorPane.getForeground());
 				doc.getText(p0+i, p.getStart()-i, segment);
 				x = Utilities.drawTabbedText(segment, x, y, graphics, this, i);
@@ -256,7 +256,6 @@ class WikiView
 		// 	Paint possible remaining text black
 		if (i < text.length()) 
 		{
-			//graphics.setColor(Color.black);
 			graphics.setColor(editorPane.getForeground());
 			doc.getText(p0+i, text.length()-i, segment);
 			x = Utilities.drawTabbedText(segment, x, y, graphics, this, i);
@@ -266,11 +265,11 @@ class WikiView
 	
 	/**
 	 * Overridden to control if the passed object equals the current one.
-	 * @see javax.swing.text.PlainView#drawSelectedText(Graphics, 
-	 * int, int, int, int)
+	 * @see javax.swing.text.PlainView#drawSelectedText(Graphics, int, int, 
+	 * int, int)
 	 */
 	protected int drawSelectedText(Graphics g, int x, int y, int p0, int p1) 
-											throws BadLocationException 
+		throws BadLocationException 
 	{
 		return drawUnselectedText(g, x, y, p0, p1);
 	}

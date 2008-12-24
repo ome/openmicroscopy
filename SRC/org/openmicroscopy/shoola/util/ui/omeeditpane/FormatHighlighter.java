@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
-
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
@@ -72,7 +71,6 @@ class FormatHighlighter
 		this.thickness = thickness;
     }
 	
-	
 	/**
 	 * Paints a thick line under one line of text, from r extending rightward to
 	 * x2
@@ -112,7 +110,7 @@ class FormatHighlighter
 			return;
 		
 		g.setColor(c.getSelectionColor());
-		
+
 		// special case if p0 and p1 are on the same line
 		if (r0.y == r1.y)
 		{

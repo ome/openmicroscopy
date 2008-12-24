@@ -254,7 +254,7 @@ class RendererModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setFamily(String family)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
 		double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
@@ -270,7 +270,7 @@ class RendererModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setCurveCoefficient(double k)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
 		String family = rndControl.getChannelFamily(selectedChannelIndex);
@@ -287,7 +287,7 @@ class RendererModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setNoiseReduction(boolean b)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		String family = rndControl.getChannelFamily(selectedChannelIndex);
 		double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);

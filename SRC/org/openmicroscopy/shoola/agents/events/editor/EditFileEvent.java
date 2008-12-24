@@ -56,6 +56,12 @@ public class EditFileEvent
 	/** The size of the file to edit. */
 	private long 	fileSize;
 	
+	/** 
+	 * Flag indicating that we only have the id of the file is the 
+	 * Id of the annotation.
+	 */
+	private boolean	annotationData;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -69,6 +75,25 @@ public class EditFileEvent
 		this.fileID = fileID;
 		this.fileSize = fileSize;
 	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param fileID The id of the file to edit.
+	 */
+	public EditFileEvent(long fileID)
+	{
+		this.fileID = fileID;
+		annotationData = true;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the event for the annotation,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isAnnotationData() { return annotationData; }
 	
 	/**
 	 * Returns the id of the file to edit.

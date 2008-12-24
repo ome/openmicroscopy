@@ -33,6 +33,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 //Third-party libraries
 
@@ -45,8 +47,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -75,10 +75,7 @@ public class DataServicesFactory
 	 * application should wait before exiting if the server is not responding. 
 	 */
 	private static final int		EXIT_TIMEOUT = 10000;
-	
-	/** The time after which a question will be asked to the user. */
-	private static final int		IDLE_TIME = 3600000;
-	
+	 
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
@@ -128,8 +125,9 @@ public class DataServicesFactory
      */
     private Timer 					timer;
     
-    /** The starting time in milliseconds. */
-    private long					start;
+    /** Keeps the client's session alive. */
+	private ScheduledThreadPoolExecutor	executor;
+	
     
     private Properties 				fsConfig;
     
@@ -172,13 +170,13 @@ public class DataServicesFactory
 	{
 		registry = c.getRegistry();
 		container = c;
+		
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
         
 		//Try and read the Ice config file.
 		//Properties config = loadConfig(c.resolveConfigFile(ICE_CONFIG_FILE));
 		
 		//Check what to do if null.
-		//omeroGateway = new OMEROGateway(config, this);
         omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
         
         //omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
@@ -186,6 +184,10 @@ public class DataServicesFactory
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
         is = new OmeroImageServiceImpl(omeroGateway, registry);
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
+        
+        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
+        executor = new ScheduledThreadPoolExecutor(1);
+        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
         
         //fs stuff
         fsConfig = loadConfig(c.resolveConfigFile(FS_CONFIG_FILE));
@@ -245,56 +247,6 @@ public class DataServicesFactory
 	 */
 	void sessionExpiredExit()
 	{
-		long time = System.currentTimeMillis();
-		long diff = time-start;
-		
-		if (diff<IDLE_TIME) {
-			start = time;
-			//reconnect 
-			try {
-        		UserCredentials uc = (UserCredentials) 
-    				container.getRegistry().lookup(
-    						LookupNames.USER_CREDENTIALS);
-        		initTimer();
-    			((OmeroImageServiceImpl) is).shutDown();
-    			omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
-    			timer.cancel();
-			} catch (Exception e) {
-				UserNotifier un = registry.getUserNotifier();
-				un.notifyInfo("Reconnect", "An error while trying to " +
-						"reconnect.\n The application will now exit. ");
-				exitApplication();
-			}
-		} else { //ask user
-			MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
-					"Time out", "Your session has expired.\n" +
-					"The changes you might have made have not been " +
-					"saved. \n" +
-					"To do so, you will need to reactivate " +
-			"the session.");
-			msg.setYesText("Reconnect");
-			msg.setNoText("Exit");
-			try {
-				if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
-					exitApplication();
-				} else {
-					try {
-						UserCredentials uc = (UserCredentials) 
-						container.getRegistry().lookup(
-								LookupNames.USER_CREDENTIALS);
-						initTimer();
-						((OmeroImageServiceImpl) is).shutDown();
-						omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
-						timer.cancel();
-					} catch (Exception e) {
-						UserNotifier un = registry.getUserNotifier();
-						un.notifyInfo("Reconnect", "An error while trying to " +
-						"reconnect.\n The application will now exit. ");
-						exitApplication();
-					}
-				}
-			} catch (Exception e) {}
-		}
 		/*
 		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
 							"Time out", "Your session has expired.\n" +
@@ -447,9 +399,6 @@ public class DataServicesFactory
 			agentInfo.getRegistry().bind(LookupNames.CONNECTION_SPEED, 
 					fastConnection);
 		}
-		
-		//set the start time
-		start = System.currentTimeMillis();
 	}
 	
 	/**
@@ -467,12 +416,14 @@ public class DataServicesFactory
     { 
         ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 
+        executor.shutdown();
+        executor = null;
     }
 	
 	/** Shuts the services down and exits the application. */
 	public void exitApplication()
 	{
-		initTimer();
+		//initTimer();
 		shutdown();
 		container.exit();
 	}

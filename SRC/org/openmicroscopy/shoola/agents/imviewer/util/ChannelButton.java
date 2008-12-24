@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,6 +61,9 @@ public class ChannelButton
 	/** The default size of the component. */
 	public static final Dimension 	DEFAULT_MIN_SIZE = new Dimension(30, 30);
 	
+	/** The default size of the component. */
+	public static final Dimension 	DEFAULT_MAX_SIZE = new Dimension(40, 40);
+	
 	
     /** Bound property indicating to bring up the info dialog. */
     public static final String  	INFO_PROPERTY = "info";
@@ -76,10 +80,10 @@ public class ChannelButton
     public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
     
     /** The description associated to this channel. */
-	private static final String		DESCRIPTION= "Toggle this channel on/off.";
+	private static final String		DESCRIPTION = "Toggle this channel on/off.";
 	
     /** The index of the channel. */
-    private final int               index;
+    protected final int               index;
     
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
@@ -140,6 +144,25 @@ public class ChannelButton
     }
     
     /**
+     * Returns the preferred dimension of the component.
+     * 
+     * @param decrease The value by which the size of the font is decrease.
+     * @return See above
+     */
+    private Dimension setComponentSize(int decrease)
+    {
+    	 Font f = getFont();
+         setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+         int width = getFontMetrics(getFont()).stringWidth(getText());
+         Dimension d = DEFAULT_MIN_SIZE;
+         if (width > DEFAULT_MIN_SIZE.width &&
+         		width < DEFAULT_MAX_SIZE.width) d = new Dimension(width, width);
+         else if (width > DEFAULT_MAX_SIZE.width)
+        	 return setComponentSize(decrease-1);
+         return d;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param text      The text of the button. The text should correspond to
@@ -162,6 +185,7 @@ public class ChannelButton
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
         setToolTipText(DESCRIPTION);
+        setPreferredSize(setComponentSize(0));
     }
     
     /**

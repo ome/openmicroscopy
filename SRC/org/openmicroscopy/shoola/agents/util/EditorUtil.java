@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.agents.util;
 
 
-
-
-
 //Java imports
 import java.awt.Font;
 import java.sql.Timestamp;
@@ -1139,10 +1136,11 @@ public class EditorUtil
     /**
      * Transforms the detector and its settings.
      * 
+     * @param kind 	The kind of light source or <code>null</code>.
      * @param data	The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformLightSource(
+    public static Map<String, Object> transformLightSource(String kind, 
     		ChannelAcquisitionData data)
     {
     	LinkedHashMap<String, Object> 
@@ -1191,7 +1189,8 @@ public class EditorUtil
     	if (s == null || s.trim().length() == 0) 
 			notSet.add(TYPE);
         details.put(TYPE, s); 
-        s = data.getLightSourceKind();
+        if (kind == null) s = data.getLightSourceKind();
+        else s = kind;
         if (ChannelAcquisitionData.LASER.equals(s)) {
         	s = data.getLaserMedium();
         	if (s == null || s.trim().length() == 0) 

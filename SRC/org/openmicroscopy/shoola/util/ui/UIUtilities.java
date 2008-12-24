@@ -1315,4 +1315,27 @@ public class UIUtilities
 		return comp;
 	}
 	
+	/**
+	 * Converts the passed string into a number.
+	 * 
+	 * @param value The value to parse.
+	 * @param type	The type of number.
+	 * @return See above.
+	 */
+	public static Number extractNumber(String value, Class type)
+	{
+		if (value == null) return null;
+		try {
+			if (Integer.class.equals(type)) 
+				return Integer.parseInt(value);
+			else if (Float.class.equals(type)) 
+				return Float.parseFloat(value);
+			else if (Double.class.equals(type)) 
+				return Double.parseDouble(value);
+		} catch (Exception e) {}
+			
+		return null;
+		
+	}
+	
 }

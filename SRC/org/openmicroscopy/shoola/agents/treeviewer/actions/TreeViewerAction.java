@@ -173,6 +173,7 @@ public abstract class TreeViewerAction
 					setEnabled(false);
 					break;
 				case TreeViewer.EXPLORER_MODE:
+					setEnabled(true);
 					Browser browser = model.getSelectedBrowser();
 					TreeImageDisplay v = null;
 					if (browser != null) v = browser.getLastSelectedDisplay();

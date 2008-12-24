@@ -265,6 +265,17 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadFile(long, AgentEventListener)
+	 */
+	public CallHandle loadFile(long fileAnnotationID,
+				AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FileDownloader(fileAnnotationID); 
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadOriginalFile(long, AgentEventListener)
 	 */
 	public CallHandle loadOriginalFile(long pixelsID, 

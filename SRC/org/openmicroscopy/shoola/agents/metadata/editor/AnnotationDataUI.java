@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -369,6 +370,7 @@ class AnnotationDataUI
 
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
+		setBorder(new SeparatorOneLineBorder());
 		add(content);
 	}
 	

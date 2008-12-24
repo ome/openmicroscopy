@@ -78,6 +78,23 @@ public class FileDownloader
     }
     
     /**
+     * Creates a {@link BatchCall} to download a file previously loaded.
+     * 
+	 * @param fileAnnotationID	The id of the file to download.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final long fileAnnotationID)
+    {
+        return new BatchCall("Downloading files.") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService service = context.getMetadataService();
+                result = service.downloadFile(fileAnnotationID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -92,13 +109,23 @@ public class FileDownloader
     /**
      * Creates a new instance.
      * 
-	 * @param absolutePath	The absolute form of this abstract pathname.
-	 * @param fileID		The id of the file to download.
-	 * @param size			The size of the file.
+	 * @param file	 	The file where to write the data.
+	 * @param fileID	The id of the file to download.
+	 * @param size		The size of the file.
      */
     public FileDownloader(File file, long fileID, long size)
     {
     	loadCall = makeBatchCall(file, fileID, size);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+	 * @param fileAnnotationID	The id of the file annotation to download.
+     */
+    public FileDownloader(long fileAnnotationID)
+    {
+    	loadCall = makeBatchCall(fileAnnotationID);
     }
     
 }

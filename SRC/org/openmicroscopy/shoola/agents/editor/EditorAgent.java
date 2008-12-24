@@ -89,12 +89,17 @@ public class EditorAgent
 	private void handleFileEdition(EditFileEvent event)
 	{
 		if (event == null) return;
-		String name = event.getFileName();
-		if (name == null) return;
-		EditorFileFilter filter = new EditorFileFilter();
-		if (!filter.accept(name)) return;
-		Editor editor = EditorFactory.getEditor(name, 
-								event.getFileID(), event.getFileSize());
+		Editor editor;
+		if (event.isAnnotationData()) {
+			editor = EditorFactory.getEditor(event.getFileID());
+		} else {
+			String name = event.getFileName();
+			if (name == null) return;
+			EditorFileFilter filter = new EditorFileFilter();
+			if (!filter.accept(name)) return;
+			editor = EditorFactory.getEditor(name, 
+					event.getFileID(), event.getFileSize());
+		}
 		if (editor != null)
 			editor.activate();		// starts file downloading
 	}

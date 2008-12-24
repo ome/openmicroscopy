@@ -47,15 +47,12 @@ import org.openmicroscopy.shoola.util.ui.ColouredButton;
  * @since OME2.2
  */
 public class ChannelToggleButton 
-    extends ColouredButton
+    extends ChannelButton//ColouredButton
 {
 
     /** Bound property indicating that the channel is selected. */
 	public static final String		CHANNEL_PICKED_PROPERTY = "channelPicked";
 
-    /** The channel index. */
-	private final int    index;
-	
 	/**
      * Creates a new instance.
      * 
@@ -65,8 +62,8 @@ public class ChannelToggleButton
 	 */
 	public ChannelToggleButton(String text, Color color, int i)
     {
-		super(text, color);
-		index = i;
+		super(text, color, i);
+		setToolTipText("");
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e)
             { 

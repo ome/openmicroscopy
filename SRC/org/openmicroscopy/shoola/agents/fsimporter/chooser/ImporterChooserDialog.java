@@ -48,7 +48,6 @@ import javax.swing.filechooser.FileSystemView;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -218,6 +217,7 @@ public class ImporterChooserDialog
 		}
 		//chooser.approveSelection();
 		firePropertyChange(MONITOR_PROPERTY, null, file);
+		close();
 	}
 	
 	/**

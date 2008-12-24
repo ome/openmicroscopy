@@ -539,7 +539,7 @@ class IntensityView
 				if (model.isChannelActive(channel)) 
 				{
 					channelName.put(channel,
-						model.getMetadata(channel).getEmissionWavelength()+"");
+						model.getMetadata(channel).getChannelLabeling());
 					nameMap.put(channelName.get(channel), channel);
 					channelColour.put(channel, 
 						(Color)model.getActiveChannels().get(channel));

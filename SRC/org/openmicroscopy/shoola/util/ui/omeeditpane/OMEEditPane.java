@@ -24,8 +24,9 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
@@ -50,6 +51,7 @@ import javax.swing.JTextPane;
  */
 class OMEEditPane
 	extends JTextPane
+	implements FocusListener
 {
 	
 	/** The type of the document. */
@@ -101,16 +103,24 @@ class OMEEditPane
 			}
 		
 		});
+	    addFocusListener(this);
 	}
-	
+
 	/**
-	 * Overridden to set the foreground color of the {@link #pane}.
-	 * @see JTextPane#setForeground(Color)
+	 * Required by the {@link FocusListener} I/F.
+	 * @see FocusListener#focusGained(FocusEvent)
 	 */
-	public void setForeground(Color color)
+	public void focusGained(FocusEvent e)
 	{
-		super.setForeground(color);
+		setText(getText());
 	}
+
+	/**
+	 * Required by the {@link FocusListener} I/F but no-op implementation in 
+	 * our case.
+	 * @see FocusListener#focusLost(FocusEvent)
+	 */
+	public void focusLost(FocusEvent e) {}
 	 
 }
 

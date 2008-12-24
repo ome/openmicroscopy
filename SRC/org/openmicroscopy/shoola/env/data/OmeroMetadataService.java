@@ -480,6 +480,19 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param fileAnnotationID	The id of the file annotation to download.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public File downloadFile(long fileAnnotationID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * 
 	 * @param nodeType
 	 * @param nodeIds

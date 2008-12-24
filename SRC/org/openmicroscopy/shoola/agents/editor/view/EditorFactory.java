@@ -60,11 +60,15 @@ public class EditorFactory
 	implements ChangeListener
 {
 
+	/** 
+	 * String indicating that the editor is opened without reference to
+	 * any specific file.
+	 */
+	public static final String BLANK_MODEL = "No File Open";
+	
 	/** The sole instance. */
 	private static final EditorFactory  singleton = new EditorFactory();
 
-	public static final String BLANK_MODEL = "No File Open";
-	
 	/**
 	 * Returns the {@link Editor}.
 	 * 
@@ -76,6 +80,18 @@ public class EditorFactory
 	public static Editor getEditor(String fileName, long fileID, long fileSize)
 	{
 		EditorModel model = new EditorModel(fileName, fileID, fileSize);
+		return singleton.getEditor(model);
+	}
+	
+	/**
+	 * Returns the {@link Editor}.
+	 * 
+	 * @param fileID    The id of the file to edit.
+	 * @return See above.
+	 */
+	public static Editor getEditor(long fileID)
+	{
+		EditorModel model = new EditorModel(fileID);
 		return singleton.getEditor(model);
 	}
 	
@@ -97,11 +113,7 @@ public class EditorFactory
 		// or, create a new editor with this new model.
 		return singleton.getEditor(model);
 	}
-	
-	
 
-	
-	
 	/**
 	 * If no editors exist, this returns a new {@link Editor}, 
 	 * with an {@link EditorModel} that has no file.
@@ -148,12 +160,14 @@ public class EditorFactory
 	public static Object getCopiedData() { return singleton.copiedData; }
 
 	/**
-	 * This has a similar functionality to {@link getEditor()}, except this
-	 * method always returns a new editor (never an existing editor);
+	 * This has a similar functionality to <code>getEditor</code> method, 
+	 * except this method always returns a new editor 
+	 * (never an existing editor).
 	 * 	
-	 * @return		A new Editor, with a new EditorModel 
+	 * @return	A new Editor, with a new EditorModel 
 	 */
-	public static Editor getNewBlankEditor() {
+	public static Editor getNewBlankEditor()
+	{
 		
 		EditorModel model = new EditorModel();
 		 // this will return any existing editors with a 'blank' model, or

@@ -25,16 +25,12 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.io.File;
 
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
-
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -179,6 +175,7 @@ class EditorComponent
 					"invoked in the LOADING or NEW states.");
 					
 		if (model.setFileToEdit(file)) {
+			view.setTitle(model.getFileName());
 			view.displayFile();
 		}
 		fireStateChange();
@@ -293,10 +290,10 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#saveFileAs(File)
+	 * @see Editor#saveFileLocally(File)
 	 */
-	public boolean saveFileLocally(File file) {
-		
+	public boolean saveFileLocally(File file)
+	{
 		if (model.saveFileAs(file)) {
 			view.setTitle(model.getFileName());
 			return true;

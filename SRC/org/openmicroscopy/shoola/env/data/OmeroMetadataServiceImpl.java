@@ -42,6 +42,7 @@ import org.apache.commons.collections.ListUtils;
 //Application-internal dependencies
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
+import omero.model.Channel;
 import omero.model.Correction;
 import omero.model.DatasetAnnotationLink;
 import omero.model.FileAnnotation;
@@ -202,14 +203,62 @@ class OmeroMetadataServiceImpl
 					data.getAirPressure()));
 			condition.setHumidity(omero.rtypes.rfloat(
 					data.getHumidity()));
-			Object o = data.getPositionY();
+			Object o = data.getTemperature();
 			if (o != null)
 				condition.setTemperature(omero.rtypes.rfloat((Float) o));
 			condition.setCo2percent(omero.rtypes.rfloat(
 					data.getCo2Percent()));
 		}
 		
-		//TODO: check with DB update
+		if (data.isObjectiveSettingsDirty()) {
+			id = data.getObjectiveSettingsId();
+			ObjectiveSettings settings;
+			if (id < 0) {
+				settings = new ObjectiveSettingsI();
+				toCreate.add(settings);
+			} else {
+				settings = (ObjectiveSettings) gateway.findIObject(
+						ObjectiveSettings.class.getName(), id);
+				toUpdate.add(settings);
+			}
+			settings.setCorrectionCollar(
+					omero.rtypes.rfloat(data.getCorrectionCollar()));
+			settings.setRefractiveIndex(
+					omero.rtypes.rfloat(data.getRefractiveIndex()));
+			object = data.getMediumAsEnum();
+			if (object != null)
+				settings.setMedium((Medium) object);
+		}
+		
+		long objectiveSettingsID = data.getObjectiveSettingsId();
+
+		if (toUpdate.size() > 0) {
+			gateway.updateObjects(toUpdate, (new PojoOptions()).map());
+		}
+		Iterator<IObject> i;
+		if (toCreate.size() > 0) {
+			List<IObject> l = gateway.createObjects(toCreate, 
+					      				(new PojoOptions()).map());
+			i = l.iterator();
+			image = (Image) gateway.findIObject(data.asIObject());
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof StageLabel)
+					image.setPosition((StageLabel) object);
+				else if (object instanceof ImagingEnvironment)
+					image.setCondition((ImagingEnvironment) object);
+				else if (object instanceof ObjectiveSettings) {
+					objectiveSettingsID = object.getId().getValue();
+					image.setObjectiveSettings((ObjectiveSettings) object);
+				}
+			}
+			ModelMapper.unloadCollections(image);
+			gateway.updateObject(image, (new PojoOptions()).map());
+		}
+		toUpdate.clear();
+		toCreate.clear();
+		//Now we can deal with the objective.
+		//objective settings exist
 		if (data.isObjectiveDirty()) {
 			id = data.getObjectiveId();
 			Objective objective;
@@ -240,46 +289,24 @@ class OmeroMetadataServiceImpl
 			objective.setWorkingDistance(
 					omero.rtypes.rfloat(data.getWorkingDistance()));
 		}
-		if (data.isObjectiveSettingsDirty()) {
-			id = data.getObjectiveSettingsId();
-			ObjectiveSettings settings;
-			if (id < 0) {
-				settings = new ObjectiveSettingsI();
-				toCreate.add(settings);
-			} else {
-				settings = (ObjectiveSettings) gateway.findIObject(
-						ObjectiveSettings.class.getName(), id);
-				toUpdate.add(settings);
-			}
-			settings.setCorrectionCollar(
-					omero.rtypes.rfloat(data.getCorrectionCollar()));
-			settings.setRefractiveIndex(
-					omero.rtypes.rfloat(data.getRefractiveIndex()));
-			object = data.getMediumAsEnum();
-			if (object != null)
-				settings.setMedium((Medium) object);
-		}
-		
-		
 		if (toUpdate.size() > 0) {
 			gateway.updateObjects(toUpdate, (new PojoOptions()).map());
-		}
-		if (toCreate.size() > 0) {
-			List<IObject> l = gateway.createObjects(toUpdate, 
-					      				(new PojoOptions()).map());
-			Iterator<IObject> i = l.iterator();
-			image = (Image) gateway.findIObject(data.asIObject());
+		} else { 
+			//create the object and link it to the objective settings.
+			//and link it to an instrument.
+			List<IObject> l = gateway.createObjects(toCreate, 
+      				(new PojoOptions()).map());
+			i = l.iterator();
+			ObjectiveSettings settings = (ObjectiveSettings) 
+				gateway.findIObject(ObjectiveSettings.class.getName(), 
+						objectiveSettingsID);
 			while (i.hasNext()) {
 				object = i.next();
-				if (object instanceof StageLabel)
-					image.setPosition((StageLabel) object);
-				else if (object instanceof ImagingEnvironment)
-					image.setCondition((ImagingEnvironment) object);
-				else if (object instanceof ObjectiveSettings)
-					image.setObjectiveSettings((ObjectiveSettings) object);
+				if (object instanceof Objective)
+					settings.setObjective((Objective) object);
 			}
-			ModelMapper.unloadCollections(image);
-			gateway.updateObject(image, (new PojoOptions()).map());
+			ModelMapper.unloadCollections(settings);
+			gateway.updateObject(settings, (new PojoOptions()).map());
 		}
 	}
 	
@@ -1297,6 +1324,26 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#downloadFile(long)
+	 */
+	public File downloadFile(long fileAnnotationID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (fileAnnotationID < 0)
+			throw new IllegalArgumentException("File ID not valid");
+		FileAnnotation fa = (FileAnnotation) 
+		
+		
+		
+		gateway.findIObject(FileAnnotation.class.getName(), fileAnnotationID);
+		long id = fa.getFile().getId().getValue();
+		OriginalFile of = gateway.getOriginalFile(id);
+		File file = new File(of.getName().getValue());
+		return gateway.downloadFile(file, id, of.getSize().getValue());
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadRatings(Class, List, long)
 	 */
 	public Map<Long, Collection> loadRatings(Class nodeType, 
@@ -1871,8 +1918,10 @@ class OmeroMetadataServiceImpl
 					((ImageData) refObject).getId());
 			
 		} else if (refObject instanceof ChannelData) {
-			return gateway.loadChannelAcquisitionData(
-					((ChannelData) refObject).getId());
+			Channel c = ((ChannelData) refObject).asChannel();
+			if (c.getLogicalChannel() == null) return null;
+			long id = c.getLogicalChannel().getId().getValue();
+			return gateway.loadChannelAcquisitionData(id);
 		}
 		return null;
 	}
@@ -1913,11 +1962,15 @@ class OmeroMetadataServiceImpl
 				file.getServerFileFormat(), originalFileID);
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
-		if (originalFileID <= 0) {
+		if (originalFileID < 0) {
 			fa = new FileAnnotationI();
 			fa.setFile(of);
 			gateway.createObject(fa, (new PojoOptionsI()).map());
-		}
+		} 
+		fa = (FileAnnotation) 
+			gateway.findIObject(FileAnnotation.class.getName(), file.getId());
+		fa.setFile(of);
+		gateway.updateObject(fa, (new PojoOptionsI()).map());
 		return true;
 	}
 	

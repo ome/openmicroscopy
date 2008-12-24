@@ -82,8 +82,18 @@ class AcquisitionDataUI
 	/** Indicates if a boolean has been set to <code>false</code>. */
 	static final String 				BOOLEAN_NO = "No";
 	
+	/** The collection of enumerations supported corresponding to unset value.*/
+	static final List<String>			UNSET_ENUM;
+	
 	/** The default text of the channel. */
 	private static final String			DEFAULT_CHANNEL_TEXT = "Channel ";
+	
+	static {
+		UNSET_ENUM = new ArrayList<String>();
+		UNSET_ENUM.add("Other");
+		UNSET_ENUM.add("Unknown");
+		UNSET_ENUM.add(AnnotationDataUI.NO_SET_TEXT);
+	}
 	
 	/** Reference to the controller. */
 	private EditorControl						controller;
@@ -125,7 +135,6 @@ class AcquisitionDataUI
 		imagePane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
-	
 	
 	/** Builds and lays out the components. */
 	private void buildGUI()
@@ -348,6 +357,21 @@ class AcquisitionDataUI
         }
         l.addMouseListener(controller.createManufacturerAction(content));
     	return l;
+	}
+	
+	/**
+	 * Returns the boolean value corresponding to the passed string
+	 * or <code>null</code>.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	Boolean convertToBoolean(String value)
+	{
+		if (value == null) return null;
+		if (BOOLEAN_YES.equals(value)) return Boolean.TRUE;
+		else if (BOOLEAN_NO.equals(value)) return Boolean.FALSE;
+		return null;
 	}
 	
 	/** 

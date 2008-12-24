@@ -144,7 +144,7 @@ class ImViewerComponent
 	private MouseAdapter					nodeListener;
 
 	/** Flag indicating that the rendering settings have been modified. */
-	private boolean							rndToSave;
+	//private boolean							rndToSave;
 	
 	/** 
 	 * Flag indicating that the rendering settings have been saved
@@ -163,7 +163,6 @@ class ImViewerComponent
 			model.setHistoryItemReplacement(false);
 			return;
 		}
-		rndToSave = true;
 		HistoryItem node = model.createHistoryItem();
 		node.addPropertyChangeListener(controller);
 		//add Listener to node.
@@ -290,7 +289,7 @@ class ImViewerComponent
 			HistoryItem item = model.getFirstHistoryItem();
 			try {
 				model.resetMappingSettings(item.getRndSettings(), false);
-				model.saveRndSettings();
+				model.saveRndSettings(false);
 			} catch (Exception e) {
 				LogMessage logMsg = new LogMessage();
 				logMsg.println("Cannot save rendering settings. ");
@@ -305,7 +304,7 @@ class ImViewerComponent
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JCheckBox rndBox = null;
-		if (rndToSave) {
+		if (!model.isOriginalSettings()) {
 			rndBox = new JCheckBox(RND);
 			rndBox.setSelected(true);
 			p.add(rndBox);
@@ -477,7 +476,7 @@ class ImViewerComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean hasRndToSave() { return rndToSave; }
+	boolean hasRndToSave() { return model.isOriginalSettings(); }
 	
 	/**
 	 * Returns the id of the pixels set thie viewer is for.
@@ -614,7 +613,6 @@ class ImViewerComponent
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		try {
-			rndToSave = true;
 			Iterator i;
 			List channels = model.getActiveChannels();
 			int index;
@@ -763,7 +761,6 @@ class ImViewerComponent
 			createHistoryItem();
 			HistoryItem node = (HistoryItem) model.getHistory().get(0);
 			node.allowClose(false);
-			rndToSave = false;
 			ViewerPreferences pref = ImViewerFactory.getPreferences();
 			if (pref != null) {
 				if (pref.isFieldSelected(ViewerPreferences.RENDERER) &&
@@ -841,7 +838,6 @@ class ImViewerComponent
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		try {
-			rndToSave = true;
 			model.setChannelColor(index, c);
 			view.setChannelColor(index, c);
 			if (!model.isChannelActive(index)) {
@@ -930,7 +926,6 @@ class ImViewerComponent
 						new Integer(index-1), new Integer(index));
 				//view.setChannelsSelection();
 			}
-			rndToSave = true;
 			view.setChannelsSelection(uiIndex);
 			//view.setChannelsSelection();
 			renderXYPlane();
@@ -1010,7 +1005,6 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, NEW or" +
 				"LOADING_RENDERING_CONTROL state.");
 		}
-		rndToSave = true;
 		try {
 			model.setChannelActive(index, b);
 			if (b)
@@ -2146,7 +2140,7 @@ class ImViewerComponent
 				return;
 		}
 		try {
-			model.saveRndSettings();
+			model.saveRndSettings(false);
 			model.copyRenderingSettings();
 			saveBeforeCopy = true;
 		} catch (Exception e) {
@@ -2274,8 +2268,7 @@ class ImViewerComponent
     public void saveRndSettings()
     {
     	try {
-    		model.saveRndSettings();
-    		rndToSave = false;
+    		model.saveRndSettings(true);
     		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     		List<Long> l = new ArrayList<Long>();
     		l.add(model.getImageID());
@@ -2381,7 +2374,6 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
 		try {
-			rndToSave = true;
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			model.setUserSettings(exp);
 			view.resetDefaults();

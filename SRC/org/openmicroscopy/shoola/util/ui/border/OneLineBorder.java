@@ -36,7 +36,8 @@ import javax.swing.border.AbstractBorder;
 //Application-internal dependencies
 
 /** 
- * 
+ * Creates a line border with only one line, either a top, bottom, left or right
+ * line.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -216,7 +217,10 @@ public class OneLineBorder
     					int height) 
     {
     	int i;
-    	g.setColor(getLineColor());
+    	Color color = getLineColor();
+    	if (color == null) color = c.getBackground();
+    	if (color == null) color = DEFAULT_COLOR;
+    	g.setColor(color);
     	switch (index) {
 			case TOP:
 				for (i = 0; i < thickness; i++) 

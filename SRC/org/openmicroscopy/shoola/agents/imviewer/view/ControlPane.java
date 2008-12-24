@@ -601,10 +601,10 @@ class ControlPane
         ChannelData d;
         for (int k = 0; k < data.length; k++) {
             d = data[k];
-            button = new ChannelButton(""+d.getEmissionWavelength(), 
+            button = new ChannelButton(""+d.getChannelLabeling(), 
                     model.getChannelColor(k), k, model.isChannelActive(k));
             if (gs) button.setGrayedOut(gs);
-            button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
+            //button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
             channelButtons.add(button);
         }
         return channelButtons;

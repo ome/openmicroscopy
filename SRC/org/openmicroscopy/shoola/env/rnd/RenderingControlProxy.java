@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -573,6 +572,7 @@ class RenderingControlProxy
 		}
     }
 
+    
     /**
      * Resets the rendering engine.
      * 
@@ -590,7 +590,7 @@ class RenderingControlProxy
     	try {
 			this.servant.close();
 		} catch (Exception e) {} //digest exception if already close.
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	invalidateCache();
     	this.servant = servant;
     	try {
@@ -608,7 +608,6 @@ class RenderingControlProxy
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering engine.");
 		}
-    	
     }
     
     /**
@@ -623,7 +622,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (servant == null) return;
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	this.servant = servant;
     	
     	// reset default of the rendering engine.
@@ -637,7 +636,7 @@ class RenderingControlProxy
             String value = rndDef.getColorModel();
             while (k.hasNext()) {
                 model= (RenderingModel) k.next();
-                if (model.getValue().equals(value)) 
+                if (model.getValue().getValue().equals(value)) 
                     servant.setModel(model); 
             }
         	servant.setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
@@ -655,7 +654,7 @@ class RenderingControlProxy
                 value = cb.getFamily();
                 while (k.hasNext()) {
                     family= (Family) k.next();
-                    if (family.getValue().equals(value)) {
+                    if (family.getValue().getValue().equals(value)) {
                     	servant.setQuantizationMap(i, family, 
                     			cb.getCurveCoefficient(), 
                     			cb.isNoiseReduction());
@@ -698,7 +697,7 @@ class RenderingControlProxy
     public void setModel(String value)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		Iterator i = models.iterator();
             RenderingModel model;
@@ -741,7 +740,7 @@ class RenderingControlProxy
     public void setDefaultZ(int z)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
@@ -758,7 +757,7 @@ class RenderingControlProxy
     public void setDefaultT(int t)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
@@ -776,7 +775,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //TODO: need to convert value.
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		checkBitResolution(bitResolution);
             servant.setQuantumStrategy(bitResolution);
@@ -795,7 +794,7 @@ class RenderingControlProxy
     public void setCodomainInterval(int start, int end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setCodomainInterval(start, end);
             rndDef.setCodomain(start, end);
@@ -814,14 +813,14 @@ class RenderingControlProxy
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		List list = servant.getAvailableFamilies();
             Iterator i = list.iterator();
             Family family;
             while (i.hasNext()) {
-                family= (Family) i.next();
-                if (family.getValue().equals(value)) {
+                family = (Family) i.next();
+                if (family.getValue().getValue().equals(value)) {
                     servant.setQuantizationMap(w, family, coefficient, 
                                                 noiseReduction);
                     rndDef.getChannel(w).setQuantization(value, coefficient, 
@@ -870,7 +869,7 @@ class RenderingControlProxy
     public void setChannelWindow(int w, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
@@ -906,7 +905,7 @@ class RenderingControlProxy
     public void setRGBA(int w, Color c)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
     						c.getAlpha());
@@ -935,7 +934,7 @@ class RenderingControlProxy
     public void setActive(int w, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
@@ -1010,7 +1009,7 @@ class RenderingControlProxy
     public RndProxyDef saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.saveCurrentSettings();
     		return rndDef;
@@ -1027,7 +1026,7 @@ class RenderingControlProxy
     public void resetDefaults()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	DataServicesFactory.isSessionAlive(context);
+    	//DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
     		 setModel(RGB);
@@ -1209,7 +1208,7 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
 		ChannelBindingsProxy c;
@@ -1236,7 +1235,7 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		setModel(rndDef.getColorModel());
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
@@ -1284,13 +1283,10 @@ class RenderingControlProxy
 	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
-		DataServicesFactory.isSessionAlive(context);
-		if (getPixelsDimensionsC() != pixels.getSizeC())
-			return false;
-		if (getPixelsDimensionsY() != pixels.getSizeY())
-			return false;
-		if (getPixelsDimensionsX() != pixels.getSizeX())
-			return false;
+		//DataServicesFactory.isSessionAlive(context);
+		if (getPixelsDimensionsC() != pixels.getSizeC()) return false;
+		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
+		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;
 		String s = pixels.getPixelType();
 		String value = pixs.getPixelsType().getValue().getValue();
 		if (!value.equals(s)) return false;
@@ -1306,7 +1302,7 @@ class RenderingControlProxy
     {
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
-        DataServicesFactory.isSessionAlive(context);
+        //DataServicesFactory.isSessionAlive(context);
         if (isCompressed()) return renderPlaneCompressed(pDef);
         return renderPlaneUncompressed(pDef);
     }
@@ -1317,7 +1313,7 @@ class RenderingControlProxy
 	 */
 	public void setCompression(int compression)
 	{
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		try {
 			float f = PixelsServicesFactory.getCompressionQuality(compression);
 			servant.setCompressionLevel(f);
@@ -1326,8 +1322,6 @@ class RenderingControlProxy
 		} catch (Exception e) {
 			//handleException(e, "Cannot set the compression level.");
 		}
-		
-		
 	}
 
 	/** 
@@ -1459,5 +1453,44 @@ class RenderingControlProxy
 			if (isActive(i)) active.add(new Integer(i));
 		return active;
 	}
-	
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#isOriginalSettings(RndProxyDef)
+	 */
+	public boolean isOriginalSettings(RndProxyDef original)
+	{
+		if (original == null) return true;
+		if (original.getDefaultZ() != getDefaultZ()) return false;
+		if (original.getDefaultT() != getDefaultT()) return false;
+		if (original.getBitResolution() != getBitResolution()) return false;
+		if (original.getCdEnd() != getCodomainEnd()) return false;
+		if (original.getCdStart() != getCodomainStart()) return false;
+		if (!original.getColorModel().equals(getModel())) return false;
+		ChannelBindingsProxy channel;
+		int[] rgba;
+		Color color;
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			channel = original.getChannel(i);
+			if (channel.isActive() != isActive(i)) return false;
+			if (channel.getInputStart() != getChannelWindowStart(i)) 
+				return false;
+			if (channel.getInputEnd() != getChannelWindowEnd(i)) 
+				return false;
+			if (channel.getCurveCoefficient() != getChannelCurveCoefficient(i)) 
+				return false;
+			if (!channel.getFamily().equals(getChannelFamily(i))) 
+				return false;
+			if (channel.isNoiseReduction() != getChannelNoiseReduction(i))
+				return false;
+			rgba = channel.getRGBA();
+			color = getRGBA(i);
+			if (rgba[0] != color.getRed()) return false;
+			if (rgba[1] != color.getGreen()) return false;
+			if (rgba[2] != color.getBlue()) return false;
+			if (rgba[3] != color.getAlpha()) return false;
+		}
+		return true;
+	}
+
 }

@@ -46,6 +46,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
@@ -147,7 +148,12 @@ class TextualAnnotationsUI
 	{
 		Map<Long, List> m = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		if (m.size() >= 1 && !m.containsKey(userID)) return true;
+		//List l = m.get(userID);
+		int n = m.size();
+		if (n == 0) return false;
+		if (n == 1 && m.containsKey(userID)) return false;
+		if (n >=1) return true;
+		//if (l != null && l.size() > 1) return true;
 		return false;
 	}
 
@@ -200,18 +206,22 @@ class TextualAnnotationsUI
 	/**
 	 * Sets the text of the {@link #commentArea}.
 	 * 
-	 * @param text The value to set.
+	 * @param text 			The value to set.
+	 * @param addDefault 	Pass <code>true</code> to set the default text,
+	 * 						<code>false</code> otherwise.
 	 */
-	private void setAreaText(String text)
+	private void setAreaText(String text, boolean addDefault)
 	{
 		commentArea.removeDocumentListener(this);
 		commentArea.setText(text);
+		if (addDefault) commentArea.setDefaultText(text);
 		commentArea.addDocumentListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+    	setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		double[][] size = {{TableLayout.FILL}, {150, 0, 0}};
     	setLayout(new TableLayout(size));
@@ -257,7 +267,7 @@ class TextualAnnotationsUI
 	{
 		TextualAnnotationData data = model.getLastUserAnnotation();
 		if (data != null) {
-			setAreaText(data.getText());
+			setAreaText(data.getText(), false);
 			originalText = data.getText();
 		}
 		TableLayout layout = (TableLayout) getLayout();
@@ -323,7 +333,7 @@ class TextualAnnotationsUI
 	 */
 	protected void clearDisplay() 
 	{ 
-		setAreaText(DEFAULT_TEXT);
+		setAreaText(DEFAULT_TEXT, true);
 		originalText = DEFAULT_TEXT;
 	}
 	
@@ -333,7 +343,7 @@ class TextualAnnotationsUI
 	 */
 	protected void clearData()
 	{
-		setAreaText(DEFAULT_TEXT);
+		setAreaText(DEFAULT_TEXT, true);
 		originalText = DEFAULT_TEXT;
 	}
 	
@@ -393,11 +403,8 @@ class TextualAnnotationsUI
 		String text;
 		if (src == commentArea) {
 			text = commentArea.getText();
-			if (text == null || text.length() == 0) {
-				commentArea.removeDocumentListener(this);
-				commentArea.setText(DEFAULT_TEXT);
-				commentArea.addDocumentListener(this);
-			}
+			if (text == null || text.length() == 0) 
+				setAreaText(DEFAULT_TEXT, true);
 		}
 	}
 	

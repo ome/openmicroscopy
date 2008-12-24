@@ -675,7 +675,7 @@ class EditorModel
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		List l = m.get(userID);
 		if (l == null || l.size() == 0) return null;
-		return (TextualAnnotationData) l.get(l.size()-1);
+		return (TextualAnnotationData) l.get(0);
 	}
 	
 	/**

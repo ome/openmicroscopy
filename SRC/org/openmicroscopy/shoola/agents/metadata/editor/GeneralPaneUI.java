@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -143,11 +142,11 @@ class GeneralPaneUI
 
 		content.add(propertiesUI, "0, "+i);
 		i++;
-		content.add(new JSeparator(), "0, "+i);
+		//content.add(new JSeparator(), "0, "+i);
 		i++;
 		content.add(annotationUI, "0, "+i);
 		i++;
-		content.add(new JSeparator(), "0, "+i);
+		//content.add(new JSeparator(), "0, "+i);
 		i++;
 		content.add(textualAnnotationsUI, "0, "+i);
 		i++;
@@ -179,13 +178,12 @@ class GeneralPaneUI
         buildGUI();
 	}
 
-	
 	/** Lays out the UI when data are loaded. */
 	void layoutUI()
 	{
 		propertiesUI.buildUI();
 		annotationUI.buildUI();
-
+		textualAnnotationsUI.buildUI();
 		TableLayout layout = (TableLayout) content.getLayout();
 		int n = layout.getNumRow();
 		double h = 0;
@@ -251,7 +249,7 @@ class GeneralPaneUI
 		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
-    	textualAnnotationsUI.buildUI();
+    	textualAnnotationsUI.clearDisplay();
     	if (!model.isMultiSelection())
     		propertiesUI.buildUI();
 		revalidate();
