@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -282,6 +283,16 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	String getImageName() { return name; }
+	
+	/** 
+	 * Returns the name of image and id.
+	 * 
+	 * @return See above.
+	 */
+	String getImageTitle()
+	{
+		return EditorUtil.getPartialName(name)+" [ID: "+getImageID()+"]";
+	}
 	
 	/**
      * Returns the bounds of the component invoking the 

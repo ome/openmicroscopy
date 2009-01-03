@@ -45,6 +45,7 @@ import net.n3.nanoxml.XMLParserFactory;
 import net.n3.nanoxml.XMLWriter;
 
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -142,9 +143,9 @@ public class FileMap
 	private static File createFileMap()
 	{
 		Registry reg = MeasurementAgent.getRegistry();
-		String omeroDir = (String) reg.lookup(LookupNames.USER_HOME_OMERO);
+		Environment env = (Environment) reg.lookup(LookupNames.ENV);
 		String fileName = (String) reg.lookup(LookupNames.ROI_MAIN_FILE);
-		return new File(omeroDir, fileName);
+		return new File(env.getOmeroHome(), fileName);
 	}
 	
 	/** 

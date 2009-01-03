@@ -46,6 +46,7 @@ import org.jhotdraw.draw.Drawing;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -127,7 +128,7 @@ class MeasurementViewerComponent
 		if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         controller = new MeasurementViewerControl();
-        view = new MeasurementViewerUI(model.getImageName());
+        view = new MeasurementViewerUI(model.getImageTitle());
 	}
 	
 	/** Links up the MVC triad. */
@@ -551,7 +552,7 @@ class MeasurementViewerComponent
 		}
 		model.setActiveChannels(activeChannels);
 		
-		if (!view.inDataView()) return;
+		if (!view.inDataView() || !view.isVisible()) return;
 		Collection<ROIFigure> collection = getSelectedFigures();
 		if (collection.size() != 1) return;
 		
@@ -581,7 +582,7 @@ class MeasurementViewerComponent
 						"state: "+state);
 		}
 		model.setActiveChannels(channels);
-		if (!view.inDataView()) return;
+		if (!view.inDataView() || !view.isVisible()) return;
 		Collection<ROIFigure> collection = getSelectedFigures();
 		if (collection.size() != 1) return;
 		

@@ -176,7 +176,6 @@ public class MeasurementAgent
     									evt.getPixelsID());
     	if (viewer != null && evt.getType() == SaveData.MEASUREMENT_TYPE) {
     		viewer.saveAndDiscard();
-    		
     	}
     }
     
