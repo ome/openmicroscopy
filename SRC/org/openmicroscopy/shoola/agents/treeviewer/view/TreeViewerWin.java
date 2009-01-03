@@ -441,7 +441,7 @@ class TreeViewerWin
             if (!selected)  model.setSelectedBrowser(null);
         }
     }
-
+    
     /**
      * Brings up the popup menu on top of the specified component at the
      * specified point.

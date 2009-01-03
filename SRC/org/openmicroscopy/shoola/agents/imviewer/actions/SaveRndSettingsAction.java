@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -33,6 +37,8 @@ import javax.swing.Action;
 
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -50,6 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class SaveRndSettingsAction 
 	extends ViewerAction
+	implements PropertyChangeListener
 {
 	
 	/** The description of the action. */
@@ -60,6 +67,16 @@ public class SaveRndSettingsAction
     											"settings.";
     
     /**
+     * Sets the <code>enabled</code> flag to <code>false</code>.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	//System.err.println("state");
+    	//setEnabled(false);
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model     Reference to the model. Mustn't be <code>null</code>.
@@ -67,11 +84,14 @@ public class SaveRndSettingsAction
 	public SaveRndSettingsAction(ImViewer model)
 	{
 		super(model);
+		setEnabled(false);
 		name = NAME;
     	IconManager icons = IconManager.getInstance();
     	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE_SETTINGS));
     	putValue(Action.SHORT_DESCRIPTION, 
     			UIUtilities.formatToolTipText(DESCRIPTION));
+    	model.addPropertyChangeListener(ImViewer.RND_SETTINGS_MODIFIED_PROPERTY, 
+    			this);
 	}
 
 	/** 
@@ -82,5 +102,19 @@ public class SaveRndSettingsAction
     {
     	model.saveRndSettings();
     }
+
+    /**
+     * Sets the <code>enabled</code> flag of the action.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		
+		if (ImViewer.RND_SETTINGS_MODIFIED_PROPERTY.equals(name)) {
+			boolean b = ((Boolean) evt.getNewValue()).booleanValue();
+			setEnabled(b);
+		}
+	}
     
 }

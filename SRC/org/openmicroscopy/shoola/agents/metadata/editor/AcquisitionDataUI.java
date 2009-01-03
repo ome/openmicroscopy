@@ -374,9 +374,7 @@ class AcquisitionDataUI
 		return null;
 	}
 	
-	/** 
-	 * Sets the data when data are loaded, builds the UI.
-	 */
+	/** Sets the data when data are loaded, builds the UI. */
 	void setChannelData()
 	{
 		List channels = model.getChannelData();

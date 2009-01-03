@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +73,9 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
+		Iterator<String> i = singleton.browsers.keySet().iterator();
+		while (i.hasNext()) 
+			singleton.discardedBrowsers.add(i.next());
 		singleton.browsers.clear();
 	}
 	
@@ -159,12 +163,36 @@ public class DataBrowserFactory
 	 */
 	public static final DataBrowser getDataBrowser(Object parent)
 	{
+		if (parent == null) return null;
 		String key = parent.toString();
 		if (parent instanceof DataObject) 
 			key += ((DataObject) parent).getId();
 		return singleton.browsers.get(key);
 	}
 
+	/**
+	 * Returns <code>true</code> if a {@link DataBrowser} has been discarded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param parent The node.
+	 * @return See above.
+	 */
+	public static final boolean hasBeenDiscarded(Object parent)
+	{
+		if (parent == null) return false;
+		String key = parent.toString();
+		if (parent instanceof DataObject) 
+			key += ((DataObject) parent).getId();
+		Iterator<String> i = singleton.discardedBrowsers.iterator();
+		String value;
+		while (i.hasNext()) {
+			value = i.next();
+			if (value.equals(key)) return true;
+			
+		}
+		return false;
+	}
+	
 	/** 
 	 * Refrehes the thumbnails corresponding to the passed image ids.
 	 * 
@@ -181,6 +209,9 @@ public class DataBrowserFactory
 		}
 	}
 	
+	/** The collection of discarded browsers. */
+	private Set<String>					discardedBrowsers;
+	
 	/** Map used to keep track of the browsers. */
 	private Map<String, DataBrowser> 	browsers;
 	
@@ -191,6 +222,7 @@ public class DataBrowserFactory
 	private DataBrowserFactory()
 	{
 		browsers = new HashMap<String, DataBrowser>();
+		discardedBrowsers = new HashSet<String>();
 		searchBrowser = null;
 	}
 	

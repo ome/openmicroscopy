@@ -906,4 +906,16 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
+	/**
+	 * Returns the {@link Browser} corresponding to the passed index
+	 * or <code>null</code> if the index is not supported.
+	 * 
+	 * @param index The index of the {@link Browser}.
+	 * @return See above
+	 */
+	Browser getBrowser(int index)
+	{
+		return browsers.get(index);
+	}
+	
 }

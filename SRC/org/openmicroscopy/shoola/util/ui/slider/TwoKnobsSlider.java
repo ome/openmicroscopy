@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.util.ui.slider;
 
 
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
@@ -195,7 +193,6 @@ public class TwoKnobsSlider
 		firePropertyChange(KNOB_RELEASED_PROPERTY, new Integer(INITIAL), 
 				new Integer(knobControl));
 		knobControl = INITIAL;
-		//pushKnobControl = INITIAL;
 	}
 
 	/**
@@ -247,8 +244,6 @@ public class TwoKnobsSlider
 		int leftKnob = uiDelegate.xPositionForValue(model.getStartValue());
 		int rightKnob = uiDelegate.xPositionForValue(model.getEndValue()); 
 		int left = leftKnob, right = rightKnob; 
-		//int xmin = uiDelegate.xPositionForValue(model.getMinimum());
-		//int xmax = uiDelegate.xPositionForValue(model.getMaximum());
 		int xmin = uiDelegate.xPositionForValue(model.getPartialMinimum());
 		int xmax = uiDelegate.xPositionForValue(model.getPartialMaximum());
 		//Identifies the closest knob
@@ -266,15 +261,6 @@ public class TwoKnobsSlider
 				left = xmin;
 			} else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
 			else {
-				/*
-              if (left > (right-knobWidth) && right < xmax) {
-                  //push right
-                  //pushKnobControl = RIGHT_KNOB_PUSHED;
-                  //right = left+knobWidth;  
-                  //model.setEndValue(uiDelegate.xValueForPosition(right));
-              	left = right-knobWidth;
-              }   
-				 */
 				if (left > right && right < xmax) left = right-1;
 			}
 
@@ -300,8 +286,6 @@ public class TwoKnobsSlider
 		int upKnob = uiDelegate.yPositionForValue(model.getEndValue());
 		int downKnob = uiDelegate.yPositionForValue(model.getStartValue()); 
 		int up = upKnob, down = downKnob; 
-		//int ymin = uiDelegate.yPositionForValue(model.getMaximum());
-		//int ymax = uiDelegate.yPositionForValue(model.getMinimum());
 		int ymin = uiDelegate.yPositionForValue(model.getPartialMaximum());
 		int ymax = uiDelegate.yPositionForValue(model.getPartialMinimum());
 		//Identifies the closest knob 
@@ -318,15 +302,6 @@ public class TwoKnobsSlider
 			if (up < ymin) up = ymin;
 			else if (up > (ymax-knobHeight)) up = ymax-knobHeight;
 			else {
-				/*
-              if (up > (down-knobHeight) && down < ymax) {
-                  //push down
-                  //pushKnobControl = RIGHT_KNOB_PUSHED;
-                  //down = up+knobHeight;  
-                  //model.setStartValue(uiDelegate.yValueForPosition(down));
-              	up = down-knobHeight;
-              }  
-				 */ 
 				if (up > down && down < ymax) up = down-1;
 			}
 			model.setEndValue(uiDelegate.yValueForPosition(up));
@@ -334,14 +309,6 @@ public class TwoKnobsSlider
 			if (down > ymax) down = ymax;
 			else if (down < (ymin+knobHeight)) down = ymin+knobHeight;
 			else {
-				/*
-              if (down < (up+knobHeight) && up > ymin) {
-                  //pushKnobControl = LEFT_KNOB_PUSHED;
-                  //up = down-knobHeight;  
-                  //model.setEndValue(uiDelegate.yValueForPosition(up));
-              	down = up+knobHeight;
-              }    
-				 */
 				if (down < up && up > ymin) down = up+1;
 			}
 			model.setStartValue(uiDelegate.yValueForPosition(down));
@@ -485,14 +452,6 @@ public class TwoKnobsSlider
 	 */
 	public void setStartValue(int v)
 	{
-		/*
-		int min = model.getAbsoluteMinimum();
-		if (v < min) return;
-			//throw new IllegalArgumentException("Start cannot be < "+min);
-		if (v >= getEndValue()) return;
-			//throw new IllegalArgumentException("Start cannot be >= " +
-			//		""+getEndValue());
-			 * */
 		int old = model.getStartValue();
 		model.setStartValue(v);
 		firePropertyChange(START_VALUE_PROPERTY, new Integer(old), 
@@ -510,10 +469,7 @@ public class TwoKnobsSlider
 	{
 		int max = model.getAbsoluteMaximum();
 		if (v > max) return;
-			//throw new IllegalArgumentException("End cannot be > "+max);
 		if (v <= getStartValue()) return;
-			//throw new IllegalArgumentException("End cannot be <= " +
-				//	""+getStartValue());
 		int old = model.getEndValue();
 		model.setEndValue(v);
 		firePropertyChange(END_VALUE_PROPERTY, new Integer(old), 
@@ -550,7 +506,6 @@ public class TwoKnobsSlider
 		if (start > end) return;
 		int max = model.getAbsoluteMaximum();
 		if (end > max) return;
-			//throw new IllegalArgumentException("End cannot be > "+max);
 		int oldEnd = model.getEndValue();
 		int oldStart = model.getStartValue();
 		model.setInterval(start, end);

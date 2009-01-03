@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -40,14 +42,13 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 
 //Third-party libraries
 import layout.TableLayout;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import pojos.ChannelData;
@@ -173,9 +175,8 @@ class DomainPane
         familyBox.setActionCommand(""+FAMILY);
         
         double k = model.getCurveCoefficient();
-        gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, 
-        							MIN_GAMMA, MAX_GAMMA, 
-                                    (int) (k*FACTOR));
+        gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_GAMMA, 
+        							MAX_GAMMA, (int) (k*FACTOR));
         gammaSlider.setShowArrows(false);
         gammaSlider.setEnabled(!(family.equals(RendererModel.LINEAR) || 
                 family.equals(RendererModel.LOGARITHMIC)));
@@ -273,7 +274,7 @@ class DomainPane
     	p.setLayout(new BorderLayout());
     	p.add(channelButtonPanel, BorderLayout.WEST);
     	p.add(graphicsPane, BorderLayout.CENTER);
-    	return UIUtilities.buildComponentPanel(p);
+    	return p;
     }
     
     /**
@@ -292,6 +293,35 @@ class DomainPane
     }
     
     /**
+     * Adds the specified component to the passed <code>Panel</code>.
+     * 
+     * @param c		The layout contraints for the component to be added.
+     * @param l		The text corresponding to the component to be added.
+     * @param comp	The component to be added.
+     * @param p		The panel the component is added to.
+     */
+    private void addComponent(GridBagConstraints c, String l, JComponent comp, 
+    						JPanel p)
+    {
+    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.weightx = 0.0; 
+		c.gridx = 0;
+		
+		if (l != null && l.length() > 0) {
+			p.add(new JLabel(l), c);
+			c.gridx++;
+			p.add(Box.createHorizontalStrut(5), c); 
+			c.gridx++;
+		}
+		
+		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1.0;
+		p.add(comp, c);  
+    }
+    
+    /**
      * Builds the pane hosting the main rendering controls.
      * 
      * @return See above.
@@ -299,91 +329,36 @@ class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
-        
-        double size[][] =
-        {{TableLayout.PREFERRED, 0, TableLayout.PREFERRED},  // Columns
-         {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
-        p.setLayout(new TableLayout(size));
-        JLabel label = new JLabel("Map");
-        p.add(label, "0, 0");
-        p.add(UIUtilities.buildComponentPanel(familyBox), "2, 0");
-        label = new JLabel("Gamma");
-        p.add(label, "0, 1");
-        p.add(buildSliderPane(gammaSlider, gammaLabel), "2, 1");
-        label = new JLabel("Bit Depth");
-        p.add(label, "0, 2");
-        p.add(buildSliderPane(bitDepthSlider, bitDepthLabel), "2, 2");
-        /*
-        GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(new GridBagLayout());
-        c.weightx = 0.5;
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridy = 0;
-        JLabel label = new JLabel("Map");
-        c.gridx = 0;
-        p.add(label, c);
-        c.gridx = 1;
-        p.add(UIUtilities.buildComponentPanel(familyBox), c);
-        label = new JLabel("Gamma");
-        c.gridx = 0;
-        c.gridy++;
-        p.add(label, c);
-        c.gridx = 1;
-        p.add(buildSliderPane(gammaSlider, gammaLabel), c);
-        label = new JLabel("Bit Depth");
-        c.gridx = 0;
-        c.gridy++;
-        p.add(label, c);
-        c.gridx = 1;
-        p.add(buildSliderPane(bitDepthSlider, bitDepthLabel), c);
-        */
-        return p;//UIUtilities.buildComponentPanel(p);
-    }
-    
-    /**
-     * Builds and lays out the panel hosting the {@link #noiseReduction}
-     * and {@link #histogramButton} controls.
-     * 
-     * @return See above.
-     */
-    private JPanel buildPane()
-    {
-        JPanel p = new JPanel();
-        double size[][] =
-        {{TableLayout.PREFERRED},  // Columns
-         {TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
-        p.setLayout(new TableLayout(size));
-        p.add(noiseReduction, "0, 0");
-        p.add(histogramButton, "0, 1");
-        /*
         p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        p.add(noiseReduction, c);
-        c.gridy = 1;
-        p.add(histogramButton, c);
-        */
-        return UIUtilities.buildComponentPanel(p);
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		addComponent(c, "Map", UIUtilities.buildComponentPanel(familyBox), p);
+		c.gridy++;
+		addComponent(c, "Gamma", buildSliderPane(gammaSlider, gammaLabel), p);
+		c.gridy++;
+		addComponent(c, "Bit Depth", 
+				buildSliderPane(bitDepthSlider, bitDepthLabel), p);
+		c.gridy++;
+		c.gridx = 0;
+		p.add(new SeparatorPane(), c);
+		c.gridy++;
+		addComponent(c, "", noiseReduction, p);
+		c.gridy++;
+        return p;
     }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(buildControlsPane());
-    	p.add(new JSeparator());
-    	p.add(buildPane());
-    	taskPane.add(p, 0);
-    	
-    	JPanel content = new JPanel();
-    	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-    	content.add(buildChannelGraphicsPanel());
-    	
-    	content.add(taskPane);
-    	setLayout(new FlowLayout(FlowLayout.LEFT));
-		add(content);
+    	double size[][] = {{TableLayout.FILL},  // Columns
+         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
+    	setLayout(new TableLayout(size));
+   
+    	taskPane.add(buildControlsPane());
+    	add(buildChannelGraphicsPanel(), "0, 0");
+		add(taskPane, "0, 2");
     }
     
     /**

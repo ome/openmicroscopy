@@ -93,4 +93,28 @@ public class Environment
 		return f.getAbsolutePath();
 	}
 
+	/**
+	 * Returns <code>true</code> if the application is connected to a server,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isOffLine()
+	{
+		return (Boolean) container.getRegistry().lookup(LookupNames.OFFLINE);
+	}
+	
+	/**
+	 * Returns the location of the <code>omero</code> directory 
+	 * on the user's machine.
+	 * 
+	 * @return See above.
+	 */
+	public String getOmeroHome()
+	{
+		return (String) 
+			container.getRegistry().lookup(LookupNames.USER_HOME_OMERO);
+	}
+	
 }
+

@@ -467,7 +467,7 @@ class TreeViewerControl
 		loadingWindow = new LoadingWindow(view);
 		loadingWindow.setStatus("Saving changes");
 	}
-
+	
 	/**
 	 * Returns the {@link ChangeListener} attached to the tabbed pane,
 	 * or creates one if none initialized.

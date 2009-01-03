@@ -848,6 +848,8 @@ class ImViewerComponent
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
 			else renderXYPlane();
+			boolean b = model.isOriginalSettings();
+			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
@@ -930,6 +932,8 @@ class ImViewerComponent
 			//view.setChannelsSelection();
 			renderXYPlane();
 			postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
+			b = model.isOriginalSettings();
+			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -1010,6 +1014,8 @@ class ImViewerComponent
 			if (b)
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 						new Integer(index-1), new Integer(index));
+			b = model.isOriginalSettings();
+			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -2267,6 +2273,7 @@ class ImViewerComponent
      */
     public void saveRndSettings()
     {
+    	if (model.isOriginalSettings()) return;
     	try {
     		model.saveRndSettings(true);
     		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
@@ -2338,7 +2345,7 @@ class ImViewerComponent
 	 */
 	public void retrieveRelatedSettings(Component source, Point location)
 	{
-		//TODO: Check state
+		if (model.getState() == DISCARDED) return;
 		Map m = model.getRenderingSettings();
 		view.setLocationAndSource(source, location);
 		if (m == null)

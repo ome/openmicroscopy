@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,7 +44,6 @@ import javax.swing.JToolBar;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 
 /** 
@@ -65,7 +63,7 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 * @since OME2.2
 */
 class RendererUI
-	extends JPanel//TopWindow
+	extends JTabbedPane//JPanel//TopWindow
 	implements ActionListener
 {
   
@@ -203,6 +201,7 @@ class RendererUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		/*
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
 				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
@@ -211,16 +210,17 @@ class RendererUI
 				new JScrollPane(pane), pane.getPaneDescription(), 
 				pane.getPaneIndex());
 		ControlPane cp = controlPanes.get(CODOMAIN);
-		/*
-		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
-				new JScrollPane(pane), pane.getPaneDescription(), 
-				pane.getPaneIndex());
-				*/
 		cp.setBorder(new TitledLineBorder(cp.getPaneName()));
 		//pane.addToTree(cp, UIUtilities.buildCollapsePanel(cp.getPaneName()));
-		setLayout(new BorderLayout());
+		//setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
 		//add(createButtonsPanel(), BorderLayout.SOUTH);
+		*/
+		setAlignmentX(LEFT_ALIGNMENT);
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		insertTab(pane.getPaneName(), pane.getPaneIcon(), 
+				new JScrollPane(pane), pane.getPaneDescription(), 
+				pane.getPaneIndex());
 	}
 
 	/**

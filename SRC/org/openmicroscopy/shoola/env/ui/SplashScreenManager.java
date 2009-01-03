@@ -303,6 +303,8 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (view == null || viewTop == null) return;
+		view.setVisible(false);
+		viewTop.setVisible(false);
 		view.dispose();
 		viewTop.dispose();
 		view = null;
@@ -342,8 +344,14 @@ class SplashScreenManager
 		viewTop.setStatus(task, n);
 		if (doneTasks == totalTasks) {
 			viewTop.setStatusVisible(false);
-			initializedView();
-			view.setVisible(true);
+			Boolean offline = 
+				(Boolean) container.getRegistry().lookup(LookupNames.OFFLINE);
+			if (!offline) {
+				initializedView();
+				view.setVisible(true);
+			} else {
+				viewTop.setVisible(false);
+			}
 		}
 	}
     

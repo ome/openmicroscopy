@@ -198,27 +198,7 @@ class ToolBar
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	/*
-    	List<PixelsData> pixelsSets = view.getPixelsSets();
-    	if (pixelsSets != null && pixelsSets.size() > 1) {
-    		Iterator<PixelsData> i = pixelsSets.iterator();
-            String[] pixelsName = new String[pixelsSets.size()];
-            PixelsData data;
-            int index = 0;
-            int selectedIndex = 0;
-            long id = view.getPixelsID();
-            while (i.hasNext()) {
-    			data = i.next();
-    			if (data.getId() == id) selectedIndex = index;
-    			pixelsName[index] = "Pixels ID:"+data.getId();
-    			index++;
-    		}
-            pixelsBox = new JComboBox(pixelsName);
-            pixelsBox.setSelectedIndex(selectedIndex);
-            pixelsBox.addActionListener(this);
-    	}
-        */
-    	compressionBox = EditorUtil.createComboBox(compression, 0);//new JComboBox(compression);
+    	compressionBox = EditorUtil.createComboBox(compression, 0);
     	compressionBox.setBackground(getBackground());
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginConfig;
@@ -144,6 +145,12 @@ public final class SplashScreenInit
 		//Try to log onto OMEDS and retry upon failure for at most as many
         //times as specified in the Container's configuration.
         Registry reg = container.getRegistry();
+        Boolean b = (Boolean) reg.lookup(LookupNames.OFFLINE);
+        if (b) {
+        	splashScreen.close();
+        	return;
+        }
+        
         LoginConfig cfg = new LoginConfig(reg);
         int max = cfg.getMaxRetry();
         LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);

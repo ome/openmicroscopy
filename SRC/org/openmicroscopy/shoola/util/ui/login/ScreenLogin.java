@@ -29,7 +29,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -295,10 +294,10 @@ public class ScreenLogin
 		UIUtilities.opacityCheck(cancel);
 		configButton = new JButton();
 		configButton.setMnemonic('X');
-		configButton.setToolTipText("Config Server");
+		configButton.setToolTipText("Enter the server's address.");
 		configButton.setBorderPainted(false);
 		configButton.setBorder(null);
-		configButton.setMargin(new Insets(1, 1, 1, 1));
+		//configButton.setMargin(new Insets(1, 1, 1, 1));
 		configButton.setFocusPainted(false);
 		configButton.setContentAreaFilled(false);
 		IconManager icons = IconManager.getInstance();
@@ -344,9 +343,12 @@ public class ScreenLogin
 		}
 		connectionSpeedText = new JLabel(getConnectionSpeed());
 		connectionSpeedText.setForeground(TEXT_COLOR);
+		connectionSpeedText.setBorder(
+				BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
+		serverTextPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 	}
 	
 	/**
@@ -388,7 +390,7 @@ public class ScreenLogin
 		mainPanel.add(pleaseLogIn, "0, 0, l, c");
 		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
 				"0, 0, 4, 0");
-		mainPanel.add(configButton, "5, 0, c, c");
+		mainPanel.add(configButton, "5, 0, t, c");
 		
 		//second row
 		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);

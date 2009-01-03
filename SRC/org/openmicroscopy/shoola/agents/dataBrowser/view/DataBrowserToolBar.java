@@ -58,12 +58,12 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -505,14 +505,8 @@ class DataBrowserToolBar
 			row = Integer.parseInt(itemsPerRow.getText());
 		} catch(NumberFormatException nfe) {}
 		
-		if (row < 0) {
-			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid number", "Please enter a valid number " +
-            		"of images per row.");
-		} else {
-			view.setItemsPerRow(row);
-			//manageMenu.setVisible(false);
-		}
+		if (row < 0) row = LayoutUtils.DEFAULT_PER_ROW;
+		view.setItemsPerRow(row);
 	}
 	
 	/** Creates a report. */

@@ -147,7 +147,7 @@ public class OMEWikiComponent
 				new ElementSelectionAction(WikiDataObject.IMAGE)));
 		DEFAULT_FORMATTERS.put(PROTOCOLREGEX, 
 				new FormatSelectionAction(
-				new ColourFormatter(Formatter.DEFAULT_LINK), 
+				new ColourFormatter(Formatter.PROTOCOL_LINK), 
 				new ElementSelectionAction(WikiDataObject.PROTOCOL)));
 	}
 	

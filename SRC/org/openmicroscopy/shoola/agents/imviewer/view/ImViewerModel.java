@@ -314,16 +314,13 @@ class ImViewerModel
 		return -1;
 	}
 	
-	/**
-	 * Creates a new instance.
+	/** 
+	 * Initializes the model.
 	 * 
-	 * @param imageID 	The id of the image.
-	 * @param bounds	The bounds of the component invoking the 
-	 *                  {@link ImViewer}.
+	 * @param bounds The bounds of the component invoking the {@link ImViewer}.
 	 */
-	ImViewerModel(long imageID, Rectangle bounds)
+	private void initialize(Rectangle bounds)
 	{
-		this.imageID = imageID;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
 		initMagnificationFactor = false;
@@ -340,6 +337,19 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Creates a new instance.
+	 * 
+	 * @param imageID 	The id of the image.
+	 * @param bounds	The bounds of the component invoking the 
+	 *                  {@link ImViewer}.
+	 */
+	ImViewerModel(long imageID, Rectangle bounds)
+	{
+		this.imageID = imageID;
+		initialize(bounds);
+	}
+	
+	/**
 	 * Creates a new object and sets its state to {@link ImViewer#NEW}.
 	 * 
 	 * @param image  	The image.
@@ -349,19 +359,9 @@ class ImViewerModel
 	ImViewerModel(ImageData image, Rectangle bounds)
 	{
 		this.image = image;
-		requesterBounds = bounds;
-		state = ImViewer.NEW;
-		initMagnificationFactor = false;
-		sizeX = sizeY = -1;
-		zoomFitToWindow = false; 
-		tabbedIndex = ImViewer.VIEW_INDEX;
-		textVisible = true;
-		movieIndex = -1;
-		loaders = new HashMap<Integer, DataLoader>();
+		initialize(bounds);
 		metadataViewer = MetadataViewerFactory.getViewer(image, false);
-		metadataLoaded = false;
 		currentPixelsID = image.getDefaultPixels().getId();
-		selectedUserID = -1;
 	}
 
 	/**

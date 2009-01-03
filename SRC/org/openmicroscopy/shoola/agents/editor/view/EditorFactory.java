@@ -36,7 +36,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -217,8 +216,8 @@ public class EditorFactory
 	private JMenu   			windowMenu;
 
 	/**  
-	 * A reference to clip-board data, for copying between Editors.
-	 * E.g. A list of fields (nodes) or text with parameters. 
+	 * A reference to clip-board data, for copying between Editors
+	 * e.g. A list of fields (nodes) or text with parameters. 
 	 */
 	private Object 				copiedData;
 	
@@ -248,12 +247,14 @@ public class EditorFactory
 	{
 		Iterator v = editors.iterator();
 		EditorComponent comp;
+		EditorModel m;
 		while (v.hasNext()) {
 			comp = (EditorComponent) v.next();
-			if ((comp.getModel().getFileID() == model.getFileID()) && 
-					(comp.getModel().getFileName().equals(model.getFileName())))
+			m = comp.getModel();
+			if ((m.getFileID() == model.getFileID()) && 
+					(m.getFileName().equals(model.getFileName())))
 				return comp;
-			if (comp.getModel().getFileName().equals(BLANK_MODEL)) {
+			if (m.getFileName().equals(BLANK_MODEL)) {
 				return comp;
 			}
 		}

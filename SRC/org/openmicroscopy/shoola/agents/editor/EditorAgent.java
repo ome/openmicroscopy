@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -110,9 +111,7 @@ public class EditorAgent
 	private void handleShowEditor()
 	{
 		Editor editor = EditorFactory.getEditor();
-		if (editor != null) {
-			editor.activate();
-		}
+		if (editor != null) editor.activate();
 	}
 	
 	/**
@@ -134,7 +133,11 @@ public class EditorAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
      */
-    public void activate() {}
+    public void activate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isOffLine()) handleShowEditor();
+    }
 
     /**
      * Implemented as specified by {@link Agent}. 

@@ -30,6 +30,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -50,7 +52,7 @@ import javax.swing.JPanel;
  * @since OME2.2
  */
 abstract class ControlPane
-    extends JPanel
+    extends ScrollablePanel//JPanel
 {
     
     /** The index of the domain. */

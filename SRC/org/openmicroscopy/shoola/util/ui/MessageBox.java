@@ -33,7 +33,7 @@ import javax.swing.JFrame;
 
 /** 
  * This is a messageBox dialog which will as the user a question and return 
- * a Yes, No or Cancel answer. 
+ * a <code>Yes</code>, <code>No</code> or <code>Cancel</code> answer. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

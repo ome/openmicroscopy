@@ -82,6 +82,7 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -147,33 +148,69 @@ class TreeViewerComponent
 	/**
 	 * Displays the data browser corresponding to the passed node.
 	 * 
-	 * @param object
-	 * @param display
+	 * @param object 	The object of reference.
+	 * @param display	The node to handle.
 	 */
 	private void showDataBrowser(Object object, TreeImageDisplay display)
 	{
 		DataBrowser db;
 		TreeImageDisplay parent = null;
+		Browser browser = model.getSelectedBrowser();
 		if (display != null) parent = display.getParentDisplay();
 		if (object instanceof ImageData) {
-      	  if (parent != null) {
-      		  db = DataBrowserFactory.getDataBrowser(
-      				  				parent.getUserObject());
-      		  if (db != null) {
-      			  db.setComponentTitle("");
-              	  view.removeAllFromWorkingPane();
-              	  view.addComponent(db.getUI());
-              	  List<DataObject> nodes = 
-              		  model.getSelectedBrowser().getSelectedDataObjects();
-              	  //List<DataObject> nodes = new ArrayList<DataObject>();
-              	  //nodes.add((DataObject) object);
-              	  db.setSelectedNodes(nodes);
-      		  } else {
-      			  showDataBrowser(object, parent.getParentDisplay());
-      		  }
-      	  } else {
-      		view.removeAllFromWorkingPane();
-      	  }
+			if (parent != null) {
+				Object ho = parent.getUserObject();
+				db = DataBrowserFactory.getDataBrowser(ho);
+				if (db != null) {
+					db.setComponentTitle("");
+					view.removeAllFromWorkingPane();
+					view.addComponent(db.getUI());
+					db.setSelectedNodes(browser.getSelectedDataObjects());
+				} else {
+					if (DataBrowserFactory.hasBeenDiscarded(ho)) {
+						//refresh 
+						if (parent.isChildrenLoaded()) {
+	        				List l = parent.getChildrenDisplay();
+	        				if (l != null) {
+	        					Set s = new HashSet();
+	        					Iterator i = l.iterator();
+	        					if (ho instanceof DatasetData) {
+	        						TreeImageDisplay child;
+	        						//copy the node.
+	            					while (i.hasNext()) {
+	            						child = (TreeImageDisplay) i.next();
+	            						s.add(child.getUserObject());
+	            					}
+	        						setLeaves((TreeImageSet) parent, s);
+	        						db = DataBrowserFactory.getDataBrowser(ho);
+	        						db.setSelectedNodes(
+	        								browser.getSelectedDataObjects());
+	        					} 
+	        					else if (object instanceof TagAnnotationData) {
+	        						TagAnnotationData tag = 
+	        							(TagAnnotationData) ho;
+	        						if (tag.getTags() == null) {
+	        							TreeImageDisplay child;
+	                					while (i.hasNext()) {
+	                						child = (TreeImageDisplay) i.next();
+	                						s.add(child.getUserObject());
+	                					}
+	                					setLeaves((TreeImageSet) parent, s);
+	                					db = DataBrowserFactory.getDataBrowser(
+	                							ho);
+		        						db.setSelectedNodes(
+		        							browser.getSelectedDataObjects());
+	        						}
+	        					} 
+	        					//else view.removeAllFromWorkingPane();
+	        				}
+	        			}
+					} else
+						showDataBrowser(object, parent.getParentDisplay());
+				}
+			} else {
+				view.removeAllFromWorkingPane();
+			}
 		} else {
         	db = DataBrowserFactory.getDataBrowser(object);
         	if (db != null) {
@@ -194,7 +231,6 @@ class TreeViewerComponent
         				if (l != null) {
         					Set s = new HashSet();
         					Iterator i = l.iterator();
-        					
         					if (object instanceof DatasetData) {
         						TreeImageDisplay child;
         						//copy the node.
@@ -203,6 +239,10 @@ class TreeViewerComponent
             						s.add(child.getUserObject());
             					}
         						setLeaves((TreeImageSet) display, s);
+        						db = DataBrowserFactory.getDataBrowser(
+        								display.getUserObject());
+        						db.setSelectedNodes(
+        								browser.getSelectedDataObjects());
         					}
         					else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
@@ -212,11 +252,14 @@ class TreeViewerComponent
                 					while (i.hasNext()) {
                 						child = (TreeImageDisplay) i.next();
                 						s.add(child.getUserObject());
-                						setLeaves((TreeImageSet) display, s);
                 					}
+            						setLeaves((TreeImageSet) display, s);
+            						db = DataBrowserFactory.getDataBrowser(
+            								display.getUserObject());
+            						db.setSelectedNodes(
+            								browser.getSelectedDataObjects());
         						}
         					} 
-        					//else view.removeAllFromWorkingPane();
         				}
         			}// else showDataBrowser(object, parent);
         		}// else view.removeAllFromWorkingPane();
@@ -709,7 +752,24 @@ class TreeViewerComponent
 			fireStateChange();
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		Browser browser = model.getSelectedBrowser();
+		
+		Browser browser = null;
+		if (operation == CREATE_OBJECT) {
+			if (parent == null) {
+				if ((data instanceof ProjectData) || 
+					(data instanceof DatasetData))
+					browser = model.getBrowser(Browser.PROJECT_EXPLORER);
+				 else if (data instanceof ScreenData)
+					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+				else if (data instanceof TagAnnotationData)
+					browser = model.getBrowser(Browser.TAGS_EXPLORER);
+			}
+			if (browser != null) {
+				model.setSelectedBrowser(browser);
+				view.addBrowser(browser);
+			}
+		}
+		browser = model.getSelectedBrowser();
 		browser.refreshEdition(data, parent, operation);
 		
 		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
@@ -1854,6 +1914,7 @@ class TreeViewerComponent
 		DataBrowserFactory.discardAll();
 	    view.removeAllFromWorkingPane();
         if (b != null) b.refreshTree();
+        model.getMetadataViewer().setRootObject(null);
 	}
 
 	/**

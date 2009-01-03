@@ -59,6 +59,9 @@ public interface Formatter
 	/** The default color for image, dataset etc linkages. */
 	public static final Color DEFAULT_LINK = Color.RED;
 	
+	/** The default color for image, dataset etc linkages. */
+	public static final Color PROTOCOL_LINK = Color.GREEN;
+	
 	/**
 	 * Formats the text for the editor on segment s starting at position 
 	 * <code>(p0, p1)</code>. Returns the last position of the text.

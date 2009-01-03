@@ -152,6 +152,13 @@ public interface ImViewer
 	/** Bound Property name indicating that the renderer is shown or hidden. */
 	public static final String  HISTORY_VISIBLE_PROPERTY = "historyVisible";
 
+	/** 
+	 * Bound Property name indicating that the rendering settings have been 
+	 * modified. 
+	 */
+	public static final String  RND_SETTINGS_MODIFIED_PROPERTY = 
+			"rndSettingsModified";
+	
 	/** Identifies the <code>Color Picket</code> menu. */
 	public static final int 	COLOR_PICKER_MENU = 0;
 

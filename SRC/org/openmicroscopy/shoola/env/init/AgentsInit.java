@@ -125,10 +125,6 @@ public final class AgentsInit
 											agentReg);
         RegistryFactory.linkOS(containerReg.getDataService(), agentReg);
         RegistryFactory.linkMS(containerReg.getMetadataService(), agentReg);
-        
-        String omeroDir = (String) 
-        	containerReg.lookup(LookupNames.USER_HOME_OMERO);
-        agentReg.bind(LookupNames.USER_HOME_OMERO, omeroDir);
 		return agentReg;
 	}
 	

@@ -192,7 +192,12 @@ public class OptionsDialog
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		controlPanel.add(noButton);
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		JPanel p = UIUtilities.buildComponentPanelRight(controlPanel);
+		JPanel bar = new JPanel();
+		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
+		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		bar.add(controlPanel);
+		bar.add(Box.createVerticalStrut(10));
+		JPanel p = UIUtilities.buildComponentPanelRight(bar);
 		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return p;
 	}

@@ -47,6 +47,8 @@
          to restore a valid link to OMERO server in the background. 
          Non-positive values will be ignored and the internal default will
          be used instead. -->
+         
+    <entry name="/services/SERVER/offline" type="boolean">false</entry>
     <entry name="/services/LOGIN/omeds/max-retry" type="integer">10</entry>
     <!-- The interval, in milliseconds, between each attempt.
          Non-positive values will be ignored and the internal default will

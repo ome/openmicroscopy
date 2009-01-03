@@ -536,13 +536,6 @@ public class TreeViewerTranslator
 	                    		expanded.contains(new Long(ho.getId())));
                     results.add(display);
                 } else if (ho instanceof DatasetData) {
-                	/*
-                	if (orphan == null) {
-                		orphan = new TreeImageSet(ORPHANED_DATASETS);
-                		orphan.setChildrenLoaded(true);
-                		results.add(orphan); 
-                	}
-                	*/
                 	if (expandedTopNodes != null)
                 		expanded = 
                 			(List) expandedTopNodes.get(DatasetData.class);
@@ -552,9 +545,11 @@ public class TreeViewerTranslator
                 	while (k.hasNext()) {
                 		element = (DatasetData) k.next();
                 		display = transformDataset(element, userID, groupID);
-                		if (expanded != null)
+                		if (expanded != null) {
                 			display.setExpanded(
                 					expanded.contains(new Long(ho.getId())));
+                		}
+                			
                 		//orphan.addChildDisplay(display);
                 		results.add(display); 
                 	}

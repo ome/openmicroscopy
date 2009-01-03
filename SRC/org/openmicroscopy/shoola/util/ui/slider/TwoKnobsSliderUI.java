@@ -119,7 +119,7 @@ class TwoKnobsSliderUI
 	{
 		// Create the thumb image 
 		IconManager icons = IconManager.getInstance();
-		ImageIcon icon =  icons.getImageIcon(IconManager.THUMB);
+		ImageIcon icon = icons.getImageIcon(IconManager.THUMB);
 		thumbImage = icon.getImage();
 		icon = icons.getImageIcon(IconManager.THUMB_DISABLED);
 		disabledThumbImage = icon.getImage();
@@ -226,7 +226,6 @@ class TwoKnobsSliderUI
 					paintMajorTickForVertSlider( g, tickRect, yPos);
 					value += major;
 				}
-
 			}
 			g.translate(-tickRect.x, 0);
 		}    

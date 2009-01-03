@@ -31,7 +31,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -200,9 +199,12 @@ class GraphicsPane
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildGraphicsPane());
-        add(buildFieldsControls());
+    	double size[][] = {{TableLayout.FILL},  // Columns
+    	         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
+    	    	setLayout(new TableLayout(size));
+    	//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(buildGraphicsPane(), "0, 0");
+        add(buildFieldsControls(), "0, 2");
     }
     
     /** 
@@ -238,7 +240,7 @@ class GraphicsPane
     {
         JPanel p = new JPanel();
         double size[][] =
-        {{TableLayout.PREFERRED, 10, TableLayout.PREFERRED},  // Columns
+        {{TableLayout.PREFERRED, 10, TableLayout.FILL},  // Columns
          {TableLayout.PREFERRED, 5}}; // Rows
    	 	p.setLayout(new TableLayout(size));
    	 	JPanel panel = buildFieldsPanel("Min", minLabel, "Start", startField);
@@ -593,16 +595,10 @@ class GraphicsPane
      */
     public void focusLost(FocusEvent fe)
     {
-      if (fe.getSource() == startField) {
-    	  //if (isStartFieldValid()) startSelectionHandler();
-  		  //else 
-  			setTextFieldValue(startField, ""+(int) model.getWindowStart());
-      }
-      if (fe.getSource() == endField) {
-    	  //if (isEndFieldValid()) endSelectionHandler();
-  		  //else 
-  			  setTextFieldValue(endField, ""+(int) model.getWindowEnd());
-      }	
+      if (fe.getSource() == startField) 
+    	  setTextFieldValue(startField, ""+(int) model.getWindowStart());
+      if (fe.getSource() == endField)
+    	  setTextFieldValue(endField, ""+(int) model.getWindowEnd());	
     }
     
     /** 

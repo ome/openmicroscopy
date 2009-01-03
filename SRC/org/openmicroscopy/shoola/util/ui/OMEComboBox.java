@@ -28,7 +28,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
-import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 
 //Third-party libraries
 
@@ -67,10 +67,8 @@ public class OMEComboBox
 	{
 		int index = getSelectedIndex();
 		if (editedColor != null) {
-			//if (originalIndex != 0) {
-				if (originalIndex == index) setForeground(defaultForeground);
-				else setForeground(editedColor);
-			//}
+			if (originalIndex == index) setForeground(defaultForeground);
+			else setForeground(editedColor);
 		}
 	}
 	
@@ -111,14 +109,23 @@ public class OMEComboBox
 	}
 
 	/**
+	 * Sets the edited color. 
+	 * 
+	 * @param editedColor The value to set.
+	 */
+	public void setEditedColor(Color editedColor)
+	{ 
+		this.editedColor = editedColor;
+	}
+	
+	/**
 	 * Overridden to set the value of the original index.
 	 * @see JComboBox#setSelectedItem(Object)
 	 */
 	public void setSelectedItem(Object value)
 	{
 		super.setSelectedItem(value);
-		if (originalIndex == -1)
-			originalIndex = getSelectedIndex();
+		if (originalIndex == -1) originalIndex = getSelectedIndex();
 	}
 	
 	/**
@@ -130,22 +137,15 @@ public class OMEComboBox
 		if (originalIndex == -1) originalIndex = index;
 		super.setSelectedIndex(index);
 	}
-	
-	/**
-	 * Sets the edited color. 
-	 * 
-	 * @param editedColor The value to set.
-	 */
-	public void setEditedColor(Color editedColor)
-	{ 
-		this.editedColor = editedColor;
-	}
 
+	/**
+	 * Overridden to set the background and the disabled background.
+	 * @see JComboBox#setBackground(Color)
+	 */
 	public void setBackground(Color c)
 	{
 		super.setBackground(c);
-		
-		//this.setUIProperty("ComboBox.disabledBackground", c);
+		UIManager.getDefaults().put("ComboBox.disabledBackground", c);
 	}
 	
 }

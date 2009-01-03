@@ -47,7 +47,36 @@ public class ExitApplication
     extends RequestEvent
 {
 
+	/** 
+	 * Flag indicating to ask a question to the user before exiting the
+	 * application.
+	 */
+	private boolean askQuestion;
+	
     /** Creates a new instance. */
-    public ExitApplication() {}
+    public ExitApplication() 
+    {
+    	this(true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param askQuestion 	Pass <code>true</code> to ask a question before
+     * 						closing the application, <code>false</code>
+     * 						otherwise.
+     */
+    public ExitApplication(boolean askQuestion) 
+    {
+    	this.askQuestion = askQuestion;
+    }
+    
+    /**
+     * Returns <code>true</code> to ask a question before closing the
+     * application, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isAskQuestion() { return askQuestion; }
     
 }
