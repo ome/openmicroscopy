@@ -37,7 +37,6 @@ import omero.model.AcquisitionMode;
 import omero.model.Channel;
 import omero.model.ChannelI;
 import omero.model.ContrastMethod;
-import omero.model.Correction;
 import omero.model.Illumination;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
@@ -111,6 +110,20 @@ public class ChannelData
      */
     public int getIndex() { return index; }
     
+    /**
+     * Returns the label of the channel.
+     * Following the specification: Name>Fluor>Emission wavelength>index.
+     * 
+     * @return See above.
+     */
+    public String getChannelLabeling()
+    {
+    	String value = getName();
+    	if (value != null && value.trim().length() != 0) return value;
+    	value = getFluor(); 
+    	if (value != null && value.trim().length() != 0) return value;
+    	return ""+getEmissionWavelength();
+    }
     // Immutables
 
     /**
