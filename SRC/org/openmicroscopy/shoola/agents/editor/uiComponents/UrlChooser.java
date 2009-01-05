@@ -183,9 +183,13 @@ public class UrlChooser
 			webPage.setPage(DEMO_FILES_URL);
 		} catch (IOException e1) {
 			// Warn the user that they may not be online.
-			JOptionPane.showMessageDialog(this, "Could not find the download web-page. \n" +
-					"Please check your internet connection.",
-					"Problem loading download page", JOptionPane.WARNING_MESSAGE);
+			Registry registry = EditorAgent.getRegistry();
+			registry.getUserNotifier().notifyInfo(
+					"Problem accessing online files",
+					"Could not access the online example files. \n" +
+					"Please check your internet connection.");
+			
+			return;
 		}
 		webPage.setEditable(false);
 		webPage.addHyperlinkListener(this);
