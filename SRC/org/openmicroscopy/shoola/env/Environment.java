@@ -99,9 +99,10 @@ public class Environment
 	 * 
 	 * @return See above.
 	 */
-	public boolean isOffLine()
+	public boolean isServerAvailable()
 	{
-		return (Boolean) container.getRegistry().lookup(LookupNames.OFFLINE);
+		return (Boolean) container.getRegistry().lookup(
+				LookupNames.SERVER_AVAILABLE);
 	}
 	
 	/**

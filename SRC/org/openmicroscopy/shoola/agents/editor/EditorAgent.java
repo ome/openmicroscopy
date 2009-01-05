@@ -84,6 +84,18 @@ public class EditorAgent
 	}
 	
 	/**
+	 * Returns <code>true</code> if an OMERO server is available,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isServerAvailable()
+	{
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	return env.isServerAvailable();
+	}
+	
+	/**
 	 * Creates or recycles an editor.
 	 * @param event The event to handle.
 	 */
@@ -135,8 +147,7 @@ public class EditorAgent
      */
     public void activate()
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (env.isOffLine()) handleShowEditor();
+    	if (isServerAvailable()) handleShowEditor();
     }
 
     /**

@@ -39,6 +39,7 @@
     <structuredEntry name="/services/OMERODS" type="OMERODS">
       <port>4063</port>
     </structuredEntry>
+    <entry name="/services/SERVER/available" type="boolean">true</entry>
     
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory">/home/donald/tmp/</entry>
@@ -48,7 +49,7 @@
          Non-positive values will be ignored and the internal default will
          be used instead. -->
          
-    <entry name="/services/SERVER/offline" type="boolean">false</entry>
+    
     <entry name="/services/LOGIN/omeds/max-retry" type="integer">10</entry>
     <!-- The interval, in milliseconds, between each attempt.
          Non-positive values will be ignored and the internal default will

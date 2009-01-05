@@ -200,8 +200,8 @@ public class LookupNames
     
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     
-    /** Field to access the <code>Offline</code> information. */
-	public static final String OFFLINE = "/services/SERVER/offline";
+    /** Field to access the <code>Server Available</code> information. */
+	public static final String SERVER_AVAILABLE = "/services/SERVER/available";
 	
     //For blitz
     /** The value to replace in the FS config file. */

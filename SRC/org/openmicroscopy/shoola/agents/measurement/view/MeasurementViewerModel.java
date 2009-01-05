@@ -291,7 +291,8 @@ class MeasurementViewerModel
 	 */
 	String getImageTitle()
 	{
-		return EditorUtil.getPartialName(name)+" [ID: "+getImageID()+"]";
+		return "[ID: "+getImageID()+"] "+
+				EditorUtil.getPartialName(getImageName());
 	}
 	
 	/**

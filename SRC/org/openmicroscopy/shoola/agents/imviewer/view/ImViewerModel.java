@@ -440,8 +440,8 @@ class ImViewerModel
 	 */
 	String getImageTitle()
 	{
-		return EditorUtil.getPartialName(getImageName())+
-				" [ID: "+getImageID()+"]";
+		return "[ID: "+getImageID()+"] "+
+				EditorUtil.getPartialName(getImageName());
 	}
 	
 	/**
