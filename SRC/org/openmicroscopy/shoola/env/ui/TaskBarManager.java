@@ -250,8 +250,11 @@ public class TaskBarManager
 	/**
 	 * The exit action.
 	 * Just forwards to the container.
+	 * 
+	 * @param askQuestion 	Pass <code>true</code> to pop up a message before
+	 * 						quitting, <code>false</code> otherwise.
 	 */
-	private void doExit()
+	private void doExit(boolean askQuestion)
     {
         IconManager icons = IconManager.getInstance(container.getRegistry());
         /*
@@ -343,11 +346,15 @@ public class TaskBarManager
 				container.exit();
 		}
 		*/
-		
-        MessageBox msg = new MessageBox(view, "Exit application", 
-    			"Do you really want to close the application?", 
-    			icons.getIcon(IconManager.QUESTION));
-        int option = msg.centerMsgBox();
+        int option = MessageBox.YES_OPTION; 
+		if (askQuestion) {
+			 MessageBox msg = new MessageBox(view, "Exit application", 
+		    			"Do you really want to close the application?", 
+		    			icons.getIcon(IconManager.QUESTION));
+			 option = msg.centerMsgBox();
+		}
+       
+        
 		if (option == MessageBox.YES_OPTION) {
 			try {
 				CacheServiceFactory.shutdown(container);
@@ -442,7 +449,7 @@ public class TaskBarManager
 	private void attachOpenExitListeners()
 	{
 		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { doExit(); }
+			public void windowClosing(WindowEvent we) { doExit(true); }
 			public void windowOpened(WindowEvent we) { 
 				synchConnectionButtons();
 			}
@@ -526,7 +533,8 @@ public class TaskBarManager
 	public void eventFired(AgentEvent e) 
 	{
 		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();
-        else if (e instanceof ExitApplication) doExit();
+        else if (e instanceof ExitApplication) 
+        	doExit(((ExitApplication) e).isAskQuestion());
         else if (e instanceof SaveEventResponse) 
         	handleSaveEventResponse((SaveEventResponse) e);
 	}
@@ -547,7 +555,7 @@ public class TaskBarManager
 			Registry reg = container.getRegistry();;
 			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);
 			if (exp == null) container.exit(); //not connected
-			else doExit();
+			else doExit(true);
 		}
 	}
 

@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +37,8 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
+import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -278,6 +279,10 @@ public class EditorFactory
 			TaskBar tb = EditorAgent.getRegistry().getTaskBar();
 			tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
 			isAttached = false;
+			if (!EditorAgent.isServerAvailable()) {
+				EventBus bus = EditorAgent.getRegistry().getEventBus();
+		        bus.post(new ExitApplication(false));
+			}
 		}
 	}
 	
