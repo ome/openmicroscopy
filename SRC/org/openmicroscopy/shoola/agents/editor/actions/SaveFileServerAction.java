@@ -30,6 +30,7 @@ import java.awt.event.ActionEvent;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
@@ -56,10 +57,19 @@ public class SaveFileServerAction
 	private static final String 	DESCRIPTION = 
 		"Save the current file as a new file on the OMERO.server";
 	
-	/** Implement this method to disable the Save Action if no file is open. */
+	/** 
+	 * Implement this method to disable the Save Action if no file is open,
+	 * or if the server is not available.
+	 */
 	protected void onStateChange() {
 		int state = model.getState();
 		setEnabled(state == Editor.READY);
+		
+		// if server not available, disable
+		boolean serverAvailable = EditorAgent.isServerAvailable();
+		if (!serverAvailable) {
+			setEnabled(false);
+		}
 	}
 	
 	/** Creates a new instance.

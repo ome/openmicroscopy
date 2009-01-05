@@ -344,10 +344,9 @@ class SplashScreenManager
 		viewTop.setStatus(task, n);
 		if (doneTasks == totalTasks) {
 			viewTop.setStatusVisible(false);
-			Boolean offline = 
-				(Boolean) container.getRegistry().lookup(
-						LookupNames.SERVER_AVAILABLE);
-			if (!offline) {
+			Boolean online = (Boolean) container.getRegistry().lookup(
+					LookupNames.SERVER_AVAILABLE);
+			if (online) {
 				initializedView();
 				view.setVisible(true);
 			} else {

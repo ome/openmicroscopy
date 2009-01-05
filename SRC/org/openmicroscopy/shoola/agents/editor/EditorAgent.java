@@ -147,7 +147,7 @@ public class EditorAgent
      */
     public void activate()
     {
-    	if (isServerAvailable()) handleShowEditor();
+    	if (!isServerAvailable()) handleShowEditor();
     }
 
     /**

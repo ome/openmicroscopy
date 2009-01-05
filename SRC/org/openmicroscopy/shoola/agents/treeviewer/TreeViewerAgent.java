@@ -112,7 +112,7 @@ public class TreeViewerAgent
     public void activate()
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (env.isServerAvailable()) return;
+    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	long id = exp.getDefaultGroup().getId();

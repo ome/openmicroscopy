@@ -145,7 +145,7 @@ public final class SplashScreenInit
         //times as specified in the Container's configuration.
         Registry reg = container.getRegistry();
         Boolean b = (Boolean) reg.lookup(LookupNames.SERVER_AVAILABLE);
-        if (b) {
+        if (!b) {
         	splashScreen.close();
         	return;
         }
