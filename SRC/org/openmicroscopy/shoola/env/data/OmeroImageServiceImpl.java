@@ -37,8 +37,6 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
-import loci.formats.ImageReader;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -531,6 +529,7 @@ class OmeroImageServiceImpl
 		//Retrieve values from bio-formats
 		filters = new ArrayList<FileFilter>();
 		//improve that code.
+		/*
 		ImageReader reader = new ImageReader();
 		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
 		if (array != null) {
@@ -538,6 +537,7 @@ class OmeroImageServiceImpl
 				filters.add(array[i]);
 			}	
 		}
+		*/
 		return filters;
 	}
 	

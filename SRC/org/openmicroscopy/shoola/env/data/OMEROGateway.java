@@ -1156,7 +1156,7 @@ class OMEROGateway
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", ""+5000);
-			metadataStore = new OMEROMetadataStore(entry);
+			//metadataStore = new OMEROMetadataStore(entry);
 			connected = true;
 			//fillEnumerations();
 			return getUserDetails(userName);

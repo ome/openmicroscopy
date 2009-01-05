@@ -67,6 +67,7 @@ class MonitorClientImpl
 	 */
 	private void importImage(String path)
 	{
+		/*
 		OMEROWrapper reader = new OMEROWrapper();
 		ImportLibrary lib = new ImportLibrary(metadataStore, reader);
 		lib.setDataset(container.asDataset());
@@ -79,6 +80,7 @@ class MonitorClientImpl
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 	
 	/**
