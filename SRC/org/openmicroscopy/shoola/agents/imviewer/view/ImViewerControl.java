@@ -676,6 +676,18 @@ class ImViewerControl
     	if (released) model.renderXYPlane();
     }
     
+    void setSelectedPane(int index)
+    {
+    	int oldIndex = view.getTabbedIndex();
+		view.setSelectedPane(index);
+		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
+				index == ImViewer.VIEW_INDEX) ||
+				(index == ImViewer.PROJECTION_INDEX && 
+						oldIndex == ImViewer.VIEW_INDEX)) {
+			model.renderXYPlane();
+		}
+    }
+    
 	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
@@ -703,8 +715,8 @@ class ImViewerControl
 			JTabbedPane pane = (JTabbedPane) e.getSource();
 			Component c = pane.getSelectedComponent();
 			if (c instanceof ClosableTabbedPaneComponent) {
-				view.setSelectedPane(
-						((ClosableTabbedPaneComponent) c).getIndex());
+				int index = ((ClosableTabbedPaneComponent) c).getIndex();
+				setSelectedPane(index);
 			} else 
 				view.setSelectedPane(pane.getSelectedIndex());
 			return;

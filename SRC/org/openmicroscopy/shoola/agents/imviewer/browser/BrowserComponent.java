@@ -435,6 +435,10 @@ class BrowserComponent
 				gridView.paintImage();
 				break;
 			case ImViewer.PROJECTION_INDEX:	
+				projectionView.repaint();
+				break;
+			case ImViewer.VIEW_INDEX:	
+				view.zoomImage();
 				break;
 		}
 	}

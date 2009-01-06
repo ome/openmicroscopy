@@ -570,10 +570,14 @@ class ImViewerComponent
 		}
 		model.setZoomFitToWindow(factor == -1);
 		view.setZoomFactor(factor, zoomIndex);
-		if (view.isLensVisible() && 
-				model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
-			view.setImageZoomFactor((float) model.getZoomFactor());
-			view.scrollLens();	
+		
+		if (view.isLensVisible()) {
+			switch (model.getTabbedIndex()) {
+				case ImViewer.VIEW_INDEX:
+				case ImViewer.PROJECTION_INDEX:
+					view.setImageZoomFactor((float) model.getZoomFactor());
+					view.scrollLens();
+			}
 		}
 		controller.setPreferences();
 		postMeasurePlane();
@@ -2008,7 +2012,11 @@ class ImViewerComponent
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		bus.post(request);
-		view.selectTabbedPane(ImViewer.VIEW_INDEX);
+		int tabbedIndex = model.getTabbedIndex();
+		if (tabbedIndex != ImViewer.VIEW_INDEX) {
+			view.selectTabbedPane(ImViewer.VIEW_INDEX);
+			renderXYPlane();
+		}
 	}
 
 	/** 
@@ -2414,6 +2422,7 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
 		view.showView(index);
+		//renderXYPlane();
 	}
 
 	/** 

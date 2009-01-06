@@ -1938,7 +1938,7 @@ class ImViewerUI
 				tabs.insertClosableComponent(projectionViewPanel);
 				break;
 		}
-		setSelectedPane(index);
+		controller.setSelectedPane(index);
 	}
 
     /**
