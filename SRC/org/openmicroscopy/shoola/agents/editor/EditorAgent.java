@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.editor;
 
 
 //Java imports
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
@@ -93,6 +94,35 @@ public class EditorAgent
 	{
 		Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	return env.isServerAvailable();
+	}
+	
+	/**
+	 * Static method to open a local file. 
+	 * Creates or recycles an Editor to display the file. 
+	 * 
+	 * @param file		The local file to open. 
+	 */
+	public static void openLocalFile(File file) {
+		
+		if (file == null)		return;
+		if (!file.exists())		return;
+		
+		// gets a blank editor (one that has been created with a 'blank' model), 
+		// OR an existing editor if one has the same 
+		// file ID (will be 0 if editor file is local) and same file name, OR
+		// creates a new editor model and editor with this new file. 
+		Editor editor = EditorFactory.getEditor(file);
+	
+		// activates the editor
+		// if the editor is 'blank' or has just been created (above), 
+		// need to set the file
+		if (editor != null) {
+			if (editor.getState() == Editor.NEW)
+				editor.setFileToEdit(file);
+			
+			// this simply brings the editor to the front / de-iconifies it.
+			editor.activate();
+		}
 	}
 	
 	/**

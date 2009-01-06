@@ -124,35 +124,4 @@ public class XMLMethods
          } 
          return document;
 	}
-	
-	/**
-	 * This is a lightweight method to determine whether a file is an OMERO.editor file. 
-	 * It simply checks whether the root element of the file is called "ProtocolTitle".
-	 * It does not check whether the file is valid against it's XSD schema.
-	 * To do that, use isFileValidEditorFile(xmlFile)
-	 * 
-	 * @param xmlFile	The file to be checked 
-	 * @return		True if the file is an XML document that begins with "ProtocolTitle" element.
-	 */
-	public static boolean isFileEditorFile(File xmlFile) {
-		
-		try {
-			Document document = XMLMethods.readXMLtoDOM(xmlFile);
-			
-			/*
-			 * eg if file not found, above method will return null. 
-			 */
-			if (document == null) 
-				return false;
-			
-			Element rootElement = document.getDocumentElement();
-			String rootName = rootElement.getNodeName();
-			
-			return (rootName.equals(DataFieldConstants.PROTOCOL_TITLE));
-			
-		} catch (ParsingException e) {
-			return false;
-		}
-	}
-
 }

@@ -38,11 +38,13 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -210,6 +212,8 @@ public class LinkEditor
 	 */
 	private void updateLink() {
 		
+		FileFilter filter = new EditorFileFilter();
+		
 		/*
 		 * First check the value of the Absolute file path attribute
 		 */
@@ -220,15 +224,11 @@ public class LinkEditor
 			if (! linkedFile.exists()) {
 				linkType = BROKEN_LINK;
 			} else {
-				
-				if ((URLlink.endsWith(EditorFileFilter.PRO_XML))
-						&& (XMLMethods.isFileEditorFile(new File(URLlink))))
-							linkType = LOCAL_EDITOR_LINK;
+				if (filter.accept(linkedFile)) 
+						linkType = LOCAL_EDITOR_LINK;
 				else
-					linkType = LOCAL_LINK;
-				
+					linkType = LOCAL_LINK;	
 			}
-	
 		}
 		
 		// if null, check the Relative file path attribute..
@@ -255,8 +255,7 @@ public class LinkEditor
 					linkType = BROKEN_LINK;
 				} else {
 					// otherwise, set the link type according to file type
-					if (URLlink.endsWith(EditorFileFilter.PRO_XML)
-						&& (XMLMethods.isFileEditorFile(linkedFile)))
+					if (filter.accept(linkedFile))
 						linkType = RELATIVE_EDITOR_LINK;
 					else
 						linkType = RELATIVE_LINK;
@@ -479,18 +478,18 @@ public class LinkEditor
 	 */
 	public void actionPerformed(ActionEvent e) {
 
-		if (linkType==LOCAL_EDITOR_LINK || linkType==RELATIVE_EDITOR_LINK) {
+		if (linkType==LOCAL_EDITOR_LINK) {
 			
-			/*
-			 * Need a way to open file in Editor. 
-			 * Assume it is a local file, BUT in future, it may be a link
-			 * to another file on the server...
-			 * 
 			File f = new File(URLlink);
-			EditorAgent.openNewFile(f);
-			*/
+			// if link to local file that exists, open in Editor. 
+			if (f.exists())
+				EditorAgent.openLocalFile(f);
+			
 		}
-		else
+		else if (linkType==RELATIVE_EDITOR_LINK) {
+			// need to get absolute path from relative path! 
+		}
+		else {
 			/*
 			 * If not null, Check that the URLlink is a valid URL...
 			 */
@@ -506,7 +505,8 @@ public class LinkEditor
 				    }
 				}
 			}
-		BareBonesBrowserLaunch.openURL(URLlink);
+			BareBonesBrowserLaunch.openURL(URLlink);
+		}
 	}
 
 	/**
