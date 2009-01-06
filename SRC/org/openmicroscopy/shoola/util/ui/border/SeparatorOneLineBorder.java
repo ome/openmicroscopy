@@ -51,7 +51,7 @@ public class SeparatorOneLineBorder
     private static Color	DEFAULT_COLOR = Color.LIGHT_GRAY;
     
     /** Default thickness. */
-    private static int    DEFAULT_THICKNESS =2;
+    private static int    DEFAULT_THICKNESS = 1;
     
     /** Creates a default instance. */
 	public SeparatorOneLineBorder()
