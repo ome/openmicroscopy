@@ -86,6 +86,9 @@ class BrowserComponent
     /** The sub-component displaying the grid. */
     private GridUI			gridView;
     
+    /** The sub-component displaying the projection. */
+    private ProjectionUI	projectionView;
+    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -101,6 +104,7 @@ class BrowserComponent
         view = new BrowserUI();
         annotator = new AnnotatorUI();
         gridView = new GridUI();
+        projectionView = new ProjectionUI();
         view.setSibling(gridView);
     }
     
@@ -112,6 +116,7 @@ class BrowserComponent
         view.initialize(controller, model);
         annotator.initialize(view, model);
         gridView.initialize(model);
+        projectionView.initialize(model);
     }
     
     /** 
@@ -130,8 +135,8 @@ class BrowserComponent
             throw new IllegalArgumentException("Image cannot be null.");
         model.setRenderedImage(image);
         //Paint only if selected.
-        view.paintImage();
-        annotator.paintImage();
+        view.paintMainImage();
+        //annotator.paintImage();
         viewSplitImages();
     }
 
@@ -171,6 +176,9 @@ class BrowserComponent
 			case ImViewer.ANNOTATOR_INDEX:
 				annotator.removeComponentFromLayer(c);
 				break;
+			case ImViewer.PROJECTION_INDEX:
+				projectionView.removeComponentFromLayer(c);
+				break;
 		}
     }
 
@@ -201,6 +209,7 @@ class BrowserComponent
      */
     public void setZoomFactor(double factor, boolean reset)
     {
+    	int index = model.getSelectedIndex();
     	if (factor != -1) {
 	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
 	            factor < ZoomAction.MIN_ZOOM_FACTOR)
@@ -208,11 +217,19 @@ class BrowserComponent
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
     	} else {
-    		BufferedImage img = model.getRenderedImage();
+    		BufferedImage img = null;
+    		Dimension viewport = null;
+    		if (index == ImViewer.VIEW_INDEX) {
+    			img = model.getRenderedImage();
+    			viewport = view.getViewportSize();
+    		} else if (index == ImViewer.PROJECTION_INDEX) {
+    			img = model.getProjectedImage();
+    			viewport = projectionView.getViewportSize();
+    		}
+    			
     		if (img != null) {
     			int width = img.getWidth();
         		int height = img.getHeight();
-        		Dimension viewport = view.getCurrentViewport();
         		double zoomFactorX = 0;
         		if (width > 0) zoomFactorX = viewport.getWidth()/width;
         		double zoomFactorY = 0;
@@ -221,7 +238,11 @@ class BrowserComponent
     		}
     	}
         model.setZoomFactor(factor);
-        if (!reset) view.zoomImage();  
+        if (!reset) {
+        	if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
+        	else if (index == ImViewer.PROJECTION_INDEX)
+        		projectionView.zoomImage();
+        }
     }
 
     /** 
@@ -251,6 +272,7 @@ class BrowserComponent
         view.setComponentsSize(w, h);
         view.setPreferredSize(new Dimension(w+5, h+5));
         gridView.setGridSize();
+        projectionView.setComponentsSize(w, h);
     }
 
     /** 
@@ -262,8 +284,11 @@ class BrowserComponent
         if (b == model.isUnitBar()) return;
         model.setUnitBar(b);
         view.repaint();
-        if (model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+        int index = model.getSelectedIndex();
+        if (index == ImViewer.GRID_INDEX) 
         	gridView.repaint();
+        else if (index == ImViewer.PROJECTION_INDEX)
+        	projectionView.repaint();
     }
 
     /** 
@@ -278,8 +303,11 @@ class BrowserComponent
         Rectangle viewRect = view.getViewport().getBounds();
         if (viewRect.width >= model.getUnitBarSize()) {
         	view.repaint();
-        	if (model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+        	int index = model.getSelectedIndex();
+            if (index == ImViewer.GRID_INDEX) 
             	gridView.repaint();
+            else if (index == ImViewer.PROJECTION_INDEX)
+            	projectionView.repaint();
         	return;
         }
         
@@ -322,8 +350,11 @@ class BrowserComponent
 		if (model.getUnitBarColor().equals(color)) return;
 		model.setUnitBarColor(color);
 		view.repaint();
-		if (model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+		int index = model.getSelectedIndex();
+        if (index == ImViewer.GRID_INDEX) 
         	gridView.repaint();
+        else if (index == ImViewer.PROJECTION_INDEX)
+        	projectionView.repaint();
 	}
 
     /** 
@@ -345,8 +376,11 @@ class BrowserComponent
 		if (model.getBackgroundColor().equals(color)) return;
 		model.setBackgroundColor(color);
 		view.getViewport().setBackground(color);
-		if (model.getSelectedIndex() == ImViewer.GRID_INDEX)
-			gridView.getViewport().setBackground(color);
+		int index = model.getSelectedIndex();
+        if (index == ImViewer.GRID_INDEX) 
+        	gridView.getViewport().setBackground(color);
+        else if (index == ImViewer.PROJECTION_INDEX)
+        	projectionView.getViewport().setBackground(color);
 	}
 
 	/** 
@@ -384,6 +418,12 @@ class BrowserComponent
 	
 	/** 
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getProjectionView()
+     */
+	public JComponent getProjectionView() { return projectionView; }
+	
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setSelectedPane(int)
      */
 	public void setSelectedPane(int index)
@@ -393,6 +433,9 @@ class BrowserComponent
 				if (model.hasNoGridImages())
 					model.setGridImages();
 				gridView.paintImage();
+				break;
+			case ImViewer.PROJECTION_INDEX:	
+				break;
 		}
 	}
 	
@@ -410,13 +453,30 @@ class BrowserComponent
 
 	/** 
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getProjectionViewIcon()
+     */
+	public Icon getProjectionViewIcon()
+	{ 
+		return model.getProjectionViewIcon(); 
+	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getProjectionViewTitle()
+     */
+	public String getProjectionViewTitle()
+	{ 
+		return model.getProjectionViewTitle(); 
+	}
+	
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getGridViewTitle()
      */
 	public void viewSplitImages()
 	{
 		if (model.getSelectedIndex() != ImViewer.GRID_INDEX) return;
 		model.setGridImages();
-		gridView.paintImage();
 	}
 
 	/** 
@@ -480,9 +540,46 @@ class BrowserComponent
      */
 	public double getGridRatio() { return model.getGridRatio(); }
 
-	public void initializeMagnificationFactor(double f) {
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#initializeMagnificationFactor(double)
+     */
+	public void initializeMagnificationFactor(double f)
+	{
 		model.setZoomFactor(f);
-		
 	}
 
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setRenderProjected(BufferedImage)
+     */
+	public void setRenderProjected(BufferedImage image)
+	{
+		if (image == null) 
+            throw new IllegalArgumentException("Image cannot be null.");
+        model.setProjectedImage(image);
+        model.createDisplayedProjectedImage();
+        BufferedImage img = model.getDisplayedProjectedImage();
+        if (img == null) return;
+        //canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+        projectionView.repaint();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#hasProjectedPreview()
+	 */
+	public boolean hasProjectedPreview()
+	{
+		return model.getProjectedImage() != null;
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#getProjectedImage()
+	 */
+	public BufferedImage getProjectedImage()
+	{
+		return model.getProjectedImage();
+	}
 }

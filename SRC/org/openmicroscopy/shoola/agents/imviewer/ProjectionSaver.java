@@ -144,9 +144,6 @@ public class ProjectionSaver
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        if (exc instanceof DSOutOfServiceException) {
-        	System.err.println("OUT of service.");
-        }
         switch (index) {
 			case PREVIEW:
 				if (exc instanceof DSOutOfServiceException) {

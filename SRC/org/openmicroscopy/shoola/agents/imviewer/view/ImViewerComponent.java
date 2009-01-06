@@ -202,19 +202,6 @@ class ImViewerComponent
 		node.addMouseListenerToComponents(nodeListener);
 		view.addHistoryItem(node);
 	}
-	
-	/** 
-	 * Returns the description displayed in the status bar.
-	 * 
-	 * @return See above
-	 */
-	private String getLeftStatusText()
-	{
-		String text = "";
-		text += "Z="+(model.getDefaultZ()+1)+"/"+(model.getMaxZ()+1);
-		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
-		return text;
-	}
 
 	/**
 	 * Posts a {@link MeasurePlane} event to indicate that a new plane is
@@ -742,7 +729,7 @@ class ImViewerComponent
 		if (!init) browser.setComponentsSize(model.getMaxX(), model.getMaxY());
 		
 		*/
-		view.setLeftStatus(getLeftStatusText());
+		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (model.isPlayingChannelMovie())
 			model.setState(ImViewer.CHANNEL_MOVIE);
@@ -842,12 +829,14 @@ class ImViewerComponent
 			view.setChannelColor(index, c);
 			if (!model.isChannelActive(index)) {
 				setChannelActive(index, true);
-				view.setChannelActive(index, ImViewerUI.GRID_AND_VIEW);
+				view.setChannelActive(index, ImViewerUI.ALL_VIEW);
 			}
 
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
-			else renderXYPlane();
+			else {
+				renderXYPlane();
+			}
 			boolean b = model.isOriginalSettings();
 			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception e) {
@@ -887,15 +876,6 @@ class ImViewerComponent
 			int uiIndex = -1;
 			if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
 				if (model.getTabbedIndex() == ImViewer.GRID_INDEX) {
-					//if (view.getActiveChannelsInGrid().size() == 1) b = true;
-					/*
-					model.setChannelActive(index, b); 
-					if (b) 
-						firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
-								new Integer(index-1), new Integer(index));
-								*/
-					//view.setChannelsSelectionGridView();
-					//uiIndex = ImViewerUI.GRID_ONLY;
 					List<Integer> l = new ArrayList<Integer>();
 					List selectedChannels = view.getActiveChannelsInGrid();
 					for (int i = 0; i < model.getMaxC(); i++) {
@@ -908,6 +888,18 @@ class ImViewerComponent
 					}
 					historyActiveChannels = l;
 					view.setChannelsSelection(l);
+				} else if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) 
+				{
+					if (model.isChannelActive(index)) return;
+					boolean c;
+					for (int i = 0; i < model.getMaxC(); i++) {
+						c = i == index;
+						model.setChannelActive(i, c);  
+						if (c) 
+							firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+									new Integer(index-1), new Integer(index));
+					}
+					uiIndex = ImViewerUI.PROJECTION_ONLY;
 				} else {
 					if (model.isChannelActive(index)) return;
 					boolean c;
@@ -922,7 +914,7 @@ class ImViewerComponent
 					//view.setChannelsSelection();
 				}
 			} else {
-				uiIndex = ImViewerUI.GRID_AND_VIEW;
+				uiIndex = ImViewerUI.ALL_VIEW;
 				model.setChannelActive(index, b);
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 						new Integer(index-1), new Integer(index));
@@ -932,6 +924,8 @@ class ImViewerComponent
 			//view.setChannelsSelection();
 			renderXYPlane();
 			postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
+			
+			
 			b = model.isOriginalSettings();
 			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception ex) {
@@ -959,7 +953,7 @@ class ImViewerComponent
 			if (ImViewerAgent.isFastConnection())
 				model.firePlaneInfoRetrieval();
 			
-			view.setLeftStatus(getLeftStatusText());
+			view.setLeftStatus();
 		} else {
 			//TODO
 			//clean history, reset UI element
@@ -990,8 +984,13 @@ class ImViewerComponent
 				"This method can't be invoked in the DISCARDED, NEW or" +
 				" state.");
 		} 
-		model.fireImageRetrieval();
-		newPlane = false;
+		if (model.getTabbedIndex() == PROJECTION_INDEX) {
+			if (hasProjectedPreview())
+				previewProjection();
+		} else {
+			model.fireImageRetrieval();
+			newPlane = false;
+		}
 		fireStateChange();
 	}
 
@@ -1035,7 +1034,7 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, NEW or" +
 				"LOADING_RENDERING_CONTROL state.");
 		}
-		view.setChannelsSelection(ImViewerUI.GRID_AND_VIEW);
+		view.setChannelsSelection(ImViewerUI.ALL_VIEW);
 		renderXYPlane();
 	}
 
@@ -1619,7 +1618,7 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("The method cannot be invoked in " +
 			"the DISCARDED state.");
-		view.setLeftStatus(getLeftStatusText());
+		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		view.resetDefaults(); 
 	}
@@ -2507,7 +2506,13 @@ class ImViewerComponent
 			un.notifyInfo("Projection preview", "An error has occurred " +
 					"while projecting the data.");
 		}
-		projection.setProjectedImage(image);
+		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
+		//projection.setProjectedImage(image);
+		model.setRenderProjected(image);
+		view.setLeftStatus();
+		view.setPlaneInfoStatus();	
+		if (view.isLensVisible()) view.setLensPlaneImage();
+		fireStateChange();
 	}
 	
 	/** 
@@ -2572,7 +2577,7 @@ class ImViewerComponent
 		}
 		if (projection.isApplySettings()) {
 			projection.setStatus("Applying Rendering settings", false);
-			model.firePojectedRndSettingsCreation(indexes, image);
+			model.fireProjectedRndSettingsCreation(indexes, image);
 			fireStateChange();
 		} else {
 			notifyProjection("The projected image has been " +
@@ -2641,6 +2646,38 @@ class ImViewerComponent
 		view.setTitle(model.getImageTitle());
 		model.fireRenderingControlLoading(model.getPixelsID());
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#previewProjection()
+	 */
+	public void previewProjection()
+	{
+		//TODO: check state.
+		model.fireRenderProjected(view.getProjectionStartZ(), 
+				view.getProjectionEndZ(), view.getProjectionStepping(), 
+				view.getProjectionType());
+		//fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#projectImage()
+	 */
+	public void projectImage()
+	{
+		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#hasProjectedPreview()
+	 */
+	public boolean hasProjectedPreview()
+	{
+		// TODO Auto-generated method stub
+		return model.getBrowser().hasProjectedPreview();
 	}
     
 }

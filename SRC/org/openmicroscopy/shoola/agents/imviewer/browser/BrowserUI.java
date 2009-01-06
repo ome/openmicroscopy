@@ -36,6 +36,7 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 
 //Third-party libraries
@@ -104,9 +105,10 @@ class BrowserUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-    	getViewport().setLayout(null);
-    	getViewport().setBackground(model.getBackgroundColor());
-        getViewport().add(layeredPane);
+    	JViewport viewport = getViewport();
+    	viewport.setLayout(null);
+    	viewport.setBackground(model.getBackgroundColor());
+    	viewport.add(layeredPane);
     }
     
 	/**
@@ -183,7 +185,7 @@ class BrowserUI
      * This method should be called straight after setting the 
      * rendered image.
      */
-    void paintImage()
+    void paintMainImage()
     {
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
@@ -228,7 +230,7 @@ class BrowserUI
      * 
      * @return see above. 
      */
-    Dimension getCurrentViewport() { return getViewport().getSize(); }
+    Dimension getViewportSize() { return getViewport().getSize(); }
 
 	/**
 	 * Scrolls to the location.

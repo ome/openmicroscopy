@@ -24,9 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.util;
 
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,13 +56,7 @@ class ChannelButtonPopupMenu
     
     /** The text of the color picker menu item. */
     private static final String COLOR_PICKER = "Color picker";
-    
-    /** The text of the info menu item. */
-    private static final String INFO = "Channel's info";
-    
-    /** The item to bring up the Info dialog. */
-    private JMenuItem       infoItem;
-    
+ 
     /** The item to bring up the . */
     private JMenuItem       colorPickerItem;
     
@@ -76,15 +67,6 @@ class ChannelButtonPopupMenu
     private void createItems()
     {
         IconManager icons = IconManager.getInstance();
-        infoItem = new JMenuItem(INFO, icons.getIcon(IconManager.INFO));
-        infoItem.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-                channelButton.showInfo();
-        
-            }
-        });
         colorPickerItem = new JMenuItem(COLOR_PICKER, 
                             icons.getIcon(IconManager.COLOR_PICKER));
         colorPickerItem.addActionListener(new ActionListener() {
@@ -101,7 +83,6 @@ class ChannelButtonPopupMenu
     private void buildGUI()
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        //add(infoItem);
         add(colorPickerItem);
     }
     

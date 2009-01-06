@@ -96,7 +96,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
-import pojos.PixelsData;
 
 /** 
  * The {@link ImViewer} view.
@@ -125,11 +124,14 @@ class ImViewerUI
 	/** Indicates to update the channel buttons composing the main view. */
 	static final int 			VIEW_ONLY = 1;
 	
+	/** Indicates to update the channel buttons composing the main view. */
+	static final int 			PROJECTION_ONLY = 2;
+	
 	/**
-	 *  Indicates to update the channel buttons composing the grid view
-	 * and the main view. 
+	 * Indicates to update the channel buttons composing the grid view,
+	 * the projection view and the main view. 
 	 */
-	static final int 			GRID_AND_VIEW = 2;
+	static final int 			ALL_VIEW = 3;
 	
 	/** Indicates that only the image is displayed. */
 	static final int			NEUTRAL = 0;
@@ -296,6 +298,9 @@ class ImViewerUI
 	
 	/** The panel hosting the view. */
 	private ClosableTabbedPaneComponent			annotatorPanel;
+	
+	/** The panel hosting the view. */
+	private ClosableTabbedPaneComponent			projectionViewPanel;
 	
 	/** The object displaying the plane information, one per channel. */
 	private Map<Integer, PlaneInfoComponent>	planes;
@@ -722,14 +727,15 @@ class ImViewerUI
 					controller.getAction(ImViewerControl.TAB_VIEW));
 		menu.add(item);
 		item = new JMenuItem(
-				controller.getAction(ImViewerControl.TAB_ANNOTATION));
-		menu.add(item);
-		item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
+		menu.add(item);
+		boolean b = model.getMaxZ() > 1;
+		item = new JMenuItem(
+				controller.getAction(ImViewerControl.TAB_PROJECTION));
+		item.setEnabled(b);
 		menu.add(item);
 		return menu;
 	}
-
 
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
@@ -792,7 +798,16 @@ class ImViewerUI
 
 		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), 
 						gridViewPanel, "", ImViewer.GRID_INDEX);
-	
+		
+		projectionViewPanel = new ClosableTabbedPaneComponent(
+				ImViewer.PROJECTION_INDEX, browser.getProjectionViewTitle(),  
+				browser.getProjectionViewIcon(), "");
+		projectionViewPanel.setLayout(new TableLayout(tl));
+		projectionViewPanel.add(controlPane.buildProjectionComponent(), "0, 0");
+		projectionViewPanel.add(browser.getProjectionView(), "1, 0");
+		projectionViewPanel.add(
+				controlPane.getTimeSliderPane(ImViewer.PROJECTION_INDEX), 
+						"1, 1");
 		
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
@@ -1153,6 +1168,21 @@ class ImViewerUI
 		controlPane.onStateChange(b); 
 	}
 
+	/** Sets the default text of the status bar. */
+	void setLeftStatus()
+	{
+		String text = "";
+		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
+			text += "Z range:"+(getProjectionStartZ()+1);
+			text += "-"+(getProjectionEndZ()+1);
+			text += "/"+(model.getMaxZ()+1);
+		} else {
+			text += "Z="+(model.getDefaultZ()+1)+"/"+(model.getMaxZ()+1);
+		}
+		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
+		setLeftStatus(text);
+	}
+	
 	/**
 	 * Updates status bar.
 	 * 
@@ -1209,34 +1239,6 @@ class ImViewerUI
 				panel.add(comp);
 			}
 		}
-		
-		/*
-		while (i.hasNext()) {
-			s = "";
-			toolTipText = "";
-			tips = new ArrayList<String>();
-			index = i.next();
-			info = model.getPlane(z, index, t);
-			if (info != null) {
-				details = EditorUtil.transformPlaneInfo(info);
-				l = new JLabel();
-				l.setIcon(new ColourIcon(ICON_DIMENSION, colors.get(index)));
-				s += details.get(EditorUtil.DELTA_T)+"s ";
-				toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-				toolTipText += details.get(EditorUtil.EXPOSURE_TIME)+"s";
-				tips.add(toolTipText);
-				toolTipText = "";
-				toolTipText += "Stage coordinates: ";
-				toolTipText += details.get(EditorUtil.POSITION_X)+", ";
-				toolTipText += details.get(EditorUtil.POSITION_Y)+", ";
-				toolTipText += details.get(EditorUtil.POSITION_Z)+" ";
-				tips.add(toolTipText);
-				l.setToolTipText(UIUtilities.formatToolTipText(tips));
-				l.setText(s);
-				panel.add(l);
-			}
-		}
-		*/
 		statusBar.setCenterStatus(panel);
 		
 	}
@@ -1246,7 +1248,8 @@ class ImViewerUI
 	 * deselected.
 	 * 
 	 * @param index One of the following constants {@link #GRID_ONLY},
-	 * 				{@link #VIEW_ONLY} and {@link #GRID_AND_VIEW}.
+	 * 				{@link #VIEW_ONLY}, {@link #PROJECTION_ONLY} 
+	 * 				and {@link #ALL_VIEW}.
 	 */
 	void setChannelsSelection(int index)
 	{ 
@@ -1303,6 +1306,10 @@ class ImViewerUI
 				break;
 			case ImViewer.ANNOTATOR_INDEX:
 				lens.setPlaneImage(model.getAnnotateImage());
+				break;
+			case ImViewer.PROJECTION_INDEX:
+				BufferedImage image = model.getProjectedImage();
+				if (image != null) lens.setPlaneImage(image);
 		}
 	}
 
@@ -1546,6 +1553,7 @@ class ImViewerUI
 			case ImViewer.VIEW_INDEX:
 			case ImViewer.ANNOTATOR_INDEX:
 			case ImViewer.GRID_INDEX:
+			case ImViewer.PROJECTION_INDEX:
 				tabs.setSelectedIndex(index);
 				break;
 			default:
@@ -1575,6 +1583,7 @@ class ImViewerUI
 				if (j != -1) menuBar.add(zoomGridMenu, j);
 				setMagnificationStatus(model.getBrowser().getGridRatio());
 				break;
+			case ImViewer.PROJECTION_INDEX:
 			case ImViewer.VIEW_INDEX:
 				default:
 				if (j != -1) menuBar.add(zoomMenu, j);
@@ -1582,13 +1591,17 @@ class ImViewerUI
 		}
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
+		toolBar.onTabbedSelection();
+		setLeftStatus();
+		/*
 		if (index == ImViewer.ANNOTATOR_INDEX) {
 			model.loadMetadata();
 		}
+		*/
 		model.getBrowser().setSelectedPane(index);
 		setLensVisible(isLensVisible(), oldIndex);
 	}
-
+	
 	/** Centers the image when the user maximized the viewer. */
 	void maximizeWindow()
 	{
@@ -1630,7 +1643,7 @@ class ImViewerUI
 	 * @param index   The channel's index.
 	 * @param uiIndex One of the following constants 
      * 				  {@link ImViewerUI#GRID_ONLY} and 
-	 * 				  {@link ImViewerUI#GRID_AND_VIEW}.
+	 * 				  {@link ImViewerUI#ALL_VIEW}.
 	 */
 	void setChannelActive(int index, int uiIndex)
 	{
@@ -1920,16 +1933,14 @@ class ImViewerUI
 				break;
 			case ImViewer.ANNOTATOR_INDEX:
 				tabs.insertClosableComponent(annotatorPanel);
+				break;
+			case ImViewer.PROJECTION_INDEX:
+				tabs.insertClosableComponent(projectionViewPanel);
+				break;
 		}
+		setSelectedPane(index);
 	}
-	
-    /**
-     * Returns the collection of pixels sets linked to the image.
-     * 
-     * @return See above.
-     */
-    List<PixelsData> getPixelsSets() { return model.getPixelsSets(); }
-    
+
     /**
      * Returns the id of the currently selected pixels.
      * 
@@ -1985,6 +1996,48 @@ class ImViewerUI
 	
 	/** Hides the plane information. */
 	void hidePlaneInfoDetails() { hideAnimation(); }
+	
+	/**
+	 * Returns the maximum number of z-sections.
+	 * 
+	 * @return See above.
+	 */
+	int getMaxZ() { return model.getMaxZ(); }
+	
+	/**
+	 * Returns the index of the selected tabbed.
+	 * 
+	 * @return See above.
+	 */
+	int getTabbedIndex() { return model.getTabbedIndex(); }
+	
+	/**
+	 * Returns the lower bound of the z-section to project.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionStartZ() { return controlPane.getProjectionStartZ(); }
+	
+	/**
+	 * Returns the lower bound of the z-section to project.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionEndZ() { return controlPane.getProjectionEndZ(); }
+	
+	/**
+	 * Returns the stepping used for the projection.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionStepping() { return toolBar.getProjectionStepping(); }
+	
+	/**
+	 * Returns the type of projection.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionType() { return toolBar.getProjectionType(); }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

@@ -245,11 +245,32 @@ public interface Browser
 	public JComponent getGridView();
 
 	/**
+	 * Returns the projection view.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getProjectionView();
+	
+	/**
 	 * Sets the selected pane.
 	 * 
 	 * @param index The index of the selected pane.
 	 */
 	public void setSelectedPane(int index);
+	
+	/**
+	 * Returns the name of the projection view.
+	 * 
+	 * @return See above.
+	 */
+	public String getProjectionViewTitle();
+	
+	/**
+	 * Returns the icon associated to the projection view.
+	 * 
+	 * @return See above.
+	 */
+	public Icon getProjectionViewIcon();
 	
 	/**
      * Returns the name of the grid view.
@@ -335,6 +356,33 @@ public interface Browser
 	 */
 	public Color getBackgroundColor();
 	
+	/**
+	 * Initializes the magnification factor.
+	 * 
+	 * @param f The value to set.
+	 */ 
 	public void initializeMagnificationFactor(double f);
+
+    /**
+     * Sets the projected image for preview.
+     * 
+     * @param image The buffered image.
+     */
+	public void setRenderProjected(BufferedImage image);
+	
+	/**
+	 * Returns <code>true</code> if a projected image has already been
+	 * built, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasProjectedPreview();
+
+	/**
+	 * Returns the projected image if any, otherwise <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public BufferedImage getProjectedImage();
 	
 }

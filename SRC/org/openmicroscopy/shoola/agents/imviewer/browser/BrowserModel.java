@@ -88,6 +88,9 @@ class BrowserModel
 	/** The title of the grid view. */
 	private static final String TITLE_GRIDVIEW = "Split";
 	
+	/** The title of the projection view. */
+	private static final String TITLE_PROJECTIONVIEW = "Projection";
+	
     /** Reference to the component that embeds this model. */ 
     private Browser         	component;
     
@@ -99,6 +102,12 @@ class BrowserModel
      * This image may have been transformed i.e. zoomed, sharpened etc.
      */
     private BufferedImage   	displayedImage;
+    
+    /** The projected image. */
+    private BufferedImage		projectedImage;
+    
+    /** The projected image. */
+    private BufferedImage		displayedProjectedImage;
     
     /** A smaller version (default 50%) of the original image. */
     private BufferedImage		annotateImage;
@@ -482,6 +491,18 @@ class BrowserModel
     BufferedImage getDisplayedImage() { return displayedImage; }
     
     /**
+     * Returns the image to paint on screen. This image is a transformed 
+     * version of the projected image. We apply several transformations to the
+     * {@link #projectedImage} e.g. zooming.
+     * 
+     * @return See above.
+     */
+    BufferedImage getDisplayedProjectedImage()
+    { 
+    	return displayedProjectedImage;
+    }
+    
+    /**
      * Returns the rendered image.
      * 
      * @return See above.
@@ -540,6 +561,26 @@ class BrowserModel
         } else displayedImage = renderedImage;
     }
    
+    /**
+     * Creates the {@link #displayedImage}. The method should be invoked
+     * after the {@link #setRenderedImage(BufferedImage)} method.
+     */
+    void createDisplayedProjectedImage()
+    {
+        if (projectedImage == null) return;
+        if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
+        	BufferedImage img = null;
+        	try {
+				img = Factory.magnifyImage(projectedImage, zoomFactor, 0);
+			} catch (Exception e) {
+				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Magnification", 
+						"An error occurs while magnifying the image.");
+			}
+			if (img != null) displayedProjectedImage = img;
+        } else displayedProjectedImage = projectedImage;
+    }
+    
     /** 
      * Returns the number of z-sections. 
      * 
@@ -685,6 +726,24 @@ class BrowserModel
     { 
     	IconManager icons = IconManager.getInstance();
     	return icons.getIcon(IconManager.GRIDVIEW); 
+    }
+    
+    /**
+     * Returns the title of the <code>Grid View</code>.
+     * 
+     * @return See above.
+     */
+    String getProjectionViewTitle() { return TITLE_PROJECTIONVIEW; }
+    
+    /**
+     * Returns the icon of the <code>Annotator</code>.
+     * 
+     * @return See above.
+     */
+    Icon getProjectionViewIcon()
+    { 
+    	IconManager icons = IconManager.getInstance();
+    	return icons.getIcon(IconManager.PROJECTION); 
     }
     
     /**
@@ -947,4 +1006,21 @@ class BrowserModel
 		cmd.execute();
 	}
 
+	/**
+	 * Returns the projected image if any.
+	 * 
+	 * @return See above.
+	 */
+	BufferedImage getProjectedImage() { return projectedImage; }
+
+	/**
+	 * Returns the projected image if any.
+	 * 
+	 * @param projectedImage The projected image.
+	 */
+	void setProjectedImage(BufferedImage projectedImage)
+	{
+		this.projectedImage = projectedImage;
+	}
+	
 }

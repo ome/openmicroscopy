@@ -30,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +40,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -60,6 +63,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import pojos.ChannelData;
 
 /** 
@@ -79,37 +84,48 @@ import pojos.ChannelData;
  */
 class ControlPane
     extends JPanel
-    implements ActionListener, ChangeListener, MouseWheelListener
+    implements ActionListener, ChangeListener, MouseWheelListener, 
+    			PropertyChangeListener
 {
 
     /** The description of a z-sections selection slider. */
-    private static final String Z_SLIDER_DESCRIPTION = "Use the slider to " +
-                            "select a z-section.";
+    private static final String 	Z_SLIDER_DESCRIPTION = 
+    								"Select a z-section.";
 
     /** The description of a timepoint selection slider. */
-    private static final String T_SLIDER_DESCRIPTION = "Use the slider to " +
-                            "select a timepoint.";
+    private static final String 	T_SLIDER_DESCRIPTION = 
+    								"Select a timepoint.";
     
     /** The description of a magnification selection slider. */
-    private static final String RATIO_SLIDER_DESCRIPTION = "Select the " +
+    private static final String 	RATIO_SLIDER_DESCRIPTION = "Select the " +
                             "magnification factor of an image composing " +
                             "the grid.";
 
     /** The description of a magnification selection slider. */
-    private static final String ZOOM_SLIDER_DESCRIPTION = "Select the " +
+    private static final String 	ZOOM_SLIDER_DESCRIPTION = "Select the " +
                             "magnification factor of the image.";
     
+    /** The description of a z-sections selection slider. */
+    private static final String 	PROJECTION_SLIDER_DESCRIPTION = 
+                            "Select the interval of z-sections to project.";
+    
     /** The tipString of the {@link #zSlider}. */
-    private static final String Z_SLIDER_TIPSTRING = "Z";
+    private static final String 	Z_SLIDER_TIPSTRING = "Z";
 
     /** The tipString of the {@link #tSlider}. */
-    private static final String T_SLIDER_TIPSTRING = "T";
+    private static final String 	T_SLIDER_TIPSTRING = "T";
     
     /** The maximum height of a magnification slider. */
-    private static final int	SLIDER_HEIGHT = 100;
+    private static final int		SLIDER_HEIGHT = 100;
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
+    
+    /** 
+     * The maximum number of channels before displaying the channels 
+     * buttons in a scrollpane.
+     */
+    private static final int		MAX_CHANNELS = 10;
     
     /** Reference to the Control. */
     private ImViewerControl 		controller;
@@ -138,17 +154,29 @@ class ControlPane
     /** Slider to select the timepoint. */
     private OneKnobSlider			tSliderAnnotator;
     
+    /** Slider to select the timepoint. */
+    private OneKnobSlider			tSliderProjection;
+    
+    /** Slider to select the z-sections interval to project. */
+    private TwoKnobsSlider			projectionRange;
+    
     /** Slider to set the magnification factor of an image of the grid. */
     private OneKnobSlider			gridRatioSlider;
     
     /** Slider to set the magnification factor of the image. */
     private OneKnobSlider			ratioSlider;
     
+    /** Slider to set the magnification factor of the image. */
+    private OneKnobSlider			projectionRatioSlider;
+    
     /** One  {@link ChannelButton} per channel. */
     private List<ChannelButton>		channelButtons;
 
     /** One  {@link ChannelButton} per channel. */
     private List<ChannelButton>		channelButtonsGrid;
+    
+    /** One  {@link ChannelButton} per channel. */
+    private List<ChannelButton>		channelButtonsProjection;
    
     /** Button to play movie across channel. */
     private JButton         		channelMovieButton;
@@ -158,6 +186,9 @@ class ControlPane
     
     /** Button to select the color model. */
     private JButton         		colorModelButtonGrid;
+    
+    /** Button to select the color model. */
+    private JButton         		colorModelButtonProjection;
     
     /** Button to bring up the color picker. */
     private JButton         		colorPickerButton;
@@ -176,6 +207,12 @@ class ControlPane
     
     /** Button to play movie across T displayed in the split view. */
     private JButton					playZMovieGrid;
+    
+    /** Button to select preview the projection. */
+    private JButton         		projectionPreview;
+    
+    /** Button to bring up the color picker. */
+    private JButton         		projectionProject;
     
     /** Helper reference. */
     private IconManager     		icons;
@@ -263,7 +300,12 @@ class ControlPane
     {
     	channelButtons = new ArrayList<ChannelButton>();
     	channelButtonsGrid = new ArrayList<ChannelButton>();
-
+    	channelButtonsProjection = new ArrayList<ChannelButton>();
+    	projectionRange = new TwoKnobsSlider(0, 1, 0, 1);
+    	projectionRange.setOrientation(TwoKnobsSlider.VERTICAL);
+    	projectionRange.setEnabled(false);
+    	projectionRange.setToolTipText(PROJECTION_SLIDER_DESCRIPTION);
+    	
         zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
         tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
@@ -276,6 +318,8 @@ class ControlPane
         zSliderAnnotator.setEnabled(false);
         tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderAnnotator.setEnabled(false);
+        tSliderProjection = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+        tSliderProjection.setEnabled(false);
         
         IconManager icons = IconManager.getInstance();
         gridRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 1, 10, 5);
@@ -297,7 +341,18 @@ class ControlPane
         		icons.getImageIcon(IconManager.RATIO_MAX), 
         		icons.getImageIcon(IconManager.RATIO_MIN));
         
-        
+        projectionRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 
+				ZoomAction.MIN_ZOOM_INDEX, 
+				ZoomAction.MAX_ZOOM_INDEX, 
+				ZoomAction.DEFAULT_ZOOM_INDEX);
+        projectionRatioSlider.setEnabled(true);
+        projectionRatioSlider.setShowArrows(true);
+        projectionRatioSlider.setToolTipText(ZOOM_SLIDER_DESCRIPTION);
+
+        projectionRatioSlider.setArrowsImageIcon(
+        		icons.getImageIcon(IconManager.RATIO_MAX), 
+        		icons.getImageIcon(IconManager.RATIO_MIN));
+
         channelMovieButton = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(channelMovieButton);
@@ -307,6 +362,10 @@ class ControlPane
         colorModelButtonGrid = new JButton();
         UIUtilities.unifiedButtonLookAndFeel(colorModelButtonGrid);
         colorModelButtonGrid.addActionListener(controller);
+        
+        colorModelButtonProjection = new JButton();
+        UIUtilities.unifiedButtonLookAndFeel(colorModelButtonProjection);
+        colorModelButtonProjection.addActionListener(controller);
         
         ViewerAction a = controller.getAction(ImViewerControl.COLOR_PICKER);
         colorPickerButton = new JButton(a);
@@ -328,6 +387,11 @@ class ControlPane
 	    playZMovieGrid = new JButton(
 				controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovieGrid);
+	    
+	    projectionPreview = new JButton(
+	    		controller.getAction(ImViewerControl.PROJECTION_PREVIEW));
+	    projectionProject = new JButton(
+	    		controller.getAction(ImViewerControl.PROJECTION_PROJECT));
     }
     
     /**
@@ -363,6 +427,15 @@ class ControlPane
     {
         int maxZ = model.getMaxZ();
         int maxT = model.getMaxT();
+        projectionRange.setValues(maxZ+1, 1, maxZ+1, 1, 1, maxZ+1);
+        projectionRange.addPropertyChangeListener(this);
+        projectionRange.addMouseWheelListener(this);
+        projectionRange.setToolTipText(PROJECTION_SLIDER_DESCRIPTION);
+        
+        
+        initSlider(tSliderProjection, maxT, model.getDefaultT(), 
+        		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        
         initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         initSlider(zSliderGrid, maxZ, model.getDefaultZ(), 
@@ -377,6 +450,7 @@ class ControlPane
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         gridRatioSlider.addChangeListener(this);
         ratioSlider.addChangeListener(this);
+        projectionRatioSlider.addChangeListener(this);
         
         playTMovie.setVisible(maxT != 0);
         playTMovieGrid.setVisible(maxT != 0);
@@ -388,6 +462,10 @@ class ControlPane
         colorModelButtonGrid.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButtonGrid.setToolTipText(
         				getColorModelDescription(model.getColorModel()));
+        colorModelButtonProjection.setIcon(
+        		getColorModelIcon(model.getColorModel()));
+        colorModelButtonProjection.setToolTipText(
+        				getColorModelDescription(model.getColorModel()));
     }
     
     /**
@@ -396,7 +474,7 @@ class ControlPane
      * @param slider    The slider to host.
      * @return See above.
      */
-    private JPanel layoutSlider(JSlider slider)
+    private JPanel layoutSlider(JComponent slider)
     {
         JPanel pane = new JPanel();
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
@@ -495,6 +573,21 @@ class ControlPane
         return bar;
     }
     
+    /** 
+     * Builds the tool bar displayed on the left side of the  projection view.
+     * 
+     * @return See above.
+     */
+    private JPanel buildProjectionBar()
+    {
+    	JPanel bar = new JPanel();
+    	bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
+        bar.setBorder(null);
+        bar.add(projectionPreview);
+        bar.add(projectionProject);
+        return bar;
+    }
+    
     /**
      * Creates a UI component hosting the {@link ChannelButton}s.
      * 
@@ -523,7 +616,8 @@ class ControlPane
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildToolBar(), "0, 1, c, c");
-        if (data.length > 10) controls.add(new JScrollPane(p), "0, 2");
+        if (data.length > MAX_CHANNELS) 
+        	controls.add(new JScrollPane(p), "0, 2");
         else controls.add(p, "0, 2");
         controls.add(ratioSlider, "0, 3, c, c");
         return UIUtilities.buildComponentPanel(controls);
@@ -659,7 +753,9 @@ class ControlPane
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildGridBar(), "0, 1, c, c");
-        controls.add(buttons, "0, 2");
+        if (channelButtonsGrid.size() > MAX_CHANNELS) 
+        	controls.add(new JScrollPane(buttons), "0, 2");
+        else controls.add(buttons, "0, 2");
         controls.add(gridRatioSlider, "0, 3, c, c");
         
         JPanel content = new JPanel();
@@ -668,6 +764,50 @@ class ControlPane
         content.add(p);
         return content;
     }
+    
+    /**
+     * Builds the component hosting the controls to manage the projected image.
+     * 
+     * @return See above.
+     */
+    JPanel buildProjectionComponent()
+    {
+    	JPanel p = layoutSlider(projectionRange);
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
+        ChannelButton button;
+        buttons.add(Box.createRigidArea(VBOX));
+        channelButtonsProjection = createChannelButtons();
+        Iterator<ChannelButton> i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+        	button = i.next();
+        	buttons.add(button);
+            buttons.add(Box.createRigidArea(VBOX));
+            button.addPropertyChangeListener(controller);
+            
+		}
+        JPanel controls = new JPanel();
+        double size[][] = {{TableLayout.PREFERRED}, 
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
+        				SLIDER_HEIGHT}};
+        
+        controls.setLayout(new TableLayout(size));
+        controls.add(Box.createVerticalStrut(20), "0, 0");
+        controls.add(buildProjectionBar(), "0, 1");
+        controls.add(colorModelButtonProjection, "0, 2, c, c");
+        if (channelButtonsProjection.size() > MAX_CHANNELS) 
+        	controls.add(new JScrollPane(buttons), "0, 3, c, c");
+        else controls.add(buttons, "0, 3, c, c");
+        controls.add(projectionRatioSlider, "0, 4, c, c");
+        
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
+        content.add(UIUtilities.buildComponentPanel(controls));
+        content.add(p);
+        return content;
+    }
+    
     
     /**
      * Updates UI components when a new timepoint is selected.
@@ -679,6 +819,7 @@ class ControlPane
     	updateSlider(tSlider, t);
     	updateSlider(tSliderGrid, t);
     	updateSlider(tSliderAnnotator, t);
+    	updateSlider(tSliderProjection, t);
     }
     
     /**
@@ -713,12 +854,22 @@ class ControlPane
                    model.isChannelActive(button.getChannelIndex()));
             button.setGrayedOut(gs);
         }
-        
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            button.setSelected(
+            		model.isChannelActive(button.getChannelIndex()));
+            button.setGrayedOut(gs);
+        }
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(getColorModelDescription(
 				model.getColorModel()));
         colorModelButtonGrid.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButtonGrid.setToolTipText(getColorModelDescription(
+				model.getColorModel()));
+        colorModelButtonProjection.setIcon(
+        		getColorModelIcon(model.getColorModel()));
+        colorModelButtonProjection.setToolTipText(getColorModelDescription(
 				model.getColorModel()));
     }
     
@@ -745,7 +896,7 @@ class ControlPane
      * 
      * @param index One of the following constants {@link ImViewerUI#GRID_ONLY},
 	 * 				{@link ImViewerUI#VIEW_ONLY} and 
-	 * 				{@link ImViewerUI#GRID_AND_VIEW}.
+	 * 				{@link ImViewerUI#ALL_VIEW}.
      */
     void setChannelsSelection(int index)
     {
@@ -768,7 +919,15 @@ class ControlPane
 		                    model.isChannelActive(button.getChannelIndex()));
 		        }
 				break;
-			case ImViewerUI.GRID_AND_VIEW:
+			case ImViewerUI.PROJECTION_ONLY:
+				i = channelButtonsProjection.iterator();
+				while (i.hasNext()) {
+		            button = (ChannelButton) i.next();
+		            button.setSelected(
+		                    model.isChannelActive(button.getChannelIndex()));
+		        }
+				break;
+			case ImViewerUI.ALL_VIEW:
 				i = channelButtons.iterator();
 				while (i.hasNext()) {
 		            button = (ChannelButton) i.next();
@@ -776,6 +935,12 @@ class ControlPane
 		                    model.isChannelActive(button.getChannelIndex()));
 		        }
 				i = channelButtonsGrid.iterator();
+				while (i.hasNext()) {
+		            button = (ChannelButton) i.next();
+		            button.setSelected(
+		                    model.isChannelActive(button.getChannelIndex()));
+		        }
+				i = channelButtonsProjection.iterator();
 				while (i.hasNext()) {
 		            button = (ChannelButton) i.next();
 		            button.setSelected(
@@ -805,6 +970,12 @@ class ControlPane
             if (index == button.getChannelIndex()) 
                 button.setColor(c);
         }
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            if (index == button.getChannelIndex()) 
+                button.setColor(c);
+        }
     }
     
     /** Resets the default. */
@@ -829,12 +1000,22 @@ class ControlPane
             button.setColor(model.getChannelColor(index)); 
             button.setGrayedOut(gs);
         }
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            index = button.getChannelIndex();
+            button.setSelected(model.isChannelActive(index));
+            button.setColor(model.getChannelColor(index)); 
+            button.setGrayedOut(gs);
+        }
         Icon icon = getColorModelIcon(model.getColorModel());
         String tip = getColorModelDescription(model.getColorModel());
         colorModelButton.setIcon(icon);
         colorModelButton.setToolTipText(tip);
         colorModelButtonGrid.setIcon(icon);
         colorModelButtonGrid.setToolTipText(tip);
+        colorModelButtonProjection.setIcon(icon);
+        colorModelButtonProjection.setToolTipText(tip);
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
     }
@@ -896,6 +1077,8 @@ class ControlPane
 	        	p.add(createMovieButtonBar(playTMovieGrid));
 	        	p.add(tSliderGrid);
 	        	return p;
+			case ImViewer.PROJECTION_INDEX:
+				return layoutSlider(tSliderProjection);
 			case ImViewer.VIEW_INDEX:
 			default:
 				JPanel pane = new JPanel();
@@ -932,10 +1115,12 @@ class ControlPane
             zSlider.setEnabled(model.getMaxZ() != 0);
             zSliderGrid.setEnabled(model.getMaxZ() != 0);
             zSliderAnnotator.setEnabled(model.getMaxZ() != 0);
+            projectionRange.setEnabled(model.getMaxZ() != 0);
         } else {
             zSlider.setEnabled(b);
             zSliderGrid.setEnabled(b);
             zSliderAnnotator.setEnabled(b);
+            projectionRange.setEnabled(b);
         } 
 	}
     
@@ -952,10 +1137,12 @@ class ControlPane
             tSlider.setEnabled(model.getMaxT() != 0);
             tSliderGrid.setEnabled(model.getMaxT() != 0);
             tSliderAnnotator.setEnabled(model.getMaxT() != 0);
+            tSliderProjection.setEnabled(model.getMaxT() != 0);
         } else {
             tSlider.setEnabled(b);
             tSliderGrid.setEnabled(b);
             tSliderAnnotator.setEnabled(b);
+            tSliderProjection.setEnabled(b);
         } 
 	}
     
@@ -965,7 +1152,7 @@ class ControlPane
      * @param index   The channel's index.
      * @param uiIndex One of the following constants 
      * 				  {@link ImViewerUI#GRID_ONLY} and 
-	 * 				  {@link ImViewerUI#GRID_AND_VIEW}.
+	 * 				  {@link ImViewerUI#ALL_VIEW}.
      */
     void setChannelActive(int index, int uiIndex)
     {
@@ -980,7 +1167,7 @@ class ControlPane
 			                button.setSelected(true);
 			        }
 				break;
-			case ImViewerUI.GRID_AND_VIEW:
+			case ImViewerUI.ALL_VIEW:
 				i = channelButtons.iterator();
 				while (i.hasNext()) {
 					button = (ChannelButton) i.next();
@@ -988,6 +1175,12 @@ class ControlPane
 						button.setSelected(true);
 				}
 				i = channelButtonsGrid.iterator();
+				while (i.hasNext()) {
+					button = (ChannelButton) i.next();
+					if (index == button.getChannelIndex()) 
+						button.setSelected(true);
+				}
+				i = channelButtonsProjection.iterator();
 				while (i.hasNext()) {
 					button = (ChannelButton) i.next();
 					if (index == button.getChannelIndex()) 
@@ -1014,6 +1207,23 @@ class ControlPane
     }
     
     /**
+     * Returns the collection of active channels in the projection view.
+     * 
+     * @return See above.
+     */
+    List getActiveChannelsInProjection()
+    {
+    	List<Integer> active = new ArrayList<Integer>();
+    	Iterator i = channelButtonsProjection.iterator();
+    	ChannelButton button;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            if (button.isSelected()) active.add(button.getChannelIndex());
+        }
+        return active;
+    }
+    
+    /**
      * Updates UI components when a zooming factor is selected.
      * 
      * @param zoomIndex The index of the selected zoomFactor.
@@ -1026,8 +1236,25 @@ class ControlPane
     	ratioSlider.removeChangeListener(this);
     	ratioSlider.setValue(zoomIndex);
     	ratioSlider.addChangeListener(this);
+    	projectionRatioSlider.removeChangeListener(this);
+    	projectionRatioSlider.setValue(zoomIndex);
+    	projectionRatioSlider.addChangeListener(this);
     }
     
+    /**
+	 * Returns the lower bound of the z-section to project.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionStartZ() { return projectionRange.getStartValue()-1; }
+	
+	/**
+	 * Returns the lower bound of the z-section to project.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionEndZ() { return projectionRange.getEndValue()-1; }
+	
     /**
      * Updates UI components when a zooming factor for the grid
      * is selected.
@@ -1070,6 +1297,8 @@ class ControlPane
         		return;
         	} else if (object == ratioSlider) {
         		controller.setZoomFactor(ratioSlider.getValue());
+        	} else if (object == projectionRatioSlider) {
+        		controller.setZoomFactor(projectionRatioSlider.getValue());
         	}
         	if (object == zSlider || object == tSlider)
         		controller.setSelectedXYPlane(zSlider.getValue(), 
@@ -1103,5 +1332,19 @@ class ControlPane
         else if (source == tSliderAnnotator && tSliderAnnotator.isEnabled())
             mouseWheelMovedT(e);
     }
+
+    /**
+     * Notifies that the projection range has been modified.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
+			TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name))
+			controller.setProjectionRange(false);
+		else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name))
+			controller.setProjectionRange(true);
+	}
 
 }

@@ -173,6 +173,9 @@ public interface ImViewer
 
 	/** Identifies the index of the grid viewer panel. */
 	public static final int		GRID_INDEX = 2;
+	
+	/** Identifies the index of the projection viewer panel. */
+	public static final int		PROJECTION_INDEX = 3;
 
 	/**
 	 * Sets the visiblity of the lens
@@ -928,5 +931,19 @@ public interface ImViewer
 	 * @param data The image to set.
 	 */
 	public void setImageData(ImageData data);
+
+	/** Previews the projected image. */
+	public void previewProjection();
+	
+	/** Projects the image. */
+	public void projectImage();
+	
+	/**
+	 * Returns <code>true</code> if a projected image has already been
+	 * built, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasProjectedPreview();
 	
 }

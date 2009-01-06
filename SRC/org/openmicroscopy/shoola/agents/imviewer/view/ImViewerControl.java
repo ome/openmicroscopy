@@ -54,7 +54,6 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -67,6 +66,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionPreviewAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ResetRndSettingsAction;
@@ -89,12 +90,10 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
-import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -102,7 +101,6 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-import pojos.ChannelData;
 import pojos.ExperimenterData;
 
 
@@ -273,13 +271,13 @@ class ImViewerControl
 	/** Identifies the <code>Search</code> action. */
 	static final Integer     SEARCH = new Integer(53);
 	
-	/** Identifies the <code>Search</code> action. */
+	/** Identifies the <code>View tab</code> action. */
 	static final Integer     TAB_VIEW = new Integer(54);
 	
-	/** Identifies the <code>Search</code> action. */
-	static final Integer     TAB_ANNOTATION = new Integer(55);
+	/** Identifies the <code>Projection tab</code> action. */
+	static final Integer     TAB_PROJECTION = new Integer(55);
 	
-	/** Identifies the <code>Search</code> action. */
+	/** Identifies the <code>Grid tab</code> action. */
 	static final Integer     TAB_GRID = new Integer(56);
 	
 	/** Identifies the <code>History</code> action. */
@@ -304,6 +302,12 @@ class ImViewerControl
 	
 	/** Identifies the <code>Projection</code> action. */
 	static final Integer     PROJECTION = new Integer(63);
+	
+	/** Identifies the <code>Projection preview</code> action. */
+	static final Integer     PROJECTION_PREVIEW = new Integer(64);
+	
+	/** Identifies the <code>Projection project</code> action. */
+	static final Integer     PROJECTION_PROJECT = new Integer(65);
 	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -391,8 +395,8 @@ class ImViewerControl
 				ZoomGridAction.ZOOM_100));
 		actionsMap.put(SEARCH, new SearchAction(model));
 		actionsMap.put(TAB_VIEW, new ShowViewAction(model, ShowViewAction.VIEW));
-		actionsMap.put(TAB_ANNOTATION, new ShowViewAction(model, 
-											ShowViewAction.ANNOTATION));
+		actionsMap.put(TAB_PROJECTION, new ShowViewAction(model, 
+											ShowViewAction.PROJECTION));
 		actionsMap.put(TAB_GRID, new ShowViewAction(model, 
 									ShowViewAction.SPLIT));
 		actionsMap.put(HISTORY, new HistoryAction(model));
@@ -403,6 +407,8 @@ class ImViewerControl
 		actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
 						new SetOriginalRndSettingsAction(model));
 		actionsMap.put(PROJECTION, new ProjectionAction(model));
+		actionsMap.put(PROJECTION_PREVIEW, new ProjectionPreviewAction(model));
+		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 	}
 
 	/** 
@@ -657,7 +663,19 @@ class ImViewerControl
 	{
 		model.loadRenderingControl(pixelsID);
 	}
-	
+
+	/** 
+	 * Sets the interval of z-sections to project. 
+	 * 
+	 * @param released 	Pass <code>true</code> if the knob is released, 
+	 * 					<code>false</code> otherwise.
+	 */
+    void setProjectionRange(boolean released)
+    {
+    	view.setLeftStatus();
+    	if (released) model.renderXYPlane();
+    }
+    
 	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
@@ -762,18 +780,6 @@ class ImViewerControl
 				for (int i = 0; i < model.getMaxC(); i++)
 					model.setChannelActive(i, i == c);
 				model.displayChannelMovie();
-			}
-		} else if (ChannelButton.INFO_PROPERTY.equals(pName)) {
-			int index = ((Integer) pce.getNewValue()).intValue();
-			ChannelData data = model.getChannelMetadata(index);
-			if (data != null) {
-				InfoDialog dialog = new InfoDialog(model.getUI(), data);
-				dialog.addPropertyChangeListener(this);
-				UIUtilities.setLocationRelativeToAndShow(view, dialog);
-			} else {
-				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Channel info", "No metadata for the " +
-						"selected channel.");
 			}
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
 				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {

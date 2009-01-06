@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,19 +23,19 @@
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Displays the View corresponding to the index.
+ * Projects the whole image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,73 +45,38 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class ShowViewAction 
+public class ProjectionProjectAction 
 	extends ViewerAction
 {
 
-	/** Identifies the <code>View</code> pane. */
-	public static final int	VIEW = ImViewer.VIEW_INDEX;
-	
-	/** Identifies the <code>View</code> pane. */
-	public static final int	PROJECTION = ImViewer.PROJECTION_INDEX;
-	
-	/** Identifies the <code>View</code> pane. */
-	public static final int	SPLIT = ImViewer.GRID_INDEX;
-	
-	/** One of the constants defined by this class .*/
-	private int index;
-	
-	/**
-	 * Checks if the index is valid.
-	 * 
-	 * @param value The value to handle.
-	 */
-	private void checkIndex(int value)
-	{
-		IconManager icons = IconManager.getInstance();
-		switch (value) {
-			case VIEW:
-				putValue(Action.NAME, "View");
-				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.VIEWER));
-				break;
-			case PROJECTION:
-				putValue(Action.NAME, "Projection");
-				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.PROJECTION));
-				break;
-			case SPLIT:
-				putValue(Action.NAME, "Split");
-				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.GRIDVIEW));
-				break;
-				default:
-					throw new IllegalArgumentException("Index not valid.");
-		}
-		this.index = value;
-	}
-	
-	/**
+	/** The name of the action. */
+    private static final String NAME = "Project";
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION = 
+    	"Project the selected interval for the whole image.";
+    
+	 /**
      * Creates a new instance.
      * 
-     * @param model     Reference to the model. Mustn't be <code>null</code>.
-     * @param index		One of the constants defined by this class.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      */
-    public ShowViewAction(ImViewer model, int index)
+    public ProjectionProjectAction(ImViewer model)
     {
-    	super(model);
-    	checkIndex(index);
+    	super(model, NAME);
+    	putValue(Action.NAME, NAME);
+    	putValue(Action.SHORT_DESCRIPTION, 
+    			UIUtilities.formatToolTipText(DESCRIPTION));
     }
     
     /** 
-     * Adds the selected view to the display.
+     * Previews the projected image.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
-    {
-    	model.showView(index);
+    { 
+    	model.previewProjection();
     }
-    
 }

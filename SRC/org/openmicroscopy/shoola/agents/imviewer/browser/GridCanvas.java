@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
  * Paints the main image and the split channels.
- * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

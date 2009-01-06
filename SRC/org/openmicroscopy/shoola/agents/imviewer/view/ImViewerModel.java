@@ -908,6 +908,13 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	BufferedImage getOriginalImage() { return browser.getRenderedImage(); }
+	
+	/**
+	 * Returns the projected image returned by the image service.
+	 * 
+	 * @return See above.
+	 */
+	BufferedImage getProjectedImage() { return browser.getProjectedImage(); }
 
 	/**
 	 * Returns the image displayed in the grid view.
@@ -1495,6 +1502,24 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Starts an asynchronous call to render a preview of the projected image.
+	 * 
+	 * @param startZ	The lower bound of the z-section interval to project.
+	 * @param endZ		The upper bound of the z-section interval to project.
+	 * @param stepping	The stepping used, usually <code>1</code>.
+	 * @param type		The type of projection.
+	 */
+	void fireRenderProjected(int startZ, int endZ, int stepping, int type)
+	{
+		ProjectionParam param = new ProjectionParam(getPixelsID(), 
+				startZ, endZ, stepping, type);
+		param.setChannels(getActiveChannels());
+		ProjectionSaver loader = new ProjectionSaver(component, param, 
+				                  ProjectionSaver.PREVIEW);
+		loader.load();
+	}
+	
+	/**
 	 * Starts an asynchronous call to project image.
 	 * 
 	 * @param ref Object with the projection's parameters.
@@ -1537,7 +1562,7 @@ class ImViewerModel
 	 * @param indexes	The indexes of the projected channels.
 	 * @param image 	The projected image.
 	 */
-	void firePojectedRndSettingsCreation(List<Integer> indexes, ImageData image)
+	void fireProjectedRndSettingsCreation(List<Integer> indexes, ImageData image)
 	{
 		RndProxyDef def = currentRndControl.getRndSettingsCopy();
 		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
@@ -1645,6 +1670,17 @@ class ImViewerModel
 	{
 		if (currentRndControl == null) return true;
 		return currentRndControl.isOriginalSettings(originalDef);
+	}
+
+    /**
+     * Sets the projected image for preview.
+     * 
+     * @param image The buffered image.
+     */
+	void setRenderProjected(BufferedImage image)
+	{
+		state = ImViewer.READY; 
+		browser.setRenderProjected(image);
 	}
 	
 }

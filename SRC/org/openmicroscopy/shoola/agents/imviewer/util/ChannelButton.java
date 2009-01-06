@@ -64,10 +64,6 @@ public class ChannelButton
 	/** The default size of the component. */
 	public static final Dimension 	DEFAULT_MAX_SIZE = new Dimension(40, 40);
 	
-	
-    /** Bound property indicating to bring up the info dialog. */
-    public static final String  	INFO_PROPERTY = "info";
-    
     /** 
      * Bound property name indicating that the channel is or is not selected. 
      */
@@ -200,12 +196,6 @@ public class ChannelButton
     public ChannelButton(String text, Color color, int index)
     {
         this(text, color, index, false);
-    }
-    
-    /** Fires a property change to bring up on screen the info dialog. */
-    void showInfo()
-    {
-        firePropertyChange(INFO_PROPERTY, null, new Integer(index));
     }
     
     /** Fires a property change to bring up on screen the color picker. */
