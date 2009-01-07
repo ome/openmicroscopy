@@ -127,7 +127,6 @@ class BlitzGateway (threading.Thread):
         if not self.c:
             self._connected = False
             return False
-        
         try:
             if self._sessionUuid is not None:
                 try:
@@ -172,6 +171,41 @@ class BlitzGateway (threading.Thread):
             raise x
         else:
             logger.info("'%s' (id:%i) is connected to %s sessionUuid: %s" % (self._eventContext.userName, self._eventContext.userId, self.c.getRouter(), self._eventContext.sessionUuid))
+            return True
+    
+    def connectAsGuest (self):
+        logger.debug("Connecting as Guest...")
+        if not self.c:
+            self._connected = False
+            return False
+        try:
+            if self._sessionUuid is not None:
+                try:
+                    self.c.joinSession(self._sessionUuid)
+                except:
+                    self._sessionUuid = None
+            if self._sessionUuid is None:
+                if self._connected:
+                    self._connected = False
+                    try:
+                        self.c.closeSession()
+                        self.c = omero.client(host=self._props['host'], port=self._props['port'])
+                    except omero.Glacier2.SessionNotExistException:
+                        pass
+                self.c.createSession(self._props[omero.constants.USERNAME], self._props[omero.constants.PASSWORD])
+            
+            self._last_error = None
+            self._proxies = {}
+            self._proxies['admin'] = self.c.sf.getAdminService()
+            self._eventContext = None #self._proxies['admin'].getEventContext()
+            self._sessionUuid = None #self._eventContext.sessionUuid
+            self._connected = True
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            self._last_error = x
+            raise x
+        else:
+            logger.info("Guest is connected to %s" % (self.c.getRouter()))
             return True
     
     def getLastError (self):
@@ -260,6 +294,13 @@ class BlitzGateway (threading.Thread):
         self._eventContext = self._proxies['admin'].getEventContext()
     
     ##############################################
+    ##   Forgotten password                     ##
+    
+    def reportForgottenPassword(self, username, email):
+        admin_serv = self.getAdminService()
+        return admin_serv.reportForgottenPassword(username, email)
+    
+    ##############################################
     ##   Gets methods                           ##
     
     def lookupExperimenters(self):
@@ -303,7 +344,9 @@ class BlitzGateway (threading.Thread):
     def lookupScripts(self):
         script_serv = self.getScriptService()
         return script_serv.getScripts()
-
+    
+    
+    # Repository info
     def getUsedSpaceInKilobytes(self):
         rep_serv = self.getRepositoryInfoService()
         return rep_serv.getUsedSpaceInKilobytes()
@@ -1742,7 +1785,6 @@ class ExperimenterWrapper (BlitzObjectWrapper):
                 return name
             return name[:40] + "..."
         except:
-            print traceback.format_exc()
             logger.error(traceback.format_exc())
             return _("Unknown name")
 

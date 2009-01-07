@@ -83,6 +83,12 @@ class LoginForm(forms.Form):
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
 
+class ForgottonPasswordForm(forms.Form):
+    
+    server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
+    email = SingleEmailField(widget=forms.TextInput(attrs={'size':28}))
+
 class ExperimenterForm(forms.Form):
 
     def __init__(self, name_check=False, email_check=False, passwd_check=False, *args, **kwargs):

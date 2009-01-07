@@ -118,6 +118,12 @@ STATIC_ROOT = os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'),
 STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.jpg').replace('\\','/')
 DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
 
+# PROPERTIES
+# Put strings here, like "/omero/dist/etc/" or "C:/omero/dist/etc/".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
+OMEROPROPERTIES = 'omero.properties'
+
 # LOGS
 # to change the log place, please specify new path
 LOGDIR = os.path.join(os.path.dirname(__file__), 'logs')

@@ -57,11 +57,12 @@ from controller.script import BaseScripts, BaseScript
 from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
 
-from models import Gateway, LoginForm, ExperimenterForm, ExperimenterLdapForm, \
-                   GroupForm, ScriptForm, MyAccountForm, MyAccountLdapForm, \
-                   ContainedExperimentersForm, UploadFileForm
+from models import Gateway, LoginForm, ForgottonPasswordForm, ExperimenterForm, \
+                   ExperimenterLdapForm, GroupForm, ScriptForm, MyAccountForm, \
+                   MyAccountLdapForm, ContainedExperimentersForm, UploadFileForm
 
 from extlib.gateway import BlitzGateway
+from extlib.properties import Properties
 
 logger = logging.getLogger('views')
 
@@ -208,6 +209,20 @@ def getConnection (request):
             logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
     return conn
 
+def getGuestConnection(host, port):
+    conn = None
+    guest = ["guest", "guest"]
+    try:
+        conn = BlitzGateway(host, port, guest[0], guest[1])
+        conn.connectAsGuest()
+    except:
+        logger.error(traceback.format_exc())
+        raise sys.exc_info()[1]
+    else:
+        # do not store connection on connectors
+        logger.debug("Have connection as Guest")
+    return conn
+
 ################################################################################
 # decorators
 
@@ -241,15 +256,77 @@ def isUserConnected (f):
         if conn is None:
             return HttpResponseRedirect("/%s/login/" % (settings.WEBADMIN_ROOT_BASE))
         kwargs["conn"] = conn
+        
         return f(request, *args, **kwargs)
+    
+    return wrapped
 
+def isOmeroEmailConfigured (f):
+    def wrapped (request, *args, **kwargs):
+        try:
+            p = Properties()
+            p.load(open(settings.OMEROPROPERTIES))
+            if p['omero.resetpassword.config'] == 'true':
+                kwargs['email_conf'] = True
+            else:
+                kwargs['email_conf'] = False
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            kwargs['email_conf'] = False
+        
+        return f(request, *args, **kwargs)
+    
     return wrapped
 
 ################################################################################
 # views controll
 
-def login(request):
+@isOmeroEmailConfigured
+def forgotten_password(request, **kwargs):
+    template = "omeroadmin/forgotten_password.html"
     
+    conn = None
+    error = None
+    
+    if kwargs['email_conf']:
+        if request.method == 'POST' and request.REQUEST['server'] and request.REQUEST['username'] and request.REQUEST['email']:
+            blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+            try:
+                conn = getGuestConnection(blitz.host, blitz.port)
+            except Exception, x:
+                logger.error(traceback.format_exc())
+                error = x.__class__.__name__
+
+        if conn is not None:
+            controller = None
+            try:
+                controller = conn.reportForgottenPassword(request.REQUEST['username'], request.REQUEST['email'])
+            except Exception, x:
+                logger.error(traceback.format_exc())
+                error = x.__class__.__name__
+            form = ForgottonPasswordForm(data=request.REQUEST.copy())
+            context = {'error':error, 'controller':controller, 'form':form}
+        else:
+            if request.method == 'POST':
+                form = ForgottonPasswordForm(data=request.REQUEST.copy())
+            else:
+                try:
+                    blitz = Gateway.objects.filter(id=request.REQUEST['server'])
+                    data = {'server': unicode(blitz[0].id), 'username':unicode(request.REQUEST['username']), 'password':unicode(request.REQUEST['password']) }
+                    form = ForgottonPasswordForm(data=data)
+                except:
+                    form = ForgottonPasswordForm()
+            context = {'error':error, 'form':form}
+    else:
+        error = "OMERO.email error. Please contact your administrator to change the password"
+        context = {'error':error}
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+def login(request):
     if request.method == 'POST' and request.REQUEST['server']:
         blitz = Gateway.objects.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
