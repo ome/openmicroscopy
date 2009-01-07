@@ -108,9 +108,7 @@ public class LinkParam
 	public String toString() {
 		String text = "";
 		
-		String path = getAttribute (ABSOLUTE_FILE_LINK);
-		if (path == null) path = getAttribute (RELATIVE_FILE_LINK);
-		if (path == null) path = getAttribute (URL_LINK);
+		String path = getParamValue();
 		
 		if (path != null) {
 			text = text + path;
@@ -121,4 +119,17 @@ public class LinkParam
 		return super.toString() + " " + text;
 	}
 
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * 
+	 *  @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
+		String path = getAttribute (ABSOLUTE_FILE_LINK);
+		if (path == null) path = getAttribute (RELATIVE_FILE_LINK);
+		if (path == null) path = getAttribute (URL_LINK);
+		
+		return path;
+	}
 }

@@ -129,18 +129,30 @@ public class TimeParam
 	 */
 	public String toString()
 	{
-		String time = super.toString();
+		String time = getParamValue();
 		
+		if (time == null) {
+			time = super.toString();
+		}
+		
+		return  time;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * 
+	 *  @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
 		String seconds = getAttribute(SECONDS);
 		if (seconds != null)
 		{
 			int secs = Integer.parseInt(seconds);
 			
-			time = secsToString(secs);
-
+			return secsToString(secs);
 		} 
-		
-		return  time;
+		return null;
 	}
 	
 	/**

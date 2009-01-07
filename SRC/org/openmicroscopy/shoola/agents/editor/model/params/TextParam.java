@@ -126,6 +126,14 @@ public class TextParam
 	}
 	
 	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 */
+	public String getParamValue() 
+	{
+		return getAttribute (TextParam.PARAM_VALUE);
+	}
+	
+	/**
 	 * Implemented as specified by {@link IParam#loadDefaultValues()}
 	 * 
 	 * Copies the value of the {@link #DEFAULT_VALUE} (if not null)

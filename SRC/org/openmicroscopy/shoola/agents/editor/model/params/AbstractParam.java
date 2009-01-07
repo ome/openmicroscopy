@@ -276,6 +276,12 @@ public abstract class AbstractParam
 	}
 	
 	/**
+	 * Must be implemented by subclasses as specified by
+	 * the {@link IParam} interface.
+	 */
+	public abstract String getParamValue();
+	
+	/**
 	 * Implemented as specified by the {@link IParam} interface.
 	 * Returns a clone of this parameter. 
 	 * 

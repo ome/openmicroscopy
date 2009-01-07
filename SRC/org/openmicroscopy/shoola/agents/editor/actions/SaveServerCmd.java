@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 import java.io.File;
 
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -36,7 +35,7 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 
 /** 
- * 
+ * Saves the current file as an XML file to the OMERO.server. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

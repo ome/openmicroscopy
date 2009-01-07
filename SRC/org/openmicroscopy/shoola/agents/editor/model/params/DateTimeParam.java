@@ -158,6 +158,23 @@ public class DateTimeParam
 	 */
 	public String toString() 
 	{	
+		String text = getParamValue();
+		
+		if (text == null) {
+			return super.toString();
+		}
+		return text;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * Returns a formatted string displaying the date (or relative date)
+	 * and time (if set). 
+	 * 
+	 *  @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
 		String text = "";
 		if (isAttributeTrue(IS_RELATIVE_DATE)) {
 			String relMillis = getAttribute(REL_DATE_ATTRIBUTE);
@@ -187,10 +204,8 @@ public class DateTimeParam
 			text = text + " at " + time;
 		}
 		
-		if (text.length() == 0) {
-			return super.toString();
-		}
-		return text;
+		if (text.length() >0) return text;
+		return null;
 	}
 
 }

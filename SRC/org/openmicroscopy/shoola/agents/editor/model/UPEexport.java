@@ -229,24 +229,18 @@ public class UPEexport {
 		
 		addChildContent(parameter, "necessity", "OPTIONAL");
 		
-		String value = param.getAttribute(TextParam.PARAM_VALUE);
-		if (value != null)
-			addChildContent(parameter, "value", value);
-		
-		String defaultValue = param.getAttribute(TextParam.DEFAULT_VALUE);
-		if (defaultValue != null)
-			addChildContent(parameter, "default-value", defaultValue);
-		
 		// Depending on the type of parameter, set the param-type, 
 		// and add any additional attributes. 
 		if (param instanceof NumberParam) {
 			addChildContent(parameter, "param-type", "NUMERIC");
+			setValueAndDefault(parameter, param);
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
 			if (units != null)
 				addChildContent(parameter, "unit", units);
 		} else 
 		if (param instanceof EnumParam) {
 			addChildContent(parameter, "param-type", "ENUMERATION");
+			setValueAndDefault(parameter, param);
 			String enumOptions = param.getAttribute(EnumParam.ENUM_OPTIONS);
 			if (enumOptions != null) {
 				IXMLElement enumList = new XMLElement("enum-list");
@@ -257,12 +251,42 @@ public class UPEexport {
 				parameter.addChild(enumList);
 			}
 		} 
-		else {
-			// default type is TEXT
+		else 
+		if (param instanceof TextParam) {
 			addChildContent(parameter, "param-type", "TEXT");
+			setValueAndDefault(parameter, param);
+		}
+		
+		else {
+			// use a TEXT parameter to store any parameter type not 
+			// supported by UPE. 
+			addChildContent(parameter, "param-type", "TEXT");
+			String value = param.getParamValue();
+			if (value != null) {
+				addChildContent(parameter, "value", value);
+			}
 		}
 		
 		return parameter;
+	}
+	
+	/**
+	 * Convenience method to map the "value" and "default" attributes 
+	 * from an {@link IParam} to an {@link IXMLElement} XML element. 
+	 * 
+	 * @param parameter
+	 * @param param
+	 */
+	private void setValueAndDefault(IXMLElement parameter, IParam param) 
+	{
+		String value = param.getAttribute(TextParam.PARAM_VALUE);
+		if (value != null) {
+			addChildContent(parameter, "value", value);
+		}
+		
+		String defaultValue = param.getAttribute(TextParam.DEFAULT_VALUE);
+		if (defaultValue != null)
+			addChildContent(parameter, "default-value", defaultValue);
 	}
 	
 	/**

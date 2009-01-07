@@ -79,6 +79,16 @@ public class BooleanParam
 	/**
 	 * Implemented as specified by the {@link IParam} interface. 
 	 * 
+	 * @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
+		return getAttribute (TextParam.PARAM_VALUE);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface. 
+	 * 
 	 * @see IParam#getParamAttributes()
 	 */
 	public String[] getParamAttributes() 

@@ -112,8 +112,7 @@ public class ImageParam
 	{
 		String text = "";
 		
-		String path = getAttribute (ABSOLUTE_IMAGE_PATH);
-		if (path == null) path = getAttribute (RELATIVE_IMAGE_PATH);
+		String path = getParamValue();
 		
 		if (path != null) {
 			text = text + path;
@@ -122,6 +121,19 @@ public class ImageParam
 		}
 		
 		return super.toString() + " " + text;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * 
+	 *  @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
+		String path = getAttribute (ABSOLUTE_IMAGE_PATH);
+		if (path == null) path = getAttribute (RELATIVE_IMAGE_PATH);
+		
+		return path;
 	}
 
 }

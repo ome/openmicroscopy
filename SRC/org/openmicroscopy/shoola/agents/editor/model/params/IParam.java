@@ -115,6 +115,16 @@ public interface IParam
 	public Object getValueAt(int index);
 	
 	/**
+	 * Gets a string representation of the value of the parameter.
+	 * This can be used e.g. for exporting the value of a field as text
+	 * to UPE file format, or for display.
+	 * May return null if the parameter has no value. 
+	 * 
+	 * @return		see above. 
+	 */
+	public String getParamValue();
+	
+	/**
 	 * Sets the value at the specified index in the list of values for this
 	 * parameter. If the index is greater than the length of the list, the
 	 * list should automatically be extended to this length. 

@@ -97,17 +97,29 @@ extends AbstractParam
 	 */
 	public String toString() {
 		
-		String text = "";
-			
+		String text = getParamValue();
+
+		return super.toString() + " " + (text == null ? "" : text);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * 
+	 *  @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
 		String id = getAttribute (ONTOLOGY_ID);
 		String term = getAttribute(TERM_ID);
 		String name = getAttribute(TERM_NAME);
 		
-		text = text + (id == null ? "" : id + ":") +
+		if (id == null && term == null && name == null) {
+			return null;
+		}
+		
+		return (id == null ? "" : id + ":") +
 			(term == null ? "" : term + " ") +
 			(name == null ? "" : name);
-		
-		return super.toString() + " " + text;
 	}
 	
 	/**

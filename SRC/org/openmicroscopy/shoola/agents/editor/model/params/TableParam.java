@@ -111,6 +111,16 @@ public class TableParam
 		
 		return super.toString() + " " + text;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link IParam} interface.
+	 * 
+	 *  @see IParam#getParamValue()
+	 */
+	public String getParamValue() 
+	{
+		return "Table data";
+	}
 
 	/**
 	 * Overridden to include copying of the {@link #tableModel};
