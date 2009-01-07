@@ -356,6 +356,17 @@ class ToolBar
 		return projectionTypes.get(index);
 	}
     
+	/**
+	 * Returns a textual version of the type of projection.
+	 * 
+	 * @return See above.
+	 */
+	String getProjectionTypeName()
+	{
+		int index = projectionTypesBox.getSelectedIndex();
+		return projections.get(index);
+	}
+	
     /**
      * Reacts to the selection of the {@link #compressionBox}.
      * @see ActionListener#actionPerformed(ActionEvent)

@@ -50,37 +50,43 @@ public class ProjectionRef
 {
 
 	/** The first timepoint to project. */
-	private int               startT;
+	private int               	startT;
 	
 	/** The last timepoint to project. */
-	private int               endT;
+	private int               	endT;
 	
 	/** The first z-section to project. */
-	private int               startZ;
+	private int               	startZ;
 	
 	/** The last z-section to project. */
-	private int               endZ;
+	private int               	endZ;
 	
 	/** The stepping used while projecting. Default is <code>1</code>. */
-	private int               stepping;
+	private int               	stepping;
 	
 	/** The type of projection. */
-	private int				  type;
+	private int				  	type;
 	
 	/** The type of projection. */
-	private String            pixelsType;
+	private String            	pixelsType;
 	
 	/** The collection of datasets where to store the projected image. */
-	private List<DatasetData> datasets;
+	private List<DatasetData> 	datasets;
 	
 	/** The name of the projected image. */
-	private String            name;
+	private String            	name;
 	
 	/** The description of the projected image. */
-	private String			  description;
+	private String			  	description;
 	
 	/** The collection of channels to project.*/
-	private List<Integer>	  channels;
+	private List<Integer>	  	channels;
+	
+	/** 
+	 * Flag indicating to apply the rendering settings of the original image 
+	 * to the projected one. 
+	 */
+	private boolean				applySettings;
 	
 	/** Creates a new instance.  */
 	ProjectionRef()
@@ -193,6 +199,19 @@ public class ProjectionRef
 	}
 	
 	/**
+	 * Sets the flag indicating to apply the rendering settings of
+	 * the original image to the projected one.
+	 * 
+	 * @param applySettings Pass <code>true</code> to set the rendering settings
+	 * 						of the original image to the new pixels set,
+	 * 						<code>false</code> otherwise.
+	 */
+	void setApplySettings(boolean applySettings)
+	{
+		this.applySettings = applySettings;
+	}
+	
+	/**
 	 * Sets the collection of datasets to add the image to.
 	 * 
 	 * @param datasets The collection to set.
@@ -282,5 +301,14 @@ public class ProjectionRef
 	 * @return See above.
 	 */
 	public String getPixelsType() { return pixelsType; }
+	
+	/**
+	 * Returns <code>true</code> if the rendering settings of the original 
+	 * image are applied to the projected one, <code>false</code> 
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isApplySettings() { return applySettings; }
 	
 }

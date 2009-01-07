@@ -1371,6 +1371,7 @@ class ImViewerUI
 			browser.removeComponent(c, ImViewer.VIEW_INDEX);
 			browser.removeComponent(c, ImViewer.GRID_INDEX);
 			browser.removeComponent(c, ImViewer.ANNOTATOR_INDEX);
+			browser.removeComponent(c, ImViewer.PROJECTION_INDEX);
 		}
 		if (!b) {
 			lens.setVisible(b);
@@ -1386,10 +1387,14 @@ class ImViewerUI
 		BufferedImage img;
 		int index = model.getTabbedIndex();
 		switch (index) {
-		case ImViewer.VIEW_INDEX:
+			case ImViewer.VIEW_INDEX:
 			default:
 				f = (float) model.getZoomFactor();
 				img = model.getOriginalImage();
+				break;
+			case ImViewer.PROJECTION_INDEX:
+				f = (float) model.getZoomFactor();
+				img = model.getProjectedImage();
 				break;
 			case ImViewer.GRID_INDEX:
 				img = model.getGridImage();
@@ -1433,6 +1438,7 @@ class ImViewerUI
 						}
 					}
 					break;
+				case ImViewer.PROJECTION_INDEX:
 				case ImViewer.VIEW_INDEX:
 				case ImViewer.ANNOTATOR_INDEX:
 					if (index == ImViewer.GRID_INDEX) {
@@ -1593,11 +1599,6 @@ class ImViewerUI
 		model.setTabbedIndex(index);
 		toolBar.onTabbedSelection();
 		setLeftStatus();
-		/*
-		if (index == ImViewer.ANNOTATOR_INDEX) {
-			model.loadMetadata();
-		}
-		*/
 		model.getBrowser().setSelectedPane(index);
 		setLensVisible(isLensVisible(), oldIndex);
 	}
@@ -2038,6 +2039,13 @@ class ImViewerUI
 	 * @return See above.
 	 */
 	int getProjectionType() { return toolBar.getProjectionType(); }
+	
+	/**
+	 * Returns a textual version of the type of projection.
+	 * 
+	 * @return See above.
+	 */
+	String getProjectionTypeName() { return toolBar.getProjectionTypeName(); }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

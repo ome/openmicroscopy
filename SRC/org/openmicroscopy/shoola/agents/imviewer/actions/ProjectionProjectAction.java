@@ -77,6 +77,7 @@ public class ProjectionProjectAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	model.previewProjection();
+    	model.loadContainers();
     }
+    
 }

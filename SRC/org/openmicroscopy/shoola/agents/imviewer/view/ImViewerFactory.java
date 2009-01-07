@@ -28,10 +28,12 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
@@ -348,7 +350,7 @@ public class ImViewerFactory
 		viewers.add(comp);
 		return comp;
 	}
-
+	
 	/**
 	 * Removes a viewer from the {@link #viewers} set when it is
 	 * {@link ImViewer#DISCARDED discarded}. 
@@ -357,7 +359,9 @@ public class ImViewerFactory
 	public void stateChanged(ChangeEvent ce)
 	{
 		ImViewerComponent comp = (ImViewerComponent) ce.getSource(); 
-		if (comp.getState() == ImViewer.DISCARDED) viewers.remove(comp);
+		if (comp.getState() == ImViewer.DISCARDED) {
+			viewers.remove(comp);
+		}
 		if (viewers.size() == 0) {
 			TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 			tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);

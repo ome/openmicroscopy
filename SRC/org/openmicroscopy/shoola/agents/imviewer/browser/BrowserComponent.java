@@ -200,6 +200,9 @@ class BrowserComponent
 			case ImViewer.ANNOTATOR_INDEX:
 				annotator.addComponentToLayer(c);
 				break;
+			case ImViewer.PROJECTION_INDEX:
+				projectionView.addComponentToLayer(c);
+				break;
 		}
     }
 

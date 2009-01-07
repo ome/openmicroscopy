@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
@@ -154,7 +155,22 @@ class ImViewerComponent
 	
 	/** The projection dialog. */
 	private ProjectionDialog				projection;
-	
+
+	/** 
+	 * Brings up the dialog used to set the parameters required for the
+	 * projection.
+	 */
+	private void showProjectionDialog()
+	{
+		ProjSavingDialog dialog = new ProjSavingDialog(view);
+		dialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
+				model.getPixelsType(), model.getImageName(), 
+				model.getContainers());
+		dialog.addPropertyChangeListener(controller);
+		dialog.pack();
+		UIUtilities.centerAndShow(dialog);
+	}
+
 	/** Creates an history item. */
 	private void createHistoryItem()
 	{
@@ -1675,26 +1691,14 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isLensVisible()
+	 * @see ImViewer#showLens()
 	 */
-	public boolean isLensVisible()
+	public void showLens()
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("The method cannot be invoked in " +
 			"the DISCARDED state.");
-		return view.isLensVisible();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setLensVisible(boolean)
-	 */
-	public void setLensVisible(boolean b)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
-		view.setLensVisible(b, model.getTabbedIndex());
+		view.setLensVisible(!view.isLensVisible(), model.getTabbedIndex());
 	}
 
 	/** 
@@ -2496,12 +2500,22 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
+
+		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
+		if (ref == null) 
+			throw new IllegalArgumentException("No projection object");
+		model.fireImageProjection(view.getProjectionStartZ(), 
+				view.getProjectionEndZ(), view.getProjectionStepping(), 
+				view.getProjectionType(), view.getProjectionTypeName(), ref);
+		fireStateChange();
+		/*
 		if (projection == null) return;
 		if (!projection.isVisible()) return;
 		if (ref == null) 
 			throw new IllegalArgumentException("No projection object");
 		model.fireProjectImage(ref);
 		fireStateChange();
+		*/
 	}
 
 	/** 
@@ -2544,14 +2558,21 @@ class ImViewerComponent
 	 */
 	public void setContainers(Collection containers)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalArgumentException("This method cannot be invoked" +
-					" in the DISCARDED state.");
+		if (model.getState() != LOADING_PROJECTION_DATA)
+			throw new IllegalArgumentException("This method can only be " +
+					"invoked in the LOADING_PROJECTION_DATA state.");
+		/*
 		if (projection == null) return;
 		if (!projection.isVisible()) return;
 		projection.setContainers(containers);
+		*/
+		//Create a modal dialog.	
+		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
+		model.setContainers(containers);
+		fireStateChange();
+		showProjectionDialog();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#loadContainers()
@@ -2561,16 +2582,23 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
+		/*
 		if (projection == null) return;
 		if (!projection.isVisible()) return;
-		model.fireContainersLoading();
+		*/
+		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
+		if (model.getContainers() == null) {
+			model.fireContainersLoading();
+			fireStateChange();
+		} else showProjectionDialog();
 	}
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setProjectedImage(ImageData, List)
+	 * @see ImViewer#setProjectedImage(ImageData, List, boolean)
 	 */
-	public void setProjectedImage(ImageData image, List<Integer> indexes)
+	public void setProjectedImage(ImageData image, List<Integer> indexes,
+							boolean applySettings)
 	{
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		String message;
@@ -2578,23 +2606,15 @@ class ImViewerComponent
 			message = "An error has occurred while creating the " +
 			"projected image.";
 			un.notifyInfo("Projection", message);
-			if (projection == null) return;
-			projection.setVisible(false);
-			projection.dispose();
-			projection = null;
 			return;
 		}
-		if (projection.isApplySettings()) {
-			projection.setStatus("Applying Rendering settings", false);
+		if (applySettings) {
+			//projection.setStatus("Applying Rendering settings", false);
 			model.fireProjectedRndSettingsCreation(indexes, image);
 			fireStateChange();
 		} else {
 			notifyProjection("The projected image has been " +
 					"successfully created.", image);
-			if (projection == null) return;
-			projection.setVisible(false);
-			projection.dispose();
-			projection = null;
 		}
 	}
 
@@ -2606,17 +2626,13 @@ class ImViewerComponent
 	{
 		String message;
 		if (result)
-			message = "The projected image and the rendering settings \n have" +
-					"been successfully created.";
+			message = "The projected image and the rendering settings\n have" +
+					" been successfully created.";
 		else
 			message = "An error has occurred while copying the " +
 			"rendering settings of the projected image.";
 		
 		notifyProjection(message, image);
-		if (projection == null) return;
-		projection.setVisible(false);
-		projection.dispose();
-		projection = null;
 	}
 
 	/** 
@@ -2668,15 +2684,6 @@ class ImViewerComponent
 				view.getProjectionEndZ(), view.getProjectionStepping(), 
 				view.getProjectionType());
 		//fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#projectImage()
-	 */
-	public void projectImage()
-	{
-		
 	}
 
 	/** 

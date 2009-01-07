@@ -91,6 +91,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
@@ -841,8 +842,10 @@ class ImViewerControl
 			view.showMenu(ImViewer.CATEGORY_MENU);
 		} else if (ProjectionDialog.PROJECTION_PREVIEW_PROPERTY.equals(pName)) {
 			model.projectionPreview((ProjectionRef) pce.getNewValue());
-		} else if (ProjectionDialog.PROJECTION_PROPERTY.equals(pName)) {
+		} else if (ProjSavingDialog.PROJECTION_PROPERTY.equals(pName)) {
 			model.projectImage((ProjectionRef) pce.getNewValue());
+		//} else if (ProjectionDialog.PROJECTION_PROPERTY.equals(pName)) {
+		//	model.projectImage((ProjectionRef) pce.getNewValue());
 		} else if (ProjectionDialog.LOAD_DATASETS_PROPERTY.equals(pName)) {
 			model.loadContainers();
 		} else if (ProjectionDialog.CLOSE_DIALOG_PROPERTY.equals(pName)) {

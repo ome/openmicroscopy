@@ -423,6 +423,18 @@ public class TextualTwoKnobsSlider
 	}
 
 	/**
+	 * Overridden to set the text fields and the slider enabled.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		slider.setEnabled(enabled);
+		endField.setEnabled(enabled);
+		startField.setEnabled(enabled);
+	}
+	
+	/**
 	 * Updates the text field related to the knob moved.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */

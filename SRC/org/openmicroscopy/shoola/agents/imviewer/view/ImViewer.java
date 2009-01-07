@@ -120,6 +120,15 @@ public interface ImViewer
 	/** Flag to denote the <i>Loading Image Data</i> state. */
 	public static final int     LOADING_IMAGE_DATA = 10;
 
+	/** Flag to denote the <i>Loading Projection data</i> state. */
+	public static final int     LOADING_PROJECTION_DATA = 11;
+
+	/** Flag to denote the <i>Projection preview</i> state. */
+	public static final int     PROJECTION_PREVIEW = 12;
+	
+	/** Flag to denote the <i>projecting</i> state. */
+	public static final int     PROJECTING = 13;
+	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
 
@@ -177,21 +186,8 @@ public interface ImViewer
 	/** Identifies the index of the projection viewer panel. */
 	public static final int		PROJECTION_INDEX = 3;
 
-	/**
-	 * Sets the visiblity of the lens
-	 * 
-	 * @param b Pass <code>true</code> to display the lens, <code>false</code>
-	 * 			to hide it.
-	 */
-	public void setLensVisible(boolean b);
-
-	/**
-	 * Returns <code>true</code> if the lens is visible, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return see above.
-	 */
-	public boolean isLensVisible();
+	/** Shows or hides the lens. */
+	public void showLens();
 
 	/**
 	 * Returns the zoomed image from the lens component. 
@@ -895,10 +891,14 @@ public interface ImViewer
 	/**
 	 * Sets the newly created projected image.
 	 * 
-	 * @param image 	The projected image.
-	 * @param indexes 	The channel's indexes projected.
+	 * @param image 		The projected image.
+	 * @param indexes 		The channel's indexes projected.
+	 * @param applySettings Pass <code>true</code> to set the rendering settings
+	 * 						of the original image to the new pixels set,
+	 * 						<code>false</code> otherwise.
 	 */
-	public void setProjectedImage(ImageData image, List<Integer> indexes);
+	public void setProjectedImage(ImageData image, List<Integer> indexes, 
+			boolean applySettings);
 
 	/**
 	 * Sets the settings created for the projected image.
@@ -934,10 +934,7 @@ public interface ImViewer
 
 	/** Previews the projected image. */
 	public void previewProjection();
-	
-	/** Projects the image. */
-	public void projectImage();
-	
+
 	/**
 	 * Returns <code>true</code> if a projected image has already been
 	 * built, <code>false</code> otherwise.

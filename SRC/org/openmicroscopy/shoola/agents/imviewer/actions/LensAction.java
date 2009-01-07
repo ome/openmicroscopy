@@ -79,9 +79,6 @@ public class LensAction
      * Shows or hides the lens.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.setLensVisible(!model.isLensVisible());
-    }
+    public void actionPerformed(ActionEvent e) { model.showLens(); }
     
 }

@@ -65,6 +65,12 @@ public class ProjectionSaver
 	/** Indicates to create a preview image. */
 	public static final int PROJECTION = 1;
 	
+	/** 
+	 * Flag indicating to apply the rendering settings of the original image 
+	 * to the projected one. 
+	 */
+	private boolean			applySettings;
+	
 	/** One of the constants defined by this class. */
 	private int 			index;
 	
@@ -100,12 +106,30 @@ public class ProjectionSaver
      */
 	public ProjectionSaver(ImViewer model, ProjectionParam ref, int index)
 	{
+		this(model, ref, index, false);
+	}
+	
+    /**
+     * Creates a new instance.
+     * 
+     * @param model    		Reference to the model.
+     * 						Mustn't be <code>null</code>.
+     * @param ref   		The object hosting the projection's parameters.
+     * @param index			One of the constants defined by this class.
+     * @param applySettings Pass <code>true</code> to set the rendering settings
+	 * 						of the original image to the new pixels set,
+	 * 						<code>false</code> otherwise.
+     */
+	public ProjectionSaver(ImViewer model, ProjectionParam ref, int index, 
+			boolean applySettings)
+	{
 		super(model);
 		if (ref == null)
 			throw new IllegalArgumentException("Parameters not specified.");
 		checkIndex(index);
 		this.index = index;
 		this.ref = ref;
+		this.applySettings = applySettings;
 	}
 	
 	/**
@@ -152,7 +176,7 @@ public class ProjectionSaver
 				} else viewer.setRenderProjected(null);
 				break;
 			case PROJECTION:
-				viewer.setProjectedImage(null, null);
+				viewer.setProjectedImage(null, null, false);
 		}
     }
     
@@ -168,7 +192,8 @@ public class ProjectionSaver
 	        	viewer.setRenderProjected((BufferedImage) result);
 	        	break;
 	        case PROJECTION:
-	        	viewer.setProjectedImage((ImageData) result, ref.getChannels());
+	        	viewer.setProjectedImage((ImageData) result, ref.getChannels(), 
+	        			applySettings);
         }
     }
     

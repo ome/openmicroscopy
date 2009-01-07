@@ -117,10 +117,10 @@ class ImViewerModel
 	static final int 			LOW = RenderingControl.LOW;
 	
 	/** The maximum width of the thumbnail. */
-	private static final int    THUMB_MAX_WIDTH = 48; 
+	private static final int    THUMB_MAX_WIDTH = 24; 
 
 	/** The maximum height of the thumbnail. */
-	private static final int    THUMB_MAX_HEIGHT = 48;
+	private static final int    THUMB_MAX_HEIGHT = 24;
 	
 	/** The maximum width of the image. */
 	private static final int    IMAGE_MAX_WIDTH = 512;
@@ -250,6 +250,9 @@ class ImViewerModel
     
     /** Copy of the original rendering settings.  */
     private RndProxyDef					originalDef;
+    
+    /** The collection of containers hosting the image. */
+    private Collection 					containers;
     
     /**
 	 * Transforms 3D coords into linear coords.
@@ -1539,11 +1542,46 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Starts an asynchronous call to project image.
+	 * 
+	 * @param startZ	The lower bound of the z-section interval to project.
+	 * @param endZ		The upper bound of the z-section interval to project.
+	 * @param stepping	The stepping used, usually <code>1</code>.
+	 * @param type		The type of projection.
+	 * @param typeName	A textual representation of the projection's type.
+	 * @param ref Object with the projection's parameters.
+	 */
+	void fireImageProjection(int startZ, int endZ, int stepping, int type, 
+							String typeName, ProjectionRef ref)
+	{
+		state = ImViewer.PROJECTING;
+		StringBuffer buf = new StringBuffer();
+		buf.append("Original Image: "+getImageName());
+		buf.append("\n");
+		buf.append("Projection type: "+typeName);
+		buf.append("\n");
+		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
+		buf.append("\n");
+		buf.append("timepoints: "+(ref.getStartT()+1)+"-"+(ref.getEndT()+1));
+		List<Integer> channels = ref.getChannels();
+		ProjectionParam param = new ProjectionParam(getPixelsID(), 
+				startZ, endZ, stepping, type, ref.getStartT(), ref.getEndT(), 
+				channels, ref.getImageName());
+		param.setDescription(buf.toString());
+		param.setDatasets(ref.getDatasets());
+		param.setChannels(getActiveChannels());
+		ProjectionSaver loader = new ProjectionSaver(component, param, 
+							ProjectionSaver.PROJECTION, ref.isApplySettings());
+		loader.load();
+	}
+	
+	/**
 	 * Starts an asynchronous retrieval of the containers containing the 
 	 * image.
 	 */
 	void fireContainersLoading()
 	{
+		state = ImViewer.LOADING_PROJECTION_DATA;
 		ContainerLoader loader = new ContainerLoader(component, getImageID());
 		loader.load();
 	}
@@ -1682,5 +1720,22 @@ class ImViewerModel
 		state = ImViewer.READY; 
 		browser.setRenderProjected(image);
 	}
+
+	/**
+	 * Sets the collections of containers hosting the image.
+	 * 
+	 * @param containers The collection of containers hosting the image.
+	 */
+	void setContainers(Collection containers)
+	{ 
+		this.containers = containers; 
+		state = ImViewer.READY;
+	}
+	
+	/**
+	 * Returns the collections of containers hosting the image.
+	 * @return See above.
+	 */
+	Collection getContainers() { return containers; }
 	
 }

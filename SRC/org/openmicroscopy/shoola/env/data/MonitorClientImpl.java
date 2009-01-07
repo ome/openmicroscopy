@@ -114,7 +114,6 @@ class MonitorClientImpl
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 }
