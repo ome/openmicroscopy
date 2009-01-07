@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -23,19 +23,23 @@
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
+
 //Java imports
 import java.awt.event.ActionEvent;
-
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerRecentObject;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Projects the whole image.
+ * Action to bring the viewer for an image recently viewed.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,34 +51,42 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class ProjectionProjectAction 
-	extends ViewerAction
+public class ActivateRecentAction 
+	extends AbstractAction
 {
 
-	/** The name of the action. */
-    private static final String NAME = "Project";
+	/** Description of the action. */
+    private static final String DESCRIPTION = "View the selected image.";
     
-    /** The description of the action. */
-    private static final String DESCRIPTION = 
-    	"Project the selected interval for the whole image.";
+    /** The object hosting information about a recently viewed image. */
+    private ImViewerRecentObject recent;
     
-	 /**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
-     */
-    public ProjectionProjectAction(ImViewer model)
-    {
-    	super(model, NAME);
-    	putValue(Action.NAME, NAME);
-    	putValue(Action.SHORT_DESCRIPTION, 
-    			UIUtilities.formatToolTipText(DESCRIPTION));
-    }
-    
-    /** 
-     * Previews the projected image.
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param recent 	The object hosting information about a recently 
+	 * 					viewed image.
+	 */
+	public ActivateRecentAction(ImViewerRecentObject recent)
+	{
+		if (recent == null)
+			throw new IllegalArgumentException("No recent viewed image.");
+		this.recent = recent;
+		putValue(Action.NAME, recent.getImageName());
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+        putValue(Action.SMALL_ICON, recent.getImageIcon());
+	}
+	
+	/** 
+     * Activates the model. 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.loadContainers(); }
+    public void actionPerformed(ActionEvent e)
+    { 
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	ViewImage event = new ViewImage(recent.getImageID(), null);
+    	bus.post(event);
+    }
     
 }

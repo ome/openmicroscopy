@@ -168,6 +168,12 @@ public interface ImViewer
 	public static final String  RND_SETTINGS_MODIFIED_PROPERTY = 
 			"rndSettingsModified";
 	
+	/** 
+	 * Bound Property name indicating to keep track of an image recently
+	 * viewed.
+	 */
+	public static final String  RECENT_VIEWER_PROPERTY = "reventViewer";
+	
 	/** Identifies the <code>Color Picket</code> menu. */
 	public static final int 	COLOR_PICKER_MENU = 0;
 

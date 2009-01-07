@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,7 +39,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -60,8 +58,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+//Third-party libraries
 import layout.TableLayout;
 
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -70,12 +70,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
-
 import pojos.DatasetData;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Dialog used to set the extra parameters required to project the image.

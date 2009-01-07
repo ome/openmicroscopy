@@ -56,8 +56,7 @@ public class ActivationAction
 {
 
     /** Description of the action. */
-    private static final String DESCRIPTION = "Bring up the selected " +
-                                                "image viewer.";
+    private static final String DESCRIPTION = "View the selected image.";
     
     /**
      * Creates a new instance.

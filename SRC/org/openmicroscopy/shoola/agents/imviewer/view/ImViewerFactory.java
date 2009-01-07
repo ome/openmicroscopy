@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,11 +49,11 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-
 import pojos.ImageData;
 
 /** 
@@ -75,7 +77,7 @@ import pojos.ImageData;
 * @since OME2.2
 */
 public class ImViewerFactory
-  	implements ChangeListener
+  	implements ChangeListener, PropertyChangeListener
 {
 
 	/** The name associated to the component. */
@@ -84,6 +86,8 @@ public class ImViewerFactory
 	/** The name of the windows menu. */
 	private static final String MENU_NAME = "Image Viewer";
 	
+	/** The name of the recent menu. */
+	private static final String RECENT_MENU = "Recent";
 	
 	/** The sole instance. */
 	private static final ImViewerFactory  singleton = new ImViewerFactory();
@@ -98,10 +102,22 @@ public class ImViewerFactory
 	{ 
 		//return singleton.viewers; 
 		if (menu == null) return;
-		Iterator i = singleton.viewers.iterator();
+		Iterator<ImViewer> i = singleton.viewers.iterator();
 		menu.removeAll();
 		while (i.hasNext()) 
-			menu.add(new JMenuItem(new ActivationAction((ImViewer) i.next())));
+			menu.add(new JMenuItem(new ActivationAction(i.next())));
+		
+		int n = singleton.recentViewers.size();
+		if (n > 0) {
+			Iterator<ImViewerRecentObject> 
+				j = singleton.recentViewers.iterator();
+			singleton.recentMenu.removeAll();
+			while (j.hasNext()) {
+				singleton.recentMenu.add(new JMenuItem(
+						new ActivateRecentAction(j.next())));
+			}
+			menu.add(singleton.recentMenu);
+		}
 	}
 
 	/** 
@@ -299,32 +315,40 @@ public class ImViewerFactory
 	}
 	
 	/** All the tracked components. */
-	private Set<ImViewer>     	viewers;
+	private Set<ImViewer>     				viewers;
+
+	/** Collection of image recently viewed. */
+	private List<ImViewerRecentObject>     	recentViewers;
+	
+	/** The windows menu. */
+	private JMenu   						windowMenu;
 
 	/** The windows menu. */
-	private JMenu   			windowMenu;
-
+	private JMenu   						recentMenu;
+	
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.
 	 */
-	private boolean 			isAttached;
+	private boolean 						isAttached;
 
 	/** The rendering def to copy. */
-	private RndProxyDef			rndSettings;
+	private RndProxyDef						rndSettings;
 
 	/** The id of the pixels set to copy. */
-	private long				refPixelsID;
+	private long							refPixelsID;
 
 	/** The user preferences for the viewer. */
-	private ViewerPreferences	pref;
+	private ViewerPreferences				pref;
 	
 	/** Creates a new instance. */
 	private ImViewerFactory()
 	{
 		viewers = new HashSet<ImViewer>();
+		recentViewers = new ArrayList<ImViewerRecentObject>();
 		isAttached = false;
 		windowMenu = new JMenu(MENU_NAME);
+		recentMenu = new JMenu(RECENT_MENU);
 	}
 
 	/**
@@ -347,6 +371,7 @@ public class ImViewerFactory
 		comp = new ImViewerComponent(model);
 		comp.initialize();
 		comp.addChangeListener(this);
+		comp.addPropertyChangeListener(this);
 		viewers.add(comp);
 		return comp;
 	}
@@ -362,10 +387,33 @@ public class ImViewerFactory
 		if (comp.getState() == ImViewer.DISCARDED) {
 			viewers.remove(comp);
 		}
+		/*
 		if (viewers.size() == 0) {
 			TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 			tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
 			isAttached = false;
+		}*/
+	}
+
+	/**
+	 * Listens to the {@link ImViewer#RECENT_VIEWER_PROPERTY}
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ImViewer.RECENT_VIEWER_PROPERTY.equals(name)) {
+			Iterator<ImViewerRecentObject> i = recentViewers.iterator();
+			ImViewerRecentObject v = (ImViewerRecentObject) evt.getNewValue();
+			ImViewerRecentObject old;
+			ImViewerRecentObject exist = null;
+			while (i.hasNext()) {
+				old = i.next();
+				if (old.getImageID() == v.getImageID())
+					exist = old;
+			}
+			if (exist != null) recentViewers.remove(exist);
+			recentViewers.add(v);
 		}
 	}
 	

@@ -543,6 +543,10 @@ class ImViewerComponent
 				controller.setPreferences();
 				if (!saveOnClose()) return;
 				postViewerState(ViewerState.CLOSE);
+				ImViewerRecentObject object = new ImViewerRecentObject(
+						model.getImageID(), model.getImageTitle(),
+						getImageIcon());
+				firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
 				model.discard();
 				fireStateChange();
 		}
