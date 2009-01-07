@@ -1685,10 +1685,19 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 17:
+            if l < 20:
                 return name
-            elif l >= 17:
-                return "%s...%s" % (name[:7], name[l-7:])
+            elif l >= 20 and l < 60:
+                splited = []
+                for v in range(0,len(name),20):
+                    splited.append(name[v:v+20]+" ")
+                return "".join(splited)
+            elif l >= 60:
+                nname = "..." + name[l - 56:]
+                splited = list()
+                for v in range(0,len(nname),20):
+                    splited.append(nname[v:v+20]+" ")
+                return "".join(splited)
         except:
             logger.debug(traceback.format_exc())
             return self._obj.name.val

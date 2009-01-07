@@ -41,7 +41,7 @@ handler500 = "omeroweb.webadmin.views.handler500"
 # url patterns
 urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
-    (r'^webadmin/', include('omeroweb.webadmin.urls')),
-    (r'^webclient/', include('omeroweb.webclient.urls')),
+    (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
+    (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
     #(r'^images/', include('omeroweb.weblitzviewer.urls')),
 )
