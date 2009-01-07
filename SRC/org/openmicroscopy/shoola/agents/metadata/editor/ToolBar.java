@@ -60,12 +60,6 @@ class ToolBar
 	extends JPanel
 {
 	
-	/** The default width of the {@link #busyLabel}. */
-	private static final int	DEFAULT_WIDTH = 16;
-	
-	/** The default height of the {@link #busyLabel}. */
-	private static final int	DEFAULT_HEIGHT = 16;
-	
 	/** Button to save the annotations. */
 	private JButton			saveButton;
 
@@ -93,8 +87,8 @@ class ToolBar
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		IconManager icons = IconManager.getInstance();
-		int h = DEFAULT_HEIGHT;
-		int w = DEFAULT_WIDTH;
+		int h = UIUtilities.DEFAULT_ICON_HEIGHT;
+		int w = UIUtilities.DEFAULT_ICON_WIDTH;
 		Icon icon = icons.getIcon(IconManager.SAVE);
 		if (icon != null) {
 			if (icon.getIconHeight() > h) h = icon.getIconHeight();

@@ -48,6 +48,7 @@ import javax.swing.SpinnerNumberModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -150,6 +151,9 @@ class ToolBar
     /** Sets the stepping for the mapping. */
     private JSpinner			   	projectionFrequency;
 
+	/** Indicates the loading progress. */
+	private JXBusyLabel				busyLabel;
+
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -159,6 +163,7 @@ class ToolBar
         bar.setBorder(null);
         pasteButton = new JButton(controller.getAction(
         		ImViewerControl.PASTE_RND_SETTINGS));
+		
         UIUtilities.unifiedButtonLookAndFeel(pasteButton);
         pasteButton.setEnabled(view.hasSettingsToPaste());
         rndButton = new JToggleButton();
@@ -218,6 +223,10 @@ class ToolBar
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
+        
+        busyLabel = new JXBusyLabel();
+    	busyLabel.setEnabled(true);
+    	busyLabel.setVisible(false);
     }
     
     /** Initializes the projection bar. */
@@ -255,7 +264,12 @@ class ToolBar
     {
     	setBorder(null);
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(UIUtilities.buildComponentPanel(bar));
+    	JPanel p = new JPanel();
+    	p.setBorder(null);
+    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+    	p.add(UIUtilities.buildComponentPanel(bar));
+    	p.add(UIUtilities.buildComponentPanelRight(busyLabel));
+        add(p);
     }
     
     /**
@@ -367,6 +381,19 @@ class ToolBar
 		return projections.get(index);
 	}
 	
+	/**
+     * Sets to <code>true</code> if loading data, to <code>false</code>
+     * otherwise.
+     * 
+     * @param busy 	Pass <code>true</code> while loading data, 
+     * 				<code>false</code> otherwise.
+     */
+    void setStatus(boolean busy)
+    {
+    	busyLabel.setBusy(busy);
+    	busyLabel.setVisible(busy);
+    }
+    
     /**
      * Reacts to the selection of the {@link #compressionBox}.
      * @see ActionListener#actionPerformed(ActionEvent)

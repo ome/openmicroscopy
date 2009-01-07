@@ -2532,6 +2532,7 @@ class ImViewerComponent
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Projection preview", "An error has occurred " +
 					"while projecting the data.");
+			return;
 		}
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		//projection.setProjectedImage(image);
@@ -2687,7 +2688,7 @@ class ImViewerComponent
 		model.fireRenderProjected(view.getProjectionStartZ(), 
 				view.getProjectionEndZ(), view.getProjectionStepping(), 
 				view.getProjectionType());
-		//fireStateChange();
+		fireStateChange();
 	}
 
 	/** 
@@ -2696,7 +2697,6 @@ class ImViewerComponent
 	 */
 	public boolean hasProjectedPreview()
 	{
-		// TODO Auto-generated method stub
 		return model.getBrowser().hasProjectedPreview();
 	}
     

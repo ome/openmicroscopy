@@ -373,6 +373,16 @@ public class ImViewerFactory
 		comp.addChangeListener(this);
 		comp.addPropertyChangeListener(this);
 		viewers.add(comp);
+		//
+		long id = model.getImageID();
+		Iterator<ImViewerRecentObject> j = recentViewers.iterator();
+		ImViewerRecentObject obj;
+		ImViewerRecentObject toRemove = null;
+		while (j.hasNext()) {
+			obj = j.next();
+			if (obj.getImageID() == id) toRemove = obj;
+		}
+		if (toRemove != null) recentViewers.remove(toRemove);
 		return comp;
 	}
 	

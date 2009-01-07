@@ -1514,6 +1514,7 @@ class ImViewerModel
 	 */
 	void fireRenderProjected(int startZ, int endZ, int stepping, int type)
 	{
+		state = ImViewer.PROJECTION_PREVIEW;
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				startZ, endZ, stepping, type);
 		param.setChannels(getActiveChannels());

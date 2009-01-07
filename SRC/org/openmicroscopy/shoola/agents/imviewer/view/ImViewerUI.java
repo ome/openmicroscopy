@@ -2047,6 +2047,15 @@ class ImViewerUI
 	 */
 	String getProjectionTypeName() { return toolBar.getProjectionTypeName(); }
 	
+	/**
+     * Sets to <code>true</code> if loading data, to <code>false</code>
+     * otherwise.
+     * 
+     * @param busy 	Pass <code>true</code> while loading data, 
+     * 				<code>false</code> otherwise.
+     */
+    void setStatus(boolean busy) { toolBar.setStatus(busy); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

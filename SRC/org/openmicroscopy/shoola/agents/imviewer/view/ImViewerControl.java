@@ -741,12 +741,16 @@ class ImViewerControl
 				break;
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
-					//if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
-						view.getLoadingWindow().setVisible(false);
+					view.getLoadingWindow().setVisible(false);
 				view.onStateChange(false);
 				historyState = state;
 				break;  
+			case ImViewer.PROJECTING:
+			case ImViewer.PROJECTION_PREVIEW:
+				view.setStatus(true);
+				break;
 			case ImViewer.READY:
+				view.setStatus(false);
 				view.getLoadingWindow().setVisible(false);
 				if (historyState == ImViewer.CHANNEL_MOVIE)
 					view.onStateChange(false);

@@ -96,6 +96,11 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  */
 public class UIUtilities
 {
+	/** The default width of an icon. */
+	public static final int					DEFAULT_ICON_WIDTH = 16;
+	
+	/** The default height of an icon. */
+	public static final int					DEFAULT_ICON_HEIGHT = 16;
 	
 	/** The default background color. */
     public static final Color				HYPERLINK_COLOR = Color.BLUE;

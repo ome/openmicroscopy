@@ -32,6 +32,8 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
 
+import org.jdesktop.swingx.JXBusyLabel;
+
 //Third-party libraries
 
 //Application-internal dependencies

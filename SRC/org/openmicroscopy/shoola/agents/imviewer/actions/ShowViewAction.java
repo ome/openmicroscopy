@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -93,6 +94,19 @@ public class ShowViewAction
 		this.index = value;
 	}
 	
+	/**
+     * Sets the enabled flag depending on the index and the number of 
+     * z-sections.
+     * 
+     * @param e The event to handle.
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	if (index != PROJECTION) return;
+    	if (model.getState() == ImViewer.READY)
+    		setEnabled(model.getMaxZ() > 1);
+    }
+    
 	/**
      * Creates a new instance.
      * 
