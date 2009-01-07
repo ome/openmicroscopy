@@ -63,12 +63,10 @@ class EditorToolBar
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
-		addAction(EditorControl.OPEN_LOCAL_FILE, bar);
-		addAction(EditorControl.OPEN_WWW_FILE, bar);
-		addAction(EditorControl.SAVE_FILE, bar);
-		addAction(EditorControl.SAVE_FILE_LOCALLY, bar);
-		addAction(EditorControl.SAVE_FILE_SERVER, bar);
-		addAction(EditorControl.NEW_BLANK_FILE, bar);
+		
+		for (int i=0; i<EditorUI.FILE_ACTIONS.length; i++) {
+			addAction(EditorUI.FILE_ACTIONS[i], bar);
+		}
 		return bar;
 	}
 	

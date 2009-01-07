@@ -68,6 +68,16 @@ class EditorUI
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
 	
+	/** The Actions that are displayed in the File menu and in the 
+	 * File toolbar */
+	static Integer[] 				FILE_ACTIONS = {
+						EditorControl.OPEN_LOCAL_FILE, 
+						EditorControl.OPEN_WWW_FILE,
+						EditorControl.SAVE_FILE,
+						EditorControl.SAVE_FILE_LOCALLY,
+						EditorControl.SAVE_FILE_SERVER,
+						EditorControl.NEW_BLANK_FILE };
+	
 	/** 
 	 * Creates the file menu.
 	 * 
@@ -76,10 +86,20 @@ class EditorUI
 	private JMenu createMenu()
 	{
 		JMenu menu = new JMenu("File");
-		EditorAction a = controller.getAction(EditorControl.CLOSE_EDITOR);
+		addMenuItem(EditorControl.CLOSE_EDITOR, menu);
+		
+		for (int i=0; i<FILE_ACTIONS.length; i++) {
+			addMenuItem(FILE_ACTIONS[i], menu);
+		}
+		
+		return menu;
+	}
+	
+	private void addMenuItem(int actionId, JMenu menu)
+	{
+		EditorAction a = controller.getAction(actionId);
 		JMenuItem item = new JMenuItem(a);
 		menu.add(item);
-		return menu;
 	}
 	
 	/** 

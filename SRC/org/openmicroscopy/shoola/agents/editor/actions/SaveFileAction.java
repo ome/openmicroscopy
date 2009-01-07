@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
@@ -87,27 +88,38 @@ public class SaveFileAction
 		// saves current file locally OR to server
 		boolean saved = model.saveCurrentFile();
 		
+		// if not saved (e.g. file is new) ask where to save...
 		if (! saved) {
 			
-			//Custom button text
-			Object[] options = {"Save to Server",
-			                    "Save locally",
-			                    "Cancel"};
-			int n = JOptionPane.showOptionDialog(null,
-			    "Would you like to save this file locally, or save it to " +
-			    "the OMERO.server?",
-			    "Save As...",
-			    JOptionPane.YES_NO_CANCEL_OPTION,
-			    JOptionPane.QUESTION_MESSAGE,
-			    null,
-			    options,
-			    options[2]);
+			ActionCmd save;
 			
-			if (n == 0) {
-				ActionCmd save = new SaveServerCmd(model);
-				save.execute();
-			} else if (n == 1) {
-				ActionCmd save = new SaveLocallyCmd(model);
+			// if server available, ask where to save
+			if (EditorAgent.isServerAvailable()) {
+				//Custom button text
+				Object[] options = {"Save to Server",
+				                    "Save locally",
+				                    "Cancel"};
+				int n = JOptionPane.showOptionDialog(null,
+				    "Would you like to save this file locally, or save it to " +
+				    "the OMERO.server?",
+				    "Save As...",
+				    JOptionPane.YES_NO_CANCEL_OPTION,
+				    JOptionPane.QUESTION_MESSAGE,
+				    null,
+				    options,
+				    options[2]);
+				
+				if (n == 0) {
+					save = new SaveServerCmd(model);
+					save.execute();
+				} else if (n == 1) {
+					save = new SaveLocallyCmd(model);
+					save.execute();
+				}
+				
+			} else {
+				// server not available, Save locally
+				save = new SaveLocallyCmd(model);
 				save.execute();
 			}
 		}
