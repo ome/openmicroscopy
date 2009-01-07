@@ -86,11 +86,12 @@ class EditorUI
 	private JMenu createMenu()
 	{
 		JMenu menu = new JMenu("File");
-		addMenuItem(EditorControl.CLOSE_EDITOR, menu);
 		
 		for (int i=0; i<FILE_ACTIONS.length; i++) {
 			addMenuItem(FILE_ACTIONS[i], menu);
 		}
+		
+		addMenuItem(EditorControl.CLOSE_EDITOR, menu);
 		
 		return menu;
 	}

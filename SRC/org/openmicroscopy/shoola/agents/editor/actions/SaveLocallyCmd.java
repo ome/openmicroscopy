@@ -36,10 +36,13 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.UPEEditorExport;
+import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
 import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
+import org.openmicroscopy.shoola.util.filter.file.UPEFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -62,7 +65,11 @@ public class SaveLocallyCmd
 	/** Reference to the model */
 	private Editor 					model;
 	
-	/** Collection of supported file formats. */
+	/** 
+	 * Collection of supported file formats. 
+	 * These should be instances of {@link CustomizedFileFilter}, so that
+	 * the file extension can be retrieved. 
+	 */
 	private List<FileFilter>		filters;
 	
 	/**
@@ -76,7 +83,7 @@ public class SaveLocallyCmd
 		
 		filters = new ArrayList<FileFilter>();
 		filters.add(new EditorFileFilter());
-		filters.add(new HTMLFilter());
+		filters.add(new UPEFilter());
 	}
 
 	/**
@@ -107,17 +114,25 @@ public class SaveLocallyCmd
 	 */
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
+		if (! (evt.getSource() instanceof FileChooser)) return;
+		FileChooser fileChooser = (FileChooser)evt.getSource();
+		
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File file = (File) evt.getNewValue();
 			
+			FileFilter filter = fileChooser.getSelectedFilter();
+			String filterExtension = "";
+			if (filter instanceof CustomizedFileFilter) {
+				filterExtension = ((CustomizedFileFilter)filter).getExtension();
+			}
+			
 			// check if file is allowed. If not, add extension. 
-			FileFilter filter = new EditorFileFilter();
-				if (! filter.accept(file)) {
-					String filePath = file.getAbsolutePath();
-					filePath = filePath + "." + EditorFileFilter.UPE_XML;
-					file = new File(filePath);
-				}
+			if (! filter.accept(file)) {
+				String filePath = file.getAbsolutePath();
+				filePath = filePath + "." + filterExtension;
+				file = new File(filePath);
+			}
 				
 			// if file exists, get user to confirm. Otherwise exit! 
 			if (file.exists()) {
@@ -127,6 +142,12 @@ public class SaveLocallyCmd
 						UIUtilities.showConfirmDialog(title, message)) {
 					return;
 				}
+			}
+			
+			// user chose UPE, this is "Export" not "Save". 
+			if (filter instanceof UPEFilter) {
+				model.exportUPELocally(file);
+				return;
 			}
 			
 			model.saveFileLocally(file);

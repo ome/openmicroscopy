@@ -70,9 +70,9 @@ public class SaveServerCmd
 				"Save to server", JOptionPane.QUESTION_MESSAGE);
 		if (fileName != null) 
 		{
-			FileFilter editor = new EditorFileFilter();
+			EditorFileFilter editor = new EditorFileFilter();
 			if (! editor.accept(new File(fileName))) {
-				fileName = fileName + "." + EditorFileFilter.UPE_XML;
+				fileName = fileName + "." + editor.getExtension();
 			}
 			model.saveFileServer(fileName);
 		}

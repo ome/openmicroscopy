@@ -1,8 +1,8 @@
-/*
- * org.openmicroscopy.shoola.util.filter.file.EditorFileFilter 
+ /*
+ * org.openmicroscopy.shoola.util.filter.file.UPEFilter 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,10 @@
  */
 package org.openmicroscopy.shoola.util.filter.file;
 
-
 //Java imports
+
 import java.io.File;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -32,27 +33,23 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 /** 
- * Filters the <code>Editor</code> files.
+ * A filter for "Universal Protocol Exchange" format.
+ * These files are similar to OMERO.Editor files, but conform to the 
+ * UPE file definition, allowing them to be read by other software. 
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since 3.0-Beta3
+ * @since 3.0-Beta4
  */
-public class EditorFileFilter 
+public class UPEFilter 
 	extends CustomizedFileFilter
 {
-	
 	/** Possible file extension. */
-	public static final String 	PRO_XML = "pro.xml";
-	
-	/** Possible file extension. */
-	public static final String 	OPE_XML = "ope.xml";
+	public static final String 	UPE_XML = "upe.xml";
 	
 	/** The possible extensions. */
 	private static final String[] 	extensions;
@@ -62,9 +59,8 @@ public class EditorFileFilter
 	
 	static {
 		extensions = new String[2];
-		extensions[0] = OPE_XML;
-		extensions[1] = PRO_XML;
-		String s = "OMERO.Editor (";
+		extensions[0] = UPE_XML;
+		String s = "Univeral Protocol Exchange (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];
 			if (i < extensions.length-1)
@@ -84,7 +80,7 @@ public class EditorFileFilter
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
 	 */
-	public String getExtension() { return OPE_XML; }
+	public String getExtension() { return UPE_XML; }
 	
     /**
      * Overriden to return the description of the filter.
