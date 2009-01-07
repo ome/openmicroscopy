@@ -125,11 +125,13 @@ public interface IField
 	public String getToolTipText();
 	
 	/**
-	 * Returns a html-formatted string representation of this field. 
+	 * Returns a string representation of this field's content, with parameters
+	 * in context with description. This is for e.g. display or export to UPE, 
+	 * which doesn't support parameters in context.  
 	 * 
 	 * @return		see above.
 	 */
-	public String toHtmlString();
+	public String getDescription();
 	
 	/**
 	 * If this field has tabular data (multiple values for each parameter) then

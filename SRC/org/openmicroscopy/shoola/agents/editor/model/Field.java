@@ -31,11 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.TableModel;
+import javax.swing.text.html.HTML;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.FieldTextArea;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
@@ -349,27 +351,41 @@ public class Field
 	 * 
 	 * @return
 	 */
-	public String toHtmlString() 
+	public String getDescription() 
 	{
-		
-		String fieldName = getAttribute(Field.FIELD_NAME);
-		
-		String text = fieldName + ": ";
+		String description = "";
 		String contentText;
+		String contentString;
 		IFieldContent content;
 		
-		for (int index=0; index<fieldParams.size(); index++) {
-			content = fieldParams.get(index);
+		// flag used to insert space between parameter objects, so user can
+		// start typing and insert text between parameters. 
+		boolean includeSpacer = false;	
+		
+		// html for the field contents. 
+		for (int i=0; i<getContentCount(); i++) {
+			content = getContentAt(i);
 			if (content instanceof IParam) {
-				contentText = "<a href='" + index + "'>" + 
-				content.toString() + "</a>";
+				contentString = content.toString();
+				if (contentString.length() == 0)
+					contentString = "param";
+				
+				contentString = "[" + contentString + "]";
+				// id attribute allows parameters to be linked to model
+				// eg for editing parameters. 
+				contentText = (includeSpacer ? " " : "") + // space before param
+				 		contentString;
+				includeSpacer = true;
 			} else {
 				contentText = content.toString();
+				if (content.toString().length() > 0)
+					includeSpacer = false;		// don't need a space after text
 			}
-			
-			text = text + " " + contentText;
+			// add each component. 
+			description = description + contentText;
 		}
-		return text;
+		
+		return description;
 		
 	}
 	

@@ -155,12 +155,12 @@ public class UPEexport {
 	}
 	
 	/**
-	 * In order to write XML files that adhere to the current UPE format,
-	 * a step should have a description. If the file has been created by 
-	 * reading a UPE file, the description will be the first item in the 
-	 * field's content. 
-	 * This method can be overridden by subclasses that write a UPE file 
-	 * with the step description in context with parameters. 
+	 * In order to export to XML files that adhere to the current UPE format,
+	 * a step should have a description. This is a String representation
+	 * of the parameters in context with descriptions, since UPE does not
+	 * support parameters in context yet. 
+	 * This method can be overridden by subclasses that write an OMERO.editor 
+	 * file with the step description in context with parameters. 
 	 * 
 	 * @param field			The tree-model field/node which equates to a step
 	 * @param step			The XML step element to add the description to. 
@@ -168,12 +168,9 @@ public class UPEexport {
 	protected void addStepDescription(IField field, IXMLElement step) 
 	{
 		// description
-		if (field.getContentCount() >0) {
-			IFieldContent content = field.getContentAt(0);
-			if (content instanceof TextContent) {
-				String desc = content.toString();
-				addChildContent(step, "description", desc);
-			}
+		String description = field.getDescription();
+		if (description.length() > 0) {
+			addChildContent(step, "description", description);
 		}
 	}
 	
