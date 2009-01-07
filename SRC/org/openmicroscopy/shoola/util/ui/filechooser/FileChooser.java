@@ -416,6 +416,16 @@ public class FileChooser
     }
     
     /**
+     * Returns the currently selected filter.
+     * 
+     * @return See above.
+     */
+    public FileFilter getSelectedFilter()
+    {
+    	return uiDelegate.getSelectedFilter();
+    }
+    
+    /**
      * Shows the chooser dialog. 
      * 
      * @return The option selected.

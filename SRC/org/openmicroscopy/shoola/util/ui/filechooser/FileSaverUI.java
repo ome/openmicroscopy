@@ -44,6 +44,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -451,6 +452,13 @@ class FileSaverUI
 		c.repaint();
 	}
 
+    /**
+     * Returns the currently selected filter.
+     * 
+     * @return See above.
+     */
+	FileFilter getSelectedFilter() { return chooser.getFileFilter(); }
+	
 	/**
 	 * Reacts to click on buttons.
 	 * @see ActionListener#actionPerformed(ActionEvent)
