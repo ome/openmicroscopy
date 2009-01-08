@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -1393,7 +1394,7 @@ public class EditorUtil
 	{
     	OMEComboBox box = new OMEComboBox(values);
 		box.setBackground(UIUtilities.BACKGROUND_COLOR);
-		box.setUI(new BasicComboBoxUI() {
+		BasicComboBoxUI ui = new BasicComboBoxUI() {
 
 	        /**
 	         * Hides the arrow Button.
@@ -1405,7 +1406,9 @@ public class EditorUtil
 	            return b;
 	         }
 	         
-	      });
+	      };
+	      ui.installUI(box);
+		box.setUI(ui);
 
 		Font f = box.getFont();
 		int size = f.getSize()-decrement;

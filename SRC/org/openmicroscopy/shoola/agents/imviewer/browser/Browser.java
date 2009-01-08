@@ -217,27 +217,6 @@ public interface Browser
 	public void setBackgroundColor(Color color);
 	
 	/**
-	 * Returns the icon associated to the annotator.
-	 * 
-	 * @return See above.
-	 */
-	public Icon getAnnotatorIcon();
-	
-	/**
-     * Returns the name of the annotator.
-     * 
-     * @return See above.
-     */
-	public String getAnnotatorTitle();
-
-	/**
-	 * Returns the annotator view.
-	 * 
-	 * @return See above.
-	 */
-	public JComponent getAnnotator();
-	
-	/**
 	 * Returns the grid view.
 	 * 
 	 * @return See above.
@@ -302,21 +281,6 @@ public interface Browser
 	 * @return See above.
 	 */
 	public BufferedImage getGridImage();
-
-	/**
-	 * Returns the annotated image.
-	 * 
-	 * @return See above.
-	 */
-	public BufferedImage getAnnotateImage();
-
-	/**
-	 * Builds and lays out the annotator.
-	 * 
-	 * @param left	The component to add to the left of the image.
-	 * @param right	The component to add to the bottom of the image.
-	 */
-	public void layoutAnnotator(JComponent left, JComponent right);
 
 	/**
 	 * Returns the coordinate of the point w.r.t the grid image 

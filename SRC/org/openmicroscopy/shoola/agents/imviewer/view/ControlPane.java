@@ -1056,7 +1056,15 @@ class ControlPane
         Iterator i = channelButtons.iterator();
         while (i.hasNext())
             ((ChannelButton) i.next()).setEnabled(b);
+        i = channelButtonsGrid.iterator();
+        while (i.hasNext())
+            ((ChannelButton) i.next()).setEnabled(b);
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext())
+            ((ChannelButton) i.next()).setEnabled(b);
         colorModelButton.setEnabled(b);
+        colorModelButtonGrid.setEnabled(b);
+        colorModelButtonProjection.setEnabled(b);
     }
     
     /**
@@ -1069,8 +1077,6 @@ class ControlPane
     JPanel getTimeSliderPane(int index) 
     {
     	switch (index) {
-			case ImViewer.ANNOTATOR_INDEX:
-				return layoutSlider(tSliderAnnotator);
 			case ImViewer.GRID_INDEX:
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));

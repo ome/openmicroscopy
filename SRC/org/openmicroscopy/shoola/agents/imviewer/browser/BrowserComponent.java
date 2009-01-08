@@ -79,9 +79,6 @@ class BrowserComponent
     
     /** The View sub-component. */
     private BrowserUI       view;
-
-    /** The annotator sub-component. */
-    private AnnotatorUI		annotator;
     
     /** The sub-component displaying the grid. */
     private GridUI			gridView;
@@ -102,7 +99,6 @@ class BrowserComponent
         this.model = model;
         controller = new BrowserControl();
         view = new BrowserUI();
-        annotator = new AnnotatorUI();
         gridView = new GridUI();
         projectionView = new ProjectionUI();
         view.setSibling(gridView);
@@ -114,7 +110,6 @@ class BrowserComponent
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
-        annotator.initialize(view, model);
         gridView.initialize(model);
         projectionView.initialize(model);
     }
@@ -173,9 +168,6 @@ class BrowserComponent
 			case ImViewer.GRID_INDEX:
 				gridView.removeComponentFromLayer(c);
 				break;
-			case ImViewer.ANNOTATOR_INDEX:
-				annotator.removeComponentFromLayer(c);
-				break;
 			case ImViewer.PROJECTION_INDEX:
 				projectionView.removeComponentFromLayer(c);
 				break;
@@ -196,9 +188,6 @@ class BrowserComponent
 				break;
 			case ImViewer.GRID_INDEX:
 				gridView.addComponentToLayer(c);
-				break;
-			case ImViewer.ANNOTATOR_INDEX:
-				annotator.addComponentToLayer(c);
 				break;
 			case ImViewer.PROJECTION_INDEX:
 				projectionView.addComponentToLayer(c);
@@ -394,24 +383,6 @@ class BrowserComponent
 	{
 		return model.getBackgroundColor();
 	}
-	
-    /** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getAnnotator()
-     */
-	public JComponent getAnnotator() { return annotator; }
-
-    /** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getAnnotatorIcon()
-     */
-	public Icon getAnnotatorIcon() { return model.getAnnotatorIcon(); }
-
-    /** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getAnnotatorTitle()
-     */
-	public String getAnnotatorTitle() { return model.getAnnotatorTitle(); }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
@@ -498,24 +469,6 @@ class BrowserComponent
 		return gridView.getGridImage();
 	}
 	
-	/** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getAnnotateImage()
-     */
-	public BufferedImage getAnnotateImage()
-	{
-		return model.getAnnotateImage();
-	}
-
-	/** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#layoutAnnotator(JComponent, JComponent)
-     */
-	public void layoutAnnotator(JComponent left, JComponent right)
-	{
-		annotator.buildGUI(left, right);
-	}
-
 	/** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#isOnImageInGrid(Rectangle rect)

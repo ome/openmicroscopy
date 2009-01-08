@@ -1025,13 +1025,6 @@ class ImViewerModel
 	void setTextVisible(boolean textVisible) { this.textVisible = textVisible; }
 
 	/**
-	 * Returns the image displayed in the annotator view.
-	 * 
-	 * @return See above.
-	 */
-	BufferedImage getAnnotateImage() { return browser.getAnnotateImage(); }
-
-	/**
 	 * Returns <code>true</code> if the image has been loaded,
 	 * <code>false</code> otherwise.
 	 * 
@@ -1362,7 +1355,6 @@ class ImViewerModel
 	void setCompressionLevel(int compressionLevel)
 	{
 		currentRndControl.setCompression(compressionLevel);
-		component.renderXYPlane();
 	}
 
 	/**

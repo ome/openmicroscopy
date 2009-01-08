@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -51,6 +53,7 @@ import javax.swing.SpinnerNumberModel;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -92,11 +95,6 @@ class ToolBar
 	/** Horizontal space between the buttons. */
 	private static final Dimension	H_SPACE = new Dimension(2, 5);
 	
-	/** Default text describing the compression level.  */
-    private static final String		COMPRESSED_DESCRIPTION = 
-    				"View your image has uncompressed or select " +
-    				"the desired compression quality.";
-    
     /** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
     				"Select the type of projection.";
@@ -247,7 +245,6 @@ class ToolBar
     {
     	compressionBox = EditorUtil.createComboBox(compression, 0);
     	compressionBox.setBackground(getBackground());
-    	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         createControlsBar();
         createProjectionBar();
     }
@@ -297,10 +294,10 @@ class ToolBar
 		}
     	
 		bar.add(new JSeparator(JSeparator.VERTICAL));
-		bar.add(compressionBox);
-		compressionBox.setSelectedIndex(view.getCompressionLevel());
-		compressionBox.addActionListener(this);
-		
+		bar.add(UIUtilities.buildComponentPanel(compressionBox));
+		compressionBox.setSelectedIndex(view.convertCompressionLevel());
+		compressionBox.addActionListener(
+    			controller.getAction(ImViewerControl.COMPRESSION));
 		projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, 
 				view.getMaxZ()+1, 1));
 
@@ -388,18 +385,39 @@ class ToolBar
     }
     
     /**
+     * Sets the enabled flag of the components.
+     * 
+     * @param b Pass <code>true</code> to enable the components, 
+     * 			<code>false</code> otherwise.
+     */
+    void onStateChange(boolean b)
+    {
+    	if (compressionBox != null)
+    		compressionBox.setEnabled(b);
+    	if (projectionTypesBox != null)
+    		projectionTypesBox.setEnabled(b);
+    	if (projectionFrequency != null)
+    		projectionFrequency.setEnabled(b);
+	}
+    
+    /**
+     * Returns the currently selected index of the compression level.
+     * 
+     * @return See above.
+     */
+	int getUICompressionLevel() { return compressionBox.getSelectedIndex(); }
+	
+    /**
      * Reacts to the selection of the {@link #compressionBox}.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
 	public void actionPerformed(ActionEvent e)
 	{
 		Object src = e.getSource();
-		int index;
-		if (src == compressionBox) {
-			index = compressionBox.getSelectedIndex();
-			view.setCompressionLevel(index);
-		} else if (src == projectionTypesBox)
+		if (src == projectionTypesBox)
 			controller.setProjectionRange(true);
 	}
+
+	
 
 }

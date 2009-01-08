@@ -57,6 +57,7 @@ import javax.swing.event.MenuListener;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
@@ -89,7 +90,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
-import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
@@ -298,6 +298,9 @@ class ImViewerControl
 	/** Identifies the <code>Projection project</code> action. */
 	static final Integer     PROJECTION_PROJECT = new Integer(64);
 	
+	/** Identifies the <code>Compression</code> action. */
+	static final Integer     COMPRESSION = new Integer(65);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -395,6 +398,7 @@ class ImViewerControl
 						new SetOriginalRndSettingsAction(model));
 		actionsMap.put(PROJECTION_PREVIEW, new ProjectionPreviewAction(model));
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
+		actionsMap.put(COMPRESSION, new CompressionAction(model));
 	}
 
 	/** 
@@ -720,6 +724,7 @@ class ImViewerControl
 			case ImViewer.PROJECTING:
 			case ImViewer.PROJECTION_PREVIEW:
 				view.setStatus(true);
+				view.onStateChange(false);
 				break;
 			case ImViewer.READY:
 				view.setStatus(false);
@@ -816,16 +821,8 @@ class ImViewerControl
 			model.setUserRndSettings(exp);
 		} else if (Tagger.TAG_LOADED_PROPERTY.equals(pName)) {
 			view.showMenu(ImViewer.CATEGORY_MENU);
-		} else if (ProjectionDialog.PROJECTION_PREVIEW_PROPERTY.equals(pName)) {
-			model.projectionPreview((ProjectionRef) pce.getNewValue());
 		} else if (ProjSavingDialog.PROJECTION_PROPERTY.equals(pName)) {
 			model.projectImage((ProjectionRef) pce.getNewValue());
-		//} else if (ProjectionDialog.PROJECTION_PROPERTY.equals(pName)) {
-		//	model.projectImage((ProjectionRef) pce.getNewValue());
-		} else if (ProjectionDialog.LOAD_DATASETS_PROPERTY.equals(pName)) {
-			model.loadContainers();
-		} else if (ProjectionDialog.CLOSE_DIALOG_PROPERTY.equals(pName)) {
-			view.requestFocus();
 		} else if (PlaneInfoComponent.PLANE_INFO_PROPERTY.equals(pName)) {
 			view.showPlaneInfoDetails((PlaneInfoComponent) pce.getNewValue());
 		} else if (TinyDialog.CLOSED_PROPERTY.equals(pName))

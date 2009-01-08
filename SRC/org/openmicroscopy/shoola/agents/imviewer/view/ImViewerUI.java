@@ -295,10 +295,7 @@ class ImViewerUI
 	
 	/** The panel hosting the view. */
 	private ClosableTabbedPaneComponent			gridViewPanel;
-	
-	/** The panel hosting the view. */
-	private ClosableTabbedPaneComponent			annotatorPanel;
-	
+
 	/** The panel hosting the view. */
 	private ClosableTabbedPaneComponent			projectionViewPanel;
 	
@@ -766,24 +763,6 @@ class ImViewerUI
 		
 		tabs.insertTab(browser.getTitle(), browser.getIcon(), viewPanel, "", 
 				ImViewer.VIEW_INDEX);
-		browser.layoutAnnotator(controlPane.buildAnnotatorComponent(), 
-				controlPane.getTimeSliderPane(ImViewer.ANNOTATOR_INDEX));
-		
-		annotatorPanel = new ClosableTabbedPaneComponent(
-							ImViewer.ANNOTATOR_INDEX, 
-				browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), "");
-		double[][] tlq = {{TableLayout.FILL}, {TableLayout.FILL}};
-		annotatorPanel.setLayout(new TableLayout(tlq));
-		//annotatorPanel.add(browser.getAnnotator(), "0, 0");
-		/*
-		model.getMetadataView().addExternalComponent(browser.getAnnotator(), 
-											MetadataViewer.TOP_LEFT);
-		
-		annotatorPanel.add(model.getMetadataView().getUI(), "0, 0");
-		*/
-		//tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
-		//		annotatorPanel, "", ImViewer.ANNOTATOR_INDEX);
-
 		gridViewPanel = new ClosableTabbedPaneComponent(ImViewer.GRID_INDEX, 
 				browser.getGridViewTitle(),  browser.getGridViewIcon(), "");
 		gridViewPanel.setLayout(new TableLayout(tl));
@@ -1162,6 +1141,7 @@ class ImViewerUI
 	{ 
 		enableSliders(b);
 		controlPane.onStateChange(b); 
+		toolBar.onStateChange(b); 
 	}
 
 	/** Sets the default text of the status bar. */
@@ -1300,9 +1280,6 @@ class ImViewerUI
 			case ImViewer.GRID_INDEX:
 				lens.setPlaneImage(model.getGridImage());
 				break;
-			case ImViewer.ANNOTATOR_INDEX:
-				lens.setPlaneImage(model.getAnnotateImage());
-				break;
 			case ImViewer.PROJECTION_INDEX:
 				BufferedImage image = model.getProjectedImage();
 				if (image != null) lens.setPlaneImage(image);
@@ -1366,7 +1343,6 @@ class ImViewerUI
 			JComponent c = lens.getLensUI();
 			browser.removeComponent(c, ImViewer.VIEW_INDEX);
 			browser.removeComponent(c, ImViewer.GRID_INDEX);
-			browser.removeComponent(c, ImViewer.ANNOTATOR_INDEX);
 			browser.removeComponent(c, ImViewer.PROJECTION_INDEX);
 		}
 		if (!b) {
@@ -1394,10 +1370,6 @@ class ImViewerUI
 				break;
 			case ImViewer.GRID_INDEX:
 				img = model.getGridImage();
-				break;
-			case ImViewer.ANNOTATOR_INDEX:
-				img = model.getOriginalImage();
-				f = (float) model.getBrowser().getRatio();
 				break;
 		}
 		int width = lens.getLensUI().getWidth();
@@ -1436,7 +1408,6 @@ class ImViewerUI
 					break;
 				case ImViewer.PROJECTION_INDEX:
 				case ImViewer.VIEW_INDEX:
-				case ImViewer.ANNOTATOR_INDEX:
 					if (index == ImViewer.GRID_INDEX) {
 						double r = model.getBrowser().getRatio();
 						lensX = (int) (lensX*r);
@@ -1553,7 +1524,6 @@ class ImViewerUI
 	{
 		switch (index) {
 			case ImViewer.VIEW_INDEX:
-			case ImViewer.ANNOTATOR_INDEX:
 			case ImViewer.GRID_INDEX:
 			case ImViewer.PROJECTION_INDEX:
 				tabs.setSelectedIndex(index);
@@ -1776,7 +1746,7 @@ class ImViewerUI
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
-		int oldCompression = getCompressionLevel();
+		int oldCompression = convertCompressionLevel();
 		switch (compressionLevel) {
 			case ToolBar.UNCOMPRESSED:
 				model.setCompressionLevel(ImViewerModel.UNCOMPRESSED);
@@ -1795,11 +1765,11 @@ class ImViewerUI
 	}
 	
 	/** 
-	 * Returns the compression level.
+	 * Returns the UI index corresponding to the current compression level.
 	 * 
 	 * @return See above.
 	 */
-	int getCompressionLevel() 
+	int convertCompressionLevel() 
 	{
 		switch (model.getCompressionLevel()) {
 			default:
@@ -1811,6 +1781,14 @@ class ImViewerUI
 				return ToolBar.LOW;
 		}
 	}
+	
+	/**
+	 * Returns the UI index of the currently selected compression level.
+	 * 
+	 * @return See above.
+	 */
+	int getUICompressionLevel() { return toolBar.getUICompressionLevel(); }
+	
 	
 	/**
 	 * Returns <code>true</code> if the image is compressed, 
@@ -1927,9 +1905,6 @@ class ImViewerUI
 				break;
 			case ImViewer.GRID_INDEX:
 				tabs.insertClosableComponent(gridViewPanel);
-				break;
-			case ImViewer.ANNOTATOR_INDEX:
-				tabs.insertClosableComponent(annotatorPanel);
 				break;
 			case ImViewer.PROJECTION_INDEX:
 				tabs.insertClosableComponent(projectionViewPanel);

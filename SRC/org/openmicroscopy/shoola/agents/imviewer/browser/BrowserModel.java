@@ -81,10 +81,7 @@ class BrowserModel
 	
 	/** The title of the browser. */
 	private static final String TITLE = "View";
-	
-	/** The title of the annotator. */
-	private static final String TITLE_ANNOTATOR = "Annotation";
-	
+
 	/** The title of the grid view. */
 	private static final String TITLE_GRIDVIEW = "Split";
 	
@@ -702,14 +699,7 @@ class BrowserModel
 	 * @return See above.
 	 */
 	ImageData getImageData() { return data; }
-	
-	/**
-     * Returns the title of the <code>Annotator</code>.
-     * 
-     * @return See above.
-     */
-    String getAnnotatorTitle() { return TITLE_ANNOTATOR; }
-    
+
     /**
      * Returns the title of the <code>Grid View</code>.
      * 

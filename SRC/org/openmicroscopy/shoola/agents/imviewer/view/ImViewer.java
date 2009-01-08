@@ -189,14 +189,11 @@ public interface ImViewer
 	/** Identifies the index of the image viewer panel. */
 	public static final int		VIEW_INDEX = 0;
 
-	/** Identifies the index of the annotator panel. */
-	public static final int		ANNOTATOR_INDEX = 1;
-
 	/** Identifies the index of the grid viewer panel. */
-	public static final int		GRID_INDEX = 2;
+	public static final int		GRID_INDEX = 1;
 	
 	/** Identifies the index of the projection viewer panel. */
-	public static final int		PROJECTION_INDEX = 3;
+	public static final int		PROJECTION_INDEX = 2;
 
 	/** Shows or hides the lens. */
 	public void showLens();
@@ -862,17 +859,6 @@ public interface ImViewer
 	/** Sets the original rendering settings. */
 	public void setOriginalRndSettings();
 
-	/** Shows the projection dialog and preview. */
-	public void showProjection();
-
-	/**
-	 * Projects a selected portion of the optical sections 
-	 * for the currently selected timepoint and active channel.
-	 * 
-	 * @param ref Object containing the projection parameters.
-	 */
-	public void projectionPreview(ProjectionRef ref);
-
 	/**
 	 * Projects the whole image according the projection parameters.
 	 * 
@@ -961,5 +947,8 @@ public interface ImViewer
 
 	/** Loads the metadata. */
 	public void loadMetadata();
+
+	/** Indicates that the compression level has been modified. */
+	public void setCompressionLevel();
 	
 }

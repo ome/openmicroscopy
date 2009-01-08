@@ -148,5 +148,15 @@ public class OMEComboBox
 		UIManager.getDefaults().put("ComboBox.disabledBackground", c);
 	}
 	
+	/**
+	 * Overridden to set the background and the disabled background.
+	 * @see JComboBox#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		setBackground(getBackground());
+		super.setEnabled(enabled);
+	}
+	
 }
 

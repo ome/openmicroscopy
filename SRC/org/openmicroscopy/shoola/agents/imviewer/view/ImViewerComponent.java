@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
-import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
@@ -152,9 +151,6 @@ class ImViewerComponent
 	 * before copying the 
 	 */
 	private boolean							saveBeforeCopy;
-	
-	/** The projection dialog. */
-	private ProjectionDialog				projection;
 
 	/** 
 	 * Brings up the dialog used to set the parameters required for the
@@ -2450,36 +2446,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#showProjection()
-	 */
-	public void showProjection()
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalArgumentException("This method cannot be invoked" +
-					" in the DISCARDED state.");
-		if (projection == null) {
-			BufferedImage img = model.getOriginalImage();
-			int w = 0, h = 0;
-			if (img != null) {
-				w = img.getWidth();
-				h = img.getHeight();
-			}
-			projection = new ProjectionDialog(view, model.getMaxZ()+1, 
-									model.getMaxT()+1, model.getPixelsType(),
-									model.getBrowser().getBackgroundColor(),
-									model.getImageName());
-			projection.initialize(w, h, view.createChannelButtons());
-			projection.addPropertyChangeListener(controller);
-			projection.registerObservableComponent(this);
-			UIUtilities.incrementRelativeToAndShow(view.getBounds(), 
-					projection);
-		} else {
-			projection.setVisible(true);
-		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#projectImage(ProjectionRef)
 	 */
 	public void projectImage(ProjectionRef ref)
@@ -2524,20 +2490,6 @@ class ImViewerComponent
 		view.setPlaneInfoStatus();	
 		if (view.isLensVisible()) view.setLensPlaneImage();
 		fireStateChange();
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#projectionPreview(ProjectionRef)
-	 */
-	public void projectionPreview(ProjectionRef ref)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalArgumentException("This method cannot be invoked" +
-					" in the DISCARDED state.");
-		if (projection == null) return;
-		if (!projection.isVisible()) return;
-		model.fireRenderProjected(ref);
 	}
 
 	/** 
@@ -2712,6 +2664,20 @@ class ImViewerComponent
 	{
 		//Check state
 		model.loadMetadata();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setColorModel(int)
+	 */
+	public void setCompressionLevel()
+	{
+		//TODO:Check state
+		int old = view.convertCompressionLevel();
+		int index = view.getUICompressionLevel();
+		if (old == index) return;
+		view.setCompressionLevel(index);
+		renderXYPlane();
 	}
 	
 }
