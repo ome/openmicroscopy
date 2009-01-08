@@ -158,6 +158,7 @@ class GraphicsPane
                                         RendererModel.CD_END, 
                                         model.getCodomainStart(),
                                         model.getCodomainEnd());
+        codomainSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         codomainSlider.setPaintLabels(false);
         codomainSlider.setPaintEndLabels(false);
         codomainSlider.setPaintTicks(false);
@@ -167,6 +168,7 @@ class GraphicsPane
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();
         domainSlider = new TwoKnobsSlider();
+        domainSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         initDomainSlider();
         domainSlider.setPaintLabels(false);
         domainSlider.setPaintEndLabels(false);
@@ -176,8 +178,10 @@ class GraphicsPane
         double max = model.getGlobalMax();
         int length = (""+model.getHighestValue()).length()-2; 
         startField = new JTextField();
+        startField.setBackground(UIUtilities.BACKGROUND_COLOR);
         startField.setColumns(length);
         endField = new JTextField();
+        endField.setBackground(UIUtilities.BACKGROUND_COLOR);
         endField.setColumns(length);
         startField.setText(""+s);
         endField.setText(""+e);
@@ -189,9 +193,14 @@ class GraphicsPane
         endField.addFocusListener(this);
         maxLabel = new JLabel(""+(int) max);
         minLabel = new JLabel(""+(int) min);
+        maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        
         preview = new JCheckBox(PREVIEW);
+        preview.setBackground(UIUtilities.BACKGROUND_COLOR);
         preview.setToolTipText(PREVIEW_DESCRIPTION);
         rangeButton = new JButton("Min/Max");
+        rangeButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         rangeButton.addActionListener(this);
         rangeButton.setActionCommand(""+RANGE);
     }
@@ -199,6 +208,7 @@ class GraphicsPane
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	setBackground(UIUtilities.BACKGROUND_COLOR);
     	double size[][] = {{TableLayout.FILL},  // Columns
     	         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
     	    	setLayout(new TableLayout(size));
@@ -216,6 +226,7 @@ class GraphicsPane
     private JPanel buildGraphicsPane()
     {
     	 JPanel p = new JPanel();
+    	 p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	 int knobWidth = domainSlider.getKnobWidth();
     	 int knobHeight = domainSlider.getKnobHeight();
     	 int width = codomainSlider.getPreferredSize().width;
@@ -228,7 +239,7 @@ class GraphicsPane
     	 p.add(uiDelegate, "2, 1");
     	 p.add(domainSlider, "1, 3, 3, 3");
     	 p.add(preview, "0, 4, 3, 4");
-         return p;//UIUtilities.buildComponentPanel(p);
+         return p;
     }
     
     /**
@@ -239,6 +250,7 @@ class GraphicsPane
     private JPanel buildFieldsControls()
     {
         JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
         double size[][] =
         {{TableLayout.PREFERRED, 10, TableLayout.FILL},  // Columns
          {TableLayout.PREFERRED, 5}}; // Rows
@@ -249,9 +261,12 @@ class GraphicsPane
    	 	p.add(panel, "2, 0");
    	 	
    	 	JPanel content = new JPanel();
+   	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
    	 	content.add(p);
-   	 	content.add(UIUtilities.buildComponentPanel(rangeButton));
-        return content;//UIUtilities.buildComponentPanel(p);
+   	 	JPanel comp = UIUtilities.buildComponentPanel(rangeButton);
+   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+   	 	content.add(comp);
+        return content;
     }
     
     /**
@@ -267,15 +282,18 @@ class GraphicsPane
                                 JTextField f)
     {
         JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
         double size[][] =
         {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},  // Columns
          {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
    	 	p.setLayout(new TableLayout(size));
    	 	JLabel label =  new JLabel();
+   	 	label.setBackground(UIUtilities.BACKGROUND_COLOR);
    	 	label.setText(txt1);
    	 	p.add(label, "0, 0");
    	 	p.add(l, "2, 0");
-   	 	label =  new JLabel();
+   	 	label = new JLabel();
+   	 	label.setBackground(UIUtilities.BACKGROUND_COLOR);
    	 	label.setText(txt2);
    	 	p.add(label, "0, 2");
    	 	p.add(f, "2, 2");

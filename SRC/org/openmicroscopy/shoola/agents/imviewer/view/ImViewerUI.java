@@ -583,10 +583,6 @@ class ImViewerUI
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
-		action = controller.getAction(ImViewerControl.PROJECTION);
-		item = new JMenuItem(action);
-		item.setText(action.getName());
-		menu.add(item);
 		//Color model
 		 menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		colorModelGroup = new ButtonGroup();
@@ -1939,7 +1935,6 @@ class ImViewerUI
 				tabs.insertClosableComponent(projectionViewPanel);
 				break;
 		}
-		controller.setSelectedPane(index);
 	}
 
     /**

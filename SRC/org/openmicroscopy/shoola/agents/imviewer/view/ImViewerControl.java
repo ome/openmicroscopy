@@ -59,13 +59,11 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionPreviewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
@@ -73,7 +71,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveRndSettingsAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SetOriginalRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
@@ -230,9 +227,6 @@ class ImViewerControl
 	/** Identifies the <code>Measurement tool</code> action in the menu. */
 	static final Integer     MEASUREMENT_TOOL = new Integer(39);
 
-	/** Identifies the <code>Image details</code> action in the menu. */
-	static final Integer     IMAGE_DETAILS = new Integer(40);
-
 	/** Identifies the <code>Play movie across T</code> action. */
 	static final Integer     PLAY_MOVIE_T = new Integer(44);
 
@@ -268,10 +262,7 @@ class ImViewerControl
 	 * in the menu.
 	 */
 	static final Integer     ZOOM_GRID_100 = new Integer(52);
-	
-	/** Identifies the <code>Search</code> action. */
-	static final Integer     SEARCH = new Integer(53);
-	
+
 	/** Identifies the <code>View tab</code> action. */
 	static final Integer     TAB_VIEW = new Integer(54);
 	
@@ -301,14 +292,11 @@ class ImViewerControl
 	 */
 	static final Integer     SET_ORIGINAL_RND_SETTINGS = new Integer(62);
 	
-	/** Identifies the <code>Projection</code> action. */
-	static final Integer     PROJECTION = new Integer(63);
-	
 	/** Identifies the <code>Projection preview</code> action. */
-	static final Integer     PROJECTION_PREVIEW = new Integer(64);
+	static final Integer     PROJECTION_PREVIEW = new Integer(63);
 	
 	/** Identifies the <code>Projection project</code> action. */
-	static final Integer     PROJECTION_PROJECT = new Integer(65);
+	static final Integer     PROJECTION_PROJECT = new Integer(64);
 	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -379,7 +367,6 @@ class ImViewerControl
 		actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
 		actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
 		actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
-		actionsMap.put(IMAGE_DETAILS, new InfoAction(model));
 		actionsMap.put(PLAY_MOVIE_T, 
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_T));
 		actionsMap.put(PLAY_MOVIE_Z, 
@@ -394,7 +381,6 @@ class ImViewerControl
 				ZoomGridAction.ZOOM_75));
 		actionsMap.put(ZOOM_GRID_100, new ZoomGridAction(model, 
 				ZoomGridAction.ZOOM_100));
-		actionsMap.put(SEARCH, new SearchAction(model));
 		actionsMap.put(TAB_VIEW, new ShowViewAction(model, ShowViewAction.VIEW));
 		actionsMap.put(TAB_PROJECTION, new ShowViewAction(model, 
 											ShowViewAction.PROJECTION));
@@ -407,7 +393,6 @@ class ImViewerControl
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
 		actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
 						new SetOriginalRndSettingsAction(model));
-		actionsMap.put(PROJECTION, new ProjectionAction(model));
 		actionsMap.put(PROJECTION_PREVIEW, new ProjectionPreviewAction(model));
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 	}
@@ -676,19 +661,7 @@ class ImViewerControl
     	view.setLeftStatus();
     	if (released) model.renderXYPlane();
     }
-    
-    void setSelectedPane(int index)
-    {
-    	int oldIndex = view.getTabbedIndex();
-		view.setSelectedPane(index);
-		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
-				index == ImViewer.VIEW_INDEX) ||
-				(index == ImViewer.PROJECTION_INDEX && 
-						oldIndex == ImViewer.VIEW_INDEX)) {
-			model.renderXYPlane();
-		}
-    }
-    
+
 	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
@@ -717,9 +690,8 @@ class ImViewerControl
 			Component c = pane.getSelectedComponent();
 			if (c instanceof ClosableTabbedPaneComponent) {
 				int index = ((ClosableTabbedPaneComponent) c).getIndex();
-				setSelectedPane(index);
-			} else 
-				view.setSelectedPane(pane.getSelectedIndex());
+				model.setSelectedPane(index);
+			}
 			return;
 		}
 

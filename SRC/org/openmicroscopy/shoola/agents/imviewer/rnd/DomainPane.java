@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -165,10 +166,12 @@ class DomainPane
     private void initComponents()
     {
     	taskPane = new JXTaskPane();
+    	taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	taskPane.setTitle(ADVANCED_OPTIONS);
     	taskPane.setCollapsed(true);
         graphicsPane = new GraphicsPane(model, controller);
-        familyBox = new JComboBox(model.getFamilies().toArray());
+        familyBox = EditorUtil.createComboBox(model.getFamilies().toArray(), 0);
+        familyBox.setBackground(UIUtilities.BACKGROUND_COLOR);
         String family = model.getFamily();
         familyBox.setSelectedItem(family);
         familyBox.addActionListener(this);
@@ -177,6 +180,7 @@ class DomainPane
         double k = model.getCurveCoefficient();
         gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_GAMMA, 
         							MAX_GAMMA, (int) (k*FACTOR));
+        gammaSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         gammaSlider.setShowArrows(false);
         gammaSlider.setEnabled(!(family.equals(RendererModel.LINEAR) || 
                 family.equals(RendererModel.LOGARITHMIC)));
@@ -193,11 +197,13 @@ class DomainPane
 		
 		});
         gammaLabel = new JTextField(""+k);
+        gammaLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         gammaLabel.setEnabled(false);
         gammaLabel.setEditable(false);
         int v = model.getBitResolution();
         bitDepthSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH, 
                                 MAX_BIT_DEPTH, convertBitResolution(v));
+        bitDepthSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         bitDepthSlider.setShowArrows(false);
         bitDepthSlider.addMouseListener(new MouseAdapter() {
 		
@@ -211,9 +217,11 @@ class DomainPane
 		});
         bitDepthSlider.addChangeListener(this);
         bitDepthLabel = new JTextField(""+v);
+        bitDepthLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         bitDepthLabel.setEnabled(false);
         bitDepthLabel.setEditable(false);
         noiseReduction = new JCheckBox();
+        noiseReduction.setBackground(UIUtilities.BACKGROUND_COLOR);
         noiseReduction.setSelected(model.isNoiseReduction());
         noiseReduction.setAction(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
@@ -243,6 +251,7 @@ class DomainPane
     private JPanel createChannelButtons()
     {
         JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         ChannelData[] data = model.getChannelData();
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
@@ -253,6 +262,7 @@ class DomainPane
         	d = data[j];
         	item = new ChannelToggleButton(""+d.getChannelLabeling(), 
         							model.getChannelColor(j), j);
+        	item.setBackground(UIUtilities.BACKGROUND_COLOR);
         	channelList.add(item);
         	item.setSelected(model.getSelectedChannel() == j);
         	item.setGrayedOut(gs);
@@ -260,7 +270,9 @@ class DomainPane
             p.add(item);
             p.add(Box.createRigidArea(VBOX));
         }
-        return UIUtilities.buildComponentPanel(p);     
+        JPanel content = UIUtilities.buildComponentPanel(p);  
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return content;  
     }
     
     /**
@@ -271,7 +283,9 @@ class DomainPane
     private JPanel buildChannelGraphicsPanel()
     {
     	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BorderLayout());
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.add(channelButtonPanel, BorderLayout.WEST);
     	p.add(graphicsPane, BorderLayout.CENTER);
     	return p;
@@ -287,6 +301,7 @@ class DomainPane
     private JPanel buildSliderPane(JSlider slider, JTextField field)
     {
         JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(slider);
         p.add(field);
         return UIUtilities.buildComponentPanel(p);
@@ -329,20 +344,28 @@ class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
-		addComponent(c, "Map", UIUtilities.buildComponentPanel(familyBox), p);
+		JPanel comp = UIUtilities.buildComponentPanel(familyBox);
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addComponent(c, "Map", comp, p);
 		c.gridy++;
-		addComponent(c, "Gamma", buildSliderPane(gammaSlider, gammaLabel), p);
+		comp = buildSliderPane(gammaSlider, gammaLabel);
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addComponent(c, "Gamma", comp, p);
 		c.gridy++;
-		addComponent(c, "Bit Depth", 
-				buildSliderPane(bitDepthSlider, bitDepthLabel), p);
+		comp = buildSliderPane(bitDepthSlider, bitDepthLabel);
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addComponent(c, "Bit Depth", comp, p);
 		c.gridy++;
 		c.gridx = 0;
-		p.add(new SeparatorPane(), c);
+		comp = new SeparatorPane();
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(comp, c);
 		c.gridy++;
 		addComponent(c, "", noiseReduction, p);
 		c.gridy++;
@@ -352,6 +375,7 @@ class DomainPane
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	setBackground(UIUtilities.BACKGROUND_COLOR);
     	double size[][] = {{TableLayout.FILL},  // Columns
          {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
     	setLayout(new TableLayout(size));

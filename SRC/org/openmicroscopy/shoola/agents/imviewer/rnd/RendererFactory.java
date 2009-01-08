@@ -92,14 +92,11 @@ public class RendererFactory
      * @return See above.
      */
     public static Renderer createRenderer(ImViewer viewer,
-                                            RenderingControl rndControl, 
-                                            ViewerPreferences pref)
+                                            RenderingControl rndControl)
     {
         RendererModel model = new RendererModel(viewer, rndControl);
         RendererComponent rnd = new RendererComponent(model);
-        boolean b = false;
-        if (pref != null) b = pref.isHistory();
-        rnd.initialize(b);
+        rnd.initialize();
         return rnd;
     }
     

@@ -61,9 +61,17 @@ public class MovieAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the movie player.";
     
+    /** 
+     * Sets the enabled flag depending on the tabbed selected.
+     * @see ViewerAction#onTabSelection()
+     */
+    protected void onTabSelection()
+    {
+    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    }
+    
     /**
-     * Disposes and closes the movie player when the {@link ImViewer} is
-     * discarded.
+     * Sets the enabled flag depending on the tabbed selected.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
     protected void onStateChange(ChangeEvent e)
@@ -74,10 +82,14 @@ public class MovieAction
 				break;
 			case ImViewer.RENDERING_CONTROL_LOADED:
 			case ImViewer.READY:
-				if (model.isPlayingMovie()) setEnabled(false);
-				else {
-					int max = Math.max(model.getMaxZ(), model.getMaxT());
-					setEnabled(max != 0);
+				if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX) {
+					setEnabled(false);
+				} else {
+					if (model.isPlayingMovie()) setEnabled(false);
+					else {
+						int max = Math.max(model.getMaxZ(), model.getMaxT());
+						setEnabled(max != 0);
+					}
 				}
 			}
     }

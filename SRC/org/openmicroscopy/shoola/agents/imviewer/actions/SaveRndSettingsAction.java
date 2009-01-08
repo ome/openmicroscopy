@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
@@ -37,8 +36,6 @@ import javax.swing.event.ChangeEvent;
 
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -66,14 +63,24 @@ public class SaveRndSettingsAction
     private static final String DESCRIPTION = "Save the current rendering " +
     											"settings.";
     
+    /** 
+     * Sets the enabled flag depending on the tabbed selected.
+     * @see ViewerAction#onTabSelection()
+     */
+    protected void onTabSelection()
+    {
+    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    }
+    
     /**
-     * Sets the <code>enabled</code> flag to <code>false</code>.
+     * Disposes and closes the movie player when the {@link ImViewer} is
+     * discarded.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	//System.err.println("state");
-    	//setEnabled(false);
+    	if (model.getState() == ImViewer.READY)
+    		setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
     }
     
     /**

@@ -174,6 +174,12 @@ public interface ImViewer
 	 */
 	public static final String  RECENT_VIEWER_PROPERTY = "reventViewer";
 	
+	/** 
+	 * Bound Property name indicating that a new tabbed pane has been
+	 * selected.
+	 */
+	public static final String  TAB_SELECTION_PROPERTY = "tabSelection";
+	
 	/** Identifies the <code>Color Picket</code> menu. */
 	public static final int 	COLOR_PICKER_MENU = 0;
 
@@ -948,5 +954,12 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public boolean hasProjectedPreview();
+
+	/**
+	 * Sets the index of the selected tabbed pane.
+	 * 
+	 * @param index The selected index.
+	 */
+	public void setSelectedPane(int index);
 	
 }

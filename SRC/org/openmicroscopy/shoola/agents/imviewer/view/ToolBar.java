@@ -207,17 +207,10 @@ class ToolBar
         		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button); 
-        button = new JButton(controller.getAction(ImViewerControl.PROJECTION));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        button = new JButton(
-        			controller.getAction(ImViewerControl.IMAGE_DETAILS));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button);
         UserAction a = (UserAction) controller.getAction(ImViewerControl.USER);
         button = new JButton(a);
         button.addMouseListener(a);

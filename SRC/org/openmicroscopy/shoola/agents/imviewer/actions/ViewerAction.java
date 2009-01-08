@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
@@ -55,7 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  */
 public class ViewerAction
     extends AbstractAction
-    implements ChangeListener
+    implements ChangeListener, PropertyChangeListener
 {
 
     /** The Model. */
@@ -70,6 +72,9 @@ public class ViewerAction
      * @param e The event to handle.
      */
     protected void onStateChange(ChangeEvent e) {}
+    
+    /** Subclasses can override the method if necessary. */
+    protected void onTabSelection() {}
     
     /**
      * Creates a new instance.
@@ -94,6 +99,7 @@ public class ViewerAction
         this.model = model;
         this.name = name;
         model.addChangeListener(this);
+        model.addPropertyChangeListener(ImViewer.TAB_SELECTION_PROPERTY, this);
     }
     
     /**
@@ -120,6 +126,18 @@ public class ViewerAction
         onStateChange(e);
     }
 
+    /**
+     * Reacts to propertyChange fired by the {@link ImViewer}.
+     * 
+     * @param evt The event to handle.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if (evt.getPropertyName().equals(ImViewer.TAB_SELECTION_PROPERTY)) {
+        	onTabSelection();
+        }
+    }
+    
     /** 
      * Implemented by sub-classes.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)

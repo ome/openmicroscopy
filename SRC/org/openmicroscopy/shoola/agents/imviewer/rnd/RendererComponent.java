@@ -100,20 +100,15 @@ class RendererComponent
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         controller = new RendererControl();
-        view = new RendererUI(getParentModel().getImageName());
+        view = new RendererUI();
     }
     
-    /** Links up the MVC triad. 
-     * 
-     * @param historyShown 	Pass <code>true</code> if the history is 
-     * 						is visible, <code>false</code> otherwise.
-     * */
-    void initialize(boolean historyShown)
+    /** Links up the MVC triad. */
+    void initialize()
     {
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
-        view.updateHistory(historyShown);
     }
     
     /** 

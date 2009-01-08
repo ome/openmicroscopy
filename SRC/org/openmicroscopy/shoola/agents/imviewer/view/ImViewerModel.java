@@ -669,8 +669,7 @@ class ImViewerModel
 		currentRndControl = rndControl;
 		originalDef = currentRndControl.getRndSettingsCopy();
 		if (renderer == null) {
-			renderer = RendererFactory.createRenderer(component, rndControl,
-					ImViewerFactory.getPreferences());
+			renderer = RendererFactory.createRenderer(component, rndControl);
 			state = ImViewer.RENDERING_CONTROL_LOADED;
 			double f = initZoomFactor();
 			if (f > 0)

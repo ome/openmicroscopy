@@ -26,24 +26,15 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -63,8 +54,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 * @since OME2.2
 */
 class RendererUI
-	extends JTabbedPane//JPanel//TopWindow
-	implements ActionListener
+	extends JTabbedPane
 {
   
 	/** Identifies the {@link DomainPane}. */
@@ -72,36 +62,6 @@ class RendererUI
 
 	/** Identifies the {@link CodomainPane}. */
 	static final Integer        	CODOMAIN = new Integer(1);
-
-	/** 
-	 * Text display in the {@link #historyButton} when the local history
-	 * is hidden.
-	 */
-	private static final String		SHOW_HISTORY = "Show Local History...";
-
-	/** 
-	 * Text display in the {@link #historyButton} when the local history 
-	 * is shown.
-	 */
-	private static final String 	HIDE_HISTORY = "Hide Local History...";
-	
-	/** Action ID to copy the rendering settings. */
-	private static final int		COPY = 0;
-
-	/** Action ID to paste the rendering settings. */
-	private static final int		PASTE = 1;
-	
-	/** Action ID to show or hide the history. */
-	private static final int		HISTORY = 2;
-	
-	/** Action ID to reset the original rendering settings. */
-	private static final int		RESET_DEFAULT = 3;
-	
-	/** Action ID to save the  the rendering settings. */
-	private static final int		SAVE = 4;
-
-	/** Horizontal space between the buttons. */
-	private static final Dimension	H_SPACE = new Dimension(5, 5);
 	
 	/** Reference to the control. */
 	private RendererControl     			controller;
@@ -112,51 +72,9 @@ class RendererUI
 	/** The map hosting the controls pane. */
 	private HashMap<Integer, ControlPane>	controlPanes;
 
-	/** Button to copy the rendering settings. */
-	private JButton							copyButton;
-
-	/** Button to paste the rendering settings. */
-	private JButton							pasteButton;
-	
-	/** Button to display the local history. */
-	private JButton							historyButton;
-	
-	/** Button to reset the rendering settings. */
-	private JButton							resetButton;
-
-	/** Button to save the rendering settings. */
-	private JButton							saveButton;
-
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		IconManager icons = IconManager.getInstance();
-		copyButton = new JButton(icons.getIcon(IconManager.COPY));
-		copyButton.setToolTipText(
-			UIUtilities.formatToolTipText("Copy the rendering settings."));
-		copyButton.setActionCommand(""+COPY);
-		copyButton.addActionListener(this);
-		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
-		//pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
-		pasteButton.setToolTipText(
-			UIUtilities.formatToolTipText("Paste the rendering settings."));
-		pasteButton.setActionCommand(""+PASTE);
-		pasteButton.addActionListener(this);
-		historyButton = new JButton();
-		updateHistory(model.getParentModel().isHistoryShown());
-		historyButton.setActionCommand(""+HISTORY);
-		historyButton.addActionListener(this);
-		resetButton = new JButton(icons.getIcon(IconManager.RESET_SETTINGS));
-		resetButton.setToolTipText(
-				UIUtilities.formatToolTipText("Revert to the " +
-						"Original Settings."));
-		resetButton.setActionCommand(""+RESET_DEFAULT);
-		resetButton.addActionListener(this);
-		saveButton = new JButton(icons.getIcon(IconManager.SAVE_SETTINGS));
-		saveButton.setToolTipText(
-				UIUtilities.formatToolTipText("Save the current settings."));
-		saveButton.setActionCommand(""+SAVE);
-		saveButton.addActionListener(this);
 	}
 
 	/** Creates the panels hosting the rendering controls. */
@@ -170,52 +88,9 @@ class RendererUI
 		controlPanes.put(CODOMAIN, p);
 	}
 
-	/**
-	 * Creates the accept, revert buttons on the bottom on the panel.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createButtonsPanel()
-	{
-		JPanel bar = new JPanel();
-		bar.setBorder(null);
-		//bar.add(historyButton);
-		JToolBar tb = new JToolBar();
-		tb.setFloatable(false);
-		tb.setRollover(true);
-		tb.setBorder(null);
-		tb.add(new JSeparator());
-		tb.add(copyButton);
-		tb.add(Box.createRigidArea(H_SPACE));
-		tb.add(pasteButton);
-		tb.add(Box.createRigidArea(H_SPACE));
-		tb.add(resetButton);
-		tb.add(Box.createRigidArea(H_SPACE));
-		tb.add(saveButton);
-		bar.add(tb);
-		JPanel p = UIUtilities.buildComponentPanelRight(bar);
-		p.setOpaque(true);
-		return p;
-	}
-
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		/*
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
-				JTabbedPane.WRAP_TAB_LAYOUT);
-		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
-				new JScrollPane(pane), pane.getPaneDescription(), 
-				pane.getPaneIndex());
-		ControlPane cp = controlPanes.get(CODOMAIN);
-		cp.setBorder(new TitledLineBorder(cp.getPaneName()));
-		//pane.addToTree(cp, UIUtilities.buildCollapsePanel(cp.getPaneName()));
-		//setLayout(new BorderLayout());
-		add(tabs, BorderLayout.CENTER);
-		//add(createButtonsPanel(), BorderLayout.SOUTH);
-		*/
 		setAlignmentX(LEFT_ALIGNMENT);
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		insertTab(pane.getPaneName(), pane.getPaneIcon(), 
@@ -227,12 +102,9 @@ class RendererUI
 	 * Creates a new instance. The method 
 	 * {@link #initialize(RendererControl, RendererModel) initialize}
 	 * should be called straight after.
-	 * 
-	 * @param title The name of the image.
 	 */
-	RendererUI(String title)
+	RendererUI()
 	{
-		//super("Display Settings:  "+title);
 		controlPanes = new HashMap<Integer, ControlPane>(2);
 	}
 
@@ -251,10 +123,8 @@ class RendererUI
 		this.controller = controller;
 		this.model = model;
 		initComponents();
-		//setJMenuBar(createMenuBar());
 		createControlPanes();
 		buildGUI();
-		//pack();
 	}
 
 	/**
@@ -339,54 +209,6 @@ class RendererUI
 	{
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		pane.onCurveChange();
-	}
-
-	/**
-	 * Sets the {@link #pasteButton} enable.
-	 * 
-	 * @param b Pass <code>true</code> to enable the button, <code>false</code>
-	 * 			otherwise.
-	 */
-	void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
-
-	/** Updates the text of the {@link #historyButton}. 
-	 * 
-	 * @param b Pass <code>true</code> to display the <code>hide</code> text,
-	 * 			<code>false</code> to display the <code>show</code> text.
-	 */
-	void updateHistory(boolean b)
-	{
-		if (b) historyButton.setText(HIDE_HISTORY);
-		else historyButton.setText(SHOW_HISTORY);
-	}
-	
-	/**
-	 * Copies, pastes the rendering settings
-	 * or displays the local history.
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case COPY:
-				model.getParentModel().copyRenderingSettings();
-				break;
-			case PASTE:
-				model.getParentModel().pasteRenderingSettings();
-				break;
-			case HISTORY:
-				boolean b = !model.getParentModel().isHistoryShown();
-				updateHistory(b);
-				model.getParentModel().showHistory(b);
-				break;
-			case RESET_DEFAULT:
-				model.getParentModel().resetDefaultRndSettings();
-				break;
-			case SAVE:
-				model.getParentModel().saveRndSettings();
-				break;
-		}
 	}
 
 }

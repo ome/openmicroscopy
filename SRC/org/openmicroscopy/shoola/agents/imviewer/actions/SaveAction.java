@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -62,6 +63,26 @@ public class SaveAction
     private static final String DESCRIPTION = "Save the image as TIFF, " +
                                                 "JPEG, PNG, etc.";
 
+    /** 
+     * Sets the enabled flag depending on the tabbed selected.
+     * @see ViewerAction#onTabSelection()
+     */
+    protected void onTabSelection()
+    {
+    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    }
+    
+    /**
+     * Disposes and closes the movie player when the {@link ImViewer} is
+     * discarded.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	if (model.getState() == ImViewer.READY)
+    		setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    }
+    
     /**
      * Creates a new instance.
      * 

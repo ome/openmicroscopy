@@ -211,7 +211,6 @@ class ImViewerComponent
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
-
 				}
 			};
 		}
@@ -2430,7 +2429,7 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
 		view.showView(index);
-		//renderXYPlane();
+		setSelectedPane(index);
 	}
 
 	/** 
@@ -2697,7 +2696,28 @@ class ImViewerComponent
 	 */
 	public boolean hasProjectedPreview()
 	{
+		if (model.getState() == DISCARDED) return false;
 		return model.getBrowser().hasProjectedPreview();
 	}
-    
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setSelectedPane(int)
+	 */
+	public void setSelectedPane(int index)
+	{
+		if (model.getState() == DISCARDED) return;
+		int oldIndex = model.getTabbedIndex();
+		if (oldIndex == index) return;
+		
+		view.setSelectedPane(index);
+		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
+				index == ImViewer.VIEW_INDEX) ||
+				(index == ImViewer.PROJECTION_INDEX && 
+						oldIndex == ImViewer.VIEW_INDEX)) {
+			renderXYPlane();
+		}
+		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+	
 }
