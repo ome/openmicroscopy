@@ -89,9 +89,13 @@
 <ul id="metadata" class="ui-accordion-metadata" >
     <li><a href='#'>General:</a>
         <div>
-            <p>Aquasition date: {{ manager.image.getAquaDate }}</p>
-            <p>Image: X: {{ manager.image.getWidth }}px, Y: {{ manager.image.getHeight }}px, Z: {{ manager.image.z_count }}, T: {{ manager.image.t_count }}</p>
-            <p>Pixel: X: {{ manager.image.getPixelSizeX|floatformat:4 }}&micro;m, Y: {{ manager.image.getPixelSizeY|floatformat:4 }}&micro;m, Z: {{ manager.image.getPixelSizeZ|floatformat:4 }}&micro;m)</p>
+            <table class="forms">
+                <tr><td>Image date</td><td>{{ manager.image.getAquaDate }}</td></tr>
+                <tr><td>Dimensions [px]</td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
+                <tr><td>Pixel size [&micro;m]</td><td>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} x {{ manager.image.getPixelSizeZ|floatformat:4 }}</td></tr>
+                <tr><td>Z-sections/timepoints </td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
+                <tr><td>Emissions wavelengths </td><td>{{ manager.image.getChannels.getEmissionWave }}</td></tr>
+            </table>
         </div>
     </li>
     <li><a href='#'>Objective:</a>

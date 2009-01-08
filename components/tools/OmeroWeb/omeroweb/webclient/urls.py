@@ -62,9 +62,9 @@ urlpatterns = patterns('',
     ( r'(?i)^groupdata/(?P<o1_type>[a-zA-Z]+)/(?P<o1_id>[0-9]+)/(?P<o2_type>[a-zA-Z]+)/(?P<o2_id>[0-9]+)/(?P<o3_type>[a-zA-Z]+)/(?P<o3_id>[0-9]+)/$', views.manage_group_containers ),
     
     # direct access
-    ( r'(?i)^(?P<o1_type>((?i)project|dataset|image))/(?P<o1_id>[0-9]+)/$', views.manage_user_containers ),
-    ( r'(?i)^(?P<o1_type>((?i)project|dataset))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image))/(?P<o2_id>[0-9]+)/$', views.manage_user_containers ),
-    ( r'(?i)^(?P<o1_type>((?i)project))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image))/(?P<o3_id>[0-9]+)/$', views.manage_user_containers ),
+    ( r'(?i)^(?P<o1_type>((?i)project|dataset|image))/(?P<o1_id>[0-9]+)/$', views.manage_group_containers ),
+    ( r'(?i)^(?P<o1_type>((?i)project|dataset))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image))/(?P<o2_id>[0-9]+)/$', views.manage_group_containers ),
+    ( r'(?i)^(?P<o1_type>((?i)project))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image))/(?P<o3_id>[0-9]+)/$', views.manage_group_containers ),
     
     ( r'(?i)^hierarchy/$', views.manage_container_hierarchy ),
     ( r'(?i)^hierarchy/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_container_hierarchy ),
@@ -102,7 +102,8 @@ urlpatterns = patterns('',
     ( r'(?i)^myaccount/(.*)/$', views.myaccount ),
     ( r'(?i)^help/(.*)/$', views.help ),
     ( r'(?i)^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') } ),
-
+    
+    (r'(?i)^userphoto/(?P<oid>[0-9]+)/$', views.load_photo),
     (r'(?i)^render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image),
     (r'(?i)^img_detail/(?P<iid>[0-9]+)/(?:(?P<dsid>[0-9]+)/)?$', views.image_viewer),
     (r'(?i)^imgData/(?P<iid>[0-9]+)/$', views.imageData_json),

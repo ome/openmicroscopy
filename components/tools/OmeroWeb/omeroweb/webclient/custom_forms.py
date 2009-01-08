@@ -87,9 +87,9 @@ class MetadataQuerySetIterator(object):
             yield (u"", self.empty_label)
         for obj in self.queryset:
             if hasattr(obj.id, 'val'):
-                yield (obj.id.val, smart_unicode(obj.value.val))
+                yield (obj.value.val, smart_unicode(obj.value.val))
             else:
-                yield (obj.id, smart_unicode(obj.value))
+                yield (obj.value, smart_unicode(obj.value))
         # Clear the QuerySet cache if required.
         #if not self.cache_choices:
             #self.queryset._result_cache = None

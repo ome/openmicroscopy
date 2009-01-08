@@ -39,7 +39,6 @@ body.share {
     padding-bottom: 10px;
     width:590px;
     padding-left: 50px;
-    background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom left;
 }
 #comment {
     background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
@@ -78,7 +77,6 @@ body.share {
     width:590px;
     padding-right: 50px;
     margin-left: 50px;
-    background:transparent url(/webclient/static/images/personal32.png) no-repeat bottom right;
 }
 #comment_rev {
     background:transparent url(/webclient/static/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
