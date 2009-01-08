@@ -63,7 +63,7 @@ div.cloud {
     top: -100;
 }
 
-#view {
+div#view, div#header_name {
     float:left;
     height:20px;
     margin:5px 0;

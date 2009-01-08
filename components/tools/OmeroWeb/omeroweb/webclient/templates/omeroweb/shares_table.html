@@ -36,18 +36,8 @@
         $(document).ready(function () {
             {% if share.oshSize %}
             $('div table#shareTable tbody tr').quicksearch({
-                attached: "div table#shareTable.tablesorter",
-                position: "before",
-                stripeRowClass: null,
-                labelText: 'Filter:',
-                inputText: '...',
-                loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
-            });
-            {% endif %}
-            {% if share.mshSize %}
-            $('div table#sharedTable tbody tr').quicksearch({
-                attached: "div table#sharedTable.tablesorter",
-                position: "before",
+                attached: "div#view",
+                position: "befor",
                 stripeRowClass: null,
                 labelText: 'Filter:',
                 inputText: '...',
@@ -69,12 +59,14 @@
 {% block center %}
 
 <h1>Shares and discussions </h1>
+<p>In this section you will find share data.</p>
 
-<h1>Owned by me ({{ share.oshSize }} items):</h1>
+<div id="view">| View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> |</div>
+<div class="clear"> </div>
 
 {% if share.oshSize %}
 
-<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
+<div id="header_name"><h1>Owned by me ({{ share.oshSize }} items):</h1></div>
 
 <table id="shareTable" class="tablesorter"> 
 <thead> 
@@ -110,11 +102,9 @@
 
 {% if share.mshSize %}
 
-<h1>Shared with me ({{ share.mshSize }} items):</h1>
+<div id="header_name"><h1>Shared with me ({{ share.mshSize }} items):</h1></div>
 
-<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"/></a> | </div>
-
-<table id="sharedTable" class="tablesorter"> 
+<table id="shareTable" class="tablesorter"> 
 <thead> 
 <tr> 
     <th>Type</th> 
@@ -128,12 +118,12 @@
 <tbody> 
     {% for c in share.memberShares %}
     <tr> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{% if c.active %}
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">{% if c.active %}
             <img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% else %}
             <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% endif %}</a></td> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td> 
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td> 
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>

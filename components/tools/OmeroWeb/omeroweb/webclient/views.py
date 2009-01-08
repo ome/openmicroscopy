@@ -1677,45 +1677,6 @@ def manage_share(request, action, oid=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_shared(request, action, share_id, **kwargs):
-    request.session['nav']['menu'] = 'share'
-    request.session['nav']['whos'] = 'share'
-    
-    template = "omeroweb/share_details_active.html"
-    
-    conn = None
-    conn_share = None
-    try:
-        conn = kwargs["conn"]
-        conn_share = getShareConnection(request)
-    except:
-        logger.error(traceback.format_exc())
-    
-    share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id, action)
-    experimenters = conn.getExperimenters()
-    share.getShareActive(share_id)
-    share.getComments(share_id)
-    
-    context = None
-
-    if action == 'view':
-        form = ShareCommentForm()
-        context = {'nav':request.session['nav'], 'eContext':share.eContext, 'share':share, 'form':form}
-    elif action == 'comment':
-        form = ShareCommentForm(data=request.REQUEST.copy())
-        if form.is_valid():
-            comment = request.REQUEST['comment']
-            share.addComment(comment)
-            return HttpResponseRedirect("/%s/shared/view/%s/" % (settings.WEBCLIENT_ROOT_BASE, share_id))
-        else:
-            form = ShareCommentForm(data=request.REQUEST.copy())
-            context = {'nav':request.session['nav'], 'eContext':share.eContext, 'share':share, 'form':form}
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
 def load_share_content(request, share_id, **kwargs):
     template = "omeroweb/share_content.html"
     

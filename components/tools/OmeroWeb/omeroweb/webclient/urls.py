@@ -86,7 +86,6 @@ urlpatterns = patterns('',
     ( r'(?i)^share/$', views.manage_shares ),
     ( r'(?i)^share/([a-zA-Z]+)/$', views.manage_share ),
     ( r'(?i)^share/(?P<action>[a-zA-Z]+)/(?P<oid>[0-9]+)/$', views.manage_share ),
-    ( r'(?i)^shared/([a-zA-Z]+)/([0-9]+)/$', views.manage_shared ),
     ( r'(?i)^share_content/([0-9]+)/$', views.load_share_content ),
     
     ( r'(?i)^empty/$', views.empty_basket ),

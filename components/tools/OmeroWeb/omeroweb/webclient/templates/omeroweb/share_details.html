@@ -47,15 +47,26 @@
         {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate }}, Expires: {{ share.share.getExpiretionDate }}
     </h2>
     
-    <div id="comment_wrapper_rev">
-    <div id="comment_rev">
-        <div class="head"><a href="mailto:{{ share.share.details.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
-        <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
-        <div class="footer"></div>
-    </div>
-    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.details.owner.id.val }}/" alt="{{ share.share.getOwner }}" title="{{ share.share.getOwner }}" width="40" height="40" /></div>
-    </div>
-    </div>
+    {% if share.share.isOwned %}
+        <div id="comment_wrapper_rev">
+        <div id="comment_rev">
+            <div class="head"><a href="mailto:{{ share.share.details.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
+            <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
+            <div class="footer"></div>
+        </div>
+        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.details.owner.id.val }}/" alt="{{ share.share.getOwner }}" title="{{ share.share.getOwner }}" width="40" height="40" /></div>
+        </div>
+        </div>
+    {% else %}
+        <div id="comment_wrapper">
+        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.details.owner.id.val }}/" alt="{{ share.share.getOwner }}" title="{{ share.share.getOwner }}" width="40" height="40" /></div>
+        <div id="comment">
+            <div class="head"><a href="mailto:{{ share.share.details.owner.email.val }}">{{ share.share.details.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
+            <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
+            <div class="footer"></div>
+        </div>
+        </div>
+    {% endif %}
     <div class="clear"></div>
     <br/>
     

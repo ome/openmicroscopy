@@ -41,7 +41,7 @@
                 position: "before",
                 stripeRowClass: null,
                 labelText: 'Filter:',
-                inputText: 'search',
+                inputText: '...',
                 loaderImg: '/webclient/static/images/tree/spinner.gif',
             });
         });
@@ -51,6 +51,7 @@
 {% block center %}
 
 <h1>Shares and discussions </h1>
+<p>In this section you will find share data.</p>
 
 {% if share.oshSize or share.mshSize %}
 
@@ -92,7 +93,7 @@
     <li class="clear"></li>
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
-            <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/shared/view/{{ c.id }}/'); return false;">
+            <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">
                 {% if c.active %}
                     <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% else %}
