@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
