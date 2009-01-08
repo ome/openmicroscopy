@@ -34,6 +34,8 @@ import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 /** 
  * An action that toggles the Editing state of the Browser.
  * Turns on/off editing. 
+ * ** This Action is not currently used. **
+ * Haven't deleted this Action as it may be re-implemented. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -71,7 +73,7 @@ public class EditAction
     public void actionPerformed(ActionEvent e) 
     {
     	int state = model.getState();
-    	model.setEditable(state == Browser.TREE_DISPLAY);
+    	//model.setEditable(state == Browser.TREE_DISPLAY);
     }
     
     /**

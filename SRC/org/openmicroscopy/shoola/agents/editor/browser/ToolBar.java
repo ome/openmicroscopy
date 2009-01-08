@@ -74,7 +74,7 @@ public class ToolBar
 	{
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		add(createButton(BrowserControl.EDIT));
+		// add(createButton(BrowserControl.EDIT)); Toggle editing. 
 		add(createButton(BrowserControl.UNDO_ACTION));
 		add(createButton(BrowserControl.REDO_ACTION));
 		add(createButton(BrowserControl.ADD_FIELD_ACTION));

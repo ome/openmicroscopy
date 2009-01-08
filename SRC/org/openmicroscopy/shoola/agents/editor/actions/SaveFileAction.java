@@ -91,37 +91,8 @@ public class SaveFileAction
 		// if not saved (e.g. file is new) ask where to save...
 		if (! saved) {
 			
-			ActionCmd save;
-			
-			// if server available, ask where to save
-			if (EditorAgent.isServerAvailable()) {
-				//Custom button text
-				Object[] options = {"Save to Server",
-				                    "Save locally",
-				                    "Cancel"};
-				int n = JOptionPane.showOptionDialog(null,
-				    "Would you like to save this file locally, or save it to " +
-				    "the OMERO.server?",
-				    "Save As...",
-				    JOptionPane.YES_NO_CANCEL_OPTION,
-				    JOptionPane.QUESTION_MESSAGE,
-				    null,
-				    options,
-				    options[2]);
-				
-				if (n == 0) {
-					save = new SaveServerCmd(model);
-					save.execute();
-				} else if (n == 1) {
-					save = new SaveLocallyCmd(model);
-					save.execute();
-				}
-				
-			} else {
-				// server not available, Save locally
-				save = new SaveLocallyCmd(model);
-				save.execute();
-			}
+			ActionCmd save = new SaveNewCmd(model);
+			save.execute();
 		}
 	}
 	

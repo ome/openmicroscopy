@@ -129,7 +129,7 @@ class BrowserUI
     	metadataUI = new MetadataUI(this, model.getTreeModel(), controller);
     	
     	int state = model.getState();
-    	if (state == Browser.TREE_EDIT)
+    	if (state == Browser.TREE_SAVED)
     		treeDisplay.setEditable(true);
     	
 		ToolTipManager.sharedInstance().registerComponent(treeDisplay);
@@ -277,16 +277,17 @@ class BrowserUI
      */
     void onStateChanged() {
     	int state = model.getState();
-    	treeDisplay.setEditable(state == Browser.TREE_EDIT);	
-    	showFieldEditor(state == Browser.TREE_EDIT);
     	
-    	// should also update the tabbed pane to the correct view, 
-    	// but, can assume any change in view-mode will have come from the
-    	// tabbed-pane, so it will already be in correct view. 
+    	// if the state is editable (not Display mode), enable and show...
+    	boolean editable = (state != Browser.TREE_DISPLAY);
+    	treeDisplay.setEditable(editable);	
+    	showFieldEditor(editable);
     	
     	// update editorPanel, to show correct editing view.
     	editorPanel.refreshEditorDisplay();
-    	
+    	// should also update the tabbed pane to the correct view, 
+    	// but, can assume any change in view-mode will have come from the
+    	// tabbed-pane, so it will already be in correct view. 
     }
 
     /**

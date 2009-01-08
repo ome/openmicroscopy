@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.PasteFieldsAction
 import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
+import org.openmicroscopy.shoola.agents.editor.browser.undo.UndoRedoListener;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
@@ -79,7 +80,9 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentE
  * @since OME3.0
  */
 public class BrowserControl 
-	implements ChangeListener
+	implements ChangeListener,
+	UndoableEditListener,
+	UndoRedoListener
 {
 	/**
 	 * A reference to the editing mode/state of the Browser. 
@@ -148,6 +151,14 @@ public class BrowserControl
      * Support for the undo/redo.
      */
 	private UndoableEditSupport 		undoSupport;
+	
+	/**
+	 * This is called when an edit is made to the current file.
+	 */
+	private void fileEdited() 
+	{
+		model.setEdited(true);
+	}
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -189,8 +200,10 @@ public class BrowserControl
         
      // initialize the undo.redo system
 	      undoManager = new ObservableUndoManager();
+	      ((ObservableUndoManager)undoManager).addUndoRedoListener(this);
 	      undoSupport = new UndoableEditSupport();
 	      undoSupport.addUndoableEditListener(new UndoAdapter());
+	      undoSupport.addUndoableEditListener(this);
 	      
 	      createActions();
     }
@@ -443,5 +456,27 @@ public class BrowserControl
 	{
 		UndoableEdit edit = new AddFieldTableEdit(field, tree, node, null);
 		undoSupport.postEdit(edit);
+	}
+
+	/**
+	 * Implemented as specified by the {@link UndoableEditListener} interface.
+	 * Listens to the {@link #undoSupport} for edits, and calls 
+	 * {@link #fileEdited()}
+	 * 
+	 * @see UndoableEditListener#undoableEditHappened(UndoableEditEvent)
+	 */
+	public void undoableEditHappened(UndoableEditEvent e) {
+		fileEdited();
+	}
+
+	/**
+	 * Implemented as specified by the {@link UndoRedoListener} interface.
+	 * Listens to the {@link #undoManager} for undo & redo events, and calls 
+	 * {@link #fileEdited()}
+	 * 
+	 * @see UndoRedoListener#undoRedoPerformed()
+	 */
+	public void undoRedoPerformed() {
+		fileEdited();
 	}
 }

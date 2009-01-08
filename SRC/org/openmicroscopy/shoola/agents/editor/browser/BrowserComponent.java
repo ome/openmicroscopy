@@ -121,14 +121,14 @@ public class BrowserComponent
 	{ 
 		return view;
 	}
-
+	
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getUI()
+     * @see Browser#setEdited(boolean)
      */
-	public void setEditable(boolean editable) 
+	public void setEdited(boolean edited) 
 	{
-		model.setEditable(editable);
+		model.setEdited(edited);
 		fireStateChange();
 	}
 

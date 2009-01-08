@@ -52,15 +52,25 @@ public interface Browser
 	 * A Flag to denote the <i>Display</i> state.
 	 * Specifies that the UI should be for tree display only,
 	 * not for editing.
+	 * Editing Actions will be disabled if this state is set.
+	 * However, the setting of this state is currently not implemented, 
+	 * since there is no reason to disable editing.
 	 */
 	public static final int TREE_DISPLAY = 0;
 	
 	/**
-	 * A Flag to denote the <i>Edit</i> state.
+	 * A Flag to denote that the tree is editable, and is currently in 
+	 * the <i>Saved</i> state.
 	 * This specifies that the UI should be for tree editing, not
 	 * simply display.
 	 */
-	public static final int TREE_EDIT = 1;
+	public static final int TREE_SAVED = 1;
+	
+	/**
+	 * This state indicates that the tree has been edited.
+	 * E.g. users will be asked if they want to save before quitting. 
+	 */
+	public static final int TREE_EDITED = 2;
 	
     /**
      * Sets a new treeModel for the browser. 
@@ -84,12 +94,11 @@ public interface Browser
     public JComponent getUI();
    
     /**
-     * Sets the Editable state of the Browser.
-     * If editable is false, no editing of the data is possible. View only.
+     * Sets the Edited state of the Browser.
      * 
-     * @param editable		True will allow the data to be edited. 
+     * @param editable		Set to true if the file has been edited. 
      */
-    public void setEditable(boolean editable);
+    public void setEdited(boolean editable);
     
     /**
 	 * Queries the current state.

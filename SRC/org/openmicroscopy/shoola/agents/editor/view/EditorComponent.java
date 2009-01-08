@@ -29,9 +29,11 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -132,8 +134,41 @@ class EditorComponent
 	 */
 	public void discard()
 	{
-		model.discard();
-		view.close();
+		// if the file has been edited, ask the user if they want to save...
+		if (model.hasDataToSave()) {
+			
+			MessageBox msg = new MessageBox(view, "Save Data", 
+			"Before closing the Editor, do you want to save?");
+			msg.addCancelButton();
+			
+			int option = msg.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				
+				// if Save, need to try save current file. 
+				boolean saved = saveCurrentFile();
+				
+				if (saved) {
+					model.discard();
+				}
+				// If that doesn't work, save as new file.. 
+				else {
+					SaveNewCmd save = new SaveNewCmd(this);
+					save.execute();
+					// don't discard in case user cancelled. 
+				}
+			
+			}
+			else if (option == MessageBox.NO_OPTION) {
+				model.discard();
+			}
+		}
+		else {
+			// no data to save 
+			model.discard();
+		}
+		
+		// the EditorControl will handle view.close() if discard has been 
+		// called. Otherwise, window will remain open. 
 		fireStateChange();
 	}
 

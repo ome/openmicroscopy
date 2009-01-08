@@ -33,6 +33,7 @@ import javax.swing.tree.TreeModel;
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
 import org.openmicroscopy.shoola.agents.editor.FileSaver;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
@@ -101,7 +102,12 @@ class EditorModel
 	private boolean saveFile(File file)
 	{
 		UPEexport xmlExport = new UPEEditorExport();
-		return xmlExport.export(getBrowser().getTreeModel(), file);
+		boolean saved = xmlExport.export(browser.getTreeModel(), file);
+		
+		if (saved) {
+			browser.setEdited(false);
+		}
+		return saved;
 	}
 	
 	/** 
@@ -336,4 +342,13 @@ class EditorModel
 	 */
 	void setState(int state) { this.state = state; }
 	
+	/**
+	 * Returns true if the browser is in the {@link Browser#TREE_EDITED} state.
+	 * 
+	 * @return		see above. 
+	 */
+	boolean hasDataToSave() 
+	{
+	 return (browser != null  &&  browser.getState() == Browser.TREE_EDITED);
+	}
 }

@@ -244,6 +244,9 @@ class EditorControl
 			case Editor.NEW:
 				model.setStatus("", true);
 				break;
+			case Editor.DISCARDED:
+				view.close();
+			
 		}
 	}
 
