@@ -802,7 +802,7 @@ module omero {
 	    IUpdate*   getUpdateService() throws ServerError;
 
 	    // Central OMERO.blitz stateful services.
-	    Gateway* createGateway() throws ServerError;
+	    Gateway *createGateway() throws ServerError;
 	    JobHandle* createJobHandle() throws ServerError;
 	    RawFileStore* createRawFileStore() throws ServerError;
 	    RawPixelsStore* createRawPixelsStore() throws ServerError;

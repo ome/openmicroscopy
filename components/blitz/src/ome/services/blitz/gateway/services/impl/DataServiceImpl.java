@@ -24,12 +24,8 @@ package ome.services.blitz.gateway.services.impl;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -45,7 +41,6 @@ import omero.api.IQueryPrx;
 import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
@@ -53,8 +48,6 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
-import omero.model.ProjectDatasetLink;
-import omero.model.ProjectI;
 
 import static omero.rtypes.rbool;
 
@@ -153,19 +146,6 @@ public class DataServiceImpl
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getDatasetsFromProject(omero.model.Project)
-	 */
-	public List<Dataset> getDatasetsFromProject(Project project)
-			throws ServerError
-	{
-		List<Dataset> datasets = new ArrayList<Dataset>();
-		Iterator<ProjectDatasetLink> iterator = ((ProjectI)project).iterateDatasetLinks();
-		while(iterator.hasNext())
-			datasets.add(iterator.next().getChild());
-		return datasets;
-	}
-
-	/* (non-Javadoc)
 	 * @see ome.services.blitz.omerogateway.services.DataService#getImageByName(java.lang.String)
 	 */
 	public List<Image> getImageByName(String imageName) throws ServerError
@@ -202,34 +182,7 @@ public class DataServiceImpl
 			iPojosService.getImages(convertPojos(nodeType), nodeIds, map);
 	}
 
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getImagesFromDataset(omero.model.Dataset)
-	 */
-	public List<Image> getImagesFromDataset(Dataset dataset) throws ServerError
-	{
-		List<Image> images = new ArrayList<Image>();
-		Iterator<DatasetImageLink> iterator = ((DatasetI)dataset).iterateImageLinks(); 
-		while(iterator.hasNext())
-		    images.add(iterator.next().getChild());
-		return images;
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getImagesFromProject(omero.model.Project)
-	 */
-	public List<Image> getImagesFromProject(Project project) throws ServerError
-	{
-		List<Image> images = new ArrayList<Image>();
-		List<Dataset> datasets = getDatasetsFromProject(project);
-		for(Dataset dataset : datasets)
-		{
-			List<Image> datasetImages = getImagesFromDataset(dataset);
-			for(Image image : datasetImages)
-				images.add(image);
-		}
-		return images;
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelType(java.lang.String)
 	 */
@@ -251,16 +204,6 @@ public class DataServiceImpl
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelsFromDataset(omero.model.Dataset)
-	 */
-	public List<Pixels> getPixelsFromDataset(Dataset dataset)
-			throws ServerError
-	{
-		List<Image> images = getImagesFromDataset(dataset);
-		return getPixelsFromImageList(images);
-	}
-
-	/* (non-Javadoc)
 	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelsFromImage(long)
 	 */
 	public List<Pixels> getPixelsFromImage(long imageId) throws ServerError
@@ -271,40 +214,6 @@ public class DataServiceImpl
 			"where p.image = " + imageId + " order by relatedto");
 		return ServiceUtilities.collectionCast(Pixels.class, 
 			iQuery.findAllByQuery(queryStr, null));
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelsFromImageList(java.util.List)
-	 */
-	public List<Pixels> getPixelsFromImageList(List<Image> images)
-	{
-		List<Pixels> pixelsList = new ArrayList<Pixels>();
-		for(Image image : images)
-			for(Pixels pixels : image.copyPixels())
-				pixelsList.add(pixels);
-		return pixelsList;
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelsFromProject(omero.model.Project)
-	 */
-	public List<Pixels> getPixelsFromProject(Project project)
-			throws ServerError
-	{
-		List<Image> images = getImagesFromProject(project);
-		return getPixelsFromImageList(images);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelsImageMap(java.util.List)
-	 */
-	public Map<Long, Pixels> getPixelsImageMap(List<Image> images)
-	{
-		Map<Long, Pixels> pixelsList = new TreeMap<Long, Pixels>();
-		for(Image image : images)
-			for(Pixels pixels : image.copyPixels())
-				pixelsList.put(image.getId().getValue(), pixels);
-		return pixelsList;
 	}
 	
 	/* (non-Javadoc)
@@ -373,6 +282,7 @@ public class DataServiceImpl
 		IUpdatePrx iUpdate = gatewayFactory.getIUpdate();
 		return (Pixels)iUpdate.saveAndReturnObject(object);
 	}
+	
 }
 
 

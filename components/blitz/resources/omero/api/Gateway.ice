@@ -141,64 +141,13 @@ module omero {
              * @param c the channel of the pixels to retrieve.
              * @param t the time point to retrieve.
              * @param z the z section to retrieve.
-             * @return The raw plane in 2-d array of doubles.
+             * @return The raw plane in as byte stream.
              * @throws omero::ServerError
              */
-            idempotent DoubleArrayArray getPlaneAsDouble(long pixelsId, int z, int c, int t)
+            idempotent Ice::ByteSeq getPlane(long pixelsId, int z, int c, int t)
                 throws omero::ServerError;
-
-			 /*
-	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
-	          * representing the plane, it returns doubles but will not lose data.
-	          * @param pixelsId id of the pixels to retrieve.
-	          * @param c the channel of the pixels to retrieve.
-	          * @param t the time point to retrieve.
-	          * @param z the z section to retrieve.
-	          * @return The raw plane in 2-d array of doubles.
-	          * @throws omero::ServerError
-	          */
-	         idempotent LongArrayArray getPlaneAsLong(long pixelsId, int z, int c, int t)
-	                throws omero::ServerError;
-	
-			 /*
-	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
-	          * representing the plane, it returns doubles but will not lose data.
-	          * @param pixelsId id of the pixels to retrieve.
-	          * @param c the channel of the pixels to retrieve.
-	          * @param t the time point to retrieve.
-	          * @param z the z section to retrieve.
-	          * @return The raw plane in 2-d array of doubles.
-	          * @throws omero::ServerError
-	          */
-	         idempotent IntegerArrayArray getPlaneAsInt(long pixelsId, int z, int c, int t)
-	                throws omero::ServerError;
-
-			 /*
-	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
-	          * representing the plane, it returns doubles but will not lose data.
-	          * @param pixelsId id of the pixels to retrieve.
-	          * @param c the channel of the pixels to retrieve.
-	          * @param t the time point to retrieve.
-	          * @param z the z section to retrieve.
-	          * @return The raw plane in 2-d array of doubles.
-	          * @throws omero::ServerError
-	          */
-	         idempotent ShortArrayArray getPlaneAsShort(long pixelsId, int z, int c, int t)
-	                throws omero::ServerError;
-	
-			 /*
-	          * Get the raw plane for the pixels pixelsId, this returns a 2d array
-	          * representing the plane, it returns doubles but will not lose data.
-	          * @param pixelsId id of the pixels to retrieve.
-	          * @param c the channel of the pixels to retrieve.
-	          * @param t the time point to retrieve.
-	          * @param z the z section to retrieve.
-	          * @return The raw plane in 2-d array of doubles.
-	          * @throws omero::ServerError
-	          */
-	         idempotent ByteArrayArray getPlaneAsByte(long pixelsId, int z, int c, int t)
-	                throws omero::ServerError;
-	
+             
+           
             /*
              * Get the pixels information for an image, this method will also
              * attach the logical channels, channels, and other metadata in the pixels.
@@ -225,7 +174,8 @@ module omero {
              * @return new id.
              * @throws omero::ServerError
              */
-            long copyPixelsXYTZ(long pixelsID, int x, int y, int t, int z, IntegerList channelList, string methodology)
+            long copyPixelsXYTZ(long pixelsID, int x, int y, int t, int z, 
+            					IntegerList channelList, string methodology)
                 throws omero::ServerError;
 
             /*
@@ -257,7 +207,8 @@ module omero {
              * @return new id.
              * @throws omero::ServerError
              */
-            long copyImage(long imageId, int x, int y, int t, int z, IntegerList channelList, string imageName)
+            long copyImage(long imageId, int x, int y, int t, int z, 
+            				IntegerList channelList, string imageName)
                 throws omero::ServerError;
 
             /*
@@ -271,7 +222,8 @@ module omero {
              * @param data plane data.
              * @throws omero::ServerError
              */
-            idempotent void uploadPlane(long pixelsId, int z, int c, int t, DoubleArrayArray data)
+            idempotent void uploadPlane(long pixelsId, int z, int c, int t, 
+            				Ice::ByteSeq data)
                 throws omero::ServerError;
 
             /*
@@ -309,7 +261,7 @@ module omero {
              * @return The image as a buffered image.
              * @throws omero::ServerError
              */
-            idempotent BufferedImage getRenderedImage(long pixelsId, int z, int t)
+            idempotent IntegerArray getRenderedImage(long pixelsId, int z, int t)
 				throws omero::ServerError;
 
             /*
@@ -321,8 +273,8 @@ module omero {
              * [x][y][channel]
              * @throws omero::ServerError
              */
-            idempotent IntegerArrayArrayArray getRenderedImageMatrix(long pixelsId, int z, int t)
-				throws omero::ServerError;
+            idempotent IntegerArrayArrayArray getRenderedImageMatrix(long pixelsId, 
+            			int z, int t) throws omero::ServerError;
 
             /*
              * Set the active channels to be on or off in the rendering engine for
@@ -355,8 +307,9 @@ module omero {
              * @return see above.
              * @throws omero::ServerError
              */
-            idempotent LongByteArrayMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, LongList pixelsIds)
-		throws omero::ServerError;
+            idempotent LongByteArrayMap getThumbnailSet(omero::RInt sizeX, 
+            							omero::RInt sizeY, LongList pixelsIds)
+				throws omero::ServerError;
 
             /*
              * Attach an image to a dataset.
@@ -365,7 +318,8 @@ module omero {
              * @throws omero::ServerError
              *
              */
-            void attachImageToDataset(omero::model::Dataset dataset, omero::model::Image image)
+            void attachImageToDataset(omero::model::Dataset dataset, 
+            							omero::model::Image image)
                 throws omero::ServerError;
 
             /*
@@ -383,82 +337,11 @@ module omero {
              * @throws omero::ServerError
              */
             long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
-                             IntegerList channelList, omero::model::PixelsType pixelsType, string name,
+                             IntegerList channelList,
+                             omero::model::PixelsType pixelsType, string name,
                              string description)
 								throws omero::ServerError;
-            /*
-             * Get the images from as dataset.
-             * @param dataset see above.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent ImageList getImagesFromDataset(omero::model::Dataset dataset)
-                throws omero::ServerError;
-            
-            /*
-             * This is a helper method and makes no calls to the server. It
-             * gets a list of all the dataset in a project if the project has already
-             * had the datasets attached, via getLeaves in {@link #getProjects(List, bool)}
-             * or fetched via HQL in {@link #findAllByQuery(string)}, {@link #findByQuery(string)}
-             * @param project see above.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent DatasetList getDatasetsFromProject(omero::model::Project project)
-                throws omero::ServerError;
-
-            /*
-             * This is a helper method and makes no calls to the server. It
-             * gets a list of all the pixels in a dataset if the dataset has already
-             * had the pixels attached, via getLeaves in {@link #getProjects(List, bool)}
-             * {@link #getDatasets(List, bool)} or fetched via HQL in
-             * {@link #findAllByQuery(string)}, {@link #findByQuery(string)}
-             * @param dataset see above.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent PixelsList getPixelsFromDataset(omero::model::Dataset dataset)
-                throws omero::ServerError;
-
-            /*
-             * This is a helper method and makes no calls to the server. It
-             * gets a list of all the pixels in a project if the project has already
-             * had the pixels attached, via getLeaves in {@link #getProjects(List, bool)}
-             * or fetched via HQL in {@link #findAllByQuery(string)},
-             * {@link #findByQuery(string)}
-             * @param project see above.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent PixelsList getPixelsFromProject(omero::model::Project project)
-                throws omero::ServerError;
-
-            /*
-             * This is a helper methods, which makes no calls to the server. It get all
-             * the pixels attached to a list of images. It requires that the pixels are
-             * already attached via  {@link #getProjects(List, bool)}
-             * {@link #getDatasets(List, bool)} or fetched via HQL in
-             * {@link #findAllByQuery(string)}, {@link #findByQuery(string)}
-             * Get the pixels from the images in the list.
-             * @param images see above.
-             * @return map of the pixels-->imageId.
-             */
-            idempotent LongPixelsMap getPixelsImageMap(ImageList images)
-                throws omero::ServerError;
-
-            /*
-             * This is a helper methods, which makes no calls to the server. It get all
-             * the pixels attached to a list of images. It requires that the pixels are
-             * already attached via  {@link #getProjects(List, bool)}
-             * {@link #getDatasets(List, bool)} or fetched via HQL in
-             * {@link #findAllByQuery(string)}, {@link #findByQuery(string)}
-             * Get the pixels from the images in the list.
-             * @param images see above.
-             * @return list of the pixels.
-             */
-            idempotent PixelsList getPixelsFromImageList(ImageList images)
-                throws omero::ServerError;
-
+         
             /*
              * Get the images from the dataset with name, this can use wild cards.
              * @param datasetId see above.

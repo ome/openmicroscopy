@@ -30,11 +30,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import omero.ApiUsageException;
-import omero.ValidationException;
 import omero.api.ContainerClass;
 import omero.model.IObject;
-import Glacier2.PermissionDeniedException;
 
 /** 
  * 

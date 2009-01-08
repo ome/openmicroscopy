@@ -211,15 +211,6 @@ public class OmeroGateway
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getDatasetsFromProject(omero.model.Project, Ice.Current)
-	 */
-	public List<Dataset> getDatasetsFromProject(Project project,
-			Current __current) throws ServerError
-	{
-		return dataService.getDatasetsFromProject(project);
-	}
-
-	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getImage(long, Ice.Current)
 	 */
 	public Image getImage(long id, Current __current) throws ServerError
@@ -254,14 +245,6 @@ public class OmeroGateway
 		return dataService.getImages(parentType, ids);
 	}
 
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getImagesFromDataset(omero.model.Dataset, Ice.Current)
-	 */
-	public List<Image> getImagesFromDataset(Dataset dataset, Current __current)
-			throws ServerError
-	{
-		return dataService.getImagesFromDataset(dataset); 
-	}
 
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getPixelType(java.lang.String, Ice.Current)
@@ -290,48 +273,12 @@ public class OmeroGateway
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPixelsFromDataset(omero.model.Dataset, Ice.Current)
-	 */
-	public List<Pixels> getPixelsFromDataset(Dataset dataset, Current __current)
-			throws ServerError
-	{
-		return dataService.getPixelsFromDataset(dataset);
-	}
-
-	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getPixelsFromImage(long, Ice.Current)
 	 */
 	public List<Pixels> getPixelsFromImage(long imageId, Current __current)
 			throws ServerError
 	{
 		return dataService.getPixelsFromImage(imageId);
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPixelsFromImageList(java.util.List, Ice.Current)
-	 */
-	public List<Pixels> getPixelsFromImageList(List<Image> images,
-			Current __current) throws ServerError
-	{
-		return dataService.getPixelsFromImageList(images);
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPixelsFromProject(omero.model.Project, Ice.Current)
-	 */
-	public List<Pixels> getPixelsFromProject(Project project, Current __current)
-			throws ServerError
-	{
-		return dataService.getPixelsFromProject(project);
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPixelsImageMap(java.util.List, Ice.Current)
-	 */
-	public Map<Long, Pixels> getPixelsImageMap(List<Image> images,
-			Current __current) throws ServerError
-	{
-		return dataService.getPixelsImageMap(images);
 	}
 
 	/* (non-Javadoc)
@@ -346,7 +293,7 @@ public class OmeroGateway
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getRenderedImage(long, int, int, Ice.Current)
 	 */
-	public BufferedImage getRenderedImage(long pixelsId, int z, int t,
+	public int[] getRenderedImage(long pixelsId, int z, int t,
 			Current __current) throws ServerError
 	{
 		return imageService.getRenderedImage(pixelsId, z, t);
@@ -453,7 +400,6 @@ public class OmeroGateway
 	{
 		return imageService.copyImage(imageId, x, y, t, z, channelList,"");
 	}
-
 	 
 	/**
 	 * Keep service alive.
@@ -471,7 +417,7 @@ public class OmeroGateway
 	 * @see omero.api._GatewayOperations#uploadPlane(long, int, int, int, double[][], Ice.Current)
 	 */
 	public void uploadPlane(long pixelsId, int z, int c, int t,
-			double[][] data, Current __current) throws ServerError
+			byte[] data, Current __current) throws ServerError
 	{
 		imageService.uploadPlane(pixelsId, z, c, t, data);
 	}
@@ -485,7 +431,6 @@ public class OmeroGateway
 		return dataService.updatePixels(pixels);
 	}
 
-
 	/**
 	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
 	 * representing the plane, it returns doubles but will not lose data.
@@ -493,82 +438,13 @@ public class OmeroGateway
 	 * @param c the channel of the pixels to retrieve.
 	 * @param t the time point to retrieve.
 	 * @param z the z section to retrieve.
-	 * @return The raw plane in 2-d array of doubles. 
+	 * @return The raw plane in 2-d array. 
 	 * @throws omero.ServerError 
-	 * @throws DSOutOfServiceException 
 	 */
-	public double[][] getPlaneAsDouble(long pixelsId, int z, int c, int t, Ice.Current current) 
+	public byte[] getPlane(long pixelsId, int z, int c, int t, Ice.Current current)
 		throws omero.ServerError
 	{
-		return imageService.getPlaneAsDouble(pixelsId, z, c, t);
-	}
-
-	/**
-	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
-	 * representing the plane, it returns doubles but will not lose data.
-	 * @param pixelsId id of the pixels to retrieve.
-	 * @param c the channel of the pixels to retrieve.
-	 * @param t the time point to retrieve.
-	 * @param z the z section to retrieve.
-	 * @return The raw plane in 2-d array of doubles. 
-	 * @throws omero.ServerError 
-	 * @throws DSOutOfServiceException 
-	 */
-	public byte[][] getPlaneAsByte(long pixelsId, int z, int c, int t, Ice.Current current) 
-		throws omero.ServerError
-	{
-		return imageService.getPlaneAsByte(pixelsId, z, c, t);
-	}
-
-	/**
-	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
-	 * representing the plane, it returns doubles but will not lose data.
-	 * @param pixelsId id of the pixels to retrieve.
-	 * @param c the channel of the pixels to retrieve.
-	 * @param t the time point to retrieve.
-	 * @param z the z section to retrieve.
-	 * @return The raw plane in 2-d array of doubles. 
-	 * @throws omero.ServerError 
-	 * @throws DSOutOfServiceException 
-	 */
-	public short[][] getPlaneAsShort(long pixelsId, int z, int c, int t, Ice.Current current) 
-		throws omero.ServerError
-	{
-		return imageService.getPlaneAsShort(pixelsId, z, c, t);
-	}
-
-	/**
-	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
-	 * representing the plane, it returns doubles but will not lose data.
-	 * @param pixelsId id of the pixels to retrieve.
-	 * @param c the channel of the pixels to retrieve.
-	 * @param t the time point to retrieve.
-	 * @param z the z section to retrieve.
-	 * @return The raw plane in 2-d array of doubles. 
-	 * @throws omero.ServerError 
-	 * @throws DSOutOfServiceException 
-	 */
-	public int[][] getPlaneAsInt(long pixelsId, int z, int c, int t, Ice.Current current) 
-		throws omero.ServerError
-	{
-		return imageService.getPlaneAsInt(pixelsId, z, c, t);
-	}
-	
-	/**
-	 * Get the raw plane for the pixels pixelsId, this returns a 2d array 
-	 * representing the plane, it returns doubles but will not lose data.
-	 * @param pixelsId id of the pixels to retrieve.
-	 * @param c the channel of the pixels to retrieve.
-	 * @param t the time point to retrieve.
-	 * @param z the z section to retrieve.
-	 * @return The raw plane in 2-d array of doubles. 
-	 * @throws omero.ServerError 
-	 * @throws DSOutOfServiceException 
-	 */
-	public long[][] getPlaneAsLong(long pixelsId, int z, int c, int t, Ice.Current current) 
-		throws omero.ServerError
-	{
-		return imageService.getPlaneAsLong(pixelsId, z, c, t);
+		return imageService.getRawPlane(pixelsId, z, c, t);
 	}
 
 	/* (non-Javadoc)
@@ -663,56 +539,6 @@ public class OmeroGateway
 	 */
 	public Map<String, RType> getParams(long id, Current __current)
 			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPlaneFromImageAsByte(long, int, int, int, Ice.Current)
-	 */
-	public byte[][] getPlaneFromImageAsByte(long imageId, int z, int c, int t,
-			Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPlaneFromImageAsDouble(long, int, int, int, Ice.Current)
-	 */
-	public double[][] getPlaneFromImageAsDouble(long imageId, int z, int c,
-			int t, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPlaneFromImageAsInteger(long, int, int, int, Ice.Current)
-	 */
-	public int[][] getPlaneFromImageAsInteger(long imageId, int z, int c,
-			int t, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPlaneFromImageAsLong(long, int, int, int, Ice.Current)
-	 */
-	public long[][] getPlaneFromImageAsLong(long imageId, int z, int c, int t,
-			Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPlaneFromImageAsShort(long, int, int, int, Ice.Current)
-	 */
-	public short[][] getPlaneFromImageAsShort(long imageId, int z, int c,
-			int t, Current __current) throws ServerError
 	{
 		// TODO Auto-generated method stub
 		return null;

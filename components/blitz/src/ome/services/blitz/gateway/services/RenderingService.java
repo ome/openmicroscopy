@@ -50,7 +50,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws omero.ServerError;
+	public int[] getRenderedImage(long pixelsId, int z, int t)	throws omero.ServerError;
 
 	/**
 	 * Render image as 3d matrix. 

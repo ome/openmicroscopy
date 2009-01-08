@@ -215,13 +215,12 @@ public class RenderingServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RenderingService#getRenderedImage(long, int, int)
 	 */
-	public synchronized BufferedImage getRenderedImage(long pixelsId, int z, int t)
+	public synchronized int[] getRenderedImage(long pixelsId, int z, int t)
 			throws  omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
-		int[] buff = renderAsPackedInt(pixelsId, z, t);
-		BufferedImage image = new BufferedImage(buff);
-		return image;
+		return renderAsPackedInt(pixelsId, z, t);
+		
 	}
 
 

@@ -26,7 +26,6 @@ package ome.services.blitz.gateway.services;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -153,70 +152,6 @@ public interface DataService
 	public void attachImageToDataset(Dataset dataset, Image image)  
 	throws  omero.ServerError;
 	
-	/**
-	 * Get the images, with pixels from a project. 
-	 * @param project see above.
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	public List<Image> getImagesFromProject(Project project) 
-	throws  omero.ServerError;
-
-
-	/**
-	 * Get the images with pixels from a dataset with id. 
-	 * @param dataset see above.
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	public List<Image> getImagesFromDataset(Dataset dataset)
-	throws  omero.ServerError;
-	
-	/**
-	 * Get the datasets from a project.
-	 * @param project see above.
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	public List<Dataset> getDatasetsFromProject(Project project)
-	throws  omero.ServerError;
-	
-	/**
-	 * Get the Pixels list from the dataset.
-	 * @param dataset see above.
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	public List<Pixels> getPixelsFromDataset(Dataset dataset)
-	throws  omero.ServerError;
-	
-	/**
-	 * Get the Pixels list from the project.
-	 * @param project see above.
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError
-	 */
-	public List<Pixels> getPixelsFromProject(Project project)
-	throws  omero.ServerError;
-	
-	/**
-	 * Get the pixels from the images in the list.
-	 * @param images see above.
-	 * @return map of the pixels-->imageId.
-	 */
-	public Map<Long, Pixels> getPixelsImageMap(List<Image> images);
-
-	/**
-	 * Get the pixels from the images in the list.
-	 * @param images see above.
-	 * @return list of the pixels.
-	 */
-	public List<Pixels> getPixelsFromImageList(List<Image> images);
 	
 	/**
 	 * Get the images from the dataset with name, this can use wild cards.
