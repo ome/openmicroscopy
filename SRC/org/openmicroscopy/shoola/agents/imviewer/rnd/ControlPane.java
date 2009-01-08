@@ -28,13 +28,11 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import javax.swing.Icon;
-import javax.swing.JPanel;
-
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 /** 
  * Top-class that each pane hosting mapping controls should extend.
@@ -59,8 +57,11 @@ abstract class ControlPane
     static final int    DOMAIN_PANE_INDEX = 0;
     
     /** The index of the codomain. */
-    static final int    CODOMAIN_PANE_INDEX = 1;
+    static final int    METADATA_PANE_INDEX = 1;
     
+    /** The index of the codomain. */
+    static final int    CODOMAIN_PANE_INDEX = 2;
+
     /** Bounds property indicating that a family is selected. */
     static final String FAMILY_PROPERTY = "family";
     

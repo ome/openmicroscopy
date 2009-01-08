@@ -2028,22 +2028,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#showImageDetails()
-	 */
-	public void showImageDetails()
-	{
-		model.showImageDetails();
-		/*
-		if (model.getState() != READY) return;
-		ImageDetailsDialog d = new ImageDetailsDialog(view, model.getMaxX(), 
-				model.getMaxY(), model.getPixelsSizeX(), model.getPixelsSizeY(), 
-				model.getPixelsSizeZ());
-		UIUtilities.centerAndShow(d);
-		*/
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#addToView(JComponent)
 	 */
 	public void addToView(JComponent comp)
@@ -2718,6 +2702,16 @@ class ImViewerComponent
 			renderXYPlane();
 		}
 		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#loadMetadata()
+	 */
+	public void loadMetadata()
+	{
+		//Check state
+		model.loadMetadata();
 	}
 	
 }

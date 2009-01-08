@@ -661,10 +661,7 @@ public interface ImViewer
 
 	/** Brings up on screen the Measurement Tool. */
 	public void showMeasurementTool();
-
-	/** Brings up on screen a window with the image's details. */
-	public void showImageDetails();
-
+	
 	/**
 	 * Adds the passed component to the viewer.
 	 * 
@@ -961,5 +958,8 @@ public interface ImViewer
 	 * @param index The selected index.
 	 */
 	public void setSelectedPane(int index);
+
+	/** Loads the metadata. */
+	public void loadMetadata();
 	
 }

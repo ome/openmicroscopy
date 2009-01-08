@@ -669,7 +669,8 @@ class ImViewerModel
 		currentRndControl = rndControl;
 		originalDef = currentRndControl.getRndSettingsCopy();
 		if (renderer == null) {
-			renderer = RendererFactory.createRenderer(component, rndControl);
+			renderer = RendererFactory.createRenderer(component, rndControl, 
+					metadataViewer.getEditorUI());
 			state = ImViewer.RENDERING_CONTROL_LOADED;
 			double f = initZoomFactor();
 			if (f > 0)
@@ -1431,13 +1432,6 @@ class ImViewerModel
 	long getOwnerID() { return image.getOwner().getId(); }
 
 	/**
-	 * Returns the metadata viewer.
-	 * 
-	 * @return See above.
-	 */
-	MetadataViewer getMetadataView() { return metadataViewer; }
-
-	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
 	 * otherwise.
 	 * 
@@ -1457,12 +1451,6 @@ class ImViewerModel
 		}
 	}
 
-	/** Shows the image details. */
-	void showImageDetails()
-	{
-		
-	}
-	
 	 /**
      * Returns the collection of pixels sets linked to the image.
      * 

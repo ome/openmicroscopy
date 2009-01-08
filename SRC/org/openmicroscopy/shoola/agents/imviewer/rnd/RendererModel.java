@@ -189,7 +189,7 @@ class RendererModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setInputInterval(double s, double e)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		rndControl.setChannelWindow(selectedChannelIndex, s, e); 
 	}
@@ -573,5 +573,8 @@ class RendererModel
 	{
 		this.rndControl = rndControl;
 	}
-  
+
+	/** Loads the metadata. */
+	void loadMetadata() { parentModel.loadMetadata(); }
+	
 }

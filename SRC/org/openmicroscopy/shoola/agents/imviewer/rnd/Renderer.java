@@ -272,5 +272,6 @@ public interface Renderer
 
 	/** Updates the UI when switching to a new rendering control. */
 	public void switchRndControl();
+	
 
 }

@@ -28,9 +28,9 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-
 
 //Third-party libraries
 
@@ -88,14 +88,20 @@ class RendererUI
 		controlPanes.put(CODOMAIN, p);
 	}
 
-	/** Builds and lays out the UI. */
-	private void buildGUI()
+	/** 
+	 * Builds and lays out the UI. 
+	 * 
+	 * @param metadataView	The view of the metadata.
+	 */
+	private void buildGUI(JComponent metadataView)
 	{
 		setAlignmentX(LEFT_ALIGNMENT);
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		insertTab(pane.getPaneName(), pane.getPaneIcon(), 
-				new JScrollPane(pane), pane.getPaneDescription(), 
-				pane.getPaneIndex());
+		insertTab(pane.getPaneName(), null, new JScrollPane(pane), 
+				pane.getPaneDescription(), pane.getPaneIndex());
+		insertTab("Metadata", null, new JScrollPane(metadataView), 
+				"Display the annotation and acquisition metadata", 
+						ControlPane.METADATA_PANE_INDEX);
 	}
 
 	/**
@@ -115,8 +121,10 @@ class RendererUI
 	 *                      Mustn't be <code>null</code>.
 	 * @param model         Reference to the Model.
 	 *                      Mustn't be <code>null</code>.
+	 * @param metadataView	The view of the metadata.
 	 */
-	void initialize(RendererControl controller, RendererModel model)
+	void initialize(RendererControl controller, RendererModel model, 
+			JComponent metadataView)
 	{
 		if (controller == null) throw new NullPointerException("No control.");
 		if (model == null) throw new NullPointerException("No model.");
@@ -124,7 +132,7 @@ class RendererUI
 		this.model = model;
 		initComponents();
 		createControlPanes();
-		buildGUI();
+		buildGUI(metadataView);
 	}
 
 	/**
@@ -210,5 +218,8 @@ class RendererUI
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		pane.onCurveChange();
 	}
-
+	
+	/** Loads the metadata. */
+	void loadMetadata() { model.loadMetadata(); }
+	
 }

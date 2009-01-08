@@ -103,12 +103,16 @@ class RendererComponent
         view = new RendererUI();
     }
     
-    /** Links up the MVC triad. */
-    void initialize()
+    /** 
+     * Links up the MVC triad. 
+     * 
+     * @param metadataView The The view of the metadata.
+     */
+    void initialize(JComponent metadataView)
     {
         model.initialize(this);
         controller.initialize(this, view);
-        view.initialize(controller, model);
+        view.initialize(controller, model, metadataView);
     }
     
     /** 

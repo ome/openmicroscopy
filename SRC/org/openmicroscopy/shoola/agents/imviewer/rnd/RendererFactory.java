@@ -26,12 +26,12 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
@@ -88,15 +88,16 @@ public class RendererFactory
      *                      for. Mustn't be <code>null</code>.
      * @param rndControl    Reference to the component that controls the
      *                      rendering settings. Mustn't be <code>null</code>.
-     * @param pref			The user preferences.
+     * @param metadataView	The view of the metadata.
      * @return See above.
      */
     public static Renderer createRenderer(ImViewer viewer,
-                                            RenderingControl rndControl)
+                                            RenderingControl rndControl, 
+                                            JComponent metadataView)
     {
         RendererModel model = new RendererModel(viewer, rndControl);
         RendererComponent rnd = new RendererComponent(model);
-        rnd.initialize();
+        rnd.initialize(metadataView);
         return rnd;
     }
     

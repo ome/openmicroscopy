@@ -26,12 +26,16 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.Action;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -45,6 +49,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 
 /** 
  * The Renderer's controller.
@@ -62,7 +67,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  * @since OME2.2
  */
 class RendererControl
-    implements PropertyChangeListener
+    implements ChangeListener, PropertyChangeListener
 {
 
     /** Identifies the action to select the bit resolution. */
@@ -121,6 +126,8 @@ class RendererControl
     private void attachListeners()
     {
         model.addPropertyChangeListener(this);
+        model.getParentModel().addPropertyChangeListener(this);
+        view.addChangeListener(this);
         /*
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
@@ -158,7 +165,6 @@ class RendererControl
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
-        model.getParentModel().addPropertyChangeListener(this);
         createActions();
         attachListeners();
     }
@@ -216,16 +222,13 @@ class RendererControl
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
-        if (name.equals(ImViewer.Z_SELECTED_PROPERTY) || 
-            name.equals(ImViewer.T_SELECTED_PROPERTY)) {
-            //retrieve plane statistics for specific channel.
         /*
         } else if (name.equals(
             CodomainMapContextDialog.UPDATE_MAP_CONTEXT_PROPERTY)) {
             CodomainMapContext ctx = (CodomainMapContext)  evt.getNewValue();
             model.updateCodomainMap(ctx);
         */
-        } else if (name.equals(ControlPane.FAMILY_PROPERTY)) {
+        if (name.equals(ControlPane.FAMILY_PROPERTY)) {
             String oldValue = (String) evt.getOldValue();
             String newValue = (String) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
@@ -248,21 +251,6 @@ class RendererControl
         } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
             int v = ((Integer) evt.getNewValue()).intValue();
             model.setSelectedChannel(v, true);
-        } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
-        	/*
-            if (((Boolean) evt.getNewValue()).booleanValue()) {
-            	if (view.isVisible()) {
-            		visibility = true;
-            	}
-            	view.setVisible(false);
-            	//view.iconify();
-            } else {
-            	if (visibility) view.setVisible(true);
-            	//if (view.getExtendedState() == Frame.ICONIFIED)
-            	//	view.deIconify();
-            }
-        	//if (view.isVisible()) view.setVisible(false);
-        	 * */
         } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
             view.setInputInterval();
         } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGED_PROPERTY)) {
@@ -277,10 +265,19 @@ class RendererControl
         	model.setColorModelChanged();
         } 
     }
-    
+
     /**
-     * Resizes the RenderUI after the advanced options button has been selected.
+     * Loads the metadata depending on the tabbed selected.
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */
-    void resizeRenderUI() { }//view.pack(); }
+	public void stateChanged(ChangeEvent e)
+	{
+		Object src = e.getSource();
+		if (src instanceof JTabbedPane) {
+			JTabbedPane pane = (JTabbedPane) src; 
+			if (pane.getSelectedIndex() == ControlPane.METADATA_PANE_INDEX) 
+				view.loadMetadata();
+		}
+	}
     
 }

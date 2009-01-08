@@ -172,7 +172,7 @@ public class IconManager
     /** The <code>Report 48</code> icon. */
     public static int			REPORT_48 = 38;
     
-    /** The <code>Report 48</code> icon. */
+    /** The <code>Save As 48</code> icon. */
     public static int			SAVE_AS_48 = 39;
     
     /** 
