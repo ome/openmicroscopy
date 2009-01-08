@@ -1000,12 +1000,31 @@ class BlitzGateway (threading.Thread):
         return store.read(0,100000)
     
     def getExperimenterPhoto(self, oid=None):
+        photo = None
         pojos = self.getPojosService()
-        ann = pojos.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
-        f = ann.getFile()
-        store = self.createRawFileStore()
-        store.setFileId(f.id.val)
-        return store.read(0,100000)
+        try:
+            if oid is None:
+                ann = pojos.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
+            else:
+                ann = pojos.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
+            f = ann.getFile()
+            store = self.createRawFileStore()
+            store.setFileId(f.id.val)
+            photo = store.read(0,100000)
+        except:
+            photo = self.getExperimenterDefaultPhoto()
+        if photo == None:
+            photo = self.getExperimenterDefaultPhoto()
+        return photo
+    
+    def getExperimenterDefaultPhoto(self):
+        img = Image.open(settings.DEFAULT_USER)
+        img.thumbnail((32,32), Image.ANTIALIAS)
+        draw = ImageDraw.Draw(img)
+        f = cStringIO.StringIO()
+        img.save(f, "PNG")
+        f.seek(0)
+        return f.read()
     
     def getFileFormt(self, format):
         query_serv = self.getQueryService()

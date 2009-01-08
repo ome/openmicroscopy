@@ -27,3 +27,6 @@
 #login th {
     font-weight: bold;
 }
+#login form table td select {
+    min-width: 200px;
+}

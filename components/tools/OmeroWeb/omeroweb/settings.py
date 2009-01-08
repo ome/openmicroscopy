@@ -117,6 +117,7 @@ WEBCLIENT_STATIC_LOGO = os.path.join(os.path.join(os.path.dirname(__file__), 'me
 STATIC_ROOT = os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media').replace('\\','/')
 STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.jpg').replace('\\','/')
 DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
+DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
 
 # PROPERTIES
 # Put strings here, like "/omero/dist/etc/" or "C:/omero/dist/etc/".

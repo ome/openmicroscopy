@@ -175,6 +175,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['correctionCollar'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().correctionCollar, label="Calibrated collar", required=False)
                 if kwargs['initial']['image'].getObjectiveSettings().correctionCollar is not None:
                     self.fields['correctionCollar'].widget.attrs['disabled'] = True
+                    self.fields['correctionCollar'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['correctionCollar'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), label="Calibrated Collar", required=False)
         except:
@@ -183,10 +184,12 @@ class MetadataObjectiveForm(forms.Form):
         # Medium
         try:
             if kwargs['initial']['image'].getObjectiveSettings():
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], initial=kwargs['initial']['image'].getObjectiveSettings().medium, empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
-                if kwargs['initial']['image'].getObjectiveSettings().medium is not None:
+                if kwargs['initial']['image'].getObjectiveSettings().medium is None:
+                    self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+                else:
+                    self.fields['medium'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getObjectiveSettings().correctionCollar, required=False)
                     self.fields['medium'].widget.attrs['disabled'] = True
-                
+                    self.fields['medium'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
         except:
@@ -198,6 +201,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['refractiveIndex'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().refractiveIndex, label="Refractive index", required=False)
                 if kwargs['initial']['image'].getObjectiveSettings().refractiveIndex is not None:
                     self.fields['refractiveIndex'].widget.attrs['disabled'] = True
+                    self.fields['refractiveIndex'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['refractiveIndex'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
         except:
@@ -211,6 +215,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['manufacturer'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['image'].getObjective().manufacturer, required=False)
                 if kwargs['initial']['image'].getObjective().manufacturer is not None:
                     self.fields['manufacturer'].widget.attrs['disabled'] = True
+                    self.fields['manufacturer'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['manufacturer'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
         except:
@@ -222,6 +227,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['model'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['image'].getObjective().model, required=False)
                 if kwargs['initial']['image'].getObjective().model is not None:
                     self.fields['model'].widget.attrs['disabled'] = True
+                    self.fields['model'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['model'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), required=False)
         except:
@@ -233,6 +239,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['serialNumber'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['image'].getObjective().serialNumber, label="Serial number", required=False)
                 if kwargs['initial']['image'].getObjective().serialNumber is not None:
                     self.fields['serialNumber'].widget.attrs['disabled'] = True
+                    self.fields['serialNumber'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['serialNumber'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), required=False)
         except:
@@ -244,6 +251,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['nominalMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().nominalMagnification, label="Nominal magnification", required=False)
                 if kwargs['initial']['image'].getObjective().nominalMagnification is not None:
                     self.fields['nominalMagnification'].widget.attrs['disabled'] = True
+                    self.fields['nominalMagnification'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['nominalMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), label="Nominal magnification", required=False)
         except:
@@ -255,6 +263,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['calibratedMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().calibratedMagnification, label="Calibrated magnification", required=False)
                 if kwargs['initial']['image'].getObjective().calibratedMagnification is not None:
                     self.fields['calibratedMagnification'].widget.attrs['disabled'] = True
+                    self.fields['calibratedMagnification'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['calibratedMagnification'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), label="Calibrated magnification", required=False)
         except:
@@ -266,6 +275,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['lensNA'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), initial=kwargs['initial']['image'].getObjective().lensNA, label="Lens NA", required=False)
                 if kwargs['initial']['image'].getObjective().lensNA is not None:
                     self.fields['lensNA'].widget.attrs['disabled'] = True
+                    self.fields['lensNA'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['lensNA'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), label="Lens NA", required=False)
         except:
@@ -274,9 +284,12 @@ class MetadataObjectiveForm(forms.Form):
         # Immersion
         try:
             if kwargs['initial']['image'].getObjective():
-                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], initial=kwargs['initial']['image'].getObjective().immersion, empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
-                if kwargs['initial']['image'].getObjective().immersion is not None:
+                if kwargs['initial']['image'].getObjective().immersion is None:
+                    self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
+                else:
+                    self.fields['immersion'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getObjective().immersion, required=False)
                     self.fields['immersion'].widget.attrs['disabled'] = True
+                    self.fields['immersion'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
         except:
@@ -285,9 +298,12 @@ class MetadataObjectiveForm(forms.Form):
         # Correction
         try:
             if kwargs['initial']['image'].getObjective():
-                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], initial=kwargs['initial']['image'].getObjective().correction, empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
-                if kwargs['initial']['image'].getObjective().correction is not None:
+                if kwargs['initial']['image'].getObjective().correction is None:
+                    self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
+                else:
+                    self.fields['correction'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getObjective().correction, required=False)
                     self.fields['correction'].widget.attrs['disabled'] = True
+                    self.fields['correction'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
         except:
@@ -299,6 +315,7 @@ class MetadataObjectiveForm(forms.Form):
                 self.fields['workingDistance'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), initial=kwargs['initial']['image'].getObjective().workingDistance, label="Working distance", required=False)
                 if kwargs['initial']['image'].getObjective().workingDistance is not None:
                     self.fields['workingDistance'].widget.attrs['disabled'] = True
+                    self.fields['workingDistance'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['workingDistance'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
         except:
@@ -307,9 +324,12 @@ class MetadataObjectiveForm(forms.Form):
         # Iris
         try:
             if kwargs['initial']['image'].getObjective():
-                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getObjective().iris, required=False)
-                if kwargs['initial']['image'].getObjective().iris is not None:
+                if kwargs['initial']['image'].getObjective().iris is None:
+                    self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), required=False)
+                else:
+                    self.fields['iris'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getObjective().iris, required=False)
                     self.fields['iris'].widget.attrs['disabled'] = True
+                    self.fields['iris'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), required=False)
         except:
@@ -331,6 +351,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['microscope'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().microscope, required=False)
                 if kwargs['initial']['image'].getInstrument().microscope is not None:
                     self.fields['microscope'].widget.attrs['disabled'] = True
+                    self.fields['microscope'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['microscope'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -342,6 +363,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['detectorSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().detectorSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().detectorSeq is not None:
                     self.fields['detectorSeq'].widget.attrs['disabled'] = True
+                    self.fields['detectorSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['detectorSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -353,6 +375,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['objectiveSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().objectiveSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().objectiveSeq is not None:
                     self.fields['objectiveSeq'].widget.attrs['disabled'] = True
+                    self.fields['objectiveSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['objectiveSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -364,6 +387,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['lightSourceSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().lightSourceSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().lightSourceSeq is not None:
                     self.fields['lightSourceSeq'].widget.attrs['disabled'] = True
+                    self.fields['lightSourceSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['lightSourceSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -375,6 +399,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['filterSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().filterSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().filterSeq is not None:
                     self.fields['filterSeq'].widget.attrs['disabled'] = True
+                    self.fields['filterSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['filterSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -386,6 +411,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['dichroicSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().dichroicSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().dichroicSeq is not None:
                     self.fields['dichroicSeq'].widget.attrs['disabled'] = True
+                    self.fields['dichroicSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['dichroicSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -397,6 +423,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['filterSetSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().filterSetSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().filterSetSeq is not None:
                     self.fields['filterSetSeq'].widget.attrs['disabled'] = True
+                    self.fields['filterSetSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['filterSetSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -408,6 +435,7 @@ class MetadataInstrumentForm(forms.Form):
                 self.fields['otfSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getInstrument().otfSeq, required=False)
                 if kwargs['initial']['image'].getInstrument().otfSeq is not None:
                     self.fields['otfSeq'].widget.attrs['disabled'] = True
+                    self.fields['otfSeq'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['otfSeq'] = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -429,6 +457,7 @@ class MetadataEnvironmentForm(forms.Form):
                 self.fields['temperature'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().temperature, required=False)
                 if kwargs['initial']['image'].getCondition().temperature is not None:
                     self.fields['temperature'].widget.attrs['disabled'] = True
+                    self.fields['temperature'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['temperature'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -440,6 +469,7 @@ class MetadataEnvironmentForm(forms.Form):
                 self.fields['air_pressure'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().airPressure, required=False)
                 if kwargs['initial']['image'].getCondition().air_pressure is not None:
                     self.fields['air_pressure'].widget.attrs['disabled'] = True
+                    self.fields['air_pressure'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['air_pressure'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -451,6 +481,7 @@ class MetadataEnvironmentForm(forms.Form):
                 self.fields['humidity'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().humidity, required=False)
                 if kwargs['initial']['image'].getCondition().humidity is not None:
                     self.fields['humidity'].widget.attrs['disabled'] = True
+                    self.fields['humidity'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['humidity'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), required=False)
         except:
@@ -462,6 +493,7 @@ class MetadataEnvironmentForm(forms.Form):
                 self.fields['co2percent'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), initial=kwargs['initial']['image'].getCondition().co2percent, label="CO2 [%]", required=False)
                 if kwargs['initial']['image'].getCondition().co2percent is not None:
                     self.fields['co2percent'].widget.attrs['disabled'] = True
+                    self.fields['co2percent'].widget.attrs['class'] = 'disable'
             else:
                 self.fields['co2percent'] = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':15}), label="CO2 [%]", required=False)
         except:

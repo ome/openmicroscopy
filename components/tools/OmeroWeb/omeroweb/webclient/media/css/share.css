@@ -36,13 +36,16 @@ body.share {
 
 /* comment display page */
 #comment_wrapper {
-    padding-bottom: 10px;
-    width:590px;
-    padding-left: 50px;
+    width:630px;
+}
+#comment_wrapper .photo {
+    margin-top: 60px;
+    float: left;
 }
 #comment {
     background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
     width:590px;
+    float: right;
 }
 #comment .head {
     font-size: 11px;
@@ -56,12 +59,12 @@ body.share {
 #comment .timestamp {
     font-size: 10px;
     font-style: normal;
-	color: #666666;
+    color: #666666;
 }
 #comment .head cite {
-	font-size: 100%;
-	font-weight: bold;
-	font-style: normal;
+    font-size: 100%;
+    font-weight: bold;
+    font-style: normal;
 }
 #comment .body {
     margin:20px 20px;
@@ -73,14 +76,17 @@ body.share {
 }
 
 #comment_wrapper_rev {
-    padding-bottom: 10px;
-    width:590px;
-    padding-right: 50px;
-    margin-left: 50px;
+    margin-left: 42px;
+    width:630px;
+}
+#comment_wrapper_rev .photo {
+    margin-top: 60px;
+    float: right;
 }
 #comment_rev {
     background:transparent url(/webclient/static/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
     width:590px;
+    float: left;
 }
 #comment_rev .head {
     font-size: 11px;
@@ -94,12 +100,12 @@ body.share {
 #comment_rev .timestamp {
     font-size: 10px;
     font-style: normal;
-	color: #666666;
+    color: #666666;
 }
 #comment_rev .head cite {
-	font-size: 100%;
-	font-weight: bold;
-	font-style: normal;
+    font-size: 100%;
+    font-weight: bold;
+    font-style: normal;
 }
 #comment_rev .body {
     margin:20px 20px;

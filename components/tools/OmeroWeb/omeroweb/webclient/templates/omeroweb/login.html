@@ -25,7 +25,8 @@
             {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
             <tr>
                 <th>{% trans form.server.label_tag %}{% if form.server.field.required %}*{% endif %}</th>
-                    <td>{{ form.server.errors }}{{ form.server }}</td>
+                <td>{{ form.server }}</td>
+                <td>{{ form.server.errors }}</td>
             </tr>
         </tbody></table>
         <table><tbody>

@@ -2118,13 +2118,13 @@ def history_details(request, menu, year, month, day, **kwargs):
 ####################################################################################
 # User Photo
 @isUserConnected
-def load_photo(request, oid, **kwargs):
+def load_photo(request, oid=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
-    photo = conn.getExperimenterPhoto(long(oid))
+    photo = conn.getExperimenterPhoto(oid)
     return HttpResponse(photo, mimetype='image/jpeg')
 
 ####################################################################################

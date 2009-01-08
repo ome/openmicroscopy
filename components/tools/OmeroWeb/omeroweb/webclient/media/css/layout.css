@@ -161,23 +161,26 @@ th {
 }
 
 input {
-    margin: 5px 0;
-    padding: 2px;
+    margin: 0;
     border: 1px solid #bbb;
     background-color: #f5f5f5;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    font-size: 12px;
 }
 
 select {
-    border: 0px;
+    margin: 0;
     background-color: #f5f5f5;
     border: 1px solid #bbb;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    font-size: 12px;
 }
 textarea {
-    border: 0px;
-    margin: 5px 0;
-    padding: 2px;
+    margin: 0;
     background-color: #f5f5f5;
     border: 1px solid #bbb;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    font-size: 12px;
 }
 
 form table {
@@ -187,6 +190,7 @@ form table {
 
 form td {
     text-align: left;
+    padding: 2px;
 }
 
 form th {
@@ -220,4 +224,7 @@ form ul.errorlist {
 }
 .center {
     text-align: center;
+}
+label {
+    font-weight: bold;
 }

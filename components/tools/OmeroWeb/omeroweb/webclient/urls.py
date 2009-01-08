@@ -103,6 +103,7 @@ urlpatterns = patterns('',
     ( r'(?i)^help/(.*)/$', views.help ),
     ( r'(?i)^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') } ),
     
+    (r'(?i)^userphoto/$', views.load_photo),
     (r'(?i)^userphoto/(?P<oid>[0-9]+)/$', views.load_photo),
     (r'(?i)^render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image),
     (r'(?i)^img_detail/(?P<iid>[0-9]+)/(?:(?P<dsid>[0-9]+)/)?$', views.image_viewer),

@@ -40,9 +40,7 @@
             <a href="mailto:{{ m.email }}">{{ m.getFullName }}</a>,
         {% endfor %} 
         {{ share.share.details.getOwner }} would like to {% if share.projectInShare or share.datasetInShare or share.imageInShare %}share{% else %}discuss{% endif %} below content. <a href="{% get_webclient_root_url %}/share/edit/{{ share.share.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></h1>
-
     <div id="share_content"></div>
-    
     <div class="clear"> </div>
     
     <h2>Details: 
@@ -51,11 +49,14 @@
     
     <div id="comment_wrapper_rev">
     <div id="comment_rev">
-        <div class="head"><a href="mailto:{{ share.share.details.owner.email.val }}">{{ share.share.details.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
+        <div class="head"><a href="mailto:{{ share.share.details.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
         <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
         <div class="footer"></div>
     </div>
+    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.details.owner.id.val }}/" alt="{{ share.share.getOwner }}" title="{{ share.share.getOwner }}" width="40" height="40" /></div>
     </div>
+    </div>
+    <div class="clear"></div>
     <br/>
     
     {% if share.cmSize %}
@@ -63,20 +64,24 @@
             {% if cm.isOwned %}
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
-                    <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }}</div>
+                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }}</div>
                     <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
+                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
                 </div>
+                <div class="clear"></div>
                 <br/>
             {% else %}
                 <div id="comment_wrapper">
+                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
                 <div id="comment">
-                    <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ cm.getOwner }}</a> - {{ cm.creationEventDate }}</div>
+                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> - {{ cm.creationEventDate }}</div>
                     <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
                 </div>
+                <div class="clear"></div>
                 <br/>
             {% endif %}
             
