@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -447,6 +448,57 @@ public abstract class TreeImageDisplay
         	return name;
         if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
+    }
+    
+    /**
+     * Returns <code>true</code> if the object has been annotated, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isAnnotated()
+    {
+    	Object uo = getUserObject();
+    	Map counts;
+    	if (uo instanceof ProjectData) {
+    		ProjectData data = (ProjectData) uo;
+    		counts = data.getAnnotationsCounts();
+    		if (counts != null) return counts.size() > 0;
+    	} else if (uo instanceof DatasetData) {
+    		DatasetData data = (DatasetData) uo;
+    		counts = data.getAnnotationsCounts();
+    		if (counts != null) return counts.size() > 0;
+    	} else if (uo instanceof ImageData) {
+    		ImageData data = (ImageData) uo;
+    		counts = data.getAnnotationsCounts();
+    		if (counts != null) return counts.size() > 0;
+    	} else if (uo instanceof PlateData) {
+    		PlateData data = (PlateData) uo;
+    		counts = data.getAnnotationsCounts();
+    		if (counts != null) return counts.size() > 0;
+    	} else if (uo instanceof ScreenData) {
+    		ScreenData data = (ScreenData) uo;
+    		counts = data.getAnnotationsCounts();
+    		if (counts != null) return counts.size() > 0;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Returns <code>true</code> if the data object has children, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasChildren()
+    {
+    	Object uo = getUserObject();
+    	if ((uo instanceof ProjectData) || (uo instanceof ScreenData) ||
+    		(uo instanceof PlateData) || (uo instanceof DatasetData)) {
+    		if (numberItems > 0) return true;
+        	return hasChildrenDisplay();
+    	}
+    	return false;
     }
     
     /**

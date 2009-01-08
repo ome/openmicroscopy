@@ -88,6 +88,12 @@ public class DeleteBox
 	
 	/** The type of object to remove. */
 	private Class					type;
+	
+	/** Flag indicating if the objects have been annotated. */
+	private boolean					annotation;
+	
+	/** Flag indicating if the objects have children. */
+	private boolean					children;
     
 	/** The components corresponding to the annotation. */
 	private Map<JCheckBox, Class>	annotationTypes;
@@ -177,15 +183,21 @@ public class DeleteBox
 		boolean add = false;
 		if (ImageData.class.equals(type)) {
 			add = true;
-			p.add(withAnnotation);
-			p.add(typesPane);
+			if (annotation) {
+				p.add(withAnnotation);
+				p.add(typesPane);
+			}
 		} else if (DatasetData.class.equals(type) || 
 				ProjectData.class.equals(type)) {
 			add = true;
-			p.add(withContent);
-			p.add(withoutContent);
-			p.add(withAnnotation);
-			p.add(typesPane);
+			if (children) {
+				p.add(withContent);
+				p.add(withoutContent);
+			}
+			if (annotation) {
+				p.add(withAnnotation);
+				p.add(typesPane);
+			}
 		} else if (FileAnnotationData.class.equals(type)) {
 			add = true;
 			//p.add(typesPane);
@@ -198,11 +210,16 @@ public class DeleteBox
 	 * Returns the message corresponding to the specified class and
 	 * the number of selected items.
 	 * 
-	 * @param type		The type of object to handle.
-	 * @param number	The number of object to remove.
+	 * @param type			The type of object to handle.
+	 * @param number		The number of object to remove.
+	 * @param annotation	Pass <code>true</code> if the objects have been 
+	 * 						annotated, <code>false</code> otherwise.
+	 * @param children		Pass <code>true</code> if the objects have been 
+	 * 						annotated, <code>false</code> otherwise.
 	 * @return See above. 
 	 */
-	private static String getMessage(Class type, int number)
+	private static String getMessage(Class type, int number, boolean annotation,
+						boolean children)
 	{
 		StringBuffer buffer = new StringBuffer(); 
 		String end = "?";
@@ -210,15 +227,15 @@ public class DeleteBox
 		if (ImageData.class.equals(type)) {
 			buffer.append(DEFAULT_TEXT+" image"+end);
 			buffer.append("\n");
-			buffer.append("If yes, ");
+			if (annotation || children) buffer.append("If yes, ");
 		} else if (DatasetData.class.equals(type)) {
 			buffer.append(DEFAULT_TEXT+" dataset"+end);
 			buffer.append("\n");
-			buffer.append("If yes, ");
+			if (annotation || children) buffer.append("If yes, ");
 		} else if (ProjectData.class.equals(type)) {
 			buffer.append(DEFAULT_TEXT+" project"+end);
 			buffer.append("\n");
-			buffer.append("If yes, ");
+			if (annotation || children) buffer.append("If yes, ");
 		} else if (FileAnnotationData.class.equals(type)) {
 			buffer.append(DEFAULT_TEXT+" file"+end);
 			buffer.append("\n");
@@ -229,14 +246,22 @@ public class DeleteBox
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param type		The type of objects to delete.
-	 * @param number	The number of objects to delete.
-	 * @param parent 	The parent of the frame
+	 * @param type			The type of objects to delete.
+	 * @param annotation	Pass <code>true</code> if the object has 
+	 * 						been annotated, <code>false</code> otherwise.
+	 * @param children		Pass <code>true</code> if the object has 
+	 * 						children, <code>false</code> otherwise.
+	 * @param number		The number of objects to delete.
+	 * @param parent 		The parent of the frame
 	 */
-	public DeleteBox(Class type, int number, JFrame parent)
+	public DeleteBox(Class type, boolean annotation, boolean children,
+			int number, JFrame parent)
 	{
-		super(parent, TITLE, DeleteBox.getMessage(type, number));
+		super(parent, TITLE, 
+				DeleteBox.getMessage(type, number, annotation, children));
 		this.type = type;
+		this.annotation = annotation;
+		this.children = children;
 		initComponents();
 		layoutComponents();
 		pack();

@@ -180,7 +180,7 @@ class PropertiesUI
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	
-    	label = UIUtilities.setTextFont(EditorUtil.WAVELENGTHS, Font.BOLD, 
+    	label = UIUtilities.setTextFont("Channels", Font.BOLD, 
     			size);
     	content.add(label, "0, "+index);
     	content.add(channelsArea, "2, "+index);
@@ -426,7 +426,7 @@ class PropertiesUI
 		Iterator k = waves.iterator();
 		int j = 0;
 		while (k.hasNext()) {
-			s += ((ChannelData) k.next()).getEmissionWavelength();
+			s += ((ChannelData) k.next()).getChannelLabeling();
 			if (j != waves.size()-1) s +=", ";
 			j++;
 		}

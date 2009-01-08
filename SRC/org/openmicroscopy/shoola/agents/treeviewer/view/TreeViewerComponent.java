@@ -2001,15 +2001,20 @@ class TreeViewerComponent
 		Iterator i = nodes.iterator();
 		TreeImageDisplay node;
 		Class type = null;
+		boolean ann = false;
+		boolean content = false;
 		while (i.hasNext()) {
 			node = (TreeImageDisplay) i.next();
+			if (node.isAnnotated()) ann = true;
+			if (node.hasChildren()) content = true;
 			type = node.getUserObject().getClass();
 			break;
 		}
-		DeleteBox dialog = new DeleteBox(type, nodes.size(), view);
+		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), 
+										view);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
-			boolean ann = dialog.deleteAnnotations();
-			boolean content = dialog.deleteContents();
+			ann = dialog.deleteAnnotations();
+			content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
 			i = nodes.iterator();
 			Object obj;

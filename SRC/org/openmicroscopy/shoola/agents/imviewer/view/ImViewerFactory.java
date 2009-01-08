@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -87,7 +90,11 @@ public class ImViewerFactory
 	private static final String MENU_NAME = "Image Viewer";
 	
 	/** The name of the recent menu. */
-	private static final String RECENT_MENU = "Recent";
+	private static final String RECENT_MENU = "Open Recent";
+	
+	/** The name of the recent menu. */
+	private static final String CLEAR_MENU = "Clear menu";
+	
 	
 	/** The sole instance. */
 	private static final ImViewerFactory  singleton = new ImViewerFactory();
@@ -116,6 +123,8 @@ public class ImViewerFactory
 				singleton.recentMenu.add(new JMenuItem(
 						new ActivateRecentAction(j.next())));
 			}
+			singleton.recentMenu.add(new JSeparator());
+			singleton.recentMenu.add(singleton.clearMenu);
 			menu.add(singleton.recentMenu);
 		}
 	}
@@ -323,9 +332,11 @@ public class ImViewerFactory
 	/** The windows menu. */
 	private JMenu   						windowMenu;
 
-	/** The windows menu. */
+	/** The recent windows menu. */
 	private JMenu   						recentMenu;
 	
+	/** The clear menu items. */
+	private JMenuItem   					clearMenu;
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.
@@ -349,6 +360,14 @@ public class ImViewerFactory
 		isAttached = false;
 		windowMenu = new JMenu(MENU_NAME);
 		recentMenu = new JMenu(RECENT_MENU);
+		clearMenu = new JMenuItem(CLEAR_MENU);
+		clearMenu.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				
+				singleton.recentViewers.clear();
+			}
+		});
 	}
 
 	/**

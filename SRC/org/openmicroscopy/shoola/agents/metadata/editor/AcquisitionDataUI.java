@@ -388,7 +388,7 @@ class AcquisitionDataUI
 				channel = (ChannelData) i.next();
 				comp = new ChannelAcquisitionComponent(this, model, channel);
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
-						channel.getEmissionWavelength());
+						channel.getChannelLabeling());
 				p.add(comp);
 				p.addPropertyChangeListener(
 						UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
