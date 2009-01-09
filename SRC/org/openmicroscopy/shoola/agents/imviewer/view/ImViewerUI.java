@@ -714,7 +714,7 @@ class ImViewerUI
 	 */
 	private JMenu createShowViewMenu()
 	{
-		JMenu menu = new JMenu("Show View");
+		JMenu menu = new JMenu("Views");
 		menu.setMnemonic(KeyEvent.VK_S);
 		JMenuItem item = new JMenuItem(
 					controller.getAction(ImViewerControl.TAB_VIEW));
@@ -1139,6 +1139,7 @@ class ImViewerUI
 	 */
 	void onStateChange(boolean b)
 	{ 
+		model.getRenderer().onStateChange(b);
 		enableSliders(b);
 		controlPane.onStateChange(b); 
 		toolBar.onStateChange(b); 
@@ -1175,11 +1176,20 @@ class ImViewerUI
 	 */
 	void setPlaneInfoStatus()
 	{
+		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
+			statusBar.setCenterStatus(new JLabel());
+			return;
+		}
+		List<Integer> indexes = model.getActiveChannels();
+		if (indexes == null || indexes.size() == 0) {
+			statusBar.setCenterStatus(new JLabel());
+			return;
+		}
+			
 		int z = model.getDefaultZ();
 		int t = model.getDefaultT();
-		List<Integer> indexes = model.getActiveChannels();
-		if (indexes == null || indexes.size() == 0) 
-			statusBar.setCenterStatus(new JLabel());
+		
+			
 		Iterator<Integer> i = indexes.iterator();
 		int index;
 		PlaneInfo info;
@@ -1565,6 +1575,7 @@ class ImViewerUI
 		model.setTabbedIndex(index);
 		toolBar.onTabbedSelection();
 		setLeftStatus();
+		setPlaneInfoStatus();
 		model.getBrowser().setSelectedPane(index);
 		setLensVisible(isLensVisible(), oldIndex);
 	}

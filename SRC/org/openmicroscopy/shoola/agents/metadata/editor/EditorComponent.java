@@ -183,12 +183,12 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#setChannelsData(List)
+	 * @see Editor#setChannelsData(List, boolean)
 	 */
-	public void setChannelsData(List channelData)
+	public void setChannelsData(List channelData, boolean updateView)
 	{
 		model.setChannelData(channelData);
-		view.showChannelData();
+		if (updateView) view.showChannelData();
 	}
 
 	/** 

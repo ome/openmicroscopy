@@ -116,9 +116,11 @@ public interface MetadataViewer
 	 * If the state is not {@link #NEW}, then this method simply moves the
 	 * window to front.
 	 * 
+	 * @param channelData 	The channel data if already loaded, 
+	 * 						<code>null</code> otherwise.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate();
+	public void activate(List channelData);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.

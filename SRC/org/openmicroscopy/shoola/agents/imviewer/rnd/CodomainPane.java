@@ -233,6 +233,12 @@ class CodomainPane
     }
     
     /**
+     * Sets the enabled flag of the UI components. 
+     * @see ControlPane#onStateChange(boolean)
+     */
+	protected void onStateChange(boolean b) {}
+	
+    /**
      * Resets the value of the various controls when the user selects 
      * a new rendering control
      * @see ControlPane#resetDefaultRndSettings()

@@ -35,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -494,14 +495,29 @@ class DomainPane
     }
     
     /**
+     * Sets the enabled flag of the UI components.
+     * @see ControlPane#onStateChange(boolean)
+     */
+	protected void onStateChange(boolean b)
+	{
+		if (familyBox != null) familyBox.setEnabled(b);
+		if (gammaSlider != null) gammaSlider.setEnabled(b);
+		if (bitDepthSlider != null) bitDepthSlider.setEnabled(b);
+		if (noiseReduction != null) noiseReduction.setEnabled(b);
+		if (channelList != null) {
+			Iterator<ChannelToggleButton> i = channelList.iterator();
+			while (i.hasNext()) 
+				(i.next()).setEnabled(b);
+		}
+		graphicsPane.onStateChange(b);
+	}
+	
+    /**
      * Resets the value of the various controls when the user selects 
      * a new rendering control
      * @see ControlPane#resetDefaultRndSettings()
      */
-    protected void switchRndControl()
-    {
-    	
-    }
+    protected void switchRndControl() {}
     
     /**
      * Creates a new instance.
@@ -633,5 +649,6 @@ class DomainPane
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
+
 
 }

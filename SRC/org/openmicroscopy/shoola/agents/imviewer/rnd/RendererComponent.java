@@ -449,5 +449,14 @@ class RendererComponent
 		// TODO Auto-generated method stub
 		
 	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#onStateChange(boolean)
+     */
+	public void onStateChange(boolean b)
+	{
+		if (view != null) view.onStateChange(b);
+	}
     
 }

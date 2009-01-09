@@ -90,7 +90,7 @@ public class ChannelDataLoader
      */
     public void handleResult(Object result) 
     {
-        viewer.setChannelsData((List) result);
+        viewer.setChannelsData((List) result, true);
     }
 
 }

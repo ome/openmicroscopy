@@ -416,7 +416,7 @@ class ImViewerControl
 			{ 
 				Object source = e.getSource();
 				if (source instanceof JMenu)
-					createWindowsMenuItems((JMenu) source);
+					ImViewerFactory.register((JMenu) source);
 			}
 
 			/** 
@@ -442,7 +442,7 @@ class ImViewerControl
 			{
 				Object source = e.getSource();
 				if (source instanceof JMenu)
-					createWindowsMenuItems((JMenu) source);
+					ImViewerFactory.register((JMenu) source);
 			}
 
 			/** 
@@ -478,23 +478,6 @@ class ImViewerControl
 		view.getLoadingWindow().addPropertyChangeListener(
 				LoadingWindow.CLOSED_PROPERTY, this);
 		view.addWindowFocusListener(this);
-	}
-
-	/** 
-	 * Creates the windowsMenuItems. 
-	 * 
-	 * @param menu The menu to handle.
-	 */
-	private void createWindowsMenuItems(JMenu menu)
-	{
-		ImViewerFactory.register(menu);
-		/*
-		Set viewers = ImViewerFactory.getViewers();
-		Iterator i = viewers.iterator();
-		menu.removeAll();
-		while (i.hasNext()) 
-			menu.add(new JMenuItem(new ActivationAction((ImViewer) i.next())));
-			*/
 	}
 
 	/**
@@ -663,6 +646,7 @@ class ImViewerControl
     void setProjectionRange(boolean released)
     {
     	view.setLeftStatus();
+    	view.setPlaneInfoStatus();
     	if (released) model.renderXYPlane();
     }
 

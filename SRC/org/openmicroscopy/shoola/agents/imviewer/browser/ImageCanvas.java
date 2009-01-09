@@ -26,11 +26,17 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import javax.swing.JPanel;
+import javax.swing.JViewport;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
  * Components where the image to display is painted.
@@ -89,6 +95,42 @@ class ImageCanvas
 		if (pressedZ < 0 || pressedT < 0)  paintedString = null;
 		else paintedString = "z="+pressedZ+", t="+pressedT;
 		repaint();
+	}
+	
+	/** 
+	 * Paints the scale bar on the specified graphics context.
+	 * 
+	 * @param g2D 		The graphics context.
+	 * @param width 	The image's width.
+	 * @param height 	The image's height.
+	 * @param viewPort 	The viewport hosting the canvas.
+	 */
+	void paintScaleBar(Graphics2D g2D, int width, int height, 
+					JViewport viewPort)
+	{
+		if (!(model.isUnitBar())) return;
+
+		String value = model.getUnitBarValue(); 
+		if (value == null) return;
+
+		int size = (int) (model.getUnitBarSize());
+
+		// Position scalebar in the bottom left of the viewport or
+		// the image which ever is viewable. 
+		Rectangle imgRect = new Rectangle(0, 0, width, height);
+		Rectangle viewRect = viewPort.getBounds();
+		Point p = viewPort.getViewPosition();
+		int x = (int) p.getX();
+		int y = (int) p.getY();
+		int w = Math.min(x+viewRect.width, width);
+		int h = Math.min(y+viewRect.height, height);
+		if (imgRect.contains(viewRect)) {
+			w = x+viewRect.width;
+			h = y+viewRect.height;
+		}
+		if (viewRect.width >= size)
+			ImagePaintingFactory.paintScaleBar(g2D, w-size-10, h-10, size, 
+											value, model.getUnitBarColor());
 	}
 	
 }

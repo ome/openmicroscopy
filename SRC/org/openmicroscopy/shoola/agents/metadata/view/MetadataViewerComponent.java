@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,7 +46,6 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -131,12 +129,13 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#activate()
+	 * @see MetadataViewer#activate(List)
 	 */
-	public void activate()
+	public void activate(List channelData)
 	{
 		switch (model.getState()) {
 			case NEW:
+				model.getEditor().setChannelsData(channelData, false);
 				setRootObject(model.getRefObject());
 				break;
 			case DISCARDED:

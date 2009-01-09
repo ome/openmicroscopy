@@ -1439,7 +1439,12 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			metadataViewer.activate(); 
+			ChannelData[] data = getChannelData();
+			List<ChannelData> l = new ArrayList<ChannelData>(data.length);
+			for (int i = 0; i < data.length; i++) 
+				l.add(data[i]);
+			
+			metadataViewer.activate(l); 
 		}
 	}
 

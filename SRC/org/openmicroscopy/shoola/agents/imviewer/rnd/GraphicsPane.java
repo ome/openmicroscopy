@@ -497,6 +497,19 @@ class GraphicsPane
      */
     int getPartialMaximum() { return domainSlider.getPartialMaximum(); }
     
+    /** 
+     * Sets the enabled flag of the UI components.
+     * @param b
+     */
+	void onStateChange(boolean b)
+	{
+		if (codomainSlider != null) codomainSlider.setEnabled(b);
+		if (domainSlider != null) domainSlider.setEnabled(b);
+		if (startField != null) startField.setEnabled(b);
+		if (endField != null) endField.setEnabled(b);
+		if (rangeButton != null) rangeButton.setEnabled(b);
+	}
+	
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

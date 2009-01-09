@@ -731,23 +731,6 @@ class ImViewerComponent
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
 		model.setImage(image);
-		/*
-		boolean init = model.isInitMagnificationFactor();
-		double factor = model.setImage(image);
-		Browser browser = model.getBrowser();
-		if (factor > 0) {
-			double f = Math.round(factor*100)/100.0;
-	    	if (f < ZoomAction.MIN_ZOOM_FACTOR)
-	    		f = ZoomAction.MIN_ZOOM_FACTOR;
-	    	if (f > ZoomAction.MAX_ZOOM_FACTOR)
-	    		f = ZoomAction.MAX_ZOOM_FACTOR;
-	    	setZoomFactor(f, ZoomAction.getIndex(f));
-	    	browser.setComponentsSize((int) (model.getMaxX()*f), 
-	    			(int) (model.getMaxY()*f));
-		}
-		if (!init) browser.setComponentsSize(model.getMaxX(), model.getMaxY());
-		
-		*/
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (model.isPlayingChannelMovie())
@@ -979,10 +962,6 @@ class ImViewerComponent
 			model.resetHistory();
 			view.switchRndControl();
 			model.getRenderer().switchRndControl();
-			/*
-			model.getRenderer().resetRndSettings();
-			view.resetDefaults();
-			*/
 		}
 		
 		renderXYPlane();

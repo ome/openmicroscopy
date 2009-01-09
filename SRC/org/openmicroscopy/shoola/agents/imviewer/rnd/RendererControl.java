@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -49,7 +48,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 
 /** 
  * The Renderer's controller.
@@ -277,6 +275,7 @@ class RendererControl
 			JTabbedPane pane = (JTabbedPane) src; 
 			if (pane.getSelectedIndex() == ControlPane.METADATA_PANE_INDEX) 
 				view.loadMetadata();
+			return;
 		}
 	}
     

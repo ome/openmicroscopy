@@ -111,7 +111,7 @@ class BrowserComponent
         controller.initialize(this, view);
         view.initialize(controller, model);
         gridView.initialize(model);
-        projectionView.initialize(model);
+        projectionView.initialize(model, view);
     }
     
     /** 
@@ -131,7 +131,6 @@ class BrowserComponent
         model.setRenderedImage(image);
         //Paint only if selected.
         view.paintMainImage();
-        //annotator.paintImage();
         viewSplitImages();
     }
 

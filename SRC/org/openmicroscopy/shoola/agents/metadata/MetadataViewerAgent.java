@@ -114,7 +114,7 @@ public class MetadataViewerAgent
     	Collection<DataObject> objects = evt.getObjects();
     	if (objects == null || objects.size() == 0) return;
     	MetadataViewer viewer = MetadataViewerFactory.getViewer(objects);
-    	viewer.activate();
+    	viewer.activate(null);
     	/*
     	Object refObject = evt.getRefObject();
     	if (refObject == null || (refObject instanceof String)) return;

@@ -180,6 +180,9 @@ public interface ImViewer
 	 */
 	public static final String  TAB_SELECTION_PROPERTY = "tabSelection";
 	
+	/** Bound Property name indicating to register the component.	 */
+	public static final String  REGISTER_PROPERTY = "register";
+	
 	/** Identifies the <code>Color Picket</code> menu. */
 	public static final int 	COLOR_PICKER_MENU = 0;
 

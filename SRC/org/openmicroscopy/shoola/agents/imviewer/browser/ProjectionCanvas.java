@@ -51,14 +51,20 @@ class ProjectionCanvas
 	extends ImageCanvas
 {
 
+	/** Reference to the View. */
+    private BrowserUI    	view;
+    
 	/**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param view  Reference to the View. Mustn't be <code>null</code>.
      */
-	ProjectionCanvas(BrowserModel model)
+	ProjectionCanvas(BrowserModel model, BrowserUI view)
 	{
 		super(model);
+		if (view == null) throw new NullPointerException("No view.");
+		this.view = view;
 	}
 
 	/**
@@ -68,11 +74,13 @@ class ProjectionCanvas
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        BufferedImage image = model.getDisplayedProjectedImage();
-        if (image == null) return;
+        BufferedImage img = model.getDisplayedProjectedImage();
+        if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.drawImage(image, null, 0, 0); 
+        g2D.drawImage(img, null, 0, 0); 
+        paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
+        g2D.dispose();
     }
     
 }

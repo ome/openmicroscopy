@@ -32,6 +32,7 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 /** 
@@ -132,5 +133,13 @@ abstract class ControlPane
     
     /** Resets the UI when the user switches to a new rendering control. */
     protected abstract void switchRndControl();
+    
+    /** 
+     * Reacts to {@link ImViewer} change events.
+     * 
+     * @param b Pass <code>true</code> to enable the UI components, 
+     *          <code>false</code> otherwise.
+     */
+    protected abstract void onStateChange(boolean b);
     
 }

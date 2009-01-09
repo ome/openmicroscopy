@@ -32,6 +32,8 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -221,5 +223,23 @@ class RendererUI
 	
 	/** Loads the metadata. */
 	void loadMetadata() { model.loadMetadata(); }
+
+	/** 
+	 * Reacts to {@link ImViewer} change events.
+	 * 
+	 * @param b Pass <code>true</code> to enable the UI components, 
+	 *          <code>false</code> otherwise.
+	 */
+	void onStateChange(boolean b)
+	{
+		if (controlPanes != null && controlPanes.size() > 0) {
+			Iterator i = controlPanes.keySet().iterator();
+			ControlPane pane;
+			while (i.hasNext()) {
+				pane = controlPanes.get(i.next());
+				pane.onStateChange(b);
+			}
+		}
+	}
 	
 }

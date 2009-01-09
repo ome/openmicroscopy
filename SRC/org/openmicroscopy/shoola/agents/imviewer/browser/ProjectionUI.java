@@ -32,8 +32,6 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
 
-import org.jdesktop.swingx.JXBusyLabel;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -62,6 +60,9 @@ class ProjectionUI
 	/** Reference to the model. */
 	private BrowserModel			model;
 	
+	/** Reference to the view. */
+	private BrowserUI				view;
+	
 	/** The UI component hosting the {@link ProjectionCanvas}. */
     private JLayeredPane			layeredPane;
     
@@ -69,7 +70,7 @@ class ProjectionUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        canvas = new ProjectionCanvas(model);
+        canvas = new ProjectionCanvas(model, view);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, new Integer(0));
@@ -89,13 +90,14 @@ class ProjectionUI
     /**
 	 * Links the components.
 	 * 
-	 * @param model 		Reference to the model. 
-	 * 						Mustn't be <code>null</code>.
+	 * @param model	Reference to the model. Mustn't be <code>null</code>.
+	 * @param view	Reference to the view. Mustn't be <code>null</code>.
 	 */
-	void initialize(BrowserModel model)
+	void initialize(BrowserModel model, BrowserUI view)
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
+		this.view = view;
 		initComponents();
 		buildGUI();
 	}
