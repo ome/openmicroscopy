@@ -25,10 +25,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -53,7 +51,6 @@ import javax.swing.SpinnerNumberModel;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -113,7 +110,7 @@ class ToolBar
     	projections = new LinkedHashMap<Integer, String>();
     	projections.put(ImViewer.MAX_INTENSITY, "Maximum Intensity");
     	projections.put(ImViewer.MEAN_INTENSITY, "Mean Intensity");
-    	projections.put(ImViewer.SUM_INTENSITY, "Sum Intensity");
+    	//projections.put(ImViewer.SUM_INTENSITY, "Sum Intensity");
     }
     
     /** Reference to the Control. */

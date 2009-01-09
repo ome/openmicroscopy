@@ -382,7 +382,7 @@ class ImViewerComponent
 	{
 		String text = message;
 		text += "\n";
-		text += "Do you want to launch a viewer with the projected image?";
+		text += "Do you want to launch a viewer for the projected image?";
 		
 		MessageBox msg = new MessageBox(view, "Projection", text);
 		int option = msg.centerMsgBox();
@@ -390,6 +390,21 @@ class ImViewerComponent
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 			bus.post(new ViewImage(image, null));
 		}
+	}
+	
+	/** Fires an asynchronous call to preview the projection. */
+	private void previewProjection()
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case PROJECTING:
+			case PROJECTION_PREVIEW: 
+				return;
+		}
+		model.fireRenderProjected(view.getProjectionStartZ(), 
+				view.getProjectionEndZ(), view.getProjectionStepping(), 
+				view.getProjectionType());
+		fireStateChange();
 	}
 	
 	/**
@@ -983,8 +998,8 @@ class ImViewerComponent
 				" state.");
 		} 
 		if (model.getTabbedIndex() == PROJECTION_INDEX) {
-			if (hasProjectedPreview())
-				previewProjection();
+			//if (hasProjectedPreview())
+			previewProjection();
 		} else {
 			model.fireImageRetrieval();
 			newPlane = false;
@@ -2594,29 +2609,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#previewProjection()
-	 */
-	public void previewProjection()
-	{
-		//TODO: check state.
-		model.fireRenderProjected(view.getProjectionStartZ(), 
-				view.getProjectionEndZ(), view.getProjectionStepping(), 
-				view.getProjectionType());
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#hasProjectedPreview()
-	 */
-	public boolean hasProjectedPreview()
-	{
-		if (model.getState() == DISCARDED) return false;
-		return model.getBrowser().hasProjectedPreview();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setSelectedPane(int)
 	 */
 	public void setSelectedPane(int index)
@@ -2630,7 +2622,7 @@ class ImViewerComponent
 				index == ImViewer.VIEW_INDEX) ||
 				(index == ImViewer.PROJECTION_INDEX && 
 						oldIndex == ImViewer.VIEW_INDEX)) {
-			renderXYPlane();
+			if (model.getBrowser().hasProjectedPreview()) renderXYPlane();
 		}
 		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
@@ -2641,7 +2633,7 @@ class ImViewerComponent
 	 */
 	public void loadMetadata()
 	{
-		//Check state
+		if (model.getState() == DISCARDED) return;
 		model.loadMetadata();
 	}
 

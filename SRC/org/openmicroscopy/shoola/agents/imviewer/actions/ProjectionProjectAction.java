@@ -67,9 +67,9 @@ public class ProjectionProjectAction
     public ProjectionProjectAction(ImViewer model)
     {
     	super(model, NAME);
-    	putValue(Action.NAME, NAME);
-    	//IconManager icons = IconManager.getInstance();
-       // putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECTION));
+    	//putValue(Action.NAME, NAME);
+    	IconManager icons = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECTION));
     	putValue(Action.SHORT_DESCRIPTION, 
     			UIUtilities.formatToolTipText(DESCRIPTION));
     }

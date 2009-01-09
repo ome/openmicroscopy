@@ -124,7 +124,6 @@ class MetadataViewerComponent
 		view.initialize(controller, model);
 		if (!(model.getRefObject() instanceof String))
 			setSelectionMode(true);
-		//setRootObject(model.getRefObject());
 	}
 
 	/** 

@@ -115,12 +115,6 @@ public class MetadataViewerAgent
     	if (objects == null || objects.size() == 0) return;
     	MetadataViewer viewer = MetadataViewerFactory.getViewer(objects);
     	viewer.activate(null);
-    	/*
-    	Object refObject = evt.getRefObject();
-    	if (refObject == null || (refObject instanceof String)) return;
-    	MetadataViewer viewer = MetadataViewerFactory.getViewer(refObject);
-    	viewer.activate();
-    	*/
     }
     
     /** Creates a new instance. */

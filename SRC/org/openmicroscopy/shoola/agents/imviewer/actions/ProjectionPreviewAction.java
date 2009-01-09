@@ -77,7 +77,7 @@ public class ProjectionPreviewAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	model.previewProjection();
+    	//model.previewProjection();
     }
 
 }

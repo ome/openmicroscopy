@@ -209,7 +209,7 @@ class ControlPane
     private JButton					playZMovieGrid;
     
     /** Button to select preview the projection. */
-    private JButton         		projectionPreview;
+    //private JButton         		projectionPreview;
     
     /** Button to bring up the color picker. */
     private JButton         		projectionProject;
@@ -388,10 +388,11 @@ class ControlPane
 				controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovieGrid);
 	    
-	    projectionPreview = new JButton(
-	    		controller.getAction(ImViewerControl.PROJECTION_PREVIEW));
+	    //projectionPreview = new JButton(
+	    //		controller.getAction(ImViewerControl.PROJECTION_PREVIEW));
 	    projectionProject = new JButton(
 	    		controller.getAction(ImViewerControl.PROJECTION_PROJECT));
+	    UIUtilities.unifiedButtonLookAndFeel(projectionProject);
     }
     
     /**
@@ -583,8 +584,10 @@ class ControlPane
     	JPanel bar = new JPanel();
     	bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
         bar.setBorder(null);
-        bar.add(projectionPreview);
+        //bar.add(projectionPreview);
         bar.add(projectionProject);
+        bar.add(Box.createRigidArea(VBOX));
+        bar.add(colorModelButtonProjection);
         return bar;
     }
     
@@ -789,17 +792,19 @@ class ControlPane
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
-        				SLIDER_HEIGHT}};
+        				TableLayout.PREFERRED, SLIDER_HEIGHT}};
         
         controls.setLayout(new TableLayout(size));
+        int k = 0;
         controls.add(Box.createVerticalStrut(20), "0, 0");
-        controls.add(buildProjectionBar(), "0, 1");
-        controls.add(colorModelButtonProjection, "0, 2, c, c");
+        controls.add(buildProjectionBar(), "0, "+k+", c, c");
+        //controls.add(colorModelButtonProjection, "0, 2, c, c");
+        k++;
         if (channelButtonsProjection.size() > MAX_CHANNELS) 
-        	controls.add(new JScrollPane(buttons), "0, 3, c, c");
-        else controls.add(buttons, "0, 3, c, c");
-        controls.add(projectionRatioSlider, "0, 4, c, c");
+        	controls.add(new JScrollPane(buttons), "0, "+k+", c, c");
+        else controls.add(buttons, "0, "+k+", c, c");
+        k++;
+        controls.add(projectionRatioSlider, "0, "+k+", c, c");
         
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));

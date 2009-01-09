@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
-
 //Java imports
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -95,6 +93,8 @@ public class ImViewerFactory
 	/** The name of the recent menu. */
 	private static final String CLEAR_MENU = "Clear menu";
 	
+	/** The maximum number of recent items. */
+	private static final int	MAX_RECENT = 10;
 	
 	/** The sole instance. */
 	private static final ImViewerFactory  singleton = new ImViewerFactory();
@@ -442,6 +442,8 @@ public class ImViewerFactory
 					exist = old;
 			}
 			if (exist != null) recentViewers.remove(exist);
+			if (recentViewers.size() >= MAX_RECENT)
+				recentViewers.remove(0);
 			recentViewers.add(v);
 		}
 	}

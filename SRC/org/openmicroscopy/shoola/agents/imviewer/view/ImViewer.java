@@ -930,17 +930,6 @@ public interface ImViewer
 	 */
 	public void setImageData(ImageData data);
 
-	/** Previews the projected image. */
-	public void previewProjection();
-
-	/**
-	 * Returns <code>true</code> if a projected image has already been
-	 * built, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasProjectedPreview();
-
 	/**
 	 * Sets the index of the selected tabbed pane.
 	 * 
