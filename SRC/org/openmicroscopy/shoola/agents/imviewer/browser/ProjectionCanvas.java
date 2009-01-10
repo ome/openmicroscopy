@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -51,6 +54,9 @@ class ProjectionCanvas
 	extends ImageCanvas
 {
 
+	/** The default text. */
+	private static final String DEFAULT_TEXT = "NO PREVIEW AVAILABLE";
+	
 	/** Reference to the View. */
     private BrowserUI    	view;
     
@@ -75,9 +81,27 @@ class ProjectionCanvas
     {
         super.paintComponent(g);
         BufferedImage img = model.getDisplayedProjectedImage();
-        if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        if (img == null) {
+        	 img = model.getDisplayedImage();
+        	 
+        	 if (img != null) {
+        		 int w = img.getWidth()-1;
+        		 int h = img.getHeight()-1;
+        		 g2D.setColor(Color.black);
+        		 g2D.fillRect(0, 0, w, h);
+        		 FontMetrics fm = g2D.getFontMetrics();
+        		 Font f = g2D.getFont();
+        		 g2D.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
+        		 g2D.setColor(Color.white);
+        		 int width = fm.stringWidth(DEFAULT_TEXT);
+        		 
+        		 g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
+        	 }
+        	return;
+        }
+       
         g2D.drawImage(img, null, 0, 0); 
         paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
         g2D.dispose();

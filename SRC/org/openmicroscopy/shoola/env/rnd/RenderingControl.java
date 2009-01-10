@@ -688,12 +688,12 @@ public interface RenderingControl
     public List<Integer> getActiveChannels();
     
     /**
-	 * Returns <code>true</code> if the rendering settings are original, 
-	 * <code>false</code> otherwise.
+	 * Returns <code>true</code> if the passed rendering settings are the same
+	 * than the current one <code>false</code> otherwise.
 	 * 
-	 * @param original The original settings. Mustn't be <code>null</code>.
+	 * @param def The original settings. Mustn't be <code>null</code>.
 	 * @return See above.
 	 */
-    public boolean isOriginalSettings(RndProxyDef original);
+    public boolean isSameSettings(RndProxyDef def);
     
 }

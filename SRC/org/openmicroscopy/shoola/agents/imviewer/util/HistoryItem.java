@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -65,13 +66,27 @@ public class HistoryItem
 	/** Canvas hosting the image. */
 	private HistoryItemCanvas	canvas;
 	
+	/** The view index. */
+	private int					index;
+	
+	/** The lower value of the z-sections range. */
+	private int					startRange;
+	
+	/** The upper bound of the z-sections range. */
+	private int					endRange;
+	
+	/** The original highlight color associated to the node. */
+	private Color				originalColor;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param settings 	Object constaining the rendering settings.
 	 * @param thumbnail	The image rendered using the rendering settings.
+	 * @param title		The title of the item.
 	 */
-	public HistoryItem(RndProxyDef settings, BufferedImage thumbnail)
+	public HistoryItem(RndProxyDef settings, BufferedImage thumbnail, String
+			title)
 	{
 		if (settings == null)
 			throw new IllegalArgumentException("No rnd settings specified.");
@@ -81,20 +96,9 @@ public class HistoryItem
 		this.thumbnail = thumbnail;
 		time = UIUtilities.getDefaultTimestamp();
 		//noDecoration();
-		String title = UIUtilities.formatShortDateTime(time);;
-		setToolTipText(title);
-		/*
-		String[] elements = title.split(" ");
-		String f = "";
-		int l = elements.length;
-		for (int i = 0; i < l; i++) {
-			if (i != 2) {
-				f += elements[i];
-				if (i < l-1) f += " ";
-			}
-		}
-		setTitle(f);
-		*/
+		if (title == null || title.trim().length() == 0)
+			title = UIUtilities.formatShortDateTime(time);
+		setToolTipText(UIUtilities.formatShortDateTime(time));
 		setTitle(title);
 		allowClose(true);
 		setTitleBarType(SMALL_TITLE_BAR);
@@ -106,7 +110,50 @@ public class HistoryItem
         canvas.setBounds(0, 0, w, h);
         getInternalDesktop().setSize(w, h);
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
+        startRange = -1;
+        endRange = -1;
 	}
+	
+	/**
+	 * Sets the z-sections range. 
+	 * 
+	 * @param startRange 	The lower bound.
+	 * @param endRange		The upper bound.
+	 */
+	public void setRange(int startRange, int endRange)
+	{
+		if (startRange > endRange) return;
+		this.startRange = startRange;
+		this.endRange = endRange;
+	}
+	
+	/**
+	 * Returns the lower bound of the range.
+	 * 
+	 * @return See above.
+	 */
+	public int getStartRange() { return startRange; }
+	 
+	/**
+	 * Returns the upper bound of the range.
+	 * 
+	 * @return See above.
+	 */
+	public int getEndRange() { return endRange; }
+	
+	/**
+	 * Returns the view index.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
+	
+	/**
+	 * Sets the view index.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index) { this.index = index; }
 	
 	/**
 	 * Returns the rendering settings used to render the stored image.
@@ -121,6 +168,23 @@ public class HistoryItem
 	 * @return See above.
 	 */
 	public BufferedImage getThumbnail() { return thumbnail; }
+	
+	/**
+	 * Sets the color.
+	 * 
+	 * @param originalColor The value to set.
+	 */
+	public void setOriginalColor(Color originalColor)
+	{
+		this.originalColor = originalColor;
+	}
+	
+	/**
+	 * Returns the original color.
+	 * 
+	 * @return See above.
+	 */
+	public Color getOriginalColor() { return originalColor; }
 	
 	/**
      * Adds a {@link MouseListener} to the components composing the 

@@ -173,7 +173,7 @@ public class ProjectionSaver
 				if (exc instanceof DSOutOfServiceException) {
 					viewer.reload(exc);
 					load();
-				} else viewer.setRenderProjected(null);
+				} else viewer.setProjectionPreview(null);
 				break;
 			case PROJECTION:
 				viewer.setProjectedImage(null, null, false);
@@ -189,7 +189,7 @@ public class ProjectionSaver
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
         switch (index) {
 	        case PREVIEW:
-	        	viewer.setRenderProjected((BufferedImage) result);
+	        	viewer.setProjectionPreview((BufferedImage) result);
 	        	break;
 	        case PROJECTION:
 	        	viewer.setProjectedImage((ImageData) result, ref.getChannels(), 

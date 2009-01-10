@@ -30,9 +30,9 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
 /** 
- * 
+ * Displays the history elements.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,11 +59,8 @@ class HistoryCanvas
 	extends TinyPane
 {
 
-	/** The Description of the {@link #clearButton}. */
-	private static final String CLEAR_DESCRIPTION = "Clear the history.";
-	
 	/** Reference to the Model. */
-	private ImViewerModel model;
+	private ImViewerControl controller;
 	
 	/** Adds button to the tool bar. */
 	private void addDecoration()
@@ -71,12 +68,13 @@ class HistoryCanvas
 		IconManager icons = IconManager.getInstance();
 		JButton clearButton = new JButton(icons.getIcon(
 								IconManager.HISTORY_CLEAR_12));
-		clearButton.setToolTipText(CLEAR_DESCRIPTION);
+		clearButton.addActionListener(
+				controller.getAction(ImViewerControl.CLEAR_HISTORY));
 		clearButton.setContentAreaFilled(false);
 		clearButton.setBorder(BorderFactory.createEmptyBorder()); 
 		clearButton.setMargin(new Insets(0, 0, 0, 0));
 		clearButton.setOpaque(false);  
-		clearButton. setFocusPainted(false);  
+		clearButton.setFocusPainted(false);  
 		List<JButton> nodes = new ArrayList<JButton>();
 		nodes.add(clearButton);
 		setDecoration(nodes);
@@ -85,27 +83,48 @@ class HistoryCanvas
 	/**
      * Creates a new instance.
      *
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param controller Reference to the Control. Mustn't be <code>null</code>.
      */
-	HistoryCanvas(ImViewerModel model)
+	HistoryCanvas(ImViewerControl controller)
 	{
-		//noDecoration();
+		this.controller = controller;
 		clearDefaultButtons();
 		addDecoration();
-		//setTitleBarType(SMALL_TITLE_BAR);
-		//setTitleBarType(SMALL_BAR);
 		setListenToBorder(false);
-		this.model = model;
+		this.controller = controller;
+	}
+	
+	/** 
+	 * Clears the history. 
+	 * 
+	 * @param nodes The collection of nodes.
+	 */
+	void clearHistory(List nodes)
+	{
+		JComponent desktop = getInternalDesktop();
+		desktop.removeAll();
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) 
+			desktop.add((HistoryItem) i.next());
+
+		Rectangle r = getBounds();
+		Rectangle bounds = getContentsBounds();
+		Insets insets = getInsets();
+		int w = r.width-insets.left-insets.right-4;
+		if (w < 0) return;
+        Dimension d = new Dimension(w, bounds.height);//bounds.getSize();
+        desktop.setSize(d);
+        desktop.setPreferredSize(d);
 	}
 	
 	/** 
 	 * Lays out the nodes in a grid view. 
 	 * 
-	 * @param width The width available
+	 * @param width The width available.
+	 * @param nodes The collection of nodes.
 	 */
-	void doGridLayout(int width)
+	void doGridLayout(int width, List nodes)
 	{
-		List nodes = model.getHistory();
 		if (nodes == null || nodes.size() == 0) return;
 		
 		HistoryItem child = null;
@@ -113,18 +132,6 @@ class HistoryCanvas
         int m = width/maxDim.width;
         int n = nodes.size();
         if (m != 0) n = n/m+1;
-        /*
-        for (int i = 0; i < n; ++i) {
-    		for (int j = 0; j < m; ++j) {
-                if (!node.hasNext()) //Done, less than n^2 children.
-                    return;  //Go to finally.
-                child = (HistoryItem) node.next();
-                child.setBounds(j*maxDim.width, i*maxDim.height, 
-                				maxDim.width, maxDim.height);
-                child.validate();
-            }
-		} 
-		*/
         Iterator i = nodes.iterator();
         int j = 0;
         while (i.hasNext()) {
@@ -142,7 +149,6 @@ class HistoryCanvas
         	getInternalDesktop().setSize(d);
         	getInternalDesktop().setPreferredSize(d);
         	getInternalDesktop().validate();
-        	//if (!viewRect.contains(bounds)) {
         	dskDecorator.getHorizontalScrollBar().setValue(finalWidth);
         }
 	}

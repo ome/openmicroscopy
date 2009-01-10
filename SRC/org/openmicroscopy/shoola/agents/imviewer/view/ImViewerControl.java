@@ -55,6 +55,7 @@ import javax.swing.event.MenuListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ClearHistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
@@ -84,7 +85,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
-import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
@@ -98,7 +98,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.ExperimenterData;
 
 
@@ -301,6 +300,9 @@ class ImViewerControl
 	/** Identifies the <code>Compression</code> action. */
 	static final Integer     COMPRESSION = new Integer(65);
 	
+	/** Identifies the <code>Clear history</code> action. */
+	static final Integer     CLEAR_HISTORY = new Integer(66);
+
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -399,6 +401,7 @@ class ImViewerControl
 		actionsMap.put(PROJECTION_PREVIEW, new ProjectionPreviewAction(model));
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
+		actionsMap.put(CLEAR_HISTORY, new ClearHistoryAction(model));
 	}
 
 	/** 
@@ -789,10 +792,6 @@ class ImViewerControl
 				action.setActionIcon(true);
 				model.playMovie(false, false, -1);
 			}
-		} else if (TinyPane.CLOSED_PROPERTY.equals(pName)) {
-			Object node = pce.getNewValue();
-			if (node instanceof HistoryItem)
-				view.removeHistoryItem((HistoryItem) node);
 		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(pName)) {
 			Map  map = (Map) pce.getNewValue();
 			if (map == null) ImViewerFactory.setPreferences(null);

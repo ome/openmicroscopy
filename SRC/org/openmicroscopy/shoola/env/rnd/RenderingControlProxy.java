@@ -1456,22 +1456,22 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#isOriginalSettings(RndProxyDef)
+	 * @see RenderingControl#isSameSettings(RndProxyDef)
 	 */
-	public boolean isOriginalSettings(RndProxyDef original)
+	public boolean isSameSettings(RndProxyDef def)
 	{
-		if (original == null) return true;
-		if (original.getDefaultZ() != getDefaultZ()) return false;
-		if (original.getDefaultT() != getDefaultT()) return false;
-		if (original.getBitResolution() != getBitResolution()) return false;
-		if (original.getCdEnd() != getCodomainEnd()) return false;
-		if (original.getCdStart() != getCodomainStart()) return false;
-		if (!original.getColorModel().equals(getModel())) return false;
+		if (def == null) return false;
+		if (def.getDefaultZ() != getDefaultZ()) return false;
+		if (def.getDefaultT() != getDefaultT()) return false;
+		if (def.getBitResolution() != getBitResolution()) return false;
+		if (def.getCdEnd() != getCodomainEnd()) return false;
+		if (def.getCdStart() != getCodomainStart()) return false;
+		if (!def.getColorModel().equals(getModel())) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			channel = original.getChannel(i);
+			channel = def.getChannel(i);
 			if (channel.isActive() != isActive(i)) return false;
 			if (channel.getInputStart() != getChannelWindowStart(i)) 
 				return false;

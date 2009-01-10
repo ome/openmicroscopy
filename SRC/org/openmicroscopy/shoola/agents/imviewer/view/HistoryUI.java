@@ -76,41 +76,17 @@ class HistoryUI
 	/** Reference to the View. */
 	private ImViewerUI		view;
 	
-	/** Button to clear the history. */
-	private JButton			clearButton;
-	
 	/** Canvas displaying the history. */
 	private HistoryCanvas	canvas;
 	
-	/** UI component hosting the controls.*/
-	private JPanel			toolBar;
-	
-	/** Initializes the components. */
-	private void initComponents()
-	{
-		canvas = new HistoryCanvas(model);
-		//pane = new JScrollPane(canvas);
-		IconManager icons = IconManager.getInstance();
-		clearButton = new JButton(icons.getIcon(IconManager.HISTORY_CLEAR));
-		clearButton.setToolTipText(CLEAR_DESCRIPTION);
-		clearButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { clearHistory(); }
-		});
-		toolBar = buildControls();
-	}
-	
-	/**
-	 * Builds and lays out the components hosting the various controls
+	/** 
+	 * Initializes the components. 
 	 * 
-	 * @return See above.
+	 * @param controller Reference to the Control.
 	 */
-	private JPanel buildControls()
+	private void initComponents(ImViewerControl	controller)
 	{
-		JPanel p = new JPanel();
-		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBorder(null);
-		p.add(clearButton);
-		return p;
+		canvas = new HistoryCanvas(controller);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -125,10 +101,11 @@ class HistoryUI
 	/**
      * Creates a new instance.
      *
-     * @param view Reference to the Model. Mustn't be <code>null</code>.
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param view 		 Reference to the Model. Mustn't be <code>null</code>.
+     * @param model 	 Reference to the Model. Mustn't be <code>null</code>.
+     * @param controller Reference to the Control. Mustn't be <code>null</code>.
      */
-	HistoryUI(ImViewerUI view, ImViewerModel model)
+	HistoryUI(ImViewerUI view, ImViewerModel model, ImViewerControl controller)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
@@ -136,29 +113,8 @@ class HistoryUI
 			throw new IllegalArgumentException("No view.");
 		this.model = model;
 		this.view = view;
-		initComponents();
+		initComponents(controller);
 		buildGUI();
-	}
-	
-	/** Clears the history. */
-	void clearHistory()
-	{
-		model.clearHistory();
-		JComponent desktop = canvas.getInternalDesktop();
-		desktop.removeAll();
-		List nodes = model.getHistory();
-		Iterator i = nodes.iterator();
-		while (i.hasNext()) 
-			desktop.add((HistoryItem) i.next());
-
-		Rectangle r = getBounds();
-		Rectangle bounds = canvas.getContentsBounds();
-		Insets insets = canvas.getInsets();
-		int w = r.width-insets.left-insets.right-4;
-		if (w < 0) return;
-        Dimension d = new Dimension(w, bounds.height);//bounds.getSize();
-        desktop.setSize(d);
-        desktop.setPreferredSize(d);
 	}
 	
 	/** Lays out the node. */
@@ -175,7 +131,7 @@ class HistoryUI
 		Rectangle r = getBounds();
 		int w = r.width;
 		if (w == 0) w = view.geRestoreSize().width;
-		canvas.doGridLayout(w);
+		canvas.doGridLayout(w, model.getHistory());
 		//canvas.repaint();
 		//Rectangle bounds = canvas.getContentsBounds();
         //Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
@@ -194,11 +150,17 @@ class HistoryUI
 		JComponent desktop = canvas.getInternalDesktop();
 		desktop.add(node);
 		Rectangle r = getBounds();
-		canvas.doGridLayout(r.width);
+		canvas.doGridLayout(r.width, model.getHistory());
 		JScrollPane dskDecorator = canvas.getDeskDecorator();
 		Rectangle bounds = node.getBounds();
 		JScrollBar hbar = dskDecorator.getHorizontalScrollBar();
 		hbar.setValue(hbar.getMaximum()+bounds.width);
+	}
+	
+	/** Clears the history. */
+	void clearHistory()
+	{
+		canvas.clearHistory(model.getHistory());
 	}
 	
 	/** 

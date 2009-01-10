@@ -116,6 +116,9 @@ class ImViewerModel
 	 */
 	static final int 			LOW = RenderingControl.LOW;
 	
+	/** The maximum number of items in the history. */
+	private static final int	MAX_HISTORY = 10;
+	
 	/** The maximum width of the thumbnail. */
 	private static final int    THUMB_MAX_WIDTH = 24; 
 
@@ -191,12 +194,6 @@ class ImViewerModel
 	/** Collection of history item. */
 	private List<HistoryItem>			historyItems;
 
-	/** 
-	 * Flag indicating that a previous item replaced an existing one. 
-	 * In that case, a new element is not added to the history list.
-	 */
-	private boolean						historyItemReplacement;
-
 	/** The pixels set to copy the rendering settings from. */
 	private PixelsData 				    pixels;
 
@@ -250,6 +247,18 @@ class ImViewerModel
     
     /** Copy of the original rendering settings.  */
     private RndProxyDef					originalDef;
+    
+    /** Copy of the last rendering settings for the main image.  */
+    private RndProxyDef					lastMainDef;
+    
+    /** Copy of the last rendering settings of the projection preview.  */
+    private RndProxyDef					lastProjDef;
+    
+    /** The lower bound of the z-sections range or <code>-1</code>. */
+    private int							lastProjStart;
+    
+    /** The upper bound of the z-sections range or <code>-1</code>. */
+    private int							lastProjEnd;
     
     /** The collection of containers hosting the image. */
     private Collection 					containers;
@@ -337,6 +346,8 @@ class ImViewerModel
 		metadataLoaded = false;
 		currentPixelsID = -1;
 		selectedUserID = -1;
+		lastProjStart = -1;
+		lastProjEnd = -1;
 	}
 	
 	/**
@@ -1145,12 +1156,29 @@ class ImViewerModel
 	 * Creates a new history item and adds it to the list of elements.
 	 * Returns the newly created item.
 	 * 
+	 *  @param title The title of the history item.
 	 *  @return See above.
 	 */
 	HistoryItem createHistoryItem()
 	{
+		String title = null;
+		BufferedImage img = null;
+		Color c = null;
 		//Make a smaller image
-		BufferedImage img = browser.getRenderedImage();
+		RndProxyDef def = currentRndControl.getRndSettingsCopy();
+		switch (getTabbedIndex()) {
+			case ImViewer.PROJECTION_INDEX:
+				title = "Projection";
+				img = browser.getProjectedImage();
+				lastProjDef = def;
+				c = Color.GREEN.brighter();
+				break;
+			case ImViewer.VIEW_INDEX:
+				title = "View";
+				img = browser.getRenderedImage();
+				lastMainDef = def;
+		}
+		if (img == null) return null;
 		double ratio = 1;
 		int w = img.getWidth();
 		int h = img.getHeight();
@@ -1160,23 +1188,53 @@ class ImViewerModel
 			else ratio = (double) ImViewer.MINIMUM_SIZE/h;
 		}
 		BufferedImage thumb = Factory.magnifyImage(ratio, img);
-		HistoryItem i = new HistoryItem(currentRndControl.getRndSettingsCopy(), 
-										thumb);
+		HistoryItem i = new HistoryItem(def, thumb, title);
+		i.setHighlight(c);
+		i.allowClose(false);
+		i.setIndex(getTabbedIndex());
 		if (historyItems == null) historyItems = new ArrayList<HistoryItem>();
+		if (historyItems.size() == MAX_HISTORY)
+			historyItems.remove(1); //always keep the first one
 		historyItems.add(i);
 		return i;
 	}
 
 	/**
-	 * Returns the first history item.
+	 * Returns the original rendering settings for the main image.
 	 * 
 	 * @return See above.
 	 */
-	HistoryItem getFirstHistoryItem()
-	{
-		if (historyItems == null) return null;
-		return historyItems.get(0);
-	}
+	RndProxyDef getOriginalDef() { return originalDef; }
+	
+	/**
+	 * Returns the last rendering settings for the main image.
+	 * 
+	 * @return See above.
+	 */
+	RndProxyDef getLastMainDef() { return lastMainDef; }
+	
+	/**
+	 * Returns the last rendering settings for the projection preview image.
+	 * 
+	 * @return See above.
+	 */
+	RndProxyDef getLastProjDef() { return lastProjDef; }
+	
+	/**
+	 * Returns the lower bound of the z-sections range of the projected
+	 * preview, or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	int getLastProjStart() { return lastProjStart; }
+	
+	/**
+	 * Returns the upper bound of the z-sections range of the projected
+	 * preview, or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	int getLastProjEnd() { return lastProjEnd; }
 	
 	/**
 	 * Removes the item from the list.
@@ -1187,43 +1245,18 @@ class ImViewerModel
 	{
 		if (historyItems != null) historyItems.remove(node);
 	}
-
-	/** Removes the last item from the list. */
-	void removeLastHistoryItem()
-	{
-		if (historyItems != null && historyItems.size() > 1) {
-			//historyItems.remove(historyItems.size()-1);
-		}
-	}
 	
 	/** Clears the history. */
 	void clearHistory()
 	{
-		if (historyItems != null) {
-			HistoryItem node = historyItems.get(0);
-			historyItems.clear();
-			historyItems.add(node);
-		}
-		historyItemReplacement = false;
-	}
-
-	/**
-	 * Returns <code>true</code> if an history item has been added to the 
-	 * list when the user is swapping between rendering settings, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isHistoryItemReplacement() { return historyItemReplacement; }
-
-	/**
-	 * Sets the value of the {@link #historyItemReplacement} flag.
-	 * 
-	 * @param b The value to set.
-	 */
-	void setHistoryItemReplacement(boolean b)
-	{
-		historyItemReplacement = b;
+		if (historyItems == null || historyItems.size() == 0) return;
+		HistoryItem node = historyItems.get(0);
+		historyItems.clear();
+		historyItems.add(node);
+		lastMainDef = node.getRndSettings();
+		lastProjDef = null;
+		lastProjStart = -1;
+		lastProjEnd = -1;
 	}
 
 	/**
@@ -1231,7 +1264,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	List getHistory() { return historyItems; }
+	List<HistoryItem> getHistory() { return historyItems; }
 
 	/**
 	 * Partially resets the rendering settings.
@@ -1247,6 +1280,13 @@ class ImViewerModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//rndControl.resetMappingSettings(settings);
+		switch (getTabbedIndex()) {
+			case ImViewer.PROJECTION_INDEX:
+				lastProjDef = settings;
+				break;
+			case ImViewer.VIEW_INDEX:
+				lastMainDef = settings;
+		}
 		currentRndControl.resetSettings(settings);
 		if (reset) renderer.resetRndSettings();
 	}
@@ -1691,10 +1731,21 @@ class ImViewerModel
 	 */
 	boolean isOriginalSettings()
 	{
-		if (currentRndControl == null) return true;
-		return currentRndControl.isOriginalSettings(originalDef);
+		return isSameSettings(originalDef);
 	}
 
+	/**
+	 * Returns <code>true</code> if the passed rendering settings are the same
+	 * that the current one, <code>false</code> otherwise.
+	 * 
+	 * @param def The settings to check.
+	 * @return See above.
+	 */
+	boolean isSameSettings(RndProxyDef def)
+	{
+		if (currentRndControl == null) return true;
+		return currentRndControl.isSameSettings(def);
+	}
     /**
      * Sets the projected image for preview.
      * 
@@ -1722,5 +1773,17 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	Collection getContainers() { return containers; }
+	
+	/**
+	 * Sets the range of the last projection.
+	 * 
+	 * @param lastProjStart The lower bound.
+	 * @param lastProjEnd	The upper bound.
+	 */
+	void setLastProjRange(int lastProjStart, int lastProjEnd)
+	{
+		this.lastProjStart = lastProjStart;
+		this.lastProjEnd = lastProjEnd;
+	}
 	
 }

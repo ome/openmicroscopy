@@ -884,7 +884,7 @@ public interface ImViewer
 	 * 
 	 * @param image The value to display.
 	 */
-	public void setRenderProjected(BufferedImage image);
+	public void setProjectionPreview(BufferedImage image);
 	
 	/**
 	 * Sets the newly created projected image.
@@ -942,5 +942,8 @@ public interface ImViewer
 
 	/** Indicates that the compression level has been modified. */
 	public void setCompressionLevel();
+
+	/** Clears the history. */
+	public void clearHistory();
 	
 }

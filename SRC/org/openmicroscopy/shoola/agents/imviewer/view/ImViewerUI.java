@@ -330,7 +330,8 @@ class ImViewerUI
 	/** Initializes the split panes. */
 	private void initSplitPanes()
 	{
-		if (historyUI == null) historyUI = new HistoryUI(this, model);
+		if (historyUI == null) 
+			historyUI = new HistoryUI(this, model, controller);
 		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);
 		rendererSplit = initSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	}
@@ -1574,6 +1575,9 @@ class ImViewerUI
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
 		toolBar.onTabbedSelection();
+		tabs.removeChangeListener(controller);
+		tabs.setSelectedIndex(index);
+		tabs.addChangeListener(controller);
 		setLeftStatus();
 		setPlaneInfoStatus();
 		model.getBrowser().setSelectedPane(index);
@@ -1647,19 +1651,6 @@ class ImViewerUI
 	{
 		if (!isHistoryShown() || historyUI == null) return;
 		historyUI.addHistoryItem(node);
-	}
-
-	/**
-	 * Removes the item from the list.
-	 * 
-	 * @param node The node to remove.
-	 */
-	void removeHistoryItem(HistoryItem node)
-	{
-		if (node ==  null) return;
-		model.removeHistoryItem(node);
-		if (historyUI == null) return;
-		historyUI.doGridLayout();
 	}
 
 	/**
@@ -2036,6 +2027,12 @@ class ImViewerUI
      * 				<code>false</code> otherwise.
      */
     void setStatus(boolean busy) { toolBar.setStatus(busy); }
+    
+    /** Clears the history. */
+    void clearHistory() 
+    {
+    	if (historyUI != null) historyUI.clearHistory();
+    }
     
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

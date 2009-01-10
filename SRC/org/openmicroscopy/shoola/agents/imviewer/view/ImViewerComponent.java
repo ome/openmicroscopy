@@ -143,9 +143,6 @@ class ImViewerComponent
 	/** Listener attached to the rendering node. */
 	private MouseAdapter					nodeListener;
 
-	/** Flag indicating that the rendering settings have been modified. */
-	//private boolean							rndToSave;
-	
 	/** 
 	 * Flag indicating that the rendering settings have been saved
 	 * before copying the 
@@ -167,43 +164,52 @@ class ImViewerComponent
 		UIUtilities.centerAndShow(dialog);
 	}
 
-	/** Creates an history item. */
-	private void createHistoryItem()
+	/** Creates an history item. 
+	 * 
+	 * @param s The start value of the range.
+	 * @param e	The end value of the range.
+	 */
+	private void createHistoryItem(int s, int e)
 	{
-		//if (!addHistoryItem) return;
-		if (model.isHistoryItemReplacement()) {
-			model.setHistoryItemReplacement(false);
-			return;
-		}
 		HistoryItem node = model.createHistoryItem();
+		if (node == null) return;
+		node.setRange(s, e);
 		node.addPropertyChangeListener(controller);
 		//add Listener to node.
-		model.setHistoryItemReplacement(false);
 		if (nodeListener == null) {
 			nodeListener = new MouseAdapter() {
 
 				public void mousePressed(MouseEvent evt) {
 					HistoryItem item = findParentDisplay(evt.getSource());
 					try {
+						/*
 						if (!model.isHistoryItemReplacement()) {
 							HistoryItem node = model.createHistoryItem();
+							if (node == null) return;
 							node.addPropertyChangeListener(controller);
 							view.addHistoryItem(node);
 							node.addMouseListenerToComponents(nodeListener);
 							model.setHistoryItemReplacement(true);
 						}
+						*/
 						List nodes = model.getHistory();
 						Iterator i = nodes.iterator();
+						HistoryItem node;
 						while (i.hasNext()) {
-							((HistoryItem) i.next()).setHighlight(null);
+							node = (HistoryItem) i.next();
+							node.setHighlight(node.getOriginalColor());
 						}
 						item.setHighlight(Color.BLUE);
+						if (item.getIndex() == PROJECTION_INDEX)
+							model.setLastProjRange(item.getStartRange(), 
+									item.getEndRange());
 						view.setCursor(Cursor.getPredefinedCursor(
 								Cursor.WAIT_CURSOR));
 						model.resetMappingSettings(item.getRndSettings(), true);
 						view.setCursor(Cursor.getPredefinedCursor(
 								Cursor.DEFAULT_CURSOR));
-						renderXYPlane();
+						setSelectedPane(item.getIndex());
+						//renderXYPlane();
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
@@ -284,9 +290,8 @@ class ImViewerComponent
 	private boolean saveOnClose()
 	{
 		if (saveBeforeCopy) {
-			HistoryItem item = model.getFirstHistoryItem();
 			try {
-				model.resetMappingSettings(item.getRndSettings(), false);
+				model.resetMappingSettings(model.getOriginalDef(), false);
 				model.saveRndSettings(false);
 			} catch (Exception e) {
 				LogMessage logMsg = new LogMessage();
@@ -760,11 +765,11 @@ class ImViewerComponent
 		}
 			
 		if (view.isLensVisible()) view.setLensPlaneImage();
+		createHistoryItem(0, 1);
+		
 		List history = model.getHistory();
-		if (history == null || history.size() == 0) {
-			createHistoryItem();
-			HistoryItem node = (HistoryItem) model.getHistory().get(0);
-			node.allowClose(false);
+		if (history != null && history.size() == 1) {
+			/*
 			ViewerPreferences pref = ImViewerFactory.getPreferences();
 			if (pref != null) {
 				if (pref.isFieldSelected(ViewerPreferences.RENDERER) &&
@@ -792,7 +797,8 @@ class ImViewerComponent
 					setZoomFactor(f, index);
 				}
 			}
-		} //else createHistoryItem();
+			*/
+		}
 		
 		view.setCursor(Cursor.getDefaultCursor());
 		fireStateChange();
@@ -997,8 +1003,23 @@ class ImViewerComponent
 				"This method can't be invoked in the DISCARDED, NEW or" +
 				" state.");
 		} 
-		if (model.getTabbedIndex() == PROJECTION_INDEX) {
-			//if (hasProjectedPreview())
+		boolean stop = false;
+		int index = model.getTabbedIndex();
+		RndProxyDef def;
+		if (index == PROJECTION_INDEX) {
+			def = model.getLastProjDef();
+			boolean b = false;
+			if (def != null) b = model.isSameSettings(def);
+			if (b && 
+				(model.getLastProjStart() == view.getProjectionStartZ()) &&
+				(model.getLastProjEnd() == view.getProjectionEndZ()))
+				stop = true;
+		} else {
+			def = model.getLastMainDef();
+			if (def != null) stop = model.isSameSettings(def);
+		}
+		if (stop) return;
+		if (index == PROJECTION_INDEX) {
 			previewProjection();
 		} else {
 			model.fireImageRetrieval();
@@ -2116,8 +2137,7 @@ class ImViewerComponent
 	 */
 	public void addHistoryItem()
 	{
-		createHistoryItem();
-		
+		//createHistoryItem();
 	}
 
 	/** 
@@ -2244,13 +2264,12 @@ class ImViewerComponent
 			throw new IllegalStateException(
 			"This method can't be invoked in the DISCARDED state.");
     	try {
-    		addHistoryItem();
+    		//addHistoryItem();
     		model.resetDefaultRndSettings();
     		view.resetDefaults();
     		model.getRenderer().resetRndSettings();
 			renderXYPlane();
 		} catch (Exception ex) {
-			model.removeLastHistoryItem();
 			reload(ex);
 		}
     }
@@ -2427,13 +2446,11 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
     	try {
-    		addHistoryItem();
     		model.setOriginalRndSettings();
     		view.resetDefaults();
     		model.getRenderer().resetRndSettings();
 			renderXYPlane();
 		} catch (Exception ex) {
-			model.removeLastHistoryItem();
 			reload(ex);
 		}
 	}
@@ -2467,9 +2484,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRenderProjected(BufferedImage)
+	 * @see ImViewer#setProjectionPreview(BufferedImage)
 	 */
-	public void setRenderProjected(BufferedImage image)
+	public void setProjectionPreview(BufferedImage image)
 	{
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -2480,9 +2497,13 @@ class ImViewerComponent
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		//projection.setProjectedImage(image);
 		model.setRenderProjected(image);
+		
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();	
 		if (view.isLensVisible()) view.setLensPlaneImage();
+		createHistoryItem(view.getProjectionStartZ(), view.getProjectionEndZ());
+		model.setLastProjRange(view.getProjectionStartZ(), 
+				view.getProjectionEndZ());
 		fireStateChange();
 	}
 
@@ -2616,7 +2637,6 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		int oldIndex = model.getTabbedIndex();
 		if (oldIndex == index) return;
-		
 		view.setSelectedPane(index);
 		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
 				index == ImViewer.VIEW_INDEX) ||
@@ -2649,6 +2669,19 @@ class ImViewerComponent
 		if (old == index) return;
 		view.setCompressionLevel(index);
 		renderXYPlane();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setColorModel(int)
+	 */
+	public void clearHistory()
+	{
+		model.clearHistory();
+		view.clearHistory();
+		setSelectedPane(VIEW_INDEX);
+		renderXYPlane();
+		
 	}
 	
 }

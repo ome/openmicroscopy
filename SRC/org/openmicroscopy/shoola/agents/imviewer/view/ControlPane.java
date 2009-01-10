@@ -617,12 +617,16 @@ class ControlPane
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         				TableLayout.PREFERRED, SLIDER_HEIGHT}};
         controls.setLayout(new TableLayout(size));
+        
         controls.add(Box.createVerticalStrut(20), "0, 0");
-        controls.add(buildToolBar(), "0, 1, c, c");
+        int k = 1;
+        controls.add(buildToolBar(), "0, "+k+", c, c");
+        k++;
         if (data.length > MAX_CHANNELS) 
-        	controls.add(new JScrollPane(p), "0, 2");
-        else controls.add(p, "0, 2");
-        controls.add(ratioSlider, "0, 3, c, c");
+        	controls.add(new JScrollPane(p), "0, "+k);
+        else controls.add(p, "0, "+k);
+        k++;
+        controls.add(ratioSlider, "0, "+k+", c, c");
         return UIUtilities.buildComponentPanel(controls);
     }
     
@@ -795,8 +799,8 @@ class ControlPane
         				TableLayout.PREFERRED, SLIDER_HEIGHT}};
         
         controls.setLayout(new TableLayout(size));
-        int k = 0;
         controls.add(Box.createVerticalStrut(20), "0, 0");
+        int k = 1;
         controls.add(buildProjectionBar(), "0, "+k+", c, c");
         //controls.add(colorModelButtonProjection, "0, 2, c, c");
         k++;
