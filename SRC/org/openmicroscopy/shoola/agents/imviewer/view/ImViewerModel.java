@@ -1279,7 +1279,17 @@ class ImViewerModel
 	void resetMappingSettings(RndProxyDef settings, boolean reset) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//rndControl.resetMappingSettings(settings);
+		currentRndControl.resetSettings(settings);
+		if (reset) renderer.resetRndSettings();
+	}
+
+	/**
+	 * Sets the last rendering settings.
+	 * 
+	 * @param settings The settings to set.
+	 */
+	void setLastRndDef(RndProxyDef settings)
+	{
 		switch (getTabbedIndex()) {
 			case ImViewer.PROJECTION_INDEX:
 				lastProjDef = settings;
@@ -1287,10 +1297,8 @@ class ImViewerModel
 			case ImViewer.VIEW_INDEX:
 				lastMainDef = settings;
 		}
-		currentRndControl.resetSettings(settings);
-		if (reset) renderer.resetRndSettings();
 	}
-
+	
 	/**
 	 * Resets the rendering settings.
 	 * Returns <code>true</code> if it is possible to copy the rendering 
@@ -1313,9 +1321,7 @@ class ImViewerModel
 			pixels = os.loadPixels(ImViewerFactory.getRefPixelsID());
 		}
 		if (currentRndControl.validatePixels(pixels)) {
-			currentRndControl.resetSettings(
-					ImViewerFactory.getRenderingSettings());
-			renderer.resetRndSettings();
+			resetMappingSettings(ImViewerFactory.getRenderingSettings(), true);
 			return true;
 		}
 		return false;

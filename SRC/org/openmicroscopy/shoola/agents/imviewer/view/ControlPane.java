@@ -987,8 +987,8 @@ class ControlPane
         }
     }
     
-    /** Resets the default. */
-    void resetDefaults()
+    /** Resets the rendering settings. */
+    void resetRndSettings()
     {
         boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
         Iterator i = channelButtons.iterator();
@@ -1027,6 +1027,10 @@ class ControlPane
         colorModelButtonProjection.setToolTipText(tip);
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
+        int rStart = model.getLastProjStart();
+        int rEnd = model.getLastProjEnd();
+        if (rStart >=0 && rEnd >= 0)
+        	projectionRange.setInterval(rStart, rEnd);
     }
     
     /** Resets the UI when the user switches to a new rendering control. */
@@ -1035,7 +1039,7 @@ class ControlPane
     	setSliderMax(zSlider, model.getMaxZ());
     	setSliderMax(zSliderGrid, model.getMaxZ());
     	setSliderMax(zSliderAnnotator, model.getMaxZ());
-    	resetDefaults();
+    	resetRndSettings();
     }
     
     /**

@@ -1272,7 +1272,7 @@ class ImViewerUI
 	}
 
 	/** Resets the defaults. */
-	void resetDefaults() { controlPane.resetDefaults(); }
+	void resetDefaults() { controlPane.resetRndSettings(); }
 
 	/** Resets the UI when switching to a new rendering control. */
 	void switchRndControl() { controlPane.switchRndControl(); }

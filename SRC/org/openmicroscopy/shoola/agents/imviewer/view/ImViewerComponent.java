@@ -182,33 +182,20 @@ class ImViewerComponent
 				public void mousePressed(MouseEvent evt) {
 					HistoryItem item = findParentDisplay(evt.getSource());
 					try {
-						/*
-						if (!model.isHistoryItemReplacement()) {
-							HistoryItem node = model.createHistoryItem();
-							if (node == null) return;
-							node.addPropertyChangeListener(controller);
-							view.addHistoryItem(node);
-							node.addMouseListenerToComponents(nodeListener);
-							model.setHistoryItemReplacement(true);
-						}
-						*/
-						List nodes = model.getHistory();
-						Iterator i = nodes.iterator();
-						HistoryItem node;
-						while (i.hasNext()) {
-							node = (HistoryItem) i.next();
-							node.setHighlight(node.getOriginalColor());
-						}
-						item.setHighlight(Color.BLUE);
 						if (item.getIndex() == PROJECTION_INDEX)
 							model.setLastProjRange(item.getStartRange(), 
 									item.getEndRange());
 						view.setCursor(Cursor.getPredefinedCursor(
 								Cursor.WAIT_CURSOR));
-						model.resetMappingSettings(item.getRndSettings(), true);
+						RndProxyDef def = item.getRndSettings();
+						model.resetMappingSettings(def, true);
 						view.setCursor(Cursor.getPredefinedCursor(
 								Cursor.DEFAULT_CURSOR));
+						view.resetDefaults();
 						setSelectedPane(item.getIndex());
+						renderXYPlane();
+						model.setLastRndDef(def);
+						
 						//renderXYPlane();
 					} catch (Exception e) {
 						// TODO: handle exception
@@ -291,8 +278,10 @@ class ImViewerComponent
 	{
 		if (saveBeforeCopy) {
 			try {
-				model.resetMappingSettings(model.getOriginalDef(), false);
+				RndProxyDef def = model.getOriginalDef();
+				model.resetMappingSettings(def, false);
 				model.saveRndSettings(false);
+				model.setLastRndDef(def);
 			} catch (Exception e) {
 				LogMessage logMsg = new LogMessage();
 				logMsg.println("Cannot save rendering settings. ");
@@ -1021,11 +1010,12 @@ class ImViewerComponent
 		if (stop) return;
 		if (index == PROJECTION_INDEX) {
 			previewProjection();
+			fireStateChange();
 		} else {
 			model.fireImageRetrieval();
 			newPlane = false;
+			fireStateChange();
 		}
-		fireStateChange();
 	}
 
 	/** 
@@ -2495,15 +2485,15 @@ class ImViewerComponent
 			return;
 		}
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
-		//projection.setProjectedImage(image);
 		model.setRenderProjected(image);
 		
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();	
 		if (view.isLensVisible()) view.setLensPlaneImage();
-		createHistoryItem(view.getProjectionStartZ(), view.getProjectionEndZ());
-		model.setLastProjRange(view.getProjectionStartZ(), 
-				view.getProjectionEndZ());
+		int s = view.getProjectionStartZ();
+		int e = view.getProjectionEndZ();
+		createHistoryItem(s, e);
+		model.setLastProjRange(s, e);
 		fireStateChange();
 	}
 

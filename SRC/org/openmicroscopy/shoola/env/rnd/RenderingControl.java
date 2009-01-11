@@ -544,18 +544,7 @@ public interface RenderingControl
      * @return See above.
      */
     public RndProxyDef getRndSettingsCopy();
-    
-    /**
-     * Resets the mapping part of  the rendering settings.
-     * 
-     * @param settings The settings to set.
-     * @throws RenderingServiceException 	If an error occured while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-     */
-    public void resetMappingSettings(RndProxyDef settings)
-    	throws RenderingServiceException, DSOutOfServiceException;
-    
+
     /**
      * Resets the rendering settings.
      * 

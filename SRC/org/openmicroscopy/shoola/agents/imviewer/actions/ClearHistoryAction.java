@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -53,6 +54,21 @@ public class ClearHistoryAction
 	/** The Description of the action. */
 	private static final String DESCRIPTION = "Clear the history.";
 	
+	/** 
+     * Overridden to set the enabled flag.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	switch (model.getState()) {
+    		case ImViewer.READY:
+    			setEnabled(true);
+    		case ImViewer.PROJECTING:
+    		case ImViewer.PROJECTION_PREVIEW:
+    			setEnabled(false);
+		}
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -66,7 +82,7 @@ public class ClearHistoryAction
 	}
 	
     /** 
-     * Clears the history
+     * Clears the history.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

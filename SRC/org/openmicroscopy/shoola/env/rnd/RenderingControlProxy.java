@@ -1194,33 +1194,6 @@ class RenderingControlProxy
      * @see RenderingControl#getRndSettingsCopy()
      */
 	public RndProxyDef getRndSettingsCopy() { return rndDef.copy(); }
-
-	/** 
-     * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#resetMappingSettings(RndProxyDef)
-     */
-	public void resetMappingSettings(RndProxyDef rndDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		if (rndDef == null)
-			throw new IllegalArgumentException("No rendering settings to " +
-					"set");
-		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
-			throw new IllegalArgumentException("Rendering settings not " +
-					"compatible.");
-		//DataServicesFactory.isSessionAlive(context);
-		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
-		setQuantumStrategy(rndDef.getBitResolution());
-		ChannelBindingsProxy c;
-		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			c = rndDef.getChannel(i);
-			if (c != null) {
-				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
-				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(), 
-									c.isNoiseReduction());
-			}		
-		}
-	}
 	
 	/** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -1236,6 +1209,8 @@ class RenderingControlProxy
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
 		//DataServicesFactory.isSessionAlive(context);
+		setDefaultT(rndDef.getDefaultT());
+		setDefaultZ(rndDef.getDefaultZ());
 		setModel(rndDef.getColorModel());
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
