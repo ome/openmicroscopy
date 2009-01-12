@@ -93,7 +93,26 @@
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="extendedMetadata"/>
+    <constructor-arg ref="threadLocalSessionStats"/>
+  </bean>
+  
+  <!-- Throttling primitives -->
+  <bean id="objectsReadCounter" class="ome.services.sessions.stats.ObjectsReadCounter" singleton="false">
+    <constructor-arg value="1000"/>
   </bean>
 
+  <bean id="objectsWrittenCounter" class="ome.services.sessions.stats.ObjectsWrittenCounter" singleton="false">
+    <constructor-arg value="1000"/>
+  </bean>
+  
+  <bean id="sessionStats" class="ome.services.sessions.stats.SimpleSessionStats" singleton="false">
+    <constructor-arg ref="objectsReadCounter"/>
+    <constructor-arg ref="objectsWrittenCounter"/>
+  </bean>
+  
+  <bean id="threadLocalSessionStats" class="ome.services.sessions.stats.ThreadLocalSessionStats">
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="currentDetails"/>
+  </bean>
 
 </beans>

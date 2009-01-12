@@ -28,6 +28,7 @@ import ome.security.SecuritySystem;
 import ome.security.basic.BasicSecuritySystem;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.stats.NullSessionStats;
 import ome.system.Principal;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.UpdateFilter;
@@ -131,7 +132,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         d.setGroup(new ExperimenterGroup(0L, false));
         s.getDetails().copy(d);
         SessionContextImpl sci = new SessionContextImpl(s, LEADER_OF_GROUPS,
-                MEMBER_OF_GROUPS, USER_ROLES);
+                MEMBER_OF_GROUPS, USER_ROLES, new NullSessionStats());
         mockMgr.expects(once()).method("getEventContext")
                 .will(returnValue(sci));
         INITIAL_EVENT.setType(BOOTSTRAP);

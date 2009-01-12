@@ -13,12 +13,14 @@ import java.util.List;
 
 import ome.model.internal.Permissions;
 import ome.model.meta.Session;
+import ome.services.sessions.stats.SessionStats;
 
 public class SessionContextImpl implements SessionContext {
 
     private int ref = 0;
     private final Object refLock = new Object();
     private final Session session;
+    private final SessionStats stats;
     private final List<Long> leaderOfGroups;
     private final List<Long> memberOfGroups;
     private final List<String> roles; /* group names for memberOfGroups */
@@ -26,7 +28,8 @@ public class SessionContextImpl implements SessionContext {
 
     @SuppressWarnings("unchecked")
     public SessionContextImpl(Session session, List<Long> lGroups,
-            List<Long> mGroups, List<String> roles) {
+            List<Long> mGroups, List<String> roles, SessionStats stats) {
+        this.stats = stats;
         this.session = session;
         this.leaderOfGroups = Collections.unmodifiableList(new ArrayList(
                 lGroups));
@@ -63,6 +66,10 @@ public class SessionContextImpl implements SessionContext {
         }
     }
 
+    public SessionStats stats() {
+        return stats;
+    }
+    
     public Session getSession() {
         return session;
     }

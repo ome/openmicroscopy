@@ -17,7 +17,7 @@ import Ice.Current;
  * any given time.
  * 
  */
-public class SerialThrottlingStrategy implements ThrottlingStrategy {
+public class SerialThrottlingStrategy extends AbstractThrottlingStrategy {
 
     private final Slot slot;
 

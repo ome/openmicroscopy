@@ -110,5 +110,8 @@
 	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
+	<classpathentry kind="lib" path="lib/repository/importer/quaqua-filechooser-only-unknown.jar"/>
+	<classpathentry kind="lib" path="target/libs/loci-common.jar"/>
+	<classpathentry kind="lib" path="lib/repository/importer/omero-client-utils-unknown.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

@@ -25,6 +25,7 @@ import ome.security.basic.CurrentDetails;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.TokenHolder;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.stats.NullSessionStats;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -85,7 +86,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
-                cd, th);
+                cd, th, new NullSessionStats());
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
                 new TokenHolder());
         aclVoter = new BasicACLVoter(cd, st, th);

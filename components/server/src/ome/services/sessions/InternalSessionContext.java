@@ -9,6 +9,7 @@ package ome.services.sessions;
 import java.util.Arrays;
 
 import ome.model.meta.Session;
+import ome.services.sessions.stats.NullSessionStats;
 import ome.system.Roles;
 
 /**
@@ -24,7 +25,9 @@ class InternalSessionContext extends SessionContextImpl {
 
     InternalSessionContext(Session s, Roles roles) {
         super(s, Arrays.asList(roles.getSystemGroupId()), Arrays.asList(roles
-                .getSystemGroupId()), Arrays.asList(roles.getSystemGroupName()));
+                .getSystemGroupId()),
+                Arrays.asList(roles.getSystemGroupName()),
+                new NullSessionStats());
         this.roles = roles;
     }
 

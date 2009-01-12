@@ -26,6 +26,7 @@ import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.stats.NullSessionStats;
 import ome.system.OmeroContext;
 
 import org.springframework.context.ApplicationEvent;
@@ -395,6 +396,7 @@ public class SessionCacheTest extends TestCase {
 
     SessionContext sc(Session s) {
         return new SessionContextImpl(s, Collections.singletonList(1L),
-                Collections.singletonList(1L), Collections.singletonList(""));
+                Collections.singletonList(1L), Collections.singletonList(""),
+                new NullSessionStats());
     }
 }

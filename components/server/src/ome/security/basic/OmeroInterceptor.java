@@ -34,6 +34,7 @@ import ome.model.internal.Permissions.Flag;
 import ome.model.meta.ExternalInfo;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.services.sessions.stats.SessionStats;
 import ome.system.Principal;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
@@ -81,15 +82,19 @@ public class OmeroInterceptor implements Interceptor {
 
     private final ExtendedMetadata em;
 
+    private final SessionStats stats;
+
     public OmeroInterceptor(SystemTypes sysTypes, ExtendedMetadata em,
-            CurrentDetails cd, TokenHolder tokenHolder) {
+            CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         Assert.notNull(em);
         Assert.notNull(cd);
+        Assert.notNull(stats);
         this.tokenHolder = tokenHolder;
-        this.sysTypes = sysTypes;
         this.currentUser = cd;
+        this.sysTypes = sysTypes;
+        this.stats = stats;
         this.em = em;
     }
 
@@ -110,6 +115,7 @@ public class OmeroInterceptor implements Interceptor {
             String[] propertyNames, Type[] types) throws CallbackException {
 
         debug("Intercepted load.");
+        this.stats.loadedObjects(1);
         return EMPTY.onLoad(entity, id, state, propertyNames, types);
 
     }
@@ -130,7 +136,7 @@ public class OmeroInterceptor implements Interceptor {
     public boolean onSave(Object entity, Serializable id, Object[] state,
             String[] propertyNames, Type[] types) {
         debug("Intercepted save.");
-
+        this.stats.updatedObjects(1);
         if (entity instanceof IObject) {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
@@ -154,7 +160,7 @@ public class OmeroInterceptor implements Interceptor {
             Object[] currentState, Object[] previousState,
             String[] propertyNames, Type[] types) {
         debug("Intercepted update.");
-
+        this.stats.updatedObjects(1);
         boolean altered = false;
         if (entity instanceof IObject) {
             IObject iobj = (IObject) entity;

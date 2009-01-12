@@ -11,6 +11,7 @@ import java.util.List;
 
 import ome.model.meta.Session;
 import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.stats.SessionStats;
 import ome.system.EventContext;
 
 /**
@@ -33,6 +34,11 @@ public interface SessionContext extends EventContext {
      */
     void setShareId(Long shareId);
 
+    /**
+     * Return a {@link SessionStats} implementation for this session.
+     */
+    SessionStats stats();
+    
     /**
      * Return the current number of references which this session is aware of.
      */

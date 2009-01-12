@@ -22,6 +22,7 @@ import ome.services.blitz.Router;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.state.CacheFactory;
+import ome.services.sessions.stats.NullSessionStats;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.spring.ManagedServiceFactory;
@@ -170,7 +171,7 @@ public class BlitzServerFixture extends MockObjectTestCase {
                 "Test");
         sc = new SessionContextImpl(session, Collections.singletonList(1L),
                 Collections.singletonList(1L), Collections
-                        .singletonList("user"));
+                        .singletonList("user"), new NullSessionStats());
         CacheFactory factory = new CacheFactory();
         factory.setBeanName("blitz.fixture");
         factory.setOverflowToDisk(false);

@@ -16,7 +16,6 @@ import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.IceMethodInvoker;
-import ome.services.throttling.Task;
 import ome.services.throttling.ThrottlingStrategy;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;

@@ -36,6 +36,7 @@ import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.services.sessions.stats.ThreadLocalSessionStats;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -93,7 +94,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
-                cd, th);
+                cd, th, new ThreadLocalSessionStats(cd, sm));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
                 new Roles(), sf, new TokenHolder());
         return sec;

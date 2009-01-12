@@ -43,7 +43,7 @@ public class GlobalMulticaster implements ApplicationEventMulticaster {
     /**
      * Multicast only if this instance was the first created.
      */
-    public void multicastEvent(ApplicationEvent arg0) {
+    public void multicastEvent(ApplicationEvent arg0) { 
         _em.multicastEvent(arg0);
     }
 

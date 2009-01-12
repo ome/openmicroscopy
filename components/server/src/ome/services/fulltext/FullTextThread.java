@@ -42,10 +42,13 @@ public class FullTextThread extends ExecutionThread {
             "system", "FullText");
 
     final protected boolean waitForLock;
+    
     final protected FullTextIndexer indexer;
+
     final protected FullTextBridge bridge;
 
     private boolean isactive = true;
+    
     private final Lock activeLock = new ReentrantLock(true);
 
     /**

@@ -34,6 +34,7 @@ import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
@@ -339,7 +340,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         session.getDetails().setGroup(grp);
 
         SessionContext sessionContext = new SessionContextImpl(session,
-                leaderOfGroupsIds, memberOfGroupsIds, userRoles);
+                leaderOfGroupsIds, memberOfGroupsIds, userRoles,
+                (SessionStats) context.getBean("sessionStats"));
         return sessionContext;
     }
 
@@ -358,6 +360,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return ctx.decrement();
     }
 
+    public SessionStats getSessionStats(String uuid) {
+        SessionContext ctx = cache.getSessionContext(uuid);
+        return ctx.stats();
+    }
+    
     /*
      */
     public int close(String uuid) {

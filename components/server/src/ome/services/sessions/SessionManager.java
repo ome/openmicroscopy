@@ -14,6 +14,7 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -81,10 +82,16 @@ public interface SessionManager extends ApplicationListener {
 
     /**
      * Return the number of client which are presumed to be attached to this
-     * session.
+     * session or throw an exception if there's no such session.
      */
     int getReferenceCount(String uuid);
 
+    /**
+     * Return the {@link SessionStats} which are being counted for the given
+     * session or throw an exception if it has been removed.
+     */
+    SessionStats getSessionStats(String uuid);
+    
     /**
      * @param sessionId
      * @return A current session.

@@ -20,7 +20,7 @@ import Ice.Current;
  * Throttling implementation which uses the calling server {@link Thread} for
  * execution. This mimics the behavior of the pre-AMD blitz.
  */
-public class InThreadThrottlingStrategy implements ThrottlingStrategy {
+public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
 
     private final static Log log = LogFactory
             .getLog(InThreadThrottlingStrategy.class);
