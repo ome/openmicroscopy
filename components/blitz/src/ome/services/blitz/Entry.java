@@ -187,8 +187,9 @@ public class Entry {
         if (ctx != null) {
             try {
                 log.info("Calling close on context " + name);
-                ctx.closeAll();
+                OmeroContext forClose = ctx;
                 ctx = null;
+                forClose.closeAll();
                 log.info("Finished shutdown.");
             } catch (Exception e) {
                 log.error("Error shutting down " + name, e);
