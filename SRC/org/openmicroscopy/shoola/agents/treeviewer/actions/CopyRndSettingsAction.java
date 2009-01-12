@@ -57,7 +57,8 @@ public class CopyRndSettingsAction
 	private static final String NAME = "Copy Settings";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Copy the rendering settings.";
+	private static final String DESCRIPTION = "Copy the image's " +
+			"rendering settings.";
 
 	/**
 	 * Callback to notify of a change of state in the currently selected 

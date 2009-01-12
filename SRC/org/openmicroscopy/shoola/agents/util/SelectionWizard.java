@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -56,7 +55,7 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.TagAnnotationData;
+import pojos.AnnotationData;
 
 /** 
  * A modal dialog to select collection of objects.
@@ -249,12 +248,12 @@ public class SelectionWizard
 		DefaultListModel model = (DefaultListModel)
 									selectedItemsListbox.getModel();
 		int [] indexes = selectedItemsListbox.getSelectedIndices();
-		TagAnnotationData tag;
+		Object object; 
 		for (int i = 0 ; i < indexes.length ; i++) {
-			tag = (TagAnnotationData) model.getElementAt(indexes[i]);
-			if (selectedItems.contains(tag)) {
-				selectedItems.remove(tag);
-				availableItems.add(tag);
+			object = model.getElementAt(indexes[i]);
+			if (selectedItems.contains(object)) {
+				selectedItems.remove(object);
+				availableItems.add(object);
 			}
 		}
 		

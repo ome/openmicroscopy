@@ -994,7 +994,7 @@ class HiViewerComponent
 		Collection failure = (Collection) map.get(Boolean.FALSE);
 		Collection success = (Collection) map.get(Boolean.TRUE);
 		EventBus bus = HiViewerAgent.getRegistry().getEventBus();
-		bus.post(new RndSettingsCopied(success));
+		bus.post(new RndSettingsCopied(success, -1));
 		if (success != null && success.size() > 0) {
 			model.fireThumbnailLoading(success);
 			fireStateChange();

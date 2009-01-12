@@ -90,7 +90,7 @@ public class TreeViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	TreeViewerFactory.copyRndSettings(evt.getPixelsID());
+    	TreeViewerFactory.copyRndSettings(evt.getImage());
     }
     
     /**

@@ -2789,7 +2789,7 @@ class OMEROGateway
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param pixelsID		The id of the pixels set to copy the settings from.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
 	 * 						<code>CategoryData</code>.
@@ -2812,14 +2812,14 @@ class OMEROGateway
 			Iterator i = nodes.iterator();
 			long id;
 			boolean b = false;
-			if (klass.equals(Image.class)) {
+			if (Image.class.equals(klass)) {
 				while (i.hasNext()) {
 					id = (Long) i.next();
 					b = service.applySettingsToImage(pixelsID, id);
 					if (b) success.add(id);
 					else failure.add(id);
 				}
-			} else if (klass.equals(Dataset.class)) {
+			} else if (Dataset.class.equals(klass)) {
 				Map m;
 				List l;
 				Iterator k;

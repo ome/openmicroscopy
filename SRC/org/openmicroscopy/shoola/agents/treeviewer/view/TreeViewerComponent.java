@@ -299,14 +299,14 @@ class TreeViewerComponent
 	}
 
 	/**
-	 * Sets the ids used to copy rendering settings.
+	 * Sets the image to copy the rendering settings from.
 	 * 
-	 * @param pixelsID	The id of the pixels set of reference.
+	 * @param image The image to copy the rendering settings from.
 	 */
-	void setRndSettings(long pixelsID)
+	void setRndSettings(ImageData image)
 	{
 		if (model.getState() == DISCARDED) return;
-		model.setRndSettings(pixelsID);
+		model.setRndSettings(image);
 	}
 
 	/**
@@ -1456,15 +1456,22 @@ class TreeViewerComponent
 	{
 		if (map == null || map.size() != 2) return;
 		Collection failure = (Collection) map.get(Boolean.FALSE);
+		Collection success = (Collection) map.get(Boolean.TRUE);
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		bus.post(new RndSettingsCopied((Collection) map.get(Boolean.TRUE)));
+		bus.post(new RndSettingsCopied(success, -1));
 		
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		model.setState(READY);
 		fireStateChange();
+		String name = model.getRefImageName();
+		int n = success.size();
+		String text;
 		if (failure.size() == 0) {
-			un.notifyInfo("Paste settings", "Rendering settings have been " +
-			"applied \n to all selected images.");
+			text = "The settings of "+name+"\nhave been applied to the " +
+					"selected image";
+			if (n > 1) text += "s.";
+			else text += ".";
+			un.notifyInfo("Paste Image's settings", text);
 		} else {
 			String s = "";
 			Iterator i = failure.iterator();
@@ -1479,8 +1486,8 @@ class TreeViewerComponent
 				index++;
 			}
 			s.trim();
-			un.notifyInfo("Paste settings", "Rendering settings couldn't be " +
-					"applied to the following images: \n"+s);
+			un.notifyInfo("Paste Image's settings", "The settings of "+name+
+					"+\ncould not be applied to the following images: \n"+s);
 		}
 		model.setState(READY);
 		fireStateChange();
@@ -1759,9 +1766,8 @@ class TreeViewerComponent
 			image = (ImageData) o;
 		}
 		if (image == null) return;
-		long pixelsID = image.getDefaultPixels().getId();
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		bus.post(new CopyRndSettings(pixelsID));
+		bus.post(new CopyRndSettings(image));
 	}
 
 	/**

@@ -849,8 +849,6 @@ class ImViewerComponent
 			else {
 				renderXYPlane();
 			}
-			boolean b = model.isOriginalSettings();
-			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
@@ -936,10 +934,6 @@ class ImViewerComponent
 			//view.setChannelsSelection();
 			renderXYPlane();
 			postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
-			
-			
-			b = model.isOriginalSettings();
-			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -1037,8 +1031,6 @@ class ImViewerComponent
 			if (b)
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 						new Integer(index-1), new Integer(index));
-			b = model.isOriginalSettings();
-			firePropertyChange(RND_SETTINGS_MODIFIED_PROPERTY, b, !b);
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -2123,15 +2115,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#addHistoryItem()
-	 */
-	public void addHistoryItem()
-	{
-		//createHistoryItem();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#copyRenderingSettings()
 	 */
 	public void copyRenderingSettings()
@@ -2172,15 +2155,14 @@ class ImViewerComponent
 		}
 		if (!model.hasRndToPaste()) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Paste rendering settings", "No rendering settings" +
-							" to paste.");
+			un.notifyInfo("Paste Image's settings", "No Image's settings " +
+							"to paste.");
 			return;
 		}
 
 		try {
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			addHistoryItem();
-			boolean b = model.resetSettings();
+			boolean b = model.pasteRndSettings();
 			if (b) {
 				view.resetDefaults();
 				renderXYPlane();
@@ -2276,7 +2258,7 @@ class ImViewerComponent
     		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     		List<Long> l = new ArrayList<Long>();
     		l.add(model.getImageID());
-    		bus.post(new RndSettingsCopied(l));
+    		bus.post(new RndSettingsCopied(l, getPixelsID()));
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -2653,7 +2635,13 @@ class ImViewerComponent
 	 */
 	public void setCompressionLevel()
 	{
-		//TODO:Check state
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_RENDERING_CONTROL:
+			case PROJECTION_PREVIEW:
+				throw new IllegalArgumentException("This method cannot be " +
+				"invoked in the DISCARDED or PROJECTION_PREVIEW state.");
+		}
 		int old = view.convertCompressionLevel();
 		int index = view.getUICompressionLevel();
 		if (old == index) return;
@@ -2667,11 +2655,33 @@ class ImViewerComponent
 	 */
 	public void clearHistory()
 	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_RENDERING_CONTROL:
+			case PROJECTION_PREVIEW:
+				throw new IllegalArgumentException("This method cannot be " +
+				"invoked in the DISCARDED, PROJECTION_PREVIEW or " +
+				"LOADING_RENDERING_CONTROL state.");
+		}
 		model.clearHistory();
 		view.clearHistory();
 		setSelectedPane(VIEW_INDEX);
 		renderXYPlane();
 		
+	}
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isOriginalSettings()
+	 */
+	public boolean isOriginalSettings()
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_RENDERING_CONTROL:
+				throw new IllegalArgumentException("This method cannot be " +
+				"invoked in the DISCARDED or LOADING_RENDERING_CONTROL state.");
+		}
+		return model.isOriginalSettings();
 	}
 	
 }

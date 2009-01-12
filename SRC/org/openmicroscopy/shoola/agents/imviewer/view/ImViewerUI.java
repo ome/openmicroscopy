@@ -790,7 +790,7 @@ class ImViewerUI
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(statusBar, BorderLayout.SOUTH);
-		tabs.addChangeListener(controller);
+		tabs.addChangeListener(controller);		
 		//attach listener to the frame border
 		boundsAdapter = new HierarchyBoundsAdapter() {
 
@@ -904,12 +904,11 @@ class ImViewerUI
 				widthAdded = rendererSplit.getDividerSize();
 				width += rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
-				rendererSplit.setResizeWeight(0.6);
+				rendererSplit.setResizeWeight(1.0);
 				addComponents(rendererSplit, tabs, rightComponent);
 				container.add(rendererSplit, BorderLayout.CENTER);
 				break;
 			case HISTORY_AND_RENDERER:
-		
 				historyUI.doGridLayout();
 				rightComponent = model.getRenderer().getUI();
 				addComponents(rendererSplit, tabs, rightComponent);

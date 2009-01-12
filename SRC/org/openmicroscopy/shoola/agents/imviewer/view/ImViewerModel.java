@@ -1310,11 +1310,12 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 * @throws DSAccessException  			If the data cannot be retrieved.
 	 */
-	boolean resetSettings() 
+	boolean pasteRndSettings() 
 		throws RenderingServiceException, DSOutOfServiceException,
 				DSAccessException
 	{
 		//First check that the pixels are compatible
+		/*
 		if (pixels == null) {
 			OmeroImageService 
 			os = ImViewerAgent.getRegistry().getImageService();
@@ -1324,6 +1325,7 @@ class ImViewerModel
 			resetMappingSettings(ImViewerFactory.getRenderingSettings(), true);
 			return true;
 		}
+		*/
 		return false;
 	}
 
@@ -1364,15 +1366,13 @@ class ImViewerModel
 	 */
 	boolean hasRndToPaste() 
 	{ 
-		return (ImViewerFactory.getRenderingSettings() != null); 
+		return (ImViewerFactory.getRefImage() != null); 
 	}
 
 	/** Posts a {@link CopyRndSettings} event. */
 	void copyRenderingSettings()
 	{
-		CopyRndSettings evt = new CopyRndSettings(
-				image.getDefaultPixels().getId(), 
-				currentRndControl.getRndSettingsCopy());
+		CopyRndSettings evt = new CopyRndSettings(image);
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
 	}

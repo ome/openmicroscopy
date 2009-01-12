@@ -57,7 +57,7 @@ public class ResetRndSettingsAction
     private static final String NAME = "Reset Settings";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Reset the default rendering " +
+    private static final String DESCRIPTION = "Reset the default image's " +
     											"settings.";
     
     /** 

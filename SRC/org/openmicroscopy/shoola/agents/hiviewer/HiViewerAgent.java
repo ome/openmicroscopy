@@ -126,7 +126,7 @@ public class HiViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	HiViewerFactory.setRefPixelsID(evt.getPixelsID());
+    	//HiViewerFactory.setRefPixelsID(evt.getPixelsID());
     }
     
     /** Creates a new instance. */

@@ -57,7 +57,7 @@ public class PasteRndSettingsAction
     private static final String NAME = "Paste Settings";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Paste the current rendering " +
+    private static final String DESCRIPTION = "Paste the current image's " +
     											"settings.";
     
     /** 

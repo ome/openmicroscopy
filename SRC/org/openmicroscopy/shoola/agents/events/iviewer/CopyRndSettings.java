@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
+import pojos.ImageData;
+
 /** 
  * Event to copy rendering settings across a collection of pixels set.
  *
@@ -49,48 +51,36 @@ public class CopyRndSettings
 {
 	
 	/** The id of the pixels set to copy. */
-	private long 			pixelsID;
+	//private long 			pixelsID;
 	
 	/** The rendering settings to copy. */
-	private RndProxyDef		rndSettings;
+	//private RndProxyDef		rndSettings;
+	
+	/** The image to copy the renderig settings from. */
+	private ImageData		image;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param pixelsID 	The id of the pixels set.
+	 * @param image The image to copy the rendering settings from.
 	 */
-	public CopyRndSettings(long pixelsID)
+	public CopyRndSettings(ImageData image)
 	{
-		this.pixelsID = pixelsID;
+		this.image = image;
 	}
-	
+
 	/**
-	 * Creates a new instance.
+	 * Returns the image to copy the rendering settings from.
 	 * 
-	 * @param pixelsID 		The id of the pixels set.
-	 * @param rndSettings	The rendering settings to copy.
+	 * @return See above. 
 	 */
-	public CopyRndSettings(long pixelsID, RndProxyDef rndSettings)
-	{
-		this.pixelsID = pixelsID;
-		if (rndSettings == null)
-			throw new IllegalArgumentException("No rendering settings " +
-					"to copy.");
-		this.rndSettings = rndSettings;
-	}
-	
-	 /**
-     * Returns the pixels set ID.
-     * 
-     * @return See above. 
-     */
-    public long getPixelsID() { return pixelsID; }
+    public ImageData getImage() { return image; }
     
     /**
      * Returns the rendering settings.
      * 
      * @return See above.
      */
-    public RndProxyDef getRndSettings() { return rndSettings; }
+   // public RndProxyDef getRndSettings() { return rndSettings; }
     
 }

@@ -59,8 +59,8 @@ public class RendererAction
     private static final String NAME = "Renderer";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the rendering " +
-                                                "controls tool.";
+    private static final String DESCRIPTION = "Display rendering controls and" +
+    		" metadata.";
     
     /**
      * Creates a new instance.

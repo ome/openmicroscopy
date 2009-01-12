@@ -548,9 +548,9 @@ public class MessengerDialog
 	private void initialize(String title)
 	{
 		setTitle(title);
-		setSize(DEFAULT_SIZE);
 		initComponents();
 		buildGUI();
+		setSize(DEFAULT_SIZE);
 	}
 	
 	/**

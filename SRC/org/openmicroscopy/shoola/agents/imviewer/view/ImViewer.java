@@ -165,8 +165,8 @@ public interface ImViewer
 	 * Bound Property name indicating that the rendering settings have been 
 	 * modified. 
 	 */
-	public static final String  RND_SETTINGS_MODIFIED_PROPERTY = 
-			"rndSettingsModified";
+	//public static final String  RND_SETTINGS_MODIFIED_PROPERTY = 
+	//		"rndSettingsModified";
 	
 	/** 
 	 * Bound Property name indicating to keep track of an image recently
@@ -745,12 +745,6 @@ public interface ImViewer
 	 */
 	public BufferedImage getImageForGrid(int index);
 
-	/**
-	 * Creates a new history item and adds it to the collection.
-	 * If the history is displayed, updates the view.
-	 */
-	public void addHistoryItem();
-
 	/** Copies the rendering settings. */
 	public void copyRenderingSettings();
 
@@ -945,5 +939,13 @@ public interface ImViewer
 
 	/** Clears the history. */
 	public void clearHistory();
+
+	/**
+	 * Returns <code>true</code> if the rendering settings used to render 
+	 * the image are the original ones, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isOriginalSettings();
 	
 }

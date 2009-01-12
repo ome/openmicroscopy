@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Factory to create {@link TreeViewer} component.
@@ -132,18 +133,17 @@ public class TreeViewerFactory
 	}
 
 	/**
-	 * Stored the id of the pixels set.
+	 * Stores the image to copy the rendering settings from.
 	 * 
-	 * @param userID	The id of the user.
-	 * @param pixelsID  The id of the pixels set. 
+	 * @param image The image to copy the rendering settings from.
 	 */
-	public static void copyRndSettings(long pixelsID)
+	public static void copyRndSettings(ImageData image)
 	{
 		Iterator v = singleton.viewers.iterator();
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
-			comp.setRndSettings(pixelsID);
+			comp.setRndSettings(image);
 		}
 	}
 

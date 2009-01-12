@@ -53,15 +53,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class SaveRndSettingsAction 
 	extends ViewerAction
-	implements PropertyChangeListener
 {
 	
 	/** The description of the action. */
     private static final String NAME = "Save Settings";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Save the current rendering " +
-    											"settings.";
+    private static final String DESCRIPTION = "Save the current image's " +
+    		"settings.";
     
     /** 
      * Sets the enabled flag depending on the tabbed selected.
@@ -79,8 +78,14 @@ public class SaveRndSettingsAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	if (model.getState() == ImViewer.READY)
-    		setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    	if (model.getState() == ImViewer.READY) {
+    		if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX)
+    			setEnabled(false);
+    		else {
+    			
+    			setEnabled(!model.isOriginalSettings());
+    		}
+    	}
     }
     
     /**
@@ -97,8 +102,6 @@ public class SaveRndSettingsAction
     	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE_SETTINGS));
     	putValue(Action.SHORT_DESCRIPTION, 
     			UIUtilities.formatToolTipText(DESCRIPTION));
-    	model.addPropertyChangeListener(ImViewer.RND_SETTINGS_MODIFIED_PROPERTY, 
-    			this);
 	}
 
 	/** 
@@ -109,19 +112,5 @@ public class SaveRndSettingsAction
     {
     	model.saveRndSettings();
     }
-
-    /**
-     * Sets the <code>enabled</code> flag of the action.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		
-		if (ImViewer.RND_SETTINGS_MODIFIED_PROPERTY.equals(name)) {
-			boolean b = ((Boolean) evt.getNewValue()).booleanValue();
-			setEnabled(b);
-		}
-	}
     
 }

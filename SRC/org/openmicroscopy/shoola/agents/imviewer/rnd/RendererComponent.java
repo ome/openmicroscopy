@@ -155,7 +155,6 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	if (released) model.getParentModel().addHistoryItem();
         	model.setInputInterval(s, e);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);
@@ -175,10 +174,9 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	if (released) model.getParentModel().addHistoryItem();
-        	 model.setCodomainInterval(s, e);
-             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-            		 			Boolean.TRUE);
+        	model.setCodomainInterval(s, e);
+        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+        			Boolean.TRUE);
 		} catch (Exception ex) {
 			model.getParentModel().reload(ex);
 		}
@@ -193,7 +191,6 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().addHistoryItem();
         	model.setBitResolution(v);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -266,7 +263,6 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().addHistoryItem();
         	model.setFamily(family);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -284,7 +280,6 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().addHistoryItem();
         	model.setCurveCoefficient(k);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -302,7 +297,6 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().addHistoryItem();
         	model.setNoiseReduction(b);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);

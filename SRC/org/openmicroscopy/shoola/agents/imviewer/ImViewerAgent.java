@@ -185,8 +185,7 @@ public class ImViewerAgent
     public void handleCopyRndSettings(CopyRndSettings evt)
     {
     	if (evt == null) return;
-    	ImViewerFactory.copyRndSettings(evt.getPixelsID(), 
-    								evt.getRndSettings());
+    	ImViewerFactory.copyRndSettings(evt.getImage());
     }
     
     /**
@@ -214,7 +213,8 @@ public class ImViewerAgent
     private void handleRndSettingsCopiedEvent(RndSettingsCopied evt)
     {
     	if (evt == null) return;
-    	ImViewerFactory.reloadRenderingEngine(evt.getPixelsIDs());
+    	ImViewerFactory.reloadRenderingEngine(evt.getPixelsIDs(), 
+    							evt.getRefPixelsID());
     }
     
     /** Creates a new instance. */

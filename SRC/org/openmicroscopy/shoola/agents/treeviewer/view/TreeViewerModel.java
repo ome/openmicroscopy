@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
@@ -140,8 +141,8 @@ class TreeViewerModel
 	/** Flag indicating to retrieve the node data when rolling over. */
 	private boolean					rollOver;
 
-	/** The id of the pixels set to copy. */
-	private long					refPixelsID;
+	/** The image to copy the rendering settings from. */
+	private ImageData				refImage;
 
 	/** The viewer displaying the metadata. */
 	private MetadataViewer 			metadataViewer;
@@ -230,11 +231,6 @@ class TreeViewerModel
 		browser = BrowserFactory.createBrowser(Browser.TAGS_EXPLORER,
 				component, experimenter, true);
 		browsers.put(Browser.TAGS_EXPLORER, browser);
-		/*
-		browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
-				component, experimenter);
-		browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
-		*/
 		browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER,
 				component, experimenter, true);
 		browsers.put(Browser.IMAGES_EXPLORER, browser);
@@ -243,15 +239,21 @@ class TreeViewerModel
 		browsers.put(Browser.FILES_EXPLORER, browser);
 	}
 
+	/** Initializes. */
+	private void initialize()
+	{
+		state = TreeViewer.NEW;
+		browsers = new HashMap<Integer, Browser>();
+		recycled = false;
+		refImage = null;
+	}
+	
 	/**
 	 * Creates a new instance and sets the state to {@link TreeViewer#NEW}.
 	 */
 	protected TreeViewerModel()
 	{
-		state = TreeViewer.NEW;
-		browsers = new HashMap<Integer, Browser>();
-		recycled = false;
-		refPixelsID = -1;
+		initialize();
 	}
 
 	/**
@@ -262,11 +264,8 @@ class TreeViewerModel
 	 */
 	protected TreeViewerModel(ExperimenterData exp, long userGroupID)
 	{
-		state = TreeViewer.NEW;
-		recycled = false;
-		refPixelsID = -1;
+		initialize();
 		this.experimenter = exp;
-		browsers = new HashMap<Integer, Browser>();
 		setHierarchyRoot(exp.getId(), userGroupID);
 	}
 
@@ -709,20 +708,20 @@ class TreeViewerModel
 	 * Sets the parameters used to copy and paste rendering settings across
 	 * a collection of pixels set.
 	 * 
-	 * @param refPixelsID	The id of the pixels set of reference.
+	 * @param refImage The image to copy the rendering settings from.
 	 */
-	void setRndSettings(long refPixelsID)
+	void setRndSettings(ImageData refImage)
 	{
-		this.refPixelsID = refPixelsID;
+		this.refImage = refImage;
 	}
 
 	/**
-	 * Returns <code>true</code> if we can paste some rendering settings,
+	 * Returns <code>true</code> if there are rendering settings to paste,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean hasRndSettingsToPaste() { return refPixelsID != -1; }
+	boolean hasRndSettingsToPaste() { return refImage != null; }
 
 	/**
 	 * Fires an asynchronous call to paste the rendering settings.
@@ -734,7 +733,7 @@ class TreeViewerModel
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
-								refPixelsID);
+								refImage.getDefaultPixels().getId());
 		currentLoader.load();
 	}
 
@@ -746,7 +745,8 @@ class TreeViewerModel
 	void firePasteRenderingSettings(TimeRefObject ref)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, ref, refPixelsID);
+		currentLoader = new RndSettingsSaver(component, ref, 
+				refImage.getDefaultPixels().getId());
 		currentLoader.load();
 	}
 	
@@ -916,6 +916,12 @@ class TreeViewerModel
 	Browser getBrowser(int index)
 	{
 		return browsers.get(index);
+	}
+	
+	String getRefImageName()
+	{
+		if (refImage == null) return null;
+		return EditorUtil.getPartialName(refImage.getName());
 	}
 	
 }

@@ -123,7 +123,7 @@ public class CopyRndSettingsAction
     	if (!(ho instanceof ImageData)) return;
     	ImageData img = (ImageData) ho;
     	EventBus bus = HiViewerAgent.getRegistry().getEventBus();
-    	bus.post(new CopyRndSettings(img.getDefaultPixels().getId()));
+    	//bus.post(new CopyRndSettings(img.getDefaultPixels().getId()));
     }
     
 }

@@ -193,18 +193,16 @@ public class ImViewerFactory
 	/**
 	 * Copies the rendering settings.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
-	 * @param rndSettings	The rendering settings to copy.
+	 * @param image	The image to copy the rendering settings from.
 	 */
-	public static void copyRndSettings(long pixelsID, RndProxyDef rndSettings)
+	public static void copyRndSettings(ImageData image)
 	{
-		singleton.rndSettings = rndSettings;
-		singleton.refPixelsID = pixelsID;
+		singleton.refImage = image;
 		Iterator v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			if (comp.getModel().getPixelsID() != pixelsID) 
+			if (comp.getModel().getImageID() != image.getId()) 
 				comp.setRndSettings();
 		}
 	}
@@ -279,32 +277,28 @@ public class ImViewerFactory
 	 * 
 	 * @param pixelsIDs The collection of pixels set whose rendering settings 
 	 * 					have been updated.
+	 * @param refID		The if of the pixels of reference.
 	 */
-	public static void reloadRenderingEngine(Collection pixelsIDs)
+	public static void reloadRenderingEngine(Collection pixelsIDs, long refID)
 	{
 		if (pixelsIDs == null || pixelsIDs.size() == 0) return;
 		Iterator i = singleton.viewers.iterator();
 		ImViewerComponent comp;
+		long id;
 		while (i.hasNext()) {
 			comp = (ImViewerComponent) i.next();
-			if (pixelsIDs.contains(comp.getPixelsID()))
+			id = comp.getPixelsID();
+			if (pixelsIDs.contains(id) && id != refID)
 				comp.reset();
 		}
 	}
 	
 	/** 
-	 * Returns the rendering settings to copy.
-	 * 
-	 * @return See above.
-	 */
-	static RndProxyDef getRenderingSettings() { return singleton.rndSettings; }
-
-	/** 
 	 * Returns the id of the pixels set to copy the rendering settings.
 	 * 
 	 * @return See above.
 	 */
-	static long getRefPixelsID() { return singleton.refPixelsID; }
+	static ImageData getRefImage() { return singleton.refImage; }
 	
 	/**
 	 * Returns the user preferences.
@@ -343,11 +337,8 @@ public class ImViewerFactory
 	 */
 	private boolean 						isAttached;
 
-	/** The rendering def to copy. */
-	private RndProxyDef						rndSettings;
-
-	/** The id of the pixels set to copy. */
-	private long							refPixelsID;
+	/** The image data to copy the rendering settings from. */
+	private ImageData						refImage;
 
 	/** The user preferences for the viewer. */
 	private ViewerPreferences				pref;
