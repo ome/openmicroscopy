@@ -127,7 +127,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Principal p = new Principal(userId, group, event);
             ome.model.meta.Session s = sessionManager.create(p);
             Principal sp = new Principal(s.getUuid(), group, event);
-
+            // Event raised to add to Ring
+            
             // Create the ServiceFactory
             ServiceFactoryI session = new ServiceFactoryI(current, context,
                     sessionManager, executor, sp, CPTORS);
@@ -135,9 +136,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Ice.Identity id = session.sessionId();
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
             _prx = current.adapter.createDirectProxy(id);
-
-            // Add to ring
-            ring.add(s.getUuid());
 
             // Logging & sessionToClientIds addition
             if (!sessionToClientIds.containsKey(s.getUuid())) {

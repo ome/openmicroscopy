@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import ome.services.blitz.util.BlitzConfiguration;
+import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
 
 import org.apache.commons.logging.Log;
@@ -117,7 +118,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
     public void destroy() {
         try {
             log.info("Shutting down ring in group " + groupname);
-            map.remove(MANAGERS+uuid);
+            map.remove(MANAGERS + uuid);
             map.stop();
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
@@ -126,10 +127,6 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
     // Our usage
     // =========================================================================
-
-    public void add(String uuid) {
-        map.put(SESSIONS + uuid, directProxy);
-    }
 
     public boolean checkPassword(String userId) {
         return map.get(SESSIONS + userId) != null;
@@ -212,10 +209,12 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
     // =========================================================================
 
     public void onApplicationEvent(ApplicationEvent arg0) {
-        if (arg0 instanceof DestroySessionMessage) {
-            map
-                    .remove(SESSIONS
-                            + ((DestroySessionMessage) arg0).getSessionId());
+        if (arg0 instanceof CreateSessionMessage) {
+            String uuid = ((CreateSessionMessage) arg0).getSessionId();
+            map.put(SESSIONS + uuid, directProxy);
+        } else if (arg0 instanceof DestroySessionMessage) {
+            String uuid = ((DestroySessionMessage) arg0).getSessionId();
+            map.remove(SESSIONS + uuid);
         } else if (arg0 instanceof ContextClosedEvent) {
             // This happens 3 times for each nested context. Perhaps we
             // should print and destroy?
