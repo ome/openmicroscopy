@@ -103,11 +103,11 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
         // on returned null, new services will be created and added
         mockAdapter.expects(once()).method("find").will(returnValue(null));
         mockAdapter.expects(once()).method("add").will(returnValue(null));
-        mockAdapter.expects(once()).method("createProxy").will(
+        mockAdapter.expects(once()).method("createDirectProxy").will(
                 returnValue(admin1));
         mockAdapter.expects(once()).method("find").will(returnValue(null));
         mockAdapter.expects(once()).method("add").will(returnValue(null));
-        mockAdapter.expects(once()).method("createProxy").will(
+        mockAdapter.expects(once()).method("createDirectProxy").will(
                 returnValue(admin2));
         IAdminPrx prx1 = sf1.getAdminService(curr1);
         IAdminPrx prx2 = sf2.getAdminService(curr2);

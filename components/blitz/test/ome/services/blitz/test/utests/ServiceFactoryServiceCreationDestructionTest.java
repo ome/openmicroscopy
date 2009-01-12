@@ -122,7 +122,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         map.put(adminServiceId, new _IAdminTie());
         mockAdapter.expects(once()).method("add").will(returnValue(null));
         mockAdapter.expects(once()).method("find").will(returnValue(null));
-        mockAdapter.expects(once()).method("createProxy").will(
+        mockAdapter.expects(once()).method("createDirectProxy").will(
                 returnValue(admin));
         sf.getAdminService(curr);
         List<String> ids = sf.activeServices(curr);
@@ -136,7 +136,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
 
         callsActiveServices(Collections.singletonList(reServiceId));
         mockAdapter.expects(once()).method("add").will(returnValue(null));
-        mockAdapter.expects(once()).method("createProxy").will(
+        mockAdapter.expects(once()).method("createDirectProxy").will(
                 returnValue(null));
         mockAdapter.expects(once()).method("find").will(returnValue(null));
         mockAdapter.expects(once()).method("find").will(returnValue(null));

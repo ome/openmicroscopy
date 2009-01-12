@@ -368,7 +368,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 // cause any issues.
                 prx = registerServant(current, id, servant);
             } else {
-                prx = adapter.createProxy(id);
+                prx = adapter.createDirectProxy(id);
             }
             return ServiceInterfacePrxHelper.uncheckedCast(prx);
         } finally {
@@ -800,7 +800,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         try {
             Ice.Object already = adapter.find(id);
             if (null == already) {
-                prx = adapter.add(servant, id);
+                adapter.add(servant, id);
+                prx = adapter.createDirectProxy(id);
                 if (log.isInfoEnabled()) {
                     log.info("Added servant to adapter: "
                             + servantString(id, servant));
