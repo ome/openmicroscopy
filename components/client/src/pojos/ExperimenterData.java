@@ -35,7 +35,7 @@ import ome.util.CBlock;
 public class ExperimenterData extends DataObject {
 
     /** Identifies the {@link Experimenter#FIRSTNAME} field. */
-    public final static String FIRSTENAME = Experimenter.FIRSTNAME;
+    public final static String FIRSTNAME = Experimenter.FIRSTNAME;
 
     /** Identifies the {@link Experimenter#MIDDLENAME} field. */
     public final static String MIDDLENAME = Experimenter.MIDDLENAME;

@@ -30,7 +30,7 @@ import omero.model.GroupExperimenterMap;
 public class ExperimenterData extends DataObject {
 
     /** Identifies the {@link Experimenter#FIRSTNAME} field. */
-    public final static String FIRSTENAME = ExperimenterI.FIRSTNAME;
+    public final static String FIRSTNAME = ExperimenterI.FIRSTNAME;
 
     /** Identifies the {@link Experimenter#MIDDLENAME} field. */
     public final static String MIDDLENAME = ExperimenterI.MIDDLENAME;
