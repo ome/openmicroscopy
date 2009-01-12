@@ -17,7 +17,6 @@
 	<classpathentry kind="src" path="components/importer/resources"/>
 	<classpathentry kind="src" path="components/importer/src"/>
 	<classpathentry kind="src" path="components/importer/test"/>
-	<classpathentry kind="src" path="components/tools/OmeroImporter/src"/>
 	<classpathentry kind="src" path="components/testing/target/generated/src"/>
 	<classpathentry kind="src" path="components/testing/resources"/>
 	<classpathentry kind="src" path="components/testing/src"/>
@@ -28,11 +27,6 @@
 	<classpathentry kind="src" path="components/romio/resources"/>
 	<classpathentry kind="src" path="components/romio/src"/>
 	<classpathentry kind="src" path="components/romio/test"/>
-	<classpathentry kind="src" path="components/tools/licenses/target/generated/src"/>
-	<classpathentry kind="src" path="components/tools/licenses/test"/>
-	<classpathentry kind="src" path="components/tools/licenses/resources"/>
-	<classpathentry kind="src" path="components/tools/licenses/src"/>
-	<classpathentry kind="src" path="components/tools/licenses/generated"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/test"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/resources"/>
