@@ -16,6 +16,6 @@ from logger import log
 
 app = FSServer.Server("omerofs.MonitorServer", "FSServer")
 log.info('Starting OMERO.fs server')
-sys.exit(app.main(sys.argv, "config.server"))
+sys.exit(app.main(sys.argv))
 
 

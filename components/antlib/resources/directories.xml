@@ -53,6 +53,7 @@
 	<property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
 	<property name="WebAdmin.comp"     value="${tools.comp}/WebAdmin"/>
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
+	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
 
 	<!-- Build Path References -->
 	<path id="app.buildpath">
@@ -96,6 +97,9 @@
 	</path>
 	<path id="OmeroPy.buildpath">
 	  <pathelement location="${OmeroPy.comp}/build.xml"/>
+	</path>
+	<path id="OmeroFs.buildpath">
+	  <pathelement location="${OmeroFs.comp}/build.xml"/>
 	</path>
 	<path id="tools.buildpath">
 	  <pathelement location="${tools.comp}/build.xml"/>

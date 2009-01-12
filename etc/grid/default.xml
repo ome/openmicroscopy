@@ -26,6 +26,8 @@
         session-timeout="300"
         server-endpoints="tcp -h 127.0.0.1"/>
       <server-instance template="BlitzTemplate" index="0" config="default"/>
+      <server-instance template="DropBoxTemplate"/>
+      <server-instance template="FSTemplate"/>
       <server-instance template="ProcessorTemplate" index="0"/>
       <server-instance template="ShellTemplate" id="Web"/>
       <target name="postgres">

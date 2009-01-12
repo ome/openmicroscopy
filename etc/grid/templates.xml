@@ -49,12 +49,27 @@
     </server-template>
 
     <server-template id="FSTemplate">
-      <parameter name="index"/>
       <parameter name="exe" default="python"/>
-      <server id="FS${index}" exe="${exe}" activation="always">
-        <option>lib/FSServer.py</option>
+      <server id="FSServer" exe="${exe}" activation="always">
+        <option>lib/runFSServer.py</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
-        <adapter name="FSAdapter" register-process="true" endpoints="tcp"/>
+        <adapter name="omerofs.MonitorServer" register-process="true" endpoints="tcp"/>
+        <properties>
+          <property name="Ice.ThreadPool.Client.Size" value="2"/>
+          <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
+          <property name="Ice.ThreadPool.Server.Size" value="2"/>
+          <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
+          <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="DropBoxTemplate">
+      <parameter name="exe" default="python"/>
+      <server id="DropBox" exe="${exe}" activation="always">
+        <option>lib/runFSDropBox.py</option>
+        <env>PYTHONPATH=lib:$PYTHONPATH</env>
+        <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>
           <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
