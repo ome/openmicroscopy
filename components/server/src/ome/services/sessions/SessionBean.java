@@ -33,6 +33,8 @@ import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
 import ome.system.SelfConfigurableService;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +61,8 @@ import org.springframework.transaction.annotation.Transactional;
 @LocalBinding(jndiBinding = "omero/local/ome.api.ISession")
 @Interceptors( { SimpleLifecycle.class })
 public class SessionBean implements ISession, SelfConfigurableService {
+
+    private final static Log log = LogFactory.getLog(SessionBean.class);
 
     private BeanHelper helper = new BeanHelper(SessionBean.class);
 
@@ -92,8 +96,8 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // =========================================================================
 
     @RolesAllowed("system")
-    public Session createSessionWithTimeout(@NotNull
-    Principal principal, long milliseconds) {
+    public Session createSessionWithTimeout(@NotNull Principal principal,
+            long milliseconds) {
 
         Session session = null;
         try {
@@ -106,11 +110,10 @@ public class SessionBean implements ISession, SelfConfigurableService {
         }
 
     }
-    
+
     @RolesAllowed("system")
-    public Session createSessionWithTimeouts(@NotNull
-    Principal principal, long timeToLiveMilliseconds,
-    long timeToIdleMilliseconds) {
+    public Session createSessionWithTimeouts(@NotNull Principal principal,
+            long timeToLiveMilliseconds, long timeToIdleMilliseconds) {
 
         Session session = null;
         try {
@@ -125,9 +128,8 @@ public class SessionBean implements ISession, SelfConfigurableService {
     }
 
     @RolesAllowed( { "user", "guest" })
-    public Session createSession(@NotNull
-    Principal principal, @Hidden
-    String credentials) {
+    public Session createSession(@NotNull Principal principal,
+            @Hidden String credentials) {
 
         Session session = null;
         try {
@@ -139,20 +141,17 @@ public class SessionBean implements ISession, SelfConfigurableService {
     }
 
     @RolesAllowed( { "user", "guest" })
-    public Session getSession(@NotNull
-    String sessionUuid) {
+    public Session getSession(@NotNull String sessionUuid) {
         return mgr.find(sessionUuid);
     }
 
     @RolesAllowed( { "user", "guest" })
-    public Session updateSession(@NotNull
-    Session session) {
+    public Session updateSession(@NotNull Session session) {
         return mgr.update(session);
     }
 
     @RolesAllowed( { "user", "guest" })
-    public int closeSession(@NotNull
-    Session session) {
+    public int closeSession(@NotNull Session session) {
         return mgr.close(session.getUuid());
     }
 
@@ -193,6 +192,7 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // =========================================================================
 
     RuntimeException creationExceptionHandler(Exception e) {
+        log.info("Handling session exception: ", e);
         if (e instanceof SessionException) {
             return (SessionException) e;
         } else if (e instanceof RootException) {
