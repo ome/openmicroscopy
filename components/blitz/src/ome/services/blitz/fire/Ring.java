@@ -9,19 +9,23 @@ package ome.services.blitz.fire;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Vector;
 
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.messages.DestroySessionMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jgroups.Address;
+import org.jgroups.ChannelFactory;
+import org.jgroups.JChannelFactory;
 import org.jgroups.View;
-import org.jgroups.blocks.DistributedTree;
-import org.jgroups.blocks.ReplicatedHashtable;
-import org.jgroups.blocks.ReplicatedTree.ReplicatedTreeListener;
+import org.jgroups.blocks.ReplicatedHashMap;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
@@ -43,15 +47,16 @@ import Glacier2.SessionPrx;
  * 
  *@since Beta4
  */
-public class Ring implements ReplicatedTreeListener, ApplicationListener {
+public class Ring implements ReplicatedHashMap.Notification<String, String>,
+        ApplicationListener {
 
     private final static Log log = LogFactory.getLog(Ring.class);
 
-    private final static String CONFIG = "/config";
+    private final static String CONFIG = "config-";
 
-    private final static String MANAGERS = "/managers";
+    private final static String MANAGERS = "manager-";
 
-    private final static String SESSIONS = "/sessions";
+    private final static String SESSIONS = "session-";
 
     private final String uuid = UUID.randomUUID().toString();
 
@@ -59,8 +64,8 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
     private/* final */String directProxy;
 
-    private final ReplicatedTree tree;
-    
+    private final ReplicatedHashMap<String, String> map;
+
     private final String groupname;
 
     public static String determineGroupName() {
@@ -79,9 +84,13 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
     public Ring(String groupname, String props) {
         this.groupname = groupname;
         try {
-            tree = new ReplicatedTree(groupname, props, 10000);
-            tree.addReplicatedTreeListener(this);
-            tree.start();
+            ChannelFactory factory = new JChannelFactory();
+
+            map = new ReplicatedHashMap<String, String>(groupname, factory,
+                    props, 10000);
+            map.setBlockingUpdates(true);
+            map.addNotifier(this);
+            map.start(1000);
         } catch (Exception e) {
             throw new RuntimeException("Could not start ring: ", e);
         }
@@ -96,7 +105,7 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
     public void init(BlitzConfiguration bc) {
         this.blitz = bc;
         directProxy = bc.getCommunicator().proxyToString(bc.getDirectProxy());
-        tree.put(MANAGERS, uuid, directProxy);
+        map.put(MANAGERS + uuid, directProxy);
     }
 
     private void checkInit() {
@@ -108,7 +117,7 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
     public void destroy() {
         try {
             log.info("Shutting down ring in group " + groupname);
-            tree.stop();
+            map.stop();
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
         }
@@ -118,22 +127,43 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
     // =========================================================================
 
     public void add(String uuid) {
-        tree.put(SESSIONS, uuid, directProxy);
+        map.put(SESSIONS + uuid, directProxy);
     }
 
     public boolean checkPassword(String userId) {
-        return tree.get(SESSIONS, userId) != null;
+        return map.get(SESSIONS + userId) != null;
     }
 
     public SessionPrx getProxyOrNull(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
 
-        // If this is not a recursive invocation
-        if (!current.ctx.containsKey("omero.routed_from")) {
+        // If by the end of this method this string is non-null, then
+        // SM.create() will be called on it.
+        String proxyString;
+        
+        // If there is a redirect, then we honor it as long as it doesn't
+        // point back to us, in which case we bail.
+        String redirect = map.get(CONFIG+"redirect");
+        if (redirect != null) {
+            log.info("Found redirect: "+redirect);
+            if (redirect.equals(uuid)) {
+                log.info("Redirect points to this instance; setting null");
+                proxyString = null;
+            }
+            redirect = map.get(MANAGERS+redirect);
+            if (redirect != null) {
+                log.info("Resolving redirect to: "+redirect);
+                proxyString = redirect;
+            }
+            
+        }
+        
+        // Otherwise, if this is not a recursive invocation
+        else if (!current.ctx.containsKey("omero.routed_from")) {
 
             // Check if the session is in ring
-            String proxyString = (String) tree.get(SESSIONS, userId);
+            proxyString = map.get(SESSIONS + userId);
             if (proxyString != null && !proxyString.equals(directProxy)) {
                 log.info(String.format("Returning remote session on %s",
                         proxyString));
@@ -141,8 +171,9 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
             // or needs to be load balanced
             else {
-                if (Math.random() > 0.5) {
-                    Set<String> values = tree.getKeys(MANAGERS);
+                double IMPOSSIBLE = 309340.0;
+                if (Math.random() > IMPOSSIBLE) {
+                    Set<String> values = filter(MANAGERS);
                     if (values != null) {
                         values.remove(uuid);
                         int size = values.size();
@@ -151,8 +182,7 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
                             int idx = (int) Math.round(rnd);
                             List v = new ArrayList(values);
                             proxyString = (String) v.get(idx);
-                            proxyString = (String) tree.get(MANAGERS,
-                                    proxyString);
+                            proxyString = map.get(MANAGERS + proxyString);
                             log.info(String.format("Load balancing to %s",
                                     proxyString));
                         }
@@ -180,30 +210,34 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof DestroySessionMessage) {
-            tree.remove(((DestroySessionMessage) arg0).getSessionId());
+            map.remove(SESSIONS+((DestroySessionMessage) arg0).getSessionId());
         } else if (arg0 instanceof ContextClosedEvent) {
-            log.info("Closing server with sessions:" + tree.getKeys(SESSIONS));
+            // This happens 3 times for each nested context. Perhaps we
+            // should print and destroy?
         }
     }
 
     // Notification interface
     // =========================================================================
 
-    public void nodeAdded(String arg0) {
-        log.info("Node added: " + arg0);
+    public void contentsCleared() {
+        log.info("cleared");
     }
 
-    public void nodeModified(String arg0) {
-        log.info("Node modified: " + arg0);
+    public void contentsSet(Map<String, String> arg0) {
+        log.info("set contents:"+arg0);
     }
 
-    public void nodeRemoved(String arg0) {
-        log.info("Node removed: " + arg0);
+    public void entryRemoved(String arg0) {
+        log.info("remove:"+arg0);
     }
 
-    public void viewChange(View arg0) {
-        // TODO Auto-generated method stub
+    public void entrySet(String arg0, String arg1) {
+        log.info("set:"+arg0+"="+arg1);
+    }
 
+    public void viewChange(View arg0, Vector<Address> arg1, Vector<Address> arg2) {
+        log.info("view change:"+arg0);
     }
 
     // Main
@@ -213,7 +247,7 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
         Ring ring = new Ring();
         try {
-            
+
             if (args == null || args.length == 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("java Ring [sessions | config | redirect [value]");
@@ -241,8 +275,10 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
                 } else {
                     ring.printRedirect();
                 }
+            } else if (args[0].equals("raw")) {
+                System.out.println(ring.map);
             }
-            
+
         } finally {
             ring.destroy();
         }
@@ -254,13 +290,12 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
         }
     }
 
-    public void printTree(String fqn) {
-        System.out.println("===== " + fqn + " =====");
-        Set<String> keys = tree.getKeys(fqn);
+    public void printTree(String prefix) {
+        System.out.println("===== " + prefix + " =====");
+        Set<String> keys = filter(prefix);
         if (keys != null && keys.size() > 0) {
             for (String key : keys) {
-                System.out.println(String.format("%s\t%s", key, tree.get(
-                        SESSIONS, key)));
+                System.out.println(String.format("%s\t%s", key, map.get(key)));
             }
         } else {
             System.out.println("(empty)");
@@ -269,17 +304,31 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
     public void setRedirect(String uuidOrProxy) {
         if (uuidOrProxy == null || uuidOrProxy.length() == 0) {
-            tree.remove(CONFIG, "redirect");
+            map.remove(CONFIG + "redirect");
         } else {
-            tree.put(CONFIG, "redirect", uuidOrProxy);
+            map.put(CONFIG + "redirect", uuidOrProxy);
         }
     }
 
     public void printRedirect() {
-        Object uuidOrProxy = tree.get(CONFIG, "redirect");
+        Object uuidOrProxy = map.get(CONFIG + "redirect");
         if (uuidOrProxy != null && uuidOrProxy.toString().length() > 0) {
             System.out.println(uuidOrProxy.toString());
         }
+    }
+    
+    
+    // Helpers
+    // =========================================================================
+    
+    private Set<String> filter(String prefix) {
+        Set<String> values = new HashSet(map.keySet());
+        for (String value : values) {
+            if (!value.startsWith(prefix)) {
+                values.remove(value);
+            }
+        }
+        return values;
     }
 
 }

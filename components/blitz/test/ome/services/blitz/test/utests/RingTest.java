@@ -61,9 +61,8 @@ public class RingTest extends TestCase {
     
     @Test
     public void testPrintSessions() throws Exception {
-        Ring ring = new Ring("omero", "session_ring.xml");
-        ring.printSessions();
+        Ring ring = new Ring("test", "session_ring.xml");
+        ring.printTree("/SESSIONS");
     }
-    
 
 }
