@@ -33,12 +33,12 @@ public class ServantHolder {
      * Note: servants are stored by String since {@link Ice.Identity} does not
      * behave properly as a key.
      */
-    final Map<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
+    private final ConcurrentHashMap<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
 
     /**
      * Write-once map which contains a {@link Lock} for each given name.
      */
-    final Map<String, Lock> locks = new ConcurrentHashMap<String, Lock>();
+    private final ConcurrentHashMap<String, Lock> locks = new ConcurrentHashMap<String, Lock>();
 
     /**
      * Acquires the given lock or if necessary creates a new one.
@@ -46,35 +46,24 @@ public class ServantHolder {
      * @param key
      */
     public void acquireLock(String key) {
-        Lock lock = locks.get(key);
-        if (lock == null) {
-            synchronized (locks) {
-                // check again in case added while waiting.
-                lock = locks.get(key);
-                if (lock == null) {
-                    lock = new ReentrantLock();
-                    locks.put(key, lock);
-                }
-            }
+        Lock lock = new ReentrantLock();
+        Lock oldLock = locks.putIfAbsent(key, lock);
+        // If there was already a lock,
+        // then the new lock can be gc'd
+        if (oldLock != null) {
+            lock = oldLock;
         }
         lock.lock();
     }
 
     /**
      * Releases the given lock if found, otherwise throws an
-     * {@link InternalException}
+     * {@link ome.conditions.InternalException}
      */
     public void releaseLock(String key) {
         Lock lock = locks.get(key);
         if (lock == null) {
-            synchronized (locks) {
-                // check again in case added while waiting.
-                lock = locks.get(key);
-                if (lock == null) {
-                    throw new ome.conditions.InternalException(
-                            "No lock found: " + key);
-                }
-            }
+            throw new ome.conditions.InternalException("No lock found: " + key);
         }
         lock.unlock();
     }
