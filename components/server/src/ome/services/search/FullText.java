@@ -7,22 +7,20 @@
 
 package ome.services.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
-import ome.conditions.SecurityViolation;
 import ome.model.IAnnotated;
-import ome.services.SearchBean;
+import ome.model.IObject;
 import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.SimpleAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.Criteria;
@@ -31,6 +29,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
+import org.hibernate.search.ProjectionConstants;
 import org.hibernate.search.Search;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.Assert;
@@ -146,6 +145,7 @@ public class FullText extends SearchAction {
 
         // Main query
         FullTextQuery ftQuery = session.createFullTextQuery(this.q, cls);
+        ftQuery.setProjection(ProjectionConstants.SCORE, ProjectionConstants.THIS);
         ftQuery.setCriteriaQuery(criteria);
 
         // orderBy
@@ -174,14 +174,21 @@ public class FullText extends SearchAction {
                 + "intersection/union methods to achieve the same results.";
 
         List<?> check975 = ftQuery.list();
-
+        List<IObject> returnValue = new ArrayList<IObject>();
+        
         // WORKAROUND
-        for (Object object : check975) {
+        for (Object result : check975) {
+            Object[] parts = (Object[]) result;
+            Float score = (Float) parts[0];
+            IObject object = (IObject) parts[1];
             if (!cls.isAssignableFrom(object.getClass())) {
                 throw new ApiUsageException(String.format(ticket975, object
                         .getClass(), cls));
+            } else {
+                object.putAt(ProjectionConstants.SCORE, score);
+                returnValue.add(object);
             }
         }
-        return check975;
+        return returnValue;
     }
 }

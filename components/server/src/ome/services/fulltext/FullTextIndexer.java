@@ -25,6 +25,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.springframework.transaction.TransactionStatus;
 
 /**
@@ -113,7 +114,7 @@ public class FullTextIndexer implements Work {
             fullTextSession.setFlushMode(FlushMode.MANUAL);
             fullTextSession.setCacheMode(CacheMode.IGNORE);
             doIndexing(fullTextSession);
-            session.clear();
+            session.flush();
             count++;
         } while (doMore(count));
         return null;

@@ -401,7 +401,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                                 analyzer);
                         return fullText.doWork(null, session, null);
                     }
-                }, true);
+                });
     }
 
     // ~ Others
