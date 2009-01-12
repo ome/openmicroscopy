@@ -136,7 +136,8 @@ public class DetailsI extends Details implements ome.model.ModelBased {
                                         .getExternalInfo()));
         Permissions sourceP = this.getPermissions();
         target.putAt(ome.model.internal.Details.PERMISSIONS,
-                sourceP == null ? new ome.model.internal.Permissions()
+                sourceP == null ? new ome.model.internal.Permissions(
+                    ome.model.internal.Permissions.DEFAULT),
                         : ome.util.Utils.toPermissions(sourceP.getPerm1()));
         return target;
     }
