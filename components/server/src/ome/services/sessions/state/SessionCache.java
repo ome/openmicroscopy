@@ -176,18 +176,32 @@ public class SessionCache implements ApplicationContextAware {
     // These methods are currently the only access to the sessions cache, and
     // are responsible for synchronization and the update mechanism.
 
+    /**
+     * Puts a session blindly into the context. This does nothing to a context
+     * which was previously present (e.g. call internalRemove, etc.) and
+     * therefore usage should be proceeded by a check.
+     */
     public void putSession(String uuid, SessionContext sessionContext) {
-        blockingUpdate();
         sessions.put(new Element(uuid, sessionContext));
 
     }
 
     public SessionContext getSessionContext(String uuid) {
-        blockingUpdate();
+        return getSessionContext(uuid, true);
+    }
+    
+    public SessionContext getSessionContext(String uuid, boolean blocking) {
 
         if (uuid == null) {
             throw new ApiUsageException("Uuid cannot be null.");
         }
+
+        // Here it is necessary to possibly allow actions, like creation
+        // to pass through without blocking, but if an internal remove is
+        // later necessary these will be blockage anyway.
+        if (blocking) {
+            blockingUpdate();
+        }        
 
         //
         // All times are in milliseconds
@@ -204,11 +218,11 @@ public class SessionCache implements ApplicationContextAware {
             // making that call unneeded.
             throw new RemovedSessionException("No context for " + uuid);
         }
-
+        
         long lastAccess = elt.getLastAccessTime();
         long hits = elt.getHitCount();
         // Up'ing access time
-        sessions.get(uuid);
+        elt = sessions.get(uuid);
 
         // Get session info
         SessionContext ctx = (SessionContext) elt.getObjectValue();

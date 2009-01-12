@@ -8,6 +8,8 @@ package ome.server.utests.sessions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheManager;
 import ome.api.local.LocalAdmin;
@@ -25,9 +27,12 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManagerImpl;
+import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -80,8 +85,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     private SessionCache cache;
 
     // State
-    final Long TTL = 300*1000L;
-    final Long TTI = 100*1000L;
+    final Long TTL = 300 * 1000L;
+    final Long TTI = 100 * 1000L;
     Session session = new Session();
     Principal principal = new Principal("u", "g", "Test");
     String credentials = "password";
@@ -103,7 +108,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockUpdate = mock(LocalUpdate.class);
         sf.mockQuery = mock(LocalQuery.class);
     }
-    
+
     @BeforeMethod
     public void setup() {
         cache = new SessionCache();
@@ -113,6 +118,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         mgr = new TestManager();
         mgr.setRoles(new Roles());
         mgr.setSessionCache(cache);
+        mgr.setPrincipalHolder(new CurrentDetails());
         mgr.setExecutor((Executor) exMock.proxy());
         mgr.setApplicationContext(ctx);
         mgr.setDefaultTimeToIdle(TTI);
@@ -455,26 +461,26 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         // assertNotNull(ctx.getSession().getClosed());
         try {
             cache.getSessionContext(uuid);
-            fail(uuid+ " not removed");
+            fail(uuid + " not removed");
         } catch (RemovedSessionException rse) {
             // ok
         }
-        
+
     }
-    
+
     // Timeouts
     @Test
     public void testTimeoutDefaults() throws Exception {
         testCreateNewSession();
         SessionContext ctx = cache.getSessionContext(session.getUuid());
-        
+
         assertEquals(TTL, ctx.getSession().getTimeToLive());
         assertEquals(TTI, ctx.getSession().getTimeToIdle());
     }
-    
+
     @Test
     public void testTimeoutUpdatesValid() throws Exception {
-        
+
         testTimeoutDefaults();
         SessionContext ctx = cache.getSessionContext(session.getUuid());
 
@@ -482,22 +488,22 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         s.setTimeToLive(300L);
         s.setTimeToIdle(100L);
         s = mgr.update(s);
-        
+
         assertEquals(new Long(300L), s.getTimeToLive());
         assertEquals(new Long(100L), s.getTimeToIdle());
-        
+
         // For this first test we want to also verify that
         // the values in the session context are the same as the
         // returned values
-        
+
         ctx = cache.getSessionContext(session.getUuid());
         assertEquals(new Long(300L), ctx.getSession().getTimeToLive());
         assertEquals(new Long(100L), ctx.getSession().getTimeToIdle());
     }
-    
+
     @Test(expectedExceptions = SecurityViolation.class)
     public void testTimeoutUpdatesTTLNotZero() throws Exception {
-        
+
         testTimeoutDefaults();
         SessionContext ctx = cache.getSessionContext(session.getUuid());
 
@@ -505,12 +511,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         s.setTimeToLive(0L);
         s.setTimeToIdle(100L);
         s = mgr.update(s);
-        
+
     }
 
     @Test(expectedExceptions = SecurityViolation.class)
     public void testTimeoutUpdatesTTINotZero() throws Exception {
-        
+
         testTimeoutDefaults();
         SessionContext ctx = cache.getSessionContext(session.getUuid());
 
@@ -518,11 +524,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         s.setTimeToLive(100L);
         s.setTimeToIdle(0L);
         s = mgr.update(s);
-        
+
     }
-    
+
+    @Test
     public void testTimeoutUpdatesTooBig() throws Exception {
-        
+
         testTimeoutDefaults();
         SessionContext ctx = cache.getSessionContext(session.getUuid());
 
@@ -530,13 +537,69 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         s.setTimeToLive(Long.MAX_VALUE);
         s.setTimeToIdle(Long.MAX_VALUE);
         s = mgr.update(s);
-        
+
         assertEquals(new Long((Long.MAX_VALUE / 10) * 10), s.getTimeToLive());
         assertEquals(new Long((Long.MAX_VALUE / 10) * 10), s.getTimeToIdle());
-        
+
     }
 
-    
-    
-    
+    @Test
+    public void testCreationSessionShouldBeAllowedWithoutBlocking()
+            throws Exception {
+
+        // Threads
+        final CyclicBarrier forceHang = new CyclicBarrier(2);
+        final CyclicBarrier barrier = new CyclicBarrier(3);
+
+        cache.setStaleCacheListener(new StaleCacheListener() {
+
+            public void prepareReload() {
+                try {
+                    forceHang.await();
+                    barrier.await(10, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            public SessionContext reload(SessionContext context) {
+                return null;
+            }
+        });
+
+        class Update extends Thread {
+            @Override
+            public void run() {
+                try {
+                    // Here we force the an update
+                    cache.updateEvent(new UserGroupUpdateEvent(this));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        class Create extends Thread {
+            @Override
+            public void run() {
+                try {
+                    testCreateNewSession();
+                    barrier.await(2, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        // Run
+        new Update().start();
+        forceHang.await(5, TimeUnit.SECONDS);
+        // Now we know that update is blocking
+        new Create().start();
+        barrier.await(10, TimeUnit.SECONDS);
+
+        assertFalse(barrier.isBroken());
+
+    }
+
 }

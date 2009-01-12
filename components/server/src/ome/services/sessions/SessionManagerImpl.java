@@ -183,7 +183,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         // If credentials exist as session, then return that
         try {
-            SessionContext context = cache.getSessionContext(credentials);
+            SessionContext context = cache
+                    .getSessionContext(credentials, false /* non-blocking */);
             if (context != null) {
                 context.increment();
                 return context.getSession(); // EARLY EXIT!
@@ -230,7 +231,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // If username exists as session, then return that
         try {
             SessionContext context = cache.getSessionContext(principal
-                    .getName());
+                    .getName(), false /* non-blocking */);
             if (context != null) {
                 context.increment();
                 return context.getSession(); // EARLY EXIT!
@@ -470,6 +471,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     protected Map<String, Object> environment(String session, String env) {
+
+        // Bump the last accessed time.
+        // May throw a session exception
+        getReferenceCount(session);
+
         Map<String, Object> rv = new HashMap<String, Object>();
         Element elt = inMemoryCache(session).get(env);
         if (elt == null) {
