@@ -74,10 +74,6 @@
     <property name="object" ref="fullTextIndexer"/>
   </bean>
   
-  <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <constructor-arg ref="transactionManager"/>
-  </bean>
-  
   <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor">
     <description>
     Scope: private
@@ -110,16 +106,6 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="allowCreate" value="false"/>
   </bean>
-
-  <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-    <description>
-    Scope: private
-    
-    This template uses session.connection() for data access. See javadocs for
-    more info.
-    </description>
-    <constructor-arg ref="dataSource"/>
-  </bean>
   
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
     <description>
@@ -140,6 +126,8 @@
     <property name="jtaTransactionManager">
         <bean id="transactionManager.transactionManager" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
     </property>
+    <!-- http://coffeedrivenjava.blogspot.com/2006/08/distributed-xa-transactions-w-hibernate.html -->
+    <property name="useTransactionAwareDataSource" value="true"/>
   </bean>
 
 </beans>

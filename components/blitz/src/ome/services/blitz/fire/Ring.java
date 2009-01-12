@@ -7,39 +7,46 @@
 
 package ome.services.blitz.fire;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Vector;
 
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
+import ome.services.sessions.SessionManager;
+import omero.internal.ClusterPrx;
+import omero.internal.ClusterPrxHelper;
+import omero.internal.DiscoverCallbackPrx;
+import omero.internal._ClusterDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jgroups.Address;
-import org.jgroups.ChannelFactory;
-import org.jgroups.JChannelFactory;
-import org.jgroups.View;
 import org.jgroups.blocks.ReplicatedHashMap;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.SessionManagerPrx;
 import Glacier2.SessionManagerPrxHelper;
 import Glacier2.SessionPrx;
+import Ice.Current;
 
 /**
  * Distributed ring of {@link BlitzConfiguration} objects which manages lookups
  * of sessions and other resources from all the blitzes which take part in the
- * ring. Membership in the {@link Ring} is based on a single token --
+ * cluster. Membership in the {@link Ring} is based on a single token --
  * "omero.instance" -- retrieved from the current context, or if missing, a
  * calculated value which will prevent this instance from taking part in
  * clustering.
@@ -48,8 +55,7 @@ import Glacier2.SessionPrx;
  * 
  *@since Beta4
  */
-public class Ring implements ReplicatedHashMap.Notification<String, String>,
-        ApplicationListener {
+public class Ring extends _ClusterDisp implements ApplicationListener, ApplicationEventPublisherAware {
 
     private final static Log log = LogFactory.getLog(Ring.class);
 
@@ -59,77 +65,156 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
     private final static String SESSIONS = "session-";
 
-    private final String uuid = UUID.randomUUID().toString();
+    /**
+     * UUID for this cluster node. Used to uniquely identify the session manager
+     * in this blitz instance.
+     */
+    public final String uuid = UUID.randomUUID().toString();
 
+    private final SimpleJdbcTemplate jdbc;
+
+    private/*final */ApplicationEventPublisher publisher;
+    
     private/* final */Ice.Communicator communicator;
 
+    /**
+     * Multicast-based adapter solely for cluster communication.
+     */
+    private/* final */Ice.ObjectAdapter clusterAdapter;
+
+    /**
+     * Standard blitz adapter which is used for the callback.
+     */
+    private/* final */Ice.ObjectAdapter adapter;
+
+    /**
+     * {@link Ice.ObjectPrx} for this {@link Ring} instance as added to the
+     * {@link #adapter} in the {@link #init(Ice.ObjectAdapter, String)} method.
+     */
+    private/* final */Ice.ObjectPrx ownProxy;
+
+    /**
+     * Multicast (datagram) proxy to all other cluster nodes.
+     */
+    private/* final */ClusterPrx cluster;
+    
+    /**
+     * Direct proxy value to the {@link SessionManager} in this blitz instance.
+     */
     private/* final */String directProxy;
 
-    private final ReplicatedHashMap<String, String> map;
-
-    private final String groupname;
-
-    public static String determineGroupName() {
-        String defaultValue = "Runtime" + Runtime.getRuntime().hashCode();
-        String environValue = System.getenv("OMERO_INSTANCE");
-        if (environValue == null || environValue.length() == 0) {
-            environValue = defaultValue;
-        }
-        return environValue;
-    }
-
-    public Ring(String props) {
-        this(determineGroupName(), props);
-    }
-
-    public Ring(String groupname, String props) {
-        this.groupname = groupname;
+    public Ring(SimpleJdbcTemplate jdbc) {
+        this.jdbc = jdbc;
         try {
-            ChannelFactory factory = new JChannelFactory();
-
-            map = new ReplicatedHashMap<String, String>(groupname, factory,
-                    props, 10000);
-            map.setBlockingUpdates(true);
-            map.addNotifier(this);
-            map.start(1000);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not start ring: ", e);
+            jdbc.update("create table session_ring "
+                    + "(key varchar unique, value varchar)");
+            log.info("Created OMERO.cluster table");
+        } catch (BadSqlGrammarException bsge) {
+            // Here we assume that this means that the table
+            // already exists.
+            log.info("session_ring already exists");
         }
-        log.info("Initialized ring in group " + groupname);
-
-    }
-
-    public Ring() {
-        this("session_ring.xml");
     }
 
     /**
-     * 
-     * @param bc
+     * Passed to the {@link Discovery} instance for signalling completion from
+     * its background {@link Thread} 
      */
-    public void init(Ice.Communicator communicator, String directProxy) {
-        this.communicator = communicator;
+    public void setApplicationEventPublisher(ApplicationEventPublisher arg0) {
+        this.publisher = arg0;
+    }
+    
+    // Configuration and cluster usage
+    // =========================================================================
+
+    /**
+     * Typically called from within {@link BlitzConfiguration} after the
+     * communicator and adapter have been properly setup.
+     */
+    public void init(Ice.ObjectAdapter adapter, String directProxy) {
+        this.adapter = adapter;
+        this.communicator = adapter.getCommunicator();
         this.directProxy = directProxy;
-        map.put(MANAGERS + uuid, directProxy);
-        map.putIfAbsent(CONFIG + "redirect", directProxy);
+
+        // The cluster we belong to.
+        Ice.ObjectPrx prx = this.communicator.propertyToProxy("ClusterProxy");
+        prx = prx.ice_datagram();
+        cluster = ClusterPrxHelper.uncheckedCast(prx);
+        
+        // Before we add our self we check the validity of the cluster.
+        checkClusterAndAddSelf();
+        put(MANAGERS + uuid, directProxy);
+        putIfAbsent(CONFIG + "redirect", uuid);
         log.info("Current redirect: " + getRedirect());
     }
 
+    /**
+     * Method called during initialization to get all the active uuids within
+     * the cluster, and remove any dead nodes. After this, we add this instance
+     * to the cluster.
+     */
+    protected void checkClusterAndAddSelf() {
+
+        // Now create the call back and start it
+        // The instance registers and removes itself.
+        Discovery discovery = new Discovery(adapter, this, this.publisher);
+        try {
+            cluster.discover(discovery.getProxy());
+            new Thread(discovery).start();
+        } catch (Ice.NoEndpointException nee) {
+            log.warn("No cluster endpoints found", nee);
+        }
+
+        // Now our checking is done, add ourselves.
+        this.clusterAdapter = this.communicator.createObjectAdapter("Cluster");
+        ownProxy = this.clusterAdapter.add(this, this.communicator
+                .stringToIdentity("Cluster"));
+        this.clusterAdapter.activate();
+    }
+
+    /**
+     * Returns the uuid for this manager instance. Other instances will use this
+     * value to keep the session_ring table in sync.
+     */
+    public void discover(DiscoverCallbackPrx cb, Current __current) {
+        try {
+            cb.clusterNodeUuid(uuid);
+            log.info("Sent cluster node uuid: " + uuid);
+        } catch (Exception e) {
+            log.warn("Exception while sending cluster node uuid: "+uuid, e);
+        }
+    }
+
+    /**
+     * Called when any node goes down. First we try to remove any redirect for that
+     * instance. Then we try to install ourselves.
+     */
+    public void down(String downUuid, Current __current) {
+        removeIfEquals(CONFIG+"redirect", downUuid);
+        if (putIfAbsent(CONFIG+"redirect", this.uuid)) {
+            log.info("Installed self as new redirect: "+uuid);
+        }
+    }
+    
     public void destroy() {
         try {
-            log.info("Shutting down ring in group " + groupname);
-            map.remove(MANAGERS + uuid);
-            map.stop();
+            this.clusterAdapter.deactivate();
+            cluster.down(this.uuid);
+            remove(MANAGERS + uuid);
+            removeIfEquals(CONFIG+"redirect", uuid);
+            log.info("Disconnected from OMERO.cluster");
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
         }
     }
 
-    // Our usage
+    // Local usage
     // =========================================================================
 
     public boolean checkPassword(String userId) {
-        return map.get(SESSIONS + userId) != null;
+        boolean rv = get(SESSIONS + userId) != null;
+        log.info(String.format("Checking password: %s [%s]", userId, rv));
+        return rv;
     }
 
     /**
@@ -139,7 +224,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
      * when the first {@link Ring} joins the cluster.
      */
     public String getRedirect() {
-        String redirect = map.get(CONFIG + "redirect");
+        String redirect = get(CONFIG + "redirect");
         return redirect;
     }
 
@@ -149,14 +234,12 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
      * will be {@link ReplicatedHashMap#remove(Object)} removed. Otherwise the
      * value is set. In either case, the previous value is returned.
      */
-    public String putRedirect(String uuidOrProxy) {
-        String oldValue;
+    public void putRedirect(String uuidOrProxy) {
         if (uuidOrProxy == null || uuidOrProxy.length() == 0) {
-            oldValue = map.remove(CONFIG + "redirect");
+            remove(CONFIG + "redirect");
         } else {
-            oldValue = map.put(CONFIG + "redirect", uuidOrProxy);
+            put(CONFIG + "redirect", uuidOrProxy);
         }
-        return oldValue;
     }
 
     public SessionPrx getProxyOrNull(String userId,
@@ -176,10 +259,10 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
                 log.info("Redirect points to this instance; setting null");
                 proxyString = null;
             } else {
-                if (!map.containsKey(MANAGERS + redirect)) {
+                if (!containsKey(MANAGERS + redirect)) {
                     log.warn("No proxy found for manager: " + redirect);
                 } else {
-                    proxyString = map.get(MANAGERS + redirect);
+                    proxyString = get(MANAGERS + redirect);
                     log.info("Resolved redirect to: " + proxyString);
                 }
             }
@@ -189,7 +272,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
         else if (!current.ctx.containsKey("omero.routed_from")) {
 
             // Check if the session is in ring
-            proxyString = map.get(SESSIONS + userId);
+            proxyString = get(SESSIONS + userId);
             if (proxyString != null && !proxyString.equals(directProxy)) {
                 log.info(String.format("Returning remote session on %s",
                         proxyString));
@@ -197,7 +280,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
             // or needs to be load balanced
             else {
-                double IMPOSSIBLE = 309340.0;
+                double IMPOSSIBLE = 314159.0;
                 if (Math.random() > IMPOSSIBLE) {
                     Set<String> values = filter(MANAGERS);
                     if (values != null) {
@@ -208,7 +291,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
                             int idx = (int) Math.round(rnd);
                             List v = new ArrayList(values);
                             proxyString = (String) v.get(idx);
-                            proxyString = map.get(MANAGERS + proxyString);
+                            proxyString = get(MANAGERS + proxyString);
                             log.info(String.format("Load balancing to %s",
                                     proxyString));
                         }
@@ -237,119 +320,155 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
         return null;
     }
 
+    public Set<String> knownManagers() {
+        Set<String> managers = filter(MANAGERS);
+        Set<String> rv = new HashSet<String>();
+        for (String manager : managers) {
+            manager = manager.replaceFirst(MANAGERS, "");
+            rv.add(manager);
+        }
+        return rv;
+    }
+    
+    public void assertNodes(Set<String> nodeUuids) {
+        Set<String> managers = knownManagers();
+        for (String manager : managers) {
+            System.out.println(manager+"?="+nodeUuids);
+            if (!nodeUuids.contains(manager)) {
+                purgeNode(manager);
+            }
+        }
+    }
+
+    protected void purgeNode(String manager) {
+        log.info("Purging node: " + manager);
+        int count = jdbc.update("delete from session_ring where key like '"
+                + SESSIONS + "' and value = ?", manager);
+        log.info("Removed " + count + " sessions with value " + manager);
+        count = jdbc.update("delete from session_ring where key = ?", MANAGERS
+                + manager);
+        log.info("Removed " + MANAGERS + manager);
+        count = jdbc.update(
+                "delete from session_ring where key = ? and value = ?", CONFIG
+                        + "redirect", manager);
+        if (count != 0) {
+            log.info("Removed redirect to " + manager);
+        }
+        putRedirect(uuid);
+    }
+
     // Events
     // =========================================================================
 
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof CreateSessionMessage) {
-            String uuid = ((CreateSessionMessage) arg0).getSessionId();
-            map.put(SESSIONS + uuid, directProxy);
+            String session = ((CreateSessionMessage) arg0).getSessionId();
+            put(SESSIONS + session, uuid); // Use our uuid rather than proxy
         } else if (arg0 instanceof DestroySessionMessage) {
-            String uuid = ((DestroySessionMessage) arg0).getSessionId();
-            map.remove(SESSIONS + uuid);
+            String session = ((DestroySessionMessage) arg0).getSessionId();
+            remove(SESSIONS + session);
         } else if (arg0 instanceof ContextClosedEvent) {
             // This happens 3 times for each nested context. Perhaps we
             // should print and destroy?
         }
     }
 
-    // Notification interface
+    // Map interface
     // =========================================================================
+    // If the implementation of this class needs to be changed, these should be
+    // the only methods which need to be replaced. i.e. subclass implementors
+    // may want to start here.
 
-    public void contentsCleared() {
-        log.info("cleared");
+    public boolean containsKey(String key) {
+        int count = jdbc.queryForInt("select count(key) "
+                + "from session_ring " + "where key = ?", key);
+        return count > 0;
     }
 
-    public void contentsSet(Map<String, String> arg0) {
-        log.info("set contents:" + arg0);
+    public String get(String key) {
+        String value = (String) jdbc.queryForObject("select value "
+                + "from session_ring " + "where key = ?", String.class, key);
+        return value;
     }
 
-    public void entryRemoved(String arg0) {
-        log.info("remove:" + arg0);
+    public void put(String key, String value) {
+        boolean wasPut = putIfAbsent(key, value);
+        if (!wasPut) {
+            int count = jdbc.update(
+                    "update session_ring set value = ? where key = ?", value,
+                    key);
+            if (count == 0) {
+                log.info("Key not found for update: " + key);
+            } else {
+                log.info(String.format("Updated key %s with value %s", key,
+                        value));
+            }
+        }
     }
 
-    public void entrySet(String arg0, String arg1) {
-        log.info("set:" + arg0 + "=" + arg1);
-    }
-
-    public void viewChange(View arg0, Vector<Address> arg1, Vector<Address> arg2) {
-        log.info("view change:" + arg0);
-    }
-
-    // Main
-    // =========================================================================
-
-    public static void main(String[] args) throws Exception {
-
-        Ring ring = new Ring();
+    public boolean putIfAbsent(String key, String value) {
         try {
-
-            if (args == null || args.length == 0) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("java Ring [sessions | config | redirect [value]");
-                sb.append("\n");
-                sb.append("  print fqn        -    print all values at fqn\n");
-                sb.append("  redirect         -    print current redirect\n");
-                sb
-                        .append("  redirect [value] -    set current redirect. Empty removes\n");
-                sb.append(" \n");
-                System.out.println(sb.toString());
+            int count = jdbc.update(
+                    "insert into session_ring (key, value) values (?, ?)", key,
+                    value);
+            if (count > 0) {
+                log.info(String.format("Put new key: %s with value: %s ", key,
+                        value));
+                return true;
             }
-
-            if (args[0].equals("print")) {
-                if (args.length > 1) {
-                    for (int i = 1; i < args.length; i++) {
-                        ring.printTree(args[i]);
-                    }
-                } else {
-                    ring.printAll();
-                }
-            } else if (args[0].equals("redirect")) {
-                if (args.length > 1) {
-                    String value = args[1];
-                    ring.putRedirect(value);
-                } else {
-                    ring.printRedirect();
-                }
-            } else if (args[0].equals("raw")) {
-                System.out.println(ring.map);
-            }
-
-        } finally {
-            ring.destroy();
+        } catch (DataIntegrityViolationException dive) {
+            // The key already exists in the table. This is therefore
+            // a no-op
         }
+        return false;
     }
 
-    public void printAll() {
-        for (String fqn : Arrays.asList(SESSIONS, MANAGERS, CONFIG)) {
-            printTree(fqn);
-        }
-    }
-
-    public void printTree(String prefix) {
-        System.out.println("===== " + prefix + " =====");
-        Set<String> keys = filter(prefix);
-        if (keys != null && keys.size() > 0) {
-            for (String key : keys) {
-                System.out.println(String.format("%s\t%s", key, map.get(key)));
-            }
+    /**
+     * Removes a key from the session_ring table if present.
+     * 
+     * @param key
+     */
+    public boolean remove(String key) {
+        int count = jdbc.update("delete from session_ring where key = ?", key);
+        if (count == 0) {
+            log.info("Key not found to remove: " + key);
+            return false;
         } else {
-            System.out.println("(empty)");
+            log.info("Removed key: " + key);
+            return true;
         }
     }
 
-    public void printRedirect() {
-        Object uuidOrProxy = map.get(CONFIG + "redirect");
-        if (uuidOrProxy != null && uuidOrProxy.toString().length() > 0) {
-            System.out.println(uuidOrProxy.toString());
+    /**
+     * Used to remove a key/value pair iff the value equals the value give here.
+     */
+    public boolean removeIfEquals(String key, String value) {
+        int count = jdbc
+                .update("delete from session_ring where key = ? and value = ?", key, value);
+        if (count == 0) {
+            log.info("Key and value do not match: " + key + "=" + value);
+            return false;
+        } else {
+            log.info("Removed key: " + key + " since value matched: " + value);
+            return true;
         }
+    }
+
+    public List<String> keySet() {
+        return jdbc.query("select key from session_ring",
+                new ParameterizedRowMapper<String>() {
+                    public String mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        return arg0.getString(1);
+                    }
+                });
     }
 
     // Helpers
     // =========================================================================
 
     private Set<String> filter(String prefix) {
-        Set<String> values = new HashSet<String>(map.keySet());
+        Set<String> values = new HashSet<String>(keySet());
         Set<String> remove = new HashSet<String>();
         for (String value : values) {
             if (!value.startsWith(prefix)) {

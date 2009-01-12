@@ -69,11 +69,11 @@ public class BlitzConfiguration {
      * the {@link Ice.Communicator} instance. Therefore {@link #destroy()}
      * should be careful to check for nulls.
      */
-    public BlitzConfiguration(
+    public BlitzConfiguration(Ring ring,
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
-        this(createId(), sessionManager, securitySystem, executor);
+        this(createId(), ring, sessionManager, securitySystem, executor);
     }
 
     /**
@@ -88,7 +88,7 @@ public class BlitzConfiguration {
      * @param executor
      * @throws RuntimeException
      */
-    public BlitzConfiguration(Ice.InitializationData id,
+    public BlitzConfiguration(Ice.InitializationData id, Ring ring,
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
@@ -96,7 +96,7 @@ public class BlitzConfiguration {
         logger.info("Initializing Ice.Communicator");
 
         this.id = id;
-        this.blitzRing = new Ring();
+        this.blitzRing = ring;
         this.communicator = createCommunicator();
 
         if (communicator == null) {
@@ -111,10 +111,13 @@ public class BlitzConfiguration {
             blitzVerifier = createAndRegisterVerifier(sessionManager);
             managerDirectProxy = blitzAdapter.createDirectProxy(managerId());
 
-            // Must inject configuration before starting the adapter
-            blitzRing.init(communicator, communicator
-                    .proxyToString(getDirectProxy()));
             blitzAdapter.activate();
+
+            // When using adapter methods from within the ring, it is necessary
+            // to start the adapter first.
+            blitzRing.init(blitzAdapter, communicator
+                    .proxyToString(getDirectProxy()));
+
         } catch (RuntimeException e) {
             destroy();
             throw e;

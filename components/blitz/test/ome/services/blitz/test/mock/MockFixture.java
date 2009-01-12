@@ -26,10 +26,10 @@ import omero.constants.CLIENTUUID;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
 import omero.util.ObjectFactoryRegistrar;
-
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.aop.target.HotSwappableTargetSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import Ice.InitializationData;
 
@@ -43,12 +43,15 @@ public class MockFixture {
     public final Executor ex;
     public final SessionManager mgr;
     public final SecuritySystem ss;
+    public final SimpleJdbcTemplate jdbc;
 
     public static OmeroContext basicContext() {
         return new OmeroContext(new String[] { "classpath:omero/test.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
                 "classpath:ome/services/throttling/throttling.xml",
-                "classpath:ome/services/messaging.xml" });
+                "classpath:ome/services/messaging.xml",
+                "classpath:ome/services/datalayer.xml",
+                "classpath:ome/config.xml"});
     }
 
     public MockFixture(MockObjectTestCase test) throws Exception {
@@ -70,7 +73,8 @@ public class MockFixture {
         this.ex = (Executor) ctx.getBean("executor");
         this.ss = (SecuritySystem) ctx.getBean("securitySystem");
         this.mgr = (SessionManager) ctx.getBean("sessionManager");
-
+        this.jdbc = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate");
+        
         // --------------------------------------------
 
         InitializationData id = new InitializationData();
@@ -92,8 +96,15 @@ public class MockFixture {
         id.properties.setProperty("Ice.MessageSizeMax", "4096");
         // Basic configuration
         id.properties.setProperty("BlitzAdapter.Endpoints","default -h 127.0.0.1");
-
-        blitz = new BlitzConfiguration(id, mgr, ss, ex);
+        // Cluster configuration from etc/internal.cfg
+        id.properties.setProperty("Cluster.Endpoints","udp -h 224.0.0.5 -p 10000");
+        id.properties.setProperty("ClusterProxy","Cluster:udp -h 224.0.0.5 -p 10000");
+        
+        
+        Ring ring = new Ring(jdbc);
+        ring.setApplicationEventPublisher(ctx);
+        
+        blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         // The following is a bit of spring magic so that we can configure
         // the adapter in code. If this can be pushed to BlitzConfiguration
@@ -104,8 +115,8 @@ public class MockFixture {
     }
 
     public void tearDown() {
-        this.blitz.getCommunicator().destroy();
-        this.ctx.closeAll();
+        this.blitz.destroy();
+        // this.ctx.closeAll();
     }
 
     public OmeroContext getContext() {

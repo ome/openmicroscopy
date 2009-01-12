@@ -29,9 +29,13 @@
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="executor"/>
+    <constructor-arg ref="ring"/>
   </bean>
 
-  <bean id="ring" factory-bean="configuration" factory-method="getRing"/>
+  <bean id="ring" class="ome.services.blitz.fire.Ring">
+      <constructor-arg ref="simpleJdbcTemplate"/>
+  </bean>
+
   <bean id="Ice.Communicator" factory-bean="configuration" factory-method="getCommunicator"/>
   <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
   <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>
