@@ -117,6 +117,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
     public void destroy() {
         try {
             log.info("Shutting down ring in group " + groupname);
+            map.remove(MANAGERS+uuid);
             map.stop();
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
@@ -140,25 +141,26 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
         // If by the end of this method this string is non-null, then
         // SM.create() will be called on it.
-        String proxyString;
-        
+        String proxyString = null;
+
         // If there is a redirect, then we honor it as long as it doesn't
         // point back to us, in which case we bail.
-        String redirect = map.get(CONFIG+"redirect");
+        String redirect = map.get(CONFIG + "redirect");
         if (redirect != null) {
-            log.info("Found redirect: "+redirect);
+            log.info("Found redirect: " + redirect);
             if (redirect.equals(uuid)) {
                 log.info("Redirect points to this instance; setting null");
                 proxyString = null;
+            } else {
+                if (!map.containsKey(MANAGERS + redirect)) {
+                    log.warn("No proxy found for manager: " + redirect);
+                } else {
+                    proxyString = map.get(MANAGERS + redirect);
+                    log.info("Resolved redirect to: " + proxyString);
+                }
             }
-            redirect = map.get(MANAGERS+redirect);
-            if (redirect != null) {
-                log.info("Resolving redirect to: "+redirect);
-                proxyString = redirect;
-            }
-            
         }
-        
+
         // Otherwise, if this is not a recursive invocation
         else if (!current.ctx.containsKey("omero.routed_from")) {
 
@@ -190,15 +192,16 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
                 }
             }
 
-            // And if so, then return its return value
-            if (proxyString != null) {
-                current.ctx.put("omero.routed_from", directProxy);
-                Ice.ObjectPrx remote = blitz.getCommunicator().stringToProxy(
-                        proxyString);
-                SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
-                        .checkedCast(remote);
-                return sessionManagerPrx.create(userId, control, current.ctx);
-            }
+        }
+
+        // If we've found a proxy string, use that.
+        if (proxyString != null) {
+            current.ctx.put("omero.routed_from", directProxy);
+            Ice.ObjectPrx remote = blitz.getCommunicator().stringToProxy(
+                    proxyString);
+            SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
+                    .checkedCast(remote);
+            return sessionManagerPrx.create(userId, control, current.ctx);
         }
 
         // Otherwise, return null.
@@ -210,7 +213,9 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof DestroySessionMessage) {
-            map.remove(SESSIONS+((DestroySessionMessage) arg0).getSessionId());
+            map
+                    .remove(SESSIONS
+                            + ((DestroySessionMessage) arg0).getSessionId());
         } else if (arg0 instanceof ContextClosedEvent) {
             // This happens 3 times for each nested context. Perhaps we
             // should print and destroy?
@@ -225,19 +230,19 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
     }
 
     public void contentsSet(Map<String, String> arg0) {
-        log.info("set contents:"+arg0);
+        log.info("set contents:" + arg0);
     }
 
     public void entryRemoved(String arg0) {
-        log.info("remove:"+arg0);
+        log.info("remove:" + arg0);
     }
 
     public void entrySet(String arg0, String arg1) {
-        log.info("set:"+arg0+"="+arg1);
+        log.info("set:" + arg0 + "=" + arg1);
     }
 
     public void viewChange(View arg0, Vector<Address> arg1, Vector<Address> arg2) {
-        log.info("view change:"+arg0);
+        log.info("view change:" + arg0);
     }
 
     // Main
@@ -316,18 +321,19 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
             System.out.println(uuidOrProxy.toString());
         }
     }
-    
-    
+
     // Helpers
     // =========================================================================
-    
+
     private Set<String> filter(String prefix) {
-        Set<String> values = new HashSet(map.keySet());
+        Set<String> values = new HashSet<String>(map.keySet());
+        Set<String> remove = new HashSet<String>();
         for (String value : values) {
             if (!value.startsWith(prefix)) {
-                values.remove(value);
+                remove.add(value);
             }
         }
+        values.removeAll(remove);
         return values;
     }
 
