@@ -365,7 +365,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         job = sec.doAction(new SecureAction() {
             public <T extends IObject> T updateObject(T... objs) {
                 T result = iUpdate.saveAndReturnObject(objs[0]);
-                iUpdate.commit();
+                iUpdate.flush(); // was commit
                 return result;
             }
         }, job);
