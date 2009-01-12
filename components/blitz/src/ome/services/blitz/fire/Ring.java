@@ -8,6 +8,7 @@
 package ome.services.blitz.fire;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -18,7 +19,8 @@ import ome.services.messages.DestroySessionMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgroups.View;
-import org.jgroups.blocks.ReplicatedTree;
+import org.jgroups.blocks.DistributedTree;
+import org.jgroups.blocks.ReplicatedHashtable;
 import org.jgroups.blocks.ReplicatedTree.ReplicatedTreeListener;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -45,6 +47,8 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
     private final static Log log = LogFactory.getLog(Ring.class);
 
+    private final static String CONFIG = "/config";
+
     private final static String MANAGERS = "/managers";
 
     private final static String SESSIONS = "/sessions";
@@ -56,7 +60,7 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
     private/* final */String directProxy;
 
     private final ReplicatedTree tree;
-
+    
     private final String groupname;
 
     public static String determineGroupName() {
@@ -67,11 +71,11 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
         }
         return environValue;
     }
-    
+
     public Ring(String props) {
         this(determineGroupName(), props);
     }
-    
+
     public Ring(String groupname, String props) {
         this.groupname = groupname;
         try {
@@ -206,14 +210,76 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
     // =========================================================================
 
     public static void main(String[] args) throws Exception {
-        Ring ring = new Ring();
-        log.info(ring.tree);
-    }
 
-    public void printSessions() {
-        Set<String> sessions = tree.getKeys(SESSIONS);
-        for (String session : sessions) {
-            System.out.println(String.format("%s\t%s", session, tree.get(SESSIONS, session)));
+        Ring ring = new Ring();
+        try {
+            
+            if (args == null || args.length == 0) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("java Ring [sessions | config | redirect [value]");
+                sb.append("\n");
+                sb.append("  print fqn        -    print all values at fqn\n");
+                sb.append("  redirect         -    print current redirect\n");
+                sb
+                        .append("  redirect [value] -    set current redirect. Empty removes\n");
+                sb.append(" \n");
+                System.out.println(sb.toString());
+            }
+
+            if (args[0].equals("print")) {
+                if (args.length > 1) {
+                    for (int i = 1; i < args.length; i++) {
+                        ring.printTree(args[i]);
+                    }
+                } else {
+                    ring.printAll();
+                }
+            } else if (args[0].equals("redirect")) {
+                if (args.length > 1) {
+                    String value = args[1];
+                    ring.setRedirect(value);
+                } else {
+                    ring.printRedirect();
+                }
+            }
+            
+        } finally {
+            ring.destroy();
         }
     }
+
+    public void printAll() {
+        for (String fqn : Arrays.asList(SESSIONS, MANAGERS, CONFIG)) {
+            printTree(fqn);
+        }
+    }
+
+    public void printTree(String fqn) {
+        System.out.println("===== " + fqn + " =====");
+        Set<String> keys = tree.getKeys(fqn);
+        if (keys != null && keys.size() > 0) {
+            for (String key : keys) {
+                System.out.println(String.format("%s\t%s", key, tree.get(
+                        SESSIONS, key)));
+            }
+        } else {
+            System.out.println("(empty)");
+        }
+    }
+
+    public void setRedirect(String uuidOrProxy) {
+        if (uuidOrProxy == null || uuidOrProxy.length() == 0) {
+            tree.remove(CONFIG, "redirect");
+        } else {
+            tree.put(CONFIG, "redirect", uuidOrProxy);
+        }
+    }
+
+    public void printRedirect() {
+        Object uuidOrProxy = tree.get(CONFIG, "redirect");
+        if (uuidOrProxy != null && uuidOrProxy.toString().length() > 0) {
+            System.out.println(uuidOrProxy.toString());
+        }
+    }
+
 }
