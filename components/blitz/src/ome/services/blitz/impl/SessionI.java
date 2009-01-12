@@ -74,7 +74,7 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
     }
 
     public void createUserSession_async(AMD_ISession_createUserSession __cb, long arg0,
-            long arg1, String arg2,omero.sys.Principal arg3, Ice.Current __current)
+            long arg1, String arg2,omero.model.Permissions arg3, Ice.Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, arg0, arg1, arg2, arg3);
     }

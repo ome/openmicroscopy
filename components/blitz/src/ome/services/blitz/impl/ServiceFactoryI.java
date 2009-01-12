@@ -127,6 +127,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import Ice.ConnectionRefusedException;
 import Ice.Current;
+import Ice.ObjectPrx;
 
 /**
  * Responsible for maintaining all servants for a single session.
@@ -392,6 +393,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
+    public void subscribe(String topicName, ObjectPrx prx, Current __current)
+            throws ServerError {
+        // no-op
+    }
+    
     public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
             int seconds, Current current) throws ServerError {
 

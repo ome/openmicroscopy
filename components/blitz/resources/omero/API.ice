@@ -295,7 +295,7 @@ module omero {
 	{
 	    omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
 	    omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds,
-						    string defaultGroup, omero::sys::Principal p) throws ServerError;
+						    string defaultGroup, omero::model::Permissions umask) throws ServerError;
             omero::model::Session getSession(string sessionUuid) throws ServerError;
 	    int getReferenceCount(string sessionUuid) throws ServerError;
 	    omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
@@ -843,6 +843,14 @@ module omero {
 	    omero::grid::InteractiveProcessor*
 		acquireProcessor(omero::model::Job job, int seconds)
 		throws ServerError;
+ 
+	    /*
+	     * Subscribe to a given topic. The topic must exist and the user must
+	     * have sufficient permissions for that topic. Further the proxy object
+	     * must match the required type for the topic as encoded in the topic
+	     * name.
+	     */
+	    void subscribe(string topicName, Object* prx) throws ServerError;
 
 	    /*
 	     * Sets the single callback used by the ServiceFactory
