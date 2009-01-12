@@ -121,8 +121,12 @@ public interface ISession extends ServiceInterface {
      * Closes session and releases all resources. It is preferred that all
      * clients call this method as soon as possible to free memory, but it is
      * possible to not call close, and rejoin a session later.
+     * 
+     * The current reference count for the session is returned. If the session
+     * does not exist, -1. If this call caused the death of the session, then
+     * -2.
      */
-    void closeSession(@NotNull Session session);
+    int closeSession(@NotNull Session session);
 
     // void addNotification(String notification);
     // void removeNotification(String notification);

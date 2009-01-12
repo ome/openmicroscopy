@@ -151,9 +151,9 @@ public class SessionBean implements ISession, SelfConfigurableService {
     }
 
     @RolesAllowed( { "user", "guest" })
-    public void closeSession(@NotNull
+    public int closeSession(@NotNull
     Session session) {
-        mgr.close(session.getUuid());
+        return mgr.close(session.getUuid());
     }
 
     // ~ Environment
