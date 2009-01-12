@@ -44,9 +44,6 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     pt->setValue( rstring("int8") );
     d0->setValue( rstring("XYZTC") );
 
-    pd->setSizeX( rfloat(1.0) );
-    pd->setSizeY( rfloat(1.0) );
-    pd->setSizeZ( rfloat(1.0) );
     lc->setPhotometricInterpretation( pi );
 
     pix->setSizeX( rint(1) );
