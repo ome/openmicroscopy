@@ -18,6 +18,7 @@ import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IAdmin_addGroups;
+import omero.api.AMD_IAdmin_canUpdate;
 import omero.api.AMD_IAdmin_changeExpiredCredentials;
 import omero.api.AMD_IAdmin_changeGroup;
 import omero.api.AMD_IAdmin_changeOwner;
@@ -97,6 +98,12 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
             }
         }
         callInvokerOnMappedArgs(mapper, __cb, __current, u, array);
+    }
+
+    public void canUpdate_async(
+            AMD_IAdmin_canUpdate __cb, IObject obj, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, obj);
     }
 
     public void changeExpiredCredentials_async(
