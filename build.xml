@@ -61,7 +61,7 @@ build-* targets.
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
         <delete includeemptydirs="true">
-            <fileset dir="${lib.dir}/repository" includes="omero,omero-tools"/>
+            <fileset dir="${lib.dir}/repository" includes="omero/**,omero-tools/**"/>
         </delete>
         <delete dir="${target.dir}"/>
     </target>
@@ -311,6 +311,8 @@ build-* targets.
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar"/>
+		    <exclude name="repository/omero/**"/>
+		    <exclude name="repository/omero-tools/**"/>
                 </fileset>
             </classpath>
 
