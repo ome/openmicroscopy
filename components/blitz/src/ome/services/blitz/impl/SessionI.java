@@ -14,6 +14,7 @@ import omero.ServerError;
 import omero.api.AMD_ISession_closeSession;
 import omero.api.AMD_ISession_createSession;
 import omero.api.AMD_ISession_createSessionWithTimeout;
+import omero.api.AMD_ISession_createSessionWithTimeouts;
 import omero.api.AMD_ISession_getInput;
 import omero.api.AMD_ISession_getInputKeys;
 import omero.api.AMD_ISession_getOutput;
@@ -52,8 +53,15 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void createSessionWithTimeout_async(
             AMD_ISession_createSessionWithTimeout __cb, Principal p,
-            long seconds, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, p, seconds);
+            long ttlMs, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, p, ttlMs);
+
+    }
+
+    public void createSessionWithTimeouts_async(
+            AMD_ISession_createSessionWithTimeouts __cb, Principal p,
+            long ttlMs, long ttiMs, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, p, ttlMs, ttiMs);
 
     }
 

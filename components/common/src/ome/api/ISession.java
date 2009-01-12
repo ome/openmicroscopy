@@ -46,15 +46,33 @@ public interface ISession extends ServiceInterface {
      * 
      * @param principal
      *            Non-null {@link Principal} with the target user's name
-     * @param seconds
+     * @param timeToLiveMilliseconds
      *            The time that this {@link Session} has until destruction. This
      *            is useful to override the server default so that an initial
      *            delay before the user is given the token will not be construed
      *            as idle time. A value less than 1 will cause the default max
      *            timeToLive to be used; but timeToIdle will be disabled.
      */
-    Session createSessionWithTimeout(@NotNull
-    Principal principal, long milliseconds);
+    Session createSessionWithTimeout(@NotNull Principal principal,
+            long timeToLiveMilliseconds);
+
+    /**
+     * Allows an admin to create a {@link Session} for the give
+     * {@link Principal}
+     * 
+     * @param principal
+     *            Non-null {@link Principal} with the target user's name
+     * @param timeToLiveMillseconds
+     *            The time that this {@link Session} has until destruction.
+     *            Setting the value to 0 will prevent destruction unless the
+     *            session remains idle.
+     * @param timeToIdleMilliseconds
+     *            The time that this {@link Session} can remain idle before
+     *            being destroyed. Setting the value to 0 will prevent idleness
+     *            based destruction.
+     */
+    Session createSessionWithTimeouts(@NotNull Principal principal,
+            long timeToLiveMilliseconds, long timeToIdleMilliseconds);
 
     /**
      * Creates a new session and returns it to the user.
@@ -64,16 +82,14 @@ public interface ISession extends ServiceInterface {
      * @throws SecurityViolation
      *             if the password check fails
      */
-    Session createSession(@NotNull
-    Principal principal, @Hidden
-    String credentials);
+    Session createSession(@NotNull Principal principal,
+            @Hidden String credentials);
 
     /**
      * Updates subset of the fields from the {@link Session} object.
      * 
      * Updated: group, {@link Session#userAgent}, {@link Session#message},
-     * {@link Session#defaultUmask},
-     * {@link Session#setDefaultEventType(String)}
+     * {@link Session#defaultUmask}, {@link Session#setDefaultEventType(String)}
      * 
      * Ignored: All others, but especially user, {@link Session#events}
      * {@link Session#uuid}, and the timestamps
@@ -83,8 +99,7 @@ public interface ISession extends ServiceInterface {
      * @return The {@link Session} updated instance. Should replace the current
      *         value: <code> session = iSession.updateSession(session); </code>
      */
-    Session updateSession(@NotNull
-    Session session);
+    Session updateSession(@NotNull Session session);
 
     /**
      * Retrieves the session associated with this uuid. Throws a
@@ -93,16 +108,14 @@ public interface ISession extends ServiceInterface {
      * 
      * This method can be used as a {@link Session} ping.
      */
-    Session getSession(@NotNull
-    String sessionUuid);
+    Session getSession(@NotNull String sessionUuid);
 
     /**
      * Closes session and releases all resources. It is preferred that all
      * clients call this method as soon as possible to free memory, but it is
      * possible to not call close, and rejoin a session later.
      */
-    void closeSession(@NotNull
-    Session session);
+    void closeSession(@NotNull Session session);
 
     // void addNotification(String notification);
     // void removeNotification(String notification);

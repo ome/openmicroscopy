@@ -106,6 +106,23 @@ public class SessionBean implements ISession, SelfConfigurableService {
         }
 
     }
+    
+    @RolesAllowed("system")
+    public Session createSessionWithTimeouts(@NotNull
+    Principal principal, long timeToLiveMilliseconds,
+    long timeToIdleMilliseconds) {
+
+        Session session = null;
+        try {
+            session = mgr.create(principal);
+            session.setTimeToIdle(timeToIdleMilliseconds);
+            session.setTimeToLive(timeToLiveMilliseconds);
+            return mgr.update(session);
+        } catch (Exception e) {
+            throw creationExceptionHandler(e);
+        }
+
+    }
 
     @RolesAllowed( { "user", "guest" })
     public Session createSession(@NotNull

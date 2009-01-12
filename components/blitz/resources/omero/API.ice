@@ -79,6 +79,7 @@ module omero {
 	{
 
 	    // Getters
+            idempotent bool canUpdate(omero::model::IObject obj) throws ServerError;
 	    idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
 	    idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
 	    idempotent ExperimenterList lookupExperimenters() throws ServerError;
@@ -95,15 +96,15 @@ module omero {
 
 	    void updateSelf(omero::model::Experimenter experimenter) throws ServerError;
 	    void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
-	    void updateExperimenterWithPassword(omero::model::Experimenter experimenter, 
-	    			omero::RString password) throws ServerError;
+	    void updateExperimenterWithPassword(omero::model::Experimenter experimenter,
+                                                omero::RString password) throws ServerError;
 	    void updateGroup(omero::model::ExperimenterGroup group) throws ServerError;
 	    long createUser(omero::model::Experimenter experimenter, string group) throws ServerError;
 	    long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
 	    long createExperimenter(omero::model::Experimenter user,
 				    omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;
-		long createExperimenterWithPassword(omero::model::Experimenter user, omero::RString password,
-				    omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;				    
+            long createExperimenterWithPassword(omero::model::Experimenter user, omero::RString password,
+				    omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;
 	    long createGroup(omero::model::ExperimenterGroup group) throws ServerError;
 	    idempotent void addGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
 	    idempotent void removeGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
