@@ -55,15 +55,9 @@
     <property name="maxPoolSize"><value>${c3p0.maxPoolSize}</value></property>
   </bean>
 
-  <bean id="atomikosTransactionManager"
-        class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
-    <!--  when close is called, should we force transactions to terminate or not? -->
-    <property name="forceShutdown"><value>true</value></property>
-  </bean>
-
-  <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
-    <property name="transactionTimeout"><value>300</value></property>
-  </bean>
+  <!-- configured in etc/jta.properties -->
+  <bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close"/>
+  <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp"/>
 
   <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
     <property name="transactionManager"><ref bean="atomikosTransactionManager"  /></property>
