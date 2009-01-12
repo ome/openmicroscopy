@@ -47,6 +47,7 @@
 		<include name="omero.properties"/>
 		<include name="hibernate.properties"/>
 		<include name="c3p0.properties"/>
+		<include name="jta.properties"/>
 		<include name="log4j.xml"/>
 	</patternset>
 

@@ -30,32 +30,44 @@
     are added, they should also be configured at this level)
   </description>
 
+  <!-- Unique identifier for this Spring context. This is important to
+  distinguish multiple uses of the same database, for example in clustering -->
+  <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
+  <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
+
   <!--  Scope: private -->
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
-  <bean id="innerDataSource" class="org.enhydra.jdbc.standard.StandardXADataSource" destroy-method="shutdown">
-    <property name="transactionManager" ref="jotm"/>
-    <property name="driverName" value="${hibernate.connection.driver_class}"/>
-    <property name="url" value="${hibernate.connection.url}"/><!-- ?loglevel=2 -->
-    <property name="user" value="${hibernate.connection.username}"/>
-    <property name="password" value="${hibernate.connection.password}"/>
-    <property name="maxCon" value="${c3p0.maxPoolSize}"/>
-    <property name="minCon" value="${c3p0.minPoolSize}"/>
+  <bean id="xaDataSource"
+        class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+    <property name="uniqueResourceName" ref="uuid"/>
+    <property name="xaDataSourceClassName" value="org.postgresql.xa.PGXADataSource"/>
+    <property name="xaProperties">
+      <props>
+        <prop key="user">${hibernate.connection.username}</prop>
+        <prop key="password">${hibernate.connection.password}</prop>
+        <prop key="databaseName">${database.name}</prop>
+        <prop key="serverName">${database.host}</prop>
+        <prop key="portNumber">5432</prop>
+      </props>
+    </property>
+    <property name="maxPoolSize"><value>${c3p0.maxPoolSize}</value></property>
   </bean>
 
-  <bean id="xaDataSource" class="org.enhydra.jdbc.pool.StandardXAPoolDataSource" destroy-method="shutdown">
-    <property name="dataSource"><ref local="innerDataSource"/></property>
-    <property name="maxSize" value="${c3p0.maxPoolSize}"/>
-    <property name="minSize" value="${c3p0.minPoolSize}"/>
-    <property name="user" value="${hibernate.connection.username}"/>
-    <property name="password" value="${hibernate.connection.password}"/>
+  <bean id="atomikosTransactionManager"
+        class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
+    <!--  when close is called, should we force transactions to terminate or not? -->
+    <property name="forceShutdown"><value>true</value></property>
   </bean>
 
-  <bean id="jotm" class="ome.tools.spring.JotmFactoryBean"/>
+  <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
+    <property name="transactionTimeout"><value>300</value></property>
+  </bean>
 
   <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
-    <property name="userTransaction" ref="jotm"/>
+    <property name="transactionManager"><ref bean="atomikosTransactionManager"  /></property>
+    <property name="userTransaction"><ref bean="atomikosUserTransaction"  /></property>
   </bean>
 
   <bean id="transactionHandler"

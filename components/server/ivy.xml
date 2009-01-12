@@ -21,18 +21,13 @@
     <!-- Ice -->
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
-    <!-- Jotm -->
-    <dependency org="jotm" name="howl_jotm" rev="2.0.10"/>
-    <dependency org="jotm" name="jotm" rev="2.0.10"/>
-    <dependency org="jotm" name="jotm_jrmp_stubs" rev="2.0.10"/>
-    <dependency org="jotm" name="jts1_0_jotm" rev="2.0.10"/>
-    <dependency org="jotm" name="objectweb-datasource_jotm" rev="2.0.10"/>
-    <dependency org="jotm" name="ow_carlos_jotm" rev="2.0.10"/>
-    <dependency org="jotm" name="xapool_jotm" rev="2.0.10"/>
+    <!-- atomikos -->
+    <dependency org="atomikos" name="atomikos-transactions-essentials-all" rev="3.4.3"/>
+    <dependency org="slf4j" name="slf4j-api" rev="1.4.3"/>
+    <dependency org="slf4j" name="slf4j-log4j12" rev="1.4.3"/>
     <!-- Public -->
     <dependency org="commons-lang" name="commons-lang" rev="2.1"/>
     <dependency org="activemq" name="activemq-core" rev="3.2"/>
-    <dependency org="c3p0" name="c3p0" rev="${versions.c3p0}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="1.7.0"/>
     <dependency org="commons-codec" name="commons-codec" rev="1.3"/>
     <dependency org="commons-dbcp" name="commons-dbcp" rev="1.2.1"/>
