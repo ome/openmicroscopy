@@ -108,23 +108,22 @@ public class FullTextIndexer implements Work {
     public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
         int count = 1;
-        int batches = 0;
+        int perbatch = 0;
         do {
-            batches++;
             FullTextSession fullTextSession = Search
                     .createFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
             fullTextSession.setCacheMode(CacheMode.IGNORE);
-            doIndexing(fullTextSession);
+            perbatch = doIndexing(fullTextSession);
             session.flush();
             count++;
         } while (doMore(count));
-        log.info(String.format("INDEXED %s objects in %s batches", count,
-                batches));
+        log.info(String.format("INDEXED %s objects in %s batches", perbatch,
+                count - 1));
         return null;
     }
 
-    public void doIndexing(FullTextSession session) {
+    public int doIndexing(FullTextSession session) {
 
         int count = 0;
 
@@ -147,6 +146,7 @@ public class FullTextIndexer implements Work {
                     if (action != null) {
                         try {
                             action.go(session);
+                            count++;
                         } catch (Exception e) {
                             String msg = "FullTextIndexer stuck! "
                                     + "Failed to index EventLog: " + eventLog;
@@ -160,7 +160,7 @@ public class FullTextIndexer implements Work {
             }
 
         }
-
+        return count;
     }
 
     /**
