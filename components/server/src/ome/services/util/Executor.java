@@ -239,7 +239,7 @@ public interface Executor extends ApplicationContextAware {
                                 return work.doWork(status, s);
                             } finally {
                                 if (s != null) {
-                                    s.close();
+                                    s.close(); // Prevents connection leak
                                 }
                             }
                         }
