@@ -40,6 +40,7 @@ import org.jmock.core.Constraint;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
 import org.springframework.context.event.ApplicationEventMulticaster;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -79,6 +80,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     private SessionCache cache;
 
     // State
+    final Long TTL = 300*1000L;
+    final Long TTI = 100*1000L;
     Session session = new Session();
     Principal principal = new Principal("u", "g", "Test");
     String credentials = "password";
@@ -99,7 +102,10 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockUpdate = mock(LocalUpdate.class);
         sf.mockQuery = mock(LocalQuery.class);
-
+    }
+    
+    @BeforeMethod
+    public void setup() {
         cache = new SessionCache();
         cache.setCacheManager(CacheManager.getInstance());
         cache.setApplicationContext(ctx);
@@ -109,8 +115,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         mgr.setSessionCache(cache);
         mgr.setExecutor((Executor) exMock.proxy());
         mgr.setApplicationContext(ctx);
-        mgr.setDefaultTimeToIdle(100 * 1000L);
-        mgr.setDefaultTimeToLive(300 * 1000L);
+        mgr.setDefaultTimeToIdle(TTI);
+        mgr.setDefaultTimeToLive(TTL);
 
         session = mgr.doDefine();
         session.setId(1L);
@@ -408,11 +414,6 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testShouldManagerDisallowMultipleSessions() throws Exception {
-        fail("DECIDE");
-    }
-
-    @Test
     public void testWhatHappensIfAnEventOccursDuringUpdateEtc()
             throws Exception {
         fail("NYI");
@@ -448,6 +449,94 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         prepareSessionUpdate();
         mgr.close(uuid);
         assertEquals(0, ctx.refCount());
-        assertNotNull(ctx.getSession().getClosed());
+        // Closing the session is now done asynchronously.
+        // Instead, let's make sure it's removed from the
+        // cache
+        // assertNotNull(ctx.getSession().getClosed());
+        try {
+            cache.getSessionContext(uuid);
+            fail(uuid+ " not removed");
+        } catch (RemovedSessionException rse) {
+            // ok
+        }
+        
     }
+    
+    // Timeouts
+    @Test
+    public void testTimeoutDefaults() throws Exception {
+        testCreateNewSession();
+        SessionContext ctx = cache.getSessionContext(session.getUuid());
+        
+        assertEquals(TTL, ctx.getSession().getTimeToLive());
+        assertEquals(TTI, ctx.getSession().getTimeToIdle());
+    }
+    
+    @Test
+    public void testTimeoutUpdatesValid() throws Exception {
+        
+        testTimeoutDefaults();
+        SessionContext ctx = cache.getSessionContext(session.getUuid());
+
+        Session s = mgr.copy(ctx.getSession());
+        s.setTimeToLive(300L);
+        s.setTimeToIdle(100L);
+        s = mgr.update(s);
+        
+        assertEquals(new Long(300L), s.getTimeToLive());
+        assertEquals(new Long(100L), s.getTimeToIdle());
+        
+        // For this first test we want to also verify that
+        // the values in the session context are the same as the
+        // returned values
+        
+        ctx = cache.getSessionContext(session.getUuid());
+        assertEquals(new Long(300L), ctx.getSession().getTimeToLive());
+        assertEquals(new Long(100L), ctx.getSession().getTimeToIdle());
+    }
+    
+    @Test(expectedExceptions = SecurityViolation.class)
+    public void testTimeoutUpdatesTTLNotZero() throws Exception {
+        
+        testTimeoutDefaults();
+        SessionContext ctx = cache.getSessionContext(session.getUuid());
+
+        Session s = mgr.copy(ctx.getSession());
+        s.setTimeToLive(0L);
+        s.setTimeToIdle(100L);
+        s = mgr.update(s);
+        
+    }
+
+    @Test(expectedExceptions = SecurityViolation.class)
+    public void testTimeoutUpdatesTTINotZero() throws Exception {
+        
+        testTimeoutDefaults();
+        SessionContext ctx = cache.getSessionContext(session.getUuid());
+
+        Session s = mgr.copy(ctx.getSession());
+        s.setTimeToLive(100L);
+        s.setTimeToIdle(0L);
+        s = mgr.update(s);
+        
+    }
+    
+    public void testTimeoutUpdatesTooBig() throws Exception {
+        
+        testTimeoutDefaults();
+        SessionContext ctx = cache.getSessionContext(session.getUuid());
+
+        Session s = mgr.copy(ctx.getSession());
+        s.setTimeToLive(Long.MAX_VALUE);
+        s.setTimeToIdle(Long.MAX_VALUE);
+        s = mgr.update(s);
+        
+        assertEquals(new Long((Long.MAX_VALUE / 10) * 10), s.getTimeToLive());
+        assertEquals(new Long((Long.MAX_VALUE / 10) * 10), s.getTimeToIdle());
+        
+    }
+
+    
+    
+    
 }

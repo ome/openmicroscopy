@@ -6,6 +6,7 @@
  */
 package ome.server.itests.sec;
 
+import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -118,4 +119,37 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         sessionManager.setOutput(uuid, "a", null);
         assertNull(sessionManager.getOutput(uuid, "a"));
     }
+    
+    // Timeouts
+    
+    @Test
+    public void testTimeouts() throws Exception {
+        login("root", "user", "User");
+        Session s = sm.create(new Principal("root", "user", "Test"));
+        String uuid = s.getUuid();
+
+        // By default TTI is non-null, we're assuming this is the case here
+        s.setTimeToIdle(0L);
+        try {
+            sm.update(s);
+            fail("No security violation!");
+        } catch (SecurityViolation sv) {
+            // ok
+        }
+        s.setTimeToIdle(12345L);
+        sm.update(s);
+    }
+    
+    @Test
+    public void testTimeoutsWithNulls() throws Exception {
+        login("root", "user", "User");
+        Session s = sm.create(new Principal("root", "user", "Test"));
+        String uuid = s.getUuid();
+
+        Session newSession = new Session();
+        newSession.setUuid(uuid);
+        newSession.setTimeToIdle(12346L);
+        sm.update(newSession);
+    }
+    
 }

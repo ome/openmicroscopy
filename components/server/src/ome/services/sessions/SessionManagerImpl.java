@@ -21,6 +21,7 @@ import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.RemovedSessionException;
+import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Permissions;
@@ -80,7 +81,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     protected SessionCache cache;
     protected Executor executor;
     protected long defaultTimeToIdle;
+    protected long maxUserTimeToIdle;
     protected long defaultTimeToLive;
+    protected long maxUserTimeToLive;
     protected PrincipalHolder principalHolder;
 
     // Local state
@@ -122,10 +125,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public void setDefaultTimeToIdle(long defaultTimeToIdle) {
         this.defaultTimeToIdle = defaultTimeToIdle;
+        this.maxUserTimeToIdle = Math.min(Long.MAX_VALUE / 10,
+                defaultTimeToIdle);
+        this.maxUserTimeToIdle *= 10;
     }
 
     public void setDefaultTimeToLive(long defaultTimeToLive) {
         this.defaultTimeToLive = defaultTimeToLive;
+        this.maxUserTimeToLive = Math.min(Long.MAX_VALUE / 10,
+                defaultTimeToLive);
+        this.maxUserTimeToLive *= 10;
+
     }
 
     public void setPrincipalHolder(PrincipalHolder principal) {
@@ -275,11 +285,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         String defaultGroup = null;
         final ome.model.internal.Details d = session.getDetails();
         if (d != null) {
-            final ExperimenterGroup group = d.getGroup();
+            ExperimenterGroup group = d.getGroup();
             if (group != null) {
                 try {
-                    defaultGroup = this.executeGroupProxy(group.getId())
-                            .getName();
+                    Long groupId = group.getId();
+                    if (groupId != null) {
+                        group = this.executeGroupProxy(groupId);
+                        if (group != null) {
+                            defaultGroup = group.getName();
+                        }
+                    }
                 } catch (Exception e) {
                     throw new ApiUsageException(
                             "Cannot change default group to " + group + "\n"
@@ -288,6 +303,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             }
         }
 
+        // If still null, take the current
         if (defaultGroup == null) {
             defaultGroup = ctx.getCurrentGroupName();
         }
@@ -299,7 +315,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // Unconditionally settable; these are open to the user for change
         parseAndSetDefaultType(session.getDefaultEventType(), orig);
         parseAndSetDefaultPermissions(session.getDefaultPermissions(), orig);
-        orig.setUserAgent(session.getUserAgent());
+        parseAndSetUserAgent(session.getUserAgent(), orig);
+
+        // Conditionally settable
+        parseAndSetTimeouts(session.getTimeToLive(), session.getTimeToIdle(),
+                orig);
 
         // Need to handle notifications
 
@@ -312,7 +332,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             Session copy = copy(orig);
             executeUpdate(copy);
             cache.putSession(orig.getUuid(), ctx);
-            return session;
+            return copy(orig);
         }
 
     }
@@ -607,6 +627,44 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private void parseAndSetDefaultType(String type, Session session) {
         String _type = (type == null) ? "User" : type;
         session.setDefaultEventType(_type);
+    }
+
+    /**
+     * For the moment, user agent is nullable meaning that the only way to unset
+     * a set value is by passing in null, so this is allowed here. This implies
+     * that the best way to keep userAgent from being set to null is to always
+     * return to ISession.updateSession() a session value which was originally
+     * retrieved.
+     */
+    private void parseAndSetUserAgent(String userAgent, Session session) {
+        session.setUserAgent(userAgent);
+    }
+
+    private void parseAndSetTimeouts(Long timeToLive, Long timeToIdle,
+            Session session) {
+
+        if (timeToLive != null) {
+            
+            // Let users set a value within reasons
+            long activeTTL = Math.min(maxUserTimeToLive, timeToLive);
+            
+            // But if the value is 0, then the default must also be 0
+            if (activeTTL == 0 && defaultTimeToLive != 0) {
+                throw new SecurityViolation("Cannot disable timeToLive. "
+                        + "Value must be between 1 and " + maxUserTimeToLive);
+            }
+            session.setTimeToLive(activeTTL);
+        }
+
+        // As above
+        if (timeToIdle != null) {
+            long activeTTI = Math.min(maxUserTimeToIdle, timeToIdle);
+            if (activeTTI == 0 && defaultTimeToIdle != 0) {
+                throw new SecurityViolation("Cannot disable timeToIdle. "
+                        + "Value must be between 1 and " + maxUserTimeToIdle);
+            }
+            session.setTimeToIdle(activeTTI);
+        }
     }
 
     public Session copy(Session source) {

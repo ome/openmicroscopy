@@ -86,13 +86,20 @@ public interface ISession extends ServiceInterface {
             @Hidden String credentials);
 
     /**
-     * Updates subset of the fields from the {@link Session} object.
+     * Updates subset of the fields from the {@link Session} object to the
+     * {@link Session} matching the given uuid. If the {@link Session#getUuid()
+     * uuid} is not present, then a {@link RemovedSessionException} is thrown.
      * 
      * Updated: group, {@link Session#userAgent}, {@link Session#message},
      * {@link Session#defaultUmask}, {@link Session#setDefaultEventType(String)}
      * 
+     * Conditionally updated: timeToLive, timeToIdle These can only be set
+     * within boundaries provided by the system administrator. Currently this is
+     * hard-coded to mean 10 times the defaultTimeToLive and defaultTimeToIdle,
+     * respectively.
+     * 
      * Ignored: All others, but especially user, {@link Session#events}
-     * {@link Session#uuid}, and the timestamps
+     * {@link Session#uuid}, and the timestamps.
      * 
      * @param session
      *            The {@link Session} instance to be updated.
