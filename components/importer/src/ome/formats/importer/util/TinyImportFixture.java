@@ -31,7 +31,6 @@ import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.testclient.ExampleUnitTest;
 import ome.model.containers.Dataset;
 import ome.model.core.Pixels;
 import ome.system.ServiceFactory;
