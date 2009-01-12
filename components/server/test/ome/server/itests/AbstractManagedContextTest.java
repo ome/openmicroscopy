@@ -152,7 +152,7 @@ public class AbstractManagedContextTest extends
         loginRoot();
 
     }
-    
+
     @Override
     protected void onTearDown() throws Exception {
         sessionManager.closeAll();
@@ -181,6 +181,20 @@ public class AbstractManagedContextTest extends
         loginUser(uuid);
 
         return iQuery.get(Experimenter.class, uid);
+    }
+
+    public Experimenter loginNewUserInOtherUsersGroup(Experimenter e1) {
+        Experimenter e2 = loginNewUser();
+        // Here we add the second user to the same
+        // group to make sure s/he can see the image.
+        // If we ever move to private permissions by
+        // default, then we will need to do a chmod
+        // on the whole image graph.
+        loginRoot();
+        ExperimenterGroup g1 = iAdmin.getDefaultGroup(e1.getId());
+        iAdmin.addGroups(e2, g1);
+        loginUser(e2.getOmeName());
+        return e2;
     }
 
     protected void loginUser(String omeName) {

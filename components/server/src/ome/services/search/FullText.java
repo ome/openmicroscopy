@@ -7,8 +7,10 @@
 
 package ome.services.search;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
@@ -21,10 +23,10 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.search.FullTextQuery;
@@ -143,27 +145,18 @@ public class FullText extends SearchAction {
             }
         }
 
-        // Main query
-        FullTextQuery ftQuery = session.createFullTextQuery(this.q, cls);
-        ftQuery.setProjection(ProjectionConstants.SCORE, ProjectionConstants.THIS);
-        ftQuery.setCriteriaQuery(criteria);
-
         // orderBy
         if (values.orderBy.size() > 0) {
-            SortField[] sorts = new SortField[values.orderBy.size()];
-            for (int i = 0; i < sorts.length; i++) {
+            for (int i = 0; i < values.orderBy.size(); i++) {
                 String orderBy = values.orderBy.get(i);
                 String orderWithoutMode = orderByPath(orderBy);
                 boolean ascending = orderByAscending(orderBy);
                 if (ascending) {
-                    sorts[i] = new SortField(orderWithoutMode,
-                            SortField.STRING, false);
+                    criteria.addOrder(Order.asc(orderWithoutMode));
                 } else {
-                    sorts[i] = new SortField(orderWithoutMode,
-                            SortField.STRING, true);
+                    criteria.addOrder(Order.desc(orderWithoutMode));
                 }
             }
-            ftQuery.setSort(new Sort(sorts));
         }
 
         final String ticket975 = "ticket:975 - Wrong return type: %s instead of %s\n"
@@ -173,22 +166,40 @@ public class FullText extends SearchAction {
                 + "If you are recieving this error, please try using the \n"
                 + "intersection/union methods to achieve the same results.";
 
-        List<?> check975 = ftQuery.list();
-        List<IObject> returnValue = new ArrayList<IObject>();
+        // Main query
+        FullTextQuery ftQuery = session.createFullTextQuery(this.q, cls);
+        ftQuery
+                .setProjection(ProjectionConstants.SCORE,
+                        ProjectionConstants.ID);
+        List<?> result = ftQuery.list();
+        int totalSize = ftQuery.getResultSize();
+
+        if (result.size() == 0) {
+            // EARLY EXIT 
+            return result; // of wrong type but with generics it doesn't matter
+        }
         
-        // WORKAROUND
-        for (Object result : check975) {
-            Object[] parts = (Object[]) result;
-            Float score = (Float) parts[0];
-            IObject object = (IObject) parts[1];
+        Map<Long, Float> scores = new HashMap<Long, Float>();
+        for (int i = 0; i < result.size(); i++) {
+            Object[] parts = (Object[]) result.get(i);
+            scores.put((Long) parts[1], (Float) parts[0]);
+        }
+
+        // TODO Could add a performance optimization here on returnUnloaded
+
+        criteria.add(Restrictions.in("id", scores.keySet()));
+        List<IObject> check975 = criteria.list();
+        for (IObject object : check975) {
+            // TODO This is now all but impossible. Remove
             if (!cls.isAssignableFrom(object.getClass())) {
                 throw new ApiUsageException(String.format(ticket975, object
                         .getClass(), cls));
             } else {
-                object.putAt(ProjectionConstants.SCORE, score);
-                returnValue.add(object);
+                object.putAt("TOTAL_SIZE", totalSize);
+                object.putAt(ProjectionConstants.SCORE, scores.get(object
+                        .getId()));
             }
         }
-        return returnValue;
+        return check975;
     }
 }

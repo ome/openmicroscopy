@@ -189,8 +189,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
 
-        Experimenter e2 = loginNewUser();
-        putSecondUserInFirstUsersGroup(e1, e2);
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
         
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
@@ -208,8 +207,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
         
-        Experimenter e2 = loginNewUser();
-        putSecondUserInFirstUsersGroup(e1, e2);
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
         
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
@@ -237,16 +235,6 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         loginUser(e1.getOmeName());
         factory.getDeleteService().deleteSettings(i1.getId());
-    }
-
-    private void putSecondUserInFirstUsersGroup(Experimenter e1, Experimenter e2) {
-        // Here we add the second user to the same
-        // group to make sure s/he can see the image.
-        // If we ever move to private permissions by
-        // default, then we will need to do a chmod
-        // on the whole image graph.
-        ExperimenterGroup g1 = iAdmin.getDefaultGroup(e1.getId());
-        iAdmin.addGroups(e2, g1);
     }
 
     // Helpers

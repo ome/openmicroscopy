@@ -238,10 +238,11 @@ public class SearchTest extends AbstractTest {
         // and try to filter out those results
 
         long oldUser = iAdmin.getEventContext().getCurrentUserId();
+        Experimenter e1 = new Experimenter(oldUser, false);
         Details d = Details.create();
-        d.setOwner(new Experimenter(oldUser, false));
+        d.setOwner(e1);
 
-        Experimenter e = loginNewUser();
+        Experimenter e = loginNewUserInOtherUsersGroup(e1);
         grp = new TagAnnotation();
         groupStr = uuid();
         grp.setTextValue(groupStr);
@@ -303,10 +304,11 @@ public class SearchTest extends AbstractTest {
         // and try to filter out those results
 
         long oldUser = iAdmin.getEventContext().getCurrentUserId();
+        Experimenter e1 = iAdmin.getExperimenter(oldUser);
         Details d = Details.create();
         d.setOwner(new Experimenter(oldUser, false));
 
-        Experimenter e = loginNewUser();
+        Experimenter e = loginNewUserInOtherUsersGroup(e1);
         tag = new TagAnnotation();
         tagStr = uuid();
         tag.setTextValue(tagStr);
@@ -1480,9 +1482,10 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
         // But if we restrict it to another user, there should be none
-        Experimenter e = loginNewUser();
+        Experimenter e1 = new Experimenter(iAdmin.getEventContext().getCurrentUserId(), false);
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
         Details d = Details.create();
-        d.setOwner(e);
+        d.setOwner(e2);
         search.onlyAnnotatedBy(d);
         search.notAnnotatedBy(null);
         // full text
@@ -2074,7 +2077,7 @@ public class SearchTest extends AbstractTest {
         ids.add(i.getId());
 
         // Create a private tag on the image
-        Experimenter user2 = loginNewUser();
+        Experimenter user2 = loginNewUserInOtherUsersGroup(user1);
         i = reloadImageWithAnnotationLinks(i);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
@@ -2189,7 +2192,7 @@ public class SearchTest extends AbstractTest {
         ids.add(i.getId());
 
         // Create a private tag on the image
-        Experimenter user2 = loginNewUser();
+        Experimenter user2 = loginNewUserInOtherUsersGroup(user1);
         i = reloadImageWithAnnotationLinks(i);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
@@ -2244,6 +2247,7 @@ public class SearchTest extends AbstractTest {
                 Criteria links = c.createCriteria("annotationLinks");
                 Criteria ann = links.createCriteria("child");
                 ann.add(Restrictions.eq("textValue", "tag"));
+                c.list();
                 return null;
             }
         });
@@ -2268,7 +2272,7 @@ public class SearchTest extends AbstractTest {
         this.iUpdate.indexObject(i);
 
         // Now login as another user who doesn't own that image
-        Experimenter searcher = loginNewUser();
+        Experimenter searcher = loginNewUserInOtherUsersGroup(owner);
         Details d_searcher = Details.create();
         d_searcher.setOwner(searcher);
 

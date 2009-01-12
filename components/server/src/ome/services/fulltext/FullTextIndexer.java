@@ -22,10 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
-import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.springframework.transaction.TransactionStatus;
 
 /**
@@ -80,7 +78,9 @@ public class FullTextIndexer implements Work {
 
         @Override
         void log(Log log) {
-            log.info(String.format("Indexed: %s", obj));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Indexed: %s", obj));
+            }
         }
     }
 
@@ -108,7 +108,9 @@ public class FullTextIndexer implements Work {
     public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
         int count = 1;
+        int batches = 0;
         do {
+            batches++;
             FullTextSession fullTextSession = Search
                     .createFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
@@ -117,6 +119,8 @@ public class FullTextIndexer implements Work {
             session.flush();
             count++;
         } while (doMore(count));
+        log.info(String.format("INDEXED %s objects in %s batches", count,
+                batches));
         return null;
     }
 
