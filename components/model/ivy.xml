@@ -35,5 +35,7 @@
     <dependency org="hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-commons-annotations}"/>
     <dependency org="javax/persistence" name="persistence-api" rev="${versions.persistence-api}"/>
     <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}"/>
+    <dependency org="org/apache/lucene" name="lucene-highlighter" rev="${versions.lucene}"/>
+    <dependency org="org/apache/lucene" name="lucene-spellchecker" rev="${versions.lucene}"/>
   </dependencies>
 </ivy-module>

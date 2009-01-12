@@ -55,6 +55,8 @@
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-highlighter.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-spellchecker.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>

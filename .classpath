@@ -88,6 +88,8 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/lucene-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/lucene-highlighter.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/lucene-spellchecker.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
