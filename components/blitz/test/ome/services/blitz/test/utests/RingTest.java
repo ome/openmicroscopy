@@ -27,6 +27,11 @@ public class RingTest extends TestCase {
     }
     
     @Test
+    public void testMain() throws Exception {
+        Ring.main(new String[]{});
+    }
+    
+    @Test
     public void testSimpleAdd() throws Exception {
         ring1.put("a","b");
         Thread.sleep(1000L);

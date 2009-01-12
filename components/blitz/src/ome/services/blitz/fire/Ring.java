@@ -7,7 +7,9 @@
 
 package ome.services.blitz.fire;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import ome.services.messages.DestroySessionMessage;
@@ -21,6 +23,7 @@ import org.jgroups.View;
 import org.jgroups.blocks.ReplicatedHashMap;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 
 /**
  * Uses the ReplicatedHashMap building block, which subclasses java.util.HashMap
@@ -37,7 +40,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>, App
 
     private final static Log log = LogFactory.getLog(Ring.class);
     
-    private final static String groupname = "session_ring";
+    private final static String groupname = "Runtime"+Runtime.getRuntime().hashCode();
     
     ReplicatedHashMap<String, String> map = null;
 
@@ -68,6 +71,10 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>, App
         return map.get(sessionUuid);
     }
     
+    public Set<String> values() {
+        return new HashSet(map.values());
+    }
+    
     public int size() {
         return map.size();
     }
@@ -78,6 +85,8 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>, App
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof DestroySessionMessage) {
             map.remove(((DestroySessionMessage) arg0).getSessionId());
+        } else if (arg0 instanceof ContextClosedEvent) {
+            log.info("Closing server with sessions:"+arg0);
         }
     }
     
@@ -85,22 +94,31 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>, App
     // =========================================================================
 
     public void contentsCleared() {
-        // Noop
+        log.info("Conents cleared.");
     }
 
     public void contentsSet(Map<String, String> arg0) {
-        // Noop
+        log.info("New contents: "+arg0);
     }
 
     public void entryRemoved(String arg0) {
-        log.info("Session removed: "+ arg0);
+        log.info("Entry removed: "+ arg0);
     }
 
     public void entrySet(String arg0, String arg1) {
-        log.info("Session added: "+ arg0);
+        log.info("Entry added: "+ arg0);
     }
 
     public void viewChange(View arg0, Vector arg1, Vector arg2) {
         // Noop
     }
+    
+    // Main
+    // =========================================================================
+    
+    public static void main(String[] args) throws Exception {
+        Ring ring = new Ring();
+        log.info(ring.map);
+    }
+    
 }

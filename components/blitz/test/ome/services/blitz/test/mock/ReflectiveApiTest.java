@@ -18,9 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.services.blitz.test.mock.MockFixture;
+import ome.system.Roles;
 import omero.api.GatewayPrx;
 import omero.api.IScriptPrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceFactoryPrxHelper;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;

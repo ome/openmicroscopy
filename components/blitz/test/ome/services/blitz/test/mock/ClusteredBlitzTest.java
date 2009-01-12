@@ -40,6 +40,8 @@ public class ClusteredBlitzTest extends MockObjectTestCase {
         Ring ring = fixture1.ring();
         
         // Tests
+        assertEquals(1, ring.size());
+        
     }
 
 }

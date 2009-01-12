@@ -105,8 +105,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     /**
      * Sets the proxy which represents this {@link SessionManagerI} in the
      * current adapter. This is assigned to the @ #ring} for allowing other
-     * instances to lookup the sessions which belong to this instance. If this is
-     * set to null, then effectively this instance will ignore clustering.
+     * instances to lookup the sessions which belong to this instance. If this
+     * is set to null, then effectively this instance will ignore clustering.
      */
     public void setProxy(Ice.ObjectPrx prx) {
         this.self = adapter.getCommunicator().proxyToString(prx);
@@ -118,17 +118,41 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
         try {
 
-            // Check if the session is in ring
-            String proxyString = ring.get(userId);
-            if (proxyString != null && !proxyString.equals(self)) {
-                log.info(String.format("Returning remote session %s",
-                        proxyString));
-                Ice.ObjectPrx remote = adapter.getCommunicator().stringToProxy(
-                        proxyString);
-                SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
-                        .checkedCast(remote);
-                // EARLY EXIT
-                return sessionManagerPrx.create(userId, control, current.ctx);
+            // If this is not a recursive invocation
+            if (!current.ctx.containsKey("omero.routed_from")) {
+
+                // Check if the session is in ring
+                String proxyString = ring.get(userId);
+                if (proxyString != null && !proxyString.equals(self)) {
+                    log.info(String.format("Returning remote session %s",
+                            proxyString));
+                }
+
+                // or needs to be load balanced
+                else {
+                    Set values = ring.values();
+                    values.remove(self);
+                    int size = values.size();
+                    if (size != 0) {
+                        int rnd = (int) Math.round(Math.floor(size
+                                * Math.random()));
+                        proxyString = (String) values.toArray(new String[size])[rnd];
+                        log.info(String.format("Load balancing to %s",
+                                proxyString));
+                    }
+                }
+
+                // And if so, then return its return value
+                if (proxyString != null) {
+                    current.ctx.put("omero.routed_from", self);
+                    Ice.ObjectPrx remote = adapter.getCommunicator()
+                            .stringToProxy(proxyString);
+                    SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
+                            .checkedCast(remote);
+                    // EARLY EXIT
+                    return sessionManagerPrx.create(userId, control,
+                            current.ctx);
+                }
             }
 
             // Defaults
@@ -142,7 +166,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             if (event == null) {
                 event = "User"; // FIXME This should be in Roles as well.
             }
-            
+
             // Create the session for this ServiceFactory
             Principal p = new Principal(userId, group, event);
             ome.model.meta.Session s = sessionManager.create(p);
@@ -156,7 +180,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
 
             // Add to ring
-            if (! ring.containsKey(s.getUuid())) {
+            if (!ring.containsKey(s.getUuid())) {
                 ring.put(s.getUuid(), self);
             }
 
@@ -167,8 +191,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                         id.name, userId));
             } else {
                 if (log.isInfoEnabled()) {
-                    log.info(String.format("Rejoining session %s for user %s",
-                            id.name, userId));
+                    log.info(String.format("Rejoining session %s", id.name));
                 }
             }
             sessionToClientIds.get(s.getUuid()).add(session.clientId);

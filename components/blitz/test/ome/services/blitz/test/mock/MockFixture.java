@@ -31,12 +31,12 @@ import Ice.InitializationData;
 
 public class MockFixture {
 
-    private final MockObjectTestCase test;
-    private final Ice.Communicator communicator;
-    private final Ice.ObjectAdapter adapter;
+    public final MockObjectTestCase test;
+    public final Ice.Communicator communicator;
+    public final Ice.ObjectAdapter adapter;
 
-    private final OmeroContext ctx;
-    private final SessionManagerI sm;
+    public final OmeroContext ctx;
+    public final SessionManagerI sm;
 
     public static OmeroContext basicContext() {
         return new OmeroContext(new String[] { "classpath:omero/test.xml",
@@ -161,19 +161,19 @@ public class MockFixture {
         return (Ring) ctx.getBean("ring");
     }
     
-    Mock mock(String name) {
+    public Mock mock(String name) {
         return (Mock) ctx.getBean(name);
     }
 
-    Cache cache() {
+    public Cache cache() {
         return new TestCache();
     }
 
-    Ice.Current current(String method) {
+    public Ice.Current current(String method) {
         return current(method, "my-client-uuid");
     }
 
-    Ice.Current current(String method, String clientId) {
+    public Ice.Current current(String method, String clientId) {
         Ice.Current current = new Ice.Current();
         current.operation = method;
         current.adapter = adapter;
@@ -182,7 +182,7 @@ public class MockFixture {
         return current;
     }
 
-    Session session() {
+    public Session session() {
         Session session = new Session();
         session.setUuid("my-session-uuid");
         session.setStarted(new Timestamp(System.currentTimeMillis()));
@@ -191,7 +191,7 @@ public class MockFixture {
         return session;
     }
 
-    Mock blitzMock(Class serviceClass) {
+    public Mock blitzMock(Class serviceClass) {
         String name = serviceClass.getName();
         name = name.replaceFirst("omero", "ome").replace("PrxHelper", "");
         // WORKAROUND

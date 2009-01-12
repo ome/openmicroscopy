@@ -269,9 +269,10 @@ public class BlitzConfiguration {
 
         SessionManagerI manager = new SessionManagerI(ring, blitzAdapter,
                 securitySystem, sessionManager, executor);
-        Ice.ObjectPrx prx = this.blitzAdapter.add(manager, Ice.Util
-                .stringToIdentity("BlitzManager"));
-        manager.setProxyName(this.communicator.proxyToString(prx));
+        Ice.Identity id = Ice.Util.stringToIdentity("BlitzManager");
+        Ice.ObjectPrx prx = this.blitzAdapter.add(manager, id);
+        prx = this.blitzAdapter.createDirectProxy(id);
+        manager.setProxy(prx);
         return manager;
     }
 
