@@ -109,4 +109,8 @@
       <property name="targetSource" ref="swappableAdapterSource"/>
   </bean>
 
+  <!-- Defined here since it is an application listener. -->
+  <bean id="ring" class="ome.services.blitz.fire.Ring">
+    <constructor-arg ref="simpleJdbcTemplate"/>
+  </bean>
 </beans>

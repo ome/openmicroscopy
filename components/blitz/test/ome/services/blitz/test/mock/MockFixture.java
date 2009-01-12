@@ -38,12 +38,13 @@ public class MockFixture {
     public final MockObjectTestCase test;
 
     public final BlitzConfiguration blitz;
-    public final OmeroContext ctx;
+    public final SimpleJdbcTemplate jdbc;
     public final SessionManagerI sm;
-    public final Executor ex;
     public final SessionManager mgr;
     public final SecuritySystem ss;
-    public final SimpleJdbcTemplate jdbc;
+    public final OmeroContext ctx;
+    public final Executor ex;
+    public final Ring ring;
 
     public static OmeroContext basicContext() {
         return new OmeroContext(new String[] { "classpath:omero/test.xml",
@@ -70,6 +71,7 @@ public class MockFixture {
 
         this.test = test;
         this.ctx = ctx;
+        this.ring = (Ring) ctx.getBean("ring");
         this.ex = (Executor) ctx.getBean("executor");
         this.ss = (SecuritySystem) ctx.getBean("securitySystem");
         this.mgr = (SessionManager) ctx.getBean("sessionManager");
@@ -99,10 +101,6 @@ public class MockFixture {
         // Cluster configuration from etc/internal.cfg
         id.properties.setProperty("Cluster.Endpoints","udp -h 224.0.0.5 -p 10000");
         id.properties.setProperty("ClusterProxy","Cluster:udp -h 224.0.0.5 -p 10000");
-        
-        
-        Ring ring = new Ring(jdbc);
-        ring.setApplicationEventPublisher(ctx);
         
         blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
         this.sm = (SessionManagerI) blitz.getBlitzManager();

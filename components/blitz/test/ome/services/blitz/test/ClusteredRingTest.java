@@ -11,6 +11,7 @@ import java.util.Set;
 import ome.services.blitz.fire.Discovery;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.test.mock.MockFixture;
+import ome.services.messages.CreateSessionMessage;
 import ome.system.OmeroContext;
 
 import org.jmock.MockObjectTestCase;
@@ -121,6 +122,14 @@ public class ClusteredRingTest extends MockObjectTestCase {
                 "select count(key) from session_ring where key = ?", key));
     }
 
+    @Test
+    public void testAddedSessionGetsUuidOfManager() throws Exception {
+        fixture1.ctx.publishEvent(new CreateSessionMessage(this, "test-for-uuid"));
+        assertTrue(fixture1.blitz.getRing().checkPassword("test-for-uuid"));
+        String value = fixture1.jdbc.queryForObject("select value from session_ring where key = ?", String.class, "session-test-for-uuid");
+        assertEquals(fixture1.blitz.getRing().uuid, value);
+    }
+    
     @Test
     public void testHandlesMissingServers() throws Exception {
         fail();

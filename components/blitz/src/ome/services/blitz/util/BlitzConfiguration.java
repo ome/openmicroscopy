@@ -119,7 +119,13 @@ public class BlitzConfiguration {
                     .proxyToString(getDirectProxy()));
 
         } catch (RuntimeException e) {
-            destroy();
+            try {
+                destroy();
+            } catch (Exception e2) {
+                logger.error("Error destroying configuration after "
+                        + "initialization exception. "
+                        + "Throwing initialization exception", e2);
+            }
             throw e;
         }
 

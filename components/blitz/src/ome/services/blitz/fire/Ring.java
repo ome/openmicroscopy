@@ -10,8 +10,10 @@ package ome.services.blitz.fire;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -212,8 +214,9 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
                 this.clusterAdapter.deactivate();
             }
             remove(MANAGERS + uuid);
-            int count = jdbc.update("delete from session_ring where value = ?", uuid);
-            log.info("Removed "+count+" entries for "+uuid);
+            int count = jdbc.update("delete from session_ring where value = ?",
+                    uuid);
+            log.info("Removed " + count + " entries for " + uuid);
             log.info("Disconnected from OMERO.cluster");
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
@@ -358,23 +361,37 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
                 }
             }
         }
+        // Now removing any stale sessions
+        StringBuilder sb = new StringBuilder();
+        sb.append("delete from session_ring ");
+        sb.append("where key like 'session-%' ");
+        sb.append("and (");
+        sb.append(" value != ");
+        sb.append(" '");
+        sb.append(uuid); // Self
+        sb.append("' ");
+        for (String nodeUuid : nodeUuids) {
+            sb.append(" and ");
+            sb.append("value != '");
+            sb.append(nodeUuid);
+            sb.append("' ");
+        }
+        sb.append(")");
+        int count = jdbc.update(sb.toString());
+        if (count != 0) {
+            log.info("Removed " + count + " stale sessions");
+        }
     }
 
     protected void purgeNode(String manager) {
         log.info("Purging node: " + manager);
-        int count = jdbc.update("delete from session_ring where key like '"
-                + SESSIONS + "' and value = ?", manager);
-        log.info("Removed " + count + " sessions with value " + manager);
+        int count = jdbc.update("delete from session_ring where value = ?",
+                manager);
+        log.info("Removed " + count + " entries with value " + manager);
         count = jdbc.update("delete from session_ring where key = ?", MANAGERS
                 + manager);
         log.info("Removed " + MANAGERS + manager);
-        count = jdbc.update(
-                "delete from session_ring where key = ? and value = ?", CONFIG
-                        + "redirect", manager);
-        if (count != 0) {
-            log.info("Removed redirect to " + manager);
-        }
-        putRedirect(uuid);
+        putIfAbsent(CONFIG + "redirect", uuid);
     }
 
     // Events
@@ -383,10 +400,12 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof CreateSessionMessage) {
             String session = ((CreateSessionMessage) arg0).getSessionId();
+            log.info("Adding session " + session + " to manager " + uuid);
             put(SESSIONS + session, uuid); // Use our uuid rather than proxy
         } else if (arg0 instanceof DestroySessionMessage) {
             String session = ((DestroySessionMessage) arg0).getSessionId();
             remove(SESSIONS + session);
+            log.info("Removing session " + session + " from manager " + uuid);
         } else if (arg0 instanceof ContextClosedEvent) {
             // This happens 3 times for each nested context. Perhaps we
             // should print and destroy?
