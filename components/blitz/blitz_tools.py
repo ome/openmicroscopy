@@ -26,6 +26,8 @@ generated = os.path.abspath("generated")
 # Support ICE_HOME
 if os.environ.has_key("ICE_HOME"):
     ice_home = os.path.abspath( os.environ["ICE_HOME"] )
+else:
+    ice_home = None
 
 def jdep(DEPMAP, target):
     """

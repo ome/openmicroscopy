@@ -134,11 +134,15 @@ public class DetailsI extends Details implements ome.model.ModelBased {
                         (ome.model.meta.ExternalInfo) mapper
                                 .reverse((ome.model.ModelBased) this
                                         .getExternalInfo()));
+
         Permissions sourceP = this.getPermissions();
-        target.putAt(ome.model.internal.Details.PERMISSIONS,
-                sourceP == null ? new ome.model.internal.Permissions(
-                    ome.model.internal.Permissions.DEFAULT),
-                        : ome.util.Utils.toPermissions(sourceP.getPerm1()));
+        ome.model.internal.Permissions targetP = ome.model.internal.Permissions.DEFAULT;
+        if (sourceP != null) {
+                targetP = ome.util.Utils.toPermissions(sourceP.getPerm1());
+                targetP = new ome.model.internal.Permissions(targetP);
+        }
+        target.putAt(ome.model.internal.Details.PERMISSIONS, targetP);
+
         return target;
     }
 

@@ -14,6 +14,13 @@ void stringHandler(std::string str) {
   std::cout << "Handling:" << str << std::endl;
 }
 
+omero::model::ImagePtr new_ImageI()
+{
+    omero::model::ImagePtr img = new omero::model::ImageI();
+    img->setAcquisitionDate(omero::rtypes::rtime(0));
+    return img;
+}
+
 Fixture::Fixture()
 {
   /*     log_successful_tests     = 0,

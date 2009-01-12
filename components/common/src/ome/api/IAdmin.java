@@ -44,6 +44,13 @@ import ome.system.Roles;
  */
 public interface IAdmin extends ServiceInterface {
 
+    /**
+     * Returns true if the currently logged in user can modify the given
+     * {@link IObject}. This uses the same logic that would be applied during
+     * a Hibernate flush to the database.
+     */
+    boolean canUpdate(IObject obj);
+    
     // ~ Getting users and groups
     // =========================================================================
 

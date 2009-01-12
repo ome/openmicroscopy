@@ -14,6 +14,7 @@
 #include <omero/RTypesI.h>
 #include <omero/ClientErrors.h>
 #include <omero/ServerErrors.h>
+#include <omero/model/ImageI.h>
 #include <omero/model/ExperimenterI.h>
 
 // boost
@@ -36,6 +37,8 @@
 // see first_failed_assertion dbg hook
 
 namespace b_ut = boost::unit_test;
+
+omero::model::ImagePtr new_ImageI();
 
 struct Fixture
 {

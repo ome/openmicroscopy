@@ -204,7 +204,7 @@ class client(object):
             ctx.put(omero.constants.CLIENTUUID, str(uuid.uuid4()))
 
             # Register the default client callback
-            cb = CallbackI(self)
+            cb = client.CallbackI(self)
             self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
             self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback"))
             self.__oa.activate()
@@ -329,8 +329,8 @@ class client(object):
                 raise ClientError("Obtained object proxy is not a ServiceFactory")
 
             # Set the client callback on the session
-            raw = self.__oa.stringToProxy("ClientCallback")
-            self.__sf.setCallback(omero.ClientCallbackPrx.uncheckedCast(raw))
+            raw = self.__ic.stringToProxy("ClientCallback")
+            self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
 
             return self.__sf
         finally:
@@ -492,10 +492,10 @@ class client(object):
                     oldIc.getLogger().warn("While deactivating adapter: " + str(e.message))
 
             self.__previous = Ice.InitializationData()
-            self.__previous.properties = copy.getProperties().clone()
+            self.__previous.properties = oldIc.getProperties().clone()
 
             try:
-                getRouter(oldIc).destroySession()
+                self.getRouter(oldIc).destroySession()
             except Glacier2.SessionNotExistException:
                 # ok. We don't want it to exist
                 pass

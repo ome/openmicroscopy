@@ -9,22 +9,21 @@
 #include <omero/model/ImageI.h>
 #include <boost_fixture.h>
 
-using omero::model::ImageI;
-using omero::model::ImageIPtr;
+using omero::model::ImagePtr;
 
 BOOST_AUTO_TEST_CASE( EqualityOperatorOnPointers )
 {
   Fixture f;
-  ImageIPtr img1 = new ImageI();
-  ImageIPtr img2 = new ImageI();
+  ImagePtr img1 = new_ImageI();
+  ImagePtr img2 = new_ImageI();
   BOOST_CHECK( img1 != img2 );
 }
 
 BOOST_AUTO_TEST_CASE( EqualityOperatorOnRawObject )
 {
   Fixture f;
-  ImageIPtr img1 = new ImageI();
-  ImageIPtr img2 = new ImageI();
+  ImagePtr img1 = new_ImageI();
+  ImagePtr img2 = new_ImageI();
   // BOOST_CHECK( *img1 != *img2 );
 }
 

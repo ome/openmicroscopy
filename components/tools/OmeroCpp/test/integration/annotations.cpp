@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( tagAnnotation )
 	tag->setTextValue(rstring("my-first-tag"));
 
 	string uuid = IceUtil::generateUUID();
-	ImageIPtr i = new ImageI();
+	ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
 	i->setName(rstring(uuid));
 	i->linkAnnotation(tag);
 	u->saveObject(i);
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	attachment->setFile(file);
 
 	string uuid = IceUtil::generateUUID();
-	ImageIPtr i = new ImageI();
+	ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
 	i->setName(rstring(uuid));
 	i->linkAnnotation(attachment);
 	u->saveObject(i);
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( annotationImmutability )
 	TagAnnotationIPtr tag = new TagAnnotationI();
 	tag->setTextValue(rstring("immutable-tag"));
 
-	ImageIPtr i = new ImageI();
+	ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
 	i->setName(rstring("tagged-image"));
 	i->linkAnnotation(tag);
 	i = ImageIPtr::dynamicCast( u->saveAndReturnObject(i) );

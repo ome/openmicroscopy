@@ -166,9 +166,9 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
         IUpdatePrx update = f.update();
 
 	string uuid = f.uuid();
-        ImageIPtr i = new ImageI();
+        ImagePtr i = new_ImageI();
         i->setName(rstring(uuid));
-	i = ImageIPtr::dynamicCast( update->saveAndReturnObject(i) );
+	i = ImagePtr::dynamicCast( update->saveAndReturnObject(i) );
 
 	/*
 	 *
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 	SearchFixture root;
 
 	string uuid = f.uuid();
-	ImageIPtr i = new ImageI();
+	ImagePtr i = new_ImageI();
         i->setName( rstring(uuid) );
 
         IObjectPtr obj =  f.update()->saveAndReturnObject(i);
@@ -403,9 +403,9 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     
     SearchFixture f;
     SearchFixture root("root");
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(f.uuid()));
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
     root.update()->indexObject(i);
 
@@ -447,9 +447,9 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
     SearchFixture f;
     SearchFixture root("root");
 
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring("abc def ghi"));
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -576,12 +576,12 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     SearchFixture f;
     SearchFixture root("root");
     string uuid = f.uuid();;
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
     i->linkAnnotation(tag);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     root.update()->indexObject(i);
 
     SearchPrx search = f.search();
@@ -602,7 +602,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     FileAnnotationIPtr fa2 = new FileAnnotationI();
     fa2->setFile(file2);
     i->linkAnnotation(fa2);
-    i =  ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i =  ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     root.update()->indexObject(i);
 
     // Properly uses the id
@@ -627,9 +627,9 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
 }
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
-    ImageIPtr i1 = new ImageI();
+    ImagePtr i1 = new_ImageI();
     i1->setName( rstring("i1") );
-    ImageIPtr i2 = new ImageI();
+    ImagePtr i2 = new_ImageI();
     i2->setName( rstring("i2") );
 
     SearchFixture f;
@@ -642,8 +642,8 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
     i2->linkAnnotation(ta);
     i2->linkAnnotation(ba);
 
-    i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
-    i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
+    i1 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    i2 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i2));
 
     ta = new TagAnnotationI();
     ta->setTextValue(rstring(uuid));
@@ -680,16 +680,16 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     SearchFixture f;
     SearchFixture root("root");
     string uuid = f.uuid();;
-    ImageIPtr i1 = new ImageI();
+    ImagePtr i1 = new_ImageI();
     i1->setName( rstring(uuid) );
-    ImageIPtr i2 = new ImageI();
+    ImagePtr i2 = new_ImageI();
     i2->setName(rstring(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
     i1->linkAnnotation(tag);
     i2->linkAnnotation(tag);
-    i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
-    i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
+    i1 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    i2 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i2));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
     root.update()->indexObject(i1);
@@ -752,7 +752,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
     user->setOwner(e);
 
     string name = f.uuid();;
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName( rstring(name) );
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -760,7 +760,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
     TagAnnotationIPtr grp = new TagAnnotationI();
     grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     // Recreating instance as example
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -865,7 +865,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     user->setGroup( g );
     
     string name = f.uuid();
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName( rstring(name) );
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -873,7 +873,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     TagAnnotationIPtr grp = new TagAnnotationI();
     grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     // Recreating instance as example
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -993,7 +993,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     SearchFixture f;
     SearchFixture root("root");
     string name = f.uuid();;
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -1001,7 +1001,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     TagAnnotationIPtr grp = new TagAnnotationI();
     grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
@@ -1107,7 +1107,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     SearchFixture f;
     SearchFixture root("root");
     string name = f.uuid();;
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -1115,7 +1115,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     TagAnnotationIPtr grp = new TagAnnotationI();
     grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
@@ -1218,7 +1218,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     SearchFixture f;
     SearchFixture root("root");
     string name = f.uuid();;
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
@@ -1226,7 +1226,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     TagAnnotationIPtr grp = new TagAnnotationI();
     grp->setTextValue(rstring(name));
     tag->linkAnnotation(grp);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
@@ -1330,7 +1330,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
     SearchFixture root("root");
     string name = f.uuid();
     string tag = f.uuid();
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr t = new TagAnnotationI();
     t->setTextValue(rstring(tag));
@@ -1338,7 +1338,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
     TagAnnotationIPtr grp = new TagAnnotationI();
     grp->setTextValue(rstring(tag));
     t->linkAnnotation(grp);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     t = new TagAnnotationI();
     t->setTextValue(rstring(tag));
     root.update()->indexObject(i);
@@ -1404,9 +1404,9 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     SearchFixture f;
     SearchFixture root("root");
     string name = f.uuid();
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(name));
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
     root.update()->indexObject(i);
 
@@ -1452,11 +1452,11 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
     SearchFixture root("root");
     
     string name = f.uuid();;
-    ImageIPtr onlyTag = new ImageI();
+    ImagePtr onlyTag = new_ImageI();
     onlyTag->setName( rstring(name) );
-    ImageIPtr onlyBool = new ImageI();
+    ImagePtr onlyBool = new_ImageI();
     onlyBool->setName( rstring(name) );
-    ImageIPtr both = new ImageI();
+    ImagePtr both = new_ImageI();
     both->setName( rstring(name) );
 
     TagAnnotationIPtr tag = new TagAnnotationI();
@@ -1505,12 +1505,12 @@ BOOST_AUTO_TEST_CASE( testMergedBatches ) {
     SearchFixture root("root");
     string uuid1 = f.uuid();
     string uuid2 = f.uuid();
-    ImageIPtr i1 = new ImageI();
+    ImagePtr i1 = new_ImageI();
     i1->setName( rstring(uuid1) );
-    ImageIPtr i2 = new ImageI();
+    ImagePtr i2 = new_ImageI();
     i2->setName( rstring(uuid2) );
-    i1 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i1) );
-    i2 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i2) );
+    i1 = ImagePtr::dynamicCast( f.update()->saveAndReturnObject(i1) );
+    i2 = ImagePtr::dynamicCast( f.update()->saveAndReturnObject(i2) );
     root.update()->indexObject(i1);
     root.update()->indexObject(i2);
 
@@ -1540,17 +1540,17 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     string uuid = f.uuid();
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
-    ImageIPtr i1 = new ImageI();
+    ImagePtr i1 = new_ImageI();
     i1->setName(rstring(uuid));
     i1->setDescription(rstring("a"));
     i1->linkAnnotation(tag);
-    ImageIPtr i2 = new ImageI();
+    ImagePtr i2 = new_ImageI();
     i2->setName(rstring(uuid));
     i2->setDescription(rstring("b"));
     i2->linkAnnotation(tag);
-    i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    i1 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i1));
     // FIXME Thread.sleep(2000L); // Waiting to test creation time ordering better
-    i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
+    i2 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i2));
     root.update()->indexObject(i1);
     root.update()->indexObject(i2);
     tag = new TagAnnotationI();
@@ -1667,7 +1667,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     // description, which should could before the other image with the "a"
     // description if we reverse the id order
 
-    Image i3 = new ImageI();
+    Image i3 = new_ImageI();
     i3->setName(rstring(uuid));
     i3->setDescription("a");
     i3->linkAnnotation(tag);
@@ -1707,7 +1707,7 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     SearchFixture f;
     SearchFixture root("root");
     string uuid = f.uuid();;
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     i->setName(rstring(uuid));
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
@@ -1718,7 +1718,7 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     i->linkAnnotation(tag);
     i->linkAnnotation(la);
     i->linkAnnotation(da);
-    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
     root.update()->indexObject(i);
@@ -1729,44 +1729,44 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     // No fetch returns empty annotations
     // full text
     search->byFullText(uuid);
-    ImageIPtr t = ImageIPtr::dynamicCast( search->results().at(0) );
+    ImagePtr t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(-1, t->sizeOfAnnotationLinks());
     // annotated with
     byAnnotatedWith(search, tag);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(-1, t->sizeOfAnnotationLinks());
 
     // Fetch only a given type
     search->fetchAnnotations(stringSet("TagAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // fetch only a given type different from annotated-with type
     search->fetchAnnotations(stringSet("DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // fetch two types
     search->fetchAnnotations(stringSet("TagAnnotation", "DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(2, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // Fetch all
@@ -1774,24 +1774,24 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
-    // TODO t = ImageIPtr::dynamicCast( search->results().get(0) );
+    // TODO t = ImagePtr::dynamicCast( search->results().get(0) );
     // TODO BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
-    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    t = ImagePtr::dynamicCast( search->results().at(0) );
     BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // resave and see if there is data loss
     search->fetchAnnotations(stringSet("TagAnnotation"));
     byAnnotatedWith(search, tag);
-    t = ImageIPtr::dynamicCast(search->next());
+    t = ImagePtr::dynamicCast(search->next());
     FileAnnotationIPtr fa = new FileAnnotationI();
     t->linkAnnotation(fa);
     f.update()->saveObject(t);
     ParametersPtr params = new Parameters();
     params->map = ParamMap();
     params->map["id"] = t->getId();
-    t = ImageIPtr::dynamicCast(f.query()->findByQuery
+    t = ImagePtr::dynamicCast(f.query()->findByQuery
 	("select t from Image t join fetch t.annotationLinks where t.id = :id",
 	 params));
     BOOST_CHECK_EQUAL(4, t->sizeOfAnnotationLinks());

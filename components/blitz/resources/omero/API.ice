@@ -301,7 +301,11 @@ module omero {
 	    omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
 	    int closeSession(omero::model::Session sess) throws ServerError;
 	    // System users
-	    omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long milliSeconds) throws ServerError;
+            omero::model::Session createSessionWithTimeout(omero::sys::Principal p,
+                                                           long timeToLiveMilliseconds) throws ServerError;
+	    omero::model::Session createSessionWithTimeouts(omero::sys::Principal p,
+	                                                    long timeToLiveMilliseconds,
+	                                                    long timeToIdleMilliseconds) throws ServerError;
 
 	    // Environment
 	    omero::RType getInput(string sess, string key) throws ServerError;

@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( Counts )
 
 	long usr = admin->getEventContext()->userId;
 
-	ImageIPtr img = new ImageI();
+	ImagePtr img = new_ImageI();
         img->setName( rstring("name") );
 	TagAnnotationIPtr tag = new TagAnnotationI();
 	img->linkAnnotation( tag );

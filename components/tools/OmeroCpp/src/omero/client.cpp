@@ -8,6 +8,7 @@
 
 #include <iosfwd>
 #include <sstream>
+#include <stdexcept>
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/Constants.h>
@@ -303,8 +304,8 @@ namespace omero {
 	}
 
 	// Set the client callback on the session
-	Ice::ObjectPrx raw = oa->stringToProxy("ClientCallback");
-	sf->setCallback(ClientCallbacPrx::uncheckedCast(raw));
+	Ice::ObjectPrx raw = ic->stringToProxy("ClientCallback");
+	sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
 	return sf;
     }
 
@@ -354,9 +355,11 @@ namespace omero {
 
 	if (oldOa) {
 	    try {
-		oldOa.deactivate();
-	    } catch (...) {
-		oldIc.getLogger().warn("While deactivating adapter : TBD");
+		oldOa->deactivate();
+	    } catch (const std::exception& ex) {
+		stringstream msg;
+		msg << "While deactivating adapter : " << ex.what() << std::endl;
+		oldIc->getLogger()->warning(msg.str());
 	    }
 	}
 
@@ -367,17 +370,17 @@ namespace omero {
 	    getRouter(oldIc)->destroySession();
 	} catch (const Glacier2::SessionNotExistException& snee) {
 	    // ok. We don't want it to exist
-	    oldIc.destroy();
+	    oldIc->destroy();
 	} catch (const Ice::ConnectionLostException& cle) {
 	    // ok. Exception will always be thrown.
-	    oldIc.destroy();
+	    oldIc->destroy();
         } catch (const omero::ClientError& ce) {
             // This is called by getRouter() if a router is not configured.
             // If there isn't one, then we can't be connected. That's alright.
             // Most likely called during ~client
-	    oldIc.destroy();
+	    oldIc->destroy();
 	} catch (...) {
-	    oldIc.destroy();
+	    oldIc->destroy();
 	    throw;
 	}
 
@@ -437,7 +440,7 @@ namespace omero {
 
     CallbackIPtr client::_getCb() {
 	Ice::ObjectPtr obj = oa->find(ic->stringToIdentity("ClientCallback"));
-	CallbackIPtr cb = CallbackI::dynamic_cast(obj);
+	CallbackIPtr cb = CallbackIPtr::dynamicCast(obj);
 	if (!cb) {
 	    throw new ClientError(__FILE__,__LINE__,"Cannot find CallbackI in ObjectAdapter");
 	}
@@ -456,18 +459,11 @@ namespace omero {
 	_getCb()->onShutdown = callable;
     }
 
-    CallbackI::noop = new Callable() {};
-
-    CallbackI::closeSession = new Callable(){};
-
-    CallbackI::onHeartbeat = CallbackI::noop;
-
-    CallbackI::onSessionClosed = CallbackI::closeSession;
-
-    CallbackI::onShutdown = CallbackI::closeSession;
-
-    CallbackI::CallbackI(const omero::client& ptr) {
-	client = ptr;
+    CallbackI::CallbackI(omero::client* theClient) {
+	client = theClient;
+	onHeartbeat = NoOpCallable();
+	onSessionClosed = CloseSessionCallable(client);
+	onShutdown = CloseSessionCallable(client);
     }
 
     void CallbackI::requestHeartbeat(const Ice::Current& current) {
@@ -478,21 +474,21 @@ namespace omero {
 	execute(onSessionClosed, "sessionClosed");
     }
 
-    void CallbackI::shutdownIn(const Ice::Current& current) {
+    void CallbackI::shutdownIn(Ice::Long milliseconds, const Ice::Current& current) {
 	execute(onShutdown, "shutdown");
     }
 
     void CallbackI::execute(Callable callable, const string& action) {
-	Ice::CommunicatorPtr ic = client.getCommunicator();
+	Ice::CommunicatorPtr ic = client->getCommunicator();
 	try {
 	    callable();
 	    ic->getLogger()->trace("ClientCallback", action + " run");
-	} catch (...) {
+	} catch (const std::exception& ex) {
 	    try {
-		ic->getLogger()->error("Error performing " + action+": "+TBD);
-	    } catch (...) {
-		std::cerr << "Error performing " << action << ": " << TBD << std::endl;
-		std::cerr << "(Stderr due to: " << TBD << std::endl;
+		ic->getLogger()->error("Error performing " + action+": "+ex.what());
+	    } catch (const std::exception& ex2) {
+		std::cerr << "Error performing " << action << ": " << ex.what() << std::endl;
+		std::cerr << "(Stderr due to: " << ex2.what() << std::endl;
 	    }
 	}
     }

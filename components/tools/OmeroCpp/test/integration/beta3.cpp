@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     PixelsIPtr pix = new PixelsI();
     PixelsTypePtr pt = new PixelsTypeI();
     PhotometricInterpretationIPtr pi = new PhotometricInterpretationI();
-    ImageIPtr i = new ImageI();
+    ImagePtr i = new_ImageI();
     AcquisitionModeIPtr mode = new AcquisitionModeI();
     DimensionOrderIPtr d0 = new DimensionOrderI();
     ChannelIPtr c = new ChannelI();

@@ -35,6 +35,12 @@ namespace omero {
     };
 
     /*
+     * Forward definition for callbacks below.
+     */
+    class CallbackI;
+    typedef IceUtil::Handle<CallbackI> CallbackIPtr;
+
+    /*
      * Central client-side blitz entry point and should be in sync with
      * OmeroJavas and OmeroPy's omero.client classes.
      *
@@ -253,42 +259,17 @@ namespace omero {
 	// Callback methods
 	// ==================================================================
 
+	/*
+	 * Implementation of ClientCallback which will be added to
+	 * any Session which this instance creates
+	 */
     protected:
 	CallbackIPtr _getCb();
     public:
 	void onHeartbeat(Callable callable);
 	void onSessionClosed(Callable callable);
 	void onShutdown(Callable callable);
-
     };
-
-    /*
-     * Implementation of ClientCallback which will be added to
-     * any Session which this instance creates
-     */
-    class CallbackI : virtual public omero::api::ClientCallback {
-
-	// Preventing copy-construction and assigning by value.
-    private:
-	CallbackI& operator=(const CallbackI& rv);
-	CallbackI(CallbackI&);
-	void execute(Callable callable, const std::string& action);
-	// State
-	omero::client client;
-	Callable onHeartbeat;
-	Callable onSessionClosed;
-	Callable onShutdown;
-	Callable noop;
-	Callable closeSession;
-
-    public:
-	CallbackI(const omero::client& client);
-	virtual void requestHeartbeat(const Ice::Current& current = Ice::Current());
-	virtual void sessionClosed(const Ice::Current& current = Ice::Current());
-	virtual void shutdownIn(Ice::Long milliSeconds, const Ice::Current& current = Ice::Current());
-    };
-
-    typedef IceUtil::Handle<CallbackI> CallbackIPtr;
 
     /*
      * Typedef for using Ice's smart pointer reference counting
@@ -299,6 +280,62 @@ namespace omero {
      */
     typedef IceUtil::Handle<client> client_ptr;
 
+    /*
+     * Default implementation of the omero::api::ClientCallback servant.
+     * Provides basic operator() implementations for each of the methods
+     * that the server may call on it.
+     */
+    class CallbackI : virtual public omero::api::ClientCallback {
+	
+	/*
+	 * omero::client needs access to the Callable fields on the callback.
+	 */
+	friend class client;
+
+	// Preventing copy-construction and assigning by value.
+    private:
+	CallbackI& operator=(const CallbackI& rv);
+	CallbackI(CallbackI&);
+	void execute(Callable callable, const std::string& action);
+	// State
+	omero::client* client;
+	Callable onHeartbeat;
+	Callable onSessionClosed;
+	Callable onShutdown;
+	
+    public:
+	CallbackI(omero::client* theClient);
+	virtual void requestHeartbeat(const Ice::Current& current = Ice::Current());
+	virtual void sessionClosed(const Ice::Current& current = Ice::Current());
+	virtual void shutdownIn(Ice::Long milliSeconds, const Ice::Current& current = Ice::Current());
+    };
+
+    // Callable implementations
+    // ==================================================================
+
+    /*
+     * Callable implementation which calls client.closeSession()
+     */
+    class CloseSessionCallable : public Callable {
+    private:
+	omero::client* client;
+    public:
+    CloseSessionCallable(omero::client* theClient) : Callable() {
+	    client = theClient;
+	}
+	inline void operator()(){
+	    client->closeSession();
+	}
+    };
+
+    /*
+     * Callable implementation which does nothing.
+     */
+    class NoOpCallable : public Callable {
+    public:
+    NoOpCallable() : Callable() {}
+	void operator()(){}
+    };
 };
 
 /*

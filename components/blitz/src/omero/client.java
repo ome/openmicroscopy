@@ -470,7 +470,7 @@ public class client {
             }
 
             // Set the client callback on the session
-            Ice.ObjectPrx raw = __oa.stringToProxy("ClientCallback");
+            Ice.ObjectPrx raw = __ic.stringToProxy("ClientCallback");
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
             return this.__sf;
 
@@ -531,7 +531,7 @@ public class client {
                 try {
                     oldOa.deactivate();
                 } catch (Exception e) {
-                    log.warn("While deactivating adapter: " + e.getMessage());
+                    oldIc.getLogger().warning("While deactivating adapter: " + e.getMessage());
                 }
             }
 
@@ -663,7 +663,7 @@ public class client {
     // =========================================================================
 
     private CallbackI _getCb() {
-        Ice.Object obj = this.oa.find(Ice.Util.stringToIdentity("ClientCallback"));
+        Ice.Object obj = this.__oa.find(Ice.Util.stringToIdentity("ClientCallback"));
         if (!(obj instanceof CallbackI)) {
             throw new ClientError("Cannot find CallbackI in ObjectAdapter");
         }
