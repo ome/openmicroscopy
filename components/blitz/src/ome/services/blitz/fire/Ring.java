@@ -198,7 +198,13 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
                     proxyString);
             SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
                     .checkedCast(remote);
-            return sessionManagerPrx.create(userId, control, current.ctx);
+            try {
+                return sessionManagerPrx.create(userId, control, current.ctx);
+            } catch (Exception e) {
+                log.error("Error while routing to " + remote, e);
+                throw new CannotCreateSessionException(
+                        "Error while routing to remote blitz");
+            }
         }
 
         // Otherwise, return null.
