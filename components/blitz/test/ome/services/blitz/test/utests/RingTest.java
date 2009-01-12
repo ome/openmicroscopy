@@ -6,22 +6,25 @@
  */
 package ome.services.blitz.test.utests;
 
-import junit.framework.TestCase;
 import ome.services.blitz.fire.Ring;
 
 import org.jgroups.blocks.ReplicatedTree;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4
  */
-public class RingTest extends TestCase {
+public class RingTest extends MockObjectTestCase {
 
-    // Using tree directly since the ring hides it
     ReplicatedTree tree1, tree2;
+    Ice.Communicator ic;
+    Mock mockIc; 
     
     @BeforeClass
     public void setup() throws Exception {
@@ -29,6 +32,12 @@ public class RingTest extends TestCase {
         tree2= new ReplicatedTree("test", "session_ring.xml", 1000);
         tree1.start();
         tree2.start();
+    }
+    
+    @BeforeTest
+    public void setupMethod() throws Exception {
+        mockIc = mock(Ice.Communicator.class);
+        ic = (Ice.Communicator) mockIc.proxy();
     }
     
     @AfterClass
@@ -40,6 +49,36 @@ public class RingTest extends TestCase {
     //@Test
     public void testMain() throws Exception {
         Ring.main(new String[]{});
+    }
+    
+    @Test
+    public void testFirstTakesOver() throws Exception {
+        Ring one = new Ring("takeover", "session_ring.xml");
+        one.init(ic, "one");
+        assertEquals("one", one.getRedirect());
+        Ring two = new Ring("takeover", "session_ring.xml");
+        two.init(ic, "two");
+        assertEquals("one", two.getRedirect());
+    }
+
+    @Test
+    public void testSeveralThreadsStartAndOnlyOneValueIsSet() throws Exception {
+        fail();
+    }
+    
+    @Test
+    public void testHandlesMissingServers() throws Exception {
+        fail();
+    }
+    
+    @Test
+    public void testRemovesUnreachable() throws Exception {
+        fail();
+    }
+    
+    @Test
+    public void testReaddsSelfIfTemporarilyUnreachable() throws Exception {
+        fail();
     }
     
     @Test
@@ -63,6 +102,7 @@ public class RingTest extends TestCase {
     public void testPrintSessions() throws Exception {
         Ring ring = new Ring("test", "session_ring.xml");
         ring.printTree("/SESSIONS");
+        ring.destroy();
     }
 
 }

@@ -45,7 +45,7 @@ public class BlitzConfiguration {
     private final Log logger = LogFactory.getLog(getClass());
 
     private final Ring blitzRing;
-    
+
     private final Ice.Communicator communicator;
 
     private final Ice.ObjectAdapter blitzAdapter;
@@ -55,7 +55,7 @@ public class BlitzConfiguration {
     private final PermissionsVerifier blitzVerifier;
 
     private final Ice.InitializationData id;
-    
+
     private final Ice.ObjectPrx managerDirectProxy;
 
     /**
@@ -110,16 +110,16 @@ public class BlitzConfiguration {
                     securitySystem, executor);
             blitzVerifier = createAndRegisterVerifier(sessionManager);
             managerDirectProxy = blitzAdapter.createDirectProxy(managerId());
-            
+
             // Must inject configuration before starting the adapter
-            blitzRing.init(this);
+            blitzRing.init(communicator, communicator
+                    .proxyToString(getDirectProxy()));
             blitzAdapter.activate();
         } catch (RuntimeException e) {
             destroy();
             throw e;
         }
-        
-        
+
     }
 
     /**
@@ -276,11 +276,11 @@ public class BlitzConfiguration {
     }
 
     public void destroy() {
-        
+
         if (blitzRing != null) {
             blitzRing.destroy();
         }
-        
+
         logger.debug(String.format("Destroying Ice.Communicator (%s)",
                 communicator));
         logger.info("Shutting down Ice.Communicator");
@@ -301,7 +301,7 @@ public class BlitzConfiguration {
         }
         return blitzRing;
     }
-    
+
     public Ice.Communicator getCommunicator() {
         if (communicator == null) {
             throw new IllegalStateException("Communicator is null");
@@ -329,7 +329,7 @@ public class BlitzConfiguration {
         }
         return blitzVerifier;
     }
-    
+
     /**
      * Return a direct proxy to the session manager in this object adapter.
      */
@@ -347,7 +347,6 @@ public class BlitzConfiguration {
         iData.properties = Ice.Util.createProperties();
         return iData;
     }
-    
 
     private Ice.Identity managerId() {
         Ice.Identity id = Ice.Util.stringToIdentity("BlitzManager");

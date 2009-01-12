@@ -61,7 +61,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
     private final String uuid = UUID.randomUUID().toString();
 
-    private/* final */BlitzConfiguration blitz;
+    private/* final */Ice.Communicator communicator;
 
     private/* final */String directProxy;
 
@@ -103,16 +103,16 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
         this("session_ring.xml");
     }
 
-    public void init(BlitzConfiguration bc) {
-        this.blitz = bc;
-        directProxy = bc.getCommunicator().proxyToString(bc.getDirectProxy());
+    /**
+     * 
+     * @param bc
+     */
+    public void init(Ice.Communicator communicator, String directProxy) {
+        this.communicator = communicator;
+        this.directProxy = directProxy;
         map.put(MANAGERS + uuid, directProxy);
-    }
-
-    private void checkInit() {
-        if (this.blitz == null) {
-            throw new IllegalStateException("Not initialized");
-        }
+        map.putIfAbsent(CONFIG + "redirect", directProxy);
+        log.info("Current redirect: " + getRedirect());
     }
 
     public void destroy() {
@@ -132,6 +132,33 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
         return map.get(SESSIONS + userId) != null;
     }
 
+    /**
+     * Returns the current redirect, to which all calls to
+     * {@link #getProxyOrNull(String, Glacier2.SessionControlPrx, Ice.Current)}
+     * will be pointed. May be null, but is typically set to a non-null value
+     * when the first {@link Ring} joins the cluster.
+     */
+    public String getRedirect() {
+        String redirect = map.get(CONFIG + "redirect");
+        return redirect;
+    }
+
+    /**
+     * Set the new redirect value and return the previous value, which might be
+     * null. If the uuidOrProxy is null or empty, then the existing redirect
+     * will be {@link ReplicatedHashMap#remove(Object)} removed. Otherwise the
+     * value is set. In either case, the previous value is returned.
+     */
+    public String putRedirect(String uuidOrProxy) {
+        String oldValue;
+        if (uuidOrProxy == null || uuidOrProxy.length() == 0) {
+            oldValue = map.remove(CONFIG + "redirect");
+        } else {
+            oldValue = map.put(CONFIG + "redirect", uuidOrProxy);
+        }
+        return oldValue;
+    }
+
     public SessionPrx getProxyOrNull(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
@@ -142,7 +169,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
 
         // If there is a redirect, then we honor it as long as it doesn't
         // point back to us, in which case we bail.
-        String redirect = map.get(CONFIG + "redirect");
+        String redirect = getRedirect();
         if (redirect != null) {
             log.info("Found redirect: " + redirect);
             if (redirect.equals(uuid)) {
@@ -194,8 +221,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
         // If we've found a proxy string, use that.
         if (proxyString != null) {
             current.ctx.put("omero.routed_from", directProxy);
-            Ice.ObjectPrx remote = blitz.getCommunicator().stringToProxy(
-                    proxyString);
+            Ice.ObjectPrx remote = communicator.stringToProxy(proxyString);
             SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
                     .checkedCast(remote);
             try {
@@ -281,7 +307,7 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
             } else if (args[0].equals("redirect")) {
                 if (args.length > 1) {
                     String value = args[1];
-                    ring.setRedirect(value);
+                    ring.putRedirect(value);
                 } else {
                     ring.printRedirect();
                 }
@@ -309,14 +335,6 @@ public class Ring implements ReplicatedHashMap.Notification<String, String>,
             }
         } else {
             System.out.println("(empty)");
-        }
-    }
-
-    public void setRedirect(String uuidOrProxy) {
-        if (uuidOrProxy == null || uuidOrProxy.length() == 0) {
-            map.remove(CONFIG + "redirect");
-        } else {
-            map.put(CONFIG + "redirect", uuidOrProxy);
         }
     }
 
