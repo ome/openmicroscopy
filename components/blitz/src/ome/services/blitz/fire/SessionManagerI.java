@@ -223,6 +223,43 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * clients can be attached to the same session, each with its own
      * {@link ServiceFactoryI}
      */
+    public void requestHeartBeats() {
+        log.info("Performing requestHeartbeats");
+        Set<String> sessionIds = sessionToClientIds.keySet();
+        for (String sessionId : sessionIds) {
+            Set<String> clientIds = sessionToClientIds.get(sessionId);
+            if (clientIds != null) {
+                for (String clientId : clientIds) {
+                    try {
+                        Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
+                                sessionId);
+                        Ice.Object obj = adapter.find(iid);
+                        if (obj == null) {
+                            log.debug(Ice.Util.identityToString(iid)
+                                    + " already removed Can't ping.");
+                        } else {
+                            ServiceFactoryI sf = (ServiceFactoryI) obj;
+                            sf.doRequestHeartbeat();
+                        }
+                    } catch (Ice.ObjectAdapterDeactivatedException oade) {
+                        log.warn("Cannot ping session " + sessionId
+                                + " from client " + clientId
+                                + " since adapter is deactivated.");
+                    } catch (Exception e) {
+                        log.error("Error ping session " + sessionId
+                                + " from client " + clientId, e);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * {@link ServiceFactoryI#doDestroy() Destroys} all the
+     * {@link ServiceFactoryI} instances based on the given sessionId. Multiple
+     * clients can be attached to the same session, each with its own
+     * {@link ServiceFactoryI}
+     */
     public void reapSession(String sessionId) {
         Set<String> clientIds = sessionToClientIds.get(sessionId);
         if (clientIds != null) {

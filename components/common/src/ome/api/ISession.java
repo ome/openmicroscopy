@@ -15,6 +15,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionTimeoutException;
+import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.system.Principal;
 
@@ -39,6 +40,15 @@ import ome.system.Principal;
  * @since 3.0-Beta3
  */
 public interface ISession extends ServiceInterface {
+
+    /**
+     * Allows a user to open up another session for him/herself with the given
+     * defaults without needing to re-enter password.
+     * 
+     * @DEV.TODO Review the security of this method.
+     */
+    Session createUserSession(long timeToLiveMilliseconds,
+            long timeToIdleMillisecond, String defaultGroup, Permissions umask);
 
     /**
      * Allows an admin to create a {@link Session} for the give
@@ -109,13 +119,19 @@ public interface ISession extends ServiceInterface {
     Session updateSession(@NotNull Session session);
 
     /**
-     * Retrieves the session associated with this uuid. Throws a
-     * {@link RemovedSessionException} if not present, or a
-     * {@link SessionTimeoutException} if expired.
+     * Retrieves the session associated with this uuid, updating the last access
+     * time as well. Throws a {@link RemovedSessionException} if not present, or
+     * a {@link SessionTimeoutException} if expired.
      * 
      * This method can be used as a {@link Session} ping.
      */
     Session getSession(@NotNull String sessionUuid);
+
+    /**
+     * Retrieves the current reference count for the given uuid. Has the same
+     * semantics as {@link #getSession(String)}.
+     */
+    int getReferenceCount(@NotNull String sessionUuid);
 
     /**
      * Closes session and releases all resources. It is preferred that all

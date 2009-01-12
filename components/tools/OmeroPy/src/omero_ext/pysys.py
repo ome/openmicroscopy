@@ -15,3 +15,4 @@ stdout = sys.stdout
 stderr = sys.stderr
 exit = sys.exit
 path = sys.path
+exc_info = sys.exc_info

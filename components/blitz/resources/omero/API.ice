@@ -286,7 +286,7 @@ module omero {
 	 *
 	 * http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120
 	 */
-        interface IScript; // 
+        interface IScript; //
 
 	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ISession.html
@@ -294,7 +294,10 @@ module omero {
 	["ami", "amd"] interface ISession extends ServiceInterface
 	{
 	    omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
-	    omero::model::Session getSession(string sessionUuid) throws ServerError;
+	    omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds,
+						    string defaultGroup, omero::sys::Principal p) throws ServerError;
+            omero::model::Session getSession(string sessionUuid) throws ServerError;
+	    int getReferenceCount(string sessionUuid) throws ServerError;
 	    omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
 	    int closeSession(omero::model::Session sess) throws ServerError;
 	    // System users
@@ -756,17 +759,27 @@ module omero {
 
 	/*
 	 * Primary callback interface for interaction between client and
-	 * server session ("ServiceFactory").
+	 * server session ("ServiceFactory"). Where possible these methods
+	 * will be called one-way to prevent clients from hanging the server.
 	 */
-	interface ClientCallback
+
+	["ami"] interface ClientCallback
 	{
-
+		
 	    /*
-	     * Heartbeat-check made by the server to guarantee that the client
-	     * is alive.
+	     * Heartbeat-request made by the server to guarantee that the client
+	     * is alive. If the client is still active, then some method should
+	     * be made on the server to update the last idle time.
 	     */
-	    bool ping();
-
+	    void requestHeartbeat();
+	    
+	    /*
+	     * The session to which this ServiceFactory is connected has been
+	     * closed. Almost no further method calls (if any) are possible.
+	     * Create a new session via omero.client.createSession()
+	     */
+	    void sessionClosed();
+	    
 	    /*
 	     * Message that the server will be shutting down in the
 	     * given number of milliseconds, after which all new and

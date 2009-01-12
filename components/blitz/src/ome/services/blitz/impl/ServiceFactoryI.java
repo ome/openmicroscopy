@@ -29,6 +29,7 @@ import omero.InternalException;
 import omero.ServerError;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.ClientCallbackPrx;
+import omero.api.ClientCallbackPrxHelper;
 import omero.api.GatewayPrx;
 import omero.api.GatewayPrxHelper;
 import omero.api.IAdminPrx;
@@ -124,6 +125,7 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.transaction.TransactionStatus;
 
+import Ice.ConnectionRefusedException;
 import Ice.Current;
 
 /**
@@ -508,6 +510,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public void setCallback(ClientCallbackPrx callback, Ice.Current current) {
         this.callback = callback;
+        log.info(Ice.Util.identityToString(this.sessionId())
+                + " set callback to " + this.callback);
     }
 
     public void detachOnDestroy(Ice.Current current) {
@@ -521,6 +525,23 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public void closeOnDestroy(Ice.Current current) {
         doClose = true;
+    }
+
+    public void doRequestHeartbeat() {
+        ClientCallbackPrx copy = callback;
+        if (copy != null) {
+            try {
+                Ice.ObjectPrx prx = copy.ice_oneway();
+                ClientCallbackPrx oneway = ClientCallbackPrxHelper
+                        .uncheckedCast(prx);
+                oneway.requestHeartbeat();
+            } catch (Ice.ConnectionRefusedException cre) {
+                // oh well.
+            } catch (Exception e) {
+                log.error("Error on oneway "
+                        + "ClientCallback.requestHeartbeat", e);
+            }
+        }
     }
 
     /**
@@ -552,6 +573,25 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // is < 1.
         if (doClose && ref < 1) {
 
+            // First call back to the client to prevent any further access
+            // We do so one way though to prevent hanging this method. We
+            // also take steps to not fall into a recursive loop.
+            ClientCallbackPrx copy = callback;
+            callback = null;
+            if (copy != null) {
+                try {
+                    Ice.ObjectPrx prx = copy.ice_oneway();
+                    ClientCallbackPrx oneway = ClientCallbackPrxHelper
+                            .uncheckedCast(prx);
+                    oneway.sessionClosed();
+                } catch (ConnectionRefusedException cre) {
+                    // Oh well. Not much we can do.
+                } catch (Exception e) {
+                    log.error("Error on oneway "
+                            + "ClientCallback.sessionClosed", e);
+                }
+            }
+
             // Must check all session access in this method too.
             doDestroy();
 
@@ -572,7 +612,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         try {
             adapter.remove(sessionId());
         } catch (Ice.ObjectAdapterDeactivatedException oade) {
-            log.warn("Adapter already deactivated. Cannot remove: "+sessionId());
+            log.warn("Adapter already deactivated. Cannot remove: "
+                    + sessionId());
         } catch (Throwable t) {
             // FIXME
             log.error("Possible memory leak: can't remove service factory", t);

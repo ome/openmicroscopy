@@ -69,6 +69,7 @@ class client(object):
         # Setting all protected values to prevent AttributeError
         self.__previous = None
         self.__ic = None
+        self.__oa = None
         self.__sf = None
         self.__lock = threading.RLock()
 
@@ -203,10 +204,10 @@ class client(object):
             ctx.put(omero.constants.CLIENTUUID, str(uuid.uuid4()))
 
             # Register the default client callback
-            cb = CallbackI()
-            oa = self.__ic.createObjectAdapter("omero.ClientCallback")
-            oa.add(cb, self.__ic.stringToIdentity("ClientCallback"))
-            oa.activate()
+            cb = CallbackI(self)
+            self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
+            self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback"))
+            self.__oa.activate()
         finally:
             self.__lock.release()
 
@@ -318,7 +319,7 @@ class client(object):
                 raise ClientError("No password specified")
 
             # Acquire router and get the proxy
-            prx = self.getRouter().createSession(username, password)
+            prx = self.getRouter(self.__ic).createSession(username, password)
             if not prx:
                 raise ClientError("Obtained null object prox")
 
@@ -326,17 +327,22 @@ class client(object):
             self.__sf = api.ServiceFactoryPrx.uncheckedCast(prx)
             if not self.__sf:
                 raise ClientError("Obtained object proxy is not a ServiceFactory")
+
+            # Set the client callback on the session
+            raw = self.__oa.stringToProxy("ClientCallback")
+            self.__sf.setCallback(omero.ClientCallbackPrx.uncheckedCast(raw))
+
             return self.__sf
         finally:
             self.__lock.release()
 
-    def getRouter(self):
+    def getRouter(self, comm):
         """
         Acquires the default router, and throws an exception
         if it is not of type Glacier2.Router. Also sets the
         Ice.ImplicitContext on the router proxy.
         """
-        prx = self.getCommunicator().getDefaultRouter()
+        prx = comm.getDefaultRouter()
         if not prx:
             raise ClientError("No default router found.")
         router = Glacier2.RouterPrx.uncheckedCast(prx)
@@ -345,7 +351,7 @@ class client(object):
 
         # For whatever reason, we have to set the context
         # on the router context here as well
-        router = router.ice_context(self.__ic.getImplicitContext().getContext())
+        router = router.ice_context(comm.getImplicitContext().getContext())
         return router
 
     def sha1(self, filename):
@@ -464,45 +470,47 @@ class client(object):
         only one connection is allowed per communicator, so we also destroy the communicator.
         """
 
-        # If 'sf' exists we remove it, but save it for the weird chance that ic is None
-        old = None
-        old = self.__sf
-        self.__sf = None
+        self.__lock.acquire()
+        try:
+            oldSf = self.__sf
+            self.__sf = None
 
-        # If don't have a communicator there's nothing we can do
-        if not hasattr(self, '__ic') or not self.__ic:
-            if old:
-                self.__ic = old.ice_getCommunicator()
-            else:
+            oldOa = self.__oa
+            self.__oa = None
+
+            oldIc = self.__ic
+            self.__ic = None
+
+            # Only possible if improperly configured.
+            if not oldIc:
                 return
 
-        try:
-            prx = self.getCommunicator().getDefaultRouter()
-            router = Glacier2.RouterPrx.checkedCast(prx)
-
-            # Now destroy the actual session if possible,
-            # which will always trigger an exception,
-            # regardless of actually being connected or not
-            if router:
+            if oldOa:
                 try:
-                    router.destroySession()
+                    oldOa.deactivate()
                 except exceptions.Exception, e:
-                    pass
-                    # SNEE happens if we call sf.close() before
-                    # calling destroySession(). CLE happens since
-                    # we are disconnecting
+                    oldIc.getLogger().warn("While deactivating adapter: " + str(e.message))
 
-        finally:
-            copy = self.__ic
-            self.__ic = None
             self.__previous = Ice.InitializationData()
             self.__previous.properties = copy.getProperties().clone()
-            copy.destroy()
 
+            try:
+                getRouter(oldIc).destroySession()
+            except Glacier2.SessionNotExistException:
+                # ok. We don't want it to exist
+                pass
+            except Ice.ConnectionLostException:
+                # ok. Exception will always be thrown
+                pass
+
+            finally:
+                oldIc.destroy()
+
+        finally:
+            self.__lock.release()
 
     # Environment Methods
     # ===========================================================
-
 
     def _env(self, method, *args):
         """ Helper method to access session environment"""
@@ -568,16 +576,68 @@ class client(object):
         else:
             raise AttributeError("Unknown property: " + name)
 
-class CallbackI(api.ClientCallback):
-    """
-    Simple initial implementation for a client callback. More functionality
-    is planned in upcoming versions.
-    """
-    def ping(self, current = Ice.Current()):
-        return True
-    def shutdownIn(self, milliSeconds, current = Ice.Current()):
-        pass
+    #
+    # Callback
+    #
+    def _getCb(self):
+        obj = self.oa.find(self.ic.stringToIdentity("ClientCallback"))
+        if not isinstance(obj, CallbackI):
+            raise ClientError("Cannot find CallbackI in ObjectAdapter")
+        return obj
 
+    def onHeartbeat(self, myCallable):
+        self._getCb().onHeartbeat = myCallable
+
+    def onSessionClosed(self, myCallable):
+        self._getCb().onSessionClosed = myCallable
+
+    def onShutdownIn(self, myCallable):
+        self._getCb().onShutdownIn = myCallable
+
+    class CallbackI(omero.api.ClientCallback):
+        """
+        Implemention of ClientCallback which will be added to
+        any Session which this instance creates
+        """
+
+        #
+        # Default callbacks
+        #
+        def _noop(self):
+            pass
+        def _keepAlive(self):
+            self.client.sf.getAdminService().getEventContext()
+        def _closeSession(self):
+            self.client.closeSession()
+
+        def __init__(self, client):
+            self.client = client
+            self.onHeartbeat = self._noop
+            self.onShutdownIn = self._closeSession
+            self.onSessionClosed = self._closeSession
+        def execute(self, myCallable, action):
+            ic = self.client.ic
+            try:
+                myCallable()
+                ic.getLogger().trace("ClientCallback", action + " run")
+            except:
+                try:
+                    ic.getLogger().error("Error performing %s" % action)
+                    import traceback
+                    traceback.print_exc()
+                except:
+                    print "Error performing %s" % action
+
+        def requestHeartbeat(self, current = None):
+            self.execute(self.onHeartbeat, "heartbeat")
+        def shutdownIn(self, milliseconds, current = None):
+            self.execute(self.onShutdownIn, "shutdown")
+        def sessionClosed(self, current = None):
+            self.execute(self.onSessionClosed, "sessionClosed")
+
+#
+# Other
+#
 
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):
@@ -616,4 +676,3 @@ class UnloadedEntityException(ClientError):
 
 class UnloadedCollectionException(ClientError):
     pass
-

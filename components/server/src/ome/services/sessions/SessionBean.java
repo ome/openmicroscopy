@@ -25,9 +25,12 @@ import ome.api.ISession;
 import ome.api.ServiceInterface;
 import ome.conditions.AuthenticationException;
 import ome.conditions.RootException;
+import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.logic.SimpleLifecycle;
+import ome.model.internal.Permissions;
 import ome.model.meta.Session;
+import ome.security.basic.CurrentDetails;
 import ome.services.util.BeanHelper;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
@@ -69,6 +72,8 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // Injected
     SessionManager mgr;
 
+    CurrentDetails currentUser;
+
     // ~ Injectors
     // =========================================================================
 
@@ -77,6 +82,11 @@ public class SessionBean implements ISession, SelfConfigurableService {
             helper = new BeanHelper(SessionBean.class);
         }
         return helper;
+    }
+
+    public void setCurrentDetails(CurrentDetails cd) {
+        getHelper().throwIfAlreadySet(currentUser, cd);
+        this.currentUser = cd;
     }
 
     public void setSessionManager(SessionManager sessionManager) {
@@ -94,6 +104,33 @@ public class SessionBean implements ISession, SelfConfigurableService {
 
     // ~ Session lifecycle
     // =========================================================================
+
+    @RolesAllowed("user")
+    public Session createUserSession(long timeToLiveMs, long timeToIdleMs,
+            String defaultGroup, Permissions umask) {
+
+        final String user = currentUser.getCurrentEventContext().getCurrentUserName();
+        if (user == null) {
+            throw new SecurityViolation("No current user");
+        }
+        
+        Session session = null;
+        try {
+            Principal principal = null;
+            if (defaultGroup != null) {
+                principal = new Principal(user, defaultGroup, "User");
+            } else {
+                principal = new Principal(user);
+            }
+            session = mgr.create(principal);
+            session.setTimeToIdle(timeToIdleMs);
+            session.setTimeToLive(timeToLiveMs);
+            return mgr.update(session, false);
+        } catch (Exception e) {
+            throw creationExceptionHandler(e);
+        }
+
+    }
 
     @RolesAllowed("system")
     public Session createSessionWithTimeout(@NotNull Principal principal,
@@ -143,6 +180,11 @@ public class SessionBean implements ISession, SelfConfigurableService {
     @RolesAllowed( { "user", "guest" })
     public Session getSession(@NotNull String sessionUuid) {
         return mgr.find(sessionUuid);
+    }
+    
+    @RolesAllowed( { "user", "guest" })
+    public int getReferenceCount(@NotNull String sessionUuid) {
+        return mgr.getReferenceCount(sessionUuid);
     }
 
     @RolesAllowed( { "user", "guest" })

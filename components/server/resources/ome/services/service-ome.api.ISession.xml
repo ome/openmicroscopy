@@ -25,6 +25,7 @@
     an example of what should be done.
     </description>
     <property name="sessionManager" ref="sessionManager"/>
+    <property name="currentDetails" ref="currentDetails"/>
   </bean> 
  
   <bean name="managed-ome.api.ISession" parent="selfManagingService">

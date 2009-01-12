@@ -26,6 +26,15 @@
 namespace omero {
 
     /*
+     * Simple type for use with the ClientCallback type below.
+     */
+    class Callable {
+    public:
+	Callable() {};
+	void operator()() {};
+    };
+
+    /*
      * Central client-side blitz entry point and should be in sync with
      * OmeroJavas and OmeroPy's omero.client classes.
      *
@@ -47,7 +56,6 @@ namespace omero {
     private:
 	client& operator=(const client& rv);
 	client(client&);
-	void exit(); // Localized logic for closing communicator
 
 	// These are the central instances provided by this class.
     protected:
@@ -58,6 +66,12 @@ namespace omero {
 	 * ID is a simple struct.
 	 */
 	Ice::InitializationData* previous;
+
+	/*
+	 * Ice.ObjectAdapter containing the ClientCallback for
+	 * this instance.
+	 */
+	Ice::ObjectAdapterPtr oa;
 
 	/*
 	 * Single communicator for this omero::client. Nullness is used as
@@ -173,7 +187,7 @@ namespace omero {
 	 * if it is not of type Glacier2::RouterPrx. Also sets the ImplicitContext
 	 * on the router proxy.
 	 */
-	Glacier2::RouterPrx const getRouter() const;
+	Glacier2::RouterPrx const getRouter(const Ice::CommunicatorPtr& comm) const;
 
 	/*
 	 * Calculates the local sha1 for a file.
@@ -236,11 +250,21 @@ namespace omero {
 	const std::string sess();
 	omero::api::ISessionPrx env();
 
+	// Callback methods
+	// ==================================================================
+
+    protected:
+	CallbackIPtr _getCb();
+    public:
+	void onHeartbeat(Callable callable);
+	void onSessionClosed(Callable callable);
+	void onShutdown(Callable callable);
+
     };
 
     /*
-     * Simple initial implementation for a client callback. More functionality
-     * is planned in upcoming versions.
+     * Implementation of ClientCallback which will be added to
+     * any Session which this instance creates
      */
     class CallbackI : virtual public omero::api::ClientCallback {
 
@@ -248,10 +272,19 @@ namespace omero {
     private:
 	CallbackI& operator=(const CallbackI& rv);
 	CallbackI(CallbackI&);
+	void execute(Callable callable, const std::string& action);
+	// State
+	omero::client client;
+	Callable onHeartbeat;
+	Callable onSessionClosed;
+	Callable onShutdown;
+	Callable noop;
+	Callable closeSession;
 
     public:
-	CallbackI();
-	virtual bool ping(const Ice::Current& current = Ice::Current());
+	CallbackI(const omero::client& client);
+	virtual void requestHeartbeat(const Ice::Current& current = Ice::Current());
+	virtual void sessionClosed(const Ice::Current& current = Ice::Current());
 	virtual void shutdownIn(Ice::Long milliSeconds, const Ice::Current& current = Ice::Current());
     };
 

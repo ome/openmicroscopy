@@ -40,5 +40,18 @@
   <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
   <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>
   <bean id="BlitzVerifier" factory-bean="configuration" factory-method="getBlitzVerifier"/>
+  
+  <bean id="requestHeartBeatsRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="BlitzManager" />
+    <property name="targetMethod" value="requestHeartBeats" />
+  </bean>
+  <bean id="requestHeartBeatsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="cronExpression" value="0 0-59/4 * * * ?" />
+    <property name="jobDetail" ref="requestHeartBeatsRun"/>
+  </bean>
+  <bean class="ome.services.scheduler.SelfRegisteringTrigger">
+    <constructor-arg ref="scheduler"/>
+    <constructor-arg ref="requestHeartBeatsTrigger"/>
+  </bean>
 
 </beans>

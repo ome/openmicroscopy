@@ -128,8 +128,8 @@ namespace omero {
 	ctx->put(omero::constants::CLIENTUUID, IceUtil::generateUUID());
 
 	// Register the default client callback.
-	CallbackIPtr cb = new CallbackI();
-	Ice::ObjectAdapterPtr oa = ic->createObjectAdapter("omero.ClientCallback");
+	CallbackIPtr cb = new CallbackI(this);
+	oa = ic->createObjectAdapter("omero.ClientCallback");
 	oa->add(cb, ic->stringToIdentity("ClientCallback"));
 	oa->activate();
 
@@ -291,7 +291,7 @@ namespace omero {
 	}
 
 	// Acquire router and get the proxy
-	Glacier2::SessionPrx prx = getRouter()->createSession(username, password);
+	Glacier2::SessionPrx prx = getRouter(ic)->createSession(username, password);
 	if ( ! prx ) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Obtained null object proxy");
 	}
@@ -301,6 +301,10 @@ namespace omero {
 	if ( ! sf ) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Obtained object proxy is not a ServiceFactory.");
 	}
+
+	// Set the client callback on the session
+	Ice::ObjectPrx raw = oa->stringToProxy("ClientCallback");
+	sf->setCallback(ClientCallbacPrx::uncheckedCast(raw));
 	return sf;
     }
 
@@ -308,11 +312,9 @@ namespace omero {
     // --------------------------------------------------------------------
 
 
-    Glacier2::RouterPrx const client::getRouter() const {
+    Glacier2::RouterPrx const client::getRouter(const Ice::CommunicatorPtr& comm) const {
 
-	IceUtil::RecMutex::Lock lock(mutex);
-
-	Ice::RouterPrx prx = ic->getDefaultRouter();
+	Ice::RouterPrx prx = comm->getDefaultRouter();
 	if ( ! prx ) {
 	    throw omero::ClientError(__FILE__,__LINE__,"No default router found.");
 	}
@@ -322,9 +324,9 @@ namespace omero {
 	    throw new ClientError(__FILE__, __LINE__, "Error obtaining Glacier2 router");
 	}
 
-	// For whatever reason, we have to se the context
+	// For whatever reason, we have to set the context
 	// on the router context here as well.
-	router = Glacier2::RouterPrx::uncheckedCast(router->ice_context(ic->getImplicitContext()->getContext()));
+	router = Glacier2::RouterPrx::uncheckedCast(router->ice_context(comm->getImplicitContext()->getContext()));
 
 	return router;
     }
@@ -332,44 +334,50 @@ namespace omero {
 
     // --------------------------------------------------------------------
 
-
-    void client::exit() {
-	Ice::CommunicatorPtr copy(ic);
-	ic = Ice::CommunicatorPtr();
-	previous = new Ice::InitializationData();
-	(*previous).properties = copy->getProperties()->clone();
-	copy->destroy();
-    }
-
     void client::closeSession() {
 
-	omero::api::ServiceFactoryPrx old = sf;
+	IceUtil::RecMutex::Lock lock(mutex);
+
+	omero::api::ServiceFactoryPrx oldSf = sf;
 	sf = omero::api::ServiceFactoryPrx();
 
-	// This is unlikely, but a last ditch effort
-	if ( ! ic && old ) {
-	    ic = old->ice_getCommunicator();
+	Ice::ObjectAdapterPtr oldOa = oa;
+	oa = Ice::ObjectAdapterPtr();
+
+	Ice::CommunicatorPtr oldIc = ic;
+	ic = Ice::CommunicatorPtr();
+
+	// Only possible if improperly configured
+	if (! oldIc) {
+	    return; // EARLY EXIT!
 	}
 
-	if ( ! ic) {
-	    return; // EARLY EXIT
+	if (oldOa) {
+	    try {
+		oldOa.deactivate();
+	    } catch (...) {
+		oldIc.getLogger().warn("While deactivating adapter : TBD");
+	    }
 	}
+
+        previous = new Ice::InitializationData();
+        (*previous).properties = oldIc->getProperties()->clone();
 
 	try {
-	    getRouter()->destroySession();
+	    getRouter(oldIc)->destroySession();
 	} catch (const Glacier2::SessionNotExistException& snee) {
 	    // ok. We don't want it to exist
-	    exit();
+	    oldIc.destroy();
 	} catch (const Ice::ConnectionLostException& cle) {
 	    // ok. Exception will always be thrown.
-	    exit();
+	    oldIc.destroy();
         } catch (const omero::ClientError& ce) {
             // This is called by getRouter() if a router is not configured.
             // If there isn't one, then we can't be connected. That's alright.
             // Most likely called during ~client
-            exit();
+	    oldIc.destroy();
 	} catch (...) {
-	    exit();
+	    oldIc.destroy();
 	    throw;
 	}
 
@@ -424,19 +432,69 @@ namespace omero {
 	return sf->getAdminService()->getEventContext()->sessionUuid;
     }
 
-    // Misc
+    // Callback methods
     // ====================================================================
 
-    CallbackI::CallbackI() {
-	// no-op at the moment.
+    CallbackIPtr client::_getCb() {
+	Ice::ObjectPtr obj = oa->find(ic->stringToIdentity("ClientCallback"));
+	CallbackIPtr cb = CallbackI::dynamic_cast(obj);
+	if (!cb) {
+	    throw new ClientError(__FILE__,__LINE__,"Cannot find CallbackI in ObjectAdapter");
+	}
+	return cb;
     }
 
-    bool CallbackI::ping(const Ice::Current& current) {
-	return true;
+    void client::onHeartbeat(Callable callable) {
+	_getCb()->onHeartbeat = callable;
     }
 
-    void CallbackI::shutdownIn(Ice::Long milliSeconds, const Ice::Current& current) {
-	// no-op
+    void client::onSessionClosed(Callable callable) {
+	_getCb()->onSessionClosed = callable;
+    }
+
+    void client::onShutdown(Callable callable) {
+	_getCb()->onShutdown = callable;
+    }
+
+    CallbackI::noop = new Callable() {};
+
+    CallbackI::closeSession = new Callable(){};
+
+    CallbackI::onHeartbeat = CallbackI::noop;
+
+    CallbackI::onSessionClosed = CallbackI::closeSession;
+
+    CallbackI::onShutdown = CallbackI::closeSession;
+
+    CallbackI::CallbackI(const omero::client& ptr) {
+	client = ptr;
+    }
+
+    void CallbackI::requestHeartbeat(const Ice::Current& current) {
+	execute(onHeartbeat, "heartbeat");
+    }
+
+    void CallbackI::sessionClosed(const Ice::Current& current) {
+	execute(onSessionClosed, "sessionClosed");
+    }
+
+    void CallbackI::shutdownIn(const Ice::Current& current) {
+	execute(onShutdown, "shutdown");
+    }
+
+    void CallbackI::execute(Callable callable, const string& action) {
+	Ice::CommunicatorPtr ic = client.getCommunicator();
+	try {
+	    callable();
+	    ic->getLogger()->trace("ClientCallback", action + " run");
+	} catch (...) {
+	    try {
+		ic->getLogger()->error("Error performing " + action+": "+TBD);
+	    } catch (...) {
+		std::cerr << "Error performing " << action << ": " << TBD << std::endl;
+		std::cerr << "(Stderr due to: " << TBD << std::endl;
+	    }
+	}
     }
 
 }

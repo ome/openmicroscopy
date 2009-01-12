@@ -13,12 +13,14 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_ISession_closeSession;
 import omero.api.AMD_ISession_createSession;
+import omero.api.AMD_ISession_createUserSession;
 import omero.api.AMD_ISession_createSessionWithTimeout;
 import omero.api.AMD_ISession_createSessionWithTimeouts;
 import omero.api.AMD_ISession_getInput;
 import omero.api.AMD_ISession_getInputKeys;
 import omero.api.AMD_ISession_getOutput;
 import omero.api.AMD_ISession_getOutputKeys;
+import omero.api.AMD_ISession_getReferenceCount;
 import omero.api.AMD_ISession_getSession;
 import omero.api.AMD_ISession_setInput;
 import omero.api.AMD_ISession_setOutput;
@@ -69,7 +71,12 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
             Principal p, String credentials, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, p, credentials);
+    }
 
+    public void createUserSession_async(AMD_ISession_createUserSession __cb, long arg0,
+            long arg1, String arg2,omero.sys.Principal arg3, Ice.Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, arg0, arg1, arg2, arg3);
     }
 
     public void getInputKeys_async(AMD_ISession_getInputKeys __cb, String sess,
@@ -98,6 +105,12 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
     }
 
     public void getSession_async(AMD_ISession_getSession __cb,
+            String sessionUuid, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, sessionUuid);
+
+    }
+
+    public void getReferenceCount_async(AMD_ISession_getReferenceCount __cb,
             String sessionUuid, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, sessionUuid);
 

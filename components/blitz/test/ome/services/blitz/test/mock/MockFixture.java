@@ -7,7 +7,11 @@
 package ome.services.blitz.test.mock;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import net.sf.ehcache.Cache;
 import ome.model.meta.Session;
@@ -16,6 +20,7 @@ import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.test.utests.TestCache;
 import ome.services.blitz.util.BlitzConfiguration;
+import ome.services.scheduler.SchedulerFactoryBean;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -23,20 +28,33 @@ import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.constants.CLIENTUUID;
-import omero.model.DetailsI;
-import omero.model.PermissionsI;
-import omero.util.ObjectFactoryRegistrar;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.scheduling.quartz.CronTriggerBean;
+import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
+import Glacier2.AMD_Router_createSession;
+import Glacier2.AMD_Router_createSessionFromSecureConnection;
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
+import Glacier2.SessionNotExistException;
+import Glacier2.SessionPrx;
+import Ice.Current;
 import Ice.InitializationData;
+import Ice.ObjectPrx;
 
 public class MockFixture {
 
     public final MockObjectTestCase test;
 
+    public final SchedulerFactoryBean scheduler;
     public final BlitzConfiguration blitz;
     public final SimpleJdbcTemplate jdbc;
     public final SessionManagerI sm;
@@ -45,6 +63,7 @@ public class MockFixture {
     public final OmeroContext ctx;
     public final Executor ex;
     public final Ring ring;
+    public final String router;
 
     public static OmeroContext basicContext() {
         return new OmeroContext(new String[] { "classpath:omero/test.xml",
@@ -52,7 +71,7 @@ public class MockFixture {
                 "classpath:ome/services/throttling/throttling.xml",
                 "classpath:ome/services/messaging.xml",
                 "classpath:ome/services/datalayer.xml",
-                "classpath:ome/config.xml"});
+                "classpath:ome/config.xml" });
     }
 
     public MockFixture(MockObjectTestCase test) throws Exception {
@@ -76,7 +95,7 @@ public class MockFixture {
         this.ss = (SecuritySystem) ctx.getBean("securitySystem");
         this.mgr = (SessionManager) ctx.getBean("sessionManager");
         this.jdbc = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate");
-        
+
         // --------------------------------------------
 
         InitializationData id = new InitializationData();
@@ -97,23 +116,73 @@ public class MockFixture {
         // For testing large calls
         id.properties.setProperty("Ice.MessageSizeMax", "4096");
         // Basic configuration
-        id.properties.setProperty("BlitzAdapter.Endpoints","default -h 127.0.0.1");
+        id.properties.setProperty("BlitzAdapter.Endpoints",
+                "default -h 127.0.0.1");
         // Cluster configuration from etc/internal.cfg
-        id.properties.setProperty("Cluster.Endpoints","udp -h 224.0.0.5 -p 10000");
-        id.properties.setProperty("ClusterProxy","Cluster:udp -h 224.0.0.5 -p 10000");
-        
+        id.properties.setProperty("Cluster.Endpoints",
+                "udp -h 224.0.0.5 -p 10000");
+        id.properties.setProperty("ClusterProxy",
+                "Cluster:udp -h 224.0.0.5 -p 10000");
+
         blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
+        this.sm.setApplicationContext(ctx);
         // The following is a bit of spring magic so that we can configure
         // the adapter in code. If this can be pushed to BlitzConfiguration
         // for example then we might not need it here anymore.
         HotSwappableTargetSource ts = (HotSwappableTargetSource) ctx
                 .getBean("swappableAdapterSource");
         ts.swap(blitz.getBlitzAdapter());
+
+        // Setup mock router which allows us to use omero.client
+        // rather than solely ServiceFactoryProxies, though it is
+        // still necessary to call the proper mock methods.
+        Ice.ObjectPrx prx = blitz.getBlitzAdapter().add(
+                new MockRouter(this.sm),
+                Ice.Util.stringToIdentity("OMERO.Glacier2/router"));
+        router = "OMERO.Glacier2/router:"
+                + prx.ice_getEndpoints()[0]._toString();
+
+        // Removing any redirects post-BlitzConfiguration to
+        // prevent weird ConnectionRefusedExceptions especially
+        // when using our mock glacier
+        blitz.getRing().putRedirect(null); // Removing redirect
+
+        // Finally, starting a scheduler to act like a real
+        // server
+        try {
+            MethodInvokingJobDetailFactoryBean runBeats = new MethodInvokingJobDetailFactoryBean();
+            runBeats.setBeanName("runBeats");
+            runBeats.setTargetMethod("requestHeartBeats");
+            runBeats.setTargetObject(blitz.getBlitzManager());
+            runBeats.afterPropertiesSet();
+            CronTriggerBean triggerBeats = new CronTriggerBean();
+            triggerBeats.setBeanName("triggerBeats");
+            triggerBeats.setJobDetail((JobDetail) runBeats.getObject());
+            triggerBeats.setCronExpression("0-59/5 * * * * ?");
+            triggerBeats.afterPropertiesSet();
+            scheduler = new SchedulerFactoryBean();
+            scheduler.setApplicationContext(ctx);
+            scheduler.setTriggers(new Trigger[] { triggerBeats });
+            scheduler.afterPropertiesSet();
+            scheduler.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public omero.client newClient() {
+        Properties p = new Properties();
+        p.setProperty("Ice.Default.Router", router);
+        p.setProperty("Ice.ImplicitContext", "Shared"); // Unneeded in Beta4
+        p.setProperty("omero.client.Endpoints", "default"); // Unneeded in Beta4
+        omero.client client = new omero.client(p);
+        return client;
     }
 
     public void tearDown() {
         this.blitz.destroy();
+        scheduler.stop();
         // this.ctx.closeAll();
     }
 
@@ -165,10 +234,19 @@ public class MockFixture {
                 test.returnValue(false));
     }
 
+    public void prepareClose(int referenceCount) {
+        mock("sessionsMock").expects(test.once()).method("detach").will(
+                test.returnValue(referenceCount));
+        if (referenceCount < 1) {
+            mock("sessionsMock").expects(test.once()).method("close").will(
+                    test.returnValue(-2));
+        }
+    }
+
     Ring ring() {
         return blitz.getRing();
     }
-    
+
     public Mock mock(String name) {
         return (Mock) ctx.getBean(name);
     }
@@ -191,8 +269,12 @@ public class MockFixture {
     }
 
     public Session session() {
+        return session("my-session-uuid");
+    }
+
+    public Session session(String uuid) {
         Session session = new Session();
-        session.setUuid("my-session-uuid");
+        session.setUuid(uuid);
         session.setStarted(new Timestamp(System.currentTimeMillis()));
         session.setTimeToIdle(0L);
         session.setTimeToLive(0L);
@@ -211,6 +293,72 @@ public class MockFixture {
             throw new RuntimeException("No mock for serviceClass");
         }
         return mock;
+    }
+
+    public static class MockRouter extends Glacier2._RouterDisp {
+
+        private final static Log log = LogFactory.getLog(MockRouter.class);
+
+        private final SessionManagerI sm;
+
+        private final Map<Ice.Connection, SessionPrx> sessionByConnection = new HashMap<Ice.Connection, SessionPrx>();
+
+        public MockRouter(SessionManagerI sm) {
+            this.sm = sm;
+        }
+
+        public void createSessionFromSecureConnection_async(
+                AMD_Router_createSessionFromSecureConnection arg0, Current arg1)
+                throws CannotCreateSessionException, PermissionDeniedException {
+            arg0.ice_exception(new UnsupportedOperationException());
+        }
+
+        public void createSession_async(AMD_Router_createSession arg0,
+                String arg1, String arg2, Current arg3)
+                throws CannotCreateSessionException, PermissionDeniedException {
+            try {
+                SessionPrx prx = sm.create(arg1, null, arg3);
+                sessionByConnection.put(arg3.con, prx);
+                log.info(String.format("Storing %s under %s", prx, arg3.con));
+                arg0.ice_response(prx);
+            } catch (Exception e) {
+                arg0.ice_exception(e);
+            }
+
+        }
+
+        public void destroySession(Current arg0)
+                throws SessionNotExistException {
+            SessionPrx prx = sessionByConnection.get(arg0.con);
+            log.info("Destroying " + prx);
+            prx.destroy();
+        }
+
+        public String getCategoryForClient(Current arg0) {
+            throw new UnsupportedOperationException();
+        }
+
+        public long getSessionTimeout(Current arg0) {
+            throw new UnsupportedOperationException();
+        }
+
+        public ObjectPrx[] addProxies(ObjectPrx[] arg0, Current arg1) {
+            log.warn("addProxies called with " + Arrays.deepToString(arg0));
+            return null;
+        }
+
+        public void addProxy(ObjectPrx arg0, Current arg1) {
+            log.warn("addProxy called with " + arg0);
+        }
+
+        public ObjectPrx getClientProxy(Current arg0) {
+            return null;
+        }
+
+        public ObjectPrx getServerProxy(Current arg0) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
 }

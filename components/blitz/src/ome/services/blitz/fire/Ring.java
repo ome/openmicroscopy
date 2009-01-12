@@ -10,10 +10,8 @@ package ome.services.blitz.fire;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -82,20 +80,14 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
     private/* final */Ice.Communicator communicator;
 
     /**
-     * Multicast-based adapter solely for cluster communication.
-     */
-    private/* final */Ice.ObjectAdapter clusterAdapter;
-
-    /**
      * Standard blitz adapter which is used for the callback.
      */
     private/* final */Ice.ObjectAdapter adapter;
-
+    
     /**
-     * {@link Ice.ObjectPrx} for this {@link Ring} instance as added to the
-     * {@link #adapter} in the {@link #init(Ice.ObjectAdapter, String)} method.
+     * Multicast-based adapter solely for cluster communication.
      */
-    private/* final */Ice.ObjectPrx ownProxy;
+    private/* final */Ice.ObjectAdapter clusterAdapter;
 
     /**
      * Multicast (datagram) proxy to all other cluster nodes.
@@ -140,19 +132,6 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
         this.communicator = adapter.getCommunicator();
         this.directProxy = directProxy;
 
-        // The cluster we belong to.
-        Ice.ObjectPrx prx = this.communicator.propertyToProxy("ClusterProxy");
-        if (prx == null) {
-            throw new RuntimeException("Could not obtain ClusterProxy. "
-                    + "Is multicast property properly set?");
-        }
-        prx = prx.ice_datagram();
-        if (prx == null) {
-            throw new RuntimeException("Could no get datagram proxy. "
-                    + "Please check your multicast configuration.");
-        }
-        cluster = ClusterPrxHelper.uncheckedCast(prx);
-
         // Before we add our self we check the validity of the cluster.
         checkClusterAndAddSelf();
         put(MANAGERS + uuid, directProxy);
@@ -166,7 +145,24 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
      * to the cluster.
      */
     protected void checkClusterAndAddSelf() {
-
+        
+        // The cluster we belong to.
+        Ice.ObjectPrx prx = this.communicator.propertyToProxy("ClusterProxy");
+        if (prx == null) {
+            log.warn("Could not obtain ClusterProxy. "
+                    + "Is multicast property properly set?");
+            return; // EARLY EXIT
+        }
+        
+        // But we have to use datagrams
+        prx = prx.ice_datagram();
+        if (prx == null) {
+            log.warn("Could no get datagram proxy. "
+                    + "Please check your multicast configuration.");
+            return; // EARLY EXIT
+        }
+        cluster = ClusterPrxHelper.uncheckedCast(prx);
+        
         // Now create the call back and start it
         // The instance registers and removes itself.
         Discovery discovery = new Discovery(adapter, this, this.publisher);
@@ -179,7 +175,7 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
 
         // Now our checking is done, add ourselves.
         this.clusterAdapter = this.communicator.createObjectAdapter("Cluster");
-        ownProxy = this.clusterAdapter.add(this, this.communicator
+        this.clusterAdapter.add(this, this.communicator
                 .stringToIdentity("Cluster"));
         this.clusterAdapter.activate();
     }
@@ -362,22 +358,22 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
             }
         }
         // Now removing any stale sessions
+        List<String> params = new ArrayList<String>();
         StringBuilder sb = new StringBuilder();
         sb.append("delete from session_ring ");
         sb.append("where key like 'session-%' ");
         sb.append("and (");
-        sb.append(" value != ");
-        sb.append(" '");
-        sb.append(uuid); // Self
-        sb.append("' ");
+        sb.append(" value != ?");
+        params.add(0, uuid);
         for (String nodeUuid : nodeUuids) {
             sb.append(" and ");
-            sb.append("value != '");
-            sb.append(nodeUuid);
-            sb.append("' ");
+            sb.append("value != ?");
+            params.add(nodeUuid);
         }
         sb.append(")");
-        int count = jdbc.update(sb.toString());
+        int count = jdbc.update(sb.toString(), (Object[]) params
+                .toArray(new Object[params
+                .size()]));
         if (count != 0) {
             log.info("Removed " + count + " stale sessions");
         }

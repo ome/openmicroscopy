@@ -6,10 +6,9 @@
  */
 package ome.server.itests.sessions;
 
-import junit.framework.TestCase;
-import ome.api.Search;
-import ome.server.itests.ManagedContextFixture;
-import ome.system.OmeroContext;
+import ome.model.meta.Experimenter;
+import ome.model.meta.Session;
+import ome.server.itests.AbstractManagedContextTest;
 
 import org.testng.annotations.Test;
 
@@ -17,20 +16,13 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-public class SessionBeanIntegrationTest extends TestCase {
+public class SessionBeanIntegrationTest extends AbstractManagedContextTest {
 
     @Test
-    public void testFindAllSessionsReturnsOnlyOwn() throws Exception {
-        OmeroContext.getManagedServerContext();
-        fail("NYI");
+    public void testUserCreatesOwnSession() throws Exception {
+        
+        Experimenter e = loginNewUser();
+        Session s = factory.getSessionService().createUserSession(0, 0, null, null);
+        
     }
-
-    @Test(groups = "ticket:883")
-    public void testExceptionThrownOnClose() throws Exception {
-
-        ManagedContextFixture fixture = new ManagedContextFixture();
-        Search search = fixture.managedSf.createSearchService();
-        search.close();
-    }
-
 }

@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import omero.api.ClientCallbackPrxHelper;
 import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
@@ -83,6 +84,12 @@ public class client {
      * the {@link #__ic} if nulled after {@link #closeSession()}.
      */
     private Ice.InitializationData __previous;
+
+    /**
+     * {@link Ice.ObjectAdapter} containing the {@link ClientCallback} for
+     * this instance.
+     */
+    private Ice.ObjectAdapter __oa;
 
     /**
      * Single communicator for this {@link omero.client}. Nullness is used as a
@@ -259,7 +266,7 @@ public class client {
                 }
             }
         }
-        
+
         synchronized (lock) {
 
             if (__ic != null) {
@@ -290,10 +297,10 @@ public class client {
                     .toString());
 
             // Register the default client callback.
-            CallbackI cb = new CallbackI();
-            Ice.ObjectAdapter oa = __ic.createObjectAdapter("omero.ClientCallback");
-            oa.add(cb, Ice.Util.stringToIdentity("ClientCallback"));
-            oa.activate();
+            CallbackI cb = new CallbackI(this);
+            __oa = __ic.createObjectAdapter("omero.ClientCallback");
+            __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback"));
+            __oa.activate();
 
             // Store this instance for cleanup on shutdown.
             CLIENTS.add(this);
@@ -449,7 +456,7 @@ public class client {
             }
 
             // Acquire router and get the proxy
-            Glacier2.SessionPrx prx = getRouter().createSession(username,
+            Glacier2.SessionPrx prx = getRouter(__ic).createSession(username,
                     password);
             if (null == prx) {
                 throw new ClientError("Obtained null object proxy");
@@ -461,8 +468,14 @@ public class client {
                 throw new ClientError(
                         "Obtained object proxy is not a ServiceFactory");
             }
+
+            // Set the client callback on the session
+            Ice.ObjectPrx raw = __oa.stringToProxy("ClientCallback");
+            __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
             return this.__sf;
+
         }
+
     }
 
     /**
@@ -470,23 +483,22 @@ public class client {
      * and throws an exception if it is not of type {Glacier2.RouterPrx}. Also
      * sets the {@link Ice.ImplicitContext} on the router proxy.
      */
-    public Glacier2.RouterPrx getRouter() {
-        synchronized (lock) {
-            Ice.RouterPrx prx = this.__ic.getDefaultRouter();
-            if (prx == null) {
-                throw new ClientError("No default router found.");
-            }
-            Glacier2.RouterPrx router = Glacier2.RouterPrxHelper
-                    .checkedCast(prx);
-            if (router == null) {
-                throw new ClientError("Error obtaining Glacier2 router");
-            }
-            // For whatever reason, we have to set the context
-            // on the router context here as well
-            router = Glacier2.RouterPrxHelper.uncheckedCast(router
-                    .ice_context(this.__ic.getImplicitContext().getContext()));
-            return router;
+    public static Glacier2.RouterPrx getRouter(Ice.Communicator comm) {
+        Ice.RouterPrx prx = comm.getDefaultRouter();
+        if (prx == null) {
+            throw new ClientError("No default router found.");
         }
+
+        Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.checkedCast(prx);
+        if (router == null) {
+            throw new ClientError("Error obtaining Glacier2 router");
+        }
+
+        // For whatever reason, we have to set the context
+        // on the router context here as well
+        router = Glacier2.RouterPrxHelper.uncheckedCast(router
+                .ice_context(comm.getImplicitContext().getContext()));
+        return router;
     }
 
     /**
@@ -498,41 +510,48 @@ public class client {
      *      Ice Ping Error</a>
      */
     public void closeSession() {
+
         synchronized (lock) {
 
-            ServiceFactoryPrx old = this.__sf;
+            ServiceFactoryPrx oldSf = this.__sf;
+            this.__sf = null;
 
-            if (this.__sf != null) {
-                this.__sf = null;
+            Ice.ObjectAdapter oldOa = this.__oa;
+            this.__oa = null;
+
+            Ice.Communicator oldIc = this.__ic;
+            this.__ic = null;
+
+            // Only possible if improperly configured
+            if (oldIc == null) {
+                return; // EARLY EXIT !
             }
 
-            // This is unlikely, but a last-ditch effort
-            if (__ic == null && old != null) {
-                __ic = old.ice_getCommunicator();
+            if (oldOa != null) {
+                try {
+                    oldOa.deactivate();
+                } catch (Exception e) {
+                    log.warn("While deactivating adapter: " + e.getMessage());
+                }
             }
 
-            // If we don't have a communicator there's nothing we can do.
-            if (__ic == null) {
-                return; // EARLY EXIT!
-            }
+            __previous = new Ice.InitializationData();
+            __previous.properties = oldIc.getProperties()._clone();
 
             try {
-                getRouter().destroySession();
+                getRouter(oldIc).destroySession();
             } catch (Glacier2.SessionNotExistException snee) {
                 // ok. We don't want it to exist
             } catch (Ice.ConnectionLostException cle) {
                 // ok. Exception will always be thrown
             } finally {
-                Ice.Communicator copy = __ic;
-                __ic = null;
-                __previous = new Ice.InitializationData();
-                __previous.properties = copy.getProperties()._clone();
-                copy.destroy();
+                oldIc.destroy();
             }
+
         }
+
     }
 
-    
     // File handling
     // =========================================================================
 
@@ -640,18 +659,95 @@ public class client {
         return u;
     }
 
+    // Callback
+    // =========================================================================
+
+    private CallbackI _getCb() {
+        Ice.Object obj = this.oa.find(Ice.Util.stringToIdentity("ClientCallback"));
+        if (!(obj instanceof CallbackI)) {
+            throw new ClientError("Cannot find CallbackI in ObjectAdapter");
+        }
+        return (CallbackI) obj;
+    }
+
+    public void onHearbeat(Runnable runnable) {
+       _getCb().onHeartbeat = runnable;
+    }
+
+
+    public void onSessionClosed(Runnable runnable) {
+       _getCb().onSessionClosed = runnable;
+    }
+
+    public void onShutdown(Runnable runnable) {
+       _getCb().onShutdown = runnable;
+    }
+
     /**
-     * Simple initial implementation for a client callback. More functionality
-     * is planned in upcoming versions.
+     * Implementation of {@link ClientCallback} which will be added to
+     * any {@link Session} which this instance creates.
      */
     private static class CallbackI extends _ClientCallbackDisp {
 
-        public boolean ping(Current __current) {
-            return true;
+        private final omero.client client;
+
+        private Runnable _noop = new Runnable() {
+            public void run() {
+                // ok
+           }
+        };
+
+        private Runnable _closeSession = new Runnable() {
+
+            public void run() {
+                try {
+                    client.closeSession();
+                } catch (Exception e) {
+                    // Oh well.
+                }
+            }
+
+        };
+
+        private Runnable onHeartbeat = _noop;
+        private Runnable onSessionClosed = _closeSession;
+        private Runnable onShutdown = _closeSession;
+
+        public CallbackI(omero.client client) {
+            this.client = client;
+        }
+
+        public void requestHeartbeat(Current __current) {
+            execute(onHeartbeat, "heartbeat");
         }
 
         public void shutdownIn(long milliseconds, Current __current) {
-            // no-op
+            execute(onShutdown, "shutdown");
+        }
+
+        public void sessionClosed(Current __current) {
+            execute(onSessionClosed, "sessionClosed");
+        }
+
+        protected void execute(Runnable runnable, String action) {
+            Ice.Communicator ic = client.getCommunicator();
+            try {
+                runnable.run();
+                ic.getLogger().trace("ClientCallback", action + " run");
+            } catch (Exception e) {
+                try {
+                    ic.getLogger().error(
+                            "Error performing "+action+": " + e.getMessage());
+                } catch (Exception e2) {
+                    // This could be a null pointer exception or any number
+                    // of things. But it's important for us to know that a
+                    // heartbeat could not be performed, for exampleì
+                    System.err.println("Error performing "+action+" :"+
+                            e.getMessage());
+                    System.err.println("(Stderr due to: " + e2.getMessage()
+                            + ")");
+                }
+            }
         }
 
     }

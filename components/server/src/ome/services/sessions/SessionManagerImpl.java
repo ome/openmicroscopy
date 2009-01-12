@@ -381,7 +381,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public int detach(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid);
+        SessionContext ctx = cache.getSessionContext(uuid, false);
         return ctx.decrement();
     }
 
@@ -396,7 +396,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         SessionContext ctx;
         try {
-            ctx = cache.getSessionContext(uuid);
+            ctx = cache.getSessionContext(uuid, false);
         } catch (SessionException se) {
             return -1; // EARLY EXIT!
         }
