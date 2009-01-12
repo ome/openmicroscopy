@@ -448,24 +448,29 @@ class UserProfile
 	{
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
     	//Required fields first
-    	ExperimenterData newOne = new ExperimenterData();
+    	//ExperimenterData newOne = new ExperimenterData();
     	JTextField f = items.get(EditorUtil.LAST_NAME);
     	String v = f.getText();
     	if (v == null || v.trim().length() == 0) showRequiredField();
-    	newOne.setLastName(v);
+    	//newOne.setLastName(v);
+    	original.setLastName(v);
     	f = items.get(EditorUtil.EMAIL);
     	v = f.getText();
     	if (v == null || v.trim().length() == 0) showRequiredField();
-    	newOne.setEmail(v);
+    	//newOne.setEmail(v);
+    	original.setEmail(v);
     	f = items.get(EditorUtil.INSTITUTION);
     	v = f.getText();
     	if (v == null) v = "";
-    	newOne.setInstitution(v.trim());
+    	//newOne.setInstitution(v.trim());
+    	original.setInstitution(v.trim());
     	f = items.get(EditorUtil.FIRST_NAME);
     	v = f.getText();
     	if (v == null) v = "";
-    	newOne.setFirstName(v.trim());
-    	newOne.setId(original.getId());
+    	//newOne.setFirstName(v.trim());
+    	//newOne.setId(original.getId());
+    	original.setEmail(v.trim());
+    	
     	//set the groups
     	if (selectedIndex != originalIndex) {
     		GroupData g = groupData[selectedIndex];
@@ -480,9 +485,11 @@ class UserProfile
 				if (group.getId() != g.getId())
 					newGroups.add(group);
 			}
-    		newOne.setGroups(newGroups);
+    		//Need to see what to do b/c no ExperimenterGroupMap
+    		//newOne.setGroups(newGroups);
+    		original.setGroups(newGroups);
     	}
-		return newOne;
+		return original;//newOne;
 	}
 	
 	/** 

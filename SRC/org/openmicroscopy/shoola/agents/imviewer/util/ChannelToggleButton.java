@@ -30,7 +30,6 @@ import java.awt.event.MouseEvent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
 
 /** 
  * Customized button to select the channel whose rendering settings are
@@ -47,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.ColouredButton;
  * @since OME2.2
  */
 public class ChannelToggleButton 
-    extends ChannelButton//ColouredButton
+    extends ChannelButton
 {
 
     /** Bound property indicating that the channel is selected. */

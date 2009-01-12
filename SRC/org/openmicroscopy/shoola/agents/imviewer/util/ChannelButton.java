@@ -76,7 +76,7 @@ public class ChannelButton
     public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
     
     /** The description associated to this channel. */
-	private static final String		DESCRIPTION = "Toggle this channel on/off.";
+	private static final String		DESCRIPTION = "Toggle channel on/off.";
 	
     /** The index of the channel. */
     protected final int               index;
