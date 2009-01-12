@@ -374,6 +374,7 @@ class ImViewerComponent
 	 */
 	private void notifyProjection(String message, ImageData image)
 	{
+		model.setState(READY);
 		String text = message;
 		text += "\n";
 		text += "Do you want to launch a viewer for the projected image?";

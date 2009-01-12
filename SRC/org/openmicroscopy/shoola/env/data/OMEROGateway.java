@@ -2808,18 +2808,18 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			String klass = convertPojos(rootNodeType).getName();
+			//String klass = convertPojos(rootNodeType).getName();
 			Iterator i = nodes.iterator();
 			long id;
 			boolean b = false;
-			if (Image.class.equals(klass)) {
+			if (ImageData.class.equals(rootNodeType)) {
 				while (i.hasNext()) {
 					id = (Long) i.next();
 					b = service.applySettingsToImage(pixelsID, id);
 					if (b) success.add(id);
 					else failure.add(id);
 				}
-			} else if (Dataset.class.equals(klass)) {
+			} else if (DatasetData.class.equals(rootNodeType)) {
 				Map m;
 				List l;
 				Iterator k;

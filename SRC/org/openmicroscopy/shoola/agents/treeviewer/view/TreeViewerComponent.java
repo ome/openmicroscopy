@@ -1487,7 +1487,8 @@ class TreeViewerComponent
 			}
 			s.trim();
 			un.notifyInfo("Paste Image's settings", "The settings of "+name+
-					"+\ncould not be applied to the following images: \n"+s);
+					"\ncould not be applied to the following images with ID:" +
+					"\n"+s);
 		}
 		model.setState(READY);
 		fireStateChange();

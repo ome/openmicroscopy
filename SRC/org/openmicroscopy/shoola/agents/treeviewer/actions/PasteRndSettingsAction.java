@@ -95,19 +95,18 @@ public class PasteRndSettingsAction
 			return;
 		}
 		int n = browser.getSelectedDisplays().length;
-
 		if (selectedDisplay instanceof TreeImageTimeSet) {
 			if (n > 1) setEnabled(false);
 			else {
 				TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
-				setEnabled(timeNode.getNumberItems() > 0);
+				setEnabled((timeNode.getNumberItems() > 0));
 			}
 			return;
 		}
 		if (!(ho instanceof ImageData || ho instanceof DatasetData))
 			setEnabled(false);
 		else {
-			if (n > 1) setEnabled(ho instanceof ImageData);
+			if (n > 1) setEnabled((ho instanceof ImageData));
 			else setEnabled(true);
 		}
 	}
@@ -120,6 +119,7 @@ public class PasteRndSettingsAction
 	public PasteRndSettingsAction(TreeViewer model)
 	{
 		super(model);
+		setEnabled(false);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
