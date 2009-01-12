@@ -188,7 +188,7 @@ module omero {
 	    idempotent omero::model::RenderingDef loadRndSettings(long renderingSettingsId) throws ServerError;
 	    void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
 	    idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
-	    idempotent omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
+            idempotent omero::model::IObject getEnumeration(string enumClass, string value) throws ServerError;
 	    idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
 	    omero::RLong copyAndResizePixels(long pixelsId,
 					     omero::RInt sizeX,
