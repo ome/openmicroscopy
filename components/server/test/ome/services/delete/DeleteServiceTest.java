@@ -220,6 +220,24 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         loginUser(e1.getOmeName());
         factory.getDeleteService().deleteSettings(i1.getId());
     }
+    
+    public void testDeleteSettingsAfterViewedByRoot() throws Exception {
+
+        Experimenter e1 = loginNewUser();
+        Image i1 = makeImage(false);
+        Pixels p1 = i1.iteratePixels().next();
+        
+        loginRoot();
+        
+        ThumbnailStore tb = this.factory.createThumbnailService();
+        tb.setPixelsId(p1.getId());
+        tb.resetDefaults();
+        tb.setPixelsId(p1.getId());
+        tb.createThumbnails();
+
+        loginUser(e1.getOmeName());
+        factory.getDeleteService().deleteSettings(i1.getId());
+    }
 
     private void putSecondUserInFirstUsersGroup(Experimenter e1, Experimenter e2) {
         // Here we add the second user to the same

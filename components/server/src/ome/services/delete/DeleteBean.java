@@ -36,6 +36,7 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
+import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
@@ -246,14 +247,19 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 List<RenderingDef> rdefs = iQuery.findAllByQuery(
                         SETTINGS_QUERY, new Parameters().addId(imageId));
                 for (RenderingDef renderingDef : rdefs) {
+                    QuantumDef quantumDef = renderingDef.getQuantization();
+                    iQuery.evict(renderingDef);
+                    iQuery.evict(quantumDef);
                     for (ChannelBinding cb : new ArrayList<ChannelBinding>(
                             renderingDef.unmodifiableWaveRendering())) {
+                        iQuery.evict(cb);
                         renderingDef.removeChannelBinding(cb);
                         iUpdate.deleteObject(cb);
                     }
                     iUpdate.deleteObject(renderingDef);
                     iUpdate.deleteObject(renderingDef.getQuantization());
                 }
+                iUpdate.flush();
             }
         });
 
