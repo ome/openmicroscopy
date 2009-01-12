@@ -154,7 +154,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
         } catch (Exception t) {
 
-            if (t instanceof ApiUsageException) {
+            if (t instanceof ome.conditions.ApiUsageException) {
+                ome.conditions.ApiUsageException aue = (ome.conditions.ApiUsageException) t;
+                throw new CannotCreateSessionException(aue.getMessage());
+            } else if (t instanceof ApiUsageException) {
                 ApiUsageException aue = (ApiUsageException) t;
                 throw new CannotCreateSessionException(aue.message);
             } else if (t instanceof SecurityViolation) {
