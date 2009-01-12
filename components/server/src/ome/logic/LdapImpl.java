@@ -54,6 +54,7 @@ import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
@@ -89,7 +90,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
-    protected transient LdapTemplate ldapTemplate;
+    protected transient LdapOperations ldapOperations;
 
     protected transient SimpleJdbcTemplate jdbc;
 
@@ -104,9 +105,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     protected transient IAdmin adminService;
 
     /** injector for usage by the container. Not for general use */
-    public final void setLdapTemplate(LdapTemplate ldapTemplate) {
-        getBeanHelper().throwIfAlreadySet(this.ldapTemplate, ldapTemplate);
-        this.ldapTemplate = ldapTemplate;
+    public final void setLdapTemplate(LdapOperations ldapTemplate) {
+        getBeanHelper().throwIfAlreadySet(this.ldapOperations, ldapTemplate);
+        this.ldapOperations = ldapTemplate;
     }
 
     /** injector for usage by the container. Not for general use */
@@ -150,7 +151,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     @RolesAllowed("system")
     public List<Experimenter> searchAll() {
         EqualsFilter filter = new EqualsFilter("objectClass", "person");
-        return ldapTemplate.search(DistinguishedName.EMPTY_PATH, filter
+        return ldapOperations.search(DistinguishedName.EMPTY_PATH, filter
                 .encode(), new PersonContextMapper());
     }
 
@@ -170,7 +171,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
             filter.and(new EqualsFilter("objectClass", "person"));
             filter.and(new EqualsFilter(attr, value));
 
-            return ldapTemplate.search(dn, filter.encode(),
+            return ldapOperations.search(dn, filter.encode(),
                     new PersonContextMapper());
         } else {
             return Collections.EMPTY_LIST;
@@ -180,7 +181,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     @RolesAllowed("system")
     public Experimenter searchByDN(String dns) {
         DistinguishedName dn = new DistinguishedName(dns);
-        return (Experimenter) ldapTemplate
+        return (Experimenter) ldapOperations
                 .lookup(dn, new PersonContextMapper());
     }
 
@@ -190,7 +191,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         AndFilter filter = new AndFilter();
         filter.and(new EqualsFilter("objectClass", "person"));
         filter.and(new EqualsFilter("cn", username));
-        List<Experimenter> p = ldapTemplate.search("", filter.encode(),
+        List<Experimenter> p = ldapOperations.search("", filter.encode(),
                 new PersonContextMapper());
         if (p.size() == 1) {
             Experimenter exp = p.get(0);
@@ -207,7 +208,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         AndFilter filter = new AndFilter();
         filter.and(new EqualsFilter("objectClass", "person"));
         filter.and(new EqualsFilter("cn", username));
-        List<Experimenter> p = ldapTemplate.search("", filter.encode(),
+        List<Experimenter> p = ldapOperations.search("", filter.encode(),
                 new PersonContextMapper());
         Experimenter exp = null;
         if (p.size() == 1) {
@@ -226,7 +227,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
             AndFilter filter = new AndFilter();
             filter.and(new EqualsFilter("objectClass", "groupOfNames"));
             filter.and(new EqualsFilter(attr, value));
-            return ldapTemplate.search("", filter.encode(),
+            return ldapOperations.search("", filter.encode(),
                     new GroupAttributMapper());
         } else {
             return Collections.EMPTY_LIST;
@@ -243,7 +244,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         for (int i = 0; i < attributes.length; i++) {
             filter.and(new EqualsFilter(attributes[i], values[i]));
         }
-        return ldapTemplate.search(new DistinguishedName(dn), filter.encode(),
+        return ldapOperations.search(new DistinguishedName(dn), filter.encode(),
                 new PersonContextMapper());
     }
 
@@ -382,9 +383,11 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
             if (context.getStringAttribute("cn") != null) {
                 person.setOmeName(context.getStringAttribute("cn"));
             }
+            person.setLastName("");
             if (context.getStringAttribute("sn") != null) {
                 person.setLastName(context.getStringAttribute("sn"));
             }
+            person.setFirstName("");
             if (context.getStringAttribute("givenName") != null) {
                 person.setFirstName(context.getStringAttribute("givenName"));
             }
