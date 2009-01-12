@@ -208,7 +208,9 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
 
     public void destroy() {
         try {
-            this.clusterAdapter.deactivate();
+            if (this.clusterAdapter != null) {
+                this.clusterAdapter.deactivate();
+            }
             remove(MANAGERS + uuid);
             int count = jdbc.update("delete from session_ring where value = ?", uuid);
             log.info("Removed "+count+" entries for "+uuid);
@@ -216,7 +218,9 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
         } finally {
-            cluster.down(this.uuid);
+            if (cluster != null) {
+                cluster.down(this.uuid);
+            }
         }
     }
 

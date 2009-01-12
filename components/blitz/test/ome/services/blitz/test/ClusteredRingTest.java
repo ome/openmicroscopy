@@ -149,6 +149,6 @@ public class ClusteredRingTest extends MockObjectTestCase {
     
     @Test
     public void testIfRedirectIsDeletedAnotherHostTakesOver() throws Exception {
-        fails();
+        fail();
     }
 }
