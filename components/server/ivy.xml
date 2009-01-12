@@ -21,6 +21,14 @@
     <!-- Ice -->
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
+    <!-- Jotm -->
+    <dependency org="jotm" name="howl_jotm" rev="2.0.10"/>
+    <dependency org="jotm" name="jotm" rev="2.0.10"/>
+    <dependency org="jotm" name="jotm_jrmp_stubs" rev="2.0.10"/>
+    <dependency org="jotm" name="jts1_0_jotm" rev="2.0.10"/>
+    <dependency org="jotm" name="objectweb-datasource_jotm" rev="2.0.10"/>
+    <dependency org="jotm" name="ow_carlos_jotm" rev="2.0.10"/>
+    <dependency org="jotm" name="xapool_jotm" rev="2.0.10"/>
     <!-- Public -->
     <dependency org="commons-lang" name="commons-lang" rev="2.1"/>
     <dependency org="activemq" name="activemq-core" rev="3.2"/>

@@ -41,7 +41,7 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
 
 
     <!-- FOR JBOSS: If using a file, this might should be lower like WARN -->
-    <param name="Threshold" value="DEBUG"/>
+    <param name="Threshold" value="INFO"/>
 
     <param name="Target" value="System.out"/>
 
@@ -165,6 +165,16 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
   <!-- Configuring c3p0 -->
   <category name="com.mchange">
     <priority value="WARN"/>
+  </category>
+
+  <!-- Configuring xapool et al.-->
+  <category name="org.enhydra">
+    <priority value="INFO"/>
+  </category>
+
+  <!-- Configuring jotm et al.-->
+  <category name="org.objectweb">
+    <priority value="INFO"/>
   </category>
 
   <!-- Even if other c3p0 logs are wanted, not security warning at hibernate.org/214.html) -->

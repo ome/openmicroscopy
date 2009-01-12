@@ -35,12 +35,12 @@ import org.springframework.util.Assert;
 /**
  * method interceptor responsible for login and creation of Events. Calls are
  * made to the {@link BasicSecuritySystem} provided in the
- * {@link EventHandler#EventHandler(BasicSecuritySystem, HibernateTemplate) constructor}.
+ * {@link EventHandler#EventHandler(BasicSecuritySystem, HibernateTemplate)
+ * constructor}.
  * 
- * After the method is
- * {@link MethodInterceptor#invoke(MethodInvocation) invoked} various cleanup
- * actions are performed and finally all credentials all
- * {@link BasicSecuritySystem#invalidateEventContext() cleared} from the
+ * After the method is {@link MethodInterceptor#invoke(MethodInvocation)
+ * invoked} various cleanup actions are performed and finally all credentials
+ * all {@link BasicSecuritySystem#invalidateEventContext() cleared} from the
  * {@link Thread}.
  * 
  * 
@@ -203,18 +203,19 @@ public class EventHandler implements MethodInterceptor {
         this.ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
-                StatelessSession s = sf.openStatelessSession(session
-                        .connection());
 
-                for (EventLog l : logs) {
-                    Event e = l.getEvent();
-                    if (e.getId() == null) {
-                        throw new RuntimeException("Transient event");
+                StatelessSession s = sf.openStatelessSession();
+                try {
+                    for (EventLog l : logs) {
+                        Event e = l.getEvent();
+                        if (e.getId() == null) {
+                            throw new RuntimeException("Transient event");
+                        }
+                        s.insert(l);
                     }
-                    s.insert(l);
+                } finally {
+                    s.close();
                 }
-
-                // s.close();
                 return null;
             }
         });

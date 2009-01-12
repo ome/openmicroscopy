@@ -106,7 +106,15 @@
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="lib" path="lib/repository/importer/quaqua-filechooser-only-unknown.jar"/>
-	<classpathentry kind="lib" path="target/libs/loci-common.jar"/>
 	<classpathentry kind="lib" path="lib/repository/importer/omero-client-utils-unknown.jar"/>
+	<classpathentry kind="lib" path="target/libs/loci-common.jar"/>
+	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
+	<classpathentry kind="lib" path="target/libs/howl_jotm.jar"/>
+	<classpathentry kind="lib" path="target/libs/jotm_jrmp_stubs.jar"/>
+	<classpathentry kind="lib" path="target/libs/jotm.jar"/>
+	<classpathentry kind="lib" path="target/libs/jts1_0_jotm.jar"/>
+	<classpathentry kind="lib" path="target/libs/objectweb-datasource_jotm.jar"/>
+	<classpathentry kind="lib" path="target/libs/ow_carlos_jotm.jar"/>
+	<classpathentry kind="lib" path="target/libs/xapool_jotm.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

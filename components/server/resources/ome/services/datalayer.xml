@@ -34,12 +34,26 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
-  <bean id="transactionManager" lazy-init="true"
-        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    <description>
-    Scope: private
-    </description>
-    <constructor-arg ref="dataSource"/>
+  <bean id="innerDataSource" class="org.enhydra.jdbc.standard.StandardXADataSource" destroy-method="shutdown">
+    <property name="transactionManager" ref="jotm"/>
+    <property name="driverName" value="${hibernate.connection.driver_class}"/>
+    <property name="url" value="${hibernate.connection.url}"/><!-- ?loglevel=2 -->
+    <property name="user" value="${hibernate.connection.username}"/>
+    <property name="password" value="${hibernate.connection.password}"/>
+  </bean>
+
+  <bean id="xaDataSource" class="org.enhydra.jdbc.pool.StandardXAPoolDataSource" destroy-method="shutdown">
+    <property name="dataSource"><ref local="innerDataSource"/></property>
+    <property name="maxSize" value="50"/>
+    <property name="minSize" value="5"/>
+    <property name="user" value="${hibernate.connection.username}"/>
+    <property name="password" value="${hibernate.connection.password}"/>
+  </bean>
+
+  <bean id="jotm" class="ome.tools.spring.JotmFactoryBean"/>
+
+  <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+    <property name="userTransaction" ref="jotm"/>
   </bean>
 
   <bean id="transactionHandler"
@@ -74,7 +88,7 @@
   a configuration file, or directly in your tests via System.setProperty() *before*
   creating the Spring application context. -->
   <!--alias name="${dataSource}" alias="dataSource"/-->
-  <alias name="loggingDataSource" alias="dataSource"/>
+  <alias name="xaDataSource" alias="dataSource"/>
   
   <bean id="loggingDataSource" class="ome.services.util.LoggingDataSource">
     <description>

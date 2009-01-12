@@ -45,6 +45,7 @@
     </description>
     <property name="properties">
       <props>
+        <prop key="hibernate.transaction.factory_class">org.springframework.orm.hibernate3.SpringTransactionFactory</prop>
         <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
         <prop key="hibernate.dialect">${hibernate.dialect}</prop>
         <prop key="hibernate.connection.driver_class">${hibernate.connection.driver_class}</prop>
@@ -113,14 +114,14 @@
     <property name="allowCreate" value="false"/>
   </bean>
 
-  <bean id="simpleJdbcTemplate" class="ome.tools.spring.DelegatingJdbcTemplate">
+  <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
     <description>
     Scope: private
     
     This template uses session.connection() for data access. See javadocs for
     more info.
     </description>
-    <constructor-arg ref="hibernateTemplate"/>
+    <constructor-arg ref="dataSource"/>
   </bean>
   
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
@@ -139,6 +140,9 @@
 			<ref bean="securityFilter"/>
 		</list>
 	</property>
+    <property name="jtaTransactionManager">
+        <bean id="transactionManager.transactionManager" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
+    </property>
   </bean>
 
 </beans>

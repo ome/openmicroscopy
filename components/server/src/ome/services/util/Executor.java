@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ome.conditions.RootException;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
 import ome.system.OmeroContext;
@@ -34,6 +35,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -225,27 +228,15 @@ public interface Executor extends ApplicationContextAware {
          * @return
          */
         public Object executeStateless(final StatelessWork work) {
-            return txTemplate.execute(new TransactionCallback() {
-                @SuppressWarnings("deprecation")
-                public Object doInTransaction(final TransactionStatus status) {
-                    return hibTemplate.execute(new HibernateCallback() {
-                        public Object doInHibernate(final Session session)
-                                throws HibernateException, SQLException {
-                            StatelessSession s = null;
-                            try {
-                                s = hibTemplate.getSessionFactory()
-                                        .openStatelessSession(
-                                                session.connection());
-                                return work.doWork(status, s);
-                            } finally {
-                                if (s != null) {
-                                    s.close(); // Prevents connection leak
-                                }
-                            }
-                        }
-                    }, true);
+            StatelessSession s = null;
+            try {
+                s = hibTemplate.getSessionFactory().openStatelessSession();
+                return work.doWork(null, s);
+            } finally {
+                if (s != null) {
+                    s.close();
                 }
-            });
+            }
         }
 
         /**
@@ -275,9 +266,8 @@ public interface Executor extends ApplicationContextAware {
                 if (stageOne) {
 
                     // Used by EventHandler to set the readOnly status of
-                    // this
-                    // Event. Determines whether changes can be made to the
-                    // database.
+                    // this Event. Determines whether changes can be made to
+                    // the database.
                     if (mi instanceof ProxyMethodInvocation) {
                         ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
                         pmi.setUserAttribute("readOnly", readOnly);
@@ -286,30 +276,26 @@ public interface Executor extends ApplicationContextAware {
                     return mi.proceed();
 
                 } else {
-                    return txTemplate.execute(new TransactionCallback() {
-                        @SuppressWarnings("deprecation")
-                        public Object doInTransaction(
-                                final TransactionStatus status) {
-                            return hibTemplate.execute(new HibernateCallback() {
-                                public Object doInHibernate(
-                                        final Session session)
-                                        throws HibernateException, SQLException {
-                                    Object[] args = mi.getArguments();
-                                    args[0] = status;
-                                    args[1] = session;
-                                    try {
-                                        return mi.proceed();
-                                    } catch (Throwable e) {
-                                        if (e instanceof RuntimeException) {
-                                            throw (RuntimeException) e;
-                                        } else {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
+                    return this.hibTemplate.execute(new HibernateCallback() {
+                        public Object doInHibernate(Session session)
+                                throws HibernateException, SQLException {
+                            Object[] args = mi.getArguments();
+                            args[0] = null;
+                            args[1] = session;
+                            try {
+                                Object rv = mi.proceed();
+                                session.flush();
+                                return rv;
+                            } catch (Throwable e) {
+                                if (e instanceof RuntimeException) {
+                                    throw (RuntimeException) e;
+                                } else {
+                                    throw new RuntimeException(e);
                                 }
-                            }, true);
+                            }
                         }
                     });
+
                 }
             }
         }
