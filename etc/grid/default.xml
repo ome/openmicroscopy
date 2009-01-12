@@ -25,7 +25,7 @@
         client-endpoints="tcp -p 4063"
         session-timeout="300"
         server-endpoints="tcp -h 127.0.0.1"/>
-      <server-instance template="BlitzTemplate" index="0"/>
+      <server-instance template="BlitzTemplate" index="0" config="default"/>
       <server-instance template="ProcessorTemplate" index="0"/>
       <server-instance template="ShellTemplate" id="Web"/>
       <target name="postgres">
@@ -38,6 +38,10 @@
           </properties>
         </server-instance>
       </target>
+    </node>
+
+    <node name="backup">
+      <server-instance template="BlitzTemplate" index="1" config="backup"/>
     </node>
 
     <node name="node1">

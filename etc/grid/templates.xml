@@ -10,10 +10,12 @@
 
     <server-template id="BlitzTemplate">
       <parameter name="index"/>
+      <parameter name="config"/>
       <server id="Blitz-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>blitz</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
+        <env>OMERO_CONFIG=${config}</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>
