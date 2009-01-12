@@ -7,12 +7,6 @@
 
 package ome.api.local;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Provides local (internal) extensions for updating
  * 
@@ -28,7 +22,5 @@ public interface LocalUpdate extends ome.api.IUpdate {
     void rollback();
 
     void flush();
-
-    void commit();
 
 }

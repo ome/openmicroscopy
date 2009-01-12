@@ -387,9 +387,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         settingsLastUpdated = 
                 settings.getDetails().getUpdateEvent().getTime();
         settingsUserId = settings.getDetails().getOwner().getId();
-        dirty = true;
-        metadata = null;
-        metadataLastUpdated = null;
         if (log.isDebugEnabled())
         {
             log.debug("setRenderingDefId for RenderingDef=" + id
@@ -761,8 +758,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     {
         pixels = null;
         settings = null;
-        settingsLastUpdated = null;
-        settingsUserId = null;
         dirty = true;
         metadata = null;
         metadataLastUpdated = null;
@@ -818,12 +813,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public void createThumbnail(Integer sizeX, Integer sizeY)
     {
         // Set defaults and sanity check thumbnail sizes
-        Dimension checkedDimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
-        _createThumbnail(checkedDimensions);
+        if (sizeX == null) {
+            sizeX = DEFAULT_X_WIDTH;
+        }
+        if (sizeY == null) {
+            sizeY = DEFAULT_Y_WIDTH;
+        }
+        sanityCheckThumbnailSizes(sizeX, sizeY);
+    	_createThumbnail(new Dimension(sizeX, sizeY));
         
-        // Ensure that we do not have "dirty" pixels or rendering settings left
-        // around in the Hibernate session cache.
-        iQuery.clear();
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
     }
     
     /** Actually does the work specified by {@link createThumbnail()}.*/
@@ -970,7 +971,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// around in the Hibernate session cache.
     	iQuery.clear();
         iUpdate.flush();
-        iUpdate.commit();
     	return toReturn;
     }
     
@@ -1092,7 +1092,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// around in the Hibernate session cache.
     	iQuery.clear();
         iUpdate.flush();
-        iUpdate.commit();
     	return toReturn;
     }
 
@@ -1124,7 +1123,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             if (metadata != null)
             {
                 metadataLastUpdated = 
-                        metadata.getDetails().getUpdateEvent().getTime();
+                	metadata.getDetails().getUpdateEvent().getTime();
             }
         }
         try
@@ -1132,29 +1131,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             boolean cached = isThumbnailCached(dimensions);
             if (cached)
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("Cache hit.");
-                }
-            }
-            else if (!getCurrentUserId().equals(settingsUserId))
-            {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("Cache miss, we have another user's thumbnail " +
-                              "and it's out of date. Returning directly.");
-                }
-                return _getThumbnailDirect((int) dimensions.getWidth(),
-                                           (int) dimensions.getHeight(),
-                                           null, null);
+            	if (log.isDebugEnabled())
+            	{
+            		log.debug("Cache hit.");
+            	}
             }
             else
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("Cache miss, thumbnail missing or out of date.");
-                }
-                metadata = _createThumbnail(dimensions);
+            	if (log.isDebugEnabled())
+            	{
+            		log.debug("Cache miss, thumbnail missing or out of date.");
+            	}
+            	metadata = _createThumbnail(dimensions);
             }
             byte[] thumbnail = ioService.getThumbnail(metadata);
             return thumbnail;
@@ -1315,7 +1303,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     {
     	_resetDefaults();
         iUpdate.flush();
-        iUpdate.commit();
     }
     
     /** Actually does the work specified by {@link resetDefaults()}.*/

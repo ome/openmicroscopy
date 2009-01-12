@@ -112,9 +112,7 @@ public class FullTextIndexer implements Work {
                     .createFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
             fullTextSession.setCacheMode(CacheMode.IGNORE);
-            Transaction transaction = fullTextSession.beginTransaction();
             doIndexing(fullTextSession);
-            transaction.commit();
             session.clear();
             count++;
         } while (doMore(count));

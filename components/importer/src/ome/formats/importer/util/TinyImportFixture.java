@@ -27,13 +27,13 @@ package ome.formats.importer.util;
 import java.io.File;
 import java.util.UUID;
 
-import loci.formats.ChannelSeparator;
-import loci.formats.ImageReader;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.testclient.ExampleUnitTest;
 import ome.model.containers.Dataset;
+import ome.model.core.Pixels;
 import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
@@ -92,5 +92,13 @@ public class TinyImportFixture extends ImportFixture
     public Dataset getDataset()
     {
     	return d;
+    }
+    
+    public Pixels getPixels()
+    {
+        return sf.getQueryService().findByQuery("select p from Dataset d " +
+        		"join d.imageLinks dil " +
+        		"join dil.child img " +
+        		"join img.pixels p where d.id = "+d.getId(), null);
     }
 }

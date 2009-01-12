@@ -129,17 +129,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         });
     }
 
-    @RolesAllowed("user")
-    public void commit() {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                session.connection().commit();
-                return null;
-            };
-        });
-    }
-
     // ~ INTERFACE METHODS
     // =========================================================================
 
