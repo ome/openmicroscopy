@@ -168,4 +168,12 @@ public interface IDelete extends ServiceInterface {
      */
     public void deleteImagesByDataset(long datasetId, boolean force)
             throws SecurityViolation, ValidationException, ApiUsageException;
+    
+    /**
+     * Deletes all rendering settings for the given Pixel id. This removes
+     * all the same objects that deleteImage() would delete below the given
+     * Pixels
+     */
+    public void deleteSettings(long pixelId);
+    
 }

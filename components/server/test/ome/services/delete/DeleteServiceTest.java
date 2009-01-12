@@ -20,6 +20,7 @@ import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
@@ -189,6 +190,8 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Pixels p1 = i1.iteratePixels().next();
 
         Experimenter e2 = loginNewUser();
+        putSecondUserInFirstUsersGroup(e1, e2);
+        
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
         tb.resetDefaults();
@@ -197,6 +200,35 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         loginUser(e1.getOmeName());
         factory.getDeleteService().deleteImage(i1.getId(), false);
+    }
+    
+    public void testDeleteSettingsAfterViewedByAnotherUser() throws Exception {
+
+        Experimenter e1 = loginNewUser();
+        Image i1 = makeImage(false);
+        Pixels p1 = i1.iteratePixels().next();
+        
+        Experimenter e2 = loginNewUser();
+        putSecondUserInFirstUsersGroup(e1, e2);
+        
+        ThumbnailStore tb = this.factory.createThumbnailService();
+        tb.setPixelsId(p1.getId());
+        tb.resetDefaults();
+        tb.setPixelsId(p1.getId());
+        tb.createThumbnails();
+
+        loginUser(e1.getOmeName());
+        factory.getDeleteService().deleteSettings(i1.getId());
+    }
+
+    private void putSecondUserInFirstUsersGroup(Experimenter e1, Experimenter e2) {
+        // Here we add the second user to the same
+        // group to make sure s/he can see the image.
+        // If we ever move to private permissions by
+        // default, then we will need to do a chmod
+        // on the whole image graph.
+        ExperimenterGroup g1 = iAdmin.getDefaultGroup(e1.getId());
+        iAdmin.addGroups(e2, g1);
     }
 
     // Helpers

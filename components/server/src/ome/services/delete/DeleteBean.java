@@ -6,6 +6,7 @@
 package ome.services.delete;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,6 +96,11 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             + "left outer join fetch p.settings as setting "
             + "where i.id = :id";
 
+    public final static String SETTINGS_QUERY = "select r from RenderingDef r "
+            + "left outer join fetch r.waveRendering "
+            + "left outer join fetch r.quantization "
+            + "join r.pixels pix join pix.image img " + "where img.id = :id";
+
     LocalAdmin admin;
 
     public final Class<? extends ServiceInterface> getServiceInterface() {
@@ -135,8 +141,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     public void deleteImage(final long id, final boolean force)
             throws SecurityViolation, ValidationException {
 
-        final EventContext ec = admin.getEventContext();
-
         final List<IObject> constraints = checkImageDelete(id, force);
         if (constraints.size() > 0) {
             throw new ApiUsageException(
@@ -152,25 +156,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         getImageAndCount(holder, id, delete);
         final Image i = holder[0];
 
-        Details d = i.getDetails();
-        long user = d.getOwner().getId();
-        long group = d.getGroup().getId();
-
-        boolean root = ec.isCurrentUserAdmin();
-        List<Long> leaderof = ec.getLeaderOfGroupsList();
-        boolean pi = leaderof.contains(group);
-        boolean own = ec.getCurrentUserId().equals(user);
-
-        if (!own && !root && !pi) {
-            if (log.isWarnEnabled()) {
-                log.warn(String.format("User %d attempted to delete "
-                        + "Image %d belonging to User %d", ec
-                        .getCurrentUserId(), i.getId(), user));
-            }
-            throw new SecurityViolation(String.format(
-                    "User %s cannot delete image %d", ec.getCurrentUserName(),
-                    i.getId()));
-        }
+        throwSecurityViolationIfNotAllowed(i);
 
         iQuery.execute(new HibernateCallback() {
 
@@ -249,6 +235,30 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         deleteImages(ids, force);
     };
 
+    @RolesAllowed("user")
+    public void deleteSettings(final long imageId) {
+
+        Image i = iQuery.get(Image.class, imageId);
+        throwSecurityViolationIfNotAllowed(i);
+
+        sec.runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                List<RenderingDef> rdefs = iQuery.findAllByQuery(
+                        SETTINGS_QUERY, new Parameters().addId(imageId));
+                for (RenderingDef renderingDef : rdefs) {
+                    for (ChannelBinding cb : new ArrayList<ChannelBinding>(
+                            renderingDef.unmodifiableWaveRendering())) {
+                        renderingDef.removeChannelBinding(cb);
+                        iUpdate.deleteObject(cb);
+                    }
+                    iUpdate.deleteObject(renderingDef);
+                    iUpdate.deleteObject(renderingDef.getQuantization());
+                }
+            }
+        });
+
+    }
+
     // Implementation
     // =========================================================================
 
@@ -268,7 +278,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 images[0] = iQuery.findByQuery(IMAGE_QUERY, new Parameters()
                         .addId(id));
                 if (images[0] == null) {
-                    throw new ApiUsageException("Cannot find image: "+id);
+                    throw new ApiUsageException("Cannot find image: " + id);
                 }
                 collect(delete, images[0]);
             }
@@ -349,5 +359,29 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
         delete.call(i);
 
+    }
+
+    private void throwSecurityViolationIfNotAllowed(final Image i) {
+
+        final Details d = i.getDetails();
+        final long user = d.getOwner().getId();
+        final long group = d.getGroup().getId();
+
+        final EventContext ec = admin.getEventContext();
+        final boolean root = ec.isCurrentUserAdmin();
+        final List<Long> leaderof = ec.getLeaderOfGroupsList();
+        final boolean pi = leaderof.contains(group);
+        final boolean own = ec.getCurrentUserId().equals(user);
+
+        if (!own && !root && !pi) {
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("User %d attempted to delete "
+                        + "Image %d belonging to User %d", ec
+                        .getCurrentUserId(), i.getId(), user));
+            }
+            throw new SecurityViolation(String.format(
+                    "User %s cannot delete image %d", ec.getCurrentUserName(),
+                    i.getId()));
+        }
     }
 }
