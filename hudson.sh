@@ -12,7 +12,7 @@ set -u
 set -x
 
 export JBOSS_HOME=${JBOSS_HOME:-"HOME/root/opt/jboss"}
-export JAVA_OPTS=${JAVA_OPTS:-"-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m"}
+export JAVA_OPTS=${JAVA_OPTS:-"-Xmx600M -Djavac.maxmem=1000M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m"}
 
 java_omero(){
     java $JAVA_OPTS -Domero.version=build$BUILD_NUMBER omero "$@"
