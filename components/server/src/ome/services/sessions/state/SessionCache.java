@@ -48,7 +48,8 @@ public class SessionCache implements ApplicationContextAware {
     private final static Log log = LogFactory.getLog(SessionCache.class);
 
     /**
-     * Read/write lock used to protect access to the {@link #doUpdate()} method.
+     * Read/write lock used to protect access to the {@link #doUpdate()} method
+     * and any other use of {@link #internalRemove(String)}
      */
     private final ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
@@ -60,13 +61,13 @@ public class SessionCache implements ApplicationContextAware {
     public interface StaleCacheListener {
 
         /**
-         * Called once before all the reload methods are called to push
-         * out the current state to database and trigger any exceptions
-         * as the current user. Reload must be executed as root and so
-         * can't be run with readOnly set to false.
+         * Called once before all the reload methods are called to push out the
+         * current state to database and trigger any exceptions as the current
+         * user. Reload must be executed as root and so can't be run with
+         * readOnly set to false.
          */
         void prepareReload();
-        
+
         /**
          * Method called for every active session in the cache. The returned
          * {@link SessionContext} will be used to replace the current one.
@@ -252,33 +253,43 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     private void internalRemove(String uuid) {
-        
-        log.info("Destroying session " + uuid);
-        
-        // Announce to all callbacks.
-        Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
-        if (cbs != null) {
-            for (SessionCallback cb : cbs) {
-                try {
-                    cb.close();
-                } catch (Exception e) {
-                    final String msg = "SessionCallback %s throw exception for session %s";
-                    log.warn(String.format(msg, cb, uuid), e);
+        updateLock.writeLock().lock();
+        try {
+            
+            if ( ! sessions.isKeyInCache(uuid)) {
+                log.info("Session already destroyed: " + uuid);
+                return; // EARLY EXIT!
+            }
+         
+            log.info("Destroying session " + uuid);
+
+            // Announce to all callbacks.
+            Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
+            if (cbs != null) {
+                for (SessionCallback cb : cbs) {
+                    try {
+                        cb.close();
+                    } catch (Exception e) {
+                        final String msg = "SessionCallback %s throw exception for session %s";
+                        log.warn(String.format(msg, cb, uuid), e);
+                    }
                 }
             }
-        }
 
-        // Announce to all listeners
-        try {
-            context.publishEvent(new DestroySessionMessage(this, uuid));
-        } catch (RuntimeException re) {
-            final String msg = "Session listener threw an exception for session %s";
-            log.warn(String.format(msg, uuid), re);
+            // Announce to all listeners
+            try {
+                context.publishEvent(new DestroySessionMessage(this, uuid));
+            } catch (RuntimeException re) {
+                final String msg = "Session listener threw an exception for session %s";
+                log.warn(String.format(msg, uuid), re);
+            }
+
+            ehmanager.removeCache("memory:" + uuid);
+            ehmanager.removeCache("ondisk:" + uuid);
+            sessions.remove(uuid);
+        } finally {
+            updateLock.writeLock().unlock();
         }
-        
-        ehmanager.removeCache("memory:" + uuid);
-        ehmanager.removeCache("ondisk:" + uuid);
-        sessions.remove(uuid);
     }
 
     public List<String> getIds() {
