@@ -9,6 +9,8 @@ package ome.services.blitz.test.utests;
 import junit.framework.TestCase;
 import ome.services.blitz.fire.Ring;
 
+import org.jgroups.blocks.ReplicatedTree;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -18,26 +20,50 @@ import org.testng.annotations.Test;
  */
 public class RingTest extends TestCase {
 
-    Ring ring1, ring2;
+    // Using tree directly since the ring hides it
+    ReplicatedTree tree1, tree2;
     
     @BeforeClass
     public void setup() throws Exception {
-        ring1 = new Ring();
-        ring2 = new Ring();
+        tree1 = new ReplicatedTree("test", "session_ring.xml", 1000);
+        tree2= new ReplicatedTree("test", "session_ring.xml", 1000);
+        tree1.start();
+        tree2.start();
     }
     
-    @Test
+    @AfterClass
+    public void tearDown() {
+        tree1.stop();
+        tree2.stop();
+    }
+    
+    //@Test
     public void testMain() throws Exception {
         Ring.main(new String[]{});
     }
     
     @Test
-    public void testSimpleAdd() throws Exception {
-        ring1.put("a","b");
-        Thread.sleep(1000L);
-        assertTrue(ring1.containsKey("a")); // Even this needs the wait.
-        assertTrue(ring2.containsKey("a"));
-        assertEquals("b", ring2.get("a"));
+    public void testLotsOfCalls() throws Exception {
+        int i = 0;
+        int j = 0;
+        long start = System.currentTimeMillis();
+        for (int k = 0; k < 100; k++) {
+            i++; j++;
+            tree1.put("/1", i+"", i+"");
+            tree2.put("/2", j+"", j+"");
+        }
+
+
+        assertEquals(100, tree2.getKeys("/1").size());
+        assertEquals(100, tree1.getKeys("/2").size());
+    
     }
+    
+    @Test
+    public void testPrintSessions() throws Exception {
+        Ring ring = new Ring("omero", "session_ring.xml");
+        ring.printSessions();
+    }
+    
 
 }

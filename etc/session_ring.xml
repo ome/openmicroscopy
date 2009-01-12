@@ -20,12 +20,12 @@
     <pbcast.STABLE stability_delay="1000"
         desired_avg_gossip="20000"
         max_bytes="0"/>
-    <FRAG frag_size="8192"/>
     <VIEW_SYNC avg_send_interval="60000"   />
     <AUTH auth_class="org.jgroups.auth.SimpleToken"
         auth_value="session_ring_secret_password_PLEASE_CHANGE"/>
-    <pbcast.STREAMING_STATE_TRANSFER/>
     <pbcast.GMS print_local_addr="false"
         join_timeout="3000"
         shun="true"/>
+    <pbcast.STATE_TRANSFER/>
+    <pbcast.FLUSH timeout="0"/>
 </config>

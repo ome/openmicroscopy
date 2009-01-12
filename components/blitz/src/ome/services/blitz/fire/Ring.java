@@ -59,14 +59,21 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
 
     private final String groupname;
 
-    public Ring(String props) {
+    public static String determineGroupName() {
         String defaultValue = "Runtime" + Runtime.getRuntime().hashCode();
         String environValue = System.getenv("OMERO_INSTANCE");
         if (environValue == null || environValue.length() == 0) {
             environValue = defaultValue;
         }
-        groupname = environValue;
-
+        return environValue;
+    }
+    
+    public Ring(String props) {
+        this(determineGroupName(), props);
+    }
+    
+    public Ring(String groupname, String props) {
+        this.groupname = groupname;
         try {
             tree = new ReplicatedTree(groupname, props, 10000);
             tree.addReplicatedTreeListener(this);
@@ -124,7 +131,7 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
             // Check if the session is in ring
             String proxyString = (String) tree.get(SESSIONS, userId);
             if (proxyString != null && !proxyString.equals(directProxy)) {
-                log.info(String.format("Returning remote session %s",
+                log.info(String.format("Returning remote session on %s",
                         proxyString));
             }
 
@@ -203,4 +210,10 @@ public class Ring implements ReplicatedTreeListener, ApplicationListener {
         log.info(ring.tree);
     }
 
+    public void printSessions() {
+        Set<String> sessions = tree.getKeys(SESSIONS);
+        for (String session : sessions) {
+            System.out.println(String.format("%s\t%s", session, tree.get(SESSIONS, session)));
+        }
+    }
 }
