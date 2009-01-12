@@ -267,6 +267,9 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             public void runAsAdmin() {
                 images[0] = iQuery.findByQuery(IMAGE_QUERY, new Parameters()
                         .addId(id));
+                if (images[0] == null) {
+                    throw new ApiUsageException("Cannot find image: "+id);
+                }
                 collect(delete, images[0]);
             }
         });
