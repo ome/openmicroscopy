@@ -48,6 +48,8 @@
         <prop key="hibernate.transaction.factory_class">org.springframework.orm.hibernate3.SpringTransactionFactory</prop>
         <prop key="hibernate.transaction.manager_lookup_class">com.atomikos.icatch.jta.hibernate3.TransactionManagerLookup</prop> 
         <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+        <prop key="hibernate.current_session_context_class">jta</prop> 
+        <prop key="hibernate.hibernate.connection.release_mode">on_close</prop>
         <prop key="hibernate.dialect">${hibernate.dialect}</prop>
         <prop key="hibernate.connection.driver_class">${hibernate.connection.driver_class}</prop>
         <prop key="hibernate.connection.url">${hibernate.connection.url}</prop>
