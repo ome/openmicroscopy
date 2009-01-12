@@ -23,6 +23,13 @@ public class TestAdminService implements IAdmin
         throw new RuntimeException("Not implemented yet.");
     }
 
+    public boolean canUpdate(ome.model.IObject arg0)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
     public void changeExpiredCredentials(String arg0, String arg1, String arg2)
             throws AuthenticationException
     {
