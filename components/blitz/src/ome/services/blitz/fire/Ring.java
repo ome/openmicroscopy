@@ -33,6 +33,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -55,7 +56,8 @@ import Ice.Current;
  * 
  *@since Beta4
  */
-public class Ring extends _ClusterDisp implements ApplicationListener, ApplicationEventPublisherAware {
+public class Ring extends _ClusterDisp implements ApplicationListener,
+        ApplicationEventPublisherAware {
 
     private final static Log log = LogFactory.getLog(Ring.class);
 
@@ -73,8 +75,8 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
 
     private final SimpleJdbcTemplate jdbc;
 
-    private/*final */ApplicationEventPublisher publisher;
-    
+    private/* final */ApplicationEventPublisher publisher;
+
     private/* final */Ice.Communicator communicator;
 
     /**
@@ -97,7 +99,7 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
      * Multicast (datagram) proxy to all other cluster nodes.
      */
     private/* final */ClusterPrx cluster;
-    
+
     /**
      * Direct proxy value to the {@link SessionManager} in this blitz instance.
      */
@@ -118,12 +120,12 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
 
     /**
      * Passed to the {@link Discovery} instance for signalling completion from
-     * its background {@link Thread} 
+     * its background {@link Thread}
      */
     public void setApplicationEventPublisher(ApplicationEventPublisher arg0) {
         this.publisher = arg0;
     }
-    
+
     // Configuration and cluster usage
     // =========================================================================
 
@@ -138,9 +140,17 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
 
         // The cluster we belong to.
         Ice.ObjectPrx prx = this.communicator.propertyToProxy("ClusterProxy");
+        if (prx == null) {
+            throw new RuntimeException("Could not obtain ClusterProxy. "
+                    + "Is multicast property properly set?");
+        }
         prx = prx.ice_datagram();
+        if (prx == null) {
+            throw new RuntimeException("Could no get datagram proxy. "
+                    + "Please check your multicast configuration.");
+        }
         cluster = ClusterPrxHelper.uncheckedCast(prx);
-        
+
         // Before we add our self we check the validity of the cluster.
         checkClusterAndAddSelf();
         put(MANAGERS + uuid, directProxy);
@@ -181,30 +191,32 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
             cb.clusterNodeUuid(uuid);
             log.info("Sent cluster node uuid: " + uuid);
         } catch (Exception e) {
-            log.warn("Exception while sending cluster node uuid: "+uuid, e);
+            log.warn("Exception while sending cluster node uuid: " + uuid, e);
         }
     }
 
     /**
-     * Called when any node goes down. First we try to remove any redirect for that
-     * instance. Then we try to install ourselves.
+     * Called when any node goes down. First we try to remove any redirect for
+     * that instance. Then we try to install ourselves.
      */
     public void down(String downUuid, Current __current) {
-        removeIfEquals(CONFIG+"redirect", downUuid);
-        if (putIfAbsent(CONFIG+"redirect", this.uuid)) {
-            log.info("Installed self as new redirect: "+uuid);
+        removeIfEquals(CONFIG + "redirect", downUuid);
+        if (putIfAbsent(CONFIG + "redirect", this.uuid)) {
+            log.info("Installed self as new redirect: " + uuid);
         }
     }
-    
+
     public void destroy() {
         try {
             this.clusterAdapter.deactivate();
-            cluster.down(this.uuid);
             remove(MANAGERS + uuid);
-            removeIfEquals(CONFIG+"redirect", uuid);
+            int count = jdbc.update("delete from session_ring where value = ?", uuid);
+            log.info("Removed "+count+" entries for "+uuid);
             log.info("Disconnected from OMERO.cluster");
         } catch (Exception e) {
             log.error("Error stopping ring " + this, e);
+        } finally {
+            cluster.down(this.uuid);
         }
     }
 
@@ -329,13 +341,17 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
         }
         return rv;
     }
-    
+
     public void assertNodes(Set<String> nodeUuids) {
         Set<String> managers = knownManagers();
         for (String manager : managers) {
-            System.out.println(manager+"?="+nodeUuids);
             if (!nodeUuids.contains(manager)) {
-                purgeNode(manager);
+                // Also verify this is not ourself, since
+                // possibly we haven't finished registration
+                // yet
+                if (!uuid.equals(manager)) {
+                    purgeNode(manager);
+                }
             }
         }
     }
@@ -386,9 +402,14 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
     }
 
     public String get(String key) {
-        String value = (String) jdbc.queryForObject("select value "
-                + "from session_ring " + "where key = ?", String.class, key);
-        return value;
+        try {
+            String value = (String) jdbc
+                    .queryForObject("select value " + "from session_ring "
+                            + "where key = ?", String.class, key);
+            return value;
+        } catch (EmptyResultDataAccessException erdae) {
+            return null;
+        }
     }
 
     public void put(String key, String value) {
@@ -400,8 +421,7 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
             if (count == 0) {
                 log.info("Key not found for update: " + key);
             } else {
-                log.info(String.format("Updated key %s with value %s", key,
-                        value));
+                log.info(String.format("Updated key %s to %s", key, value));
             }
         }
     }
@@ -443,8 +463,9 @@ public class Ring extends _ClusterDisp implements ApplicationListener, Applicati
      * Used to remove a key/value pair iff the value equals the value give here.
      */
     public boolean removeIfEquals(String key, String value) {
-        int count = jdbc
-                .update("delete from session_ring where key = ? and value = ?", key, value);
+        int count = jdbc.update(
+                "delete from session_ring where key = ? and value = ?", key,
+                value);
         if (count == 0) {
             log.info("Key and value do not match: " + key + "=" + value);
             return false;

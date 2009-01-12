@@ -25,6 +25,9 @@
           <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
           <property name="Ice.Default.CollocationOptimized" value="0"/>
+          <!-- used to communicate between instances. See omero/Internal.ice -->
+          <property name="Cluster.Endpoints" value="udp -h 239.0.0.5 -p 22222"/>
+          <property name="ClusterProxy" value="Cluster:udp -h 239.0.0.5 -p 22222"/>
         </properties>
       </server>
     </server-template>
