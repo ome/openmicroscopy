@@ -27,6 +27,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import omero.ApiUsageException;
+import omero.api.ServiceFactoryPrx;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 
@@ -39,8 +40,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import Glacier2.CannotCreateSessionException;
-import Glacier2.SessionManagerPrx;
-import Glacier2.SessionManagerPrxHelper;
 
 /**
  * Central login logic for all OMERO.blitz clients. It is required to create a
@@ -77,8 +76,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final Ring ring;
 
-    protected String self;
-
     /**
      * An internal mapping to all {@link ServiceFactoryI} instances for a given
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
@@ -102,57 +99,16 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         HardWiredInterceptor.configure(CPTORS, context);
     }
 
-    /**
-     * Sets the proxy which represents this {@link SessionManagerI} in the
-     * current adapter. This is assigned to the @ #ring} for allowing other
-     * instances to lookup the sessions which belong to this instance. If this
-     * is set to null, then effectively this instance will ignore clustering.
-     */
-    public void setProxy(Ice.ObjectPrx prx) {
-        this.self = adapter.getCommunicator().proxyToString(prx);
-    }
-
     public Glacier2.SessionPrx create(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
 
         try {
 
-            // If this is not a recursive invocation
-            if (!current.ctx.containsKey("omero.routed_from")) {
-
-                // Check if the session is in ring
-                String proxyString = ring.get(userId);
-                if (proxyString != null && !proxyString.equals(self)) {
-                    log.info(String.format("Returning remote session %s",
-                            proxyString));
-                }
-
-                // or needs to be load balanced
-                else {
-                    Set values = ring.values();
-                    values.remove(self);
-                    int size = values.size();
-                    if (size != 0) {
-                        int rnd = (int) Math.round(Math.floor(size
-                                * Math.random()));
-                        proxyString = (String) values.toArray(new String[size])[rnd];
-                        log.info(String.format("Load balancing to %s",
-                                proxyString));
-                    }
-                }
-
-                // And if so, then return its return value
-                if (proxyString != null) {
-                    current.ctx.put("omero.routed_from", self);
-                    Ice.ObjectPrx remote = adapter.getCommunicator()
-                            .stringToProxy(proxyString);
-                    SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
-                            .checkedCast(remote);
-                    // EARLY EXIT
-                    return sessionManagerPrx.create(userId, control,
-                            current.ctx);
-                }
+            Glacier2.SessionPrx sf = ring.getProxyOrNull(userId, control,
+                    current);
+            if (sf != null) {
+                return sf; // EARLY EXIT
             }
 
             // Defaults
@@ -178,11 +134,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             Ice.Identity id = session.sessionId();
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
+            _prx = current.adapter.createDirectProxy(id);
 
             // Add to ring
-            if (!ring.containsKey(s.getUuid())) {
-                ring.put(s.getUuid(), self);
-            }
+            ring.add(s.getUuid());
 
             // Logging & sessionToClientIds addition
             if (!sessionToClientIds.containsKey(s.getUuid())) {

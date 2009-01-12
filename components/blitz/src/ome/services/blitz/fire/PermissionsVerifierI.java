@@ -42,7 +42,7 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
             StringHolder reason, Current __current) {
         boolean value = false;
         try {
-            if (ring.containsKey(userId)) {
+            if (ring.checkPassword(userId)) {
                 return true;
             } else {
                 value = manager.executePasswordCheck(userId, password);

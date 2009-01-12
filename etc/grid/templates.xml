@@ -16,6 +16,7 @@
         <option>blitz</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <env>OMERO_CONFIG=${config}</env>
+        <env>OMERO_INSTANCE=omero</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>

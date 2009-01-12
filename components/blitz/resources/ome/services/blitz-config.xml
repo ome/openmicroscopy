@@ -19,14 +19,6 @@
 
 <beans>
 
-  <bean id="ring" class="ome.services.blitz.fire.Ring">
-    <description>
-    A JGroups-based distributed hash map which maintains all the session ids
-    within multicast distance. See etc/session_ring.xml for how the ring is
-    configured.
-    </description>
-  </bean>
-
   <bean id="configuration" class="ome.services.blitz.util.BlitzConfiguration"
     destroy-method="destroy">
     <description>
@@ -37,9 +29,9 @@
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="executor"/>
-    <constructor-arg ref="ring"/>
   </bean>
 
+  <bean id="ring" factory-bean="configuration" factory-method="getRing"/>
   <bean id="Ice.Communicator" factory-bean="configuration" factory-method="getCommunicator"/>
   <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
   <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>

@@ -44,6 +44,8 @@ public class BlitzConfiguration {
 
     private final Log logger = LogFactory.getLog(getClass());
 
+    private final Ring blitzRing;
+    
     private final Ice.Communicator communicator;
 
     private final Ice.ObjectAdapter blitzAdapter;
@@ -53,6 +55,8 @@ public class BlitzConfiguration {
     private final PermissionsVerifier blitzVerifier;
 
     private final Ice.InitializationData id;
+    
+    private final Ice.ObjectPrx managerDirectProxy;
 
     /**
      * Single constructor which builds all Ice instances needed for the server
@@ -65,11 +69,11 @@ public class BlitzConfiguration {
      * the {@link Ice.Communicator} instance. Therefore {@link #destroy()}
      * should be careful to check for nulls.
      */
-    public BlitzConfiguration(Ring ring,
+    public BlitzConfiguration(
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
-        this(createId(), ring, sessionManager, securitySystem, executor);
+        this(createId(), sessionManager, securitySystem, executor);
     }
 
     /**
@@ -84,15 +88,16 @@ public class BlitzConfiguration {
      * @param executor
      * @throws RuntimeException
      */
-    public BlitzConfiguration(Ice.InitializationData id, Ring ring,
+    public BlitzConfiguration(Ice.InitializationData id,
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
 
         logger.info("Initializing Ice.Communicator");
-        
+
         this.id = id;
-        communicator = createCommunicator();
+        this.blitzRing = new Ring();
+        this.communicator = createCommunicator();
 
         if (communicator == null) {
             throw new RuntimeException("No communicator cannot continue.");
@@ -101,14 +106,20 @@ public class BlitzConfiguration {
         try {
             registerObjectFactory();
             blitzAdapter = createAdapter();
-            blitzManager = createAndRegisterManager(ring, sessionManager,
+            blitzManager = createAndRegisterManager(sessionManager,
                     securitySystem, executor);
-            blitzVerifier = createAndRegisterVerifier(ring, sessionManager);
+            blitzVerifier = createAndRegisterVerifier(sessionManager);
+            managerDirectProxy = blitzAdapter.createDirectProxy(managerId());
+            
+            // Must inject configuration before starting the adapter
+            blitzRing.init(this);
             blitzAdapter.activate();
         } catch (RuntimeException e) {
             destroy();
             throw e;
         }
+        
+        
     }
 
     /**
@@ -182,37 +193,15 @@ public class BlitzConfiguration {
     }
 
     /**
-     * Resolve the given config file to a concrete location, possibly a temp
-     * file if the location was prevously stored in a jar. Null will not be
-     * returned, but an exception may be thrown if the path is invalid.
+     * Resolve the given config file to a concrete location, possibly throwing
+     * an exception if stored in a jar. Null will not be returned, but an
+     * exception may be thrown if the path is invalid.
      */
     protected String resolveConfigFile(String configFile) {
-
-        // Doing clean up for possible jar-contained config files.
-        // FIXME need better copy. and perhaps ice can read from
-        // stream.
         try {
             URL file = ResourceUtils.getURL(configFile);
             if (ResourceUtils.isJarURL(file)) {
-                URL jar = ResourceUtils.extractJarFileURL(file);
-                // http://java.sun.com/developer/TechTips/txtarchive/2003/Jan03_JohnZ.txt
-                JarFile jarFile = new JarFile(jar.getPath());
-                JarEntry entry = jarFile.getJarEntry("ice.config");// FIXME
-                InputStream is = jarFile.getInputStream(entry);
-
-                // FIXME Hack.
-                File tmp = File.createTempFile("omero.", ".tmp");
-                tmp.deleteOnExit();
-                FileOutputStream fos = new FileOutputStream(tmp);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = is.read(buf)) > 0) {
-                    fos.write(buf, 0, len);
-                }
-                is.close();
-                fos.close();
-
-                configFile = tmp.getAbsolutePath();
+                throw new RuntimeException(configFile + " is in a jar: " + file);
             } else {
                 configFile = file.getPath();
             }
@@ -261,33 +250,37 @@ public class BlitzConfiguration {
         return adapter;
     }
 
-    protected SessionManagerI createAndRegisterManager(Ring ring,
+    protected SessionManagerI createAndRegisterManager(
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor) {
 
         throwIfInitialized(blitzManager);
 
-        SessionManagerI manager = new SessionManagerI(ring, blitzAdapter,
+        SessionManagerI manager = new SessionManagerI(blitzRing, blitzAdapter,
                 securitySystem, sessionManager, executor);
-        Ice.Identity id = Ice.Util.stringToIdentity("BlitzManager");
+        Ice.Identity id = managerId();
         Ice.ObjectPrx prx = this.blitzAdapter.add(manager, id);
-        prx = this.blitzAdapter.createDirectProxy(id);
-        manager.setProxy(prx);
         return manager;
     }
 
-    protected PermissionsVerifier createAndRegisterVerifier(Ring ring,
+    protected PermissionsVerifier createAndRegisterVerifier(
             ome.services.sessions.SessionManager sessionManager) {
 
         throwIfInitialized(blitzVerifier);
 
-        PermissionsVerifierI verifier = new PermissionsVerifierI(ring, sessionManager);
+        PermissionsVerifierI verifier = new PermissionsVerifierI(blitzRing,
+                sessionManager);
         this.blitzAdapter.add(verifier, Ice.Util
                 .stringToIdentity("BlitzVerifier"));
         return verifier;
     }
 
     public void destroy() {
+        
+        if (blitzRing != null) {
+            blitzRing.destroy();
+        }
+        
         logger.debug(String.format("Destroying Ice.Communicator (%s)",
                 communicator));
         logger.info("Shutting down Ice.Communicator");
@@ -302,6 +295,13 @@ public class BlitzConfiguration {
     // Getters
     // =========================================================================
 
+    public Ring getRing() {
+        if (blitzRing == null) {
+            throw new IllegalStateException("Ring is null");
+        }
+        return blitzRing;
+    }
+    
     public Ice.Communicator getCommunicator() {
         if (communicator == null) {
             throw new IllegalStateException("Communicator is null");
@@ -329,6 +329,16 @@ public class BlitzConfiguration {
         }
         return blitzVerifier;
     }
+    
+    /**
+     * Return a direct proxy to the session manager in this object adapter.
+     */
+    public Ice.ObjectPrx getDirectProxy() {
+        if (managerDirectProxy == null) {
+            throw new IllegalStateException("Direct proxy is null");
+        }
+        return managerDirectProxy;
+    }
 
     // Helpers
 
@@ -336,6 +346,12 @@ public class BlitzConfiguration {
         Ice.InitializationData iData = new Ice.InitializationData();
         iData.properties = Ice.Util.createProperties();
         return iData;
+    }
+    
+
+    private Ice.Identity managerId() {
+        Ice.Identity id = Ice.Util.stringToIdentity("BlitzManager");
+        return id;
     }
 
 }

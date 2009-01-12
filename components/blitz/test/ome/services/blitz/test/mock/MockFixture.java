@@ -11,9 +11,13 @@ import java.util.HashMap;
 
 import net.sf.ehcache.Cache;
 import ome.model.meta.Session;
+import ome.security.SecuritySystem;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.test.utests.TestCache;
+import ome.services.blitz.util.BlitzConfiguration;
+import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
@@ -32,11 +36,13 @@ import Ice.InitializationData;
 public class MockFixture {
 
     public final MockObjectTestCase test;
-    public final Ice.Communicator communicator;
-    public final Ice.ObjectAdapter adapter;
 
+    public final BlitzConfiguration blitz;
     public final OmeroContext ctx;
     public final SessionManagerI sm;
+    public final Executor ex;
+    public final SessionManager mgr;
+    public final SecuritySystem ss;
 
     public static OmeroContext basicContext() {
         return new OmeroContext(new String[] { "classpath:omero/test.xml",
@@ -55,15 +61,15 @@ public class MockFixture {
      */
     public MockFixture(MockObjectTestCase test, String name) throws Exception {
         this(test, basicContext());
-        this.sm.setProxy(this.adapter.add(this.sm, communicator
-                .stringToIdentity(name)));
     }
 
     public MockFixture(MockObjectTestCase test, OmeroContext ctx) {
 
         this.test = test;
         this.ctx = ctx;
-        this.sm = (SessionManagerI) ctx.getBean("BlitzManager");
+        this.ex = (Executor) ctx.getBean("executor");
+        this.ss = (SecuritySystem) ctx.getBean("securitySystem");
+        this.mgr = (SessionManager) ctx.getBean("sessionManager");
 
         // --------------------------------------------
 
@@ -84,28 +90,21 @@ public class MockFixture {
         id.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "100");
         // For testing large calls
         id.properties.setProperty("Ice.MessageSizeMax", "4096");
+        // Basic configuration
+        id.properties.setProperty("BlitzAdapter.Endpoints","default -h 127.0.0.1");
 
-        communicator = Ice.Util.initialize(id);
-        adapter = communicator.createObjectAdapterWithEndpoints("BlitzAdapter",
-                "default -h 127.0.0.1");
-        ObjectFactoryRegistrar.registerObjectFactory(communicator,
-                ObjectFactoryRegistrar.INSTANCE);
-        for (omero.rtypes.ObjectFactory of : omero.rtypes.ObjectFactories.values()) {
-            of.register(communicator);
-        }
-        communicator.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
-        communicator.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
-        adapter.activate();
+        blitz = new BlitzConfiguration(id, mgr, ss, ex);
+        this.sm = (SessionManagerI) blitz.getBlitzManager();
         // The following is a bit of spring magic so that we can configure
         // the adapter in code. If this can be pushed to BlitzConfiguration
         // for example then we might not need it here anymore.
         HotSwappableTargetSource ts = (HotSwappableTargetSource) ctx
                 .getBean("swappableAdapterSource");
-        ts.swap(adapter);
+        ts.swap(blitz.getBlitzAdapter());
     }
 
     public void tearDown() {
-        this.communicator.destroy();
+        this.blitz.getCommunicator().destroy();
         this.ctx.closeAll();
     }
 
@@ -158,7 +157,7 @@ public class MockFixture {
     }
 
     Ring ring() {
-        return (Ring) ctx.getBean("ring");
+        return blitz.getRing();
     }
     
     public Mock mock(String name) {
@@ -176,7 +175,7 @@ public class MockFixture {
     public Ice.Current current(String method, String clientId) {
         Ice.Current current = new Ice.Current();
         current.operation = method;
-        current.adapter = adapter;
+        current.adapter = blitz.getBlitzAdapter();
         current.ctx = new HashMap<String, String>();
         current.ctx.put(CLIENTUUID.value, clientId);
         return current;

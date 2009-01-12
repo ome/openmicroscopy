@@ -108,15 +108,5 @@
   <bean id="adapter" class="org.springframework.aop.framework.ProxyFactoryBean">
       <property name="targetSource" ref="swappableAdapterSource"/>
   </bean>
-  
-  <bean id="BlitzManager" class="ome.services.blitz.fire.SessionManagerI">
-      <constructor-arg ref="securitySystem"/>
-      <constructor-arg ref="sessionManager"/>
-      <constructor-arg ref="executor"/>
-      <constructor-arg ref="adapter"/>
-      <constructor-arg ref="ring"/>
-  </bean>
-  
-  <bean id="ring" class="ome.services.blitz.fire.Ring"/>
 
 </beans>
