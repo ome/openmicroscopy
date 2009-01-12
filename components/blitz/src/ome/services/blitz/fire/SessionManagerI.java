@@ -39,6 +39,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import Glacier2.CannotCreateSessionException;
+import Glacier2.SessionManagerPrx;
+import Glacier2.SessionManagerPrxHelper;
 
 /**
  * Central login logic for all OMERO.blitz clients. It is required to create a
@@ -73,6 +75,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final Executor executor;
 
+    protected final Ring ring;
+
+    protected String self;
+
     /**
      * An internal mapping to all {@link ServiceFactoryI} instances for a given
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
@@ -80,12 +86,14 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      */
     protected final Map<String, Set<String>> sessionToClientIds = new ConcurrentHashMap<String, Set<String>>();
 
-    public SessionManagerI(Ice.ObjectAdapter adapter, SecuritySystem secSys,
-            SessionManager sessionManager, Executor executor) {
+    public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,
+            SecuritySystem secSys, SessionManager sessionManager,
+            Executor executor) {
+        this.ring = ring;
         this.adapter = adapter;
+        this.executor = executor;
         this.securitySystem = secSys;
         this.sessionManager = sessionManager;
-        this.executor = executor;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -94,23 +102,47 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         HardWiredInterceptor.configure(CPTORS, context);
     }
 
+    /**
+     * Sets the proxy which represents this {@link SessionManagerI} in the
+     * current adapter. This is assigned to the @ #ring} for allowing other
+     * instances to lookup the sessions which belong to this instance. If this is
+     * set to null, then effectively this instance will ignore clustering.
+     */
+    public void setProxy(Ice.ObjectPrx prx) {
+        this.self = adapter.getCommunicator().proxyToString(prx);
+    }
+
     public Glacier2.SessionPrx create(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
 
-        Roles roles = securitySystem.getSecurityRoles();
-
-        String group = getGroup(current);
-        if (group == null) {
-            group = roles.getUserGroupName();
-        }
-        String event = getEvent(current);
-        if (event == null) {
-            event = "User"; // FIXME This should be in Roles as well.
-        }
-
         try {
 
+            // Check if the session is in ring
+            String proxyString = ring.get(userId);
+            if (proxyString != null && !proxyString.equals(self)) {
+                log.info(String.format("Returning remote session %s",
+                        proxyString));
+                Ice.ObjectPrx remote = adapter.getCommunicator().stringToProxy(
+                        proxyString);
+                SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
+                        .checkedCast(remote);
+                // EARLY EXIT
+                return sessionManagerPrx.create(userId, control, current.ctx);
+            }
+
+            // Defaults
+            Roles roles = securitySystem.getSecurityRoles();
+
+            String group = getGroup(current);
+            if (group == null) {
+                group = roles.getUserGroupName();
+            }
+            String event = getEvent(current);
+            if (event == null) {
+                event = "User"; // FIXME This should be in Roles as well.
+            }
+            
             // Create the session for this ServiceFactory
             Principal p = new Principal(userId, group, event);
             ome.model.meta.Session s = sessionManager.create(p);
@@ -122,17 +154,24 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             Ice.Identity id = session.sessionId();
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
-            if (!sessionToClientIds.containsKey(s.getUuid())) {
-                sessionToClientIds.put(s.getUuid(), new HashSet<String>());
-                log.debug(String.format("Created session %s for user %s",
-                        id.name, userId));
-            }
-            sessionToClientIds.get(s.getUuid()).add(session.clientId);
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Rejoined session %s for user %s",
-                        id.name, userId));
+
+            // Add to ring
+            if (! ring.containsKey(s.getUuid())) {
+                ring.put(s.getUuid(), self);
             }
 
+            // Logging & sessionToClientIds addition
+            if (!sessionToClientIds.containsKey(s.getUuid())) {
+                sessionToClientIds.put(s.getUuid(), new HashSet<String>());
+                log.info(String.format("Created session %s for user %s",
+                        id.name, userId));
+            } else {
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("Rejoining session %s for user %s",
+                            id.name, userId));
+                }
+            }
+            sessionToClientIds.get(s.getUuid()).add(session.clientId);
             return Glacier2.SessionPrxHelper.uncheckedCast(_prx);
 
         } catch (Exception t) {

@@ -19,7 +19,7 @@
 
 <beans>
 
- <bean class="ome.services.blitz.util.ApiConsistencyCheck">
+  <bean class="ome.services.blitz.util.ApiConsistencyCheck">
     <description>
     BeanPostProcessor which checks each newly created servant (see below) for
     proper mappings from the ome.api.* classes. If the servant is BlitzOnly,

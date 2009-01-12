@@ -29,9 +29,12 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
     private final static Log log = LogFactory
             .getLog(PermissionsVerifierI.class);
 
+    private final Ring ring;
+
     private final SessionManager manager;
 
-    public PermissionsVerifierI(SessionManager manager) {
+    public PermissionsVerifierI(Ring ring, SessionManager manager) {
+        this.ring = ring;
         this.manager = manager;
     }
 
@@ -39,9 +42,14 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
             StringHolder reason, Current __current) {
         boolean value = false;
         try {
-            value = manager.executePasswordCheck(userId, password);
+            if (ring.containsKey(userId)) {
+                return true;
+            } else {
+                value = manager.executePasswordCheck(userId, password);
+            }
         } catch (Throwable t) {
-            reason.value = "Internal error. Please contact your administrator.";
+            reason.value = "Internal error. Please contact your administrator:\n"
+                    + t.getMessage();
             log.error("Exception thrown while checking password for:" + userId,
                     t);
         }

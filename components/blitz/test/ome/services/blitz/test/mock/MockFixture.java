@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import net.sf.ehcache.Cache;
 import ome.model.meta.Session;
+import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.test.utests.TestCache;
 import ome.system.OmeroContext;
@@ -37,11 +38,25 @@ public class MockFixture {
     private final OmeroContext ctx;
     private final SessionManagerI sm;
 
-    public MockFixture(MockObjectTestCase test) throws Exception {
-        this(test, new OmeroContext(new String[] { "classpath:omero/test.xml",
+    public static OmeroContext basicContext() {
+        return new OmeroContext(new String[] { "classpath:omero/test.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
                 "classpath:ome/services/throttling/throttling.xml",
-                "classpath:ome/services/messaging.xml", }));
+                "classpath:ome/services/messaging.xml" });
+    }
+
+    public MockFixture(MockObjectTestCase test) throws Exception {
+        this(test, basicContext());
+    }
+
+    /**
+     * The string arguments sets the {@link SessionManagerI#self} field, which
+     * is used in clustering.
+     */
+    public MockFixture(MockObjectTestCase test, String name) throws Exception {
+        this(test, basicContext());
+        this.sm.setProxy(this.adapter.add(this.sm, communicator
+                .stringToIdentity(name)));
     }
 
     public MockFixture(MockObjectTestCase test, OmeroContext ctx) {
@@ -108,6 +123,17 @@ public class MockFixture {
         return createServiceFactory(s, cache, "single-client");
     }
 
+    /**
+     * Makes a direct call to SessionManager.create. A call should be made on
+     * <em>some</em> fixture to {@link #prepareServiceFactory(Session, Cache)}
+     * since the call may be re-routed to a clustered instance.
+     */
+    public ServiceFactoryPrx createServiceFactory(String name, String client)
+            throws Exception {
+        return ServiceFactoryPrxHelper.uncheckedCast(sm.create(name, null, this
+                .current("create", client)));
+    }
+
     public ServiceFactoryPrx createServiceFactory(Session s) throws Exception {
         Cache cache = cache();
         return createServiceFactory(s, cache, "single-client");
@@ -115,6 +141,12 @@ public class MockFixture {
 
     public ServiceFactoryPrx createServiceFactory(Session s, Cache cache,
             String clientId) throws Exception {
+        prepareServiceFactory(s, cache);
+        return ServiceFactoryPrxHelper.uncheckedCast(sm.create("name", null,
+                this.current("create", clientId)));
+    }
+
+    public void prepareServiceFactory(Session s, Cache cache) {
         mock("securityMock").expects(test.once()).method("getSecurityRoles")
                 .will(test.returnValue(new Roles()));
         mock("sessionsMock").expects(test.once()).method("create").will(
@@ -123,10 +155,12 @@ public class MockFixture {
                 test.returnValue(cache));
         mock("methodMock").expects(test.atLeastOnce()).method("isActive").will(
                 test.returnValue(false));
-        return ServiceFactoryPrxHelper.uncheckedCast(sm.create("name", null,
-                this.current("create", clientId)));
     }
 
+    Ring ring() {
+        return (Ring) ctx.getBean("ring");
+    }
+    
     Mock mock(String name) {
         return (Mock) ctx.getBean(name);
     }

@@ -114,6 +114,9 @@
       <constructor-arg ref="sessionManager"/>
       <constructor-arg ref="executor"/>
       <constructor-arg ref="adapter"/>
+      <constructor-arg ref="ring"/>
   </bean>
+  
+  <bean id="ring" class="ome.services.blitz.fire.Ring"/>
 
 </beans>

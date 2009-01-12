@@ -82,6 +82,7 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/jboss-jaxrpc.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jbosssx.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jdtcore.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/jgroups.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>

@@ -15,6 +15,7 @@ import java.util.jar.JarFile;
 
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.PermissionsVerifierI;
+import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.util.Executor;
 import omero.model.DetailsI;
@@ -64,11 +65,11 @@ public class BlitzConfiguration {
      * the {@link Ice.Communicator} instance. Therefore {@link #destroy()}
      * should be careful to check for nulls.
      */
-    public BlitzConfiguration(
+    public BlitzConfiguration(Ring ring,
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
-        this(createId(), sessionManager, securitySystem, executor);
+        this(createId(), ring, sessionManager, securitySystem, executor);
     }
 
     /**
@@ -83,7 +84,7 @@ public class BlitzConfiguration {
      * @param executor
      * @throws RuntimeException
      */
-    public BlitzConfiguration(Ice.InitializationData id,
+    public BlitzConfiguration(Ice.InitializationData id, Ring ring,
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor)
             throws RuntimeException {
@@ -100,9 +101,9 @@ public class BlitzConfiguration {
         try {
             registerObjectFactory();
             blitzAdapter = createAdapter();
-            blitzManager = createAndRegisterManager(sessionManager,
+            blitzManager = createAndRegisterManager(ring, sessionManager,
                     securitySystem, executor);
-            blitzVerifier = createAndRegisterVerifier(sessionManager);
+            blitzVerifier = createAndRegisterVerifier(ring, sessionManager);
             blitzAdapter.activate();
         } catch (RuntimeException e) {
             destroy();
@@ -134,6 +135,7 @@ public class BlitzConfiguration {
             // arguments.
             id.properties.load(ICE_CONFIG);
         }
+        ic = Ice.Util.initialize(id);
 
         ic = Ice.Util.initialize(id);
         return ic;
@@ -259,25 +261,26 @@ public class BlitzConfiguration {
         return adapter;
     }
 
-    protected SessionManagerI createAndRegisterManager(
+    protected SessionManagerI createAndRegisterManager(Ring ring,
             ome.services.sessions.SessionManager sessionManager,
             SecuritySystem securitySystem, Executor executor) {
 
         throwIfInitialized(blitzManager);
 
-        SessionManagerI manager = new SessionManagerI(blitzAdapter,
+        SessionManagerI manager = new SessionManagerI(ring, blitzAdapter,
                 securitySystem, sessionManager, executor);
-        this.blitzAdapter.add(manager, Ice.Util
+        Ice.ObjectPrx prx = this.blitzAdapter.add(manager, Ice.Util
                 .stringToIdentity("BlitzManager"));
+        manager.setProxyName(this.communicator.proxyToString(prx));
         return manager;
     }
 
-    protected PermissionsVerifier createAndRegisterVerifier(
+    protected PermissionsVerifier createAndRegisterVerifier(Ring ring,
             ome.services.sessions.SessionManager sessionManager) {
 
         throwIfInitialized(blitzVerifier);
 
-        PermissionsVerifierI verifier = new PermissionsVerifierI(sessionManager);
+        PermissionsVerifierI verifier = new PermissionsVerifierI(ring, sessionManager);
         this.blitzAdapter.add(verifier, Ice.Util
                 .stringToIdentity("BlitzVerifier"));
         return verifier;

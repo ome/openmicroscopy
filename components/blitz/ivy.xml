@@ -17,6 +17,7 @@
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
     <!-- Public -->
     <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,test,client,server->default"/>
+    <dependency org="jgroups" name="jgroups" rev="${versions.jgroups}" conf="build,test,client,server->default"/>
   </dependencies>
 </ivy-module>
 
