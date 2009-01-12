@@ -10,6 +10,7 @@ package ome.services.sessions;
 import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
+import ome.api.ISession;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
@@ -63,11 +64,21 @@ public interface SessionManager extends ApplicationListener {
             String eventType, String description);
 
     /**
-     * 
-     * @param session
-     * @return
+     * See {@link ISession#updateSession(Session)} for the logic that's
+     * implemented here. Certain fields from the {@link Session} instance will
+     * be copied and then saved to the db, as well as a new
+     * {@link SessionContext} created. This method assumes that the user is NOT
+     * an admin.
      */
     Session update(Session session);
+
+    /**
+     * Same as {@link #update(Session)} but some security checks can be
+     * overriden. This is usually done by checking with the
+     * {@link ome.security.SecuritySystem} but here the server is in a critical
+     * state, and instead will trust the method invoker.
+     */
+    Session update(Session session, boolean trust);
 
     /**
      * Allows decrementing the reference count for a session without calling the
@@ -116,7 +127,7 @@ public interface SessionManager extends ApplicationListener {
      * Close all sessions with checking for the necessary reference counts.
      */
     int closeAll();
-    
+
     // Security methods
     // =========================================================================
 

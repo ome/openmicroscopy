@@ -104,7 +104,7 @@ public class SessionBean implements ISession, SelfConfigurableService {
             session = mgr.create(principal);
             session.setTimeToIdle(0L);
             session.setTimeToLive(milliseconds);
-            return mgr.update(session);
+            return mgr.update(session, true);
         } catch (Exception e) {
             throw creationExceptionHandler(e);
         }
@@ -120,7 +120,7 @@ public class SessionBean implements ISession, SelfConfigurableService {
             session = mgr.create(principal);
             session.setTimeToIdle(timeToIdleMilliseconds);
             session.setTimeToLive(timeToLiveMilliseconds);
-            return mgr.update(session);
+            return mgr.update(session, true);
         } catch (Exception e) {
             throw creationExceptionHandler(e);
         }

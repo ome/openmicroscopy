@@ -265,6 +265,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public Session update(Session session) {
+        return update(session, false);
+    }
+
+    public Session update(Session session, boolean trusted) {
 
         if (session == null || !session.isLoaded() || session.getUuid() == null) {
             throw new RemovedSessionException("Cannot update; No uuid.");
@@ -319,7 +323,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         // Conditionally settable
         parseAndSetTimeouts(session.getTimeToLive(), session.getTimeToIdle(),
-                orig);
+                orig, trusted);
 
         // Need to handle notifications
 
@@ -641,29 +645,40 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     private void parseAndSetTimeouts(Long timeToLive, Long timeToIdle,
-            Session session) {
+            Session session, boolean trusted) {
 
         if (timeToLive != null) {
-            
-            // Let users set a value within reasons
-            long activeTTL = Math.min(maxUserTimeToLive, timeToLive);
-            
-            // But if the value is 0, then the default must also be 0
-            if (activeTTL == 0 && defaultTimeToLive != 0) {
-                throw new SecurityViolation("Cannot disable timeToLive. "
-                        + "Value must be between 1 and " + maxUserTimeToLive);
+
+            if (trusted) {
+                session.setTimeToLive(timeToLive);
+            } else {
+
+                // Let users set a value within reasons
+                long activeTTL = Math.min(maxUserTimeToLive, timeToLive);
+
+                // But if the value is 0, then the default must also be 0
+                if (activeTTL == 0 && defaultTimeToLive != 0) {
+                    throw new SecurityViolation("Cannot disable timeToLive. "
+                            + "Value must be between 1 and "
+                            + maxUserTimeToLive);
+                }
+                session.setTimeToLive(activeTTL);
             }
-            session.setTimeToLive(activeTTL);
         }
 
         // As above
         if (timeToIdle != null) {
-            long activeTTI = Math.min(maxUserTimeToIdle, timeToIdle);
-            if (activeTTI == 0 && defaultTimeToIdle != 0) {
-                throw new SecurityViolation("Cannot disable timeToIdle. "
-                        + "Value must be between 1 and " + maxUserTimeToIdle);
+            if (trusted) {
+                session.setTimeToIdle(timeToIdle);
+            } else {
+                long activeTTI = Math.min(maxUserTimeToIdle, timeToIdle);
+                if (activeTTI == 0 && defaultTimeToIdle != 0) {
+                    throw new SecurityViolation("Cannot disable timeToIdle. "
+                            + "Value must be between 1 and "
+                            + maxUserTimeToIdle);
+                }
+                session.setTimeToIdle(activeTTI);
             }
-            session.setTimeToIdle(activeTTI);
         }
     }
 
