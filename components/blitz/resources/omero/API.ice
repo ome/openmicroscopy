@@ -706,6 +706,7 @@ module omero {
 	    void byGroupForTags(string group) throws ServerError;
 	    void byTagForGroups(string tag) throws ServerError;
 	    void byFullText(string query) throws ServerError;
+            void bySimilarTerms(StringSet terms) throws ServerError;
 	    void byHqlQuery(string query, omero::sys::Parameters params) throws ServerError;
 	    void bySomeMustNone(StringSet some, StringSet must, StringSet none) throws ServerError;
 	    void byAnnotatedWith(AnnotationList examples) throws ServerError;

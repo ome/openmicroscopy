@@ -22,6 +22,7 @@ import omero.api.AMD_Search_byAnnotatedWith;
 import omero.api.AMD_Search_byFullText;
 import omero.api.AMD_Search_byGroupForTags;
 import omero.api.AMD_Search_byHqlQuery;
+import omero.api.AMD_Search_bySimilarTerms;
 import omero.api.AMD_Search_bySomeMustNone;
 import omero.api.AMD_Search_byTagForGroups;
 import omero.api.AMD_Search_clearQueries;
@@ -388,6 +389,11 @@ public class SearchI extends AbstractAmdServant implements _SearchOperations {
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
 
+    }
+
+    public void bySimilarTerms_async(AMD_Search_bySimilarTerms __cb,
+            List<String> terms, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, terms);
     }
 
 }
