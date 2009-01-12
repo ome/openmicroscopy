@@ -40,12 +40,14 @@
     <property name="url" value="${hibernate.connection.url}"/><!-- ?loglevel=2 -->
     <property name="user" value="${hibernate.connection.username}"/>
     <property name="password" value="${hibernate.connection.password}"/>
+    <property name="maxCon" value="${c3p0.maxPoolSize}"/>
+    <property name="minCon" value="${c3p0.minPoolSize}"/>
   </bean>
 
   <bean id="xaDataSource" class="org.enhydra.jdbc.pool.StandardXAPoolDataSource" destroy-method="shutdown">
     <property name="dataSource"><ref local="innerDataSource"/></property>
-    <property name="maxSize" value="50"/>
-    <property name="minSize" value="5"/>
+    <property name="maxSize" value="${c3p0.maxPoolSize}"/>
+    <property name="minSize" value="${c3p0.minPoolSize}"/>
     <property name="user" value="${hibernate.connection.username}"/>
     <property name="password" value="${hibernate.connection.password}"/>
   </bean>
