@@ -65,9 +65,6 @@ public class GatewayFactory
 	implements GatewayService
 {	
 	
-	/** The shared instance for the gateway factory. */
-	private static GatewayFactory 		instance = null;
-
 	/** The service factory from which all services are created. */
 	private ServiceFactoryPrx			serviceFactory;
 	
@@ -99,10 +96,10 @@ public class GatewayFactory
 	private ThumbnailService 			thumbnailService;
 
 	/** The pixelsStore service. */
-	private RawPixelsStoreService 			rawPixelsService;
+	private RawPixelsStoreService 		rawPixelsService;
 	
 	/** The pixelsStore service. */
-	private RawFileStoreService 				rawFileService;
+	private RawFileStoreService 		rawFileService;
 	
 	/** The rawPixelsStore. */
 	private RawPixelsStorePrx 			rawPixelsStore;
@@ -116,7 +113,16 @@ public class GatewayFactory
 	/** The RenderingEngine. */
 	private RenderingEnginePrx			renderingEngine;
 	
+	/** 
+	 * The image Service which manages any interaction with image data, 
+	 * either Pixels, or raw. 
+	 */
 	private ImageService				imageService;
+	
+	/**
+	 * Manages manipulations of datastructures, projects, dataset and image.
+	 * As well as interactions with scripts. 
+	 */
 	private DataService					dataService;
 	
 	/** 
@@ -209,7 +215,6 @@ public class GatewayFactory
 	public void closeService() throws ServerError
 	{
 		serviceFactory.closeOnDestroy();
-		instance = null;
 		serviceFactory = null;
 	}
 
@@ -218,14 +223,31 @@ public class GatewayFactory
 	 */
 	public void keepAlive() throws ServerError
 	{
-	
+		
+	}
+
+	/**
+	 * Return the IScript service.
+	 * @return see above.
+	 */
+	public IScriptPrx getIScript()
+	{
+		return iScript;
 	}
 	
+	/**
+	 * Return the IPojos service.
+	 * @return see above.
+	 */
 	public IPojosPrx getIPojos()
 	{
 		return iPojos;
 	}
-	
+		
+	/**
+	 * Get the types service.  
+	 * @return see above.
+	 */
 	public ITypesPrx getITypes()
 	{
 		return iTypes;

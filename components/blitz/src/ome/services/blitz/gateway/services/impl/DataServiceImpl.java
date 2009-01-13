@@ -26,6 +26,7 @@ package ome.services.blitz.gateway.services.impl;
 //Java imports
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -38,6 +39,7 @@ import omero.ServerError;
 import omero.api.ContainerClass;
 import omero.api.IPojosPrx;
 import omero.api.IQueryPrx;
+import omero.api.IScriptPrx;
 import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.model.Dataset;
@@ -269,18 +271,78 @@ public class DataServiceImpl
 		iUpdate.saveObject(obj);
 	}	
 	
-	/**
-	 * update the pixels object, and return the new pixels.
-	 * @param object the pixels object.
-	 * @return see above.
-	 * @throws DSOutOfServiceException
-	 * @throws omero.ServerError 
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#updatePixels(Pixels)
 	 */
 	public Pixels updatePixels(Pixels object) 
 	throws omero.ServerError
 	{
 		IUpdatePrx iUpdate = gatewayFactory.getIUpdate();
 		return (Pixels)iUpdate.saveAndReturnObject(object);
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#deleteScript(long)
+	 */
+	public void deleteScript(long id) throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		iScript.deleteScript(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getParams(long)
+	 */
+	public Map<String, RType> getParams(long id) throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		return iScript.getParams(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getScript(long)
+	 */
+	public String getScript(long id) throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		return iScript.getScript(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getScriptID(String)
+	 */
+	public long getScriptID(String name) throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		return iScript.getScriptID(name);
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getScripts()
+	 */
+	public Map<Long, String> getScripts() throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		return iScript.getScripts();
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#runScript(long, Map<String, RType>)
+	 */
+	public Map<String, RType> runScript(long id, Map<String, RType> map)
+			throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		return iScript.runScript(id, map);
+	}
+
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.DataService#uploadScript(String)
+	 */
+	public long uploadScript(String script) throws ServerError 
+	{
+		IScriptPrx iScript = gatewayFactory.getIScript();
+		return iScript.uploadScript(script);
 	}
 	
 }

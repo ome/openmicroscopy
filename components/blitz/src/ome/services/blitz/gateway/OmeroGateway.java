@@ -46,6 +46,7 @@ import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.BufferedImage;
 import omero.api.ContainerClass;
+import omero.api.IScriptPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.api._GatewayOperations;
@@ -446,248 +447,62 @@ public class OmeroGateway
 	{
 		return imageService.getRawPlane(pixelsId, z, c, t);
 	}
-
+	
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#closePixelsStoreService(long, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#deleteScript(long)
 	 */
-	public void closePixelsStoreService(long pixelsId, Current __current)
-			throws ServerError
+	public void deleteScript(long id, Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		
+		dataService.deleteScript(id);
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#closeRawFileService(long, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getParams(long)
 	 */
-	public void closeRawFileService(long fileId, Current __current)
-			throws ServerError
+	public Map<String, RType> getParams(long id, Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		
+		return dataService.getParams(id);
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#closeRenderingService(long, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getScript(long)
 	 */
-	public void closeRenderingService(long pixelsId, Current __current)
-			throws ServerError
+	public String getScript(long id, Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		
+		return dataService.getScript(id);
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#closeThumbnailService(long, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getScriptID(String)
 	 */
-	public void closeThumbnailService(long pixelsId, Current __current)
-			throws ServerError
+	public long getScriptID(String name, Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		
+		return dataService.getScriptID(name);
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#deleteScript(long, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#getScripts()
 	 */
-	public void deleteScript(long id, Current __current) throws ServerError
+	public Map<Long, String> getScripts(Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		
+		return dataService.getScripts();
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getChannelWindowEnd(long, int, Ice.Current)
-	 */
-	public double getChannelWindowEnd(long pixelsId, int w, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getChannelWindowStart(long, int, Ice.Current)
-	 */
-	public double getChannelWindowStart(long pixelsId, int w, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getDefaultT(long, Ice.Current)
-	 */
-	public int getDefaultT(long pixelsId, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getDefaultZ(long, Ice.Current)
-	 */
-	public int getDefaultZ(long pixelsId, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getParams(long, Ice.Current)
-	 */
-	public Map<String, RType> getParams(long id, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getPlaneStack(long, int, int, Ice.Current)
-	 */
-	public double[][][] getPlaneStack(long pixelId, int c, int t,
-			Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getScript(long, Ice.Current)
-	 */
-	public String getScript(long id, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getScriptID(java.lang.String, Ice.Current)
-	 */
-	public long getScriptID(String name, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getScripts(Ice.Current)
-	 */
-	public Map<Long, String> getScripts(Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getThumbnailBylongestSide(long, omero.RInt, Ice.Current)
-	 */
-	public byte[] getThumbnailBylongestSide(long pixelsId, RInt size,
-			Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getThumbnailBylongestSideSet(omero.RInt, java.util.List, Ice.Current)
-	 */
-	public Map<Long, byte[]> getThumbnailBylongestSideSet(RInt size,
-			List<Long> pixelsIds, Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#getUsername(Ice.Current)
-	 */
-	public String getUsername(Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#isActive(long, int, Ice.Current)
-	 */
-	public boolean isActive(long pixelsId, int w, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#renderAsPackedInt(long, int, int, Ice.Current)
-	 */
-	public int[] renderAsPackedInt(long pixelsId, int z, int t,
-			Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#runScript(long, java.util.Map, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#runScript(long, Map<String, RType>)
 	 */
 	public Map<String, RType> runScript(long id, Map<String, RType> map,
-			Current __current) throws ServerError
+			Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return dataService.runScript(id, map);
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#setChannelWindow(long, int, double, double, Ice.Current)
+	 * @see ome.services.blitz.omerogateway.services.DataService#uploadScript(String)
 	 */
-	public void setChannelWindow(long pixelsId, int w, double start,
-			double end, Current __current) throws ServerError
+	public long uploadScript(String script, Current __current) throws ServerError 
 	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#setDefaultT(long, int, Ice.Current)
-	 */
-	public void setDefaultT(long pixelsId, int t, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#setDefaultZ(long, int, Ice.Current)
-	 */
-	public void setDefaultZ(long pixelsId, int z, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#setRenderingDefId(long, long, Ice.Current)
-	 */
-	public void setRenderingDefId(long pixelsId, long renderingDefId,
-			Current __current) throws ServerError
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#uploadScript(java.lang.String, Ice.Current)
-	 */
-	public long uploadScript(String script, Current __current)
-			throws ServerError
-	{
-		// TODO Auto-generated method stub
-		return 0;
+		return dataService.uploadScript(script);
 	}
 
 }

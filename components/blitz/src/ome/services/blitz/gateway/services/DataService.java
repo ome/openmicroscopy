@@ -26,10 +26,12 @@ package ome.services.blitz.gateway.services;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RType;
 import omero.ServerError;
 import omero.api.ContainerClass;
 import omero.model.Dataset;
@@ -220,8 +222,7 @@ public interface DataService
 	  * @throws DSOutOfServiceException
 	  * @throws omero.ServerError
 	  */
-	void deleteObject(IObject row) 
-							throws   omero.ServerError;
+	void deleteObject(IObject row) throws omero.ServerError;
 	
 	/**
 	 * Update the pixels object in the server.
@@ -232,6 +233,70 @@ public interface DataService
 	 */
 	public Pixels updatePixels(Pixels object) 
 	throws ServerError;
+
+	/**
+     * Get the scripts from the iScript Service.
+     * @return All the available scripts in a map by id and name.
+     * @throws omero::ServerError
+     */
+    Map<Long, String> getScripts()
+        throws omero.ServerError;
+
+    /**
+     * Get the id of the script with name
+     * @param name name of the script.
+     * @return the id of the script.
+     * @throws omero::ServerError
+     */
+    long getScriptID(String name)
+        throws omero.ServerError;
+
+    /**
+     * Upload the script to the server.
+     * @param script script to upload
+     * @return id of the new script.
+     * @throws omero::ServerError
+     */
+    long uploadScript(String script)
+        throws omero.ServerError;
+
+    /**
+     * Get the script with id, this returns the actual script as a string.
+     * @param id id of the script to retrieve.
+     * @return see above.
+     * @throws omero::ServerError
+     */
+    String getScript(long id)
+        throws omero.ServerError;
+
+    /**
+     * Get the parameters the script takes, this is a map of the 
+     * parameter name and type.
+     * @param id id of the script.
+     * @return see above.
+     * @throws omero::ServerError
+     */
+    Map<String, RType> getParams(long id)
+        throws omero.ServerError;
+
+    /**
+     * Run the script and get the results returned as a name , value map.
+     * @param id id of the script to run.
+     * @param map the map of parameters, values for inputs.
+     * @return see above.
+     * @throws omero::ServerError
+     */
+    Map<String, RType> runScript(long id, Map<String, RType> map)
+        throws omero.ServerError;
+
+    /**
+     * Delete the script with id from the server.
+     * @param id id of the script to delete.
+     * @throws omero::ServerError
+     */
+    void deleteScript(long id)
+       throws omero.ServerError;
+
 	
 }
 
