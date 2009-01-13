@@ -132,11 +132,6 @@ class HistoryUI
 		int w = r.width;
 		if (w == 0) w = view.geRestoreSize().width;
 		canvas.doGridLayout(w, model.getHistory());
-		//canvas.repaint();
-		//Rectangle bounds = canvas.getContentsBounds();
-        //Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
-        //desktop.setSize(d);
-        //desktop.setPreferredSize(d);
 	}
 	
 	/**
@@ -170,12 +165,19 @@ class HistoryUI
 	 */
 	Dimension getIdealSize()
 	{
+		/*
 		Dimension d = getSize();
+		System.err.println(d+" "+canvas.getSize());
 		int height = 0;//toolBar.getPreferredSize().height;
 		height += canvas.getTitleBar().getPreferredSize().height;
 		//height += canvas.getInternalDesktop().getPreferredSize().height;
-		height += 4*ImViewer.MINIMUM_SIZE/3;
+		//height += 4*ImViewer.MINIMUM_SIZE/3;
+		System.err.println(canvas.getInternalDesktop().getPreferredSize().height);
+		height += canvas.getInternalDesktop().getPreferredSize().height;
 		return new Dimension(d.width, height);
+		*/
+		
+		return getPreferredSize();
 	}
 
 }
