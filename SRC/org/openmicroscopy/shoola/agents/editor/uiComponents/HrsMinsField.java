@@ -115,6 +115,20 @@ public class HrsMinsField extends JPanel
 		
 		currentTimeInSecs = timeInSecs;
 	}
+	
+	/**
+	 * Sets the time in hours and mins. 
+	 * 
+	 * @param hours
+	 * @param mins
+	 */
+	public void setTime(int hours, int mins) 
+	{
+		hrsField.setText(hours + "");
+		minsField.setText(mins + "");
+		
+		currentTimeInSecs = hours * 3600 + mins * 60;
+	}
 
 	/**
 	 * Fired when the Hrs or Mins fields are updated. 

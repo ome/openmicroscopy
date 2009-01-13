@@ -62,13 +62,7 @@ public class DateTimeTemplate
 	 */
 	private void buildUI() 
 	{
-		BooleanEditor relativeDate = new BooleanEditor(getParameter(), 
-				DateTimeParam.IS_RELATIVE_DATE);
-		relativeDate.addPropertyChangeListener
-			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		
-		add(new CustomLabel("Relative Date: "));
-		add(relativeDate);
+		add(new CustomLabel("Date-Time: "));
 		add(Box.createHorizontalGlue());
 	}
 	

@@ -41,6 +41,7 @@ import net.n3.nanoxml.IXMLElement;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -71,6 +72,8 @@ import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
  * @since OME3.0
  */
 public class UpeXmlReader {
+	
+	public static final String 			VALUE = "value";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -103,7 +106,7 @@ public class UpeXmlReader {
 	{
 		setName(upeParam, param);
 		String attributeValue;
-		attributeValue = getChildContent(upeParam, "value");
+		attributeValue = getChildContent(upeParam, VALUE);
 		param.setAttribute(TextParam.PARAM_VALUE, attributeValue);
 		attributeValue = getChildContent(upeParam, "default-value");
 		param.setAttribute(TextParam.DEFAULT_VALUE, attributeValue);
@@ -176,14 +179,14 @@ public class UpeXmlReader {
 			setNameValueDefault(upeParam, param);
 		}
 		else
-		if (TableParam.TABLE_PARAM.equals(attributeValue)) {
-			param = FieldParamsFactory.getFieldParam(TableParam.TABLE_PARAM);
+		if (DateTimeParam.DATE_TIME_PARAM.equals(attributeValue)) {
+			param = FieldParamsFactory.getFieldParam(DateTimeParam.DATE_TIME_PARAM);
 			setName(upeParam, param);
-			
-			TableParam tParam = (TableParam)param;
-			MutableTableModel tModel = (MutableTableModel)tParam.getTableModel();
-			buildTableModel(upeParam, tModel);
+			// date-time stored as UTC milliseconds in "value" attribute. 
+			attributeValue = getChildContent(upeParam, VALUE);
+			param.setAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE, attributeValue);
 		}
+		
 		else {
 			param = FieldParamsFactory.getFieldParam(attributeValue);
 			if (param == null) {	
@@ -193,6 +196,7 @@ public class UpeXmlReader {
 				return param;
 			}
 			setName(upeParam, param);
+			/*
 			// all parameter attributes are saved as attributes
 			String[] paramAts = param.getParamAttributes();
 			String attValue;
@@ -200,12 +204,14 @@ public class UpeXmlReader {
 				attValue = getChildContent(upeParam, paramAts[a]);
 				param.setAttribute(paramAts[a], attValue);
 			}
+			*/
 		}
+		
 		
 		IXMLElement data = upeParam.getFirstChildNamed("data");
 		if (data != null) {
 			int index = 0;
-			List <IXMLElement> values = data.getChildrenNamed("value");
+			List <IXMLElement> values = data.getChildrenNamed(VALUE);
 			for (IXMLElement element : values) {
 				param.setValueAt(index++, element.getContent());
 			}

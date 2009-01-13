@@ -51,48 +51,13 @@ public class DateTimeParam
 	/**
 	 * A string to define the DateTimeParam type. 
 	 */
-	public static final String 		DATE_TIME_PARAM = "DATETIME";
+	public static final String 		DATE_TIME_PARAM = "DATE_TIME";
 	
 	/**
 	 * A property of this parameter. 
-	 * This stores a Date (not time) in UTC milliseconds.
-	 * Used by the Date-Picker to pick a date. 
-	 * NB. This attribute and the REL_DATE_ATTRIBUTE are mutually exclusive.
+	 * This stores a Date-Time in UTC milliseconds.
 	 */
-	public static final String 		DATE_ATTRIBUTE = "UTCMillisecs";
-	
-	/**
-	 * This stores a "Relative Date". Ie a date (in milliseconds) that is
-	 * a number of days AFTER an "Absolute" date. 
-	 * A date specified by this attribute can only be fixed in time when
-	 * it follows a Date-Time field with a Absolute date (DATE_ATTRIBUTE)
-	 * which is in UTC milliseconds.
-	 * NB. This attribute and the DATE_ATTRIBUTE are mutually exclusive. 
-	 */
-	public static final String 		REL_DATE_ATTRIBUTE = "relativeDate";
-	
-	/**
-	 * This boolean attribute specifies whether the date should be defined
-	 * by the REL_DATE_ATTRIBUTE or the DATE_ATTRIBUTE.
-	 * If true, use the REL_DATE_ATTRIBUTE, to fix the date. Otherwise,
-	 * use the DATE_ATTRIBUTE. 
-	 */
-	public static final String 		IS_RELATIVE_DATE = "isRelativeDate";
-	
-	/**
-	 * A property of this parameter. 
-	 * This stores a Time of Day in Seconds. Optional. 
-	 */
-	public static final String 		TIME_ATTRIBUTE = "timeInSeconds";
-	
-	/**
-	 * A property of this parameter. 
-	 * This stores an alarm time in seconds, relative to the Date-Time
-	 * specified by the other attributes of this parameter.
-	 * This will be a negative number if the alarm is before the event.
-	 * Eg 1 hour before = "-3600"
-	 */
-	public static final String 		ALARM_SECONDS = "alarmSeconds";	
+	public static final String 		DATE_TIME_ATTRIBUTE = "UTCMillisecs";
 	
 	/**
 	 * Creates an instance. 
@@ -109,11 +74,8 @@ public class DateTimeParam
 	 */
 	public String getYYYYMMDD() 
 	{
-		if (isAttributeTrue(IS_RELATIVE_DATE)) {
-			return "";
-		}
 			
-		String dateMillis = getAttribute(DATE_ATTRIBUTE);
+		String dateMillis = getAttribute(DATE_TIME_ATTRIBUTE);
 		if (dateMillis != null) 
 		{
 			long millis = new Long(dateMillis);
@@ -133,8 +95,7 @@ public class DateTimeParam
 	 */
 	public String[] getParamAttributes() {
 		
-		return new String[] {DATE_ATTRIBUTE, REL_DATE_ATTRIBUTE,
-				IS_RELATIVE_DATE, TIME_ATTRIBUTE, ALARM_SECONDS};
+		return new String[] {DATE_TIME_ATTRIBUTE};
 	}
 
 	/**
@@ -143,11 +104,10 @@ public class DateTimeParam
 	 */
 	public boolean isParamFilled() 
 	{
-		String dateValue = getAttribute(DATE_ATTRIBUTE);
-		String relDateVal = getAttribute(REL_DATE_ATTRIBUTE);
+		String dateValue = getAttribute(DATE_TIME_ATTRIBUTE);
 		
-		// if date is set by either of these 2 attributes, field is filled.
-		return ((dateValue != null) || (relDateVal != null));
+		// if date attribute isn't null, field is filled.
+		return (dateValue != null);
 	}
 	
 	/**
@@ -176,33 +136,17 @@ public class DateTimeParam
 	public String getParamValue() 
 	{
 		String text = "";
-		if (isAttributeTrue(IS_RELATIVE_DATE)) {
-			String relMillis = getAttribute(REL_DATE_ATTRIBUTE);
-			if (relMillis != null)
-			{
-				long millis = new Long(relMillis);
-				int days = (int)millis / (24 * 60 * 60 * 1000);
-				text = text + days + " days";
-			}
-		} else
+		
+		String dateMillis = getAttribute(DATE_TIME_ATTRIBUTE);
+		if (dateMillis != null) 
 		{
-			String dateMillis = getAttribute(DATE_ATTRIBUTE);
-			if (dateMillis != null) 
-			{
-				long millis = new Long(dateMillis);
-				Date date = new Date();
-				date.setTime(millis);
-				SimpleDateFormat dateF = new SimpleDateFormat("yyyy, MMM d");
-				text = text + dateF.format(date);
-			} 
-		}
-		String timeSecs = getAttribute(TIME_ATTRIBUTE);
-		if (timeSecs != null)
-		{
-			int secs = Integer.parseInt(timeSecs);
-			String time = TimeParam.secsToString(secs);
-			text = text + " at " + time;
-		}
+			long millis = new Long(dateMillis);
+			Date date = new Date();
+			date.setTime(millis);
+			SimpleDateFormat dateF = new SimpleDateFormat(
+					"yyyy, MMM d ' at ' HH:mm");
+			text = text + dateF.format(date);
+		} 
 		
 		if (text.length() >0) return text;
 		return null;

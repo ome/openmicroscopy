@@ -312,7 +312,8 @@ public class TreeModelFactory
 			 
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			 param = getFieldParam(DateTimeParam.DATE_TIME_PARAM);
+			
+			// if absolute date, use UTC millisecs of Date-Time parameter...
 			 String millisecs = allAttributes.get(DataFieldConstants.UTC_MILLISECS);
 			 if (millisecs != null) {
 				// create a test calendar (see below).
@@ -320,16 +321,24 @@ public class TreeModelFactory
 				testForAbsoluteDate.setTimeInMillis(new Long(millisecs));
 				int year = testForAbsoluteDate.get(Calendar.YEAR);
 				if (year != 1970) {		// date is not "relative"
-					param.setAttribute(DateTimeParam.DATE_ATTRIBUTE, millisecs);
-				} else {		// date is relative. 
-					param.setAttribute(DateTimeParam.REL_DATE_ATTRIBUTE, millisecs);
-					param.setAttribute(DateTimeParam.IS_RELATIVE_DATE, "true");
+					param = getFieldParam(DateTimeParam.DATE_TIME_PARAM);
+					long utcMillis = new Long(millisecs);
+					
+					millisecs = allAttributes.get(DataFieldConstants.SECONDS);
+					if (millisecs != null) {
+						utcMillis += (new Long(millisecs)* 1000);
+					}
+					param.setAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE, 
+							utcMillis + "");
+					
+				} else {		// date is relative.
+					// store relative date as number parameter (days)
+					param = getFieldParam(NumberParam.NUMBER_PARAM);
+					int days = testForAbsoluteDate.get(Calendar.DAY_OF_MONTH);
+					param.setAttribute(TextParam.PARAM_VALUE, days + "");
+					param.setAttribute(NumberParam.PARAM_UNITS, "days");
 				}
 			 }
-			 millisecs = allAttributes.get(DataFieldConstants.SECONDS);
-			 param.setAttribute(DateTimeParam.TIME_ATTRIBUTE, millisecs);
-			 millisecs = allAttributes.get(DataFieldConstants.ALARM_SECONDS);
-			 param.setAttribute(DateTimeParam.ALARM_SECONDS, millisecs);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.TABLE)) {
 			 param = getFieldParam(TableParam.TABLE_PARAM);

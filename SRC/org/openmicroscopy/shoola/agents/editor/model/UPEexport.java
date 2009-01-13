@@ -44,6 +44,7 @@ import net.n3.nanoxml.XMLWriter;
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -141,10 +142,9 @@ public class UPEexport {
 	
 		// name
 		String name = field.getAttribute(Field.FIELD_NAME);
-		if (name == null) {
-			name = "Step";
+		if (name != null) {
+			addChildContent(step, "name", name);
 		}
-		addChildContent(step, "name", name);
 		
 		// add parameters (and step description)
 		addParameters(field, step);
@@ -263,6 +263,17 @@ public class UPEexport {
 			addChildContent(parameter, "param-type", "TEXT");
 			setValueAndDefault(parameter, param);
 		}
+		else 
+			if (param instanceof DateTimeParam) {
+				addChildContent(parameter, "param-type", "DATE_TIME");
+				
+				String ms = param.getAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE);
+				if (ms != null) {
+					long dateMillis = new Long(ms);
+					
+					addChildContent(parameter, "value", dateMillis + "");
+				}
+			}
 		
 		else {
 			// use a TEXT parameter to store any parameter type not 
