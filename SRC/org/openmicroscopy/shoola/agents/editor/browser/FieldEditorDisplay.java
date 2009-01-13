@@ -47,6 +47,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldParamEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * A container to display a {@link FieldContentEditor} for the currently 
@@ -130,8 +131,9 @@ public class FieldEditorDisplay
 	{
 		setLayout(new BorderLayout());
 		scrollPane = new JScrollPane();
-		scrollPane.setBackground(Color.white);
+		scrollPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		setMinimumSize(new Dimension(220, 220));
+		scrollPane.setPreferredSize(new Dimension(250, 250));
 		
 		add(scrollPane, BorderLayout.CENTER);
 	}

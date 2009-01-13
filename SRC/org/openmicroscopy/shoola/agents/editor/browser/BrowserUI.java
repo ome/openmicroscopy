@@ -162,6 +162,7 @@ class BrowserUI
         rightSplitPane.setOneTouchExpandable(true);
         rightSplitPane.setBorder(null);
         rightSplitPane.setResizeWeight(0.75);
+        rightSplitPane.setDividerSize(9);
         
         // The central component (tab pane)...
         // TODO: Need to split this out into it's own class, that has a
@@ -193,7 +194,9 @@ class BrowserUI
      */
     private void showFieldEditor(boolean visible) 
     {
-    	editorPanel.setVisible(visible);
+    	if (editorPanel != null) {
+    		editorPanel.setVisible(visible);
+    	}
     	rightSplitPane.setDividerSize(visible ? 9 : 0);
     	rightSplitPane.setDividerLocation(visible ? 0.7 : 1.0);
     }
@@ -262,13 +265,13 @@ class BrowserUI
     	if (tm != null)
     	tm.addTreeModelListener(editorPanel);
     	
-    	// make sure that the controller is in sync with tabbed pane view.
-    	updateViewingMode();
-    	
     	// select the root
     	TreePath rootPath = navTree.getPathForRow(0);
     	if (rootPath != null)
     		navTree.setSelectionPath(rootPath);
+    	
+    	// make sure that the controller is in sync with tabbed pane view.
+    	updateViewingMode();
     }
     
     /**
@@ -279,9 +282,9 @@ class BrowserUI
     	int state = model.getState();
     	
     	// if the state is editable (not Display mode), enable and show...
-    	boolean editable = (state != Browser.TREE_DISPLAY);
-    	treeDisplay.setEditable(editable);	
-    	showFieldEditor(editable);
+    	//boolean editable = (state != Browser.TREE_DISPLAY);
+    	//treeDisplay.setEditable(editable);	
+    	// showFieldEditor(true);
     	
     	// update editorPanel, to show correct editing view.
     	editorPanel.refreshEditorDisplay();
