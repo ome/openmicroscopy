@@ -34,7 +34,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollBar;
@@ -45,7 +44,6 @@ import javax.swing.JViewport;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
  * Hosts the UI components displaying the rendered image.

@@ -84,10 +84,15 @@ public class PasteRndSettingsAction
 	 */
 	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
 	{
-		if (selectedDisplay == null || !model.hasRndSettings()) {
+		if (!model.hasRndSettings()) {
 			setEnabled(false);
 			return;
 		}
+		
+		if (selectedDisplay == null) {
+			setEnabled(false);
+			return;
+		} 
 		Object ho = selectedDisplay.getUserObject();
 		Browser browser = model.getSelectedBrowser();
 		if (ho == null || browser == null) {

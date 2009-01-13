@@ -24,7 +24,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
-import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.List;
@@ -33,10 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-import layout.TableLayout;
-
-
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
@@ -150,5 +149,22 @@ class HistoryUI
 		if (canvas != null)
 			canvas.clearHistory(model.getHistory());
 	}
-
+	
+	/**
+	 * Returns the ideal size.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getIdealSize()
+	{
+		Dimension d = canvas.getPreferredSize(); 
+		List<HistoryItem> nodes = model.getHistory();
+		if (nodes != null && nodes.size() >= 1) 
+			d = nodes.get(0).getPreferredSize();
+		JComponent tb = canvas.getTitleBar();
+		Insets insets = canvas.getInsets();
+		int h = tb.getPreferredSize().height+insets.bottom+insets.top;
+		return new Dimension(getPreferredSize().width, d.height+h);
+	}
+	
 }

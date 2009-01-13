@@ -863,8 +863,7 @@ class ImViewerUI
 		//int divider = 0;
 		int vExtra = 2;
 		int addition;
-		rendererSplit.setDividerLocation(-1);
-		historySplit.setDividerLocation(-1);
+		
 		switch (displayMode) {
 			case RENDERER:
 				rightComponent = model.getRenderer().getUI();
@@ -895,13 +894,15 @@ class ImViewerUI
 				container.repaint();
 				height = restoreSize.height;
 				width = restoreSize.width;
-				d = historyUI.getPreferredSize();
+				d = historyUI.getIdealSize();
 				addition = historySplit.getDividerSize()+
 					2*(refInsets.top+refInsets.bottom);
 				height += d.height;
+				historySplit.setResizeWeight(0.49);
 				height += addition;
 				break;
 			case HISTORY_AND_RENDERER:
+				historySplit.setResizeWeight(0.49);
 				container.remove(mainComponent);
 				historyUI.doGridLayout();
 				rightComponent = model.getRenderer().getUI();
@@ -939,7 +940,8 @@ class ImViewerUI
 				break;
 			default: 
 		}
-		
+		rendererSplit.setDividerLocation(-1);
+		//historySplit.setDividerLocation(-1);
 		d = getIdealSize(width, height);
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = (int) (screen.width*SCREEN_RATIO);
