@@ -110,9 +110,9 @@ class HistoryCanvas
 		Rectangle r = getBounds();
 		Rectangle bounds = getContentsBounds();
 		Insets insets = getInsets();
-		int w = r.width-insets.left-insets.right-4;
+		int w = r.width-insets.left-insets.right;
 		if (w < 0) return;
-        Dimension d = new Dimension(w, bounds.height);//bounds.getSize();
+        Dimension d = new Dimension(w, bounds.height);
         desktop.setSize(d);
         desktop.setPreferredSize(d);
 	}
@@ -126,7 +126,6 @@ class HistoryCanvas
 	void doGridLayout(int width, List nodes)
 	{
 		if (nodes == null || nodes.size() == 0) return;
-		
 		HistoryItem child = null;
         Dimension maxDim = ((HistoryItem) nodes.get(0)).getPreferredSize();
         int m = width/maxDim.width;
@@ -140,12 +139,11 @@ class HistoryCanvas
 			child.validate();
 			j++;
 		}
+
         int finalWidth = nodes.size()*maxDim.width;
         if (finalWidth > width) {
-        	//Rectangle bounds = child.getBounds();
-        	Rectangle pBounds = getBounds();
         	JScrollPane dskDecorator = getDeskDecorator();
-        	Dimension d = new Dimension(finalWidth, pBounds.height);
+        	Dimension d = new Dimension(finalWidth, getPreferredSize().height);
         	getInternalDesktop().setSize(d);
         	getInternalDesktop().setPreferredSize(d);
         	getInternalDesktop().validate();

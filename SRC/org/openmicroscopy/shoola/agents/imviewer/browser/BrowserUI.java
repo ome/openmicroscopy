@@ -32,6 +32,9 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollBar;
@@ -72,22 +75,22 @@ class BrowserUI
     private JLayeredPane        layeredPane;
 
     /** The canvas hosting the image. */
-    private BrowserCanvas       browserCanvas;
+    private BrowserCanvas       	browserCanvas;
     
     /** Reference to the Model. */
-    private BrowserModel        model;
+    private BrowserModel        	model;
     
     /** Reference to the Control. */
-    private BrowserControl      controller;
+    private BrowserControl      	controller;
     
     /** Listens to the mouse moves on the Image canvas. */
-    private ImageCanvasListener	canvasListener;
+    private ImageCanvasListener		canvasListener;
     
-    /** Component related to the view while settings the bounds. */
-    private JComponent			sibling;
-    
+    /** Components related to the view while settings the bounds. */
+    private Map<Integer, JComponent> siblings;
+
     /** Flag indicating if the experimenter uses the scrollbars. */
-    private boolean				adjusting;
+    private boolean					adjusting;
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -127,7 +130,10 @@ class BrowserUI
 	}
 	
     /** Creates a new instance. */
-    BrowserUI() {}
+    BrowserUI()
+    {
+    	siblings = new HashMap<Integer, JComponent>();
+    }
     
     /**
      * Links this View to its Controller and Model
@@ -151,9 +157,13 @@ class BrowserUI
      * Sets the component related to this component when the bounds of 
      * the view are reset.
      * 
-     * @param sibling The value to set.
+     * @param index 	The index corresponding to the passed component. 
+     * @param sibling 	The value to set.
      */
-    void setSibling(JComponent sibling) { this.sibling = sibling; }
+    void setSibling(int index, JComponent sibling)
+    { 
+    	siblings.put(index, sibling);
+    }
     
     /**
      * Adds the component to the {@link #layeredPane}. The component will
@@ -323,8 +333,8 @@ class BrowserUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		if (sibling != null && 
-				model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+		JComponent sibling = siblings.get(model.getSelectedIndex());
+		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
 	}

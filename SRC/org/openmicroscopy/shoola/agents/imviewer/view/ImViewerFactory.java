@@ -203,7 +203,7 @@ public class ImViewerFactory
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
 			if (comp.getModel().getImageID() != image.getId()) 
-				comp.setRndSettings();
+				comp.copyRndSettings();
 		}
 	}
 

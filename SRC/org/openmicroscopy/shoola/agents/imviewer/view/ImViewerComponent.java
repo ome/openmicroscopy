@@ -432,16 +432,9 @@ class ImViewerComponent
 	 */
 	ImViewerModel getModel() { return model; }
 
-	/**
-	 * Sets the ids used to copy rendering settings.
-	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
-	 * @param rndSettings 	The rendering settings to copy. 
-	 * 						Mustn't be <code>null</code>.
-	 */
-	void setRndSettings()
+	/** Sets the image to copy the rendering settings from. */
+	void copyRndSettings()
 	{
-		model.copyRndSettings();
 		view.enablePasteButton(true);
 		firePropertyChange(RND_SETTINGS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
@@ -1210,7 +1203,7 @@ class ImViewerComponent
 		case LOADING_RENDERING_CONTROL:
 		case DISCARDED:
 			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
+					"This method can't be invoked in the DISCARDED, NEW or " +
 			"LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getDefaultZ();
@@ -1227,7 +1220,7 @@ class ImViewerComponent
 		case LOADING_RENDERING_CONTROL:
 		case DISCARDED:
 			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
+					"This method can't be invoked in the DISCARDED, NEW or " +
 			"LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getDefaultT();
@@ -2667,9 +2660,9 @@ class ImViewerComponent
 		model.clearHistory();
 		view.clearHistory();
 		setSelectedPane(VIEW_INDEX);
-		renderXYPlane();
-		
+		//renderXYPlane();
 	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isOriginalSettings()

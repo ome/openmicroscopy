@@ -83,7 +83,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
-import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -316,9 +315,10 @@ class ImViewerUI
 				type = JSplitPane.HORIZONTAL_SPLIT;
 		}
 		JSplitPane pane = new JSplitPane(type);
-		//pane.setOneTouchExpandable(true);
+		pane.setOneTouchExpandable(true);
 		pane.setContinuousLayout(true);
-		//pane.setResizeWeight(0.6);
+		pane.setDividerLocation(-1);
+		pane.setResizeWeight(0.0);
 		return pane;
 	}
 
@@ -863,7 +863,8 @@ class ImViewerUI
 		//int divider = 0;
 		int vExtra = 2;
 		int addition;
-		
+		rendererSplit.setDividerLocation(-1);
+		historySplit.setDividerLocation(-1);
 		switch (displayMode) {
 			case RENDERER:
 				rightComponent = model.getRenderer().getUI();
@@ -921,9 +922,6 @@ class ImViewerUI
 				
 				width = restoreSize.width+(int) (2.5*d.width);
 				width += addition;
-				
-				
-	
 				d = historyUI.getPreferredSize();
 				addition = historySplit.getDividerSize()+
 					2*(refInsets.top+refInsets.bottom);
@@ -941,8 +939,7 @@ class ImViewerUI
 				break;
 			default: 
 		}
-		rendererSplit.setDividerLocation(-1);
-		historySplit.setDividerLocation(-1);
+		
 		d = getIdealSize(width, height);
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = (int) (screen.width*SCREEN_RATIO);
@@ -1898,6 +1895,9 @@ class ImViewerUI
 				tabs.insertClosableComponent(projectionViewPanel);
 				break;
 		}
+		tabs.validate();
+		tabs.repaint();
+		restoreSize = tabs.getSize();
 	}
 
     /**

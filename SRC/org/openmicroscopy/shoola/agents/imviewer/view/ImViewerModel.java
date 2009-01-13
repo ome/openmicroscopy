@@ -194,9 +194,6 @@ class ImViewerModel
 	/** Collection of history item. */
 	private List<HistoryItem>			historyItems;
 
-	/** The pixels set to copy the rendering settings from. */
-	private PixelsData 				    pixels;
-
 	/** 
 	 * The index of the movie, not that we set to <code>-1</code>
 	 * when the movie player is launched.
@@ -1355,9 +1352,6 @@ class ImViewerModel
 		currentRndControl.setOriginalRndSettings(); 
 	}
 	
-	/** Sets the reference to the pixels set to <code>null</code>. */
-	void copyRndSettings() { pixels = null; }
-
 	/**
 	 * Returns <code>true</code> if we have rendering settings to paste,
 	 * <code>false</code> otherwise.

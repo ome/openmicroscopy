@@ -101,7 +101,8 @@ class BrowserComponent
         view = new BrowserUI();
         gridView = new GridUI();
         projectionView = new ProjectionUI();
-        view.setSibling(gridView);
+        view.setSibling(ImViewer.GRID_INDEX, gridView);
+        view.setSibling(ImViewer.PROJECTION_INDEX, projectionView);
     }
     
     /** Links up the MVC triad. */

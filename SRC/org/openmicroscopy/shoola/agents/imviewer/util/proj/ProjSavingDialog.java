@@ -351,7 +351,7 @@ public class ProjSavingDialog
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, "Set the projection" +
+		TitlePanel tp = new TitlePanel(TITLE, "Set the projection " +
 				"parameters.", 
 				icons.getIcon(IconManager.PROJECTION_48));
 		Container c = getContentPane();

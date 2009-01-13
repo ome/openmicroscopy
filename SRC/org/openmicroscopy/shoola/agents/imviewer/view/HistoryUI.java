@@ -25,25 +25,20 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
+import layout.TableLayout;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 
 /** 
@@ -67,9 +62,6 @@ class HistoryUI
 	/** The title of the component. */
 	static final String			TITLE = "History";
 	
-	/** The Description of the {@link #clearButton}. */
-	private static final String CLEAR_DESCRIPTION = "Clear the history.";
-	
 	/** Reference to the Model. */
 	private ImViewerModel 	model;
 	
@@ -92,10 +84,10 @@ class HistoryUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new BorderLayout(0, 0));
 		setBorder(null);
-		//add(toolBar, BorderLayout.NORTH);
-		add(canvas, BorderLayout.CENTER);
+		double[][] size = {{TableLayout.FILL}, {TableLayout.FILL}};
+		setLayout(new TableLayout(size));
+		add(canvas, "0, 0");
 	}
 	
 	/**
@@ -128,7 +120,7 @@ class HistoryUI
 		while (i.hasNext()) 
 			desktop.add((HistoryItem) i.next());
 
-		Rectangle r = getBounds();
+		Rectangle r = new Rectangle();//getBounds();
 		int w = r.width;
 		if (w == 0) w = view.geRestoreSize().width;
 		canvas.doGridLayout(w, model.getHistory());
@@ -155,29 +147,8 @@ class HistoryUI
 	/** Clears the history. */
 	void clearHistory()
 	{
-		canvas.clearHistory(model.getHistory());
-	}
-	
-	/** 
-	 * Returns the ideal size of the component.
-	 * 
-	 * @return See above.
-	 */
-	Dimension getIdealSize()
-	{
-		/*
-		Dimension d = getSize();
-		System.err.println(d+" "+canvas.getSize());
-		int height = 0;//toolBar.getPreferredSize().height;
-		height += canvas.getTitleBar().getPreferredSize().height;
-		//height += canvas.getInternalDesktop().getPreferredSize().height;
-		//height += 4*ImViewer.MINIMUM_SIZE/3;
-		System.err.println(canvas.getInternalDesktop().getPreferredSize().height);
-		height += canvas.getInternalDesktop().getPreferredSize().height;
-		return new Dimension(d.width, height);
-		*/
-		
-		return getPreferredSize();
+		if (canvas != null)
+			canvas.clearHistory(model.getHistory());
 	}
 
 }
