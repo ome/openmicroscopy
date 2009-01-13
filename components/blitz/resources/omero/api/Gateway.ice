@@ -403,69 +403,7 @@ module omero {
              */
             void deleteObject(omero::model::IObject row)
                 throws omero::ServerError;
-
- 			/*
-             * Get the scripts from the iScript Service.
-             * @return All the available scripts in a map by id and name.
-             * @throws omero::ServerError
-             */
-            idempotent LongStringMap getScripts()
-                throws omero::ServerError;
-	
-            /*
-             * Get the id of the script with name
-             * @param name name of the script.
-             * @return the id of the script.
-             * @throws omero::ServerError
-             */
-            idempotent long getScriptID(string name)
-                throws omero::ServerError;
-
-            /*
-             * Upload the script to the server.
-             * @param script script to upload
-             * @return id of the new script.
-             * @throws omero::ServerError
-             */
-            long uploadScript(string script)
-                throws omero::ServerError;
-
-            /*
-             * Get the script with id, this returns the actual script as a string.
-             * @param id id of the script to retrieve.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent string getScript(long id)
-                throws omero::ServerError;
-
-            /*
-             * Get the parameters the script takes, this is a map of the parameter name and type.
-             * @param id id of the script.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            idempotent StringRTypeMap getParams(long id)
-                throws omero::ServerError;
-
-            /*
-             * Run the script and get the results returned as a name , value map.
-             * @param id id of the script to run.
-             * @param map the map of parameters, values for inputs.
-             * @return see above.
-             * @throws omero::ServerError
-             */
-            StringRTypeMap runScript(long id, StringRTypeMap map)
-                throws omero::ServerError;
-
-            /*
-             * Delete the script with id from the server.
-             * @param id id of the script to delete.
-             * @throws omero::ServerError
-             */
-            void deleteScript(long id)
-               throws omero::ServerError;
-
+ 
             /*
              * Keep service alive.
              * @throws omero::ServerError

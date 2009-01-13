@@ -448,63 +448,6 @@ public class OmeroGateway
 		return imageService.getRawPlane(pixelsId, z, c, t);
 	}
 	
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#deleteScript(long)
-	 */
-	public void deleteScript(long id, Current __current) throws ServerError 
-	{
-		dataService.deleteScript(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getParams(long)
-	 */
-	public Map<String, RType> getParams(long id, Current __current) throws ServerError 
-	{
-		return dataService.getParams(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getScript(long)
-	 */
-	public String getScript(long id, Current __current) throws ServerError 
-	{
-		return dataService.getScript(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getScriptID(String)
-	 */
-	public long getScriptID(String name, Current __current) throws ServerError 
-	{
-		return dataService.getScriptID(name);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getScripts()
-	 */
-	public Map<Long, String> getScripts(Current __current) throws ServerError 
-	{
-		return dataService.getScripts();
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#runScript(long, Map<String, RType>)
-	 */
-	public Map<String, RType> runScript(long id, Map<String, RType> map,
-			Current __current) throws ServerError 
-	{
-		return dataService.runScript(id, map);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#uploadScript(String)
-	 */
-	public long uploadScript(String script, Current __current) throws ServerError 
-	{
-		return dataService.uploadScript(script);
-	}
-
 }
 
 
