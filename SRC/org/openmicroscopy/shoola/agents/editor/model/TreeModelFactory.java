@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.model;
 //Java imports
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
@@ -44,7 +42,6 @@ import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
 import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLException;
 import net.n3.nanoxml.XMLParserFactory;
 
 //Application-internal dependencies
@@ -99,7 +96,7 @@ public class TreeModelFactory
 	 * @param inputElement		XML element	
 	 * @param treeNode			A treeNode.
 	 */
-	private static void buildTreeFromNano(IXMLElement inputElement, 
+	private static void buildTreeB3(IXMLElement inputElement, 
 			DefaultMutableTreeNode treeNode)
 	{
 		
@@ -114,7 +111,7 @@ public class TreeModelFactory
 				 child = new FieldNode(newField);
 				 
 				 treeNode.add(child);
-				 buildTreeFromNano(node, child);
+				 buildTreeB3(node, child);
 			 }
 		}
 		
@@ -518,7 +515,7 @@ public class TreeModelFactory
 	 * Creates a TreeModel from a Beta-3.0 OMERO.editor XML document.
 	 * The tree model contains one XML element per node. 
 	 * Each node/field is created from an XML element using the 
-	 * createField(Element) method. 
+	 * {@link #createField(IXMLElement)} method. 
 	 * 
 	 * @param xmlFile	The Beta-3.0 XML file to convert.
 	 * @return			A TreeModel, containing 
@@ -531,7 +528,7 @@ public class TreeModelFactory
 		/*
 		 * This is a recursive method that iterates through the whole tree.
 		 */
-		buildTreeFromNano(root, rootNode);
+		buildTreeB3(root, rootNode);
 		
 		return new DefaultTreeModel(rootNode);
 	}

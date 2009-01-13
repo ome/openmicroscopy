@@ -83,6 +83,8 @@ public class UPEexport {
 	public static final String 		UPE_STYLESHEET ="<?xml-stylesheet " +
 	"href=\"http://users.openmicroscopy.org.uk/~will/schemas/upeEditor2html.xsl\""
 	+ " type=\"text/xsl\"?>";
+	
+	private int 					paramID = 0;
 
 	/**
 	 * A recursive method that traverses the treeModel, building an 
@@ -111,8 +113,7 @@ public class UPEexport {
 		// only add child-steps element if not empty.
 		if (childSteps.getChildrenCount() > 0) {
 			// add the step_type attribute before the child steps
-			// TODO  Discuss whether this is useful, since I don't allow the 
-			// option of "SPLIT_STEP" to contain concurrent steps
+			// TODO should be "SPLIT_STEP" if this has been set somehow
 			addChildContent(rootStep, "step_type", "STEP_GROUP");
 			rootStep.addChild(childSteps);
 		} else {
@@ -140,15 +141,12 @@ public class UPEexport {
 	
 		// name
 		String name = field.getAttribute(Field.FIELD_NAME);
-		if (name != null)
-			addChildContent(step, "name", name);
-		// description
-		addStepDescription(field, step);
+		if (name == null) {
+			name = "Step";
+		}
+		addChildContent(step, "name", name);
 		
-		// deleteable = true
-		addChildContent(step, "deletable", "true");
-		
-		// add parameters
+		// add parameters (and step description)
 		addParameters(field, step);
 		
 		return step;
@@ -189,15 +187,24 @@ public class UPEexport {
 		
 		IXMLElement params = new XMLElement("parameters");
 		
+		String stepDescription = "";
+		
 		IFieldContent content;
 		IXMLElement parameter;
+		String paramID;
 		for (int i=0; i<contentCount; i++) {
 			content = field.getContentAt(i);
 			if (content instanceof IParam) {
 				parameter = createParamElement((IParam)content);
 				params.addChild(parameter);
+				paramID = parameter.getFirstChildNamed("id").getContent();
+				stepDescription = stepDescription + "[[" + paramID + "]]";
+			} else {
+				stepDescription = stepDescription + content.toString();
 			}
 		}
+		addChildContent(step, "description", stepDescription);
+		
 		// if any parameters, add parameters element to step. 
 		if (params.getChildrenCount() > 0) {
 			step.addChild(params);
@@ -221,9 +228,12 @@ public class UPEexport {
 		
 		// Add name, necessity, value and default-value, if not null
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
-		if (name != null)
-			addChildContent(parameter, "name", name);
-		
+		if (name == null) {
+			// must have a name
+			name = param.getAttribute(AbstractParam.PARAM_TYPE);
+		}
+		addChildContent(parameter, "name", name);
+		addChildContent(parameter, "id", paramID++ +"");
 		addChildContent(parameter, "necessity", "OPTIONAL");
 		
 		// Depending on the type of parameter, set the param-type, 
