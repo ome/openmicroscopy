@@ -31,7 +31,7 @@ import java.io.File;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
-import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
+import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -320,16 +320,6 @@ class EditorComponent
 			return true;
 		}
 		return false;
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#exportUPELocally(File)
-	 */
-	public boolean exportUPELocally(File file)
-	{
-		UPEexport xmlExport = new UPEexport();
-		return xmlExport.export(getBrowser().getTreeModel(), file);
 	}
 	
 	/** 

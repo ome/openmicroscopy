@@ -33,12 +33,10 @@ import javax.swing.tree.TreeModel;
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
 import org.openmicroscopy.shoola.agents.editor.FileSaver;
-import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
-import org.openmicroscopy.shoola.agents.editor.model.UPEEditorExport;
-import org.openmicroscopy.shoola.agents.editor.model.UPEexport;
+import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 
 /** 
  * The Model component in the <code>Editor</code> MVC triad.
@@ -101,7 +99,7 @@ class EditorModel
 	 */
 	private boolean saveFile(File file)
 	{
-		UPEexport xmlExport = new UPEEditorExport();
+		CPEexport xmlExport = new CPEexport();
 		boolean saved = xmlExport.export(browser.getTreeModel(), file);
 		
 		if (saved) {

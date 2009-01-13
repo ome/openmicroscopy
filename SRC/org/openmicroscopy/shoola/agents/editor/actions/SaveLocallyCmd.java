@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.UPEFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -81,7 +80,6 @@ public class SaveLocallyCmd
 		
 		filters = new ArrayList<FileFilter>();
 		filters.add(new EditorFileFilter());
-		filters.add(new UPEFilter());
 	}
 
 	/**
@@ -140,12 +138,6 @@ public class SaveLocallyCmd
 						UIUtilities.showConfirmDialog(title, message)) {
 					return;
 				}
-			}
-			
-			// user chose UPE, this is "Export" not "Save". 
-			if (filter instanceof UPEFilter) {
-				model.exportUPELocally(file);
-				return;
 			}
 			
 			model.saveFileLocally(file);

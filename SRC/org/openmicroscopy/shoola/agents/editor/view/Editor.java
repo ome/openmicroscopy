@@ -157,16 +157,6 @@ public interface Editor
 	public boolean saveFileLocally(File file);
 	
 	/**
-	 * Exports the current file as a UPE xml file. 
-	 * The current file will not be "Saved" as not all the data from 
-	 * OMERO.editor is supported by UPE.
-	 * 
-	 * @param file		The location to export to (local file).
-	 * @return			True if the export was successful
-	 */
-	public boolean exportUPELocally(File file);
-	
-	/**
 	 * Saves the currently edited file to the server as a new file with
 	 * the given name.
 	 * 

@@ -52,7 +52,7 @@ public class EditorFileFilter
 	public static final String 	PRO_XML = "pro.xml";
 	
 	/** Possible file extension. */
-	public static final String 	OPE_XML = "ope.xml";
+	public static final String 	CPE_XML = "cpe.xml";
 	
 	/** The possible extensions. */
 	private static final String[] 	extensions;
@@ -62,7 +62,7 @@ public class EditorFileFilter
 	
 	static {
 		extensions = new String[2];
-		extensions[0] = OPE_XML;
+		extensions[0] = CPE_XML;
 		extensions[1] = PRO_XML;
 		String s = "OMERO.Editor (";
 		for (int i = 0; i < extensions.length; i++) {
@@ -84,7 +84,7 @@ public class EditorFileFilter
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
 	 */
-	public String getExtension() { return OPE_XML; }
+	public String getExtension() { return CPE_XML; }
 	
     /**
      * Overriden to return the description of the filter.

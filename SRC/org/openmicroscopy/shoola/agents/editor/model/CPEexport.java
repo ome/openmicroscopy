@@ -53,12 +53,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
- * This class is for exporting OMERO.editor files as "UPE" Universal Protocol 
- * Exchange XML files. It writes "strict" UPE files, according to our 
+ * This class is for exporting OMERO.editor files as "CPE" Common Protocol 
+ * Exchange XML files. It writes "strict" CPE files, according to our 
  * currently agreed format. 
- * A subclass {@link UPEEditorExport} adapts this export to support additional
- * features required by OMERO.editor files (eg parameters in context with 
- * descriptions). 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -68,12 +65,12 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * </small>
  * @since OME3.0
  */
-public class UPEexport {
+public class CPEexport {
 	
 	public static final String  	XML_HEADER = 
 							"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	
-	public static final String 		UPE_DTD = "<!DOCTYPE protocol-archive " +
+	public static final String 		CPE_DTD = "<!DOCTYPE protocol-archive " +
 		"PUBLIC \"-//Universal Protocol Exchange Format//DTD upe 1.0//EN\" " +
 		"\"http://genome.tugraz.at/iLAP/upe/upe.dtd\">";
 
@@ -81,8 +78,8 @@ public class UPEexport {
 	 * Reference to a style-sheet, so that when the XML is viewed in a 
 	 * browser (NOT FireFox!) the XML is transformed with remote stylesheet. 
 	 */
-	public static final String 		UPE_STYLESHEET ="<?xml-stylesheet " +
-	"href=\"http://users.openmicroscopy.org.uk/~will/schemas/upeEditor2html.xsl\""
+	public static final String 		CPE_STYLESHEET ="<?xml-stylesheet " +
+	"href=\"http://users.openmicroscopy.org.uk/~will/schemas/cpeEditor2html.xsl\""
 	+ " type=\"text/xsl\"?>";
 	
 	private int 					paramID = 0;
@@ -153,26 +150,6 @@ public class UPEexport {
 	}
 	
 	/**
-	 * In order to export to XML files that adhere to the current UPE format,
-	 * a step should have a description. This is a String representation
-	 * of the parameters in context with descriptions, since UPE does not
-	 * support parameters in context yet. 
-	 * This method can be overridden by subclasses that write an OMERO.editor 
-	 * file with the step description in context with parameters. 
-	 * 
-	 * @param field			The tree-model field/node which equates to a step
-	 * @param step			The XML step element to add the description to. 
-	 */
-	protected void addStepDescription(IField field, IXMLElement step) 
-	{
-		// description
-		String description = field.getDescription();
-		if (description.length() > 0) {
-			addChildContent(step, "description", description);
-		}
-	}
-	
-	/**
 	 * This method uses the parameters from the field (of the editor data model)
 	 * to build parameter XML elements, which are added to the <code>step</code>
 	 * element. 
@@ -214,10 +191,8 @@ public class UPEexport {
 	/**
 	 * Handles the creation of an XML element for a parameter.
 	 * If appropriate, the type of parameter will be NUMERIC or 
-	 * ENUMERATION, with the associated additional attributes. Otherwise
-	 * will be TEXT. No other types supported as yet by 'UPE'.
-	 * Need to use {@link UPEEditorExport#createParamElement(IParam)} which
-	 * will write parameter types not supported by 'UPE'.
+	 * ENUMERATION or DATE_TIME, with the associated additional attributes. 
+	 * Otherwise will be TEXT. No other types supported by 'CPE'
 	 * 
 	 * @param param			The parameter object 
 	 * @return				A new XML Element that defines the parameter
@@ -277,7 +252,7 @@ public class UPEexport {
 		
 		else {
 			// use a TEXT parameter to store any parameter type not 
-			// supported by UPE. 
+			// supported by CPE, eg. Ontology Term. 
 			addChildContent(parameter, "param-type", "TEXT");
 			String value = param.getParamValue();
 			if (value != null) {
@@ -355,7 +330,7 @@ public class UPEexport {
 	}
 
 	/**
-	 * Exports a UPE XML document created from the {@link TreeModel} to the
+	 * Exports a CPE XML document created from the {@link TreeModel} to the
 	 * {@link File} specified. 
 	 * 
 	 * @param treeModel			The OMERO.editor data model. 
@@ -416,8 +391,8 @@ public class UPEexport {
 			// output the XML file with suitable headers...
 			output = new FileWriter(file);
 			output.write(XML_HEADER + "\n");
-			output.write(UPE_STYLESHEET + "\n");
-			output.write(UPE_DTD + "\n");
+			output.write(CPE_STYLESHEET + "\n");
+			output.write(CPE_DTD + "\n");
 			XMLWriter xmlwriter = new XMLWriter(output);
 			xmlwriter.write(protocolArchive, true);
 		} catch (IOException e) {
