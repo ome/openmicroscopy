@@ -76,14 +76,22 @@ public class Plane2D
 	 * 
 	 * @param sizeY The number of pixels along the y-axis.
 	 */
-	private double[][] mappedDataAsDouble(int sizeY)
+	private double[][] mappedDataAsDouble(int sizeY, boolean transpose)
 	{
-		double[][] mappedData = new double[sizeX][sizeY];
+		double[][] mappedData;
+		if(transpose)
+			mappedData = new double[sizeY][sizeX];
+		else
+			mappedData = new double[sizeX][sizeY];
+	
 		int offset;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
 				offset = calculateOffset(x, y);
-				mappedData[x][y] = strategy.pack(data, offset, bytesPerPixel);
+				if(transpose)
+					mappedData[y][x] = (double)strategy.pack(data, offset, bytesPerPixel);
+				else
+					mappedData[x][y] = (double)strategy.pack(data, offset, bytesPerPixel);
 			}
 		}
 		return mappedData;
@@ -94,14 +102,22 @@ public class Plane2D
 	 * 
 	 * @param sizeY The number of pixels along the y-axis.
 	 */
-	private long[][] mappedDataAsLong(int sizeY)
+	private long[][] mappedDataAsLong(int sizeY, boolean transpose)
 	{
-		long[][] mappedData = new long[sizeX][sizeY];
+		long[][] mappedData;
+		if(transpose)
+			mappedData = new long[sizeY][sizeX];
+		else
+			mappedData = new long[sizeX][sizeY];
+	
 		int offset;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
 				offset = calculateOffset(x, y);
-				mappedData[x][y] = (long)strategy.pack(data, offset, bytesPerPixel);
+				if(transpose)
+					mappedData[y][x] = (long)strategy.pack(data, offset, bytesPerPixel);
+				else
+					mappedData[x][y] = (long)strategy.pack(data, offset, bytesPerPixel);
 			}
 		}
 		return mappedData;
@@ -112,14 +128,22 @@ public class Plane2D
 	 * 
 	 * @param sizeY The number of pixels along the y-axis.
 	 */
-	private int[][] mappedDataAsInt(int sizeY)
+	private int[][] mappedDataAsInt(int sizeY, boolean transpose)
 	{
-		int[][] mappedData = new int[sizeX][sizeY];
+		int[][] mappedData;
+		if(transpose)
+			mappedData = new int[sizeY][sizeX];
+		else
+			mappedData = new int[sizeX][sizeY];
+		
 		int offset;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
 				offset = calculateOffset(x, y);
-				mappedData[x][y] = (int)strategy.pack(data, offset, bytesPerPixel);
+				if(transpose)
+					mappedData[y][x] = (int)strategy.pack(data, offset, bytesPerPixel);
+				else
+					mappedData[x][y] = (int)strategy.pack(data, offset, bytesPerPixel);
 			}
 		}
 		return mappedData;
@@ -130,14 +154,22 @@ public class Plane2D
 	 * 
 	 * @param sizeY The number of pixels along the y-axis.
 	 */
-	private short[][] mappedDataAsShort(int sizeY)
+	private short[][] mappedDataAsShort(int sizeY, boolean transpose)
 	{
-		short[][] mappedData = new short[sizeX][sizeY];
+		short[][] mappedData;
+		if(transpose)
+			mappedData = new short[sizeY][sizeX];
+		else
+			mappedData = new short[sizeX][sizeY];
+
 		int offset;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
 				offset = calculateOffset(x, y);
-				mappedData[x][y] = (short)strategy.pack(data, offset, bytesPerPixel);
+				if(transpose)
+					mappedData[y][x] = (short)strategy.pack(data, offset, bytesPerPixel);
+				else
+					mappedData[x][y] = (short)strategy.pack(data, offset, bytesPerPixel);
 			}
 		}
 		return mappedData;
@@ -148,14 +180,22 @@ public class Plane2D
 	 * 
 	 * @param sizeY The number of pixels along the y-axis.
 	 */
-	private byte[][] mappedDataAsByte(int sizeY)
+	private byte[][] mappedDataAsByte(int sizeY, boolean transpose)
 	{
-		byte[][] mappedData = new byte[sizeX][sizeY];
+		byte[][] mappedData;
+		if(transpose)
+			mappedData = new byte[sizeY][sizeX];
+		else
+			mappedData = new byte[sizeX][sizeY];
+	
 		int offset;
 		for (int x = 0; x < sizeX; x++) {
 			for (int y = 0; y < sizeY; y++) {
 				offset = calculateOffset(x, y);
-				mappedData[x][y] = (byte)strategy.pack(data, offset, bytesPerPixel);
+				if(transpose)
+					mappedData[y][x] = (byte)strategy.pack(data, offset, bytesPerPixel);
+				else
+					mappedData[x][y] = (byte)strategy.pack(data, offset, bytesPerPixel);
 			}
 		}
 		return mappedData;
@@ -183,47 +223,57 @@ public class Plane2D
 
 	/**
 	 * Return the pixels array of the mapped data.
+	 * @param transpose transpose the mapped array (used for row, col matrices 
+	 * of matlab)
 	 * @return see above.
 	 */
-	public double[][] getPixelsArrayAsDouble()
+	public double[][] getPixelsArrayAsDouble(boolean transpose)
 	{
-		return mappedDataAsDouble(sizeY);
+		return mappedDataAsDouble(sizeY, transpose);
 	}
 
 	/**
 	 * Return the pixels array of the mapped data.
+	 * @param transpose transpose the mapped array (used for row, col matrices 
+	 * of matlab)
 	 * @return see above.
 	 */
-	public long[][] getPixelsArrayAsLong()
+	public long[][] getPixelsArrayAsLong(boolean transpose)
 	{
-		return mappedDataAsLong(sizeY);
+		return mappedDataAsLong(sizeY, transpose);
 	}
 
 	/**
 	 * Return the pixels array of the mapped data.
+	 * @param transpose transpose the mapped array (used for row, col matrices 
+	 * of matlab)
 	 * @return see above.
 	 */
-	public int[][] getPixelsArrayAsInt()
+	public int[][] getPixelsArrayAsInt(boolean transpose)
 	{
-		return mappedDataAsInt(sizeY);
+		return mappedDataAsInt(sizeY, transpose);
 	}
 
 	/**
 	 * Return the pixels array of the mapped data.
+	 * @param transpose transpose the mapped array (used for row, col matrices 
+	 * of matlab)
 	 * @return see above.
 	 */
-	public short[][] getPixelsArrayAsShort()
+	public short[][] getPixelsArrayAsShort(boolean transpose)
 	{
-		return mappedDataAsShort(sizeY);
+		return mappedDataAsShort(sizeY, transpose);
 	}
 
 	/**
 	 * Return the pixels array of the mapped data.
+	 * @param transpose transpose the mapped array (used for row, col matrices 
+	 * of matlab)
 	 * @return see above.
 	 */
-	public byte[][] getPixelsArrayAsByte()
+	public byte[][] getPixelsArrayAsByte(boolean transpose)
 	{
-		return mappedDataAsByte(sizeY);
+		return mappedDataAsByte(sizeY, transpose);
 	}
 	
 }
