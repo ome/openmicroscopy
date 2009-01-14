@@ -495,14 +495,14 @@ class client(object):
             self.__previous.properties = oldIc.getProperties().clone()
 
             try:
-                self.getRouter(oldIc).destroySession()
-            except Glacier2.SessionNotExistException:
-                # ok. We don't want it to exist
-                pass
-            except Ice.ConnectionLostException:
-                # ok. Exception will always be thrown
-                pass
-
+                try:
+                    self.getRouter(oldIc).destroySession()
+                except Glacier2.SessionNotExistException:
+                    # ok. We don't want it to exist
+                    pass
+                except Ice.ConnectionLostException:
+                    # ok. Exception will always be thrown
+                    pass
             finally:
                 oldIc.destroy()
 
