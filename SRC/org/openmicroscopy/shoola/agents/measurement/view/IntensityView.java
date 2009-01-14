@@ -1218,6 +1218,9 @@ class IntensityView
 		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		if(coord.equals(thisCoord))
 			return;
+		if(!pixelStats.containsKey(thisCoord))
+			return;
+	
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
 		if(!nameMap.containsKey(string))
@@ -1227,16 +1230,17 @@ class IntensityView
 		}
 		selectedChannelName = string;
 		int channel = nameMap.get(string);
+		if(channel == -1)
+			return;
+		if(!pixelStats.get(thisCoord).containsKey(channel))
+			return;
 		
-		if(channel!=-1)
-		{
-			state = State.ANALYSING;
-			populateData(thisCoord, channel);
-			repaint();
-			if(shape!=null)
-				view.selectFigure(shape.getFigure());
-			state=State.READY;
-		}
+		state = State.ANALYSING;
+		populateData(thisCoord, channel);
+		repaint();
+		if(shape!=null)
+			view.selectFigure(shape.getFigure());
+		state=State.READY;
 	}
 	
 }

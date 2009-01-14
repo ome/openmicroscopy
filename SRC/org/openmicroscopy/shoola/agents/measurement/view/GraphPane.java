@@ -212,6 +212,9 @@ class GraphPane
 		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		if(coord.equals(thisCoord))
 			return;
+		if(!pixelStats.containsKey(thisCoord))
+			return;
+	
 		state = ANALYSING;
 		this.buildGraphsAndDisplay();
 		state=READY;
