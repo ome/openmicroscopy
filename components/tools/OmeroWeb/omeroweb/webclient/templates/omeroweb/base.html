@@ -14,7 +14,7 @@
 
 <div id="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb">{{ eContext.user.getFullName }}@<a href="{% get_webclient_root_url %}/"/>{{ nav.blitz }}</a></li>
+        <li class="breadcrumb">{{ eContext.user.omeName }}@<a href="{% get_webclient_root_url %}/"/>{{ nav.blitz }}</a></li>
         {% for b in eContext.breadcrumb %}
             <li class="breadcrumb"> > {{ b|safe }}</li>
         {% endfor %}

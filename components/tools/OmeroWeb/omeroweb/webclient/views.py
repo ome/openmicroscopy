@@ -1333,24 +1333,22 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                         'world': ((manager.image.details.permissions.isWorldRead() and 'r' or ''), (manager.image.details.permissions.isWorldWrite() and 'w' or ''))})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'move':
-        message = "done"
         parent = request.REQUEST['parent'].split('-')
         source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
         if not manager.move(parent,source, destination):
             return False
-        template = "omeroweb/message.html"
         try:
             if parent[1] == destination[1]:
-                message = "nothing changed"
+                return False
         except:
-            pass
+            return False
         try:
             if parent[0] == "0" and destination[0] == "0":
-                message = "nothing changed"
+                return False
         except:
-            pass
-        context = {'message': message}
+            return False
+        return HttpResponse()
     elif action == 'copy':
         #TODO
         pass

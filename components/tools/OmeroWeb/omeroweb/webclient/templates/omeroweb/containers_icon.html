@@ -114,21 +114,19 @@
 
 {% if manager.dataset %}
     <div class="toolbar">
-        Toolbar 
-        {% if manager.dataset.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>{% endif %}
-        <a href="#" onclick="copyToClipboard('dataset', '{{ manager.dataset..id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>
-        <a href="#" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>
-        {% if manager.dataset.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} 
+        | {% if manager.dataset.isOwned %}Select <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
+        Copy <a href="#" onclick="copyToClipboard('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
+        Paste <a href="#" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>
+        {% if manager.dataset.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
     </div>
     <div class="separate70"></div>
 {% else %}
     {% if manager.project %}
         <div class="toolbar">
-            Toolbar 
-            {% if manager.project.isOwned %}<a href="#" onclick="toBasket('project', '{{ manager.project.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>{% endif %} 
-            <a href="#" onclick="copyToClipboard('project', '{{ manager.project..id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>
-            <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>
-            {% if manager.project.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
+            | {% if manager.project.isOwned %}Select <a href="#" onclick="toBasket('project', '{{ manager.project.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>{% endif %} 
+            Copy <a href="#" onclick="copyToClipboard('project', '{{ manager.project..id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
+            Paste <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>
+            {% if manager.project.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
         </div>
         <div class="separate70"></div>
     {% endif %}

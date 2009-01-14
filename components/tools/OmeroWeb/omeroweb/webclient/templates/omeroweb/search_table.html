@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block center %}
-
+    <p>
     <form action="{% get_webclient_root_url %}/search/" method="GET">
         <table>
             <tr><th>Query *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/></td></tr>
@@ -65,7 +65,9 @@
         <input type="hidden" name="view" value="{{ nav.view }}" />
         <input type="submit" value="Search" /> <input type="button" value="Back" onClick="history.back()" />
     </form>
-
+    </p>
+    <div class="separate70"></div>
+    
     {% if controller.resultsSize %}
     <div><h1>Results ({{ controller.resultsSize }} items):</h1>
 

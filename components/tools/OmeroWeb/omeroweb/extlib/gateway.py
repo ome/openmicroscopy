@@ -103,7 +103,7 @@ class BlitzGateway (threading.Thread):
     
     def seppuku (self):
         try:
-            logger.debug("Connection will be closed [%s]" % (self.c.getRouter()))
+            logger.debug("Connection will be closed [%s]" % (self.c.getRouter(self.c.ic)))
         except:
             logger.debug("Connection will be closed.")
             logger.debug(traceback.format_exc())
@@ -170,7 +170,7 @@ class BlitzGateway (threading.Thread):
             self._last_error = x
             raise x
         else:
-            logger.info("'%s' (id:%i) is connected to %s sessionUuid: %s" % (self._eventContext.userName, self._eventContext.userId, self.c.getRouter(), self._eventContext.sessionUuid))
+            logger.info("'%s' (id:%i) is connected to %s sessionUuid: %s" % (self._eventContext.userName, self._eventContext.userId, self.c.getRouter(self.c.ic), self._eventContext.sessionUuid))
             return True
     
     def connectAsGuest (self):
@@ -205,7 +205,7 @@ class BlitzGateway (threading.Thread):
             self._last_error = x
             raise x
         else:
-            logger.info("Guest is connected to %s" % (self.c.getRouter()))
+            logger.info("Guest is connected to %s" % (self.c.getRouter(self.c.ic)))
             return True
     
     def getLastError (self):
@@ -1708,9 +1708,9 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 60:
+            if l < 55:
                 return name
-            return "..." + name[l - 60:]
+            return "..." + name[l - 55:]
         except:
             logger.debug(traceback.format_exc())
             return self._obj.name.val
@@ -1719,15 +1719,15 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 20:
+            if l <= 20:
                 return name
-            elif l >= 20 and l < 60:
+            elif l > 20 and l <= 52:
                 splited = []
                 for v in range(0,len(name),20):
                     splited.append(name[v:v+20]+" ")
                 return "".join(splited)
-            elif l >= 60:
-                nname = "..." + name[l - 56:]
+            elif l > 52:
+                nname = "..." + name[l - 52:]
                 splited = list()
                 for v in range(0,len(nname),20):
                     splited.append(nname[v:v+20]+" ")
@@ -1740,15 +1740,15 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 20:
+            if l <= 20:
                 return name
-            elif l >= 20 and l < 40:
+            elif l > 20 and l < 30:
                 splited = []
                 for v in range(0,len(name),20):
                     splited.append(name[v:v+20])
                 return "".join(splited)
-            elif l >= 40:
-                nname = "..." + name[l - 36:]
+            elif l >= 30:
+                nname = "..." + name[l - 30:]
                 return nname
         except:
             logger.debug(traceback.format_exc())
@@ -1758,7 +1758,20 @@ class BlitzObjectWrapper (object):
         try:
             desc = self._obj.description
             if desc == None or desc.val == "":
-                return "-"
+                return None
+            l = len(desc.val)
+            if l < 375:
+                return desc.val
+            return desc.val[:375] + "..."
+        except:
+            logger.debug(traceback.format_exc())
+            return self._obj.description.val
+    
+    def tinyDescription(self):
+        try:
+            desc = self._obj.description
+            if desc == None or desc.val == "":
+                return None
             l = len(desc.val)
             if l < 30:
                 return desc.val

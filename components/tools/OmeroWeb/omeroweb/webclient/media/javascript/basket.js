@@ -85,7 +85,7 @@ function pasteFromClipboard (destinationType, destinationId, url) {
                 window.location = url
             },
             error: function(responce) {
-                alert("Could not paste.")
+                alert("Could not be pasted. You are trying to copy to the wrong place or duplicate the same element.")
             }
         });
     }

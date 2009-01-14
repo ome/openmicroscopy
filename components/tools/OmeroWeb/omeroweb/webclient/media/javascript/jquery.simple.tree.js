@@ -446,10 +446,10 @@ $.fn.simpleTree = function(opt){
         				var pos = $(dragNode_source).prevAll(':not(.line)').size();
         				TREE.option.afterMove($(node).parents('li:first'), $(dragNode_source), pos);
         			}
-        			alert(responce);
+        			//alert(responce);
 				},
 				error: function(responce) {
-            		alert("Action not possible.")
+            		alert("Could not be moved. You are trying to move to the wrong place or duplicate the same element.")
 				}
 			});
 		};

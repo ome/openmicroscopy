@@ -69,7 +69,7 @@
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.group.getOwner }}</td>
-            <td class="desc">{{ dict.group.shortDescription|default_if_none:"-" }}</td>
+            <td class="desc">{{ dict.group.tinyDescription|default_if_none:"-" }}</td>
         </tr>
     {% endfor %}
   </tbody>
