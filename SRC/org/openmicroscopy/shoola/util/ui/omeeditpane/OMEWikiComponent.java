@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -164,7 +165,7 @@ public class OMEWikiComponent
 	private String			defaultText;
 	
 	/** Installs the default actions.  */
-	private void installDefaultToolBarAction()
+	private void installDefaultAction()
 	{
 		toolBarActions = new ArrayList<JButton>();
 		IconManager icons = IconManager.getInstance();
@@ -190,48 +191,69 @@ public class OMEWikiComponent
 	/**
 	 * Creates a new component.
 	 * 
-	 * @param formatters The formatters for the text.
+	 * @param formatters 	The formatters for the text.
+	 * @param toolbar		Pass <code>true</code> to install a default toolbar, 
+	 * 						<code>false</code> otherwise.
 	 */
-	private void initComponents(Map<String, FormatSelectionAction> formatters)
+	private void initComponents(Map<String, FormatSelectionAction> formatters,
+								boolean toolbar)
 	{
 		defaultText = "";
 		pane = new OMEEditPane(this, formatters);
-		toolBar = new JToolBar();
-		toolBar.setBorder(null);
-		toolBar.setFloatable(false);
-		installDefaultToolBarAction();
-		Iterator<JButton> b = toolBarActions.iterator();
-		while (b.hasNext()) 
-			toolBar.add(b.next());
+		installDefaultAction();
+		if (toolbar) {
+			toolBar = new JToolBar();
+			toolBar.setBorder(null);
+			toolBar.setFloatable(false);
+			Iterator<JButton> b = toolBarActions.iterator();
+			while (b.hasNext()) 
+				toolBar.add(b.next());
+		}
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(Box.createVerticalStrut(5));
-		JPanel bar = UIUtilities.buildComponentPanel(toolBar, 0, 0);
-		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(bar);
-		add(p, BorderLayout.NORTH);
+		if (toolBar != null) {
+			JPanel p = new JPanel();
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			p.add(Box.createVerticalStrut(5));
+			JPanel bar = UIUtilities.buildComponentPanel(toolBar, 0, 0);
+			bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.add(bar);
+			add(p, BorderLayout.NORTH);
+		}
 		add(pane, BorderLayout.CENTER);
 	}
 	
 	/** Creates a default new instance. */
 	public OMEWikiComponent()
 	{
-		this(DEFAULT_FORMATTERS);
+		this(DEFAULT_FORMATTERS, true);
+	}
+	
+	/**
+	 * Creates a new instance with default formatters.
+	 * 
+	 * @param toolBar 	Pass <code>true</code> to install a default toolbar, 
+	 * 					<code>false</code> otherwise.
+	 */
+	public OMEWikiComponent(boolean toolBar)
+	{
+		this(DEFAULT_FORMATTERS, toolBar);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param formatters The formatters for the text.
+	 * @param formatters 	The formatters for the text.
+	 * @param toolBar		Pass <code>true</code> to install a default toolbar,
+	 * 						<code>false</code> otherwise.
 	 */
-	public OMEWikiComponent(Map<String, FormatSelectionAction> formatters)
+	public OMEWikiComponent(Map<String, FormatSelectionAction> formatters, 
+			boolean toolBar)
 	{
 		Iterator<String> i = DEFAULT_FORMATTERS.keySet().iterator();
 		String key;
@@ -240,7 +262,7 @@ public class OMEWikiComponent
 			if (!formatters.containsKey(key))
 				formatters.put(key, DEFAULT_FORMATTERS.get(key));
 		}
-		initComponents(formatters);
+		initComponents(formatters, toolBar);
 		buildGUI();
 	}
 	
@@ -366,6 +388,25 @@ public class OMEWikiComponent
 		if (pane != null) pane.setForeground(color);
 	}
 
+	/**
+	 * Overridden to set the font of {@link #pane}.
+	 * @see JPanel#setFont(Font)
+	 */
+	public void setFont(Font font)
+	{
+		if (pane != null) pane.setFont(font);
+	}
+	
+	/**
+	 * Overridden to set the font of {@link #pane}.
+	 * @see JPanel#getFont()
+	 */
+	public Font getFont()
+	{
+		if (pane == null) return super.getFont();
+		return pane.getFont();
+	}
+	
 	/**
 	 * Inserts text depending on the action.
 	 * @see ActionListener#actionPerformed(ActionEvent)

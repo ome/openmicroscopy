@@ -155,6 +155,17 @@ class EditorControl
 	}
 	
 	/**
+	 * Posts an event to view the image.
+	 * 
+	 * @param imageName The name of the image.
+	 */
+	private void viewImage(String imageName)
+	{
+		//EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		//bus.post(new ViewImage(imageID, null));
+	}
+	
+	/**
 	 * Posts an event to view the protocol.
 	 * 
 	 * @param protocolID The id of the protocol to view.
@@ -252,9 +263,12 @@ class EditorControl
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			long id;
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
-					viewImage(object.getId());
+					id = object.getId();
+					if (id < 0) viewImage(object.getName());
+					else viewImage(id);
 					break;
 				case WikiDataObject.PROTOCOL:
 					viewProtocol(object.getId());

@@ -47,6 +47,8 @@ import layout.TableLayout;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -99,7 +101,7 @@ class PropertiesUI
     private JTextArea			namePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
-    private JTextArea			descriptionPane;
+    private OMEWikiComponent	descriptionPane;
     
     /** The component hosting the id of the <code>DataObject</code>. */
     private JLabel				idLabel;
@@ -113,6 +115,9 @@ class PropertiesUI
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
 
+	/** Reference to the control. */
+	private EditorControl		controller;
+	
 	/**
      * Builds the panel hosting the information
      * 
@@ -252,8 +257,15 @@ class PropertiesUI
        	f = idLabel.getFont();
        	idLabel.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	namePane = createTextPane();
-    	descriptionPane = createTextPane();
-    	descriptionPane.setLineWrap(true);
+    	descriptionPane = new OMEWikiComponent(false);
+    	descriptionPane.addPropertyChangeListener(controller);
+    	descriptionPane.setDefaultText(DEFAULT_TEXT);
+    	descriptionPane.setText(DEFAULT_TEXT);
+    	descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
+    	//descriptionPane = createTextPane();
+    	//descriptionPane.setLineWrap(true);
     	f = namePane.getFont();
     	namePane.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
     	f = descriptionPane.getFont();
@@ -302,12 +314,17 @@ class PropertiesUI
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the {@link EditorModel}.
-     * 				Mustn't be <code>null</code>.                            
+     * @param model 		Reference to the {@link EditorModel}.
+     * 						Mustn't be <code>null</code>.   
+     * @param controller 	Reference to the {@link EditorControl}.
+     * 						Mustn't be <code>null</code>.                             
      */
-    PropertiesUI(EditorModel model)
+    PropertiesUI(EditorModel model, EditorControl controller)
     {
        super(model);
+       if (controller == null)
+    	   throw new IllegalArgumentException("No control.");
+       this.controller = controller;
        title = TITLE;
        initComponents();
        buildGUI();
@@ -321,7 +338,7 @@ class PropertiesUI
 	{
 		removeAll();
 		namePane.getDocument().removeDocumentListener(this);
-		descriptionPane.getDocument().removeDocumentListener(this);
+		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		namePane.setText(originalName);
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
@@ -337,7 +354,7 @@ class PropertiesUI
         descriptionPane.setEnabled(b);
         if (b) {
         	namePane.getDocument().addDocumentListener(this);
-        	descriptionPane.getDocument().addDocumentListener(this);
+        	descriptionPane.addDocumentListener(this);
         }
         if (model.getRefObject() instanceof TagAnnotationData) {
         	namePane.getDocument().removeDocumentListener(this);
@@ -352,7 +369,7 @@ class PropertiesUI
 		if (!(model.getRefObject() instanceof TagAnnotationData))  return;
 		boolean b = model.isCurrentUserOwner(model.getRefObject());
 		if (b)
-			descriptionPane.getDocument().removeDocumentListener(this);
+			descriptionPane.removeDocumentListener(this);
 		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		List l = annotations.get(userID);
@@ -362,7 +379,7 @@ class PropertiesUI
 			originalDescription = descriptionPane.getText();
 		}
 		if (b)
-			descriptionPane.getDocument().addDocumentListener(this);
+			descriptionPane.addDocumentListener(this);
 	}
 	
     /** Sets the focus on the name area. */

@@ -183,9 +183,7 @@ class TextualAnnotationsUI
 		commentArea = new OMEWikiComponent();
 		commentArea.addPropertyChangeListener(controller);
 		commentArea.setDefaultText(DEFAULT_TEXT);
-		//commentArea.addFocusListener(this);
 		commentArea.setText(DEFAULT_TEXT);
-		//commentArea.setEditable(true);
 		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 	}

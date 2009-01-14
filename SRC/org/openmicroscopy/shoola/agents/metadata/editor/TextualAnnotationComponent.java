@@ -27,17 +27,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
 import pojos.TextualAnnotationData;
 
 /** 

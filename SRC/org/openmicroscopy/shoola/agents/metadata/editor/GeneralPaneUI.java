@@ -114,7 +114,7 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		propertiesUI = new PropertiesUI(model);
+		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
 		annotationUI = new AnnotationDataUI(model, controller);
 

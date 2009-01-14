@@ -2438,14 +2438,6 @@ class ImViewerComponent
 				view.getProjectionEndZ(), view.getProjectionStepping(), 
 				view.getProjectionType(), view.getProjectionTypeName(), ref);
 		fireStateChange();
-		/*
-		if (projection == null) return;
-		if (!projection.isVisible()) return;
-		if (ref == null) 
-			throw new IllegalArgumentException("No projection object");
-		model.fireProjectImage(ref);
-		fireStateChange();
-		*/
 	}
 
 	/** 
@@ -2482,11 +2474,6 @@ class ImViewerComponent
 		if (model.getState() != LOADING_PROJECTION_DATA)
 			throw new IllegalArgumentException("This method can only be " +
 					"invoked in the LOADING_PROJECTION_DATA state.");
-		/*
-		if (projection == null) return;
-		if (!projection.isVisible()) return;
-		projection.setContainers(containers);
-		*/
 		//Create a modal dialog.	
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		model.setContainers(containers);
@@ -2503,10 +2490,6 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
-		/*
-		if (projection == null) return;
-		if (!projection.isVisible()) return;
-		*/
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		if (model.getContainers() == null) {
 			model.fireContainersLoading();
@@ -2527,16 +2510,15 @@ class ImViewerComponent
 			message = "An error has occurred while creating the " +
 			"projected image.";
 			un.notifyInfo("Projection", message);
-			return;
-		}
-		if (applySettings) {
-			//projection.setStatus("Applying Rendering settings", false);
-			model.fireProjectedRndSettingsCreation(indexes, image);
-			fireStateChange();
+			model.setState(READY);
 		} else {
-			notifyProjection("The projected image has been " +
-					"successfully created.", image);
+			if (applySettings) 
+				model.fireProjectedRndSettingsCreation(indexes, image);
+			else
+				notifyProjection("The projected image has been " +
+						"successfully created.", image);
 		}
+		fireStateChange();
 	}
 
 	/** 
@@ -2547,13 +2529,14 @@ class ImViewerComponent
 	{
 		String message;
 		if (result)
-			message = "The projected image and the rendering settings\n have" +
+			message = "The projected image and the rendering settings\nhave" +
 					" been successfully created.";
 		else
 			message = "An error has occurred while copying the " +
 			"rendering settings of the projected image.";
 		
 		notifyProjection(message, image);
+		fireStateChange();
 	}
 
 	/** 

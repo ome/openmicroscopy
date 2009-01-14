@@ -51,8 +51,11 @@ class ElementSelectionAction
 	/** One of the constants defined by {@link WikiDataObject}. */
 	private int 			index;
 
-	/** The object id. */
+	/** The id of the object. */
 	private long			id;
+	
+	/** The name of the object. */
+	private String			name;
 	
 	/**
 	 * Creates a new instance.
@@ -79,6 +82,13 @@ class ElementSelectionAction
 	 */
 	long getObjectID() { return id; }
 	
+	/** 
+	 * Returns the name of the object. 
+	 * 
+	 * @return See above.
+	 */
+	String getObjectName() { return name; }
+	
 	/**
 	 * Implemented as specified by {@link SelectionAction} I/F
 	 * @see SelectionAction#onSelection(String)
@@ -94,8 +104,17 @@ class ElementSelectionAction
 			index++; 
 		}
 		String value = tok[2];
-		if (value != null && value.length() > 0)
-			id = Long.parseLong(value);
+		String key = tok[1];
+		if (key != null) {
+			key = key.trim().toLowerCase();
+			if (OMEWikiConstants.REF_ID.equals(key)) {
+				if (value != null && value.length() > 0)
+					id = Long.parseLong(value);
+			} else if (OMEWikiConstants.REF_ID.equals(key)) {
+				name = value;
+			}
+		}
+		
 	}
 	
 }

@@ -44,6 +44,12 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 class OMEWikiConstants 
 {
 
+	/** Identifies the <code>id</code> token. */
+	static final String	REF_ID = "id";
+	
+	/** Identifies the <code>name</code> token. */
+	static final String	REF_NAME = "name";
+	
 	/** Regex expression for number. */
 	static  final String NUMBERREGEX = "[a-zA-Z0-9]";
 	

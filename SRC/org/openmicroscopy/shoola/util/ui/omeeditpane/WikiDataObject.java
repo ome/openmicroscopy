@@ -60,10 +60,13 @@ public class WikiDataObject
 	public static final int PROTOCOL = 4;
 	
 	/** One of the constants defined by this class. */
-	private int index;
+	private int 	index;
 
 	/** The id of the object. */
-	private long id;
+	private long 	id;
+	
+	/** The name of the object. */
+	private String 	name;
 	
 	/**
 	 * Controls if the index is supported.
@@ -98,6 +101,20 @@ public class WikiDataObject
 	}
 	
 	/**
+	 * Creates a new instance.
+	 * 
+	 * @param index One of the constants defined by this class.
+	 * @param name	The name of the object.
+	 */
+	WikiDataObject(int index, String name)
+	{
+		checkIndex(index);
+		this.index = index;
+		this.name = name;
+		id = -1;
+	}
+	
+	/**
 	 * Returns the index.
 	 * 
 	 * @return See above.
@@ -110,5 +127,12 @@ public class WikiDataObject
 	 * @return See above.
 	 */
 	public long getId() { return id; }
+	
+	/**
+	 * Returns the name of the object.
+	 * 
+	 * @return See above.
+	 */
+	public String getName() { return name; }
 	
 }
