@@ -145,7 +145,7 @@ class ImViewerComponent
 
 	/** 
 	 * Flag indicating that the rendering settings have been saved
-	 * before copying the 
+	 * before copying.
 	 */
 	private boolean							saveBeforeCopy;
 
@@ -278,10 +278,10 @@ class ImViewerComponent
 	{
 		if (saveBeforeCopy) {
 			try {
-				RndProxyDef def = model.getOriginalDef();
-				model.resetMappingSettings(def, false);
+				//RndProxyDef def = model.getOriginalDef();
+				//model.resetMappingSettings(def, false);
 				model.saveRndSettings(false);
-				model.setLastRndDef(def);
+				//model.setLastRndDef(def);
 			} catch (Exception e) {
 				LogMessage logMsg = new LogMessage();
 				logMsg.println("Cannot save rendering settings. ");
@@ -2297,11 +2297,8 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		Map m = model.getRenderingSettings();
 		view.setLocationAndSource(source, location);
-		if (m == null)
-			model.fireRenderingSettingsRetrieval();
-		else {
-			view.showUsersList();
-		}
+		if (m == null) model.fireRenderingSettingsRetrieval();
+		else view.showUsersList();
 	}
 
 	/** 

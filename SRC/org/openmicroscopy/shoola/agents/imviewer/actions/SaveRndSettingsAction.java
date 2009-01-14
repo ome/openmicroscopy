@@ -81,10 +81,8 @@ public class SaveRndSettingsAction
     	if (model.getState() == ImViewer.READY) {
     		if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
-    		else {
-    			
+    		else 
     			setEnabled(!model.isOriginalSettings());
-    		}
     	}
     }
     

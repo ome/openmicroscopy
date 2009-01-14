@@ -1065,11 +1065,21 @@ class ImViewerModel
 	{
 		if (currentRndControl != null) {
 			RndProxyDef def = currentRndControl.saveCurrentSettings();
+			/*
 			if (reset) originalDef = def;
 			if (def != null) {
 				if (renderingSettings != null) 
 					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
 			}
+			*/
+			if (reset) {
+				originalDef = def;
+				if (def != null) {
+					if (renderingSettings != null) 
+						renderingSettings.put(ImViewerAgent.getUserDetails(), def);
+				}
+			}
+			
 		}
 	}
 
