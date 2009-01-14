@@ -60,15 +60,17 @@ public class RenderingSettingsLoader
 	 * Creates a {@link BatchCall} to retrieve rendering settings.
 	 * 
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
-	 * @return          The {@link BatchCall}.
+	 * @param userID	The id of the user the settings are related to or 	
+	 * 					<code>-1</code>.
+	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeBatchCall(final long pixelsID)
+	private BatchCall makeBatchCall(final long pixelsID, final long userID)
 	{
 		return new BatchCall("Loading rendering settings: ") {
 			public void doCall() throws Exception
 			{
 				OmeroImageService rds = context.getImageService();
-				result = rds.getRenderingSettings(pixelsID);
+				result = rds.getRenderingSettings(pixelsID, userID);
 			}
 		};
 	} 
@@ -93,12 +95,13 @@ public class RenderingSettingsLoader
 	 * early and in the caller's thread.
 	 * 
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
+	 * @param userID	The id of the user.
 	 */
-	public RenderingSettingsLoader(long pixelsID)
+	public RenderingSettingsLoader(long pixelsID, long userID)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("ID not valid.");
-		loadCall = makeBatchCall(pixelsID);
+		loadCall = makeBatchCall(pixelsID, userID);
 	}
 
 }

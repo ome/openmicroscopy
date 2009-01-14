@@ -224,6 +224,7 @@ public class ManageObjectAction
 	public ManageObjectAction(DataBrowser model, int index)
 	{
 		super(model);
+		setEnabled(false);
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;

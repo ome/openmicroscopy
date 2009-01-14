@@ -1079,7 +1079,7 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		OmeroImageService rds = context.getImageService();
-		Map settings = rds.getRenderingSettings(pixelsID);
+		Map settings = rds.getRenderingSettings(pixelsID, -1);
 		List<ViewedByDef> list = new ArrayList<ViewedByDef>();
 		if (settings != null) {
 			 Iterator i = settings.keySet().iterator();

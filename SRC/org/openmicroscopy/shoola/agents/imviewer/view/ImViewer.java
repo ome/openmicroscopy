@@ -129,6 +129,9 @@ public interface ImViewer
 	/** Flag to denote the <i>projecting</i> state. */
 	public static final int     PROJECTING = 13;
 	
+	/** Flag to denote the <i>Pasting settings</i> state. */
+	public static final int     PASTING = 14;
+	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
 
@@ -947,5 +950,12 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public boolean isOriginalSettings();
+
+	/**
+	 * Sets the rendering settings to paste.
+	 * 
+	 * @param rndProxyDef The settings to paste.
+	 */
+	public void setSettingsToPaste(RndProxyDef rndProxyDef);
 	
 }

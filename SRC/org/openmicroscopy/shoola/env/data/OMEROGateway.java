@@ -2856,6 +2856,7 @@ class OMEROGateway
 	 * of pixels.
 	 * 
 	 * @param pixelsID	The pixels ID.
+	 * @param userID	The id of the user.
 	 * @return Map whose key is the experimenter who set the settings,
 	 * 		  and the value is the rendering settings itself.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -2863,12 +2864,15 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map getRenderingSettings(long pixelsID)
+	Map getRenderingSettings(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Map map = new HashMap();
 		isSessionAlive();
 		try {
+			Parameters param = new ParametersI();
+			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
+			
 			String sql =  "select rdef from RenderingDef as rdef "
                 + "left outer join fetch rdef.quantization "
                 + "left outer join fetch rdef.model "
@@ -2877,9 +2881,13 @@ class OMEROGateway
                 + "left outer join fetch rdef.spatialDomainEnhancement " 
                 + "left outer join fetch rdef.details.owner "
                 + "where rdef.pixels.id = :pixid";
+			if (userID >= 0) {
+				sql += " and rdef.details.owner.id = :userid";
+				param.map.put("userid", omero.rtypes.rlong(userID));
+			}
+			
 			IQueryPrx service = getQueryService();
-			Parameters param = new ParametersI();
-			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
+			
 			List results = service.findAllByQuery(sql, param);
 			if (results == null || results.size() == 0) return map;
 			Iterator i = results.iterator();

@@ -542,5 +542,10 @@ abstract class DataBrowserModel
     protected abstract int getType(); 
     
     protected abstract Set<ImageDisplay> getNodes();
+
+	boolean hasRndSettings() {
+		// TODO Auto-generated method stub
+		return false;
+	}
     
 }

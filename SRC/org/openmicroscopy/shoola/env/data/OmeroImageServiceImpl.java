@@ -386,12 +386,12 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#getRenderingSettings(long)
+	 * @see OmeroImageService#getRenderingSettings(long, long)
 	 */
-	public Map getRenderingSettings(long pixelsID) 
+	public Map getRenderingSettings(long pixelsID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Map m = gateway.getRenderingSettings(pixelsID);
+		Map m = gateway.getRenderingSettings(pixelsID, userID);
 		if (m == null) return null;
 		Iterator i = m.keySet().iterator();
 		Object key;

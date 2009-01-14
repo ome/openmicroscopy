@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import javax.swing.Action;
 
@@ -55,6 +57,7 @@ import pojos.ImageData;
  */
 public class ManageRndSettingsAction 
 	extends DataBrowserAction
+	implements PropertyChangeListener
 {
 
 	/** Identified the copy action. */
@@ -172,6 +175,10 @@ public class ManageRndSettingsAction
 	    		else setEnabled(ho instanceof ImageData);
 				break;
 			case PASTE:
+				if (!model.hasRndSettings()) {
+					setEnabled(false);
+					return;
+				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData))
 						setEnabled(false);
 				else {
@@ -201,9 +208,11 @@ public class ManageRndSettingsAction
 	public ManageRndSettingsAction(DataBrowser model, int index)
 	{
 		super(model);
+		setEnabled(false);
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;
+		model.addPropertyChangeListener(this);
 	}
 	
 	/**
@@ -225,6 +234,23 @@ public class ManageRndSettingsAction
 			case SET_ORIGINAL:
 				model.setOriginalSettings();
 		}
+    }
+    
+    /**
+     * Reacts to property changes in the {@link Browser}.
+     * Highlights the selected node, and update the status of the
+     * action.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+    	String name = evt.getPropertyName();
+    	if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name) ||
+    		DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY.equals(name)) {
+    		Browser browser = model.getBrowser();
+        	if (browser != null)
+        		onDisplayChange(browser.getLastSelectedDisplay());
+    	}
     }
 	
 }

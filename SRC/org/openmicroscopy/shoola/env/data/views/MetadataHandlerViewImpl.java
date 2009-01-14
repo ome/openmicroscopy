@@ -100,7 +100,7 @@ class MetadataHandlerViewImpl
 	public CallHandle loadViewedBy(long imageID, long pixelsID, 
 										AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID);
+		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID, -1);
 		return cmd.exec(observer);
 	}
 

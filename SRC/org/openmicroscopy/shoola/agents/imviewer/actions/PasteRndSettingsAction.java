@@ -66,7 +66,9 @@ public class PasteRndSettingsAction
      */
     protected void onTabSelection()
     {
-    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    	if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX)
+    		setEnabled(false);
+    	else setEnabled(model.hasSettingsToPaste());
     }
     
     /**
@@ -77,7 +79,7 @@ public class PasteRndSettingsAction
     protected void onStateChange(ChangeEvent e)
     {
     	if (model.getState() == ImViewer.READY)
-    		setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    		onTabSelection();
     }
     
     /**

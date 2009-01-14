@@ -2153,32 +2153,8 @@ class ImViewerComponent
 							"to paste.");
 			return;
 		}
-
-		try {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			boolean b = model.pasteRndSettings();
-			if (b) {
-				view.resetDefaults();
-				renderXYPlane();
-			} else {
-				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Paste rendering settings", "Pixels sets" +
-				" not compatible.");
-			}
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		} catch (Exception e) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-
-			Logger logger = ImViewerAgent.getRegistry().getLogger();
-			LogMessage logMsg = new LogMessage();
-			logMsg.print("Rendering Exception:");
-			logMsg.println(e.getMessage());
-			logMsg.print(e);
-			logger.error(this, logMsg);
-			un.notifyError("Paste Rendering settings", "An error occured " +
-					"while pasting the rendering settings.", e);
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		}
+		model.fireLoadRndSettingsToPaste();
+		fireStateChange();
 	}
 
 	/** 
@@ -2659,6 +2635,35 @@ class ImViewerComponent
 				"invoked in the DISCARDED or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.isOriginalSettings();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setSettingsToPaste(RndProxyDef)
+	 */
+	public void setSettingsToPaste(RndProxyDef rndProxyDef)
+	{
+		if (model.getState() != PASTING)
+			throw new IllegalArgumentException("This method should be " +
+					"invoked in the PASTING state.");
+		try {
+			model.resetMappingSettings(rndProxyDef, true);
+			view.resetDefaults();
+			renderXYPlane();
+		} catch (Exception e) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			LogMessage logMsg = new LogMessage();
+			logMsg.print("Rendering Exception:");
+			logMsg.println(e.getMessage());
+			logMsg.print(e);
+			logger.error(this, logMsg);
+			un.notifyError("Paste Rendering settings", "An error occured " +
+					"while pasting the rendering settings.", e);
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+		fireStateChange();
 	}
 	
 }

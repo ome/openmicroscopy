@@ -442,8 +442,10 @@ class TreeViewerComponent
 			view.addBrowser(browser);
 		}
 		browser.setDisplayed(!browser.isDisplayed());
+		removeEditor();
 	}
 
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#createDataObject(DataObject, boolean)
@@ -488,6 +490,7 @@ class TreeViewerComponent
 			"invoked in the DISCARDED, SAVE state.");
 		}
 		view.removeAllFromWorkingPane();
+		model.getMetadataViewer().setRootObject(null);
 		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
@@ -530,45 +533,6 @@ class TreeViewerComponent
 			bus.post(new ExitApplication());
 		} else discard();
 
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#removeObjects(List)
-	 */
-	public void removeObjects(List nodes)
-	{
-		/*
-      switch (model.getState()) {
-          case READY:
-          case NEW:  
-          case LOADING_THUMBNAIL:
-              break;
-          default:
-              throw new IllegalStateException("This method should only be " +
-              "invoked in the READY or NEW state.");
-      }
-		 */
-		/*
-		if (nodes == null) return;
-		boolean askQuestion = true;
-		Iterator i = nodes.iterator();
-		TreeImageDisplay node;
-		while (i.hasNext()) {
-			node = (TreeImageDisplay) i.next();
-			if (node.getNumberOfItems() > 0) askQuestion = true;
-		}
-		if (askQuestion) {
-			DeleteBox dialog = new DeleteBox(view);
-			if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
-				model.fireDataObjectsDeletion(nodes);
-				fireStateChange();
-			}
-		} else {
-			model.fireDataObjectsDeletion(nodes);
-			fireStateChange();
-		}
-		*/
 	}
 
 	/**
@@ -767,6 +731,7 @@ class TreeViewerComponent
 			if (browser != null) {
 				model.setSelectedBrowser(browser);
 				view.addBrowser(browser);
+				removeEditor();
 			}
 		}
 		browser = model.getSelectedBrowser();

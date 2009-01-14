@@ -1296,6 +1296,19 @@ class ImViewerModel
 		}
 	}
 	
+	/** 
+	 * Starts an asynchronous call to retrieve the rendering settings to paste. 
+	 */
+	void fireLoadRndSettingsToPaste()
+	{
+		long id = ImViewerFactory.getRefImage().getDefaultPixels().getId();
+		if (id < 0) return;
+		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
+				id, true);
+		loader.load();
+		state = ImViewer.PASTING;
+	}
+	
 	/**
 	 * Resets the rendering settings.
 	 * Returns <code>true</code> if it is possible to copy the rendering 
@@ -1360,7 +1373,12 @@ class ImViewerModel
 	 */
 	boolean hasRndToPaste() 
 	{ 
-		return (ImViewerFactory.getRefImage() != null); 
+		ImageData image = ImViewerFactory.getRefImage();
+		if (image == null) return false;
+		PixelsData pixels = image.getDefaultPixels();
+		if (pixels == null) return false;
+		if (currentRndControl == null) return false;
+		return currentRndControl.validatePixels(pixels);
 	}
 
 	/** Posts a {@link CopyRndSettings} event. */

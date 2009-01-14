@@ -118,6 +118,16 @@ class DataBrowserComponent
 		view.initialize(model, controller);
 	}
 	
+	/** 
+	 * Fires a property indicating that some rendering settings can be copied.
+	 */
+	void notifyRndSettingsToCopy()
+	{
+		if (model.getState() == DISCARDED) return;
+		firePropertyChange(RND_SETTINGS_TO_COPY_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#activate()
@@ -560,7 +570,6 @@ class DataBrowserComponent
 			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, null, img);
 		} else {
 			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, Boolean.FALSE, null);
-			//firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, null);
 		}
 	}
 
@@ -980,6 +989,15 @@ class DataBrowserComponent
 		}
 		List<Class> types = new ArrayList<Class>();
 		model.fireReportLoading(nodes, types, name);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#hasRndSettings()
+	 */
+	public boolean hasRndSettings()
+	{
+		return DataBrowserFactory.hasRndSettingsToCopy();
 	}
 	
 }

@@ -108,7 +108,7 @@ public class DataBrowserAction
     		if (node instanceof ImageDisplay)
     			onDisplayChange((ImageDisplay) node);
     		else onDisplayChange(null);
-    	}
+    	} 
     }
 
     /** 

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.util.Iterator;
 import java.util.Map;
 
 //Third-party libraries
@@ -31,6 +32,9 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.ExperimenterData;
 
 /** 
  * Retrieves all the rendering settings related to the specified set 
@@ -58,6 +62,12 @@ public class RenderingSettingsLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
+    /** 
+     * Flag indicating to retrieve the renderings setting for the currently
+     * logged in user if set to <code>true</code>.
+     */
+    private boolean 	single;
+    
     /**
      * Creates a new instance
      * 
@@ -67,8 +77,26 @@ public class RenderingSettingsLoader
      */
     public RenderingSettingsLoader(ImViewer viewer, long pixelsID)
     {
+        this(viewer, pixelsID, false);
+    }
+    
+    /**
+     * Creates a new instance
+     * 
+     * @param viewer    The view this loader is for.
+     *                  Mustn't be <code>null</code>.
+     * @param pixelsID  The id of the pixels set.
+     * @param single	Pass <code>true</code> to indicate that the rendering
+     * 					settings are only for the current user.
+     */
+    public RenderingSettingsLoader(ImViewer viewer, long pixelsID, 
+    		boolean single)
+    {
         super(viewer);
+        if (pixelsID < 0)
+        	throw new IllegalArgumentException("Pixels ID not valid.");
         this.pixelsID = pixelsID;
+        this.single = single;
     }
     
     /**
@@ -77,7 +105,10 @@ public class RenderingSettingsLoader
      */
     public void load()
     {
-        handle = ivView.getRenderingSettings(pixelsID, this);
+    	if (single) {
+    		ExperimenterData exp = ImViewerAgent.getUserDetails();
+    		handle = ivView.getRenderingSettings(pixelsID, exp.getId(), this);
+    	} else handle = ivView.getRenderingSettings(pixelsID, this);
     }
 
     /**
@@ -93,7 +124,21 @@ public class RenderingSettingsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        viewer.setRenderingSettings((Map) result);
+        Map map = (Map) result;
+        if (single) { 
+        	Iterator i = map.keySet().iterator();
+        	long userID = ImViewerAgent.getUserDetails().getId();
+        	ExperimenterData exp;
+        	while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (userID == exp.getId()) {
+					viewer.setSettingsToPaste((RndProxyDef) map.get(exp));
+				}
+			}
+        } else {
+        	viewer.setRenderingSettings(map);
+        }
+        
     }
     
 }

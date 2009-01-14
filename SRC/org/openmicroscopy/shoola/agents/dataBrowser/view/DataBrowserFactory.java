@@ -33,7 +33,6 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -188,7 +187,6 @@ public class DataBrowserFactory
 		while (i.hasNext()) {
 			value = i.next();
 			if (value.equals(key)) return true;
-			
 		}
 		return false;
 	}
@@ -209,6 +207,37 @@ public class DataBrowserFactory
 		}
 	}
 	
+	/**
+	 * Sets to <code>true</code> if some rendering settings have to be copied.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param rndSettingsToCopy The value to set.
+	 */
+	public static final void setRndSettingsToCopy(boolean rndSettingsToCopy)
+	{
+		singleton.rndSettingsToCopy = rndSettingsToCopy; 
+		Iterator v = singleton.browsers.keySet().iterator();
+		DataBrowserComponent comp;
+		while (v.hasNext()) {
+			comp = (DataBrowserComponent) singleton.browsers.get(v.next());
+			comp.notifyRndSettingsToCopy();
+		}
+		if (singleton.searchBrowser != null)
+			((DataBrowserComponent) 
+					singleton.searchBrowser).notifyRndSettingsToCopy();
+	}
+	
+	/**
+	 * Returns <code>true</code> if there are rendering settings to copy,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	static boolean hasRndSettingsToCopy()
+	{
+		return singleton.rndSettingsToCopy;
+	}
+	
 	/** The collection of discarded browsers. */
 	private Set<String>					discardedBrowsers;
 	
@@ -218,12 +247,16 @@ public class DataBrowserFactory
 	/** The {@link DataBrowser} displaying the result of a search. */
 	private DataBrowser					searchBrowser;
 	
+	/** Flag indicating if some rendering settings have been copied. */
+	private boolean						rndSettingsToCopy;
+	
 	/** Creates a new instance. */
 	private DataBrowserFactory()
 	{
 		browsers = new HashMap<String, DataBrowser>();
 		discardedBrowsers = new HashSet<String>();
 		searchBrowser = null;
+		rndSettingsToCopy = false;
 	}
 	
 	/**

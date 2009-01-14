@@ -487,11 +487,9 @@ class TreeViewerWin
     void removeAllFromWorkingPane()
     {
         JViewport viewPort = workingPane.getViewport();
-       // if (viewPort.getComponents().length != 0) {
-            viewPort.removeAll();
-            viewPort.validate();
-            viewPort.repaint();
-       // }
+        viewPort.removeAll();
+        viewPort.validate();
+        viewPort.repaint();
     }
     
     /**

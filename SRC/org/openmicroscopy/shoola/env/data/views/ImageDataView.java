@@ -134,6 +134,18 @@ public interface ImageDataView
     									AgentEventListener observer);
     
     /**
+     * Retrieves all the rendering settings associated to a given set of pixels.
+     * for the specified user.
+     * 
+     * @param pixelsID 	The id of the pixels set.
+     * @param userID	The if of the users.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle getRenderingSettings(long pixelsID, long userID,
+    									AgentEventListener observer);
+    
+    /**
      * Projects a section of the stack and returns the projected image.
      * 
      * @param pixelsID  The id of the pixels set.

@@ -263,9 +263,7 @@ class PropertiesUI
     	descriptionPane.setText(DEFAULT_TEXT);
     	descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-    	//descriptionPane = createTextPane();
-    	//descriptionPane.setLineWrap(true);
+
     	f = namePane.getFont();
     	namePane.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
     	f = descriptionPane.getFont();
@@ -282,15 +280,20 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	 JPanel p = new JPanel();
+    	 p.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
          p.add(namePane);
          p.add(Box.createVerticalStrut(5));
          JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.add(l);
-         p.add(Box.createVerticalStrut(5));
-         p.add(descriptionPane);
-         p.setBackground(UIUtilities.BACKGROUND_COLOR);
+         Object refObject = model.getRefObject();
+         if ((refObject instanceof ImageData) || 
+        	(refObject instanceof DatasetData) ||
+        	(refObject instanceof ProjectData)) {
+        	 p.add(Box.createVerticalStrut(5));
+             p.add(descriptionPane);
+         }
          p.add(Box.createVerticalStrut(5));
          p.add(buildPermissions(null));
          return p;

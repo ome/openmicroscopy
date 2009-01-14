@@ -35,7 +35,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -113,6 +115,16 @@ public class DataBrowserAgent
     	DataBrowserFactory.refreshThumbnails(ids);
     }
     
+    /**
+     * Handles the {@link CopyRndSettings} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleCopyRndSettings(CopyRndSettings evt)
+    {
+    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage() != null);
+    }
+    
 	/** Creates a new instance. */
 	public DataBrowserAgent() {}
 	
@@ -137,6 +149,7 @@ public class DataBrowserAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, CopyRndSettings.class);
     }
     
     /**
@@ -162,6 +175,8 @@ public class DataBrowserAgent
     {
     	if (e instanceof RndSettingsCopied)
     		handleRndSettingsCopied((RndSettingsCopied) e);
+    	else if (e instanceof CopyRndSettings)
+			handleCopyRndSettings((CopyRndSettings) e);
     }
     
 }

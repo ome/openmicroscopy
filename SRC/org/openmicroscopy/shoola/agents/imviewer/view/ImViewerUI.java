@@ -1570,6 +1570,7 @@ class ImViewerUI
 		setPlaneInfoStatus();
 		model.getBrowser().setSelectedPane(index);
 		setLensVisible(isLensVisible(), oldIndex);
+		maximizeWindow();
 	}
 	
 	/** Centers the image when the user maximized the viewer. */

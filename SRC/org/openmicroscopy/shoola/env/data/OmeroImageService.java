@@ -303,14 +303,15 @@ public interface OmeroImageService
 	 * Returns a Map whose keys are the experimenter who created the rnd 
 	 * settings and the value the settings itself.
 	 * 
-	 * @param pixelsID The id of the pixels set.
+	 * @param pixelsID 	The id of the pixels set.
+	 * @param userID	The id of the user currently logged in.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map getRenderingSettings(long pixelsID)
+	public Map getRenderingSettings(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

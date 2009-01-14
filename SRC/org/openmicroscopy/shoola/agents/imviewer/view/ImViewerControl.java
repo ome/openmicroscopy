@@ -710,6 +710,7 @@ class ImViewerControl
 				break;  
 			case ImViewer.PROJECTING:
 			case ImViewer.PROJECTION_PREVIEW:
+			case ImViewer.PASTING:
 				view.setStatus(true);
 				view.onStateChange(false);
 				break;

@@ -149,7 +149,17 @@ class ImageDataViewImpl
 	public CallHandle getRenderingSettings(long pixelsID, 
 										AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID);
+		return getRenderingSettings(pixelsID, -1, observer);
+	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#getRenderingSettings(long, long, AgentEventListener)
+     */
+	public CallHandle getRenderingSettings(long pixelsID, long userID,
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID, userID);
 		return cmd.exec(observer);
 	}
 

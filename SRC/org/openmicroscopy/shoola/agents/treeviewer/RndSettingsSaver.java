@@ -88,6 +88,23 @@ public class RndSettingsSaver
 	/** One of the constants defined by this class. */
     private int				index;
    
+    /**
+     * Controls if the passed index is supported.
+     * 
+     * @param index The value to handle.
+     */
+    private void checkIndex(int index)
+    {
+    	switch (index) {
+			case PASTE:
+			case RESET:
+			case SET:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
+    
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -120,6 +137,7 @@ public class RndSettingsSaver
 	{
 		super(viewer);
 		checkRootType(rootType);
+		checkIndex(index);
 		this.index = index;
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
@@ -139,6 +157,7 @@ public class RndSettingsSaver
 	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, int index)
 	{
 		super(viewer);
+		checkIndex(index);
 		this.index = index;
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
