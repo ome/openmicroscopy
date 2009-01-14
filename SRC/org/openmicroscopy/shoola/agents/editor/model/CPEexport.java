@@ -44,6 +44,7 @@ import net.n3.nanoxml.XMLWriter;
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -248,6 +249,15 @@ public class CPEexport {
 					
 					addChildContent(parameter, "value", dateMillis + "");
 				}
+			}
+		else 
+			if (param instanceof BooleanParam) {
+				addChildContent(parameter, "param-type", "ENUMERATION");
+				setValueAndDefault(parameter, param);
+				IXMLElement enumList = new XMLElement("enum-list");
+				addChildContent(enumList, "enum", "true");
+				addChildContent(enumList, "enum", "false");
+				parameter.addChild(enumList);
 			}
 		
 		else {

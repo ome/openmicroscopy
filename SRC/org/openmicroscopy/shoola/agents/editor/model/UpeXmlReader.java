@@ -147,19 +147,24 @@ public class UpeXmlReader {
 		
 		IParam param;
 		if (EnumParam.ENUM_PARAM.equals(attributeValue)) {
-			param = FieldParamsFactory.getFieldParam(EnumParam.ENUM_PARAM);
-			setNameValueDefault(upeParam, param);
-			// enumerations
-			String enumOptions = "";
 			IXMLElement enumList = upeParam.getFirstChildNamed("enum-list");
 			List<IXMLElement> enums = enumList.getChildrenNamed("enum");
-			for (IXMLElement e : enums) {
-				if (enumOptions.length() > 0)  enumOptions = enumOptions + ", ";
-				enumOptions = enumOptions + e.getContent();
+			// if enumeration options are "true" and "false", need a boolean...
+			if (enumsAreBoolean(enums)) {
+				param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
+				setNameValueDefault(upeParam, param);
+			} else {
+				param = FieldParamsFactory.getFieldParam(EnumParam.ENUM_PARAM);
+				setNameValueDefault(upeParam, param);
+				// enumerations
+				String enumOptions = "";
+				for (IXMLElement e : enums) {
+					if (enumOptions.length() > 0)  enumOptions = enumOptions + ", ";
+					enumOptions = enumOptions + e.getContent();
+				}
+				if (enums.size() > 0)
+					param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
 			}
-			if (enums.size() > 0)
-				param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
-			
 		} else  
 		if (NumberParam.NUMBER_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(NumberParam.NUMBER_PARAM);
@@ -167,12 +172,7 @@ public class UpeXmlReader {
 			// units
 			attributeValue = getChildContent(upeParam, "unit");
 			param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
-			
-		} else 
-		if (BooleanParam.BOOLEAN_PARAM.equals(attributeValue)) {
-			param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
-			setNameValueDefault(upeParam, param);
-		}
+		} 
 		else
 		if (TextParam.TEXT_LINE_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
@@ -188,6 +188,7 @@ public class UpeXmlReader {
 		}
 		
 		else {
+			System.err.println("UpeXmlReader getParameter() param-type not recognised.");
 			param = FieldParamsFactory.getFieldParam(attributeValue);
 			if (param == null) {	
 				// if paramType not recognised, return text text parameter
@@ -218,6 +219,30 @@ public class UpeXmlReader {
 		}
 		
 		return param;
+	}
+	
+	/**
+	 * Convenience method for checking whether a list of {@link IXMLElement}
+	 * elements has element content of "true" and "false" only. 
+	 * Used to check whether an Emuneration parameter (in cpe.xml file) is 
+	 * being used to store boolean data.  
+	 * 
+	 * @param enums		List of elements.
+	 * @return			True is the list is 2, and contains "true" and "false"
+	 */
+	private static boolean enumsAreBoolean(List<IXMLElement> enums)
+	{
+		if (enums == null)		return false;
+		if (enums.size() != 2)	return false;
+		
+		String option1 = enums.get(0).getContent();
+		String option2 = enums.get(1).getContent();
+		
+		if ("true".equals(option1) && "false".equals(option2)) return true;
+		if ("false".equals(option1) && "true".equals(option2)) return true;
+		
+		return false;
+		
 	}
 	
 	/**
