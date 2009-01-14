@@ -69,7 +69,7 @@ class OMEWikiConstants
 	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Dataset [Dataset: id 30]. */
-	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]++"+TEXTREGEX+"[ ]*\\]";
+	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Project [Project: id 30]. */
 	static final String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
