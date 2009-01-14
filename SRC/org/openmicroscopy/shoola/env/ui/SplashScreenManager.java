@@ -246,9 +246,7 @@ class SplashScreenManager
 	    		 	viewTop.getSize().height);
 		view = null;
 		viewTop.addPropertyChangeListener(this);
-		
 		viewTop.addWindowStateListener(this);
-		
 		viewTop.addWindowFocusListener(this);
 		isOpen = false;
 		doneTasks = 0;
@@ -290,6 +288,7 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (viewTop == null) return;
+		initializedView();
 		//view.setVisible(true);
 		viewTop.setVisible(true);
 		isOpen = true;	
@@ -346,12 +345,8 @@ class SplashScreenManager
 			viewTop.setStatusVisible(false);
 			Boolean online = (Boolean) container.getRegistry().lookup(
 					LookupNames.SERVER_AVAILABLE);
-			if (online) {
-				initializedView();
-				view.setVisible(true);
-			} else {
-				viewTop.setVisible(false);
-			}
+			if (online) view.setVisible(true);
+			else viewTop.setVisible(false);
 		}
 	}
     
