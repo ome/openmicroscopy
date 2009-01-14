@@ -1689,13 +1689,28 @@ class BlitzObjectWrapper (object):
             logger.debug(traceback.format_exc())
             return _("Unknown")
     
+    def splitedName(self):
+        try:
+            name = self._obj.name.val
+            l = len(name)
+            if l < 45:
+                return name
+            elif l >= 45:
+                splited = []
+                for v in range(0,len(name),45):
+                    splited.append(name[v:v+45]+" ")
+                return "".join(splited)
+        except:
+            logger.debug(traceback.format_exc())
+            return self._obj.name.val
+    
     def shortName(self):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 50:
+            if l < 60:
                 return name
-            return "..." + name[l - 50:]
+            return "..." + name[l - 60:]
         except:
             logger.debug(traceback.format_exc())
             return self._obj.name.val
@@ -1717,6 +1732,24 @@ class BlitzObjectWrapper (object):
                 for v in range(0,len(nname),20):
                     splited.append(nname[v:v+20]+" ")
                 return "".join(splited)
+        except:
+            logger.debug(traceback.format_exc())
+            return self._obj.name.val
+    
+    def breadcrumbName(self):
+        try:
+            name = self._obj.name.val
+            l = len(name)
+            if l < 20:
+                return name
+            elif l >= 20 and l < 40:
+                splited = []
+                for v in range(0,len(name),20):
+                    splited.append(name[v:v+20])
+                return "".join(splited)
+            elif l >= 40:
+                nname = "..." + name[l - 36:]
+                return nname
         except:
             logger.debug(traceback.format_exc())
             return self._obj.name.val

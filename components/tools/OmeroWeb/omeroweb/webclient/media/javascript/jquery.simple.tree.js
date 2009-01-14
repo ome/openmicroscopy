@@ -149,17 +149,17 @@ $.fn.simpleTree = function(opt){
 				    TREE.option.afterClick($(this).parent());
 				}
 				return false;
-			}).dblclick(function(){
+			/*}).dblclick(function(){
 				mousePressed = false;
 				TREE.nodeToggle($(this).parent().get(0));
 				if(typeof TREE.option.afterDblClick == 'function')
 				{
 					TREE.option.afterDblClick($(this).parent());
 				}
-				return false;
+				return false;*/
 				// added by Erik Dohmen (2BinBusiness.nl) to make context menu actions
 				// available
-			}).bind("contextmenu",function(){
+			/*}).bind("contextmenu",function(){
 				$('.active',TREE).attr('class','text');
 				if(this.className=='text')
 				{
@@ -169,27 +169,45 @@ $.fn.simpleTree = function(opt){
 				{
 					TREE.option.afterContextMenu($(this).parent());
 				}
-				return false;
+				return false;*/
 			}).mousedown(function(event){
-				mousePressed = true;
-				cloneNode = $(this).parent().clone();
-				var LI = $(this).parent();
-				if(TREE.option.drag)
-				{
-					$('>ul', cloneNode).hide();
-					$('body').append('<div id="drag_container"><ul></ul></div>');
-					$('#drag_container').hide().css({opacity:'0.8'});
-					$('#drag_container >ul').append(cloneNode);
-					$("<img>").attr({id	: "tree_plus",src	: "/webclient/static/images/tree/plus.gif"}).css({width: "7px",display: "block",position: "absolute",left	: "5px",top: "5px", display:'none'}).appendTo("body");
-					$(document).bind("mousemove", {LI:LI}, TREE.dragStart).bind("mouseup",TREE.dragEnd);
-				}
-				return false;
-			}).mouseup(function(){
-				if(mousePressed && mouseMoved && dragNode_source)
-				{
-					TREE.moveNodeToFolder($(this).parent());
-				}
-				TREE.eventDestroy();
+			    if( event.button == 2 || event.button == 3){
+			        mousePressed = true;
+			        $('.active',TREE).attr('class','text');
+    				if(this.className=='text')
+    				{
+    					this.className='active';
+    				}
+    				if(typeof TREE.option.afterContextMenu == 'function')
+    				{
+    					TREE.option.afterContextMenu($(this).parent());
+    				}
+    				return false;
+			    } else {
+			        mousePressed = true;
+    				cloneNode = $(this).parent().clone();
+    				var LI = $(this).parent();
+    				if(TREE.option.drag)
+    				{
+    					$('>ul', cloneNode).hide();
+    					$('body').append('<div id="drag_container"><ul></ul></div>');
+    					$('#drag_container').hide().css({opacity:'0.8'});
+    					$('#drag_container >ul').append(cloneNode);
+    					$("<img>").attr({id	: "tree_plus",src	: "/webclient/static/images/tree/plus.gif"}).css({width: "7px",display: "block",position: "absolute",left	: "5px",top: "5px", display:'none'}).appendTo("body");
+    					$(document).bind("mousemove", {LI:LI}, TREE.dragStart).bind("mouseup",TREE.dragEnd);
+    				}
+    				return false;
+			    }
+			}).mouseup(function(event){
+			    if( event.button == 2 || event.button == 3){
+			        return false;
+			    } else {
+				    if(mousePressed && mouseMoved && dragNode_source)
+    				{
+    					TREE.moveNodeToFolder($(this).parent());
+    				}
+    				TREE.eventDestroy();
+    			}
 			});
 			$('li', obj).each(function(i){
 				var className = this.className;
@@ -428,10 +446,10 @@ $.fn.simpleTree = function(opt){
         				var pos = $(dragNode_source).prevAll(':not(.line)').size();
         				TREE.option.afterMove($(node).parents('li:first'), $(dragNode_source), pos);
         			}
-        			$('div#message').css('background', 'red').html(responce).show();
+        			alert(responce);
 				},
 				error: function(responce) {
-            		$('div#message').css('background', 'yellow').html('not possible').show();
+            		alert("Action not possible.")
 				}
 			});
 		};

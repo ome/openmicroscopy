@@ -93,10 +93,18 @@ div#view, div#header_name {
 .image {
     width: 75%;
 }
-.basket {
+.toolbar {
     position: absolute;
-    top: 10px;
+    top: 5px;
     right: 0;
+    text-align: right;
+    background-color: #fff;
+    padding: 5px 3px;
+}
+.toolbar-tree-details {
+    top: 0;
+    right: 0;
+    text-align: right;
     border: 1px solid #bbb;
     background-color: #fff;
     padding: 5px;

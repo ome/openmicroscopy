@@ -44,7 +44,10 @@
     
 {% else %}
     <h1>Create new share with {{ basket.sizeOfBasket }} items:</h1>
+    
     <div id="cart">
+    
+    {% if basket.prSize or basket.dsSize %}
     <h1>Containers</h1>
     {% if basket.prSize %}
     {% for c in basket.projectInBasket %}
@@ -84,6 +87,8 @@
         {% endif %}
     </div>
     {% endfor %}
+    {% endif %}
+    
     {% endif %}
     </div>
     

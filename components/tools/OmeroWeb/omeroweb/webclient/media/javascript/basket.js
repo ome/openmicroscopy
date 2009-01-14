@@ -52,3 +52,61 @@ function fromBasket (productType, productId) {
         };
     }
 }
+
+function copyToClipboard (productType, productId) {
+    if (productId == null) {
+        alert("No object selected.")
+    } else {
+        $.ajax({
+            type: "POST",
+            url: "/webclient/clipboard/", //this.href,
+            data: "action=copy&productId="+productId+"&productType="+productType,
+            contentType:'html',
+            success: function(responce){
+                alert(responce);
+            },
+            error: function(responce) {
+                alert(responce)
+            }
+        });
+    }
+};
+
+function pasteFromClipboard (destinationType, destinationId, url) {
+    if (destinationId == null) {
+        alert("No object selected.")
+    } else {
+        $.ajax({
+            type: "POST",
+            url: "/webclient/clipboard/", //this.href,
+            data: "action=paste&destinationId="+destinationId+"&destinationType="+destinationType,
+            contentType:'html',
+            success: function(responce){
+                window.location = url
+            },
+            error: function(responce) {
+                alert("Could not paste.")
+            }
+        });
+    }
+};
+
+
+function cleanClipboard (productType, productId) {
+    if (productId == null) {
+        alert("No object selected.")
+    } else {
+        $.ajax({
+            type: "POST",
+            url: "/webclient/clipboard/", //this.href,
+            data: "action=clean",
+            contentType:'html',
+            success: function(responce){
+                alert(responce);
+            },
+            error: function(responce) {
+                alert(responce)
+            }
+        });
+    }
+};

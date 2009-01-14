@@ -81,27 +81,27 @@ class BaseContainer(BaseController):
             self.eContext['breadcrumb'] = ['New container']
         elif menu == 'edit':
             if self.project is not None:
-                self.eContext['breadcrumb'] = ['Edit project: %s (%i)' % (self.project.name, self.project.id)]
+                self.eContext['breadcrumb'] = ['Edit project: %s' % (self.project.breadcrumbName())]
             elif self.dataset is not None:
-                self.eContext['breadcrumb'] = ['Edit dataset: %s (%i)' % (self.dataset.name, self.dataset.id)]
+                self.eContext['breadcrumb'] = ['Edit dataset: %s' % (self.dataset.breadcrumbName())]
             elif self.image is not None:
-                self.eContext['breadcrumb'] = ['Edit image: %s (%i)' % (self.image.name, self.image.id)]
+                self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
         else:
             if self.project is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            '<a href="/%s/%s/project/%i/">%s: %s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, 'Project', self.project.name)]
+                            '<a href="/%s/%s/project/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.project.breadcrumbName())]
                 if self.dataset is not None:
-                    self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/">%s: %s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, 'Dataset', self.dataset.name))
+                    self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, self.dataset.breadcrumbName()))
                     if self.image is not None:
-                        self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/image/%i/">%s: %s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, self.image.id, 'Image', self.image.name))
+                        self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/image/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, self.image.id, self.image.breadcrumbName()))
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            "Dataset %s (%s)" % (self.dataset.name, self.dataset.id)]
+                            "%s" % (self.dataset.breadcrumbName())]
                 if self.image is not None:
-                    self.eContext['breadcrumb'].append('<a href="/%s/%s/dataset/%i/image/%i/">%s: %s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.dataset.id, self.image.id, 'Image', self.image.name))
+                    self.eContext['breadcrumb'].append('<a href="/%s/%s/dataset/%i/image/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.dataset.id, self.image.id, self.image.breadcrumbName()))
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            "Image %s (%s)" % (self.image.name, self.image.id)]
+                            "%s" % (self.image.breadcrumbName())]
             else:
                 self.eContext['breadcrumb'] = [menu.title()] 
     
@@ -508,6 +508,33 @@ class BaseContainer(BaseController):
         else:
             return False
         return True
+
+    def copyImageToDataset(self, source, destination=None):
+        if destination is None:
+            dsls = self.conn.getDatasetImageLinks(source[1]) #gets every links for child
+            for dsl in dsls:
+                self.conn.deleteObject(dsl._obj)
+        else:
+            im = self.conn.getImage(source[1])
+            ds = self.conn.getDataset(destination[1])
+            new_dsl = DatasetImageLinkI()
+            new_dsl.setChild(im._obj)
+            new_dsl.setParent(ds._obj)
+            self.conn.createObject(new_dsl)
+            return True
+    
+    def copyDatasetToProject(self, source, destination=None):
+        if destination is None:
+            pass
+        else:
+            ds = self.conn.getDataset(source[1])
+            pr = self.conn.getProject(destination[1])
+            new_pdl = ProjectDatasetLinkI()
+            new_pdl.setChild(ds._obj)
+            new_pdl.setParent(pr._obj)
+            self.conn.createObject(new_pdl)
+            return True
+
 
     #####################################################################
     # Permissions

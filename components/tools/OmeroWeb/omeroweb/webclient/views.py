@@ -367,6 +367,11 @@ def isUserConnected (f):
 
 def sessionHelper(request):
     try:
+        if request.session['clipboard']:
+            pass
+    except:
+        request.session['clipboard'] = []
+    try:
         if request.session['imageInBasket']:
             pass
     except:
@@ -402,6 +407,7 @@ def login(request):
         request.session['username'] = request.REQUEST['username']
         request.session['password'] = request.REQUEST['password']
         request.session['groupId'] = None
+        request.session['clipboard'] = []
         request.session['imageInBasket'] = list()
         request.session['datasetInBasket'] = list()
         request.session['projectInBasket'] = list()
@@ -700,7 +706,9 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
-        if o1_type == 'project':
+        if o1_type == 'ajaxdataset':
+            manager.loadMyImages(o1_id)
+        elif o1_type == 'project':
             manager.listMyDatasetsInProject(o1_id)
         elif o1_type == 'dataset':
             if view == 'tree':
@@ -789,7 +797,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-    elif view == 'tree' and o1_type=='dataset' and o1_id > 0:
+    elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -943,7 +951,10 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
-        if o1_type == 'project':
+        if o1_type == 'ajaxdataset':
+            if filter_user_id is not None:
+                manager.loadUserImages(o1_id, filter_user_id)
+        elif o1_type == 'project':
             if filter_user_id is not None:
                 manager.listDatasetsInProjectInUser(o1_id, filter_user_id)
         elif o1_type == 'dataset':
@@ -973,7 +984,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
-    elif view == 'tree' and o1_type=='dataset' and o1_id > 0:
+    elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1128,7 +1139,10 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         if o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
-        if o1_type == 'project':
+        if o1_type == 'ajaxdataset':
+            if filter_group_id is not None:
+                manager.loadGroupImages(o1_id, filter_group_id)
+        elif o1_type == 'project':
             if filter_group_id is not None:
                 manager.listDatasetsInProjectInGroup(o1_id, filter_group_id)
         elif o1_type == 'dataset':
@@ -1157,7 +1171,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
-    elif view == 'tree' and o1_type=='dataset' and o1_id > 0:
+    elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1337,6 +1351,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         except:
             pass
         context = {'message': message}
+    elif action == 'copy':
+        #TODO
+        pass
     elif action == 'save':
         if o_type == "dataset":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1715,46 +1732,51 @@ def basket_action (request, action=None, oid=None, **kwargs):
         template = "omeroweb/basket_share_action.html"
         
         basket = BaseBasket(conn)
+        basket.buildBreadcrumb(action)
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
-        context = {'nav':request.session['nav'], 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "toannotate":
         # TODO
         template = "omeroweb/basket_share_action.html"
         
         basket = BaseBasket(conn)
+        basket.buildBreadcrumb(action)
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
-        context = {'nav':request.session['nav'], 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "totag":
         # TODO
         template = "omeroweb/basket_share_action.html"
         
         basket = BaseBasket(conn)
+        basket.buildBreadcrumb(action)
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
-        context = {'nav':request.session['nav'], 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == 'dataset':
         template = "omeroweb/basket_subtree.html"
         basket = BaseBasket(conn)
+        basket.buildBreadcrumb(action)
         basket.loadBasketImages(oid)
         context = {'basket':basket}
     else:
         template = "omeroweb/basket.html"
         
         basket = BaseBasket(conn)
+        basket.buildBreadcrumb()
         basket.load_basket(request)
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
@@ -1836,6 +1858,59 @@ def update_basket(request, **kwargs):
     total = len(request.session['imageInBasket'])+len(request.session['datasetInBasket'])+len(request.session['projectInBasket'])
     request.session['nav']['basket'] = total
     return HttpResponse(total)
+
+##################################################################
+# Clipboard
+
+@isUserConnected
+def update_clipboard(request, **kwargs):
+    action = None
+    msg = "Action not available"
+    if request.method == 'POST':
+        try:
+            action = request.REQUEST['action']
+        except:
+            raise AttributeError()
+        else:
+            if action == 'copy':
+                prod = long(request.REQUEST['productId'])
+                ptype = str(request.REQUEST['productType'])
+                if len(request.session['clipboard']) > 0 and request.session['clipboard'][0] != ptype and request.session['clipboard'][1] != prod:
+                    msg = "This object is already in the clipboard."
+                    raise AttributeError(msg)
+                else:
+                    request.session['clipboard'] = [ptype, prod]
+                    msg = "%s (id:%ld) was copied to clipboard." % (ptype.title(), prod)
+            elif action == 'paste':
+                destination = [str(request.REQUEST['destinationType']), long(request.REQUEST['destinationId'])]
+                if len(request.session['clipboard']) == 2 :
+                    conn = None
+                    try:
+                        conn = kwargs["conn"]
+                    except:
+                        logger.error(traceback.format_exc())
+
+                    manager = BaseContainer(conn)
+                    if request.session['clipboard'][0] == 'dataset' and destination[0] == 'project':
+                        manager.copyDatasetToProject(request.session['clipboard'], destination)
+                    elif request.session['clipboard'][0] == 'image' and destination[0] == 'dataset':
+                        manager.copyImageToDataset(request.session['clipboard'], destination)
+                    else:
+                        raise AttributeError(msg)
+                    request.session['clipboard'] = []
+                    msg = "Copied successful"
+                else:
+                    msg = "Clipboard is empty."
+                    raise AttributeError(msg)
+            elif action == 'clean':
+                try:
+                    del request.session['clipboard']
+                except KeyError:
+                    logger.error(traceback.format_exc())
+
+                request.session['clipboard'] = []
+                msg = 'Cleapboard is empty.'
+    return HttpResponse(msg)
 
 @isUserConnected
 def search(request, **kwargs):

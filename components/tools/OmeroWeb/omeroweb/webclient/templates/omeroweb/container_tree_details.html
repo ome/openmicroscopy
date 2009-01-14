@@ -4,23 +4,32 @@
 
 {% if manager.project or manager.dataset or manager.image %}
     {% if manager.image %}
-    <div><h1>{{ manager.image.name }}: {% if manager.image.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.image.isOwned %} <a href="#" onclick="toBasket('image', '{{ image.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %}</h1>
+    <div>
+        <h1>{{ manager.image.splitedName }}{% if not manager.image.isEditable %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.image.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ manager.image.countAnnotations }}){% endif %}</h1>
         {{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
     <div>
         <p><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/200/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
-        <p>{% if manager.image.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ manager.image.countAnnotations }}){% endif %} <a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/{{ manager.image.id }}/" target="_blank">More details in new tab...</a></p>
+        <p><a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/{{ manager.image.id }}/" target="_blank">More details in new tab...</a></p>
     </div>
     
     {% endif %}
     {% if manager.dataset %}
-    <div><h1>{{ manager.dataset.name }}: {% if manager.dataset.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.dataset.isOwned %} <a href="#" onclick="toBasket('image', '{{ image.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %}</h1>
+    <div>
+        <h1>{{ manager.dataset.splitedName }}{% if not manager.dataset.isEditable %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.dataset.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ manager.dataset.countAnnotations }}){% endif %}</h1>
         {{ manager.dataset.description|default_if_none:"no description"|wikify|safe|linebreaks }}
+    </div>
+    <div>
+        <p><a href="{% get_webclient_root_url %}/{{ nav.whos }}/dataset/{{ manager.dataset.id }}/?view=table" target="_blank">More details in new tab...</a></p>
     </div>
     {% endif %}
     {% if manager.project %}
-    <div><h1>{{ manager.project.name }}: {% if manager.project.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.project.isOwned %} <a href="#" onclick="toBasket('image', '{{ image.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %}</h1>
+    <div>
+        <h1>{{ manager.project.splitedName }}{% if not manager.project.isEditable %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.project.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ manager.project.countAnnotations }}){% endif %}</h1>
         {{ manager.project.description|default_if_none:"no description"|wikify|safe|linebreaks }}
+    </div>
+    <div>
+        <p><a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/{{ manager.project.id }}/?view=table" target="_blank">More details in new tab...</a></p>
     </div>
     {% endif %}
 {% endif %}

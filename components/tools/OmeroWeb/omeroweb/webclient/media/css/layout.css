@@ -212,6 +212,12 @@ form ul.errorlist {
     margin: 0px;
     padding: 0px;
 }
+.separate70 {
+    clear: both;
+    height: 70px;
+    margin: 0px;
+    padding: 0px;
+}
 
 .mybox {
     border: 0px;

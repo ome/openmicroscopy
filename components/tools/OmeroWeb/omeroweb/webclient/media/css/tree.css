@@ -1,13 +1,13 @@
 #context {
     float: right;
-    width:380px;
+    width: 400px;
 }
 
 #tree {
     float: left;
     border-right:1px solid #BBBBBB;
     min-height: 400px;
-    width: 60%;
+    width: 575px;
     padding-right: 10px;
 }
 
@@ -16,7 +16,7 @@
 	overflow:auto;
 	margin:0;
 	padding:0;
-	max-width:520px;
+	max-width:550px;
 }
 .simpleTree li
 {

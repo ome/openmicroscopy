@@ -31,26 +31,26 @@
             afterClick:function(node){
                 var obj = $(node).attr('id').split("-");
                 if (obj[0] == 'pr') {
-                    $("div#view").html('| View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> | New <a href="{% get_webclient_root_url %}/action/new/project/'+obj[1]+'/"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new"></a> |');
+                    $("div#view").html(' | View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/project/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> | New <a href="{% get_webclient_root_url %}/action/new/project/'+obj[1]+'/"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new"></a> | <a href="#" onclick="toBasket(\'project\', \''+obj[1]+'\'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>');
                     
                     $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
                     $("div#context").load('{% get_webclient_root_url %}/tree_details/project/'+obj[1]+'/');
                     
                 } else if (obj[0] == 'ds') {
-                    $("div#view").html('| View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/dataset/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/dataset/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> |');
+                    $("div#view").html(' | View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/dataset/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/dataset/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> | <a href="#" onclick="toBasket(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> <a href="#" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>'); 
 
                     $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
                     $("div#context").load('{% get_webclient_root_url %}/tree_details/dataset/'+obj[1]+'/');
                     
                 } else if (obj[0] == 'img') {
-                    $("div#view").html('| View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> |');
+                    $("div#view").html(' | View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/'+obj[1]+'/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.jpg" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/'+obj[1]+'/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.jpg" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.jpg" alt="tree" title="tree"></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> | <a href="#" onclick="popup(\'\',\'_blank\',\''+obj[1]+'\'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a>');
 
                     $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
                     $("div#context").load('{% get_webclient_root_url %}/tree_details/image/'+obj[1]+'/');
                     
                 }
             },
-            afterDblClick:function(node){
+            /*afterDblClick:function(node){
                 //alert("text-"+$('span:first',node).text());
             },
             afterMove:function(destination, source, pos){
@@ -60,6 +60,9 @@
             afterAjax:function(){
                 //alert('Loaded');
             },
+            afterContextMenu:function(node){
+                alert("contextmenu");
+            },*/
             animate:true
             //,docToFolderConvert:true
             });
@@ -129,6 +132,7 @@
         {% endif %}
     {% endif %}
 {% endif %}
+
 </div>
 
 <div class="clear"> </div>
@@ -142,20 +146,20 @@
     {% if manager.c_size %}
     <div id="tree">
     <ul class="simpleTree">
-    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.omeName }}{% endif %}@{{ nav.blitz }}</span>
         <ul>
             {% for c in manager.containers.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.id }}  {{ c.name }}</span> {% if c.isOwned %}<a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}
+            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span> 
                 <ul>
                     {% if c.copyDatasetLinks %}
                     {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.id }} {{ d.name }}</span> {% if d.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}
+                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span> 
                             <ul class="ajax">
-                                {% if d.isOwned %}
-                                    <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/dataset/{{ d.id }}/?view=tree}</li>
+                                {% ifequal nav.whos "mydata" %}
+                                    <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/ajaxdataset/{{ d.id }}/?view=tree}</li>
                                 {% else %}
-                                    <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/userdata/dataset/{{ d.id }}/?view=tree}</li>
-                                {% endif %}
+                                    <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/userdata/ajaxdataset/{{ d.id }}/?view=tree}</li>
+                                {% endifequal %}
                             </ul>
                         </li>
                     {% endfor %}
@@ -166,18 +170,18 @@
             </li>
             {% endfor %}
             {% for c in manager.containers.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.id }} {{ c.name }}</span> {% if c.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}
+                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span>
                     <ul class="ajax">
-                        {% if d.isOwned %}
-                            <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/dataset/{{ c.id }}/?view=tree}</li>
+                        {% ifequal nav.whos "mydata" %}
+                            <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/ajaxdataset/{{ c.id }}/?view=tree}</li>
                         {% else %}
-                            <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/userdata/dataset/{{ c.id }}/?view=tree}</li>
-                        {% endif %}
+                            <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/userdata/ajaxdataset/{{ c.id }}/?view=tree}</li>
+                        {% endifequal %}
                     </ul>
                 </li>
             {% endfor %}
             {% for d in manager.containers.images %}
-                <li id='img-{{ d.id }}'><span> {{ d.id }} {{ d.shortName }}</span> <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> {% if d.isOwned %}<a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}</li>
+                <li id='img-{{ d.id }}'><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span></li>
             {% endfor %}
         </ul>
     </li></ul>
@@ -187,16 +191,16 @@
     {% if manager.c_mg_size %}
     <div id="tree">
     <ul class="simpleTree">
-    <li class="root" id='0'><span>{{ eContext.groupName }}@{{ nav.blitz }}</span>
+    <li class="root" id='0'><span>{{ manager.myGroup.name }}@{{ nav.blitz }}</span>
         <ul>
             {% for c in manager.containersMyGroups.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.id }}  {{ c.name }}</span> {% if c.isOwned %}<a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}
+            <li id='pr-{{ c.id }}'><span>{{ c.name }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span> 
                 <ul>
                     {% if c.copyDatasetLinks %}
                     {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.id }} {{ d.name }}</span> {% if d.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}
+                        <li id='ds-{{ d.id }}' ><span>{{ d.name }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span> 
                             <ul class="ajax">
-                                <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/groupdata/dataset/{{ d.id }}/?view=tree}</li>
+                                <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxdataset/{{ d.id }}/?view=tree}</li>
                             </ul>
                         </li>
                     {% endfor %}
@@ -207,14 +211,14 @@
             </li>
             {% endfor %}
             {% for c in manager.containersMyGroups.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.id }} {{ c.name }}</span> {% if c.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}
+                <li id='ds-{{ c.id }}'><span>{{ c.name }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span> 
                     <ul class="ajax">
-                        <li id='{{ c.id }}'>{url:{% get_webclient_root_url %}/groupdata/dataset/{{ c.id }}/?view=tree}</li>
+                        <li id='{{ c.id }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxdataset/{{ c.id }}/?view=tree}</li>
                     </ul>
                 </li>
             {% endfor %}
             {% for d in manager.containersMyGroups.images %}
-                <li id='img-{{ d.id }}'><span> {{ d.id }} {{ d.shortName }}</span> <a href="#" onclick="popup('','_blank','{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> {% if d.isOwned %}<a href="#" onclick="toBasket('image', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>{% endif %} {% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</li>
+                <li id='img-{{ d.id }}'><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span></li>
             {% endfor %}
         </ul>
     </li></ul>

@@ -22,6 +22,8 @@
 # Version: 1.0
 #
 
+from django.conf import settings
+
 from webclient.controller import BaseController
 
 class BaseBasket(BaseController):
@@ -38,6 +40,12 @@ class BaseBasket(BaseController):
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
 
+    def buildBreadcrumb(self, menu=None):
+        if menu is not None:
+            self.eContext['breadcrumb'] = ['<a href="/%s/basket/">Basket</a>' % (settings.WEBCLIENT_ROOT_BASE), menu[2:len(menu)].title()]
+        else:
+            self.eContext['breadcrumb'] = ['Basket']
+    
     def load_basket(self, request):
         imInBasket = list()
         dsInBasket = list()

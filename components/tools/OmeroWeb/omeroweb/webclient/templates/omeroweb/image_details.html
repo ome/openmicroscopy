@@ -62,19 +62,22 @@
 {% block center %}
 
 <div class="image">
-    <h1>Image: {{ manager.image.name }} {% if manager.image.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+    <h1>Image: {{ manager.image.name }} {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+    <p>{{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p>
 </div>
 
 {% if manager.image.isOwned %}
-<div class="basket">
-    <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">Pick image to the selection <img src="{% get_webclient_static_url %}/images/basket12.png" alt="p" title="pick"/></a>
+<div class="toolbar">
+    | View <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> | 
+    {% if manager.image.isOwned %} Select <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
+    Copy <a href="#" onclick="copyToClipboard('image', '{{ manager.image..id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>
+    {% if manager.image.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} |
 </div>
 {% endif %}
-<div class="clear"></div>
+
+<div class="separate70"></div>
 
 <div class="thumbnail">
-    <p>{{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p>
-    
     <center>
         <p><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
     

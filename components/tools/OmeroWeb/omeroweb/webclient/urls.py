@@ -94,6 +94,8 @@ urlpatterns = patterns('',
     ( r'(?i)^basket/([a-zA-Z]+)/$', views.basket_action ),
     ( r'(?i)^basket/(?P<action>[a-zA-Z]+)/(?P<oid>[0-9]+)/$', views.basket_action ),
     
+    ( r'(?i)^clipboard/$', views.update_clipboard ),
+    
     ( r'(?i)^search/$', views.search ),
     ( r'(?i)^history/(.*)/(\d{4})/(\d{1,2})/$', views.history ),
     ( r'(?i)^history/(.*)/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.history_details ),
