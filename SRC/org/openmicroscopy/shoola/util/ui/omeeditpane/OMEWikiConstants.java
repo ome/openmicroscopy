@@ -54,7 +54,7 @@ class OMEWikiConstants
 	static  final String NUMBERREGEX = "[a-zA-Z0-9]";
 	
 	/** Regex expression for text. */
-	static final String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;]*";
+	static final String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;\\\\]*";
 	
 	/** Regex for a sentence. */
 	static final String SENTENCEREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,. ;]*";
@@ -66,19 +66,19 @@ class OMEWikiConstants
 	static final String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
 	
 	/** Regex expression defining Thumbnail [Thumbnail: id 30]. */
-	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
+	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Dataset [Dataset: id 30]. */
-	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
+	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]++"+TEXTREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Project [Project: id 30]. */
-	static final String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
+	static final String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
 	
 	/** Regex expression defining Image [Image: id 30]. */
-	static final String IMAGEREGEX = "\\[(Image|image):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
+	static final String IMAGEREGEX = "\\[(Image|image):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
 	
 	/** Regex expression defining Protocol [Protocol: id 30]. */
-	static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*(id|ID|name|Name)[ ]+[a-zA-Z0-9]+[ ]*\\]";
+	static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Wiki Heading. */
 	static final String HEADINGREGEX = "(^[=]{3}[ ]+"+SENTENCEREGEX+"[ ]+[=]{3}[ ]*$|^[=]{2}[ ]+"+SENTENCEREGEX+"[ ]+[=]{2}[ ]*$|^[=]{1}[ ]+"+SENTENCEREGEX+"[ ]+[=]{1}[ ]*$)";
