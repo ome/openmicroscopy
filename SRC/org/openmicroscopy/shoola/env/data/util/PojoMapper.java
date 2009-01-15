@@ -36,6 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
 import omero.model.BooleanAnnotation;
 import omero.model.Dataset;
 import omero.model.Experimenter;
@@ -133,17 +134,25 @@ public class PojoMapper
         	return new TextualAnnotationData((TextAnnotation) object);
         else if (object instanceof LongAnnotation) {
         	LongAnnotation ann = (LongAnnotation) object;
-        	if (RatingAnnotationData.INSIGHT_RATING_NS.equals(
-        			ann.getNs().getValue()))
-         		return new RatingAnnotationData(ann);	
+        	RString ns = ann.getNs();
+        	if (ns != null) {
+        		if (RatingAnnotationData.INSIGHT_RATING_NS.equals(
+        			ns.getValue()))
+             		return new RatingAnnotationData(ann);	
+        		return new LongAnnotationData(ann);
+        	}
         	return new LongAnnotationData(ann);
         } else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation) {
         	BooleanAnnotation ann = (BooleanAnnotation) object;
-        	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
-        			ann.getNs().getValue()))
-        		return new ArchivedAnnotationData(ann);
+        	RString ns = ann.getNs();
+        	if (ns != null) {
+        		if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
+            			ns.getValue()))
+            		return new ArchivedAnnotationData(ann);
+        		return new BooleanAnnotationData(ann);
+        	}
         	return new BooleanAnnotationData(ann);
         }  else if (object instanceof TimestampAnnotation) 
         	return new TimeAnnotationData((TimestampAnnotation) object);
@@ -162,8 +171,6 @@ public class PojoMapper
         else if (object instanceof WellSample)
         	return new WellSampleData((WellSample) object);
         return null;
-        //throw new IllegalArgumentException("Unknown IObject type: "+
-        //       object.getClass().getName());
     }
     
     /**
