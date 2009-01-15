@@ -75,23 +75,28 @@ public class MetadataViewerFactory
 	 * @param refObject			The object viewed as the root of the browser.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param layout			One of the layout constants defined by the 
+	 * 							{@link MetadataViewer} I/F.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject, boolean
 									thumbnailRequired)
 	{
-		return  MetadataViewerFactory.getViewer(refObject, thumbnailRequired);
+		MetadataViewerModel model = new MetadataViewerModel(refObject);
+		return singleton.createViewer(model, thumbnailRequired);
 	}
-
+	
 	/**
 	 * Returns the {@link MetadataViewer}.
 	 * 
 	 * @param refObject	The object viewed as the root of the browser.
+	 * @param layout	One of the layout constants defined by the 
+	 * 					{@link MetadataViewer} I/F.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject)
 	{
-		return  MetadataViewerFactory.getViewer(refObject, true);
+		return MetadataViewerFactory.getViewer(refObject, true);
 	}
 	
 	/** Creates a new instance. */
