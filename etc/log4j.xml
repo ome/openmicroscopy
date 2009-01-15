@@ -162,23 +162,8 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
     <priority value="ERROR"/> <!-- Alternatively "TRACE" -->
   </category>
 
-  <!-- Configuring c3p0 -->
-  <category name="com.mchange">
-    <priority value="WARN"/>
-  </category>
-
-  <!-- Configuring xapool et al.-->
-  <category name="org.enhydra">
-    <priority value="INFO"/>
-  </category>
-
-  <!-- Configuring jotm et al.-->
-  <category name="org.objectweb">
-    <priority value="INFO"/>
-  </category>
-
-  <!-- Even if other c3p0 logs are wanted, not security warning at hibernate.org/214.html) -->
-  <category name="com.mchange.v2.c3p0">
+  <!-- WAY too verbose at INFO -->
+  <category name="atomikos">
     <priority value="WARN"/>
   </category>
 
