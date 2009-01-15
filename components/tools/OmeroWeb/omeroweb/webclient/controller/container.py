@@ -508,7 +508,22 @@ class BaseContainer(BaseController):
         else:
             return False
         return True
-
+    
+    def remove(self, parent, source):
+        if source[0] == 'ds':
+            if parent[0] == 'pr':
+                pdl = self.conn.getProjectDatasetLink(parent[1], source[1])
+                if pdl is not None:
+                    self.conn.deleteObject(pdl._obj)
+                    return True
+        elif source[0] == 'img':
+            if parent[0] == 'ds':
+                dil = self.conn.getDatasetImageLink(parent[1], source[1])
+                if dil is not None:
+                    self.conn.deleteObject(dil._obj)
+                    return True
+        return False
+    
     def copyImageToDataset(self, source, destination=None):
         if destination is None:
             dsls = self.conn.getDatasetImageLinks(source[1]) #gets every links for child

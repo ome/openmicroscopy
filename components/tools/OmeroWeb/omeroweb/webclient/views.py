@@ -1349,9 +1349,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         except:
             return False
         return HttpResponse()
-    elif action == 'copy':
-        #TODO
-        pass
+    elif action == 'remove':
+        parent = request.REQUEST['parent'].split('-')
+        source = request.REQUEST['source'].split('-')
+        if not manager.remove(parent,source):
+            return False
+        return HttpResponseRedirect(url)
     elif action == 'save':
         if o_type == "dataset":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1498,8 +1501,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 form_comment = TextAnnotationForm()
                 form_url = UrlAnnotationForm(initial={'link':'http://'})
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-    elif action == "remove":
-        return HttpResponseRedirect(url)
 
     t = template_loader.get_template(template)
     c = Context(request,context)

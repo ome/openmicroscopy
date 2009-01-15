@@ -917,7 +917,18 @@ class BlitzGateway (threading.Thread):
                 left outer join fetch dsl.parent as ds where im.id=:oid"
         for dsl in query_serv.findAllByQuery(sql, p):
             yield DatasetImageLinkWrapper(self, dsl)
-
+    
+    def getProjectDatasetLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select pdl from ProjectDatasetLink as pdl left outer join fetch pdl.child as ds \
+                left outer join fetch pdl.parent as pr where pr.id=:parent and ds.id=:oid"
+        pdl = query_serv.findByQuery(sql, p)
+        return ProjectDatasetLinkWrapper(self, pdl)
+    
     def getProjectDatasetLinks (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
