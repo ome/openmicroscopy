@@ -37,7 +37,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -248,22 +247,6 @@ public class ViewerSorter
         return compareDataObjects((DataObject) ob1, (DataObject) ob2);
     }
     
-    /**
-     * Compares two {@link TreeViewNode}s.
-     * 
-     * @param o1 The first object to compare.
-     * @param o2 The second object to compare.
-     * @return See below.
-     */
-    private int compareTreeViewNodes(TreeViewNode o1, TreeViewNode o2)
-    {
-        Object ob1 = o1.getUserObject();
-        Object ob2 = o2.getUserObject();
-        if (!(ob1 instanceof DataObject)) return -1;
-        if (!(ob2 instanceof DataObject)) return 1;
-        return compareImageDisplays((ImageDisplay) ob1, (ImageDisplay) ob2);
-    }
-    
     /** 
      * Returns the insertion time for the specified data object.
      * 
@@ -345,8 +328,6 @@ public class ViewerSorter
                     (TreeImageDisplay) o2);
         else if (o1 instanceof ImageDisplay)
             result = compareImageDisplays((ImageDisplay) o1, (ImageDisplay) o2);
-        else if (o1 instanceof TreeViewNode)
-            result = compareTreeViewNodes((TreeViewNode) o1, (TreeViewNode) o2);
         else if (o1 instanceof Timestamp)
         	result = compareTimestamps((Timestamp) o1, (Timestamp) o2);
         else if (o1 instanceof FileFilter)
