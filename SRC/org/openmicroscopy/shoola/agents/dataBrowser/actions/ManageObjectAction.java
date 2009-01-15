@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -37,7 +40,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Manages the object i.e. either copy, paste, cut or remove. 
@@ -54,6 +59,7 @@ import pojos.ProjectData;
  */
 public class ManageObjectAction 
 	extends DataBrowserAction
+	implements PropertyChangeListener
 {
 
 	/** Identified the copy action. */
@@ -156,37 +162,52 @@ public class ManageObjectAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
+    	if (node == null) {
+    		 setEnabled(false);
+             return;
+    	}
     	Browser browser = model.getBrowser();
-        if (node == null || browser == null) {
-            setEnabled(false);
-            return;
+        if (browser == null) {
+        	 setEnabled(false);
+             return;
         }
         Object ho = node.getHierarchyObject();
-        ImageDisplay parent = node.getParentDisplay();
-        Object parentObject;
+        Class klass = model.hasDataToCopy();
         switch (index) {
 			case COPY:
-				if (ho instanceof DatasetData) {
-					if (parent == null) setEnabled(false);
-		    		else {
-		    			parentObject = parent.getHierarchyObject();
-		    			if (parentObject instanceof ProjectData)
-							setEnabled(model.isObjectWritable(ho));
-						else setEnabled(false);
-		    		}
-				} else if (ho instanceof ImageData)
+				if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
+				         (ho instanceof PlateData))
 					setEnabled(model.isObjectWritable(ho));
 				else setEnabled(false);
-				
 				break;
 			case PASTE:
+				if (klass == null) {
+		        	setEnabled(false);
+		            return;
+		        }
+				if (ho instanceof ProjectData) {
+		        	if (DatasetData.class.equals(klass))
+		        		setEnabled(model.isObjectWritable(ho));
+		        	else setEnabled(false);
+		        } else if (ho instanceof ScreenData) {
+		        	if (PlateData.class.equals(klass))
+		        		setEnabled(model.isObjectWritable(ho));
+		        	else setEnabled(false);
+		        } else if (ho instanceof DatasetData) {
+		        	if (ImageData.class.equals(klass))
+		        		setEnabled(model.isObjectWritable(ho));
+		        	else setEnabled(false);
+		        } else setEnabled(false);
+				/*
 				 if ((ho instanceof DatasetData) ||(ho instanceof ImageData))
 					 setEnabled(model.isObjectWritable(ho));
 			     else setEnabled(false);
+			     */
 				break;
 			case REMOVE:
 				if ((ho instanceof ProjectData) || (ho instanceof DatasetData)
-						|| (ho instanceof ImageData)) {
+					|| (ho instanceof ImageData) || (ho instanceof ScreenData)
+					|| (ho instanceof PlateData)) {
 					setEnabled(model.isObjectWritable(ho));
 				/*
 				else if (ho instanceof DatasetData) {
@@ -209,9 +230,10 @@ public class ManageObjectAction
 				} else setEnabled(false);
 				break;
 			case CUT:
-				if (!(ho instanceof ImageData || ho instanceof DatasetData))
-					setEnabled(false);
-				else setEnabled(true);
+				if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
+				         (ho instanceof PlateData))
+					setEnabled(model.isObjectWritable(ho));
+				else setEnabled(false);
 		}
     }
     
@@ -249,6 +271,22 @@ public class ManageObjectAction
 			case CUT:
 				model.cut();
 		}
+    }
+    
+    /**
+     * Reacts to property changes in the {@link DataBrowser}.
+     * Sets the enabled flag.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+    	String name = evt.getPropertyName();
+    	if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name) ||
+    		DataBrowser.ITEMS_TO_COPY_PROPERTY.equals(name)) {
+    		Browser browser = model.getBrowser();
+        	if (browser != null)
+        		onDisplayChange(browser.getLastSelectedDisplay());
+    	}
     }
     
 }

@@ -180,7 +180,7 @@ public class ManageRndSettingsAction
 					return;
 				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData))
-						setEnabled(false);
+					setEnabled(false);
 				else {
 					if (nodes.size() > 1) setEnabled(ho instanceof ImageData);
 		        	else setEnabled(true);
@@ -237,15 +237,14 @@ public class ManageRndSettingsAction
     }
     
     /**
-     * Reacts to property changes in the {@link Browser}.
-     * Highlights the selected node, and update the status of the
-     * action.
+     * Reacts to property changes in the {@link DataBrowser}.
+     * Sets the enabled flag.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
     	String name = evt.getPropertyName();
-    	if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name) ||
+    	if (DataBrowser.COPY_ITEMS_PROPERTY.equals(name) ||
     		DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY.equals(name)) {
     		Browser browser = model.getBrowser();
         	if (browser != null)

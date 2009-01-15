@@ -228,6 +228,25 @@ public class DataBrowserFactory
 	}
 	
 	/**
+	 * Sets the type of object to copy or <code>null</code> if no objects to 
+	 * copy.
+	 * 
+	 * @param dataToCopy The type of objects to copy.
+	 */
+	public static final void setDataToCopy(Class dataToCopy)
+	{
+		singleton.dataToCopy = dataToCopy;
+		Iterator v = singleton.browsers.keySet().iterator();
+		DataBrowserComponent comp;
+		while (v.hasNext()) {
+			comp = (DataBrowserComponent) singleton.browsers.get(v.next());
+			comp.notifyDataToCopy();
+		}
+		if (singleton.searchBrowser != null)
+			((DataBrowserComponent) singleton.searchBrowser).notifyDataToCopy();
+	}
+	
+	/**
 	 * Returns <code>true</code> if there are rendering settings to copy,
 	 * <code>false</code> otherwise.
 	 * 
@@ -236,6 +255,17 @@ public class DataBrowserFactory
 	static boolean hasRndSettingsToCopy()
 	{
 		return singleton.rndSettingsToCopy;
+	}
+	
+	/**
+	 * Returns the type of objects to copy or <code>null</code> if no objects
+	 * selected.
+	 * 
+	 * @return See above.
+	 */
+	static Class hasDataToCopy()
+	{
+		return singleton.dataToCopy;
 	}
 	
 	/** The collection of discarded browsers. */
@@ -250,6 +280,9 @@ public class DataBrowserFactory
 	/** Flag indicating if some rendering settings have been copied. */
 	private boolean						rndSettingsToCopy;
 	
+	/** The type identifying the object to copy. */
+	private Class						dataToCopy;
+	
 	/** Creates a new instance. */
 	private DataBrowserFactory()
 	{
@@ -257,6 +290,7 @@ public class DataBrowserFactory
 		discardedBrowsers = new HashSet<String>();
 		searchBrowser = null;
 		rndSettingsToCopy = false;
+		dataToCopy = null;
 	}
 	
 	/**

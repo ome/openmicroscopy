@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 
 /** 
 * Action to copy the selected elements, a {@link CopyCmd} is executed.
@@ -94,6 +92,11 @@ public class CopyAction
 			return;
 		}
 		Object ho = selectedDisplay.getUserObject(); 
+		if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
+	         (ho instanceof PlateData))
+			setEnabled(model.isObjectWritable(ho));
+	    else setEnabled(false);
+		/*
 		if (ho instanceof DatasetData) {
 			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
 			if (parentDisplay == null) setEnabled(false);
@@ -103,6 +106,7 @@ public class CopyAction
 					setEnabled(model.isObjectWritable(ho));
 				else setEnabled(false);
 			}
+			setEnabled(model.isObjectWritable(ho));
 		} else if (ho instanceof PlateData) {
 			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
 			if (parentDisplay == null) setEnabled(false);
@@ -112,9 +116,11 @@ public class CopyAction
 					setEnabled(model.isObjectWritable(ho));
 				else setEnabled(false);
 			}
+			setEnabled(model.isObjectWritable(ho));
 		} else if (ho instanceof ImageData) 
 			setEnabled(model.isObjectWritable(ho));
 		else setEnabled(false);
+		*/
 	}
 
 	/**

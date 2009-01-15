@@ -125,10 +125,16 @@ public interface DataBrowser
 	public static final String		SET__ORIGINAL_RND_SETTINGS_PROPERTY = 
 										"setOriginalRndSettings";
 	
-	/** Bound property indicating to that some rendering settings 
-	 * can be copied. */
+	/** 
+	 * Bound property indicating to that some rendering settings can be copied. 
+	 */
 	public static final String		RND_SETTINGS_TO_COPY_PROPERTY = 
 										"rndSettingToCopy";
+	
+	/** 
+	 * Bound property indicating to that some data can be copied. 
+	 */
+	public static final String		ITEMS_TO_COPY_PROPERTY = "itemsToCopy";
 	
 	/** Bound property indicating to copy the items. */
 	public static final String		COPY_ITEMS_PROPERTY = "copyItems";
@@ -503,5 +509,13 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	public boolean hasRndSettings();
+
+	/**
+	 * Returns the type of objects to copy or <code>null</code> if no objects
+	 * selected.
+	 * 
+	 * @return See above.
+	 */
+	public Class hasDataToCopy();
 	
 }

@@ -136,7 +136,6 @@ class BrowserModel
     {
         switch (type) {
             case Browser.PROJECT_EXPLORER:
-            case Browser.CATEGORY_EXPLORER:
             case Browser.IMAGES_EXPLORER:    
             case Browser.TAGS_EXPLORER:  
             case Browser.SCREENS_EXPLORER: 

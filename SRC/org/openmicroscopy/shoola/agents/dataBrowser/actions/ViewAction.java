@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
  * Action to view an image or a collection of images.
@@ -65,11 +66,11 @@ public class ViewAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
-    	if (node == null && node.getParentDisplay() == null) {
+    	if (node == null) {
             setEnabled(false);
             return;
         }
-    	setEnabled(true);
+    	setEnabled(node.getHierarchyObject() instanceof ImageData);
     }
     
 	/**

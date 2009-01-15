@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings 
+ * org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.iviewer;
+package org.openmicroscopy.shoola.agents.events.treeviewer;
 
 
 //Java imports
@@ -29,10 +29,9 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.ImageData;
 
 /** 
- * Event to copy rendering settings across a collection of pixels set.
+ * Event to copy or cut items.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -42,30 +41,30 @@ import pojos.ImageData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class CopyRndSettings
+public class CopyItems 
 	extends RequestEvent
 {
-	
-	/** The image to copy the renderig settings from. */
-	private ImageData		image;
+
+	/** The type of items to copy or cut. */
+	private Class type;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param image The image to copy the rendering settings from.
+	 * @param type The type of node to copy or cut.
 	 */
-	public CopyRndSettings(ImageData image)
+	public CopyItems(Class type)
 	{
-		this.image = image;
+		this.type = type;
 	}
-
+	
 	/**
-	 * Returns the image to copy the rendering settings from.
+	 * Returns the type of items to copy or cut.
 	 * 
-	 * @return See above. 
+	 * @return See above.
 	 */
-    public ImageData getImage() { return image; }
-    
+	public Class getType() { return type; }
+	
 }

@@ -36,7 +36,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Action to paste a previously copied element, a {@link PasteCmd} is executed.
@@ -88,10 +92,32 @@ public class PasteAction
             setEnabled(false);
             return;
         }
+        Class klass = model.hasDataToCopy();
+        if (klass == null) {
+        	setEnabled(false);
+            return;
+        }
+        Object ho = selectedDisplay.getUserObject(); 
+        if (ho instanceof ProjectData) {
+        	if (DatasetData.class.equals(klass))
+        		setEnabled(model.isObjectWritable(ho));
+        	else setEnabled(false);
+        } else if (ho instanceof ScreenData) {
+        	if (PlateData.class.equals(klass))
+        		setEnabled(model.isObjectWritable(ho));
+        	else setEnabled(false);
+        } else if (ho instanceof DatasetData) {
+        	if (ImageData.class.equals(klass))
+        		setEnabled(model.isObjectWritable(ho));
+        	else setEnabled(false);
+        } else setEnabled(false);
+        
+        /*
         Object ho = selectedDisplay.getUserObject(); 
         if (!(ho instanceof ImageData))
             setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);
+        */
     }
     
     /**

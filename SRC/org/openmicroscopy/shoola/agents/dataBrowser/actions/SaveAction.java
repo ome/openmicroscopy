@@ -95,7 +95,8 @@ public class SaveAction
      * Reloads the thumbnails.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { 
+    public void actionPerformed(ActionEvent e)
+    { 
     	List<FileFilter> filterList = new ArrayList<FileFilter>();
 		FileFilter filter = new ExcelFilter();
 		filterList.add(filter);

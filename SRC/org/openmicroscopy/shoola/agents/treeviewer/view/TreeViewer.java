@@ -129,11 +129,8 @@ public interface TreeViewer
 	/** Identifies the <code>Edit</code> type for the editor. */
 	public static final int         PROPERTIES_EDITOR = 101;
 
-	/** Identifies the <code>Edit</code> type for the editor. */
-	public static final int         CLASSIFIER_EDITOR = 102;
-
 	/** Identifies the <code>No Editor</code> type for the editor. */
-	public static final int         NO_EDITOR = 103;
+	public static final int         NO_EDITOR = 102;
 
 	/** Identifies the <code>Delete Object</code> operation. */
 	public static final int         REMOVE_OBJECT = 302;
@@ -772,5 +769,13 @@ public interface TreeViewer
 	 * @param nodes The nodes hosting the {@link DataObject}s to delete.
 	 */
 	public void deleteObjects(List nodes);
+
+	/**
+	 * Returns the type of objects to copy or <code>null</code> if no objects
+	 * selected.
+	 * 
+	 * @return See above.
+	 */
+	public Class hasDataToCopy();
 	
 }

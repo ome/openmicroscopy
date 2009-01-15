@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -1086,12 +1087,13 @@ class TreeViewerComponent
 			case CUT_AND_PASTE:
 			case COPY_AND_PASTE:    
 				break;
-	
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
 		model.setNodesToCopy(nodes, index);
-		//controller.getAction(TreeViewerControl.PASTE_OBJECT).setEnabled(true);
+		
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new CopyItems(model.getDataToCopyType()));
 	}
 
 	/**
@@ -2007,6 +2009,16 @@ class TreeViewerComponent
 				fireStateChange();
 			}
 		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#hasDataToCopy()
+	 */
+	public Class hasDataToCopy()
+	{
+		if (model.getState() == DISCARDED) return null;
+		return model.getDataToCopyType();
 	}
 	
 }

@@ -502,8 +502,6 @@ class BrowserComponent
                 return im.getIcon(IconManager.HIERARCHY_EXPLORER);
             case TAGS_EXPLORER:
                 return im.getIcon(IconManager.TAGS_EXPLORER);
-            case CATEGORY_EXPLORER:
-                return im.getIcon(IconManager.CATEGORY_EXPLORER);
             case IMAGES_EXPLORER:
                 return im.getIcon(IconManager.IMAGES_EXPLORER);
             case SCREENS_EXPLORER:

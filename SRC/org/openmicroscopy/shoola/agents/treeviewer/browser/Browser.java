@@ -109,34 +109,28 @@ public interface Browser
     public static final int     	PROJECT_EXPLORER = 100;
     
     /** 
-     * Indicates that the browser corresponds to an <code>Category</code>
-     * explorer.
-     */
-    public static final int     	CATEGORY_EXPLORER = 101;
-    
-    /** 
      * Indicates that the browser corresponds to an <code>Images</code>
      * explorer.
      */
-    public static final int     	IMAGES_EXPLORER = 102;
+    public static final int     	IMAGES_EXPLORER = 101;
     
     /** 
      * Indicates that the browser corresponds to a <code>Tags</code>
      * explorer.
      */
-    public static final int     	TAGS_EXPLORER = 103;
+    public static final int     	TAGS_EXPLORER = 102;
    
     /** 
      * Indicates that the browser corresponds to a <code>Screen</code>
      * explorer.
      */
-    public static final int     	SCREENS_EXPLORER = 104;
+    public static final int     	SCREENS_EXPLORER = 103;
     
     /** 
      * Indicates that the browser corresponds to a <code>Files</code>
      * explorer.
      */
-    public static final int     	FILES_EXPLORER = 105;
+    public static final int     	FILES_EXPLORER = 104;
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
@@ -168,12 +162,7 @@ public interface Browser
      * The browser's title corresponding to {@link #PROJECT_EXPLORER} type.
      */
     public static final String     HIERARCHY_TITLE = "Projects";
-    
-    /** 
-     * The browser's title corresponding to {@link #CATEGORY_EXPLORER} type.
-     */
-    public static final String     CATEGORY_TITLE = "Tags";
-    
+
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
      */

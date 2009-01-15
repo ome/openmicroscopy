@@ -913,15 +913,32 @@ class TreeViewerModel
 	 * @param index The index of the {@link Browser}.
 	 * @return See above
 	 */
-	Browser getBrowser(int index)
-	{
-		return browsers.get(index);
-	}
+	Browser getBrowser(int index) { return browsers.get(index); }
 	
+	/**
+	 * Returns the name of the image to copy and paste.
+	 * 
+	 * @return See above.
+	 */
 	String getRefImageName()
 	{
 		if (refImage == null) return null;
 		return EditorUtil.getPartialName(refImage.getName());
+	}
+	
+	/**
+	 * Returns the type of nodes to copy or <code>null</code> if no nodes 
+	 * to copy or cut.
+	 * 
+	 * @return See above.
+	 */
+	Class getDataToCopyType()
+	{
+		TreeImageDisplay[] nodes = getNodesToCopy();
+		if (nodes == null) return null;
+		if (nodes.length == 0) return null;
+		Object ho = nodes[0].getUserObject();
+		return ho.getClass();
 	}
 	
 }

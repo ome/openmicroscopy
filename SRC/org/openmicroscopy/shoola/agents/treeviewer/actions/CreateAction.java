@@ -150,8 +150,8 @@ public class CreateAction
              putValue(Action.SHORT_DESCRIPTION, 
                      UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
         } else if (ho instanceof DatasetData) {
-            setEnabled(model.isObjectWritable(ho));
-            //setEnabled(false);
+            //setEnabled(model.isObjectWritable(ho));
+            setEnabled(false);
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;

@@ -699,8 +699,6 @@ class BrowserUI
         switch (model.getBrowserType()) {
             case Browser.PROJECT_EXPLORER:
                 return Browser.HIERARCHY_TITLE;
-            case Browser.CATEGORY_EXPLORER:
-                return Browser.CATEGORY_TITLE;
             case Browser.IMAGES_EXPLORER:
                 return Browser.IMAGES_TITLE;
             case Browser.TAGS_EXPLORER:

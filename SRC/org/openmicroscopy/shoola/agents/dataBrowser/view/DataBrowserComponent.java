@@ -128,6 +128,15 @@ class DataBrowserComponent
 						Boolean.TRUE);
 	}
 	
+	/** 
+	 * Fires a property indicating that some data can be copied.
+	 */
+	void notifyDataToCopy()
+	{
+		if (model.getState() == DISCARDED) return;
+		firePropertyChange(ITEMS_TO_COPY_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#activate()
@@ -998,6 +1007,15 @@ class DataBrowserComponent
 	public boolean hasRndSettings()
 	{
 		return DataBrowserFactory.hasRndSettingsToCopy();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#hasDataToCopy()
+	 */
+	public Class hasDataToCopy()
+	{
+		return DataBrowserFactory.hasDataToCopy();
 	}
 	
 }
