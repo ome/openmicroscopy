@@ -38,8 +38,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
@@ -198,9 +196,6 @@ public class DataObjectSaver
             if (userObject instanceof DatasetData) {
                 if (!(parent instanceof ProjectData))
                 throw new IllegalArgumentException("Parent not valid.");
-            } else if (userObject instanceof CategoryData) {
-                if (!(parent instanceof CategoryGroupData))
-                    throw new IllegalArgumentException("Parent not valid.");
             }
         }
         switch (index) {

@@ -35,8 +35,6 @@ import javax.swing.JList;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.TagAnnotationData;
 

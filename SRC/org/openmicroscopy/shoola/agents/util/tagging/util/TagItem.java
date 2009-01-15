@@ -30,8 +30,6 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.TagAnnotationData;
 
@@ -51,12 +49,6 @@ import pojos.TagAnnotationData;
 public class TagItem 
 	extends JMenuItem
 {
-
-	/** Indicates that the data object is a tag. */
-	public static final int		TAG = 0;
-	
-	/** Indicates that the data object is a tag set. */
-	public static final int		TAG_SET = 1;
 	
 	/** The category hosted by the component. */
 	private DataObject 	data;
@@ -110,11 +102,7 @@ public class TagItem
 	 */
 	public void setObjectDescription(String des)
 	{ 
-		if (data instanceof CategoryData) {
-			((CategoryData) data).setDescription(des);  
-		} else if (data instanceof CategoryGroupData) {
-			((CategoryGroupData) data).setDescription(des);  
-		}
+		
 	}
 	
 	/**
@@ -124,11 +112,7 @@ public class TagItem
 	 */
 	public void setObjectName(String name)
 	{ 
-		if (data instanceof CategoryData) {
-			((CategoryData) data).setName(name);  
-		} else if (data instanceof CategoryGroupData) {
-			((CategoryGroupData) data).setName(name);  
-		} else if (data instanceof TagAnnotationData)
+		if (data instanceof TagAnnotationData)
 			((TagAnnotationData) data).setTagValue(name);
 	}
 	
@@ -139,11 +123,6 @@ public class TagItem
 	 */
 	public String getObjectDescription()
 	{ 
-		if (data instanceof CategoryData) {
-			return ((CategoryData) data).getDescription(); 
-		} else if (data instanceof CategoryGroupData) {
-			return ((CategoryGroupData) data).getDescription(); 
-		}
 		return null;
 	}
 	
@@ -154,11 +133,7 @@ public class TagItem
 	 */
 	public String getObjectName()
 	{ 
-		if (data instanceof CategoryData) {
-			return ((CategoryData) data).getName(); 
-		} else if (data instanceof CategoryGroupData) {
-			return ((CategoryGroupData) data).getName(); 
-		} else if (data instanceof TagAnnotationData)
+		if (data instanceof TagAnnotationData)
 			return ((TagAnnotationData) data).getTagValue();
 		return null;
 	}

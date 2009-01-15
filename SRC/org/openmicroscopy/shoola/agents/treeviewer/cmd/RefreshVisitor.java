@@ -38,8 +38,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.PlateData;
@@ -148,29 +146,6 @@ public class RefreshVisitor
             }
              l.add(id);
             */
-        } else if ((userObject instanceof CategoryData) && 
-        		node.isChildrenLoaded() && node.isExpanded()) {
-        	parent = node.getParentDisplay();
-    		if (parent.isExpanded()) 
-    			foundNodes.add((DataObject) userObject);
-    		if (!(parent.getUserObject() instanceof CategoryGroupData)) {
-    			long id = ((DataObject) userObject).getId();
-                List l = expandedTopNodes.get(CategoryData.class);
-                if (l == null) {
-                	l = new ArrayList<Long>();
-                	expandedTopNodes.put(CategoryData.class, l);
-                }
-                l.add(new Long(id));
-    		}	
-        } else if ((userObject instanceof CategoryGroupData) 
-        		&& node.isExpanded()) {
-        	long id = ((DataObject) userObject).getId();
-            List l = expandedTopNodes.get(CategoryGroupData.class);
-            if (l == null) {
-            	l = new ArrayList<Long>();
-            	expandedTopNodes.put(CategoryGroupData.class, l);
-            }
-            l.add(new Long(id));
         } else if ((userObject instanceof ProjectData) 
         		&& node.isExpanded()) {
         	long id = ((DataObject) userObject).getId();

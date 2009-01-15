@@ -58,9 +58,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddMetadataAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseImageCategoriesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyChildrenAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyRndSettingsAction;
@@ -95,7 +92,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
-import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -151,12 +147,6 @@ class TreeViewerControl
 	/** Identifies the <code>Find action </code>in the Edit menu. */
 	static final Integer	FIND = new Integer(10);
 
-	/** Identifies the <code>Classify action</code> in the Edit menu. */
-	static final Integer    CLASSIFY = new Integer(11);
-
-	/** Identifies the <code>Declassify action</code> in the Edit menu. */
-	static final Integer    DECLASSIFY = new Integer(12);
-
 	/** Identifies the <code>Exit action</code> in the File menu. */
 	static final Integer    EXIT = new Integer(14);
 
@@ -185,7 +175,7 @@ class TreeViewerControl
 	 * Identifies the <code>Classifier action</code> in the 
 	 * File menu.
 	 */
-	static final Integer    CLASSIFIER = new Integer(20);
+	//static final Integer    CLASSIFIER = new Integer(20);
 
 	/** 
 	 * Identifies the <code>Cut action</code> in the 
@@ -209,7 +199,7 @@ class TreeViewerControl
 	static final Integer    ANNOTATE_CHILDREN = new Integer(24);
 
 	/** Identifies the <code>Classify children action</code>. */
-	static final Integer    CLASSIFY_CHILDREN = new Integer(25);
+	//static final Integer    CLASSIFY_CHILDREN = new Integer(25);
 
 	/** Identifies the <code>Roll over action</code>. */
 	static final Integer    ROLL_OVER = new Integer(26);
@@ -302,10 +292,6 @@ class TreeViewerControl
 		actionsMap.put(FILES_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.FILES_EXPLORER));
 		actionsMap.put(FIND,  new FinderAction(model));
-		actionsMap.put(CLASSIFY, new ClassifyAction(model,
-				ClassifyAction.CLASSIFY));
-		actionsMap.put(DECLASSIFY, new ClassifyAction(model, 
-				ClassifyAction.DECLASSIFY));
 		actionsMap.put(CLEAR, new ClearAction(model));
 		actionsMap.put(EXIT, new ExitApplicationAction(model));
 		actionsMap.put(ADD_OBJECT,  new AddAction(model));
@@ -319,13 +305,11 @@ class TreeViewerControl
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.TAG));
 		actionsMap.put(REFRESH_TREE, new RefreshTreeAction(model));
-		actionsMap.put(CLASSIFIER, new ClassifierAction(model));
 		actionsMap.put(MANAGER, new ManagerAction(model));
 		actionsMap.put(CUT_OBJECT, new CutAction(model));
 		actionsMap.put(ACTIVATION, new ActivationAction(model));
 		actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
 		actionsMap.put(ANNOTATE_CHILDREN, new AddMetadataAction(model));
-		actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
 		actionsMap.put(ROLL_OVER, new RollOverAction(model));
 		actionsMap.put(REMOVE_FROM_DISPLAY, new RemoveExperimenterNode(model));
 		actionsMap.put(REFRESH_EXPERIMENTER, 
@@ -579,12 +563,6 @@ class TreeViewerControl
 		} else if (name.equals(
 				AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
 			model.addExistingObjects((Set) pce.getNewValue());
-		} else if (name.equals(Tagger.TAGGED_PROPERTY)) {
-			Map browsers = model.getBrowsers();
-			Iterator i = browsers.values().iterator();
-
-			while (i.hasNext()) 
-				((Browser) i.next()).refreshTree();
 		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
 			Map m = (Map) pce.getNewValue();
 			Iterator i = m.keySet().iterator();
@@ -599,16 +577,6 @@ class TreeViewerControl
 		} else if (UserManagerDialog.NO_USER_SWITCH_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("User Selection", "Please select a user first.");
-		
-		/*
-		 } 
-		else if (ProfileEditor.EXPERIMENTER_CHANGED_PROPERTY.equals(name)) {
-			Map browsers = model.getBrowsers();
-			Iterator i = browsers.values().iterator();
-
-			while (i.hasNext()) 
-				((Browser) i.next()).refreshExperimenter();
-				*/
 		} else if (EditorDialog.CREATE_PROPERTY.equals(name)) {
 			DataObject data = (DataObject) pce.getNewValue();
 			model.createObject(data, true);

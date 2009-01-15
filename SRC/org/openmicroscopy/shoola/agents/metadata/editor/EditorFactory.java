@@ -57,22 +57,19 @@ public class EditorFactory
 	 * @param multiSelection	Pass <code>true</code> to indicate that the
 	 *                          editor is for a multi selection, 
 	 *                          <code>false</code> otherwise.
-	 * @param layout			One of the layout constants defined by the 
-	 * 							{@link Editor} I/F.
-	 * @param browser			The browser to 
+	 * @param browser			The browser to set.
      * @return See above.
      */
     public static Editor createEditor(MetadataViewer parent, 
     									Object refObject, boolean
-    									thumbnailRequired, int layout, Browser
-    									browser)
+    									thumbnailRequired, Browser browser)
     {
     	EditorModel model = new EditorModel(refObject, parent, 
     			                          thumbnailRequired);
     	model.setBrowser(browser);
     	EditorComponent component = new EditorComponent(model);
     	model.initialize(component);
-    	component.initialize(layout);
+    	component.initialize();
     	return component;
     }
     

@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -55,10 +54,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
-import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
-import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -131,9 +127,6 @@ class TreeViewerModel
 	 * {@link TreeViewer#CUT_AND_PASTE}. 
 	 */
 	private int                     copyIndex;
-
-	/** Reference to the component handling data. */
-	private DataHandler				dataHandler;
 
 	/** Flag indicating if the {@link TreeViewer} is recycled or not. */
 	private boolean					recycled;
@@ -573,88 +566,6 @@ class TreeViewerModel
 	}
 
 	/**
-	 * Creates the <code>DataHandler</code> to annotate the images imported
-	 * during a given period of time.
-	 * 
-	 * @param owner	The parent of the frame.
-	 * @param ref 	The time reference.
-	 * @return See above.
-	 */
-	DataHandler annotateDataObjects(JFrame owner, TimeRefObject ref)
-	{
-		dataHandler = AnnotatorFactory.getAnnotator(owner, ref, 
-				TreeViewerAgent.getRegistry());
-		return dataHandler;
-	}
-
-	/**
-	 * Creates the <code>DataHandler</code> to annotate the specified nodes.
-	 * 
-	 * @param owner	The parent of the frame.
-	 * @param type 	The type of node. Either <code>DatasetData</code> 
-	 * 				or <code>ImageData</code>.
-	 * @param nodes	The nodes to annotate.
-	 * @return See above.
-	 */
-	DataHandler annotateDataObjects(JFrame owner, Class type,
-			Set<DataObject> nodes)
-	{
-		dataHandler = AnnotatorFactory.getAnnotator(owner, nodes, 
-				TreeViewerAgent.getRegistry(), type);
-		return dataHandler;
-	}
-
-	/**
-	 * Creates the <code>DataHandler</code> to annotate the images
-	 * of the specified node.
-	 * 
-	 * @param owner	The parent of the frame.
-	 * @param klass The data type. Either
-	 * @param nodes The nodes containing the images to annotate.
-	 * @return See above.
-	 */
-	DataHandler annotateChildren(JFrame owner, Class klass, 
-			Set<DataObject> nodes)
-	{
-		dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, nodes, 
-				TreeViewerAgent.getRegistry(), klass);
-		return dataHandler;
-
-	}
-
-	/**
-	 * Creates the <code>DataHandler</code> to classify or declassify the 
-	 * specified images depending on the passed mode.
-	 * 
-	 * @param owner	The parent of the frame.
-	 * @param nodes	The images to classify or declassify.
-	 * @param m		The mode indicating if we classify or declassify the images.
-	 * @return See above.
-	 */
-	DataHandler classifyImageObjects(JFrame owner, Set<ImageData> nodes, int m)
-	{
-		dataHandler = ClassifierFactory.getClassifier(owner, nodes, rootID, m,
-				TreeViewerAgent.getRegistry());
-		return dataHandler;
-	}
-
-	/** Discards the <code>DataHandler</code>. */
-	void discardDataHandler()
-	{
-		if (dataHandler != null) {
-			dataHandler.discard();
-			dataHandler = null;
-		}
-	}
-
-	/**
-	 * Returns the <code>DataHandler</code> or null if not initialized.
-	 * 
-	 * @return See above.
-	 */
-	DataHandler getDataHandler() { return dataHandler; }
-
-	/**
 	 * Returns the available user groups.
 	 * 
 	 * @return See above.
@@ -837,8 +748,7 @@ class TreeViewerModel
 	MetadataViewer getMetadataViewer()
 	{
 		if (metadataViewer == null) 
-			metadataViewer = MetadataViewerFactory.getViewer("", false,
-					MetadataViewer.VERTICAL_LAYOUT);
+			metadataViewer = MetadataViewerFactory.getViewer("", false);
 		return metadataViewer;
 	}
 	

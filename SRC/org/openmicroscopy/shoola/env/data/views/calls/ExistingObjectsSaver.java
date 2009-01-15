@@ -35,8 +35,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -176,13 +174,6 @@ public class ExistingObjectsSaver
             } catch (ArrayStoreException ase) {
                 throw new IllegalArgumentException(
                         "items can only be images.");
-            }
-        } else if (parent instanceof CategoryGroupData) {
-            try {
-                children.toArray(new CategoryData[] {});
-            } catch (ArrayStoreException ase) {
-                throw new IllegalArgumentException(
-                        "items can only be categories.");
             }
         } else
             throw new IllegalArgumentException("parent object not supported");

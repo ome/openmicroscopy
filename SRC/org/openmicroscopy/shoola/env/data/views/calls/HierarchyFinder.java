@@ -34,7 +34,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryGroupData;
 import pojos.ProjectData;
 
 /** 
@@ -128,8 +127,7 @@ public class HierarchyFinder
             throw new NullPointerException("No root node type.");
         if (userID < 0) 
             throw new IllegalArgumentException("Root level ID not valid.");
-        if (hierarchyRootNodeType.equals(ProjectData.class) ||
-            hierarchyRootNodeType.equals(CategoryGroupData.class))
+        if (hierarchyRootNodeType.equals(ProjectData.class))
             findCall = makeBatchCall(hierarchyRootNodeType, ids, userID);
         else
             throw new IllegalArgumentException("Unsupported type: "+

@@ -101,12 +101,8 @@ class EditorComponent
 		controller = new EditorControl();
 	}
 	
-	/** 
-	 * Links up the MVC triad. 
-	 * 
-	 * @param layout	One of the layout constants defined by the 
-	 * 					{@link Editor} I/F.*/
-	void initialize(int layout)
+	/** Links up the MVC triad. */
+	void initialize()
 	{
 		controller.initialize(this, view);
 		view.initialize(model, controller);
@@ -212,22 +208,6 @@ class EditorComponent
 	public boolean hasDataToSave()
 	{
 		return view.hasDataToSave();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#addComponent(JComponent, int)
-	 */
-	public void addComponent(JComponent c, int location)
-	{
-		switch (location) {
-			case MetadataViewer.TOP_LEFT:
-				view.addTopLeftComponent(c);
-				break;
-	
-			default:
-				break;
-		}
 	}
 	
 	/** 

@@ -32,15 +32,10 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-
-
-
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -49,7 +44,8 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 
 /** 
- * 
+ * Represents a component in the composite structure used to visualize an
+ * image hierarchy.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -98,10 +94,6 @@ public abstract class TreeBrowserDisplay
             return ((DatasetData) obj).getName();
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
-        else if (obj instanceof CategoryGroupData) 
-            return ((CategoryGroupData) obj).getName();
-        else if (obj instanceof CategoryData) 
-            return ((CategoryData) obj).getName();
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
         	return EditorUtil.formatExperimenter(exp);

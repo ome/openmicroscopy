@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -88,8 +86,7 @@ public class RenderingSettingsSaver
 	 */
 	private void checkRootType(Class type)
 	{
-		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
-				CategoryData.class.equals(type))
+		if (ImageData.class.equals(type) || DatasetData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}

@@ -184,19 +184,13 @@ public class IconManager
     
     /** The <code>Clear</code> icon. */
     public static int           HISTORY_CLEAR = 41;
-    
-    /** The <code>Category</code> icon. */
-    public static int           CATEGORY = 42;
-    
+
     /** The <code>Create big</code> icon. */
     public static int           CREATE_48 = 43;
     
     /** The <code>Filter menu</code> icon. */
     public static int           FILTER_MENU = 44;
-    
-    /** The <code>Category group</code> icon. */
-    public static int           CATEGORY_GROUP = 45;
-    
+
     /** The <code>Browse</code> icon. */
     public static int           BROWSE = 46;
     
@@ -295,10 +289,8 @@ public class IconManager
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[HISTORY_CLEAR] = "nuvola_history_clear16.png";
-        relPaths[CATEGORY] = "nuvola_knotes16.png";
         relPaths[CREATE_48] = "nuvola_filenew48.png"; 
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
-        relPaths[CATEGORY_GROUP] = "category_group16.png"; 
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[RATIO_MIN] = relPaths[ZOOM_OUT];//"image8.png";

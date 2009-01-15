@@ -79,18 +79,6 @@ public interface MetadataViewer
 	 * are loaded.
 	 */
 	public static final String	LOADING_PARENTS_PROPERTY = "loadingParents";
-	
-	/** Indicates to layout all the components vertically. */
-	public static final int		VERTICAL_LAYOUT = 0;
-	
-	/** Indicates to layout all the components vertically. */
-	public static final int		GRID_LAYOUT = 1;
-	
-	/** 
-	 * Constrain indicating to add an external component to the 
-	 * top left corner.
-	 */
-	public static final int 	TOP_LEFT = 0;
 
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
@@ -226,15 +214,7 @@ public interface MetadataViewer
 	
 	/** Clears the data to save. */
 	public void clearDataToSave();
-	
-	/**
-	 * Adds the external passed component to the specified location.
-	 * 
-	 * @param external	The component to add. Mustn't be <code>null</code>.
-	 * @param location	One of the location constrains defined by this class.
-	 */
-	public void addExternalComponent(JComponent external, int location);
-	
+
 	/**
 	 * Refreshes the view when the metadata has been saved.
 	 * 

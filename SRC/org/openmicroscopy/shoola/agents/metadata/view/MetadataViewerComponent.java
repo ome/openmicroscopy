@@ -461,19 +461,6 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#addExternalComponent(JComponent, int)
-	 */
-	public void addExternalComponent(JComponent external, int location)
-	{
-		if (external == null)
-			throw new IllegalArgumentException("No component to add.");
-		Editor editor = model.getEditor();
-		if (editor == null) return;
-		editor.addComponent(external, location);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#onDataSave(Collection)
 	 */
 	public void onDataSave(List<DataObject> data)

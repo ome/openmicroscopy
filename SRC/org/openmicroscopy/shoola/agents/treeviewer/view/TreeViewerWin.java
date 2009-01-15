@@ -56,7 +56,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -616,16 +615,6 @@ class TreeViewerWin
         else setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         statusBar.setStatusIcon(b); 
     }
-
-    /**
-     * Returns the <code>DataHandler</code> or null if not initialized.
-     * 
-     * @return See above.
-     */
-    DataHandler getDataHandler() { return model.getDataHandler(); } 
-    
-    /** Discards the <code>DataHandler</code>. */
-    void discardDataHandler() { model.discardDataHandler(); }
     
     /** 
      * Updates the text of the menu items when a node is selected

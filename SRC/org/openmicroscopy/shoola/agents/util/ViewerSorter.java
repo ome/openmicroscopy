@@ -39,8 +39,6 @@ import javax.swing.filechooser.FileFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -278,10 +276,6 @@ public class ViewerSorter
             return ((DatasetData) obj).getName();
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
-        else if (obj instanceof CategoryGroupData) 
-            return ((CategoryGroupData) obj).getName();
-        else if (obj instanceof CategoryData) 
-            return ((CategoryData) obj).getName();
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
         	return exp.getLastName()+" "+exp.getFirstName();

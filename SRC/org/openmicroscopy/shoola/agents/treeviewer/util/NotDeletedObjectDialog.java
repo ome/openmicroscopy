@@ -91,8 +91,8 @@ public class NotDeletedObjectDialog
 	private static final String TITLE = "Objects not deleted";
 	
 	/** The text displayed in the header. */
-	private static final String TEXT = "Below the objects that could not " +
-			"be deleted.";
+	private static final String TEXT = "Follow the list of objects that " +
+			"could not be deleted.";
 	
 	/** The texf of the {@link #NAME_COL}. */
 	private static final String	NAME =  "Name";
@@ -118,7 +118,7 @@ public class NotDeletedObjectDialog
 		RENDERERS = new HashMap<Integer, Class>();
 		RENDERERS.put(NAME_COL, DeletableTableNode.class);
 		RENDERERS.put(TYPE_COL, String.class);
-		RENDERERS.put(ID_COL, Number.class);
+		RENDERERS.put(ID_COL, Long.class);
 	}
 	
 	/** The table displaying the objects not deleted. */
@@ -154,7 +154,7 @@ public class NotDeletedObjectDialog
 			public void windowClosing(WindowEvent e) { close(); }
 		});
 		
-		closeButton = new JButton("OK");
+		closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
 		
 			public void actionPerformed(ActionEvent e) {
@@ -162,16 +162,10 @@ public class NotDeletedObjectDialog
 		
 			}
 		});
+		getRootPane().setDefaultButton(closeButton);
 		root = new DeletableTableNode("");
-		table = new OMETreeTable();
-		table.setTableModel(new OMETreeTableModel(root, COLUMNS, RENDERERS));
-		table.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
-		//table.setDefaultRenderer(String.class, new NumberCellRenderer());
-		table.setRootVisible(false);
-		table.setColumnSelectionAllowed(true);
-		table.setRowSelectionAllowed(true);
-		table.setHorizontalScrollEnabled(true);
-		table.setColumnControlVisible(true);
+		
+		//table.setColumnControlVisible(true);
 		Iterator<DeletableObject> i = notDeleted.iterator();
 		DeletableObject node;
 		while (i.hasNext()) {
@@ -179,6 +173,15 @@ public class NotDeletedObjectDialog
 			if (node != null)
 				root.insert(new DeletableTableNode(node), root.getChildCount());
 		}
+		table = new OMETreeTable();
+		table.setTableModel(new OMETreeTableModel(root, COLUMNS, RENDERERS));
+		table.setTreeCellRenderer(new DeletableTableRenderer());
+		table.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
+		//table.setDefaultRenderer(String.class, new NumberCellRenderer());
+		table.setRootVisible(false);
+		table.setColumnSelectionAllowed(true);
+		table.setRowSelectionAllowed(true);
+		table.setHorizontalScrollEnabled(true);
 	}
 
 	 /**
@@ -226,6 +229,7 @@ public class NotDeletedObjectDialog
 		if (notDeleted == null || notDeleted.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		setModal(true);
+		setTitle(TITLE);
 		initComponents(notDeleted);
 		buildGUI();
 		pack();

@@ -303,17 +303,6 @@ public interface TreeViewer
 	public void closeWindow();
 
 	/**
-	 * Brings up the classifier corresponding to the specified mode.
-	 * 
-	 * @param images    The images to classify or declassify depending on the
-	 *                  given mode.
-	 * @param mode      The type of classifier. One of the following constants:
-	 *                  {@link Classifier#CLASSIFY_MODE} or
-	 *                  {@link Classifier#DECLASSIFY_MODE}.
-	 */
-	public void classify(Set<ImageData> images, int mode);
-
-	/**
 	 * Reacts to a node selection in the currently selected {@link Browser}.
 	 */
 	public void onSelectedDisplay();
@@ -496,15 +485,6 @@ public interface TreeViewer
 	public JFrame getUI();
 
 	/**
-	 * Annotates the specified objects.
-	 * 
-	 * @param klass	The type of nodes. Either <code>DatasetData</code> 
-	 * 				or <code>ImageData</code>.
-	 * @param nodes The nodes to annotate.
-	 */
-	public void annotate(Class klass, Set<DataObject> nodes);
-
-	/**
 	 * Returns <code>true</code> if some data has to be saved before 
 	 * selecting a new node, <code>false</code> otherwise.
 	 * 
@@ -542,24 +522,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public ExperimenterData getSelectedExperimenter();
-
-	/**
-	 * Annotates the images contained in the specified folder.
-	 * 
-	 * @param klass The data type. Either <code>DatasetData</code> or a 
-	 * 				<code>CategoryData</code>.
-	 * @param nodes The nodes hosting the images to annotate.
-	 */
-	public void annotateChildren(Class klass, Set<DataObject> nodes);
-
-	/**
-	 * Classifies the images contained in the specified folder.
-	 * 
-	 * @param klass The data type. Either <code>DatasetData</code> or a 
-	 * 				<code>CategoryData</code>.
-	 * @param nodes The nodes hosting the images to annotate.
-	 */
-	public void classifyChildren(Class klass, Set<DataObject> nodes);
 
 	/**
 	 * Returns <code>true</code> if the viewer is recycled, <code>false</code>
@@ -632,20 +594,6 @@ public interface TreeViewer
 	 * @param map The value to set.
 	 */
 	public void rndSettingsPasted(Map map);
-
-	/**
-	 * Annotates the images imported during a given period of time.
-	 * 
-	 * @param ref The time object.
-	 */
-	public void annotate(TimeRefObject ref);
-
-	/**
-	 * Classifies the images imported during a given period of time.
-	 * 
-	 * @param ref The time object.
-	 */
-	public void classify(TimeRefObject ref);
 
 	/**
 	 * Creates the passed object.

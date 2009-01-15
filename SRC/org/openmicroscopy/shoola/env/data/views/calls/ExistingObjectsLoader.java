@@ -34,8 +34,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
@@ -112,11 +110,9 @@ public class ExistingObjectsLoader
     public ExistingObjectsLoader(Class nodeType, List nodeIDs, long userID)
     {
         if (!(nodeType.equals(ProjectData.class) || 
-            nodeType.equals(DatasetData.class) || 
-            nodeType.equals(CategoryData.class) || 
-            nodeType.equals(CategoryGroupData.class))) 
+            nodeType.equals(DatasetData.class))) 
             throw new IllegalArgumentException("DataObject not supported.");
-        if (nodeIDs == null && nodeIDs.size() == 0)
+        if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
         loadCall = makeBatchCall(nodeType, nodeIDs, userID);
     }  

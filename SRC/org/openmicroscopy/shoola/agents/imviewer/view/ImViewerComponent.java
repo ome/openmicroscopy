@@ -1719,9 +1719,6 @@ class ImViewerComponent
 				if (model.getMaxC() == 1) controller.showColorPicker(0);
 				else view.showMenu(menuID, source, location);
 				break;
-			case CATEGORY_MENU:
-				view.showMenu(menuID, source, location);
-				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
 		}

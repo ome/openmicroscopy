@@ -33,10 +33,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -97,8 +94,6 @@ public abstract class FinderLoader
     protected Class checkType(int value)
     {
     	switch (value) {
-			case TAGS:
-				return CategoryData.class;
 			case IMAGES:
 				return ImageData.class;
 			case ANNOTATIONS:
@@ -120,10 +115,7 @@ public abstract class FinderLoader
      */
     protected String convertType(Class type)
     {
-    	 if (CategoryData.class.equals(type)) return "Tags";
-         else if (ImageData.class.equals(type)) return "Images";
-         //else if (ImageAnnotation.class.equals(type)) return "Annotations";
-         else if (CategoryGroupData.class.equals(type)) return "Tag sets";
+    	 if (ImageData.class.equals(type)) return "Images";
     	 return "";
     }
     

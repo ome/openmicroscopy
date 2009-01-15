@@ -64,11 +64,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
-import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
-import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
-import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -535,45 +531,6 @@ class TreeViewerComponent
 			bus.post(new ExitApplication());
 		} else discard();
 
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#classify(Set, int)
-	 */
-	public void classify(Set<ImageData> images, int mode)
-	{
-		switch (model.getState()) {
-		//case READY:
-		case DISCARDED:
-			throw new IllegalStateException("This method should cannot " +
-			"be invoked in the DISCARDED state.");
-		}
-
-		if (images == null) 
-			throw new IllegalArgumentException("Object cannot be null.");
-		if (images.size() == 0)
-			throw new IllegalArgumentException("No images to classify or " +
-			"declassify.");
-		if (mode == Classifier.CLASSIFY_MODE) {
-			Iterator i = images.iterator();
-			Set<Long> ids = new HashSet<Long>(images.size());
-			while (i.hasNext()) 
-				ids.add(((ImageData) i.next()).getId());
-			
-			Tagger tagger = TaggerFactory.getImageTagger(
-								TreeViewerAgent.getRegistry(), ids);
-			if (tagger != null) {
-				tagger.addPropertyChangeListener(controller);
-				
-				tagger.activate();
-				UIUtilities.centerAndShow(tagger.getUI());
-			}
-		} else {
-			DataHandler dh = model.classifyImageObjects(view, images, mode);
-			dh.addPropertyChangeListener(controller);
-			dh.activate();
-		}
 	}
 
 	/**
@@ -1107,24 +1064,6 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#annotate(Class, Set)
-	 */
-	public void annotate(Class klass, Set<DataObject> nodes)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("This method cannot be invoked " +
-			"in the DISCARDED state.");
-		if (nodes == null)
-			throw new IllegalArgumentException("No dataObject to annotate");
-		if (ImageData.class.equals(klass) || DatasetData.class.equals(klass)) {
-			DataHandler dh = model.annotateDataObjects(view, klass, nodes);
-			dh.addPropertyChangeListener(controller);
-			dh.activate();
-		}
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#hasDataToSave()
 	 */
 	public boolean hasDataToSave()
@@ -1209,53 +1148,6 @@ class TreeViewerComponent
 			if (node != null) exp = b.getNodeOwner(node);
 		}
 		return exp;
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#annotateChildren(Class, Set)
-	 */
-	public void annotateChildren(Class klass, Set<DataObject> nodes)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		if (nodes == null || nodes.size() == 0)
-			throw new IllegalArgumentException("No specified container.");
-		if (DatasetData.class.equals(klass)) {
-			DataHandler dh = model.annotateChildren(view, klass, nodes);
-			dh.addPropertyChangeListener(controller);
-			dh.activate();
-		}
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#classifyChildren(Class, Set)
-	 */
-	public void classifyChildren(Class klass, Set<DataObject> nodes)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		if (nodes == null || nodes.size() == 0)
-			throw new IllegalArgumentException("No specified container.");
-		if (DatasetData.class.equals(klass)) {
-			Iterator i = nodes.iterator();
-			Set<Long> ids = new HashSet<Long>(nodes.size());
-			while (i.hasNext()) 
-				ids.add(((DataObject) i.next()).getId());
-			
-			Tagger tagger = TaggerFactory.getContainerTagger(
-								TreeViewerAgent.getRegistry(), ids, klass, 
-									Tagger.BULK_TAGGING_MODE);
-			if (tagger != null) {
-				tagger.addPropertyChangeListener(controller);
-				
-				tagger.activate();
-				UIUtilities.centerAndShow(tagger.getUI());
-			}
-		}
 	}
 
 	/**
@@ -1431,38 +1323,6 @@ class TreeViewerComponent
 		}
 		model.setState(READY);
 		fireStateChange();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#annotate(TimeRefObject)
-	 */
-	public void annotate(TimeRefObject ref)
-	{
-		if (ref == null)
-			throw new IllegalArgumentException("No time object");
-		//TODO: check state
-		DataHandler dh = model.annotateDataObjects(view, ref);
-		dh.addPropertyChangeListener(controller);
-		dh.activate();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#classify(TimeRefObject)
-	 */
-	public void classify(TimeRefObject ref)
-	{
-		if (ref == null)
-			throw new IllegalArgumentException("No time object");
-		Tagger tagger = TaggerFactory.getImageTagger(
-				TreeViewerAgent.getRegistry(), ref);
-		if (tagger != null) {
-			tagger.addPropertyChangeListener(controller);
-		
-			tagger.activate();
-			UIUtilities.centerAndShow(tagger.getUI());
-		}
 	}
 
 	/**
@@ -1980,13 +1840,8 @@ class TreeViewerComponent
 			}
 			
 			if (l.size() > 0) {
-				//TEST
-				NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, l);
-				if (nd.centerAndShow() == 0) {
-					System.err.println("FOO");
-				}
-				//model.fireObjectsDeletion(l);
-				//fireStateChange();
+				model.fireObjectsDeletion(l);
+				fireStateChange();
 			}
 		}
 	}
@@ -2036,10 +1891,15 @@ class TreeViewerComponent
 	 */
 	public void onNodesDeleted(Collection<DeletableObject> notDeleted)
 	{
+		if (model.getState() == DISCARDED) return;
 		if (notDeleted == null || notDeleted.size() == 0) {
 			onNodesMoved();
 			return;
 		}
+		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, 
+								notDeleted);
+		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
+			onNodesMoved();
 	}
 
 }

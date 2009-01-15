@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -384,10 +382,6 @@ public abstract class ImageDisplay
             return ((DatasetData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ImageData) 
             return ((ImageData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof CategoryGroupData) 
-            return ((CategoryGroupData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof CategoryData) 
-            return ((CategoryData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) hierarchyObject;
         	return exp.getFirstName()+" "+exp.getLastName();
@@ -409,10 +403,6 @@ public abstract class ImageDisplay
             s = ((DatasetData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ImageData) 
             s = getPartialName(((ImageData) hierarchyObject).getName());
-        else if (hierarchyObject instanceof CategoryData) 
-            s = ((CategoryData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof CategoryGroupData) 
-            s = ((CategoryGroupData) hierarchyObject).getName();
         return s;
     }
     

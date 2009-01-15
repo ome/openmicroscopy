@@ -168,12 +168,6 @@
         <class>org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent</class>
         <config>imviewer.xml</config>
       </agent>
-      <agent> 
-        <name>Hierarchy Viewer</name>
-        <active>false</active>
-        <class>org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent</class>  
-        <config>hiviewer.xml</config>
-      </agent> 
        <agent>
         <name>Tree Manager</name>
         <active>true</active>

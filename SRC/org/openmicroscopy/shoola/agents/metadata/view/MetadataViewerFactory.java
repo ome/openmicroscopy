@@ -66,8 +66,7 @@ public class MetadataViewerFactory
 			throw new IllegalArgumentException("No data to edit");
 		MetadataViewerModel model = new MetadataViewerModel(data);
 		model.setDataType(type);
-		return singleton.createViewer(model, false, 
-				                     MetadataViewer.VERTICAL_LAYOUT);
+		return singleton.createViewer(model, false);
 	}
 	
 	/**
@@ -81,40 +80,9 @@ public class MetadataViewerFactory
 	public static MetadataViewer getViewer(Object refObject, boolean
 									thumbnailRequired)
 	{
-		return  MetadataViewerFactory.getViewer(refObject, thumbnailRequired, 
-									MetadataViewer.GRID_LAYOUT);
+		return  MetadataViewerFactory.getViewer(refObject, thumbnailRequired);
 	}
-	
-	/**
-	 * Returns the {@link MetadataViewer}.
-	 * 
-	 * @param refObject			The object viewed as the root of the browser.
-	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
-	 * @param layout			One of the layout constants defined by the 
-	 * 							{@link MetadataViewer} I/F.
-	 * @return See above.
-	 */
-	public static MetadataViewer getViewer(Object refObject, boolean
-									thumbnailRequired, int layout)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		return singleton.createViewer(model, thumbnailRequired, layout);
-	}
-	
-	/**
-	 * Returns the {@link MetadataViewer}.
-	 * 
-	 * @param refObject	The object viewed as the root of the browser.
-	 * @param layout	One of the layout constants defined by the 
-	 * 					{@link MetadataViewer} I/F.
-	 * @return See above.
-	 */
-	public static MetadataViewer getViewer(Object refObject, int layout)
-	{
-		return MetadataViewerFactory.getViewer(refObject, true, layout);
-	}
-	
+
 	/**
 	 * Returns the {@link MetadataViewer}.
 	 * 
@@ -123,15 +91,11 @@ public class MetadataViewerFactory
 	 */
 	public static MetadataViewer getViewer(Object refObject)
 	{
-		return  MetadataViewerFactory.getViewer(refObject, true, 
-										MetadataViewer.GRID_LAYOUT);
+		return  MetadataViewerFactory.getViewer(refObject, true);
 	}
 	
 	/** Creates a new instance. */
-	private MetadataViewerFactory()
-	{
-		
-	}
+	private MetadataViewerFactory() {}
 	
 	/**
 	 * Creates and returns a {@link MetadataViewer}.
@@ -139,15 +103,13 @@ public class MetadataViewerFactory
 	 * @param model				The Model.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
-	 * @param layout			One of the layout constants defined by the 
-	 * 							{@link MetadataViewer} I/F.
 	 * @return See above.
 	 */
 	private MetadataViewer createViewer(MetadataViewerModel model,
-										boolean thumbnailRequired, int layout)
+										boolean thumbnailRequired)
 	{
 		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp, thumbnailRequired, layout);
+		model.initialize(comp, thumbnailRequired);
 		comp.initialize();
 		return comp;
 	}

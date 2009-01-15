@@ -441,7 +441,7 @@ public class IconManager
         relPaths[FILE_HTML] = "txt_html16.png";
         relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
         relPaths[IMPORTER] = "omeroImporterLink16.png";
-        relPaths[REMOVE_48] = "nuvola_kdmconfig48.png";
+        relPaths[REMOVE_48] = "nuvola_trashcan_full48.png";
     }
     
     /** The sole instance. */

@@ -34,7 +34,6 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -43,7 +42,7 @@ import pojos.ChannelData;
 import pojos.ImageAcquisitionData;
 
 /** 
- * 
+ * Defines the interface provided by the viewer component. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -108,13 +107,7 @@ public interface Editor
 	
 	/** Identified the <code>mode</code> enumeration. */
 	public static final String MODE = OmeroMetadataService.ACQUISITION_MODE;
-	
-	/** Inidicates to layout all the components vertically. */
-	public static final int VERTICAL_LAYOUT = MetadataViewer.VERTICAL_LAYOUT;
-	
-	/** Inidicates to layout all the components vertically. */
-	public static final int	GRID_LAYOUT = MetadataViewer.GRID_LAYOUT;;
-	
+
 	/** Feeds the metadata back to the editor. */
 	public void setStructuredDataResults();
 	
@@ -173,15 +166,7 @@ public interface Editor
 	 * @return See above.
 	 */
 	public boolean hasDataToSave();
-	
-	/**
-	 * Adds the passed component to the editor at the specified location.
-	 * 
-	 * @param component	The component to add.
-	 * @param location	The location.
-	 */
-	public void addComponent(JComponent component, int location);
-	
+
 	/**
 	 * Sets the collection of archived files.
 	 * 
