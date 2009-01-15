@@ -77,7 +77,7 @@ module omero {
 	     * Activation will happen automatically whether passivation was done
 	     * manually or automatically.
 	     */
-	    void passivate();
+	    void passivate() throws ServerError;
 
 	    /*
 	     * Load a service implementation from disk if it was previously
@@ -88,7 +88,7 @@ module omero {
 	     * It is safe to call this method at any time, even when the service
 	     * is not passivated.
 	     */
-	    void activate();
+	    void activate() throws ServerError;
 
 	    /*
 	     * Frees all resources -- passivated or active -- for the given

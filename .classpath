@@ -99,5 +99,6 @@
 	<classpathentry kind="lib" path="target/libs/blitz.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
+	<classpathentry kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

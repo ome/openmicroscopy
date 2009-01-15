@@ -309,9 +309,9 @@ build-* targets.
             </fileset>
             <fileset dir="components/rendering/" defaultexcludes="yes">
                 <patternset refid="all.java.files"/>
+            </fileset>
             <!-- Skipping generated files for blitz. Just too many -->
             <fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
-            </fileset>
             <fileset dir="components/tools/admin" defaultexcludes="yes">
                 <patternset refid="all.java.files"/>
             </fileset>

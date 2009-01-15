@@ -580,8 +580,8 @@ class client(object):
     # Callback
     #
     def _getCb(self):
-        obj = self.oa.find(self.ic.stringToIdentity("ClientCallback"))
-        if not isinstance(obj, CallbackI):
+        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback"))
+        if not isinstance(obj, client.CallbackI):
             raise ClientError("Cannot find CallbackI in ObjectAdapter")
         return obj
 
