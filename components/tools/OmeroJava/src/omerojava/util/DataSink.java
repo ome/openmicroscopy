@@ -221,13 +221,21 @@ public class DataSink
 		return (pixelsID == source.getId().getValue());
 	}
 	
-	static public double[][] mapServerToClient(byte[] data, int x, int y, String pixelType)
+	static public double[][] mapServerToClient(byte[] data, int x, int y, 
+						String pixelType)
+	{		
+		return mapServerToClient(data, x, y, pixelType, false);
+	}
+	
+	static public double[][] mapServerToClient(byte[] data, int x, int y, 
+						String pixelType, boolean transpose)
 	{		
 		Plane2D thisPlane;
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
 		int bpp = getBytesPerPixels(pixelType);
 		BytesConverter thisStrategy = BytesConverter.getConverter(pixelType);
 		thisPlane = new Plane2D(array, x, y, bpp, thisStrategy);
-		return thisPlane.getPixelsArrayAsDouble();
+		return thisPlane.getPixelsArrayAsDouble(transpose);
 	}
+	
 }
