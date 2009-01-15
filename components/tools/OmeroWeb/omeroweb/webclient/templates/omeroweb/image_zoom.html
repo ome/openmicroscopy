@@ -41,61 +41,7 @@
     </div>
 </div>
 
-<div><a href="#" class="loadAnnotation">Show annotations.</a></div>
+{% if image.image.countAnnotations %}<div id="annotation"><h1>Annotations</h1><a href="#" class="loadAnnotation">Show annotations... ({{ image.image.countAnnotations }})</a></div>{% endif %}
 <div id="annotation"></div>
-
-<div>
-    {% if form_comment %}
-    <div>
-        <h1>Add new comment:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="comment" />
-        <table>
-            {% for field in form_comment %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-        <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
-            googie_spell.decorateTextarea("id_content", null, "600px");
-        </script>
-    </div>
-    {% endif %}
-
-    {% if form_url %}
-    <div>
-        <h1>Add new url:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="url" />
-        <table>
-            {% for field in form_url %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-    </div>
-    {% endif %}
-
-    {% if form_file %}
-    <div>
-        <h1>Upload a file</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="file" />
-        <table>
-        {% for field in form_file %}
-            <tr>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-            </tr>
-        {% endfor %}
-        </table>
-        <input type="submit" value="Upload" />
-        </form>
-    </div>
-    {% endif %}
-</div>
 
 {% endblock %}

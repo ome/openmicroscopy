@@ -1704,6 +1704,21 @@ class BlitzObjectWrapper (object):
             logger.debug(traceback.format_exc())
             return self._obj.name.val
     
+    def fullNameWrapped(self):
+        try:
+            name = self._obj.name.val
+            l = len(name)
+            if l <= 70:
+                return name
+            elif l > 70:
+                splited = []
+                for v in range(0,len(name),70):
+                    splited.append(name[v:v+70]+" ")
+                return "".join(splited)
+        except:
+            logger.debug(traceback.format_exc())
+            return self._obj.name.val
+    
     def shortName(self):
         try:
             name = self._obj.name.val
