@@ -93,7 +93,7 @@ public class BrowserSelectionAction
                 break;
             default:
                 throw new IllegalArgumentException("Browser type not " +
-                        "supported.");
+                        "supported: "+type);
         }   
     }
     
