@@ -58,7 +58,7 @@ import javax.swing.text.Utilities;
  * </small>
  * @since OME3.0
  */
-class WikiView
+public class WikiView
 	extends PlainView
 { 
 	
@@ -140,6 +140,33 @@ class WikiView
 				continue;
 			positionList.add(p);
 			tokenLocations.put(p, regex);
+		}
+	}
+	
+	/**
+	 * Public method to access regex functionality.
+	 * Parses the <code>text</code> with the <code>regex</code>, adding 
+	 * any matches (defined by start and end {@link Position}) to the
+	 * <code>positionList</code>
+	 * 
+	 * @param text				The text to parse
+	 * @param regex				Regex expressions to look for
+	 * @param positionList		A list of the matches found. 
+	 */
+	public static void findExpressions(String text, String regex, 
+			List<Position> positionList) 
+	{
+		positionList.clear();
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(text);
+		int s, e;
+		Position p;
+		while (matcher.find())
+		{
+			s = matcher.start();
+			e = matcher.end();
+			p = new Position(s, e);
+			positionList.add(p);
 		}
 	}
 	

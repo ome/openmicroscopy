@@ -25,11 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.model;
 //Java imports
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -47,21 +45,17 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
-import org.openmicroscopy.shoola.agents.editor.model.tables.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiConstants;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.Position;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiView;
 
 /** 
- * This class is used for reading 'UPE' Universal Protocol Exchange XML files,
- * and building a treeModel of 'Fields' and 'Parameters'.
- * It reads most details that iLAP saves to 'UPE' 
- * (except parameter description, parameter necessity, parameter deleteable,
- * step notes, protocol-info revision).
- * Also ignores 'STEP_GROUP' vv 'SPLIT_STEP' differences.
- * It also reads some OMERO.editor specific info: putting the parameters
- * in context with descriptions. 
+ * This class is used for reading 'CPE' Common Protocol Exchange XML files,
+ * and building a treeModel of 'Fields'/'Steps' and 'Parameters'.
+ * It should read all details that iLAP saves to 'CPE'.
  * 
- * @see #getTreeUPE(File)
+ * @see #createTreeModel(File)
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -73,11 +67,53 @@ import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
  */
 public class UpeXmlReader {
 	
+	/**
+	 * The name of the element used to store the name of parameter and
+	 * step elements in cpe.xml files. 
+	 */
+	public static final String 			NAME = "name";
+	
+	/**  The name of the element used to store the value of parameters */
 	public static final String 			VALUE = "value";
+	
+	/**  The name of the element used to store the default value of parameters */
+	public static final String 			DEFAULT = "default-value";
+	
+	/**  The name of the element used to store the 'type' of a parameter */
+	public static final String 			PARAM_TYPE = "param-type";
+	
+	/** 
+	 * The opening 'tag' used to identify a parameter ID in the exported 
+	 * description for a step. 
+	 */
+	public static final String 			ID_START =	"[[";
+	
+	/** 
+	 * The closing 'tag' used to identify a parameter ID in the exported 
+	 * description for a step. 
+	 */
+	public static final String 			ID_END =	"]]";
+	
+	/**  The name of the element used to store the id of a parameter */
+	public static final String 			ID =	"id";
+	
+	/**  
+	 * The name of the element used to store the list of enumerations for 
+	 * enumeration parameters
+	 */
+	public static final String 			ENUM_LIST =	"enum-list";
+	
+	/**  The name of the element used to store each enumeration in the 
+	 * enumerations list */
+	public static final String 			ENUM =	"enum";
+	
+	/**  The name of the element used to store the units of a parameter */
+	public static final String 			UNITS =	"units";
+	
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
-	 * This is used for reading data from UPE XML elements, where most of the
+	 * This is used for reading data from CPE XML elements, where most of the
 	 * attributes of a 'step' or 'parameter' element are stored as text
 	 * content of children. 
 	 * 		
@@ -94,96 +130,100 @@ public class UpeXmlReader {
 
 	/**
 	 * This copies the name, value and default value of a 'parameter' element 
-	 * (from UPE XML file) to a {@link IAttributes} parameter
+	 * (from CPE XML file) to a {@link IAttributes} parameter
 	 * This is a convenience method, used after the creation of a parameter,
 	 * since these attributes are common to several parameter types. 
 	 * 
-	 * @param upeParam		The 'parameter' XML element, source of data
+	 * @param cpeParam		The 'parameter' XML element, source of data
 	 * @param param			The new parameter object. Copies values to here. 
 	 */
-	private static void setNameValueDefault(IXMLElement upeParam, 
+	private static void setNameValueDefault(IXMLElement cpeParam, 
 														IAttributes param) 
 	{
-		setName(upeParam, param);
+		setName(cpeParam, param);
 		String attributeValue;
-		attributeValue = getChildContent(upeParam, VALUE);
+		attributeValue = getChildContent(cpeParam, VALUE);
 		param.setAttribute(TextParam.PARAM_VALUE, attributeValue);
-		attributeValue = getChildContent(upeParam, "default-value");
+		attributeValue = getChildContent(cpeParam, DEFAULT);
 		param.setAttribute(TextParam.DEFAULT_VALUE, attributeValue);
 	}
 	
 	/**
 	 * This copies the name of a 'parameter' element 
-	 * (from UPE XML file) to a {@link IAttributes} parameter
+	 * (from CPE XML file) to a {@link IAttributes} parameter
 	 * This is a convenience method, used after the creation of a parameter,
 	 * since these attributes are common to several parameter types. 
 	 * 
-	 * @param upeParam		The 'parameter' XML element, source of data
+	 * @param cpeParam		The 'parameter' XML element, source of data
 	 * @param param			The new parameter object. Copies values to here. 
 	 */
-	private static void setName(IXMLElement upeParam, IAttributes param) 
+	private static void setName(IXMLElement cpeParam, IAttributes param) 
 	{
 		String attributeValue;
-		attributeValue = getChildContent(upeParam, "name");
+		attributeValue = getChildContent(cpeParam, NAME);
 		param.setAttribute(TextParam.PARAM_NAME, attributeValue);
 	}
 
 	/**
 	 * This creates a {@link IParam} instance from a 'parameter' element of 
-	 * the UPE XML file. 
-	 * It reads elements that are standard 'UPE' (enumeration, number, text)
-	 * as well as others that are Editor-specific. 
+	 * the CPE XML file. 
+	 * It reads elements that are standard 'CPE' (enumeration, number, text,
+	 * date). 
 	 * 
-	 * @param upeParam		The 'parameter' element of the UPE XML file
+	 * @param cpeParam		The 'parameter' element of the CPE XML file
 	 * @return				A new {@link IParam} parameter.
 	 */
-	private static IParam getParameter(IXMLElement upeParam) 
+	private static IParam getParameter(IXMLElement cpeParam) 
 	{
 		String attributeValue;
 		
 		// need to have a param-type
-		attributeValue = getChildContent(upeParam, "param-type");
+		attributeValue = getChildContent(cpeParam, PARAM_TYPE);
 		if (attributeValue == null) 	return null;
 		
 		IParam param;
 		if (EnumParam.ENUM_PARAM.equals(attributeValue)) {
-			IXMLElement enumList = upeParam.getFirstChildNamed("enum-list");
-			List<IXMLElement> enums = enumList.getChildrenNamed("enum");
+			IXMLElement enumList = cpeParam.getFirstChildNamed(ENUM_LIST);
+			List<IXMLElement> enums = enumList.getChildrenNamed(ENUM);
 			// if enumeration options are "true" and "false", need a boolean...
 			if (enumsAreBoolean(enums)) {
 				param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
-				setNameValueDefault(upeParam, param);
+				setNameValueDefault(cpeParam, param);
 			} else {
 				param = FieldParamsFactory.getFieldParam(EnumParam.ENUM_PARAM);
-				setNameValueDefault(upeParam, param);
+				setNameValueDefault(cpeParam, param);
 				// enumerations
 				String enumOptions = "";
 				for (IXMLElement e : enums) {
 					if (enumOptions.length() > 0)  enumOptions = enumOptions + ", ";
 					enumOptions = enumOptions + e.getContent();
 				}
-				if (enums.size() > 0)
+				if (enums.size() > 0) {
 					param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
+				}
+				// units
+				attributeValue = getChildContent(cpeParam, UNITS);
+				param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
 			}
 		} else  
 		if (NumberParam.NUMBER_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(NumberParam.NUMBER_PARAM);
-			setNameValueDefault(upeParam, param);
+			setNameValueDefault(cpeParam, param);
 			// units
-			attributeValue = getChildContent(upeParam, "unit");
+			attributeValue = getChildContent(cpeParam, UNITS);
 			param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
 		} 
 		else
 		if (TextParam.TEXT_LINE_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
-			setNameValueDefault(upeParam, param);
+			setNameValueDefault(cpeParam, param);
 		}
 		else
 		if (DateTimeParam.DATE_TIME_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(DateTimeParam.DATE_TIME_PARAM);
-			setName(upeParam, param);
+			setName(cpeParam, param);
 			// date-time stored as UTC milliseconds in "value" attribute. 
-			attributeValue = getChildContent(upeParam, VALUE);
+			attributeValue = getChildContent(cpeParam, VALUE);
 			param.setAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE, attributeValue);
 		}
 		
@@ -193,10 +233,10 @@ public class UpeXmlReader {
 			if (param == null) {	
 				// if paramType not recognised, return text text parameter
 				param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
-				setNameValueDefault(upeParam, param);
+				setNameValueDefault(cpeParam, param);
 				return param;
 			}
-			setName(upeParam, param);
+			setName(cpeParam, param);
 			/*
 			// all parameter attributes are saved as attributes
 			String[] paramAts = param.getParamAttributes();
@@ -209,7 +249,7 @@ public class UpeXmlReader {
 		}
 		
 		
-		IXMLElement data = upeParam.getFirstChildNamed("data");
+		IXMLElement data = cpeParam.getFirstChildNamed("data");
 		if (data != null) {
 			int index = 0;
 			List <IXMLElement> values = data.getChildrenNamed(VALUE);
@@ -224,7 +264,7 @@ public class UpeXmlReader {
 	/**
 	 * Convenience method for checking whether a list of {@link IXMLElement}
 	 * elements has element content of "true" and "false" only. 
-	 * Used to check whether an Emuneration parameter (in cpe.xml file) is 
+	 * Used to check whether an Enumeration parameter (in cpe.xml file) is 
 	 * being used to store boolean data.  
 	 * 
 	 * @param enums		List of elements.
@@ -246,70 +286,26 @@ public class UpeXmlReader {
 	}
 	
 	/**
-	 * This method is used for table parameters, where the XML encodes tabular
-	 * data using HTML tags. 
-	 * It copies the data from the HTML table to the {@link MutableTableModel},
-	 * which is assumed to be empty when this method is called.  
-	 * 
-	 * @param upeParam		The XML element containing the 'table' element
-	 * @param tModel		The table model to save data to
-	 */
-	private static void buildTableModel(IXMLElement upeParam, 
-												MutableTableModel tModel)
-	{
-		IXMLElement tableElement = upeParam.getFirstChildNamed("table");
-		
-		if (tableElement == null)		return;
-		
-		List <IXMLElement> tableData;	// list of tr elements
-		List <IXMLElement> tableRow;	// list of td elements
-		
-		tableData = tableElement.getChildrenNamed("tr");
-		if (tableData.isEmpty())		return;
-		
-		// first row has column headings
-		tableRow = tableData.get(0).getChildrenNamed("th");
-		for (IXMLElement th : tableRow) {
-			tModel.addEmptyColumn(th.getContent());
-		}
-		
-		// subsequent rows have table data
-		int colCount = tModel.getColumnCount();
-		int col;
-		for (int r=0; r<tableData.size()-1; r++) {
-			tableRow = tableData.get(r+1).getChildrenNamed("td");
-			tModel.addEmptyRow();
-			col = 0;
-			for (IXMLElement td : tableRow) {
-				if (col < colCount) {
-					tModel.setValueAt(td.getContent(), r, col);
-					col++;
-				}
-			}
-		}
-	}
-	
-	/**
 	 * This is a recursive method that creates a Tree from the 
-	 * XML element <code>upeStep</code>. This step should contain any 
+	 * XML element <code>cpeStep</code>. This step should contain any 
 	 * child steps within a "step-children" element. 
 	 * This method returns a {@link DefaultMutableTreeNode} that is the root
 	 * of the new tree.
 	 * 
-	 * @param upeStep	The root of the XML tree structure. 
+	 * @param cpeStep	The root of the XML tree structure. 
 	 * @return			see above. 
 	 */
-	private static DefaultMutableTreeNode upeBuildFieldTree(IXMLElement upeStep) {
+	private static DefaultMutableTreeNode buildStepTree(IXMLElement cpeStep) {
 		
-		IField field = upeCreateField(upeStep);
+		IField field = createField(cpeStep);
 		DefaultMutableTreeNode fieldNode = new FieldNode(field);
 		
-		IXMLElement childSteps = upeStep.getFirstChildNamed("step-children");
+		IXMLElement childSteps = cpeStep.getFirstChildNamed("step-children");
 		if (childSteps != null) {
 			List<IXMLElement> children = childSteps.getChildrenNamed("step");
 			DefaultMutableTreeNode node;
 			for (IXMLElement child : children) {
-				node = upeBuildFieldTree(child);	// recursively build tree
+				node = buildStepTree(child);	// recursively build tree
 				fieldNode.add(node);
 			}
 		}
@@ -317,107 +313,123 @@ public class UpeXmlReader {
 	}
 
 	/**
-	 * This creates a {@link IField} from a 'step' element of the UPE 
+	 * This creates a {@link IField} from a 'step' element of the CPE 
 	 * (Universal Protocol Exchange) XML file. 
 	 * Processes name, description and parameters.
 	 * 
-	 * @param upeStep
+	 * @param cpeStep
 	 * @return
 	 */
-	private static IField upeCreateField(IXMLElement upeStep) {
+	private static IField createField(IXMLElement cpeStep) {
 		
 		// Create a new field...
 		Field field = new Field();
 		
-		String attributeValue;
+		String description;
 		
 		// ...and set it's attributes (could be null, but shouldn't)
-		attributeValue = getChildContent(upeStep, "name");
-		field.setAttribute(Field.FIELD_NAME, attributeValue);
+		description = getChildContent(cpeStep, "name");
+		field.setAttribute(Field.FIELD_NAME, description);
 		
-		// if the step has a 'description' add this to field content
-		// NB if UPE was created by Editor, step description not used. 
-		attributeValue = getChildContent(upeStep, "description");
-		if (attributeValue != null)
-			field.addContent(new TextContent(attributeValue));
+		// description may contain references to parameters, using [[paramId]] 
+		// in context.
+		// These will be parameters of the current step. 
+		description = getChildContent(cpeStep, "description");
 		
-		IXMLElement stepAttribute = upeStep.getFirstChildNamed("parameters");
-		// if no parameters, return field.
-		if (stepAttribute == null) return field;
+		IXMLElement params = cpeStep.getFirstChildNamed("parameters");
 		
-		// add parameters
-		List<IXMLElement> params = stepAttribute.getChildren();
-		IParam parameter;
-		boolean paramHasValues = false;	// do any parameters have value list?
-		for (IXMLElement param : params) {
-			if ("parameter".equals(param.getName())) {
-				parameter = getParameter(param);
-				if (parameter.getValueCount() > 0)	paramHasValues = true;
+		if (description != null) {
+			// need regex to identify [[paramId]] within description
+			String regex = OMEWikiConstants.WIKILINKREGEX;
+			List<Position> positionList = new ArrayList<Position>();
+			WikiView.findExpressions(description, regex, positionList);
+			
+			int currentPosition = 0;
+			int start, end;
+			String content;
+			String paramId;
+			IXMLElement param;
+			IParam parameter;
+			// process description...
+			for (Position position : positionList) {
+				start = position.getStart();
+				end = position.getEnd(); 
+				// take any text before the parameter, add as text content
+				if (start > currentPosition) {
+					content = description.substring(currentPosition, start);
+					field.addContent(new TextContent(content));
+				}
+				// get the id of the parameter, get the param element,
+				// create a new parameter and add it to the field/step
+				paramId = description.substring(start+2, end-2);
+				param = getElementById(params, paramId);
+				if (param != null) {
+					parameter = getParameter(param);
+					field.addContent(parameter);
+					params.removeChild(param);	// remember processed parameters
+				} else {
+					// id was not recognised. Simply add text so it's not lost
+					content = description.substring(start, end);
+					field.addContent(new TextContent(content));
+				}
+				currentPosition = end;
+			}
+			// process any remaining text. 
+			if (currentPosition < description.length()) {
+				content = description.substring(currentPosition, 
+													description.length()-1);
+				field.addContent(new TextContent(content));
+			}
+			
+			// process any remaining parameters
+			List<IXMLElement> p = params.getChildrenNamed("parameter");
+			for (IXMLElement element : p) {
+				parameter = getParameter(element);
 				field.addContent(parameter);
-			} else 
-				
-			// there won't be any 'description' elements in strict UPE, but
-				// the OMERO.editor uses them to put parameters in context
-			if ("description".equals(param.getName())) {
-				String description = param.getContent();
-				field.addContent(new TextContent(description));
 			}
 		}
+		
 		// if any of the parameters had multiple values, add a tableModel
-		if (paramHasValues) {
+		if (false) {
 			field.setTableData(TableModelFactory.getFieldTable(field));
 		}
 		
 		return field;
 	}
-
+	
 	/**
-	 * This method gets the value of the "path" attribute of a step element
-	 * in the 'UPE' file format. This is held in a child "path" element. 
-	 * Null is returned if this element is not found.
+	 * Convenience method for getting a child {@link IXMLElement} element 
+	 * by Id. Children elements must have their Id stored in a child
+	 * {@link #ID} element.
 	 * 
-	 * @param upeStep		The 'step' element
-	 * @return				The text content of the 'path' child element
+	 * @param parent		Parent of children to search
+	 * @param id			The id of a child element to return
+	 * @return				First child element that has id
 	 */
-	private static String upeGetPath(IXMLElement upeStep) {
-		IXMLElement stepAttribute = upeStep.getFirstChildNamed("path");
-		if (stepAttribute != null) {
-			return stepAttribute.getContent();
-		} 
+	private static IXMLElement getElementById(IXMLElement parent, String id)
+	{
+		if(id == null)		return null;
+		
+		List<IXMLElement> children = parent.getChildren();
+		
+		String childId;
+		for (IXMLElement element : children) {
+			childId = getChildContent(element, ID);
+			if (id.equals(childId)) 
+				return element;
+		}
 		return null;
 	}
 
 	/**
-	 * A handy method for processing the path as a string, to return the 
-	 * parent:
-	 * This is used for processing the 'UPE' paths:
-	 * Eg If path = "001/002/002" then parent path = "001/002"
-	 * 
-	 * @param path		The path, as a string. eg. "001/002/002"
-	 * @return			The 'parent', ie, without the last /etc
-	 */
-	private static String getParentPath(String path) 
-	{
-		String[] stepPath = path.split("/");
-		if (stepPath.length <2 ) return "root";
-		
-		String parentPath = "";
-		for (int i=0; i<stepPath.length-1; i++) {
-			if (i >0)  parentPath = parentPath + "/";
-			parentPath = parentPath + stepPath[i];
-		}
-		return parentPath;
-	}
-
-	/**
 	 * Builds an OMERO.editor treeModel, of Fields, Parameters etc, based on
-	 * a UPE (Universal Protocol Exchange) format XML file, rooted at
+	 * a CPE (Common Protocol Exchange) format XML file, rooted at
 	 * the <code>root</code> element. 
 	 * 
 	 * @param xHtmlFile
 	 * @return
 	 */
-	static TreeModel getTreeUPE(IXMLElement root) {
+	static TreeModel createTreeModel(IXMLElement root) {
 		
 		// parse the top elements...
 		IXMLElement protocol = root.getFirstChildNamed("protocol");
@@ -441,69 +453,11 @@ public class UpeXmlReader {
 		
 		DefaultMutableTreeNode treeNode;
 		for (IXMLElement step : stepList) {
-			treeNode = upeBuildFieldTree(step);
+			treeNode = buildStepTree(step);
 			rootNode.add(treeNode);
 		}
 		
 		return new DefaultTreeModel(rootNode);
 	}
 
-	/**
-	 * Builds an OMERO.editor treeModel, from a UPE file that has a list of
-	 * steps, with step hierarchy defined by a path within each step.
-	 * E.g. path = "001/002" indicates that a step is the second child of
-	 * step with path = "001".
-	 * This format will not be used in future, so this method can be removed 
-	 * as soon as the UPE format has stabilised. 
-	 * 
-	 * @param xHtmlFile
-	 * @return
-	 */
-	static TreeModel getTreeUPEStepList(IXMLElement root) {
-		
-		// parse the top elements...
-		IXMLElement protocol = root.getFirstChildNamed("protocol");
-		IXMLElement protocolInfo = protocol.
-									getFirstChildNamed("protocol-information");
-		
-		// create a protocol root field and add name, description
-		IField rootField = new Field();
-		String protName = getChildContent(protocolInfo, "name");
-		rootField.setAttribute(Field.FIELD_NAME, protName);
-		protName = getChildContent(protocolInfo, "description");
-		rootField.addContent(new TextContent(protName));
-		
-		// A map to hold new fields, according to their path, so new children
-		// can be added to their previously created parents, id's by path
-		Map<String, DefaultMutableTreeNode> fieldMap = new HashMap
-											<String, DefaultMutableTreeNode>();
-		// place new Field in a node, and add it to the map
-		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
-		fieldMap.put("root", rootNode);
-		
-		// process the steps of this protocol, creating a field for each
-		IXMLElement steps = protocol.getFirstChildNamed("steps");
-		List<IXMLElement> stepList = steps.getChildren();
-		
-		IField field;
-		DefaultMutableTreeNode treeNode;
-		DefaultMutableTreeNode parentNode;
-		String path;
-		String parentPath;
-		for (IXMLElement step : stepList) {
-			field = upeCreateField(step);
-			treeNode = new FieldNode(field);
-			path = upeGetPath(step);
-			fieldMap.put(path, treeNode);		// add new node to the map. 
-			
-			// identify the node's parent, using path. Get it from the map...
-			parentPath = getParentPath(path);
-			parentNode = fieldMap.get(parentPath);
-			// add the node as child. 
-			// assumes that child nodes are processed in order (first -> last)
-			parentNode.add(treeNode);		 
-		}
-		
-		return new DefaultTreeModel(rootNode);
-	}
 }

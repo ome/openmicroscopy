@@ -41,7 +41,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
  * </small>
  * @since 3.0-Beta4
  */
-class OMEWikiConstants 
+public class OMEWikiConstants 
 {
 
 	/** Identifies the <code>id</code> token. */
@@ -63,7 +63,7 @@ class OMEWikiConstants
 	static final String CHARACTERREGEX = "[a-zA-Z]+[a-zA-Z0-9]+";
 	
 	/** Regex for a wiki link. */
-	static final String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
+	public static final String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
 	
 	/** Regex expression defining Thumbnail [Thumbnail: id 30]. */
 	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";

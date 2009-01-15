@@ -45,7 +45,7 @@ import java.util.Comparator;
  * </small>
  * @since OME3.0
  */
-class Position
+public class Position
 	implements Comparable<Position>, Comparator
 {	
 	
@@ -72,14 +72,14 @@ class Position
 	 * 
 	 * @return See above.
 	 */
-	int getStart() { return start; }
+	public int getStart() { return start; }
 	
 	/**
 	 * Returns the end position of the text object.
 	 * 
 	 * @return See above.
 	 */
-	int getEnd() { return end; }
+	public int getEnd() { return end; }
 	
 	/**
 	 * Returns <code>true</code> if the position contains position 

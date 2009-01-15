@@ -496,7 +496,7 @@ public class TreeModelFactory
 			rootName = root.getFullName();
 		
 			if ("protocol-archive".equals(rootName))
-				return UpeXmlReader.getTreeUPE(root);
+				return UpeXmlReader.createTreeModel(root);
 			
 			if ("ProtocolTitle".equals(rootName))
 				return getTreeB3(root);

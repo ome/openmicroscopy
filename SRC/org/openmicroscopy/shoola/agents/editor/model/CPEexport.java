@@ -175,8 +175,10 @@ public class CPEexport {
 			if (content instanceof IParam) {
 				parameter = createParamElement((IParam)content);
 				params.addChild(parameter);
-				paramID = parameter.getFirstChildNamed("id").getContent();
-				stepDescription = stepDescription + "[[" + paramID + "]]";
+				paramID = parameter.getFirstChildNamed(UpeXmlReader.ID)
+																.getContent();
+				stepDescription = stepDescription + UpeXmlReader.ID_START 
+					+ paramID + UpeXmlReader.ID_END;
 			} else {
 				stepDescription = stepDescription + content.toString();
 			}
