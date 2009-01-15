@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
 /** 
@@ -132,10 +131,6 @@ public class ParamUIFactory
 		
 		if (inputType.equals(ImageParam.IMAGE_PARAM)) {
 			return new ImageLinkEditor(paramObject);
-		}
-		
-		if (inputType.equals(TableParam.TABLE_PARAM)) {
-			return new TableEditor(paramObject);
 		}
 		
 		if (inputType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {

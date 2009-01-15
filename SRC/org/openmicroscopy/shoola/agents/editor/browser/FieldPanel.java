@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamUIFactory;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamValuesTable;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TableEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.XMLParamButton;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
@@ -365,22 +364,9 @@ public class FieldPanel
 	 */
 	private void addFieldComponent(JComponent comp) 
 	{
-		// Want to add the table to the SOUTH of contentsPanel
-        // (where descriptionLabel is). 
-		if (comp instanceof TableEditor) {
-			// Create new panel to hold both. 
-	        // !! CURRENT UI DOES NOT DISPLAY MORE THAN ONE TABLE PARAMETER !!
-	        JPanel tableContainer = new JPanel(new BorderLayout());
-	        tableContainer.setBackground(null);
-	        tableContainer.add(descriptionLabel, BorderLayout.NORTH);
-	        tableContainer.add(comp, BorderLayout.SOUTH);
-	        
-			contentsPanel.add(tableContainer, BorderLayout.SOUTH);
-		}
-		else {
-			horizontalBox.add(Box.createHorizontalStrut(5));
-			horizontalBox.add(comp);
-		}
+		
+		horizontalBox.add(Box.createHorizontalStrut(5));
+		horizontalBox.add(comp);
 		
 		comp.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
 		comp.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);

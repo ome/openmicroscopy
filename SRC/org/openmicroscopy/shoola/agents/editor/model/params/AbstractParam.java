@@ -120,14 +120,6 @@ public abstract class AbstractParam
 	{
 		valueAttributesMap = newAttributes;
 	}
-	
-	/**
-	 * Implemented as specified by the {@link IParam} interface. 
-	 * This method should return a list of the names of attributes. 
-	 * 
-	 * @see IParam#getParamAttributes()
-	 */
-	public abstract String[] getParamAttributes();
 
 	/**
 	 * Unless specified by subclasses, parameter has no default values.
@@ -142,9 +134,16 @@ public abstract class AbstractParam
 	}
 	
 	/**
-	 * Should return true if the parameter is filled. 
+	 * This field is filled if the value isn't null, and 
+	 * is not an empty string. 
+	 * 
+	 * @see AbstractParam#isParamFilled()
 	 */
-	public abstract boolean isParamFilled();
+	public boolean isParamFilled() {
+		String textValue = getParamValue();
+		
+		return (textValue != null && textValue.length() > 0);
+	}
 	
 	/**
 	 * Returns a string to identify the type of field. 
@@ -160,6 +159,9 @@ public abstract class AbstractParam
 	 */
 	public String getAttribute(String name) 
 	{
+		if (TextParam.PARAM_VALUE.equals(name)) {
+			return getParamValue();
+		}
 		return valueAttributesMap.get(name);
 	}
 
@@ -178,17 +180,11 @@ public abstract class AbstractParam
 	{
 		//System.out.println("AbstractParam setAttribute() " + 
 		//	name + " = " + value);
+		if (TextParam.PARAM_VALUE.equals(name)) {
+			setValueAt(0, value);
+		}
+		
 		valueAttributesMap.put(name, value);
-	}
-	
-	/**
-	 * Implemented as specified by {@link IParam#loadDefaultValues()}
-	 * 
-	 * @see IParam#loadDefaultValues()
-	 */
-	public HashMap<String, String> loadDefaultValues() 
-	{	
-		return new HashMap<String, String>();
 	}
 	
 	/**
@@ -208,7 +204,7 @@ public abstract class AbstractParam
 	 */
 	public Object getValueAt(int index) 
 	{
-		if (index < 0 || index > paramValues.size())
+		if (index < 0 || index+1 > paramValues.size())
 			return null;
 		
 		return paramValues.get(index);
@@ -276,10 +272,13 @@ public abstract class AbstractParam
 	}
 	
 	/**
-	 * Must be implemented by subclasses as specified by
-	 * the {@link IParam} interface.
+	 * Implemented as specified by the {@link IParam} interface. 
 	 */
-	public abstract String getParamValue();
+	public String getParamValue() 
+	{
+		if (getValueAt(0) == null) 		return null;
+		else return getValueAt(0) + "";
+	}
 	
 	/**
 	 * Implemented as specified by the {@link IParam} interface.

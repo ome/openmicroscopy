@@ -68,42 +68,12 @@ public class BooleanParam
 		
 		String text = super.toString();
 		
-		String value = getAttribute (TextParam.PARAM_VALUE);
+		String value = getParamValue();
 		if (value != null) {
 			text = value;
 		}
 		
 		return text;
-	}
-	
-	/**
-	 * Implemented as specified by the {@link IParam} interface. 
-	 * 
-	 * @see IParam#getParamValue()
-	 */
-	public String getParamValue() 
-	{
-		return getAttribute (TextParam.PARAM_VALUE);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link IParam} interface. 
-	 * 
-	 * @see IParam#getParamAttributes()
-	 */
-	public String[] getParamAttributes() 
-	{
-		return new String[] {TextParam.PARAM_VALUE, TextParam.DEFAULT_VALUE};
-	}
-
-	/**
-	 * Implemented as specified by the {@link IParam} interface. 
-	 * 
-	 * @see IParam#isParamFilled()
-	 */
-	public boolean isParamFilled() 
-	{
-		return (getAttribute(TextParam.PARAM_VALUE) != null);
 	}
 	
 	public void setValueAt(int index, Object value) 

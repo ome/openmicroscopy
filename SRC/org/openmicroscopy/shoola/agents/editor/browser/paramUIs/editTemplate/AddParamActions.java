@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 
@@ -139,7 +138,6 @@ public class AddParamActions
 				new AddTimeParamAction(),
 				new AddLinkParamAction(),
 				new AddImageParamAction(),
-				new AddTableParamAction(),
 				new AddOntologyParamAction()};
 		
 		Icon addIcon = iM.getIcon(IconManager.ADD_NUMBER);
@@ -457,37 +455,6 @@ public class AddParamActions
 		public void actionPerformed(ActionEvent e) 
 		{
 			controller.addParamToField(field, ImageParam.IMAGE_PARAM, 
-					tree, node);
-		}
-	}
-	
-	/**
-	 * Action for adding a Table Parameter
-	 * 
-	 * @author will
-	 */
-	public class AddTableParamAction 
-		extends AbstractAction 
-	{
-		/**
-		 * Creates an instance. 
-		 */
-		public AddTableParamAction() 
-		{
-			putValue(Action.NAME, "Add Table Parameter");
-			putValue(Action.SHORT_DESCRIPTION,
-					"Add a table parameter to this field");
-			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.TABLE_ICON)); 
-		}
-		
-		/** 
-	     * Adds a new Table Parameter
-	     * 
-	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	     */
-		public void actionPerformed(ActionEvent e) 
-		{
-			controller.addParamToField(field, TableParam.TABLE_PARAM, 
 					tree, node);
 		}
 	}

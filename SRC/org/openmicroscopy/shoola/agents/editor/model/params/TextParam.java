@@ -73,19 +73,6 @@ public class TextParam
 		super(fieldType);
 	}
 	
-	
-	/**
-	 * The value attribute is a single value.
-	 * If this is filled, then the parameter is filled.
-	 * If the field is cleared, this attribute is cleared etc.
-	 * 
-	 * @see AbstractParam#getParamAttributes()
-	 */
-	public String[] getParamAttributes() { 
-		
-		return new String[] {PARAM_VALUE, DEFAULT_VALUE}; 
-		}
-	
 	/**
 	 * Returns a single attribute name that identifies the default value
 	 * 
@@ -103,7 +90,7 @@ public class TextParam
 	 * @see AbstractParam#isParamFilled()
 	 */
 	public boolean isParamFilled() {
-		String textValue = getAttribute(PARAM_VALUE);
+		String textValue = getParamValue();
 		
 		return (textValue != null && textValue.length() > 0);
 	}
@@ -117,7 +104,7 @@ public class TextParam
 		
 		String text = super.toString();
 		
-		String value = getAttribute (TextParam.PARAM_VALUE);
+		String value = getParamValue();
 		if (value != null) {
 			text = value;
 		}
@@ -130,26 +117,7 @@ public class TextParam
 	 */
 	public String getParamValue() 
 	{
-		return getAttribute (TextParam.PARAM_VALUE);
-	}
-	
-	/**
-	 * Implemented as specified by {@link IParam#loadDefaultValues()}
-	 * 
-	 * Copies the value of the {@link #DEFAULT_VALUE} (if not null)
-	 * to the value of the {@link #PARAM_VALUE} attribute. 
-	 * 
-	 * @see IParam#loadDefaultValues()
-	 */
-	public HashMap<String, String> loadDefaultValues() 
-	{	
-		HashMap<String,String> oldValues = new HashMap<String, String>();
-		
-		String defValue = getAttribute(DEFAULT_VALUE);
-		if (defValue != null) {
-			oldValues.put(PARAM_VALUE, getAttribute(PARAM_VALUE));
-			setAttribute(PARAM_VALUE, defValue);
-		}
-		return oldValues;
+		if (getValueAt(0) == null) 		return null;
+		else return getValueAt(0) + "";
 	}
 }

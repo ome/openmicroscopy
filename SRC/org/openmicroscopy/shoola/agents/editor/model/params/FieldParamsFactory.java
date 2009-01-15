@@ -55,7 +55,6 @@ public class FieldParamsFactory {
 		DateTimeParam.DATE_TIME_PARAM,
 		TimeParam.TIME_PARAM, 
 		LinkParam.LINK_PARAM, 
-		TableParam.TABLE_PARAM, 
 		ImageParam.IMAGE_PARAM, 
 		OntologyTermParam.ONTOLOGY_TERM_PARAM
 		// OBSERVATION_DEFINITION
@@ -73,7 +72,6 @@ public class FieldParamsFactory {
 		"Date & Time", 
 		"Time", 
 		"Link", 
-		"Table", 
 		"Image", 
 		"Ontology Term"
 		// "Phenote Observation"
@@ -141,9 +139,6 @@ public class FieldParamsFactory {
 		}
 		else if (paramType.equals(LinkParam.LINK_PARAM)) {
 			fieldValue = new LinkParam(LinkParam.LINK_PARAM);
-		}
-		else if (paramType.equals(TableParam.TABLE_PARAM)) {
-			fieldValue = new TableParam(TableParam.TABLE_PARAM);
 		}
 		else if (paramType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {
 			fieldValue = new OntologyTermParam();

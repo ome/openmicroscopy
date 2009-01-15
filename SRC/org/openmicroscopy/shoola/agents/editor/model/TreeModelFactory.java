@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -47,6 +48,7 @@ import net.n3.nanoxml.XMLParserFactory;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
@@ -57,9 +59,8 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
-import org.openmicroscopy.shoola.agents.editor.model.tables.MutableTableModel;
+import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
@@ -253,9 +254,47 @@ public class TreeModelFactory
 		 }
 		 
 		 // parameter that represents the field 
-		 param = getParameter(paramType, allAttributes);
-		 if (param != null) {
-			 field.addContent(param);
+		 // if field contains tabular data, add a parameter for each column...
+		 if (paramType.equals(DataFieldConstants.TABLE)) {
+			 
+			// fill columns
+			 String colData = allAttributes.get(
+					 DataFieldConstants.TABLE_COLUMN_NAMES);
+			 String[] colNames = colData.split(",");
+			 String paramName;
+			 for (int c=0; c<colNames.length; c++) {
+				 paramName = colNames[c].trim();
+				 param = getFieldParam(TextParam.TEXT_LINE_PARAM);
+				 param.setAttribute(AbstractParam.PARAM_NAME, paramName);
+				 field.addContent(param);
+			 }
+			 field.setTableData(TableModelFactory.getFieldTable(field));
+			 TableModel tabularData = field.getTableData();
+			 
+			// fill row data
+			 int row = 0;
+			 String[] cellData;
+			 String rowDataString = allAttributes.get(
+					 DataFieldConstants.ROW_DATA_NUMBER + row);
+			 // row data exists for this row.
+			 while (rowDataString != null) {
+				 cellData = rowDataString.split(",");
+				 // fill the cells. Makes more rows as needed. 
+				 for (int c=0; c<cellData.length; c++) {
+					 tabularData.setValueAt(cellData[c].trim(), row, c);
+				 }
+				 // get the next row
+				 row++;
+				 rowDataString = allAttributes.get(
+						 DataFieldConstants.ROW_DATA_NUMBER + row);
+			 }
+			 
+		 } else {
+			 // all other field types can be converted to a single parameter.
+			 param = getParameter(paramType, allAttributes);
+			 if (param != null) {
+				 field.addContent(param);
+			 }
 		 }
 		 
 		 return field;
@@ -335,43 +374,12 @@ public class TreeModelFactory
 					// store relative date as number parameter (days)
 					param = getFieldParam(NumberParam.NUMBER_PARAM);
 					int days = testForAbsoluteDate.get(Calendar.DAY_OF_MONTH);
-					param.setAttribute(TextParam.PARAM_VALUE, days + "");
+					param.setValueAt(0, days + "");
 					param.setAttribute(NumberParam.PARAM_UNITS, "days");
 				}
 			 }
 		 } 
-		 else if (paramType.equals(DataFieldConstants.TABLE)) {
-			 param = getFieldParam(TableParam.TABLE_PARAM);
-			 Object tM = ((TableParam)param).getTableModel();
-			 MutableTableModel tableModel = (MutableTableModel)tM;
-			 
-			 // fill columns
-			 String colData = allAttributes.get(
-					 DataFieldConstants.TABLE_COLUMN_NAMES);
-			 String[] colNames = colData.split(",");
-			 for (int c=0; c<colNames.length; c++) {
-				 tableModel.addEmptyColumn(colNames[c].trim());
-			 }
-			 
-			 // fill row data
-			 int row = 0;
-			 String[] cellData;
-			 String rowDataString = allAttributes.get(
-					 DataFieldConstants.ROW_DATA_NUMBER + row);
-			 // row data exists for this row.
-			 while (rowDataString != null) {
-				 tableModel.addEmptyRow();	// create the row
-				 cellData = rowDataString.split(",");
-				 // fill the cells
-				 for (int c=0; c<cellData.length; c++) {
-					 tableModel.setValueAt(cellData[c].trim(), row, c);
-				 }
-				 // get the next row
-				 row++;
-				 rowDataString = allAttributes.get(
-						 DataFieldConstants.ROW_DATA_NUMBER + row);
-			 }
-		 } else if (paramType.equals(DataFieldConstants.LINK_FIELD)){
+		 else if (paramType.equals(DataFieldConstants.LINK_FIELD)){
 			 param = getFieldParam(LinkParam.LINK_PARAM);
 			 String link = allAttributes.get(
 					 DataFieldConstants.ABSOLUTE_FILE_LINK);
@@ -427,12 +435,12 @@ public class TreeModelFactory
 	 * @param param			The parameter object. 
 	 */
 	private static void setValueAndDefault(Map<String,String> attributes, 
-			IAttributes param) {
+			IParam param) {
 		
 		String value = attributes.get(DataFieldConstants.VALUE);
 		String defaultValue = attributes.get(DataFieldConstants.DEFAULT);
 		
-		param.setAttribute(TextParam.PARAM_VALUE, value);
+		param.setValueAt(0, value);
 		param.setAttribute(TextParam.DEFAULT_VALUE, defaultValue);
 	}
 

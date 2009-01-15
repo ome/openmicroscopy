@@ -133,7 +133,7 @@ public class CPEexport {
 	private IXMLElement createStepElement(TreeNode treeNode) 
 	{
 		// create element, add essential attributes
-		IXMLElement step = new XMLElement("step");
+		IXMLElement step = new XMLElement(UpeXmlReader.STEP);
 		
 		IField field = getFieldFromTreeNode(treeNode);
 		if (field == null) return step;
@@ -141,7 +141,7 @@ public class CPEexport {
 		// name
 		String name = field.getAttribute(Field.FIELD_NAME);
 		if (name != null) {
-			addChildContent(step, "name", name);
+			addChildContent(step, UpeXmlReader.NAME, name);
 		}
 		
 		// add parameters (and step description)
@@ -163,7 +163,11 @@ public class CPEexport {
 		// add parameters
 		int contentCount = field.getContentCount();
 		
-		IXMLElement params = new XMLElement("parameters");
+		String elementName = UpeXmlReader.PARAM_LIST;
+		if (field.getTableData() != null) {
+			elementName = UpeXmlReader.PARAM_TABLE;
+		}
+		IXMLElement params = new XMLElement(elementName);
 		
 		String stepDescription = "";
 		
@@ -183,7 +187,7 @@ public class CPEexport {
 				stepDescription = stepDescription + content.toString();
 			}
 		}
-		addChildContent(step, "description", stepDescription);
+		addChildContent(step, UpeXmlReader.DESCRIPTION, stepDescription);
 		
 		// if any parameters, add parameters element to step. 
 		if (params.getChildrenCount() > 0) {
@@ -202,7 +206,7 @@ public class CPEexport {
 	 */
 	protected IXMLElement createParamElement(IParam param) 
 	{
-		IXMLElement parameter = new XMLElement("parameter");
+		IXMLElement parameter = new XMLElement(UpeXmlReader.PARAMETER);
 		
 		// Add name, necessity, value and default-value, if not null
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
@@ -210,21 +214,21 @@ public class CPEexport {
 			// must have a name
 			name = param.getAttribute(AbstractParam.PARAM_TYPE);
 		}
-		addChildContent(parameter, "name", name);
-		addChildContent(parameter, "id", paramID++ +"");
-		addChildContent(parameter, "necessity", "OPTIONAL");
+		addChildContent(parameter, UpeXmlReader.NAME, name);
+		addChildContent(parameter, UpeXmlReader.ID, paramID++ +"");
+		addChildContent(parameter, UpeXmlReader.NECESSITY, "OPTIONAL");
 		
 		// Depending on the type of parameter, set the param-type, 
 		// and add any additional attributes. 
 		if (param instanceof NumberParam) {
-			addChildContent(parameter, "param-type", "NUMERIC");
+			addChildContent(parameter, UpeXmlReader.PARAM_TYPE, "NUMERIC");
 			setValueAndDefault(parameter, param);
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
 			if (units != null)
 				addChildContent(parameter, "unit", units);
 		} else 
 		if (param instanceof EnumParam) {
-			addChildContent(parameter, "param-type", "ENUMERATION");
+			addChildContent(parameter, UpeXmlReader.PARAM_TYPE, "ENUMERATION");
 			setValueAndDefault(parameter, param);
 			String enumOptions = param.getAttribute(EnumParam.ENUM_OPTIONS);
 			if (enumOptions != null) {
@@ -238,12 +242,12 @@ public class CPEexport {
 		} 
 		else 
 		if (param instanceof TextParam) {
-			addChildContent(parameter, "param-type", "TEXT");
+			addChildContent(parameter, UpeXmlReader.PARAM_TYPE, "TEXT");
 			setValueAndDefault(parameter, param);
 		}
 		else 
 			if (param instanceof DateTimeParam) {
-				addChildContent(parameter, "param-type", "DATE_TIME");
+				addChildContent(parameter, UpeXmlReader.PARAM_TYPE, "DATE_TIME");
 				
 				String ms = param.getAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE);
 				if (ms != null) {
@@ -284,14 +288,23 @@ public class CPEexport {
 	 */
 	private void setValueAndDefault(IXMLElement parameter, IParam param) 
 	{
-		String value = param.getAttribute(TextParam.PARAM_VALUE);
-		if (value != null) {
-			addChildContent(parameter, "value", value);
+		int valCount = param.getValueCount();
+		IXMLElement data = new XMLElement(UpeXmlReader.DATA);
+		Object v;
+		String value;
+		for (int i = 0; i < valCount; i++) {
+			v = param.getValueAt(i);
+			if (v == null)		value = "";
+			else 	value = v + "";
+			addChildContent(data, UpeXmlReader.VALUE, value);
+		}
+		if (valCount > 0) {
+			parameter.addChild(data);
 		}
 		
 		String defaultValue = param.getAttribute(TextParam.DEFAULT_VALUE);
 		if (defaultValue != null)
-			addChildContent(parameter, "default-value", defaultValue);
+			addChildContent(parameter, UpeXmlReader.DEFAULT, defaultValue);
 	}
 	
 	/**

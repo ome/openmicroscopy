@@ -97,13 +97,6 @@ public class TimeParam
 		return timer;
 	}
 
-	@Override
-	/**
-	 * Returns the single attribute: SECONDS
-	 */
-	public String[] getParamAttributes() {
-		return new String[] {SECONDS};
-	}
 
 	@Override
 	/**

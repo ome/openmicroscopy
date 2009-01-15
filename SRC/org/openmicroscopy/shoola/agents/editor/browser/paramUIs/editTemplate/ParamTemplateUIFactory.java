@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
 /** 
@@ -90,10 +89,6 @@ public class ParamTemplateUIFactory {
 		
 		if (inputType.equals(DateTimeParam.DATE_TIME_PARAM)) {
 			return new DateTimeTemplate(paramObject);
-		}
-		
-		if (inputType.equals(TableParam.TABLE_PARAM)) {
-			return new TableTemplate(paramObject);
 		}
 		
 		if (inputType.equals(TimeParam.TIME_PARAM)) {

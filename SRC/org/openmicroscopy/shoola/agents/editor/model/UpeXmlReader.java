@@ -67,11 +67,27 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiView;
  */
 public class UpeXmlReader {
 	
+	/**  The name of the element used to hold the top level of steps */
+	public static final String 			STEPS = "steps";
+	
+	/**  The name of the element used to hold nested level of steps */
+	public static final String 			STEP_CHILDREN = "step-children";
+	
+	/**  The name of the element used to define a protocol step */
+	public static final String 			STEP = "step";
+	
 	/**
 	 * The name of the element used to store the name of parameter and
 	 * step elements in cpe.xml files. 
 	 */
 	public static final String 			NAME = "name";
+	
+	/**  The name of the element used to hold the description of step 
+	 * or parameter */
+	public static final String 			DESCRIPTION = "description";
+	
+	/**  The name of the element used to hold the values of parameters */
+	public static final String 			DATA = "data";
 	
 	/**  The name of the element used to store the value of parameters */
 	public static final String 			VALUE = "value";
@@ -97,6 +113,19 @@ public class UpeXmlReader {
 	/**  The name of the element used to store the id of a parameter */
 	public static final String 			ID =	"id";
 	
+	/**  The name of the element used to contain the list of parameter elements */
+	public static final String 			PARAM_LIST = "parameter-list";
+	
+	/**  
+	 * The name of the element used contain a list of parameter elements 
+	 * when they contain data that can be represented in a table, where
+	 * each parameter is used to define a column. 
+	 */
+	public static final String 			PARAM_TABLE = "parameter-table";
+	
+	/**  The name of the element used to define a parameter */
+	public static final String 			PARAMETER = "parameter";
+	
 	/**  
 	 * The name of the element used to store the list of enumerations for 
 	 * enumeration parameters
@@ -110,6 +139,8 @@ public class UpeXmlReader {
 	/**  The name of the element used to store the units of a parameter */
 	public static final String 			UNITS =	"units";
 	
+	/**  The name of the element used to store the 'necessity' of a parameter */
+	public static final String 			NECESSITY =	"necessity";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -138,12 +169,21 @@ public class UpeXmlReader {
 	 * @param param			The new parameter object. Copies values to here. 
 	 */
 	private static void setNameValueDefault(IXMLElement cpeParam, 
-														IAttributes param) 
+														IParam param) 
 	{
 		setName(cpeParam, param);
 		String attributeValue;
-		attributeValue = getChildContent(cpeParam, VALUE);
-		param.setAttribute(TextParam.PARAM_VALUE, attributeValue);
+		
+		IXMLElement data = cpeParam.getFirstChildNamed(DATA);
+		if (data != null) {
+			List<IXMLElement> values = data.getChildrenNamed(VALUE);
+			String value;
+			int v = 0;
+			for (IXMLElement element : values) {
+				value = element.getContent();
+				param.setValueAt(v++, value);
+			}
+		}
 		attributeValue = getChildContent(cpeParam, DEFAULT);
 		param.setAttribute(TextParam.DEFAULT_VALUE, attributeValue);
 	}
@@ -328,16 +368,34 @@ public class UpeXmlReader {
 		String description;
 		
 		// ...and set it's attributes (could be null, but shouldn't)
-		description = getChildContent(cpeStep, "name");
+		description = getChildContent(cpeStep, NAME);
 		field.setAttribute(Field.FIELD_NAME, description);
 		
-		// description may contain references to parameters, using [[paramId]] 
-		// in context.
+		// description may contain references to parameters, using 
+		// paramId in context.
 		// These will be parameters of the current step. 
-		description = getChildContent(cpeStep, "description");
+		description = getChildContent(cpeStep, DESCRIPTION);
 		
-		IXMLElement params = cpeStep.getFirstChildNamed("parameters");
+		List<IXMLElement> allParams = new ArrayList<IXMLElement>();
 		
+		IXMLElement params = cpeStep.getFirstChildNamed(PARAM_LIST);
+		if (params != null) {
+			allParams.addAll(params.getChildrenNamed(PARAMETER));
+		}
+		
+		params = cpeStep.getFirstChildNamed(PARAM_TABLE);
+		if (params != null) {
+			allParams.addAll(params.getChildrenNamed(PARAMETER));
+			field.setTableData(TableModelFactory.getFieldTable(field));
+		}
+		
+		if (allParams.isEmpty()) {
+			// if no parameters, description can simply be added as text content
+			if (description != null) {
+				field.addContent(new TextContent(description));
+			}
+		}
+		else 
 		if (description != null) {
 			// need regex to identify [[paramId]] within description
 			String regex = OMEWikiConstants.WIKILINKREGEX;
@@ -362,11 +420,11 @@ public class UpeXmlReader {
 				// get the id of the parameter, get the param element,
 				// create a new parameter and add it to the field/step
 				paramId = description.substring(start+2, end-2);
-				param = getElementById(params, paramId);
+				param = getElementById(allParams, paramId);
 				if (param != null) {
 					parameter = getParameter(param);
 					field.addContent(parameter);
-					params.removeChild(param);	// remember processed parameters
+					allParams.remove(param);	// remember processed parameters
 				} else {
 					// id was not recognised. Simply add text so it's not lost
 					content = description.substring(start, end);
@@ -382,38 +440,30 @@ public class UpeXmlReader {
 			}
 			
 			// process any remaining parameters
-			List<IXMLElement> p = params.getChildrenNamed("parameter");
-			for (IXMLElement element : p) {
+			for (IXMLElement element : allParams) {
 				parameter = getParameter(element);
 				field.addContent(parameter);
 			}
-		}
-		
-		// if any of the parameters had multiple values, add a tableModel
-		if (false) {
-			field.setTableData(TableModelFactory.getFieldTable(field));
 		}
 		
 		return field;
 	}
 	
 	/**
-	 * Convenience method for getting a child {@link IXMLElement} element 
-	 * by Id. Children elements must have their Id stored in a child
+	 * Convenience method for finding an {@link IXMLElement} element 
+	 * by Id.  Elements in the list must have their Id stored in a child
 	 * {@link #ID} element.
 	 * 
 	 * @param parent		Parent of children to search
 	 * @param id			The id of a child element to return
 	 * @return				First child element that has id
 	 */
-	private static IXMLElement getElementById(IXMLElement parent, String id)
+	private static IXMLElement getElementById(List<IXMLElement> elems, String id)
 	{
-		if(id == null)		return null;
-		
-		List<IXMLElement> children = parent.getChildren();
+		if(elems == null)		return null;
 		
 		String childId;
-		for (IXMLElement element : children) {
+		for (IXMLElement element : elems) {
 			childId = getChildContent(element, ID);
 			if (id.equals(childId)) 
 				return element;

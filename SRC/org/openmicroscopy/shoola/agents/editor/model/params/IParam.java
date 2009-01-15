@@ -71,12 +71,6 @@ public interface IParam
 	public boolean isParamFilled();
 	
 	/**
-	 * This method returns a list of the names of parameter attributes. 
-	 * Used for saving this Parameter to XML and vice-versa 
-	 */
-	public String[] getParamAttributes();
-	
-	/**
 	 * Unless specified by subclasses, parameter has no default values.
 	 * Default implementation {@see AbstractParam#getDefaultAttributes()}
 	 * returns an empty array. 
@@ -85,14 +79,6 @@ public interface IParam
 	 * {@link #loadDefaultValues()}
 	 */
 	public String[] getDefaultAttributes();
-	
-	/**
-	 * Loads the default values (if any) into the parameter's value.
-	 * If no defaults, or no default values exist, an empty Map is returned.
-	 * 
-	 * @return		A HashMap of the attributes (with Old Values) affected.
-	 */
-	public HashMap<String, String> loadDefaultValues();
 	
 	/**
 	 * Returns the number of values that have been set for this parameter. 

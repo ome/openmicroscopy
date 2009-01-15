@@ -36,7 +36,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.XMLexport;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
