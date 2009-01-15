@@ -61,12 +61,6 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     }
 
-    @Test
-    public void test_cgc_Event_version() throws Exception {
-        Set results = iPojos.findCGCPaths(new HashSet(data.getMax("Image.ids",
-                2)), IPojos.CLASSIFICATION_ME, null);
-    }
-
     @Test(groups = "ticket:318")
     public void testLoadHiearchiesHandlesNullRootNodeIds() throws Exception {
         PojoOptions po;

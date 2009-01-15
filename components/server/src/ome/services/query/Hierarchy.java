@@ -14,10 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
-import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -53,13 +49,12 @@ public class Hierarchy {
     static class Nodes {
 
         static Class[] klass = new Class[] { Project.class, Dataset.class,
-                Image.class, Category.class, CategoryGroup.class };
+                Image.class };
 
         static int[] depth = new int[] { 2, 1, 0, 1, 2 };
 
         static Class[] link = new Class[] { ProjectDatasetLink.class,
-                DatasetImageLink.class, null, CategoryImageLink.class,
-                CategoryGroupCategoryLink.class };
+                DatasetImageLink.class, null };
 
         static String[] child = new String[] { "datasetLinks", "imageLinks",
                 null, "imageLinks", "categoryLinks" };
@@ -75,8 +70,6 @@ public class Hierarchy {
             lookup.put(Project.class, 0);
             lookup.put(Dataset.class, 1);
             lookup.put(Image.class, 2);
-            lookup.put(Category.class, 3);
-            lookup.put(CategoryGroup.class, 4);
         }
 
         /**

@@ -223,7 +223,6 @@ module omero {
 	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
 	    idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
 	    idempotent AnnotationMap findAnnotations(string rootType, omero::sys::LongList rootIds, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
-	    idempotent IObjectList findCGCPaths(omero::sys::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
 	    idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
 	    idempotent ImageList getUserImages(omero::sys::ParamMap options) throws ServerError;
 	    idempotent ImageList getImagesByOptions(omero::sys::ParamMap options) throws ServerError;
@@ -418,13 +417,11 @@ module omero {
 	    void resetDefaults(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
 	    omero::model::RenderingDef resetDefaultsNoSave(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
 	    void resetDefaultsInImage(long imageId) throws ServerError;
-	    omero::sys::LongList resetDefaultsInCategory(long categoryId) throws ServerError;
 	    omero::sys::LongList resetDefaultsInDataset(long dataSetId) throws ServerError;
 	    omero::sys::LongList resetDefaultsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
 	    void applySettingsToSet(long from, string toType, IObjectList to) throws ServerError;
 	    BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
 	    BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
-	    BooleanIdListMap applySettingsToCategory(long from, long to) throws ServerError;
 	    bool applySettingsToImage(long from, long to) throws ServerError;
 	    bool applySettingsToPixels(long from, long to) throws ServerError;
 	    void setOriginalSettingsInImage(long imageId) throws ServerError;

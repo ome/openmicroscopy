@@ -22,7 +22,6 @@ import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -80,12 +79,6 @@ public class ImageData extends DataObject {
      * Dataset, then this set will be empty &#151; but never <code>null</code>.
      */
     private Set<DatasetData> datasets;
-
-    /**
-     * All the Categories that contain this Image. The elements of this set are
-     * {@link CategoryData} objects.
-     */
-    private Set<CategoryData> categories;
 
     /**
      * All the annotations related to this Image. The elements of the set are
@@ -312,50 +305,6 @@ public class ImageData extends DataObject {
         }
 
         datasets = new HashSet<DatasetData>(m.result());
-    }
-
-    /**
-     * Returns the categories containing this image.
-     * 
-     * @return See above.
-     */
-    public Set getCategories() {
-        if (categories == null && asImage().sizeOfCategoryLinks() >= 0) {
-            categories = new HashSet(asImage().eachLinkedCategory(new CBlock() {
-                public Object call(IObject object) {
-                    return new CategoryData((Category) object);
-                };
-            }));
-        }
-        return categories == null ? null : new HashSet(categories);
-    }
-
-    /**
-     * Sets the categories containing the image.
-     * 
-     * @param newValue
-     *            The set of catories.
-     */
-    public void setCategories(Set newValue) {
-        Set<CategoryData> currentValue = getCategories();
-        SetMutator<CategoryData> 
-        	m = new SetMutator<CategoryData>(currentValue, newValue);
-
-        while (m.moreDeletions()) {
-            setDirty(true);
-            asImage().unlinkCategory(m.nextDeletion().asCategory());
-            classificationCount = classificationCount == null ? null
-                    : new Long(classificationCount.longValue() - 1);
-        }
-
-        while (m.moreAdditions()) {
-            setDirty(true);
-            asImage().linkCategory(m.nextAddition().asCategory());
-            classificationCount = classificationCount == null ? null
-                    : new Long(classificationCount.longValue() + 1);
-        }
-
-        categories = new HashSet<CategoryData>(m.result());
     }
 
     /**

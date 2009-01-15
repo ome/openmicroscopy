@@ -23,8 +23,6 @@ import org.testng.annotations.Test;
 
 // Application-internal dependencies
 import ome.api.IQuery;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
@@ -106,16 +104,6 @@ public class PojosDaoTest extends AbstractDependencyInjectionSpringContextTests 
         runLoad("Load_d", Dataset.class);
     }
 
-    @Test
-    public void testLoadCG() {
-        runLoad("Load_cg", CategoryGroup.class);
-    }
-
-    @Test
-    public void testLoadC() {
-        runLoad("Load_c", Category.class);
-    }
-
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
     private void runFind(String name, Class c) {
@@ -132,7 +120,7 @@ public class PojosDaoTest extends AbstractDependencyInjectionSpringContextTests 
 
     @Test
     public void testFindDataset() {
-        runFind("Find_cg", CategoryGroup.class);
+        runFind("Find_d", Dataset.class);
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
@@ -172,16 +160,6 @@ public class PojosDaoTest extends AbstractDependencyInjectionSpringContextTests 
     @Test
     public void testGetFromDataset() {
         runGet("get_p", Dataset.class);
-    }
-
-    @Test
-    public void testGetFromCg() {
-        runGet("get_cg", CategoryGroup.class);
-    }
-
-    @Test
-    public void testGetFromCat() {
-        runGet("get_c", Category.class);
     }
 
     // TODO how to run getUserImages

@@ -115,19 +115,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>pixelsId</code> is unlocatable.
 	 */
 	void resetDefaultsInImage(@NotNull long imageId);
-	
-	/**
-	 * Resets a category's rendering settings back to those that are specified
-	 * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-	 * 
-	 * @param categoryId The Id of the <code>Category</code>.
-	 * @return A {@link java.util.Set} of image IDs that have had their 
-	 * rendering settings reset. 
-	 * @throws ValidationException if the image qualified by 
-	 * <code>categoryId</code> is unlocatable.
-	 */
-	Set<Long> resetDefaultsInCategory(@NotNull long categoryId);
-	
+
 	/**
 	 * Resets a dataset's rendering settings back to those that are specified
 	 * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
@@ -205,23 +193,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
 	Map<Boolean, List<Long>> applySettingsToDataset(@NotNull long from, @NotNull long to);
-	
-	/**
-	 * Applies rendering settings to all images in all <code>Categories</code>.
-	 * Returns a map with two boolean keys. The value of the 
-	 * <code>TRUE</code> is a collection of images ID, the settings were 
-	 * successfully applied to. The value of the 
-	 * <code>FALSE</code> is a collection of images ID, the settings could not 
-	 * be applied to. 
-	 * 
-	 * @param from The Id of the pixels set to copy the rendering settings from.
-	 * @param to The Id of the categories container to apply settings to.
-	 * @return See above.
-	 * @throws ValidationException if the rendering settings <code>from</code> 
-	 * is unlocatable or the project <code>to</code> is unlocatable.
-	 */
-	Map<Boolean, List<Long>> applySettingsToCategory(@NotNull long from, @NotNull long to);
-	
+
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
 	 * Returns <code>true</code> if the settings were 

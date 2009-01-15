@@ -83,28 +83,6 @@ public class PojosConstraintsTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testFindCGCPaths() throws Exception {
-        T t = new T(ApiUsageException.class) {
-            @Override
-            public void doTest(Object[] arg) {
-                manager.findCGCPaths((Set) arg[0], (String) arg[1],
-                        (Map) arg[2]);
-            }
-        };
-
-        // param1: not null
-        t.blowup(true, null, IPojos.CLASSIFICATION_ME, new HashMap());
-        t
-                .blowup(false, new HashSet(), IPojos.CLASSIFICATION_NME,
-                        new HashMap());
-        t.blowup(false, new HashSet(), IPojos.DECLASSIFICATION, new HashMap());
-        // TODO merge changes from omero2.
-        // param2:
-        // TODO
-
-    }
-
-    @Test
     public void testFindContainerHierarchies() throws Exception {
         T t = new T(ApiUsageException.class) {
             @Override

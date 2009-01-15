@@ -13,7 +13,6 @@ import java.util.List;
 import ome.api.IRenderingSettings;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
-import omero.api.AMD_IRenderingSettings_applySettingsToCategory;
 import omero.api.AMD_IRenderingSettings_applySettingsToDataset;
 import omero.api.AMD_IRenderingSettings_applySettingsToImage;
 import omero.api.AMD_IRenderingSettings_applySettingsToPixels;
@@ -22,7 +21,6 @@ import omero.api.AMD_IRenderingSettings_applySettingsToSet;
 import omero.api.AMD_IRenderingSettings_createNewRenderingDef;
 import omero.api.AMD_IRenderingSettings_getRenderingSettings;
 import omero.api.AMD_IRenderingSettings_resetDefaults;
-import omero.api.AMD_IRenderingSettings_resetDefaultsInCategory;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInDataset;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInImage;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInSet;
@@ -53,13 +51,6 @@ public class RenderingSettingsI extends AbstractAmdServant implements
 
     // Interface methods
     // =========================================================================
-
-    public void applySettingsToCategory_async(
-            AMD_IRenderingSettings_applySettingsToCategory __cb, long from,
-            long to, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, from, to);
-
-    }
 
     public void applySettingsToDataset_async(
             AMD_IRenderingSettings_applySettingsToDataset __cb, long from,
@@ -108,13 +99,6 @@ public class RenderingSettingsI extends AbstractAmdServant implements
             AMD_IRenderingSettings_getRenderingSettings __cb, long pixelsId,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, pixelsId);
-
-    }
-
-    public void resetDefaultsInCategory_async(
-            AMD_IRenderingSettings_resetDefaultsInCategory __cb,
-            long categoryId, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, categoryId);
 
     }
 

@@ -17,7 +17,6 @@ import java.util.Set;
 import static omero.rtypes.*;
 import omero.RTime;
 import omero.model.Annotation;
-import omero.model.CategoryImageLink;
 import omero.model.DatasetImageLink;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -78,12 +77,6 @@ public class ImageData extends DataObject {
      * Dataset, then this set will be empty &#151; but never <code>null</code>.
      */
     private Set<DatasetData> datasets;
-
-    /**
-     * All the Categories that contain this Image. The elements of this set are
-     * {@link CategoryData} objects.
-     */
-    private Set<CategoryData> categories;
 
     /**
      * All the annotations related to this Image. The elements of the set are
@@ -330,51 +323,6 @@ public class ImageData extends DataObject {
         }
 
         datasets = new HashSet<DatasetData>(m.result());
-    }
-
-    /**
-     * Returns the categories containing this image.
-     * 
-     * @return See above.
-     */
-    public Set getCategories() {
-        if (categories == null && asImage().sizeOfCategoryLinks() >= 0) {
-            categories = new HashSet<CategoryData>();
-            List<CategoryImageLink> categoryLinks = asImage()
-                    .copyCategoryLinks();
-            for (CategoryImageLink link : categoryLinks) {
-                categories.add(new CategoryData(link.getParent()));
-            }
-        }
-        return categories == null ? null : new HashSet(categories);
-    }
-
-    /**
-     * Sets the categories containing the image.
-     * 
-     * @param newValue
-     *            The set of catories.
-     */
-    public void setCategories(Set newValue) {
-        Set<CategoryData> currentValue = getCategories();
-        SetMutator<CategoryData> m = new SetMutator<CategoryData>(currentValue,
-                newValue);
-
-        while (m.moreDeletions()) {
-            setDirty(true);
-            asImage().unlinkCategory(m.nextDeletion().asCategory());
-            classificationCount = classificationCount == null ? null
-                    : new Long(classificationCount.longValue() - 1);
-        }
-
-        while (m.moreAdditions()) {
-            setDirty(true);
-            asImage().linkCategory(m.nextAddition().asCategory());
-            classificationCount = classificationCount == null ? null
-                    : new Long(classificationCount.longValue() + 1);
-        }
-
-        categories = new HashSet<CategoryData>(m.result());
     }
 
     /**

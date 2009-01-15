@@ -14,19 +14,14 @@
 
 package ome.services.query;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collection;
 
-// Third-party libraries
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-// Application-internal dependencies
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -67,26 +62,18 @@ public class PojosFindHierarchiesQueryDefinition extends
         // ticket:318
                 // TODO this needs to be moved to Hierarchy.
                 // TODO these are also not all needed. Need to simplify.
-                new String[] { CategoryGroup.OWNER_FILTER,
-                        CategoryGroup.OWNER_FILTER_CATEGORYLINKS,
-                        Category.OWNER_FILTER,
-                        Category.OWNER_FILTER_CATEGORYGROUPLINKS,
-                        Category.OWNER_FILTER_IMAGELINKS, Project.OWNER_FILTER,
+                new String[] { Project.OWNER_FILTER,
                         Project.OWNER_FILTER_DATASETLINKS,
                         Dataset.OWNER_FILTER, Dataset.OWNER_FILTER_IMAGELINKS,
                         Dataset.OWNER_FILTER_PROJECTLINKS,
                         Image.OWNER_FILTER_DATASETLINKS,
-                        Image.OWNER_FILTER_CATEGORYLINKS }, new String[] {
-                        CategoryGroup.GROUP_FILTER,
-                        CategoryGroup.GROUP_FILTER_CATEGORYLINKS,
-                        Category.GROUP_FILTER,
-                        Category.GROUP_FILTER_CATEGORYGROUPLINKS,
-                        Category.GROUP_FILTER_IMAGELINKS, Project.GROUP_FILTER,
+                        }, new String[] {
+                        Project.GROUP_FILTER,
                         Project.GROUP_FILTER_DATASETLINKS,
                         Dataset.GROUP_FILTER, Dataset.GROUP_FILTER_IMAGELINKS,
                         Dataset.GROUP_FILTER_PROJECTLINKS,
-                        Image.GROUP_FILTER_DATASETLINKS,
-                        Image.GROUP_FILTER_CATEGORYLINKS });
+                        Image.GROUP_FILTER_DATASETLINKS
+                        });
     }
 
 }

@@ -35,28 +35,4 @@
 			<to_child type="ome.model.core.Image"/>
 		</properties>
 	</link>
-	<!-- CGCI -->
-	<type id="ome.model.containers.CategoryGroup" named="true" described="true">
-		<properties>
-			<child name="categoryLinks" type="ome.model.containers.CategoryGroupCategoryLink" target="ome.model.containers.Category"/>
-		</properties>
-	</type>
-	<type id="ome.model.containers.Category" named="true" described="true">
-		<properties>
-			<parent name="categoryGroupLinks" type="ome.model.containers.CategoryGroupCategoryLink" target="ome.model.containers.CategoryGroup"/>
-			<child name="imageLinks" type="ome.model.containers.CategoryImageLink" target="ome.model.core.Image"/>
-		</properties>
-	</type>
-	<link id="ome.model.containers.CategoryGroupCategoryLink">
-		<properties>
-			<from_parent type="ome.model.containers.CategoryGroup"/>
-			<to_child type="ome.model.containers.Category"/>
-		</properties>
-	</link>
-	<link id="ome.model.containers.CategoryImageLink">
-		<properties>
-			<from_parent type="ome.model.containers.Category"/>
-			<to_child type="ome.model.core.Image"/>
-		</properties>
-	</link>
 </types>

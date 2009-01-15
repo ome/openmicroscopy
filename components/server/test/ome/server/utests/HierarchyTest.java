@@ -15,8 +15,6 @@ import org.jmock.MockObjectTestCase;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.services.query.Hierarchy;
@@ -66,33 +64,6 @@ public class HierarchyTest extends MockObjectTestCase {
 
     }
 
-    /*
-     * Test method for 'ome.services.query.Hierarchy.fetchParents(Criteria,
-     * Class, int)'
-     */
-    @Test
-    public void testFetchParentsCategoryGroup() {
-        addCreateCriteriaToMock(mockCriteria,
-                "categoryLinks.parent.categoryGroupLinks.parent");
-
-        Hierarchy.fetchParents((Criteria) mockCriteria.proxy(),
-                CategoryGroup.class, 2);
-
-    }
-
-    /*
-     * Test method for 'ome.services.query.Hierarchy.fetchParents(Criteria,
-     * Class, int)'
-     */
-    @Test
-    public void testFetchParentsCategory() {
-        addCreateCriteriaToMock(mockCriteria, "categoryLinks.parent");
-
-        Hierarchy.fetchParents((Criteria) mockCriteria.proxy(), Category.class,
-                1);
-
-    }
-
     // TODO need with depth less than MAX
 
     /*
@@ -118,31 +89,6 @@ public class HierarchyTest extends MockObjectTestCase {
 
         Hierarchy.fetchChildren((Criteria) mockCriteria.proxy(), Dataset.class,
                 1);
-    }
-
-    /*
-     * Test method for 'ome.services.query.Hierarchy.fetchChildren(Criteria,
-     * Class, int)'
-     */
-    @Test
-    public void testFetchChildrenCategoryGroup() {
-        addCreateCriteriaToMock(mockCriteria,
-                "categoryLinks.child.imageLinks.child");
-
-        Hierarchy.fetchChildren((Criteria) mockCriteria.proxy(),
-                CategoryGroup.class, 2);
-    }
-
-    /*
-     * Test method for 'ome.services.query.Hierarchy.fetchChildren(Criteria,
-     * Class, int)'
-     */
-    @Test
-    public void testFetchChildrenCategory() {
-        addCreateCriteriaToMock(mockCriteria, "imageLinks.child");
-
-        Hierarchy.fetchChildren((Criteria) mockCriteria.proxy(),
-                Category.class, 1);
     }
 
     // TODO join is not currently used.
@@ -185,21 +131,6 @@ public class HierarchyTest extends MockObjectTestCase {
         assertEquals(_this, m.get(Project.class.getName()));
         assertTrue(m.containsKey(Dataset.class.getName()));
         assertEquals(i_1, m.get(Dataset.class.getName()));
-    }
-
-    /*
-     * Test method for 'ome.services.query.Hierarchy.getChildTransformer(Class)'
-     */
-    @Test
-    public void testGetChildTransformerCategoryGroup() {
-        ResultTransformer rt = Hierarchy
-                .getChildTransformer(CategoryGroup.class);
-        Map<String, Object> m = (Map) rt.transformTuple(o, s);
-        assertTrue(m.containsKey(CategoryGroup.class.getName()));
-        assertEquals(_this, m.get(CategoryGroup.class.getName()));
-        assertTrue(m.containsKey(Category.class.getName()));
-        assertEquals(i_1, m.get(Category.class.getName()));
-
     }
 
     /*

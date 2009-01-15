@@ -35,12 +35,7 @@ import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.constants.CLASSIFICATIONME;
-import omero.constants.CLASSIFICATIONNME;
-import omero.constants.DECLASSIFICATION;
 import omero.model.Annotation;
-import omero.model.Category;
-import omero.model.CategoryGroup;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetI;
@@ -377,10 +372,6 @@ public class PojosServiceTest extends TestCase {
             // ok.
         }
 
-        ids = data.getMax("Image.ids", 2);
-        results = iPojos.findContainerHierarchies(CategoryGroup.class.getName(), ids,
-                defaults.map());
-
     }
 
     @Test
@@ -423,97 +414,6 @@ public class PojosServiceTest extends TestCase {
         List<IObject> annotations = iPojos.retrieveCollection(i,
                 ImageI.ANNOTATIONLINKS, null);
         assertTrue(annotations.size() > 0);
-    }
-
-    @Test
-    public void test_findCGCPaths() throws Exception {
-        ids = data.getMax("Image.ids", 2);
-        results = iPojos.findCGCPaths(ids, CLASSIFICATIONME.value, null);
-        results = iPojos.findCGCPaths(ids, CLASSIFICATIONNME.value, null);
-        results = iPojos.findCGCPaths(ids, DECLASSIFICATION.value, null);
-    }
-
-    @Test(groups = "broken")
-    public void test_findCGCPaths_declass() throws Exception {
-        Paths paths = new Paths(data.get("CGCPaths.all"));
-        List de = iPojos.findCGCPaths(new ArrayList(paths.uniqueImages()),
-                DECLASSIFICATION.value, null);
-        assertTrue(de.size() == paths.unique(Paths.CG, Paths.EXISTS,
-                Paths.EXISTS, Paths.EXISTS).size());
-
-        for (Iterator it = de.iterator(); it.hasNext();) {
-            CategoryGroup cg = (CategoryGroup) it.next();
-            Iterator it2 = cg.linkedCategoryList().iterator();
-            while (it2.hasNext()) {
-                Category c = (Category) it2.next();
-                Iterator it3 = c.linkedImageList().iterator();
-                while (it3.hasNext()) {
-                    Image i = (Image) it3.next();
-                    Set found = paths.find(cg.getId().getValue(), c.getId().getValue(), i.getId().getValue());
-                    assertTrue(found.size() == 1);
-
-                }
-            }
-        }
-
-        Long single_i = paths.singlePath()[Paths.I.intValue()];
-        List one_de = iPojos.findCGCPaths(Collections.singletonList(single_i),
-                DECLASSIFICATION.value, null);
-        assertTrue(one_de.size() == paths.unique(Paths.CG, Paths.WILDCARD,
-                Paths.WILDCARD, single_i).size());
-
-    }
-
-    @Test
-    public void test_findCGCPaths_class() throws Exception {
-        // Finding a good test
-        Long[] targetPath = null;
-        Paths paths = new Paths(data.get("CGCPaths.all"));
-        Set withNoImages = paths.find(Paths.WILDCARD, Paths.WILDCARD,
-                Paths.NULL_IMAGE);
-
-        for (Iterator it = withNoImages.iterator(); it.hasNext();) {
-            Long n = (Long) it.next();
-
-            // Must be at least two Categories in one CG since we're only
-            // examining the Categories in this CategoryGroup w/o an image.
-            // Now need one with an image.
-            Long[] values = paths.get(n);
-            Set target = paths.find(values[Paths.CG.intValue()],
-                    Paths.WILDCARD, Paths.EXISTS);
-            if (target.size() > 0) {
-                targetPath = paths.get((Long) target.iterator().next());
-                break;
-            }
-        }
-
-        assert targetPath != null : "No valid category group found for classification test.";
-
-        List single = Collections.singletonList(targetPath[Paths.I.intValue()]);
-        List me = iPojos.findCGCPaths(single, CLASSIFICATIONME.value, null);
-        List nme = iPojos.findCGCPaths(single, CLASSIFICATIONNME.value, null);
-
-        for (Iterator it = nme.iterator(); it.hasNext();) {
-            CategoryGroup group = (CategoryGroup) it.next();
-            if (group.getId().equals(targetPath[Paths.CG.intValue()])) {
-                for (Iterator it2 = group.linkedCategoryList().iterator(); it
-                        .hasNext();) {
-                    Category c = (Category) it2.next();
-                    if (c.getId().equals(targetPath[Paths.C.intValue()])) {
-                        fail("Own category should not be included.");
-                    }
-                }
-            }
-
-        }
-
-        for (Iterator it3 = nme.iterator(); it3.hasNext();) {
-            CategoryGroup group = (CategoryGroup) it3.next();
-            if (group.getId().equals(targetPath[Paths.CG.intValue()])) {
-                fail("Should not be in mutually-exclusive set.");
-            }
-        }
-
     }
 
     @Test(groups = "EJBExceptions")
@@ -1166,36 +1066,6 @@ public class PojosServiceTest extends TestCase {
 
         images = iPojos.getImages(Project.class.getName(), ids, GROUP_FILTER.map());
         assertFilterWorked(images, null, 100, null, fixture.g);
-
-    }
-
-    @Test(groups = "ticket:318")
-    public void testFilters_findCGCPaths() throws Exception {
-        ids = data.getMax("Image.ids", 100);
-
-        results = iPojos.findCGCPaths(ids, CLASSIFICATIONME.value,
-                OWNER_FILTER.map());
-        assertFilterWorked(results, null, 100, fixture.e, null);
-
-        results = iPojos.findCGCPaths(ids, CLASSIFICATIONME.value,
-                GROUP_FILTER.map());
-        assertFilterWorked(results, null, 100, null, fixture.g);
-
-        results = iPojos.findCGCPaths(ids, CLASSIFICATIONNME.value,
-                OWNER_FILTER.map());
-        assertFilterWorked(results, null, 100, fixture.e, null);
-
-        results = iPojos.findCGCPaths(ids, CLASSIFICATIONNME.value,
-                GROUP_FILTER.map());
-        assertFilterWorked(results, null, 100, null, fixture.g);
-
-        results = iPojos.findCGCPaths(ids, DECLASSIFICATION.value,
-                OWNER_FILTER.map());
-        assertFilterWorked(results, null, 100, fixture.e, null);
-
-        results = iPojos.findCGCPaths(ids, DECLASSIFICATION.value,
-                GROUP_FILTER.map());
-        assertFilterWorked(results, null, 100, null, fixture.g);
 
     }
 

@@ -21,16 +21,16 @@ public class UpdateTest extends IceTest {
         omero.model.ImageI obj = new omero.model.ImageI();
         obj.setName(rstring("foo"));
 
-        omero.model.CategoryImageLinkI link = new omero.model.CategoryImageLinkI();
-        omero.model.CategoryI cat = new omero.model.CategoryI();
+        omero.model.DatasetImageLinkI link = new omero.model.DatasetImageLinkI();
+        omero.model.DatasetI cat = new omero.model.DatasetI();
         cat.setName(rstring("bar"));
         link.setParent(cat);
         link.setChild(obj);
-        obj.addCategoryImageLink(link);
+        obj.addDatasetImageLink(link);
 
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
-        link = (omero.model.CategoryImageLinkI) obj.copyCategoryLinks().get(0);
-        cat = (omero.model.CategoryI) link.getParent();
+        link = (omero.model.DatasetImageLinkI) obj.copyDatasetLinks().get(0);
+        cat = (omero.model.DatasetI) link.getParent();
 
         assertTrue("foo".equals(obj.getName().getValue()));
         if (cat == null) {

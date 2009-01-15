@@ -15,8 +15,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
@@ -63,20 +61,6 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.annotationLinksCountPerOwner this_a_c ");
             sb.append("left outer join fetch "
                     + "this.imageLinksCountPerOwner this_i_c ");
-        } else if (CategoryGroup.class.isAssignableFrom(klass)) {
-            sb.append("select this from CategoryGroup this ");
-            sb.append("left outer join fetch this.categoryLinks cgcl ");
-            sb.append("left outer join fetch cgcl.child cat ");
-            if (po.isLeaves()) {
-                sb.append("left outer join fetch cat.imageLinks cil ");
-                sb.append("left outer join fetch cil.child img ");
-            }
-        } else if (Category.class.isAssignableFrom(klass)) {
-            sb.append("select this from Category this ");
-            if (po.isLeaves()) {
-                sb.append("left outer join fetch this.imageLinks cil ");
-                sb.append("left outer join fetch cil.child img ");
-            }
         } else {
             throw new ApiUsageException("Unknown container class: "
                     + klass.getName());
@@ -106,10 +90,8 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
     protected void enableFilters(Session session) {
         ownerOrGroupFilters(session,
         // TODO this needs to be moved to Hierarchy.
-                new String[] { CategoryGroup.OWNER_FILTER,
-                        Category.OWNER_FILTER, Project.OWNER_FILTER,
+                new String[] { Project.OWNER_FILTER,
                         Dataset.OWNER_FILTER }, new String[] {
-                        CategoryGroup.GROUP_FILTER, Category.GROUP_FILTER,
                         Project.GROUP_FILTER, Dataset.GROUP_FILTER });
     }
 

@@ -19,7 +19,6 @@ import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.CollectionCountQueryDefinition;
 import ome.services.query.IObjectClassQuery;
-import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
@@ -171,24 +170,6 @@ public class UniqueResultTest extends AbstractManagedContextTest {
         p = new Parameters().addClass(Project.class);
         assertFalse(p.getFilter().isUnique());
         Query q = new IObjectClassQuery(p);
-        iQuery.execute(q);
-    }
-
-    @Test(groups = { TICKET_83 })
-    public void test_PojosCGCPaths_unique() throws Exception {
-        p = new Parameters().addIds(getNewProjects(1, TICKET_83)).addAlgorithm(
-                IPojos.CLASSIFICATION_ME);
-        p.getFilter().isUnique();
-        Query q = new PojosCGCPathsQueryDefinition(p);
-        iQuery.execute(q);
-    }
-
-    @Test(groups = { TICKET_83 })
-    public void test_PojosCGCPaths_list() throws Exception {
-        p = new Parameters().addIds(getNewProjects(2, TICKET_83)).addAlgorithm(
-                IPojos.CLASSIFICATION_ME);
-        assertFalse(p.getFilter().isUnique());
-        Query q = new PojosCGCPathsQueryDefinition(p);
         iQuery.execute(q);
     }
 

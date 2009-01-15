@@ -23,8 +23,6 @@ import ome.model.IMutable;
 import static omero.rtypes.*;
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
-import omero.model.Category;
-import omero.model.CategoryGroup;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Details;
@@ -157,10 +155,6 @@ public abstract class DataObject {
             converted = new FileAnnotationData((FileAnnotation) obj);
         } else if (obj instanceof Image) {
             converted = new ImageData((Image) obj);
-        } else if (obj instanceof CategoryGroup) {
-            converted = new CategoryGroupData((CategoryGroup) obj);
-        } else if (obj instanceof Category) {
-            converted = new CategoryData((Category) obj);
         } else if (obj instanceof Pixels) {
             converted = new PixelsData((Pixels) obj);
         } else if (obj instanceof Experimenter) {
@@ -441,28 +435,6 @@ public abstract class DataObject {
      */
     public Dataset asDataset() {
         return (Dataset) asIObject();
-    }
-
-    /**
-     * Returns the hosted IObject as a Category. Not null; may through
-     * class-cast exception
-     * 
-     * @throws ClassCastException
-     * @return See above
-     */
-    public Category asCategory() {
-        return (Category) asIObject();
-    }
-
-    /**
-     * Returns the hosted IObject as a CategoryGroup. Not null; may through
-     * class-cast exception
-     * 
-     * @throws ClassCastException
-     * @return See above
-     */
-    public CategoryGroup asCategoryGroup() {
-        return (CategoryGroup) asIObject();
     }
 
     /**

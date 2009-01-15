@@ -13,8 +13,6 @@ import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -58,9 +56,7 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
             loginNewUser();
             DATA = new CreatePojosFixture(this.factory);
             DATA.createAllPojos();
-            level2cg = DATA.asIdList(DATA.cgu9991, DATA.cgu9992);
             level2p = DATA.asIdList(DATA.pu9991, DATA.pu9992);
-            level1c = DATA.asIdList(DATA.cu7771, DATA.cu7772);
             level1ds = DATA.asIdList(DATA.du7771, DATA.du7772);
             level0img = DATA.asIdList(DATA.iu5551, DATA.iu5552);
 
@@ -145,23 +141,11 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
         runLevel(Project.class, level2p, new PojoOptions().leaves());
         check_pdi_ids(level1ds, level0img);
 
-        runLevel(CategoryGroup.class, level2cg, new PojoOptions().noLeaves());
-        check_cgc_ids(level1c);
-
-        runLevel(CategoryGroup.class, level2cg, new PojoOptions().leaves());
-        check_cgci_ids(level1c, level0img);
-
         runLevel(Dataset.class, level1ds, new PojoOptions().noLeaves());
         // TODO why no check?
 
         runLevel(Dataset.class, level1ds, new PojoOptions().leaves());
         check_di_ids(level0img);
-
-        runLevel(Category.class, level1c, new PojoOptions().noLeaves());
-        // TODO why no check?
-
-        runLevel(Category.class, level1c, new PojoOptions().leaves());
-        check_ci_ids(level0img);
 
     }
 
@@ -216,9 +200,7 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
 
         // Null ids.
         run_null_filter_check_size(Project.class, 3);
-        run_null_filter_check_size(CategoryGroup.class, 8);
         run_null_filter_check_size(Dataset.class, 3);
-        run_null_filter_check_size(Category.class, 10);
     }
 
     @Test(groups = "ticket:376")
@@ -327,32 +309,6 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
     private void check_di_ids(List ids) {
         for (Dataset ds : (List<Dataset>) list) {
             List imgIds = ds.eachLinkedImage(new IdBlock());
-            assertTrue("And our images weren't there", imgIds.containsAll(ids));
-        }
-    }
-
-    private void check_cgc_ids(List ids) {
-        for (CategoryGroup cg : (List<CategoryGroup>) list) {
-            List catIds = cg.eachLinkedCategory(new IdBlock());
-            assertTrue("And our categories weren't there", catIds
-                    .containsAll(ids));
-        }
-    }
-
-    private void check_cgci_ids(List ids1, List ids2) {
-        check_cgc_ids(ids1);
-        for (CategoryGroup cg : (List<CategoryGroup>) list) {
-            for (Category cat : cg.<Category>eachLinkedCategory(null)) {
-                List imagesIds = cat.eachLinkedImage(new IdBlock());
-                assertTrue("Missing images", imagesIds.containsAll(ids2));
-            }
-
-        }
-    }
-
-    private void check_ci_ids(List ids) {
-        for (Category cat : (List<Category>) list) {
-            List imgIds = cat.eachLinkedImage(new IdBlock());
             assertTrue("And our images weren't there", imgIds.containsAll(ids));
         }
     }

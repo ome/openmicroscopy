@@ -18,14 +18,6 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Category;
-import omero.model.CategoryGroup;
-import omero.model.CategoryGroupCategoryLink;
-import omero.model.CategoryGroupCategoryLinkI;
-import omero.model.CategoryGroupI;
-import omero.model.CategoryI;
-import omero.model.CategoryImageLink;
-import omero.model.CategoryImageLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
@@ -137,10 +129,6 @@ public class CreatePojosFixture2 {
         images();
         dilinks();
         annotations();
-        categorygroups();
-        categories();
-        cgclinks();
-        cilinks();
     }
 
     public void deleteAllPojos() throws Exception {
@@ -251,100 +239,6 @@ public class CreatePojosFixture2 {
         saveAndClear();
     }
 
-    public void categorygroups() throws Exception {
-        init();
-        cgr9090 = catgroup(null, "root categorygroup without links");
-        cgr9091 = catgroup(null, "root categorygroup with own links");
-        cgr9092 = catgroup(null, "root categorygroup with foreign links");
-        cgu9990 = catgroup(e, "user categorygroup without links");
-        cgu9991 = catgroup(e, "user categorygroup with own links");
-        cgu9992 = catgroup(e, "user categorygroup with foreign links");
-        // cgcpaths
-        cgu9980 = catgroup(e, "empty category group");
-        cgu9981 = catgroup(e, "categorygroup with one category");
-        cgu9982 = catgroup(e, "categorygroup with another category");
-        cgu9983 = catgroup(e, "categorygroup with two categories");
-        cgu9984 = catgroup(e, "categorygroup with two different categories");
-        cgu9985 = catgroup(e, "categorygroup with one empty category");
-        saveAndClear();
-    }
-
-    public void categories() throws Exception {
-        init();
-        cr7070 = category(null, "root category without links");
-        cr7071 = category(null, "root category with own links");
-        cr7072 = category(null, "root category with foreign links");
-        cu7770 = category(e, "user category without links");
-        cu7771 = category(e, "user category with own links");
-        cu7772 = category(e, "user category with foreign links");
-        // cgcpaths
-        cu7780 = category(e, "user category alone");
-        cu7781 = category(e, "user category alone in cg");
-        cu7782 = category(e, "user category alone in another cg");
-        cu7783 = category(e, "user category paired in a cg I");
-        cu7784 = category(e, "user category paired in a cg II");
-        cu7785 = category(e, "user category paired in an another cg I");
-        cu7786 = category(e, "user category paired in an another cg II");
-        cu7787 = category(e, "user category WITH an image");
-        cu7788 = category(e, "user category WITHOUT an image");
-        saveAndClear();
-    }
-
-    public void cgclinks() throws Exception {
-        init();
-        cgclink(null, cgr9091, cr7071);
-        cgclink(null, cgr9091, cr7072);
-        cgclink(null, cgr9092, cr7071);
-        cgclink(null, cgr9092, cr7072);
-        cgclink(null, cgu9991, cu7771);
-        cgclink(null, cgu9991, cu7772);
-        cgclink(null, cgu9992, cu7771);
-        cgclink(null, cgu9992, cu7772);
-        // cgcpaths
-        cgclink(null, cgu9981, cu7781);
-        cgclink(null, cgu9982, cu7782);
-        cgclink(null, cgu9983, cu7783);
-        cgclink(null, cgu9983, cu7784);
-        cgclink(null, cgu9984, cu7785);
-        cgclink(null, cgu9984, cu7786);
-        cgclink(null, cgu9985, cu7787);
-        cgclink(null, cgu9985, cu7788);
-        saveAndClear();
-    }
-
-    public void cilinks() throws Exception {
-        init();
-        cilink(null, cr7071, ir5051);
-        cilink(e, cr7072, ir5051);
-        cilink(null, cr7071, ir5052);
-        cilink(e, cr7072, ir5052);
-        cilink(null, cu7771, iu5551);
-        cilink(e, cu7772, iu5551);
-        cilink(null, cu7771, iu5552);
-        cilink(e, cu7772, iu5552);
-        // cgcpaths
-        cilink(e, cu7782, iu5580);
-        cilink(e, cu7782, iu5581);
-        cilink(e, cu7782, iu5582);
-        cilink(e, cu7782, iu5583);
-        cilink(e, cu7782, iu5584);
-        cilink(e, cu7782, iu5585);
-        cilink(e, cu7782, iu5586);
-        cilink(e, cu7782, iu5587);
-
-        cilink(e, cu7783, iu5580);
-        cilink(e, cu7783, iu5581);
-        cilink(e, cu7784, iu5582);
-        cilink(e, cu7784, iu5583);
-        cilink(e, cu7785, iu5584);
-        cilink(e, cu7785, iu5585);
-        cilink(e, cu7786, iu5586);
-        cilink(e, cu7786, iu5587);
-        cilink(e, cu7786, iu5580);
-        cilink(e, cu7787, iu5588);
-        saveAndClear();
-    }
-
     // ~ Helpers
     // =========================================================================
 
@@ -427,39 +321,6 @@ public class CreatePojosFixture2 {
         return link;
     }
 
-    protected CategoryGroup catgroup(Experimenter owner, String name) throws Exception {
-        CategoryGroup cg = new CategoryGroupI();
-        cg.getDetails().setOwner( owner );
-        cg.setName( rstring(name) );
-        cg = push(cg);
-        return cg;
-    }
-
-    protected Category category(Experimenter owner, String name) throws Exception {
-        Category c = new CategoryI();
-        c.getDetails().setOwner( owner );
-        c.setName( rstring(name) );
-        c = push(c);
-        return c;
-    }
-
-    protected CategoryGroupCategoryLink cgclink(Experimenter user,
-            CategoryGroup cg, Category c) throws Exception {
-        CategoryGroupCategoryLink link = new CategoryGroupCategoryLinkI();
-        link.link(cg, c);
-        link.getDetails().setOwner( user );
-        link = push(link);
-        return link;
-    }
-
-    protected CategoryImageLink cilink(Experimenter user, Category c, Image i) throws Exception {
-        CategoryImageLink link = new CategoryImageLinkI();
-        link.link(c, i);
-        link.getDetails().setOwner( user );
-        link = push(link);
-        return link;
-    }
-
     // static class Data {
     public String TESTER;
 
@@ -473,13 +334,6 @@ public class CreatePojosFixture2 {
 
     public Image ir5050, ir5051, ir5052, iu5550, iu5551, iu5552, iu5580,
             iu5581, iu5582, iu5583, iu5584, iu5585, iu5586, iu5587, iu5588;
-
-    public CategoryGroup cgr9090, cgr9091, cgr9092, cgu9990, cgu9991, cgu9992,
-            cgu9980, cgu9981, cgu9982, cgu9983, cgu9984, cgu9985;
-
-    public Category cr7070, cr7071, cr7072, cu7770, cu7771, cu7772, cu7780,
-            cu7781, cu7782, cu7783, cu7784, cu7785, cu7786, cu7787, cu7788;
-
     // }
 
     public List<RLong> asIdList(IObject... iobjs) {

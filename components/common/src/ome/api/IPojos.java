@@ -244,65 +244,6 @@ public interface IPojos extends ServiceInterface {
             Set<Long> annotatorIds, Map options);
 
     /**
-     * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
-     * <p>
-     * Because of the mutually exclusive rule of CG/C hierarchy, this method is
-     * quite tricky We want to retrieve all Category Group/Category paths that
-     * end with the specified leaves.
-     * </p>
-     * <p>
-     * We also want to retrieve the all Category Group/Category paths that
-     * don’t end with the specified leaves, note that in that case because of
-     * the mutually exclusive constraint the categories which don’t contain a
-     * specified leaf but which is itself contained in a group which already has
-     * a category ending with the specified leaf is excluded.
-     * </p>
-     * <p>
-     * This is <u>more</u> restrictive than may be imagined. The goal is to
-     * find CGC paths to which an Image <B>MAY</b> be attached.
-     * </p>
-     * 
-     * @param imgIDs
-     *            the ids of the Images that sit at the bottom of the CGC trees.
-     *            Not null.
-     * @param algorithm,
-     *            specify the search algorithm for finding paths.
-     * @param options
-     *            Map as above. No notion of <code>annotator</code> or
-     *            <code>leaves</code>. <code>experimenter & group</code>
-     *            are as {@link #findContainerHierarchies(Class, Set, Map)}
-     * @return A <code>Set</code> of hierarchy trees with all root nodes that
-     *         were found.
-     */
-    public <T extends IObject> Set<T> findCGCPaths(@NotNull
-    @Validate(Long.class)
-    Set<Long> imgIds, @NotNull
-    String algorithm, Map options);
-
-    /**
-     * algorithm which given a set of images ids retrieve the CG-C hierarchy
-     * where we can classify the images constraint: if a category contains an
-     * image => the hierarchy CG-C is not retrieved.
-     */
-    public final static String CLASSIFICATION_ME = "CLASSIFICATION_ME";
-
-    /**
-     * algorithm which given a set of images ids retrieves the CG-C where
-     * category doesn't contain the image.
-     */
-    public final static String CLASSIFICATION_NME = "CLASSIFICATION_NME";
-
-    /**
-     * algorithm which given a set of image ids retrieves the CG-C containing
-     * the images.
-     */
-    public final static String DECLASSIFICATION = "DECLASSIFICATION";
-
-    public final static Set<String> ALGORITHMS = new HashSet<String>(Arrays
-            .asList(new String[] { CLASSIFICATION_ME, CLASSIFICATION_NME,
-                    DECLASSIFICATION }));
-
-    /**
      * Retrieve a user's (or all users') images within any given container. For
      * example, all images in project, applying temporal filtering or
      * pagination.

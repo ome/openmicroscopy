@@ -29,7 +29,6 @@ import ome.logic.AbstractLevel2Service;
 import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotationLink;
-import ome.model.containers.CategoryImageLink;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -354,12 +353,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         for (ImageAnnotationLink link : i
                 .collectAnnotationLinks((CBlock<ImageAnnotationLink>) null)) {
             i.removeImageAnnotationLink(link, true);
-            delete.call(link);
-        }
-
-        for (CategoryImageLink link : i
-                .collectCategoryLinks((CBlock<CategoryImageLink>) null)) {
-            i.removeCategoryImageLink(link, true);
             delete.call(link);
         }
 

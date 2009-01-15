@@ -7,7 +7,6 @@
 
 package ome.logic;
 
-// Java imports
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-// Third-party libraries
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -35,7 +33,6 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
-// Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -49,7 +46,6 @@ import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
-import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -187,28 +183,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	if (pixels == null) return;
         RenderingDef settings = getRenderingSettings(pixels.getId());
         resetDefaults(settings, pixels, true, true);
-	}
-
-	/**
-	 * Performs the logic specified by {@link #resetDefaultsInCategory(long)}.
-	 * 
-	 * @param category The category to handle.
-	 * @return The collection of images linked to the category.
-	 */
-	private Set<Long> resetDefaults(Category category)
-	{
-		if (category == null) return new HashSet<Long>();
-		String sql = "select i from Image i "
-			+ " left outer join fetch i.categoryLinks cil "
-			+ " left outer join fetch cil.parent c where c.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(category.getId()));
-        Set<Long> imageIds = new HashSet<Long>();
-        for (Image i : images)
-        {
-            imageIds.add(i.getId());
-        }
-        return resetDefaultsInSet(Image.class, imageIds);
 	}
 
 	/**
@@ -599,21 +573,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F.
-     * @see IRenderingSettings#applySettingsToCategory(long, long)
-     */
-    @RolesAllowed("user")
-    public Map<Boolean, List<Long>> applySettingsToCategory(long from, long to) {
-
-        String sql = "select i from Image i "
-                + " left outer join fetch i.categoryLinks cil "
-                + " left outer join fetch cil.parent c " + " where c.id = :id";
-        List<Image> images =
-        	iQuery.findAllByQuery(sql, new Parameters().addId(to));
-        return applySettings(from, new HashSet<Image>(images));
-    }
-
-    /**
      * Implemented as specified by the {@link IRenderingSettings} I/F. 
      * @see IRenderingSettings#applySettingsToProject(long, long)
      */
@@ -806,29 +765,18 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
-     * @see IRenderingSettings#resetDefaultsInCategory(long)
-     */
-    @RolesAllowed("user")
-    public Set<Long> resetDefaultsInCategory(long categoryId) {
-    	Category category = iQuery.get(Category.class, categoryId);
-    	return resetDefaults(category);
-    }
-
-    /**
      * Implemented as specified by the {@link IRenderingSettings} I/F. 
      * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
      */
     @RolesAllowed("user")
     public <T extends IObject> Set<Long> resetDefaultsInSet(Class<T> klass, Set<Long> nodeIds)
     {
-        if (!Dataset.class.equals(klass) && !Category.class.equals(klass)
+        if (!Dataset.class.equals(klass)
             && !Image.class.equals(klass))
         {
             throw new IllegalArgumentException(
                     "Class parameter for resetDefaultsInSet() must be in "
-                            + "{Dataset, Category, Image}, not " + klass);
+                            + "{Dataset, Image}, not " + klass);
         }
 
         List<IObject> objects = new ArrayList<IObject>();
@@ -844,10 +792,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 if (object instanceof Dataset)
                 {
                     imageIds.addAll(resetDefaults((Dataset) object));
-                }
-                if (object instanceof Category)
-                {
-                    imageIds.addAll(resetDefaults((Category) object));
                 }
                 if (object instanceof Image)
                 {

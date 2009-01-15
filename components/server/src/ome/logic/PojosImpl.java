@@ -39,14 +39,11 @@ import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
-import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesByOptionsQueryDefinition;
@@ -116,12 +113,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         }
 
         if (!Project.class.equals(rootNodeType)
-                && !Dataset.class.equals(rootNodeType)
-                && !CategoryGroup.class.equals(rootNodeType)
-                && !Category.class.equals(rootNodeType)) {
+                && !Dataset.class.equals(rootNodeType)) {
             throw new ApiUsageException(
                     "Class parameter for loadContainerIHierarchy() must be in "
-                            + "{Project,Dataset,Category,CategoryGroup}, not "
+                            + "{Project,Dataset}, not "
                             + rootNodeType);
         }
         // TODO no more "options" just QPs.
@@ -175,11 +170,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         PojoOptions po = new PojoOptions(options);
 
         // TODO refactor to use Hierarchy class H.isTopLevel()
-        if (!(Project.class.equals(rootNodeType) || CategoryGroup.class
-                .equals(rootNodeType))) {
+        if (!(Project.class.equals(rootNodeType))) {
             throw new ApiUsageException(
                     "Class parameter for findContainerHierarchies() must be"
-                            + " in {Project,CategoryGroup}, not "
+                            + " in {Project}, not "
                             + rootNodeType);
         }
 
@@ -205,15 +199,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             return HierarchyTransformations.invertPDI(new HashSet<Image>(l),
                     new EvictBlock<IObject>());
 
-        }
-
-        else if (CategoryGroup.class.equals(rootNodeType)) {
-            if (imageIds.size() == 0) {
-                return new HashSet();
-            }
-
-            return HierarchyTransformations.invertCGCI(new HashSet<Image>(l),
-                    new EvictBlock<IObject>());
         }
 
         else {
@@ -282,70 +267,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         }
 
         return map;
-
-    }
-
-    @RolesAllowed("user")
-    @Transactional(readOnly = true)
-    public Set findCGCPaths(Set imgIds, String algorithm, Map options) {
-
-        if (imgIds.size() == 0) {
-            return new HashSet();
-        }
-
-        if (!IPojos.ALGORITHMS.contains(algorithm)) {
-            throw new ApiUsageException("No such algorithm known:"
-                    + algorithm);
-        }
-
-        PojoOptions po = new PojoOptions(options);
-
-        Query<List<Map<String, IObject>>> q = getQueryFactory().lookup(
-                PojosCGCPathsQueryDefinition.class.getName(),
-                new Parameters().addIds(imgIds).addAlgorithm(algorithm)
-                        .addOptions(po.map()));
-
-        List<Map<String, IObject>> result_set = iQuery.execute(q);
-
-        Map<CategoryGroup, Set<Category>> map = new HashMap<CategoryGroup, Set<Category>>();
-        Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
-
-        // Parse
-        for (Map<String, IObject> entry : result_set) {
-            CategoryGroup cg = (CategoryGroup) entry.get(CategoryGroup.class
-                    .getName());
-            Category c = (Category) entry.get(Category.class.getName());
-
-            if (!map.containsKey(cg)) {
-                map.put(cg, new HashSet<Category>());
-            }
-            if (c != null) {
-                map.get(cg).add(c);
-            }
-
-        }
-
-        //
-        // Destructive changes below this point.
-        //
-        for (CategoryGroup cg : map.keySet()) {
-            iQuery.evict(cg);
-            // Overriding various checks.
-            // Ticket #92 :
-            // We know what we're doing so we place a new HashSet here.
-            cg.putAt(CategoryGroup.CATEGORYLINKS, new HashSet());
-
-            for (Category c : map.get(cg)) {
-                iQuery.evict(c);
-                // Overriding various checks.
-                // Ticket #92 again.
-                c.putAt(Category.CATEGORYGROUPLINKS, new HashSet());
-                cg.linkCategory(c);
-            }
-            returnValues.add(cg);
-        }
-
-        return returnValues;
 
     }
 

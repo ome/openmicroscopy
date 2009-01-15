@@ -19,8 +19,6 @@ import java.util.Set;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.TimestampAnnotation;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -161,24 +159,11 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         rootOnlyMap.put(p1, i_d2);
         rootOnlyMap.put(d2, i_d2);
 
-        CategoryGroup cg1 = createCategoryGroup();
-        Category c1 = createCategory();
-        Category c2 = createCategory();
         Image i_c1 = createImage();
         Image i_c2 = createImage();
 
-        cg1.linkCategory(c1);
-        cg1.linkCategory(c2);
-        c1.linkImage(i_c1);
-        c2.linkImage(i_c2);
-
-        rootOnlyMap.put(cg1, i_c1);
-        rootOnlyMap.put(c1, i_c1);
-        rootOnlyMap.put(cg1, i_c2);
-        rootOnlyMap.put(c2, i_c2);
-
         // Saving the newly created links.
-        iUpdate.saveArray(new IObject[] { p1, d1, d2, i_d1, i_d2, cg1, c1, c2,
+        iUpdate.saveArray(new IObject[] { p1, d1, d2, i_d1, i_d2, 
                 i_c1, i_c2 });
 
         // ~ USER FILTER
@@ -282,14 +267,10 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     public void test_retrieve_levels() throws Exception {
 
         runWholeLevel(Project.class);
-        runWholeLevel(CategoryGroup.class);
         runWholeLevel(Dataset.class);
-        runWholeLevel(Category.class);
 
         runAllOnLevel(Project.class);
-        runAllOnLevel(CategoryGroup.class);
         runAllOnLevel(Dataset.class);
-        runAllOnLevel(Category.class);
     }
 
     private void runWholeLevel(Class klass) {
@@ -499,18 +480,6 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image i1 = new Image();
         i1.setName(this.getClass().getName());
         return iUpdate.saveAndReturnObject(i1);
-    }
-
-    private Category createCategory() {
-        Category c1 = new Category();
-        c1.setName(this.getClass().getName());
-        return iUpdate.saveAndReturnObject(c1);
-    }
-
-    private CategoryGroup createCategoryGroup() {
-        CategoryGroup cg1 = new CategoryGroup();
-        cg1.setName(this.getClass().getName());
-        return iUpdate.saveAndReturnObject(cg1);
     }
 
     private class MAP {

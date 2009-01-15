@@ -24,7 +24,6 @@ import omero.api.AMD_IPojos_createDataObjects;
 import omero.api.AMD_IPojos_deleteDataObject;
 import omero.api.AMD_IPojos_deleteDataObjects;
 import omero.api.AMD_IPojos_findAnnotations;
-import omero.api.AMD_IPojos_findCGCPaths;
 import omero.api.AMD_IPojos_findContainerHierarchies;
 import omero.api.AMD_IPojos_getCollectionCount;
 import omero.api.AMD_IPojos_getImages;
@@ -92,13 +91,6 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
             Map<String, RType> options, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, rootIds, annotatorIds,
                 options);
-
-    }
-
-    public void findCGCPaths_async(AMD_IPojos_findCGCPaths __cb,
-            List<Long> imageIds, String algo, Map<String, RType> options,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, imageIds, algo, options);
 
     }
 

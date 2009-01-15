@@ -12,8 +12,8 @@ import java.util.Set;
 import ome.model.IAnnotated;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
@@ -145,10 +145,10 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     @Test(groups = { "ticket:657" })
     public void testCountQueriesAreCorrect() throws Exception {
-        assertEquals(metadata.getCountQuery(CategoryImageLink.CHILD), metadata
-                .getCountQuery(CategoryImageLink.CHILD),
+        assertEquals(metadata.getCountQuery(DatasetImageLink.CHILD), metadata
+                .getCountQuery(DatasetImageLink.CHILD),
                 "select target.child.id, count(target) "
-                        + "from ome.model.containers.CategoryImageLink target "
+                        + "from ome.model.containers.DatasetImageLink target "
                         + "group by target.child.id");
         assertEquals(metadata.getCountQuery(Pixels.IMAGE), metadata
                 .getCountQuery(Pixels.IMAGE),
@@ -161,7 +161,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     @Test(groups = { "ticket:657" })
     public void testTargetTypes() throws Exception {
         assertEquals(metadata.getTargetType(Pixels.IMAGE), Image.class);
-        assertEquals(metadata.getTargetType(CategoryImageLink.CHILD),
+        assertEquals(metadata.getTargetType(DatasetImageLink.CHILD),
                 Image.class);
     }
 

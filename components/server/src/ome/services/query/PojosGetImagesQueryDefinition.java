@@ -15,8 +15,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -69,20 +67,6 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
             // "prj.annotationLinksCountPerOwner as prj_c "
             qb.where();
             qb.and("prj.id in (:ids)");
-        } else if (Category.class.isAssignableFrom(klass)) {
-            qb.join("img.categoryLinks", "cil", false, false);
-            qb.join("cil.parent", "cat", false, false);
-            // + "cat.annotationLinksCountPerOwner as cat_c ");
-            qb.where();
-            qb.and("cat.id in (:ids)");
-        } else if (CategoryGroup.class.isAssignableFrom(klass)) {
-            qb.join("img.categoryLinks", "cil", false, false);
-            qb.join("cil.parent", "cat", false, false);
-            qb.join("cat.categoryGroupLinks", "cgcl", false, false);
-            qb.join("cgcl.parent", "cg", false, false);
-            // + "cgcl.annotationLinksCountPerOwner as cgcl_c ");
-            qb.where();
-            qb.and("cg.id in (:ids)");
         } else {
             throw new ApiUsageException("Query not implemented for " + klass);
         }

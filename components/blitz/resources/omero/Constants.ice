@@ -92,12 +92,6 @@ module omero {
     const string POJOOFFSET       = "offset";         // omero::RInt
     const string POJOSTARTTIME    = "startTime";      // omero::RTime
     const string POJOENDTIME      = "endTime";        // omero::RTime
-    /*
-     * Used by IPojos.findCGCPaths(...,string algo,...)
-     */
-    const string CLASSIFICATIONME  = "CLASSIFICATION_ME";
-    const string CLASSIFICATIONNME = "CLASSIFICATION_NME";
-    const string DECLASSIFICATION  = "DECLASSIFICATION";
 
     module jobs {
 
