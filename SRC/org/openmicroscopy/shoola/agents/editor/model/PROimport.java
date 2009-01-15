@@ -355,8 +355,7 @@ public class PROimport {
 					if (millisecs != null) {
 						utcMillis += (new Long(millisecs)* 1000);
 					}
-					param.setAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE, 
-							utcMillis + "");
+					param.setValueAt(0, utcMillis + "");
 					
 				} else {		// date is relative.
 					// store relative date as number parameter (days)

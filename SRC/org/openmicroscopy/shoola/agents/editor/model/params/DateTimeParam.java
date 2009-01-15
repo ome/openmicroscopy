@@ -54,12 +54,6 @@ public class DateTimeParam
 	public static final String 		DATE_TIME_PARAM = "DATE_TIME";
 	
 	/**
-	 * A property of this parameter. 
-	 * This stores a Date-Time in UTC milliseconds.
-	 */
-	public static final String 		DATE_TIME_ATTRIBUTE = "UTCMillisecs";
-	
-	/**
 	 * Creates an instance. 
 	  */
 	public DateTimeParam() {
@@ -75,7 +69,7 @@ public class DateTimeParam
 	public String getYYYYMMDD() 
 	{
 			
-		String dateMillis = getAttribute(DATE_TIME_ATTRIBUTE);
+		String dateMillis = getAttribute(TextParam.PARAM_VALUE);
 		if (dateMillis != null) 
 		{
 			long millis = new Long(dateMillis);
@@ -89,28 +83,6 @@ public class DateTimeParam
 	}
 	
 	/**
-	 * Implemented as specified by the {@link IParam} interface. 
-	 * 
-	 * @see IParam#getParamAttributes()
-	 */
-	public String[] getParamAttributes() {
-		
-		return new String[] {DATE_TIME_ATTRIBUTE};
-	}
-
-	/**
-	 * This field is filled if the DATE value isn't null, and 
-	 * is not an empty string. 
-	 */
-	public boolean isParamFilled() 
-	{
-		String dateValue = getAttribute(DATE_TIME_ATTRIBUTE);
-		
-		// if date attribute isn't null, field is filled.
-		return (dateValue != null);
-	}
-	
-	/**
 	 * Returns a formatted string displaying the date (or relative date)
 	 * and time (if set). 
 	 * 
@@ -118,26 +90,9 @@ public class DateTimeParam
 	 */
 	public String toString() 
 	{	
-		String text = getParamValue();
-		
-		if (text == null) {
-			return super.toString();
-		}
-		return text;
-	}
-	
-	/**
-	 * Implemented as specified by the {@link IParam} interface.
-	 * Returns a formatted string displaying the date (or relative date)
-	 * and time (if set). 
-	 * 
-	 *  @see IParam#getParamValue()
-	 */
-	public String getParamValue() 
-	{
 		String text = "";
 		
-		String dateMillis = getAttribute(DATE_TIME_ATTRIBUTE);
+		String dateMillis = getParamValue();
 		if (dateMillis != null) 
 		{
 			long millis = new Long(dateMillis);
@@ -148,8 +103,10 @@ public class DateTimeParam
 			text = text + dateF.format(date);
 		} 
 		
-		if (text.length() >0) return text;
-		return null;
+		if (text == null) {
+			return super.toString();
+		}
+		return text;
 	}
 
 }

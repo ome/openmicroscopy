@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.HrsMinsField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -107,7 +108,7 @@ public class DateTimeField
 		int mins = 0;
 	
 		// set the date according to the value of DATE_ATTRIBUTE
-		String millisecs = param.getAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE);
+		String millisecs = param.getAttribute(TextParam.PARAM_VALUE);
 		if (millisecs != null) {
 			UTCMillisecs = new Long(millisecs);
 			Date date = new Date(UTCMillisecs);
@@ -166,7 +167,7 @@ public class DateTimeField
 			newDateTime = timeInMillis + "";
 		} 
 		
-		attributeEdited(DateTimeParam.DATE_TIME_ATTRIBUTE, newDateTime);
+		attributeEdited(TextParam.PARAM_VALUE, newDateTime);
 	}
 
 	/**

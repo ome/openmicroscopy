@@ -225,17 +225,17 @@ public class CPEexport {
 			setValueAndDefault(parameter, param);
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
 			if (units != null)
-				addChildContent(parameter, "unit", units);
+				addChildContent(parameter, CPEimport.UNITS, units);
 		} else 
 		if (param instanceof EnumParam) {
 			addChildContent(parameter, CPEimport.PARAM_TYPE, "ENUMERATION");
 			setValueAndDefault(parameter, param);
 			String enumOptions = param.getAttribute(EnumParam.ENUM_OPTIONS);
 			if (enumOptions != null) {
-				IXMLElement enumList = new XMLElement("enum-list");
+				IXMLElement enumList = new XMLElement(CPEimport.ENUM_LIST);
 				String[] options = enumOptions.split(",");
 				for (int i=0; i<options.length; i++) {
-					addChildContent(enumList, "enum", options[i].trim());
+					addChildContent(enumList, CPEimport.ENUM, options[i].trim());
 				}
 				parameter.addChild(enumList);
 			}
@@ -249,20 +249,20 @@ public class CPEexport {
 			if (param instanceof DateTimeParam) {
 				addChildContent(parameter, CPEimport.PARAM_TYPE, "DATE_TIME");
 				
-				String ms = param.getAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE);
+				String ms = param.getAttribute(TextParam.PARAM_VALUE);
 				if (ms != null) {
-					long dateMillis = new Long(ms);
-					
-					addChildContent(parameter, "value", dateMillis + "");
+					IXMLElement data = new XMLElement(CPEimport.DATA);
+					addChildContent(data, CPEimport.VALUE, ms);
+					parameter.addChild(data);
 				}
 			}
 		else 
 			if (param instanceof BooleanParam) {
-				addChildContent(parameter, "param-type", "ENUMERATION");
+				addChildContent(parameter, CPEimport.PARAM_TYPE, "ENUMERATION");
 				setValueAndDefault(parameter, param);
-				IXMLElement enumList = new XMLElement("enum-list");
-				addChildContent(enumList, "enum", "true");
-				addChildContent(enumList, "enum", "false");
+				IXMLElement enumList = new XMLElement(CPEimport.ENUM_LIST);
+				addChildContent(enumList, CPEimport.ENUM, "true");
+				addChildContent(enumList, CPEimport.ENUM, "false");
 				parameter.addChild(enumList);
 			}
 		

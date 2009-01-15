@@ -92,7 +92,7 @@ public class CPEimport {
 	/**  The name of the element used to store the value of parameters */
 	public static final String 			VALUE = "value";
 	
-	/**  The name of the element used to store the default value of parameters */
+	/** The name of the element used to store the default value of parameters */
 	public static final String 			DEFAULT = "default-value";
 	
 	/**  The name of the element used to store the 'type' of a parameter */
@@ -261,10 +261,7 @@ public class CPEimport {
 		else
 		if (DateTimeParam.DATE_TIME_PARAM.equals(attributeValue)) {
 			param = FieldParamsFactory.getFieldParam(DateTimeParam.DATE_TIME_PARAM);
-			setName(cpeParam, param);
-			// date-time stored as UTC milliseconds in "value" attribute. 
-			attributeValue = getChildContent(cpeParam, VALUE);
-			param.setAttribute(DateTimeParam.DATE_TIME_ATTRIBUTE, attributeValue);
+			setNameValueDefault(cpeParam, param);
 		}
 		
 		else {
