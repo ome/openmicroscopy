@@ -87,6 +87,7 @@ public class DeletableObject
 		this.objectToDelete = objectToDelete;
 		this.content = content;
 		this.attachment = attachment;
+		blocker = null;
 	}
 	
 	/**
@@ -153,5 +154,5 @@ public class DeletableObject
 	 * @return See above.
 	 */
 	public List getBlocker() { return blocker; }
-	
+
 }

@@ -55,8 +55,8 @@ public class IconManager
 	extends AbstractIconManager
 {
 
-	/** The <code>Save</code> icon. */
-	public static final int		SAVE = 0;
+	/** The <code>Save As 22</code> icon. */
+	public static final int		SAVE_AS_22 = 0;
 	
 	/** The <code>Inspector</code> icon. */
 	public static final int		INSPECTOR = 1;
@@ -73,110 +73,107 @@ public class IconManager
 	/** The <code>Refresh</code> icon. */
 	public static final int		REFRESH = 5;
 	
-	/** The <code>Left Arrow</code> icon. */
-	public static final int		LEFT_ARROW = 6;
+	/** The <code>Left Arrow 22</code> icon. */
+	public static final int		LEFT_ARROW_22 = 6;
 	
-	/** The <code>Right Arrow</code> icon. */
-	public static final int		RIGHT_ARROW = 7;
+	/** The <code>Right Arrow 22</code> icon. */
+	public static final int		RIGHT_ARROW_22 = 7;
 	
-	/** The <code>Double Left Arrow</code> icon. */
-	public static final int		DOUBLE_LEFT_ARROW = 8;
+	/** The <code>Double Left Arrow 22</code> icon. */
+	public static final int		DOUBLE_LEFT_ARROW_22 = 8;
 	
-	/** The <code>Double Right Arrow</code> icon. */
-	public static final int		DOUBLE_RIGHT_ARROW = 9;
+	/** The <code>Double Right Arrow 22</code> icon. */
+	public static final int		DOUBLE_RIGHT_ARROW_22 = 9;
 
+	/** The <code>Wizard 48</code> icon. */
+	public static final int		WIZARD_48 = 10;
+	
 	/** The <code>Wizard</code> icon. */
-	public static final int		WIZARD = 10;
+	public static final int		WIZARD = 11;
 	
-	/** The <code>Wizard16</code> icon. */
-	public static final int		WIZARD16 = 11;
-	
-	/** The <code>Save16</code> icon. */
-	public static final int		SAVE16 = 12;
-	
-	/** The <code>Refresh16</code> icon. */
-	public static final int		REFRESH16 = 13;
+	/** The <code>Save As</code> icon. */
+	public static final int		SAVE_AS = 12;
 	
 	/** The <code>Status Info</code> icon. */
-	public static final int		STATUS_INFO = 14;
+	public static final int		STATUS_INFO = 13;
 	
 	/** The <code>Square</code> icon. */
-	public static final int		SQUARE = 15;
+	public static final int		SQUARE = 14;
 	
 	/** The <code>Ellipse</code> icon. */
-	public static final int	 	ELLIPSE = 16;
+	public static final int	 	ELLIPSE = 15;
 	
 	/** The <code>Polyline</code> icon. */
-	public static final int		POLYLINE = 17;
+	public static final int		POLYLINE = 16;
 
 	/** The <code>Polygon</code> icon. */
-	public static final int		POLYGON = 18;
+	public static final int		POLYGON = 17;
 
 	/** The <code>Point</code> icon. */
-	public static final int		POINT = 19;
+	public static final int		POINT = 20;
 
 	/** The <code>Line</code> icon. */
-	public static final int		LINE = 20;
+	public static final int		LINE = 21;
 
 	/** The <code>Lineconnection</code> icon. */
-	public static final int		LINECONNECTION = 21;
+	public static final int		LINECONNECTION = 22;
 
 	/** The <code>Text</code> icon. */
-	public static final int		TEXT = 22;
+	public static final int		TEXT = 23;
 	
-	/** The <code>PointIcon</code> icon. */
-	public static final int		POINTICON = 23;
+	/** The <code>Point Icon 22</code> icon. */
+	public static final int		POINTICON_22 = 24;
 
 	 /** The <code>Progress</code> icon. */
-    public static int           PROGRESS = 24;
+    public static int           PROGRESS = 25;
 
     /** The <code>GraphPane</code> icon. */
-    public static int           GRAPHPANE = 25;
+    public static int           GRAPHPANE = 26;
     
     /** The <code>Itensity View</code> icon. */
-    public static int          INTENSITYVIEW = 26;
+    public static int          INTENSITYVIEW = 27;
     
     /** The <code>Roi stack</code> icon. */
-    public static int          ROISTACK = 27;
+    public static int          ROISTACK = 28;
     
     /** The <code>Rioshape</code> icon. */
-    public static int          ROISHAPE = 28;
+    public static int          ROISHAPE = 29;
     
-    /** The <code>Line16</code> icon. */
-    public static int          LINE16 = 29;
+    /** The <code>Line 16</code> icon. */
+    public static int          LINE_16 = 30;
     
-    /** The <code>Ellipse16</code> icon. */
-    public static int          ELLIPSE16 = 30;
+    /** The <code>Ellipse 16</code> icon. */
+    public static int          ELLIPSE_16 = 31;
     
-    /** The <code>Rectangle16</code> icon. */
-    public static int          RECTANGLE16 = 31;
+    /** The <code>Rectangle 16</code> icon. */
+    public static int          RECTANGLE_16 = 32;
     
-    /** The <code>Connection16</code> icon. */
-    public static int          CONNECTION16 = 32;
+    /** The <code>Connection 16</code> icon. */
+    public static int          CONNECTION_16 = 33;
     
-    /** The <code>Polygon</code> icon. */
-    public static int          POLYGON16 = 33;
+    /** The <code>Polygon 16</code> icon. */
+    public static int          POLYGON_16 = 34;
     
-    /** The <code>Scribble16</code> icon. */
-    public static int          SCRIBBLE16 = 34;
+    /** The <code>Scribble 16</code> icon. */
+    public static int          SCRIBBLE_16 = 35;
 
-    /** The <code>Point16</code> icon. */
-    public static int          POINT16 = 35;
+    /** The <code>Point 16</code> icon. */
+    public static int          POINT_16 = 36;
 
     /** The <code>Text</code> icon. */
-    public static int          TEXT16 = 36;
+    public static int          TEXT_16 = 37;
 
     /** The <code>Question</code> icon. */
-    public static int          QUESTION = 37;
+    public static int          QUESTION_32 = 38;
 
     /** The <code>CornerIcon</code> icon. */
-    public static int          CORNERICON = 38;
+    public static int          CORNERICON = 39;
         
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 38;
+    private static final int    MAX_ID = 39;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -185,20 +182,19 @@ public class IconManager
     private static IconManager  singleton;
     
     static {
-        relPaths[SAVE] = "nuvola_filesaveas22.png";
+        relPaths[SAVE_AS_22] = "nuvola_filesaveas22.png";
         relPaths[INSPECTOR] = "nuvola_viewmag16.png";
         relPaths[MANAGER] = "nuvola_find16.png";
         relPaths[RESULTS] = "nuvola_view_text16.png";
         relPaths[LOAD] = "nuvola_revert22.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
-        relPaths[LEFT_ARROW] = "nuvola_1leftarrow22.png";
-        relPaths[RIGHT_ARROW] = "nuvola_1rightarrow22.png";
-        relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow22.png";
-        relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow22.png";
-        relPaths[WIZARD] = "nuvola_wizard48.png";
-        relPaths[WIZARD16] = "nuvola_wizard16.png";
-        relPaths[SAVE16] = "nuvola_filesaveas16.png";
-        relPaths[REFRESH16] = "nuvola_reload16.png";
+        relPaths[LEFT_ARROW_22] = "nuvola_1leftarrow22.png";
+        relPaths[RIGHT_ARROW_22] = "nuvola_1rightarrow22.png";
+        relPaths[DOUBLE_LEFT_ARROW_22] = "nuvola_2leftarrow22.png";
+        relPaths[DOUBLE_RIGHT_ARROW_22] = "nuvola_2rightarrow22.png";
+        relPaths[WIZARD_48] = "nuvola_wizard48.png";
+        relPaths[WIZARD] = "nuvola_wizard16.png";
+        relPaths[SAVE_AS] = "nuvola_filesaveas16.png";
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[SQUARE] = "square.png";
         relPaths[ELLIPSE] = "ellipse.png";
@@ -209,21 +205,21 @@ public class IconManager
         relPaths[POLYGON] = "polygon.png";
         relPaths[POINT] = "point.png";
         relPaths[TEXT] = "text.png";
-        relPaths[POINTICON] = "point22.png";
+        relPaths[POINTICON_22] = "point22.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[GRAPHPANE] = "nuvola_kmplot16.png";
         relPaths[INTENSITYVIEW] = "nuvola_kig16.png";
         relPaths[ROISTACK] = "roistack16.png";
         relPaths[ROISHAPE] = "roishape16.png";
-        relPaths[RECTANGLE16] = "rectangle16.png";
-        relPaths[ELLIPSE16] = "ellipse16.png";
-        relPaths[CONNECTION16] = "connection16.png";
-        relPaths[LINE16] = "line16.png";
-        relPaths[SCRIBBLE16] = "scribble16.png";
-        relPaths[POLYGON16] = "polygon16.png";
-        relPaths[POINT16] = "point16.png";
-        relPaths[TEXT16] = "text16.png";
-        relPaths[QUESTION] = "nuvola_filetype32.png";
+        relPaths[RECTANGLE_16] = "rectangle16.png";
+        relPaths[ELLIPSE_16] = "ellipse16.png";
+        relPaths[CONNECTION_16] = "connection16.png";
+        relPaths[LINE_16] = "line16.png";
+        relPaths[SCRIBBLE_16] = "scribble16.png";
+        relPaths[POLYGON_16] = "polygon16.png";
+        relPaths[POINT_16] = "point16.png";
+        relPaths[TEXT_16] = "text16.png";
+        relPaths[QUESTION_32] = "nuvola_filetype32.png";
         relPaths[CORNERICON] = "cornericon.png";
     }
     

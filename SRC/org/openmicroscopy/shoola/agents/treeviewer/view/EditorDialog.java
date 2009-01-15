@@ -226,16 +226,16 @@ class EditorDialog
         TitlePanel tp = null;
         if (data instanceof ProjectData) {
         	tp = new TitlePanel("Create project", "Create a new project.", 
-        			im.getIcon(IconManager.CREATE_BIG));
+        			im.getIcon(IconManager.CREATE_48));
         } else if (data instanceof DatasetData) {
         	tp = new TitlePanel("Create dataset", "Create a new dataset.", 
-        			im.getIcon(IconManager.CREATE_BIG));
+        			im.getIcon(IconManager.CREATE_48));
         } else if (data instanceof ScreenData) {
         	tp = new TitlePanel("Create screen", "Create a new screen.", 
-        			im.getIcon(IconManager.CREATE_BIG));
+        			im.getIcon(IconManager.CREATE_48));
         } else if (data instanceof TagAnnotationData) {
         	tp = new TitlePanel("Create tag", "Create a new tag.", 
-        			im.getIcon(IconManager.CREATE_BIG));
+        			im.getIcon(IconManager.CREATE_48));
         }
        return tp;
     }

@@ -218,7 +218,7 @@ class ToolBar
 			JToggleButton button = (JToggleButton) component;
 			button.addMouseListener(this);
 			IconManager icons = IconManager.getInstance();
-			button.setIcon(icons.getIcon(IconManager.POINTICON));
+			button.setIcon(icons.getIcon(IconManager.POINTICON_22));
 			button.setToolTipText(FigureUtil.POINT_TYPE);
 			button.setAction(new DrawingAction(measurementcomponent, button));	
 		}

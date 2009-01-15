@@ -70,8 +70,7 @@ public class MessageBox
      */
     protected void onYesSelection()
     { 
-    	option = YES_OPTION; 
-
+    	option = YES_OPTION;
     	firePropertyChange(OPTION_SELECTED_PROPERTY, -1, option);
     }
     

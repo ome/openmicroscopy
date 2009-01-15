@@ -80,7 +80,7 @@ public class IntensityValuesDialog
 		JPanel infoPanel = new TitlePanel("Intensity Values", 
 				"This table shows the Intensity values for the " +
 				"selected channel of the selected ROI.",
-				IconManager.getInstance().getIcon(IconManager.WIZARD));
+				IconManager.getInstance().getIcon(IconManager.WIZARD_48));
 		getContentPane().add(infoPanel, BorderLayout.NORTH);
 
 		intensityTableRowHeader = new JList(new HeaderListModel(

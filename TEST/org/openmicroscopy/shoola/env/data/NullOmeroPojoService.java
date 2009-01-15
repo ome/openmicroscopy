@@ -392,7 +392,8 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#delete(Collection)
      */
-	public Object delete(Collection<DeletableObject> objects) 
+	public Collection<DeletableObject> delete(
+			Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

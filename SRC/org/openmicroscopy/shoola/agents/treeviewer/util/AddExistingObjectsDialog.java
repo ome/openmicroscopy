@@ -298,7 +298,7 @@ public class AddExistingObjectsDialog
     {
         IconManager icons = IconManager.getInstance();
         TitlePanel tp = new TitlePanel(TEXT, NOTE, 
-                    icons.getIcon(IconManager.CATEGORY_BIG));
+                    icons.getIcon(IconManager.CATEGORY_48));
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);

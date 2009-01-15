@@ -69,7 +69,7 @@ public class SaveROIAction
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE));
+		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE_AS_22));
 	}
 	
 	/** 

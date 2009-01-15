@@ -291,7 +291,7 @@ public class ContrastStretchingDialog
     protected JComponent buildTitlePane()
     {
         return new TitlePanel(TITLE, TEXT, NOTE, 
-                icons.getIcon(IconManager.CONTRAST_STRETCHING_BIG));
+                icons.getIcon(IconManager.CONTRAST_STRETCHING_48));
     }
     
     /** 

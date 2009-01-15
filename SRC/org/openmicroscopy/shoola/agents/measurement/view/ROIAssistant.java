@@ -325,7 +325,7 @@ class ROIAssistant
 				"The ROI Assistant allows you to create an ROI " +
 				"which extends \n" +
 				"through time and z-sections.", 
-				IconManager.getInstance().getIcon(IconManager.WIZARD));
+				IconManager.getInstance().getIcon(IconManager.WIZARD_48));
 		return infoPanel;
 	}
 	

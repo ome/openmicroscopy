@@ -90,10 +90,10 @@ public class IconManager
     public static  int          PLANE_SLICING = 9;
     
     /** The big <code>Contrast Stretching</code> icon. */
-    public static  int          CONTRAST_STRETCHING_BIG = 10;
+    public static  int          CONTRAST_STRETCHING_48 = 10;
     
     /** The big <code>Plane slicing</code> icon. */
-    public static  int          PLANE_SLICING_BIG = 11;
+    public static  int          PLANE_SLICING_48 = 11;
     
     /** The <code>Save settings</code> icon. */
     public static  int          SAVE_SETTINGS = 12;
@@ -114,10 +114,10 @@ public class IconManager
     public static  int          PAUSE = 17;
     
     /** The <code>Histogram big</code> icon. */
-    public static  int          HISTOGRAM_BIG = 18;
+    public static  int          HISTOGRAM_48 = 18;
     
     /** The <code>Save As big</code> icon. */
-    public static  int          SAVE_BIG = 19;
+    public static  int          SAVE_48 = 19;
     
     /** The <code>Question</code> icon. */
     public static  int          QUESTION = 20;
@@ -189,7 +189,7 @@ public class IconManager
     public static int           CATEGORY = 42;
     
     /** The <code>Create big</code> icon. */
-    public static int           CREATE_BIG = 43;
+    public static int           CREATE_48 = 43;
     
     /** The <code>Filter menu</code> icon. */
     public static int           FILTER_MENU = 44;
@@ -262,17 +262,17 @@ public class IconManager
         relPaths[CODOMAIN] = "codomain16.png";
         relPaths[CONTRAST_STRETCHING] = "openOffice_stock_new-drawing-16.png";
         relPaths[PLANE_SLICING] = "openOffice_stock_new-labels-16.png";
-        relPaths[CONTRAST_STRETCHING_BIG] = 
+        relPaths[CONTRAST_STRETCHING_48] = 
                                 "openOffice_stock_new-drawing-48.png";
-        relPaths[PLANE_SLICING_BIG] = "openOffice_stock_new-labels-48.png";
+        relPaths[PLANE_SLICING_48] = "openOffice_stock_new-labels-48.png";
         relPaths[SAVE_SETTINGS] = "nuvola_filesave16.png";
         relPaths[RESET_SETTINGS] = "nuvola_undo16.png";
         relPaths[HISTOGRAM] = "histogram16.png";
         relPaths[PLAY] = "nuvola_player_play16.png";
         relPaths[PAUSE] = "nuvola_player_pause16.png";
         relPaths[STOP] = "nuvola_player_stop16.png";
-        relPaths[HISTOGRAM_BIG] = "histogram16.png";
-        relPaths[SAVE_BIG] = "nuvola_filesaveas48.png";
+        relPaths[HISTOGRAM_48] = "histogram16.png";
+        relPaths[SAVE_48] = "nuvola_filesaveas48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[CANCEL] = "eclipse_delete_edit16.png";
         relPaths[VIEWER] = "viewer16.png";
@@ -296,7 +296,7 @@ public class IconManager
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[HISTORY_CLEAR] = "nuvola_history_clear16.png";
         relPaths[CATEGORY] = "nuvola_knotes16.png";
-        relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
+        relPaths[CREATE_48] = "nuvola_filenew48.png"; 
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
         relPaths[CATEGORY_GROUP] = "category_group16.png"; 
         relPaths[BROWSE] = "zoom16.png";

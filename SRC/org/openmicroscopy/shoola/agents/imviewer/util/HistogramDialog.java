@@ -186,7 +186,7 @@ public class HistogramDialog
 		Container c = getContentPane();
 		IconManager icons = IconManager.getInstance();
 		TitlePanel tp = new TitlePanel(TITLE, TEXT, 
-				icons.getIcon(IconManager.HISTOGRAM_BIG));
+				icons.getIcon(IconManager.HISTOGRAM_48));
 		c.add(tp, BorderLayout.NORTH);
 		c.add(buildBody(), BorderLayout.CENTER);
 		pack();

@@ -293,13 +293,13 @@ class ResultsWizard
 	private void createButtons()
 	{
 		addFieldButton = new JButton(IconManager.getInstance().
-				getIcon(IconManager.RIGHT_ARROW));
+				getIcon(IconManager.RIGHT_ARROW_22));
 		removeFieldButton = new JButton(IconManager.getInstance().
-				getIcon(IconManager.LEFT_ARROW));
+				getIcon(IconManager.LEFT_ARROW_22));
 		addAllFieldsButton = new JButton(IconManager.getInstance().
-				getIcon(IconManager.DOUBLE_RIGHT_ARROW));
+				getIcon(IconManager.DOUBLE_RIGHT_ARROW_22));
 		removeAllFieldsButton = new JButton(IconManager.getInstance().
-				getIcon(IconManager.DOUBLE_LEFT_ARROW));
+				getIcon(IconManager.DOUBLE_LEFT_ARROW_22));
 		acceptButton = new JButton("Accept");
 		cancelButton = new JButton("Cancel");
 		resetButton = new JButton("Reset");
@@ -328,7 +328,7 @@ class ResultsWizard
 		IconManager icons = IconManager.getInstance();
 		TitlePanel tp = new TitlePanel("Results Wizard", 
 				"Select the measurements you wish to record.",	
-				icons.getIcon(IconManager.WIZARD));
+				icons.getIcon(IconManager.WIZARD_48));
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
 		c.add(tp, BorderLayout.NORTH);

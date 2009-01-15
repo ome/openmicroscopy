@@ -313,7 +313,7 @@ class ImgSaverUI
         Container c = model.getContentPane();
         c.setLayout(new BorderLayout(0, 0));
         TitlePanel tp = new TitlePanel(ImgSaver.TITLE, NOTE, 
-                                im.getIcon(IconManager.SAVE_BIG));
+                                im.getIcon(IconManager.SAVE_48));
                     
         c.add(tp, BorderLayout.NORTH);
         c.add(p, BorderLayout.CENTER);

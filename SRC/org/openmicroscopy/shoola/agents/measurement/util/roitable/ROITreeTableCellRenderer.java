@@ -112,21 +112,21 @@ private boolean isShape(String str)
 private void makeShapeIcon(JLabel label, String shape)
 {
 	if(shape.equals(FigureUtil.SCRIBBLE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.SCRIBBLE16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.SCRIBBLE_16));
 	if(shape.equals(FigureUtil.LINE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.LINE16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.LINE_16));
 	if(shape.equals(FigureUtil.LINE_CONNECTION_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.CONNECTION16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.CONNECTION_16));
 	if(shape.equals(FigureUtil.POLYGON_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.POLYGON16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.POLYGON_16));
 	if(shape.equals(FigureUtil.POINT_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.POINT16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.POINT_16));
 	if(shape.equals(FigureUtil.RECTANGLE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.RECTANGLE16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.RECTANGLE_16));
 	if(shape.equals(FigureUtil.ELLIPSE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.ELLIPSE16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.ELLIPSE_16));
 	if(shape.equals(FigureUtil.TEXT_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.TEXT16));
+		label.setIcon(IconManager.getInstance().getIcon(IconManager.TEXT_16));
 }
 
 }

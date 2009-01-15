@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
@@ -817,35 +818,6 @@ class TreeViewerComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onNodesRemoved()
-	 */
-	public void onNodesRemoved()
-	{
-		if (model.getState()!= SAVE)
-			throw new IllegalStateException("This method can only be " +
-			"invoked in the SAVE state");
-		model.setState(READY);
-		fireStateChange();
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		
-		view.removeAllFromWorkingPane();
-		DataBrowserFactory.discardAll();
-		Map browsers = model.getBrowsers();
-		Browser browser;
-		//REview that code depending on the type of objects deleted.
-		Iterator i = browsers.keySet().iterator();
-		while (i.hasNext()) {
-			browser = (Browser) browsers.get(i.next());
-			browser.refreshTree();
-		}
-		//onSelectedDisplay();
-		model.getMetadataViewer().setRootObject(null);
-		setStatus(false, "", true);
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
-
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#clearFoundResults()
@@ -2008,8 +1980,13 @@ class TreeViewerComponent
 			}
 			
 			if (l.size() > 0) {
-				model.fireObjectsDeletion(l);
-				fireStateChange();
+				//TEST
+				NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, l);
+				if (nd.centerAndShow() == 0) {
+					System.err.println("FOO");
+				}
+				//model.fireObjectsDeletion(l);
+				//fireStateChange();
 			}
 		}
 	}
@@ -2024,4 +2001,45 @@ class TreeViewerComponent
 		return model.getDataToCopyType();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#onNodesMoved()
+	 */
+	public void onNodesMoved()
+	{
+		if (model.getState()!= SAVE)
+			throw new IllegalStateException("This method can only be " +
+			"invoked in the SAVE state");
+		model.setState(READY);
+		fireStateChange();
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		
+		view.removeAllFromWorkingPane();
+		DataBrowserFactory.discardAll();
+		Map browsers = model.getBrowsers();
+		Browser browser;
+		//REview that code depending on the type of objects deleted.
+		Iterator i = browsers.keySet().iterator();
+		while (i.hasNext()) {
+			browser = (Browser) browsers.get(i.next());
+			browser.refreshTree();
+		}
+		//onSelectedDisplay();
+		model.getMetadataViewer().setRootObject(null);
+		setStatus(false, "", true);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#onNodesDeleted(Collection)
+	 */
+	public void onNodesDeleted(Collection<DeletableObject> notDeleted)
+	{
+		if (notDeleted == null || notDeleted.size() == 0) {
+			onNodesMoved();
+			return;
+		}
+	}
+
 }

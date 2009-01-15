@@ -628,7 +628,8 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Deletes the collection of objects.
+	 * Deletes the collection of objects. Returns a collection of objects
+	 * that couldn't be deleted.
 	 * 
 	 * @param objects	The collection of objects to delete.
 	 * @return See above.
@@ -636,7 +637,8 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Object delete(Collection<DeletableObject> objects)
+	public Collection<DeletableObject> delete(
+			Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

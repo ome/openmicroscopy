@@ -119,14 +119,14 @@ public class IconManager
     /** The <code>Annotated Image</code> icon. */
     public static int           IMAGE_ANNOTATED = 21;
     
-    /** A bigger version of the <code>Create</code> icon. */
-    public static int           CREATE_BIG = 22;
+    /** A 48x48 version of the <code>Create</code> icon. */
+    public static int           CREATE_48 = 22;
     
     /** The <code>Error</code> icon. */
     public static int           ERROR = 23;
     
-    /** A bigger version of the <code>Properties</code> icon. */
-    public static int           PROPERTIES_BIG = 24;
+    /** A 48x48 version of the <code>Properties</code> icon. */
+    public static int           PROPERTIES_48 = 24;
     
     /** The <code>Owner</code> icon. */
     public static int           OWNER = 25;
@@ -165,7 +165,7 @@ public class IconManager
     public static int           CLASSIFY = 36;
     
     /** The <code>Classification</code> icon. */
-    public static int           CATEGORY_BIG = 37;
+    public static int           CATEGORY_48 = 37;
     
     /** The <code>Classified Image</code> icon. */
     public static int           CLASSIFIED_IMAGE = 38;
@@ -177,7 +177,7 @@ public class IconManager
     public static int           EXIT_APPLICATION = 40;
     
     /** The <code>Filter Big</code> icon. */
-    public static int           FILTER_BIG = 41;
+    public static int           FILTER_48 = 41;
     
     /** The <code>Navigation Forward</code> icon. */
     public static int           FORWARD_NAV = 42;
@@ -332,11 +332,14 @@ public class IconManager
     /** The <code>File</code> icon. */
     public static int           IMPORTER = 92;
     
+    /** The <code>Remove 48</code> icon. */
+    public static int           REMOVE_48 = 93;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 92;
+    private static int          MAX_ID = 93;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -364,9 +367,9 @@ public class IconManager
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
         relPaths[DATASET_ANNOTATED] = "tagged_dataset16.png";
         relPaths[IMAGE_ANNOTATED] = "tagged_image16.png";
-        relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
+        relPaths[CREATE_48] = "nuvola_filenew48.png"; 
         relPaths[ERROR] = "eclipse_error_tsk16.png";
-        relPaths[PROPERTIES_BIG] = "nuvola_filenew48.png";
+        relPaths[PROPERTIES_48] = "nuvola_filenew48.png";
         relPaths[OWNER] = "nuvola_kdmconfig16.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
@@ -380,12 +383,12 @@ public class IconManager
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[ANNOTATION] = "nuvola_kwrite16.png";
         relPaths[CLASSIFY] = "nuvola_knotes16.png";
-        relPaths[CATEGORY_BIG] = "nuvola_filenew48.png";
+        relPaths[CATEGORY_48] = "nuvola_filenew48.png";
         relPaths[ANNOTATED_CLASSIFIED_IMAGE] = 
                                     "annotated_tagged_image16.png";
         relPaths[CLASSIFIED_IMAGE] = "tagged_image16.png";
         relPaths[EXIT_APPLICATION] = "nuvola_exit16.png";
-        relPaths[FILTER_BIG] = "nuvola_find48.png";
+        relPaths[FILTER_48] = "nuvola_find48.png";
         relPaths[FORWARD_NAV] = "eclipse_forward_nav16.png";
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
@@ -438,6 +441,7 @@ public class IconManager
         relPaths[FILE_HTML] = "txt_html16.png";
         relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
         relPaths[IMPORTER] = "omeroImporterLink16.png";
+        relPaths[REMOVE_48] = "nuvola_kdmconfig48.png";
     }
     
     /** The sole instance. */

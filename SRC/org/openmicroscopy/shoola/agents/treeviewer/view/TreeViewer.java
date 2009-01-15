@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -358,9 +360,6 @@ public interface TreeViewer
 	 * @param operation The type of operation.
 	 */
 	public void onDataObjectSave(List data, int operation);
-
-	/** Refreshes the view when the nodes have been removed. */
-	public void onNodesRemoved();
 
 	/**
 	 * 
@@ -777,5 +776,21 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public Class hasDataToCopy();
+
+	/** 
+	 * Refreshes the view when nodes have been deleted. A collection of nodes
+	 * that could not be deleted is passed. If the collection is 
+	 * <code>null</code> or of size <code>0</code> all the nodes have been
+	 * deleted.
+	 * 
+	 * @param notDeleted The collection of nodes that couldn't be deleted.
+	 */
+	public void onNodesDeleted(Collection<DeletableObject> notDeleted);
+	
+	/** 
+	 * Refreshes the view when nodes have been <code>Cut/Paste</code> or
+	 * <code>Copy/Paste</code>. 
+	 */
+	public void onNodesMoved();
 	
 }

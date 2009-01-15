@@ -106,7 +106,7 @@ public class PlaneSlicingDialog
     protected JComponent buildTitlePane()
     {
         return new TitlePanel(TITLE, TEXT, NOTE, 
-                icons.getIcon(IconManager.PLANE_SLICING_BIG));
+                icons.getIcon(IconManager.PLANE_SLICING_48));
     }
     
     /** 

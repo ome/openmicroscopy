@@ -146,22 +146,22 @@ public class IconManager
     public static int           INFO_48 = 29;
     
     /** The <code>PDF</code> icon. */
-    public static int           PDF_DOC = 30;
+    public static int           PDF_DOC_22 = 30;
     
     /** The <code>Text</code> icon. */
-    public static int           TEXT_DOC = 32;
+    public static int           TEXT_DOC_22 = 32;
     
     /** The <code>Word</code> icon. */
-    public static int           WORD_DOC = 33;
+    public static int           WORD_DOC_22 = 33;
     
     /** The <code>Excel</code> icon. */
-    public static int           EXCEL_DOC = 34;
+    public static int           EXCEL_DOC_22 = 34;
     
     /** The <code>Power point</code> icon. */
-    public static int           PPT_DOC = 35;
+    public static int           PPT_DOC_22 = 35;
     
     /** The <code>XML</code> icon. */
-    public static int           XML_DOC = 36;
+    public static int           XML_DOC_22 = 36;
     
     /** The <code>Save</code> icon. */
     public static int           SAVE = 37;
@@ -191,7 +191,7 @@ public class IconManager
     public static int           TAG_12 = 45;
     
     /** The <code>HTML Document</code> icon. */
-    public static int           HTML_DOC = 46;
+    public static int           HTML_DOC_22 = 46;
     
     /** The <code>Screen</code> icon. */
     public static int           SCREEN = 47;
@@ -250,13 +250,13 @@ public class IconManager
         relPaths[EDIT] = "nuvola_editpaste16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[INFO_48] = "nuvola_messagebox_info48.png";
-        relPaths[PDF_DOC] = "nuvola_acroread22.png";
-        relPaths[TEXT_DOC] = "nuvola_txt22.png";
-        relPaths[WORD_DOC] = "alienOSX_Microsoft_Word22.png";
-        relPaths[PPT_DOC] = "alienOSX_Microsoft_PowerPoint22.png";
-        relPaths[EXCEL_DOC] = "alienOSX_Microsoft_Excel22.png";
-        relPaths[XML_DOC] = "txt_xml22.png";
-        relPaths[HTML_DOC] = "txt_html22.png";
+        relPaths[PDF_DOC_22] = "nuvola_acroread22.png";
+        relPaths[TEXT_DOC_22] = "nuvola_txt22.png";
+        relPaths[WORD_DOC_22] = "alienOSX_Microsoft_Word22.png";
+        relPaths[PPT_DOC_22] = "alienOSX_Microsoft_PowerPoint22.png";
+        relPaths[EXCEL_DOC_22] = "alienOSX_Microsoft_Excel22.png";
+        relPaths[XML_DOC_22] = "txt_xml22.png";
+        relPaths[HTML_DOC_22] = "txt_html22.png";
         relPaths[SAVE] = "nuvola_filesave16.png";
         relPaths[COLUMNS_VIEW] = "nuvola_view_left_right16.png";
         relPaths[UPLOAD] = "nuvola_download_manager_green_flipped16.png";

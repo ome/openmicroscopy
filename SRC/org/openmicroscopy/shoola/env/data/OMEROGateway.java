@@ -1092,6 +1092,7 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
+			/*
 			IPojosPrx service = getPojosService();
 			List<String> list = new ArrayList<String>(1);
 			list.add(name);
@@ -1105,6 +1106,10 @@ class OMEROGateway
 			                        + "data");
 			}
 			return data;
+			*/
+			IAdminPrx service = getAdminService();
+			return (ExperimenterData) 
+				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);

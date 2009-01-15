@@ -341,7 +341,6 @@ public class DataServicesFactory
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
         //fs stuff
-        
         //replace Server string in fs config
         Iterator k = fsConfig.keySet().iterator();
         String value, key;

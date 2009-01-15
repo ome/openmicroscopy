@@ -69,7 +69,7 @@ public class ShowROIAssistant
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.WIZARD16));
+		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.WIZARD));
 	}
 	
 	/** 

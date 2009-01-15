@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
@@ -94,8 +95,7 @@ public class DataObjectRemover
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.onNodesRemoved();
-        //viewer.onDataObjectSave((DataObject) result, TreeViewer.REMOVE_OBJECT);
+        viewer.onNodesDeleted((Collection<DeletableObject>) result);
     }
     
 }

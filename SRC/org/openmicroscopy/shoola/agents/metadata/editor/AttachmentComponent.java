@@ -88,23 +88,23 @@ class AttachmentComponent
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.TEXT_DOC);;
+		Icon icon = icons.getIcon(IconManager.TEXT_DOC_22);;
 		
 		String format = file.getFileFormat();
 		if (FileAnnotationData.PDF.equals(format))
-			icon = icons.getIcon(IconManager.PDF_DOC);
+			icon = icons.getIcon(IconManager.PDF_DOC_22);
 		else if (FileAnnotationData.TEXT.equals(format))
-			icon = icons.getIcon(IconManager.TEXT_DOC);
+			icon = icons.getIcon(IconManager.TEXT_DOC_22);
 		else if (FileAnnotationData.MS_WORD.equals(format))
-			icon = icons.getIcon(IconManager.WORD_DOC);
+			icon = icons.getIcon(IconManager.WORD_DOC_22);
 		else if (FileAnnotationData.MS_EXCEL.equals(format))
-			icon = icons.getIcon(IconManager.EXCEL_DOC);
+			icon = icons.getIcon(IconManager.EXCEL_DOC_22);
 		else if (FileAnnotationData.MS_POWER_POINT.equals(format))
-			icon = icons.getIcon(IconManager.PPT_DOC);
+			icon = icons.getIcon(IconManager.PPT_DOC_22);
 		else if (FileAnnotationData.XML.equals(format) ||
 				FileAnnotationData.HTML.equals(format) ||
 				FileAnnotationData.HTM.equals(format))
-			icon = icons.getIcon(IconManager.XML_DOC);
+			icon = icons.getIcon(IconManager.XML_DOC_22);
 		
 		JLabel iconLabel = new JLabel(icon);
 		

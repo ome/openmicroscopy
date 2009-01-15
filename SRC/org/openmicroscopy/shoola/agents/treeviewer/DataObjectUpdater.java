@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Java imports
 import java.util.Map;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -142,9 +141,8 @@ public class DataObjectUpdater
     {
         if (index == COPY_AND_PASTE)
             handle = dmView.addExistingObjects(objectsToUpdate, this);
-        else if (index == CUT_AND_PASTE) {
+        else if (index == CUT_AND_PASTE) 
             handle = dmView.cutAndPaste(objectsToUpdate, objectsToRemove, this);
-        }
     }
     
     /**
@@ -160,8 +158,7 @@ public class DataObjectUpdater
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.onNodesRemoved();
-        //viewer.onDataObjectSave((DataObject) result, TreeViewer.REMOVE_OBJECT);
+        viewer.onNodesMoved();
     }
     
 }
