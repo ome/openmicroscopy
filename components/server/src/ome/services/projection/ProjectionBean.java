@@ -11,21 +11,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IProjection;
 import ome.api.ServiceInterface;
@@ -37,14 +28,12 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
 import ome.services.OmeroOriginalFileMetadataProvider;
-import ome.services.util.OmeroAroundInvoke;
 
 /**
  * Implements projection functionality for Pixels sets as declared in {@link
@@ -54,18 +43,7 @@ import ome.services.util.OmeroAroundInvoke;
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
  * @since OMERO-Beta3.1
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateless
-@Remote(IProjection.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IProjection"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IProjection",
-           clientBindUrl="sslsocket://0.0.0.0:3843")
-})
-@Local(IProjection.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IProjection")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class ProjectionBean extends AbstractLevel2Service implements IProjection
 {
     /** The logger for this class. */

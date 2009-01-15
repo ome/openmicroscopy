@@ -30,7 +30,7 @@
 |   Use:					
 |  	ant test                # Regular.	
 |  	ant quick <target>      # No tests	
-|  	ant nochecks <target>   # No database or jboss checks	
+|  	ant nochecks <target>   # No system checks
 |  	ant strict-test         # Re-compile tests.
 |  	ant fail-on-error test  # Stop build if fails. 
 |       ant integration         # Runs integration tests. Server must be running.

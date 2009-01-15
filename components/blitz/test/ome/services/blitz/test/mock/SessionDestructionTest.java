@@ -173,12 +173,12 @@ public class SessionDestructionTest extends MockObjectTestCase {
             fixture.getContext().getBean("swappable-ome.api.ThumbnailStore");
         final boolean called[] = new boolean[]{false};
         ThumbnailBean bean = new ThumbnailBean() {
-            @Override
-            public void destroy() {
+            public void close() {
                 called[0] = true;
             }
         };
         ProxyFactory proxy = new ProxyFactory(bean);
+	/* With #1106 bltiz migration destroy has been removed.
         proxy.addAdvice(new MethodInterceptor(){
             public Object invoke(MethodInvocation arg0) throws Throwable {
                 if (arg0.getMethod().getName().equals("destroy")) {
@@ -188,6 +188,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
             }
             
         });
+	*/
         swap.swap(proxy.getProxy());
         
         fixture.getSessionManager().onApplicationEvent(

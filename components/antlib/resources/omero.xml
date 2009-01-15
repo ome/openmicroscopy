@@ -73,38 +73,12 @@
 			</fileset>
 		</touch>
 		<jar update="true"
-		  destfile="${product.final.name}">
-			<fileset dir="${basedir}/etc">
-				<patternset refid="etc.files"/>
-			</fileset>
-		</jar>
-		<delete dir="${temp.dir}"/>
-
-		<available file="${basedir}/blitz/blitz.jar" property="update.blitz"/>
-                <antcall target="update-blitz" inheritAll="true" inheritRefs="true"/>
-	</target>
-
-	<target name="update-blitz" if="update.blitz">
-		<jar update="true"
 		  destfile="blitz/blitz.jar">
 			<fileset dir="${basedir}/etc">
 				<patternset refid="etc.files"/>
 			</fileset>
 		</jar>
 
-	</target>
-
-	<target name="earfiles">
-		<fileset dir="${omero.home}" includes="*.ear" id="ear.files"/>
-	</target>
-
-	<target name="deploy" depends="update" description="Copy *.ear to JBOSS_HOME/server/default/deploy">
-                <fail unless="env.JBOSS_HOME"/>
-		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
-		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
-		<copy todir="${jboss.deploy.dir}">
-			<fileset dir="${basedir}" includes="*.ear,*.war"/>
-		</copy>
 	</target>
 
 </project>

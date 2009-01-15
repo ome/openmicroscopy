@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.security.RolesAllowed;
-
+import ome.annotations.RolesAllowed;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
@@ -29,16 +28,17 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.server.itests.Wrap;
-import ome.server.itests.Wrap.Backdoor;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.services.util.Executor;
+import ome.system.ServiceFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -61,6 +61,13 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     List<String> names = new ArrayList<String>();
 
     ome.api.local.LocalQuery wrappedQuery;
+
+    Executor ex;
+
+    @BeforeMethod
+    public void setup() {
+        ex = (Executor) this.applicationContext.getBean("executor");
+    }
 
     @Configuration(beforeTestClass = true)
     public void createData() throws Exception {
@@ -141,18 +148,17 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
         assertCannotReadImage(d, i);
 
         final SecurityFilterTest test = this;
-        new Wrap(names.get(1), new Wrap.QueryBackdoor() {
-            @RolesAllowed("user")
-            public void run() {
-                test.iQuery = this; // Use this (unwrapped) instance for call
-                securitySystem.runAsAdmin(new AdminAction() {
-                    public void runAsAdmin() {
-                        assertCanReadImage(d, i);
-                    }
-                });
-            }
-        });
-        this.iQuery = wrappedQuery;
+	ex.execute(null /*principal*/, new Executor.Work() {
+		@RolesAllowed("user")
+		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
+		    securitySystem.runAsAdmin(new AdminAction() {
+			    public void runAsAdmin() {
+				assertCanReadImage(d, i);
+			    }
+			});
+		    return null;
+		}
+	    });
 
         loginUser(names.get(0));
         assertCanReadImage(d, i);

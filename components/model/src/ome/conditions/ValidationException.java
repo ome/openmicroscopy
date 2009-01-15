@@ -6,13 +6,6 @@
  */
 package ome.conditions;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * More specific {@link ome.conditions.ApiUsageException ApiUsageException}, in
  * that the specification of your data as outlined in the OME specification is
@@ -35,7 +28,6 @@ import javax.ejb.ApplicationException;
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-@ApplicationException
 public class ValidationException extends ApiUsageException {
 
     /**

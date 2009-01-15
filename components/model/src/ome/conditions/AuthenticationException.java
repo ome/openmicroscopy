@@ -6,15 +6,12 @@
  */
 package ome.conditions;
 
-import javax.ejb.ApplicationException;
-
 /**
  * Invalid username and/or credential provided.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@ApplicationException
 public class AuthenticationException extends SessionException {
 
     private static final long serialVersionUID = -4513364892739872987L;

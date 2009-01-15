@@ -213,7 +213,7 @@ javac.debuglevel=${javac.debuglevel}
 		CHECK SYSTEM 
 	==================================================  -->
 	<target name="check-system"
-		depends="check-java5,check-appserver,check-database"
+		depends="check-java5,check-database"
 		description="Verifies that system is ready to build"/>
 
 	<target name="check-java5" unless="checks.skip">
@@ -224,14 +224,6 @@ javac.debuglevel=${javac.debuglevel}
 		</fail>
 	</target>
 
-	<target name="check-appserver" unless="checks.skip">
-		<fail message="No application server found">
-			<condition><not>
-			<isset property="env.JBOSS_HOME"/>
-			</not></condition>
-		</fail>
-	</target>
-	
 	<target name="check-database"  unless="checks.skip">
                 <iterate buildpathref="server.buildpath" target="check-db"/>
 	</target>

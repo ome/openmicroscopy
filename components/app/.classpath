@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
-	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
-	<classpathentry kind="output" path="target/classes"/>
-</classpath>

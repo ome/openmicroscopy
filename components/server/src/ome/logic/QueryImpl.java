@@ -1,5 +1,5 @@
 /*
- * ome.logic.QueryImpl
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -11,14 +11,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IQuery;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
@@ -30,7 +24,6 @@ import ome.parameters.Parameters;
 import ome.services.query.Query;
 import ome.services.search.FullText;
 import ome.services.search.SearchValues;
-import ome.services.util.OmeroAroundInvoke;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.Criteria;
@@ -43,32 +36,20 @@ import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides methods for directly querying object graphs.
- * 
+ *
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
- * 
+ *
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateless
-@Remote(IQuery.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IQuery"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IQuery", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(LocalQuery.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     protected Class<? extends Analyzer> analyzer;

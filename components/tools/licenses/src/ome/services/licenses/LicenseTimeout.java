@@ -6,13 +6,6 @@
  */
 package ome.services.licenses;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * (CLIENT) Exception thrown on a regular method call when a previously valid
  * license has timed out as interpreted by the {@link LicenseStore}.
@@ -24,7 +17,6 @@ import javax.ejb.ApplicationException;
  * @author Josh Moore, josh.moore @ gmx.de
  * @since  3.0-RC1
  */
-@ApplicationException
 public class LicenseTimeout extends LicenseException {
 
     private static final long serialVersionUID = 2061806055561108993L;

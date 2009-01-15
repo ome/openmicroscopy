@@ -14,8 +14,6 @@
 
 package ome.logic;
 
-import javax.annotation.PostConstruct;
-
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.security.SecuritySystem;
@@ -49,10 +47,9 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService {
     // =========================================================================
 
     /**
-     * This method will be called in a container via a {@link PostConstruct}
-     * action. If this bean is not being used as an EJB, then
-     * {@link #selfConfigure()} will not be called, rather the context will
-     * perform the configuration.
+     * This method was previously called by the EJB container,
+     * but is no longer needed. Instead, all configuration happens
+     * within Spring.
      */
     public void selfConfigure() {
         getBeanHelper().configure(this);

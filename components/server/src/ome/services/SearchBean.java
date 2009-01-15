@@ -14,19 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -47,30 +36,20 @@ import ome.services.search.SomeMustNone;
 import ome.services.search.TagsAndGroups;
 import ome.services.search.Union;
 import ome.services.util.Executor;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.SelfConfigurableService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implements the {@link Search} interface.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateful
-@Remote(Search.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.Search")
-@Local(Search.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.Search")
-@Interceptors( { OmeroAroundInvoke.class })
 public class SearchBean extends AbstractStatefulBean implements Search {
 
     private final static long serialVersionUID = 59809384038000069L;
@@ -132,32 +111,24 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     // Lifecycle methods
     // ===================================================
 
-    /**
-     * Configures a new or re-activated {@link SearchBean}. Currently, most
-     * configuration is handled via field initializers or by default
-     * serialization.
-     */
-    @PostConstruct
-    @PostActivate
-    public void create() {
-        selfConfigure();
+    // See documentation on JobBean#passivate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)    
+    public void passivate() {
+	// All state is passivatable.
     }
 
-    @PrePassivate
-    @PreDestroy
+    // See documentation on JobBean#activate
     @RolesAllowed("user")
-    public void destroy() {
-        // all state is passivated.
+    @Transactional(readOnly = true)    
+    public void activate() {
+	// State needs to be read back with synchronization.
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.api.StatefulServiceInterface#close()
-     */
     @RolesAllowed("user")
-    @Remove
+    @Transactional(readOnly = true)    
     public void close() {
+	// Could null state.
     }
 
     // Interface methods ~

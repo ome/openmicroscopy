@@ -11,7 +11,6 @@ set -e
 set -u
 set -x
 
-export JBOSS_HOME=${JBOSS_HOME:-"HOME/root/opt/jboss"}
 export JAVA_OPTS=${JAVA_OPTS:-"-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m"}
 
 java_omero(){

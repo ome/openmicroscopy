@@ -41,8 +41,6 @@
 	<property name="server.comp"    value="${components.dir}/server"/>
 	<property name="nio.comp"       value="${components.dir}/romio"/>
 	<property name="render.comp"    value="${components.dir}/rendering"/>
-	<property name="app.comp"       value="${components.dir}/app"/>
-	<property name="client.comp"    value="${components.dir}/client"/>
 	<property name="import.comp"    value="${components.dir}/importer"/>
 	<property name="blitz.comp"     value="${components.dir}/blitz"/>
 	<property name="tools.comp"     value="${components.dir}/tools"/>
@@ -51,22 +49,15 @@
 	<property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
 	<property name="OmeroImporter.comp"     value="${tools.comp}/OmeroImporter"/>
 	<property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
-	<property name="WebAdmin.comp"     value="${tools.comp}/WebAdmin"/>
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
 
 	<!-- Build Path References -->
-	<path id="app.buildpath">
-	  <pathelement location="${app.comp}/build.xml"/>
-	</path>
 	<path id="blitz.buildpath">
 	  <pathelement location="${blitz.comp}/build.xml"/>
 	</path>
 	<path id="dsl.buildpath">
 	  <pathelement location="${dsl.comp}/build.xml"/>
-	</path>
-	<path id="client.buildpath">
-	  <pathelement location="${client.comp}/build.xml"/>
 	</path>
 	<path id="common.buildpath">
 	  <pathelement location="${common.comp}/build.xml"/>
@@ -85,9 +76,6 @@
 	</path>
 	<path id="OmeroWeb.buildpath">
 	  <pathelement location="${OmeroWeb.comp}/build.xml"/>
-	</path>
-	<path id="WebAdmin.buildpath">
-	  <pathelement location="${WebAdmin.comp}/build.xml"/>
 	</path>
 	<path id="OmeroCpp.buildpath">
 	  <pathelement location="${OmeroCpp.comp}/build.xml"/>

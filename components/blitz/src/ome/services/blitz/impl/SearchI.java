@@ -61,7 +61,9 @@ import omero.api.AMD_Search_setMergedBatches;
 import omero.api.AMD_Search_setReturnUnloaded;
 import omero.api.AMD_Search_setUseProjections;
 import omero.api.AMD_Search_unordered;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._SearchOperations;
 import omero.model.Annotation;
@@ -378,6 +380,26 @@ public class SearchI extends AbstractAmdServant implements _SearchOperations {
 
     }
 
+    public void bySimilarTerms_async(AMD_Search_bySimilarTerms __cb,
+            List<String> terms, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, terms);
+    }
+
+    // Stateful interface methods
+    // =========================================================================
+
+    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
         callInvokerOnRawArgs(__cb, __current);
@@ -389,11 +411,6 @@ public class SearchI extends AbstractAmdServant implements _SearchOperations {
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
 
-    }
-
-    public void bySimilarTerms_async(AMD_Search_bySimilarTerms __cb,
-            List<String> terms, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, terms);
     }
 
 }

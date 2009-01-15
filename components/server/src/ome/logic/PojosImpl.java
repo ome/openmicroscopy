@@ -1,5 +1,5 @@
 /*
- * ome.logic.PojosImpl
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -14,7 +14,6 @@
 
 package ome.logic;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,14 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IPojos;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -51,7 +44,6 @@ import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosGetUserImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
-import ome.services.util.OmeroAroundInvoke;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
@@ -59,30 +51,18 @@ import ome.util.builders.PojoOptions;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * implementation of the Pojos service interface.
- * 
+ *
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date: 2007-10-03
  *          13:25:20 +0100 (Wed, 03 Oct 2007) $) </small>
  * @since OMERO 2.0
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
-@Stateless
-@Remote(IPojos.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IPojos"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IPojos", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(IPojos.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IPojos")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     public final Class<? extends ServiceInterface> getServiceInterface() {

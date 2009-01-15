@@ -6,17 +6,19 @@
  */
 package ome.server.itests.sec;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.ISession;
 import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.server.itests.Wrap;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
+import ome.services.util.Executor;
 
+import org.springframework.transaction.TransactionStatus;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups = { "integration", "security" })
@@ -26,6 +28,12 @@ public class GuestLoginTest extends AbstractManagedContextTest {
     Principal p;
     ISession srv;
     Session s;
+    Executor ex;
+
+    @BeforeMethod
+    public void setup() {
+        ex = (Executor) this.applicationContext.getBean("executor");
+    }
 
     public void testGuestUserCreatesSession() throws Exception {
         srv = this.factory.getSessionService();
@@ -36,42 +44,42 @@ public class GuestLoginTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testGuestThenTriesToDoSomethingDisallowed() throws Exception {
         testGuestUserCreatesSession();
-        new Wrap(p, new Wrap.QueryBackdoor() {
-            @RolesAllowed("user")
-            public void run() {
-                this.get(Experimenter.class, 0);
-            }
-        });
+	ex.execute(p, new Executor.Work() {
+		@RolesAllowed("user")
+		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
+		    return sf.getQueryService().get(Experimenter.class, 0);
+		}
+	    });
     }
 
     public void testGuestThenTriesToDoSomethingAllowed() throws Exception {
         testGuestUserCreatesSession();
-        new Wrap(p, new Wrap.QueryBackdoor() {
-            @RolesAllowed("guest")
-            public void run() {
-                this.get(Experimenter.class, 0);
-            }
-        });
+	ex.execute(p, new Executor.Work() {
+		@RolesAllowed("guest")
+		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
+		    return sf.getQueryService().get(Experimenter.class, 0);
+		}
+	    });
     }
 
     public void testGuestThenTriesToDoSomethingVeryAllowed() throws Exception {
         testGuestUserCreatesSession();
-        new Wrap(p, new Wrap.QueryBackdoor() {
-            @PermitAll
-            public void run() {
-                this.get(Experimenter.class, 0);
-            }
-        });
+	ex.execute(p, new Executor.Work() {
+		@PermitAll
+		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
+		    return sf.getQueryService().get(Experimenter.class, 0);
+		}
+	    });
     }
 
     @Test(expectedExceptions = SecurityViolation.class)
     public void testButGuestCantMakeAdminCalls() throws Exception {
         testGuestUserCreatesSession();
-        new Wrap(p, new Wrap.QueryBackdoor() {
-            @RolesAllowed("system")
-            public void run() {
-                this.get(Experimenter.class, 0);
-            }
-        });
+	ex.execute(p, new Executor.Work() {
+		@RolesAllowed("system")
+		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
+		    return sf.getQueryService().get(Experimenter.class, 0);
+		}
+	    });
     }
 }

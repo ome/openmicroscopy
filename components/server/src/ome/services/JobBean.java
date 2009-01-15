@@ -9,19 +9,8 @@ package ome.services;
 
 import java.sql.Timestamp;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.ITypes;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
@@ -36,14 +25,11 @@ import ome.security.SecureAction;
 import ome.services.procs.IProcessManager;
 import ome.services.procs.Process;
 import ome.services.procs.ProcessCallback;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.util.ShallowCopy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -53,14 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-Beta2
  * 
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateful
-@Remote(JobHandle.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.JobHandle")
-@Local(JobHandle.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.JobHandle")
-@Interceptors( { OmeroAroundInvoke.class })
 public class JobBean extends AbstractStatefulBean implements JobHandle,
         ProcessCallback {
     /**
@@ -89,25 +68,35 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     // ===================================================
 
     /**
-     * Configures a new or re-activated {@link JobBean}. If the {@link #jobId}
-     * is non-null, then this instance will need to handle re-loading on first
-     * access. (It cannot be done here, because the security system is not
-     * configured.)
+     * Does nothing. The only non-shared state that this instance
+     * holds on to is the jobId and resetId -- two longs -- making
+     * passivation for the moment unimportant. This method should do
+     * what errorIfInvalidState does and reattach the process if we've
+     * been passivated. That will wait for larger changes later. At
+     * which time, proper locking will be necessary!
      */
-    @PostConstruct
-    @PostActivate
-    public void create() {
-        selfConfigure();
+    @RolesAllowed("user")
+    @Transactional
+    public void passivate() {
+	// Nothing necessary
+    }
+
+    /**
+     * Does almost nothing. Since nothing is passivated, nothing needs
+     * to be activated. However, since we are still using
+     * errorIfInvalidState, if the {@link #jobId} is non-null, then
+     * this instance will need to handle re-loading on first
+     * access. (Previously it could not be done here, because the
+     * security system was not configured for transactions during
+     * JavaEE callbacks. This is no longer true.)
+     */
+    @RolesAllowed("user")
+    @Transactional
+    public void activate() {
         if (jobId != null) {
             resetId = jobId;
             jobId = null;
         }
-    }
-
-    @PrePassivate
-    @PreDestroy
-    public void destroy() {
-        // id is the only thing passivated.
     }
 
     /*
@@ -116,9 +105,9 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
      * @see ome.api.StatefulServiceInterface#close()
      */
     @RolesAllowed("user")
-    @Remove
     @Transactional(readOnly = true)
     public void close() {
+        // id is the only thing passivated.
         // FIXME do we need to check on the process here?
         // or callbacks? probably.
     }

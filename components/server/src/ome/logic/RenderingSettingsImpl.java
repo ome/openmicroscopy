@@ -1,5 +1,5 @@
 /*
- * ome.logic.RenderingSettingsImpl
+ *   $Id$
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -18,24 +18,15 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.annotations.NotNull;
+import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
@@ -60,7 +51,6 @@ import ome.model.enums.RenderingModel;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.services.OmeroOriginalFileMetadataProvider;
-import ome.services.util.OmeroAroundInvoke;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
@@ -78,18 +68,7 @@ import omeis.providers.re.quantum.QuantumFactory;
  */
 @RevisionDate("$Date: 2007-09-06 14:29:18 +0100 (Thu, 06 Sep 2007) $")
 @RevisionNumber("$Revision: 1792 $")
-@Stateless
-@Remote(IRenderingSettings.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IRenderingSettings"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IRenderingSettings",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
-@Local(IRenderingSettings.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IRenderingSettings")
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class RenderingSettingsImpl extends AbstractLevel2Service implements
         IRenderingSettings, Serializable {
 

@@ -7,6 +7,7 @@
 
 package ome.security;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,8 +16,11 @@ import java.util.Random;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.util.Utils;
 
-import org.jboss.security.Util;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
@@ -24,13 +28,15 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 /**
  * Static methods for dealing with password hashes and the "password" table.
  * Used primarily by {@link ome.logic.AdminImpl}
- *
+ * 
  * @author Josh Moore, josh.moore at gmx.de
  * @see SecuritySystem
  * @see ome.logic.AdminImpl
  * @since 3.0-Beta1
  */
 public abstract class PasswordUtil {
+
+    private final static Log log = LogFactory.getLog(PasswordUtil.class);
 
     /**
      * Main method which takes exactly one argument, passes it to
@@ -135,15 +141,35 @@ public abstract class PasswordUtil {
                         : passwordDigest(newPassword);
     }
 
+    /**
+     * Creates an MD5 hash of the given clear text and base64 encodes it.
+     * 
+     * @DEV.TODO This should almost certainly be configurable as to encoding,
+     *           algorithm, character encoding, and possibly even the
+     *           implementation in general.
+     */
     public static String passwordDigest(String clearText) {
+
         if (clearText == null) {
             throw new ApiUsageException("Value for digesting may not be null");
         }
 
-        // These constants are also defined in app/resources/jboss-login.xml
-        // and this method is called from {@link JBossLoginModule}
-        String hashedText = Util.createPasswordHash("MD5", "base64",
-                "ISO-8859-1", null, clearText, null);
+        byte[] bytes = null;
+        try {
+            bytes = clearText.getBytes("ISO-8859-1"); // FIXME
+        } catch (UnsupportedEncodingException uee) {
+            log.warn("Unsupported charset ISO-8859-1. Using default");
+            bytes = clearText.getBytes();
+        }
+
+        String hashedText = null;
+        try {
+            bytes = Utils.calculateMessageDigest(bytes);
+            bytes = Base64.encodeBase64(bytes);
+            hashedText = new String(bytes);
+        } catch (Exception e) {
+            log.error("Could not hash password", e);
+        }
 
         if (hashedText == null) {
             throw new InternalException("Failed to obtain digest.");

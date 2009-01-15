@@ -1,5 +1,5 @@
 /*
- * ome.services.RenderingBean
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -7,7 +7,6 @@
 
 package ome.services;
 
-// Java imports
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,26 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IProjection;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
-import ome.api.local.Destroy;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -54,7 +41,6 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
@@ -69,9 +55,6 @@ import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -101,21 +84,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-@Stateful
-@Remote(RenderingEngine.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/omeis.providers.re.RenderingEngine"),
-    @RemoteBinding(jndiBinding = "omero/secure/omeis.providers.re.RenderingEngine",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
-@Local(RenderingEngine.class)
-@LocalBinding(jndiBinding = "omero/local/omeis.providers.re.RenderingEngine")
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Interceptors( { OmeroAroundInvoke.class })
-// TODO previously not here. examine the difference.
 public class RenderingBean extends AbstractLevel2Service implements
-        RenderingEngine, Serializable, Destroy {
+        RenderingEngine, Serializable {
 
     private static final long serialVersionUID = -4383698215540637039L;
 
@@ -156,16 +127,15 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     /** Reference to the service used to compress pixel data. */
     private transient LocalCompress compressionSrv;
-    
+
     /** Reference to the service used to manage rendering settings. */
     private transient IRenderingSettings settingsSrv;
-    
+
     /** Reference to the service used for projecting pixel data. */
     private transient IProjection projectionService;
 
     /**
-     * read-write lock to prevent READ-calls during WRITE operations. Unneeded
-     * for remote invocations (EJB synchronizes).
+     * read-write lock to prevent READ-calls during WRITE operations.
      *
      * It is safe for the lock to be serialized. On deserialization, it will
      * be in the unlocked state.
@@ -216,39 +186,37 @@ public class RenderingBean extends AbstractLevel2Service implements
     // ~ Lifecycle methods
     // =========================================================================
 
-    /**
-     * lifecycle method -- {@link PostActivate} and {@link PostConstruct}.
-     * Delegates to super class
-     */
-    @PostConstruct
-    public void create() {
-        selfConfigure();
-    }
-
-    /** lifecycle method -- {@link PostPassivate}. */
-    @PostActivate
-    public void postPassivate() {
-    	log.debug("***** Returning from passivation... ******");
-    	create();
-    	wasPassivated = true;
-    }
-
-    /** lifecycle method -- {@link PrePassivate}. */
-    @PrePassivate
-    public void passivate() {
-    	log.debug("***** Passivating... ******");
-    	closeRenderer();
-    	renderer = null;
-    }
-
-    /**
-     * lifecycle method -- {@link PreDestroy}. Nulls {@link Renderer} instance
-     * and delegates to super class with
-     * {@link ReentrantReadWriteLock write lock}
-     */
-    @PreDestroy
+    // See documentation on JobBean#passivate
     @RolesAllowed("user")
-    public void destroy() {
+    @Transactional(readOnly = true)
+    public void passivate() {
+	log.debug("***** Passivating... ******");
+
+        rwl.writeLock().lock();
+	try {
+	    closeRenderer();
+	    renderer = null;
+	} finally {
+	    rwl.writeLock().unlock();
+	}
+    }
+
+    // See documentation on JobBean#activate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public void activate() {
+    	log.debug("***** Returning from passivation... ******");
+
+	rwl.writeLock().lock();
+	try {
+	    wasPassivated = true;
+	} finally {
+	    rwl.writeLock().unlock();
+	}
+    }
+
+    @RolesAllowed("user")
+    public void close() {
         rwl.writeLock().lock();
 
         try {
@@ -258,12 +226,6 @@ public class RenderingBean extends AbstractLevel2Service implements
         } finally {
             rwl.writeLock().unlock();
         }
-    }
-
-    @RolesAllowed("user")
-    @Remove
-    public void close() {
-        // don't need to do anything.
     }
 
     /*

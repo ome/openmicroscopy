@@ -16,7 +16,6 @@
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
     <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test"/>
     <!-- Not included above -->
-    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}"/>
     <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}"/>

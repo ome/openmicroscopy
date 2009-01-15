@@ -1,5 +1,5 @@
 /*
- * ome.logic.UpdateImpl
+ *   $Ids$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -14,18 +14,11 @@
 
 package ome.logic;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collection;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
@@ -41,35 +34,22 @@ import ome.services.fulltext.FullTextIndexer;
 import ome.services.fulltext.FullTextThread;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
-import ome.services.util.OmeroAroundInvoke;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * implementation of the IUpdate service interface
- * 
+ *
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = false)
-@Stateless
-@Remote(IUpdate.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IUpdate"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IUpdate", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(LocalUpdate.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalUpdate")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     protected transient LocalQuery localQuery;

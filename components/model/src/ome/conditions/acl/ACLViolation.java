@@ -6,14 +6,7 @@
  */
 package ome.conditions.acl;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
 import ome.model.internal.Permissions;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * User has attempted an action which is not permitted by the
@@ -24,7 +17,6 @@ import ome.model.internal.Permissions;
  * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
-@ApplicationException
 public abstract class ACLViolation extends ome.conditions.SecurityViolation {
 
     private Class klass;

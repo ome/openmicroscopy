@@ -7,7 +7,6 @@
 
 package ome.services;
 
-// Java imports
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -20,27 +19,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
 import ome.api.IScale;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
-import ome.api.local.Destroy;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -58,7 +46,6 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
@@ -69,9 +56,6 @@ import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -85,20 +69,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0
  * 
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateful
-@Remote(ThumbnailStore.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.ThumbnailStore"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.ThumbnailStore",
-                   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
-@Local(ThumbnailStore.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.ThumbnailStore")
-@Interceptors( { OmeroAroundInvoke.class })
 public class ThumbnailBean extends AbstractLevel2Service implements
-        ThumbnailStore, Serializable, Destroy {
+        ThumbnailStore, Serializable {
     /**
      * 
      */
@@ -191,9 +164,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The default MIME type. */
     public static final String DEFAULT_MIME_TYPE = "image/jpeg";
 
+    /**
+     * read-write lock to prevent READ-calls during WRITE operations.
+     *
+     * It is safe for the lock to be serialized. On deserialization, it will
+     * be in the unlocked state.
+     */
+    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
-    
+
     /** default constructor */
     public ThumbnailBean() {}
     
@@ -209,52 +190,54 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         return ThumbnailStore.class;
     }
 
-    @PostConstruct
-    public void create() {
-        selfConfigure();
-    }
-    
-    /** lifecycle method -- {@link PostPassivate}. */
-    @PostActivate
-    public void postPassivate() {
-    	log.info("***** Returning from passivation... ******");
-    	create();
-    	wasPassivated = true;
-    }
+    // ~ Lifecycle methods
+    // =========================================================================
 
-    /** lifecycle method -- {@link PrePassivate}. */
-    @PrePassivate
+    // See documentation on JobBean#passivate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
     public void passivate() {
-    	log.info("***** Passivating... *****");
-    	if (renderer != null)
-    	{
-    		renderer.close();
-    	}
-    	renderer = null;
-    }
-    
-    @PreDestroy
-    @RolesAllowed("user")
-    public void destroy() {
-    	// Both the pixels and rendering settings objects are being passivated.
-    	if (renderer != null)
-    	{
-    		renderer.close();
-    	}
-    	renderer = null;
-    	iScale = null;
-    	ioService = null;
+	log.debug("***** Passivating... ******");
+
+        rwl.writeLock().lock();
+	try {
+	    if (renderer != null) {
+		renderer.close();
+	    }
+	    renderer = null;
+	} finally {
+	    rwl.writeLock().unlock();
+	}
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.api.StatefulServiceInterface#close()
-     */
+    // See documentation on JobBean#activate
     @RolesAllowed("user")
-    @Remove
+    @Transactional(readOnly = true)
+    public void activate() {
+	log.debug("***** Returning from passivation... ******");
+
+	rwl.writeLock().lock();
+	try {
+	    wasPassivated = true;
+	} finally {
+	    rwl.writeLock().unlock();
+	}
+    }
+
+    @RolesAllowed("user")
     public void close() {
-        // don't need to do anything.
+        rwl.writeLock().lock();
+
+        try {
+	    if (renderer != null) {
+		renderer.close();
+	    }
+	    renderer = null;
+	    iScale = null;
+	    ioService = null;
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
     /*

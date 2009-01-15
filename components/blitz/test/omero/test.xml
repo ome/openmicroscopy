@@ -36,12 +36,12 @@
        <entry key="ome.api.ITypes"><null/></entry>
        <entry key="ome.api.IUpdate" value="ome.api.local.LocalUpdate"/>
        <!-- Stateful -->
-       <entry key="ome.api.JobHandle"><list><value>ome.api.JobHandle</value><value>ome.api.local.Destroy</value></list></entry>
-       <entry key="ome.api.RawFileStore"><list><value>ome.api.RawFileStore</value><value>ome.api.local.Destroy</value></list></entry>
-       <entry key="ome.api.RawPixelsStore"><list><value>ome.api.RawPixelsStore</value><value>ome.api.local.Destroy</value></list></entry>
-       <entry key="omeis.providers.re.RenderingEngine"><list><value>omeis.providers.re.RenderingEngine</value><value>ome.api.local.Destroy</value></list></entry>
-       <entry key="ome.api.Search"><list><value>ome.api.Search</value><value>ome.api.local.Destroy</value></list></entry>
-       <entry key="ome.api.ThumbnailStore"><list><value>ome.api.ThumbnailStore</value><value>ome.api.local.Destroy</value></list></entry>
+       <entry key="ome.api.JobHandle"><list><value>ome.api.JobHandle</value></list></entry>
+       <entry key="ome.api.RawFileStore"><list><value>ome.api.RawFileStore</value></list></entry>
+       <entry key="ome.api.RawPixelsStore"><list><value>ome.api.RawPixelsStore</value></list></entry>
+       <entry key="omeis.providers.re.RenderingEngine"><list><value>omeis.providers.re.RenderingEngine</value></list></entry>
+       <entry key="ome.api.Search"><list><value>ome.api.Search</value></list></entry>
+       <entry key="ome.api.ThumbnailStore"><list><value>ome.api.ThumbnailStore</value></list></entry>
        <!-- Blitz only
        <entry key="ome.api.Gateway" value=""/>
        <entry key="ome.api.IScript" value=""/>

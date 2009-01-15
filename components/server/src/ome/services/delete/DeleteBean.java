@@ -1,4 +1,6 @@
 /*
+ *   $Id$
+ *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,14 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IDelete;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
@@ -26,7 +22,6 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.containers.DatasetImageLink;
@@ -41,7 +36,6 @@ import ome.model.internal.Details;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.util.CBlock;
 
@@ -49,9 +43,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,16 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-Beta3
  * @see IDelete
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
-@Stateless
-@Remote(IDelete.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IDelete"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IDelete", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(IDelete.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IDelete")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
     public final static Log log = LogFactory.getLog(DeleteBean.class);

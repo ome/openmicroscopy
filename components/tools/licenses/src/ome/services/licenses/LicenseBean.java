@@ -14,28 +14,17 @@
 
 package ome.services.licenses;
 
-// Java imports
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
 
+import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.annotations.RolesAllowed;
 import ome.api.ServiceInterface;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
 import ome.security.SecuritySystem;
 import ome.services.sessions.SessionManager;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
 
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -43,23 +32,14 @@ import org.springframework.transaction.annotation.Transactional;
  * primarily delegates to a {@link LicenseStore} instance which is created from
  * a hard-coded class name. This class name can be changed via the
  * tools/licenses/build.xml script.
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-RC1
  * @see ILicense
  */
 @RevisionDate("$Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $")
 @RevisionNumber("$Revision: 1167 $")
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateless
-@Remote(ILicense.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.services.licenses.ILicense"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.services.licenses.ILicense", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(ILicense.class)
-@LocalBinding(jndiBinding = "omero/local/ome.services.licenses.ILicense")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
 
     public final Class<? extends ServiceInterface> getServiceInterface() {

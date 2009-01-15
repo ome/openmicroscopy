@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.conditions.SecurityViolation;
 import ome.security.MethodSecurity;
 import ome.security.SecuritySystem;

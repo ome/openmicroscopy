@@ -13,7 +13,9 @@ import ome.api.ThumbnailStore;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RInt;
 import omero.ServerError;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_ThumbnailStore_createThumbnail;
 import omero.api.AMD_ThumbnailStore_createThumbnails;
@@ -141,6 +143,21 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
     public void thumbnailExists_async(AMD_ThumbnailStore_thumbnailExists __cb,
             RInt sizeX, RInt sizeY, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, sizeX, sizeY);
+
+    }
+
+    // Stateful interface methods
+    // =========================================================================
+
+    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

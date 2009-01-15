@@ -31,17 +31,11 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IEnum;
@@ -49,34 +43,21 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.security.SecureAction;
-import ome.services.util.OmeroAroundInvoke;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
 /**
  * implementation of the ITypes service interface.
- * 
+ *
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date: 2008-01-04
  *          14:17:02 +0000 (Fri, 04 Jan 2008) $) </small>
  * @since OMERO 3.0
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
-@Stateless
-@Remote(ITypes.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.ITypes"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.ITypes", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(ITypes.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.ITypes")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
     protected transient SessionFactory sf;

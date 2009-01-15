@@ -6,13 +6,6 @@
  */
 package ome.conditions;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * abstract superclass of all Omero exceptions. Only subclasses of this type
  * will be thrown by the server.
@@ -22,7 +15,6 @@ import javax.ejb.ApplicationException;
  * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
-@ApplicationException
 public abstract class RootException extends RuntimeException {
 
     public RootException(String msg) {

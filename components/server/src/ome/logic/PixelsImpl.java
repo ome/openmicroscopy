@@ -1,5 +1,5 @@
 /*
- * ome.logic.PixelsImpl
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -7,28 +7,16 @@
 
 package ome.logic;
 
-// Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
-// Third-party libraries
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
-// Application-internal dependencies
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
 import ome.conditions.ValidationException;
@@ -43,11 +31,10 @@ import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
-import ome.services.util.OmeroAroundInvoke;
 
 /**
- * 
- * 
+ * implementation of the Pixels service interface.
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author <br>
@@ -57,20 +44,9 @@ import ome.services.util.OmeroAroundInvoke;
  *          2005/06/12 23:27:31 $) </small>
  * @since OME2.2
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateless
-@Remote(IPixels.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IPixels"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IPixels",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
-@Local(IPixels.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IPixels")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class PixelsImpl extends AbstractLevel2Service implements IPixels {
-	
+
     /**
      * Returns the interface this implementation is for.
      * @see AbstractLevel2Service#getServiceInterface()

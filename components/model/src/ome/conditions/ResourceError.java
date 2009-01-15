@@ -6,13 +6,6 @@
  */
 package ome.conditions;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Represents a incorrectible/unforseeable event within the server that lead to
  * a failure of a process.
@@ -22,7 +15,6 @@ import javax.ejb.ApplicationException;
  * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
-@ApplicationException
 public class ResourceError extends RootException {
 
     /**

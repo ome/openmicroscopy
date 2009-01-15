@@ -6,8 +6,6 @@
  */
 package ome.conditions;
 
-import javax.ejb.ApplicationException;
-
 /**
  * Client attempted to access a {@link Session} which has either
  * {@link SessionTimeoutException expired} or been closed manually.
@@ -15,7 +13,6 @@ import javax.ejb.ApplicationException;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@ApplicationException
 public class RemovedSessionException extends SessionException {
 
     private static final long serialVersionUID = -4513364892739872987L;

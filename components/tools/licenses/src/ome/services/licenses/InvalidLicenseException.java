@@ -6,13 +6,6 @@
  */
 package ome.services.licenses;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * (CLIENT) Exception thrown on a regular method call when the provided 
  * license token is rejected by the {@link LicenseStore}. This does
@@ -21,7 +14,6 @@ import javax.ejb.ApplicationException;
  * @author Josh Moore, josh.moore @ gmx.de
  * @since  3.0-RC1
  */
-@ApplicationException
 public class InvalidLicenseException extends LicenseException {
 
     private static final long serialVersionUID = -1260656423146821938L;

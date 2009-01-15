@@ -43,10 +43,7 @@ build-* targets.
             <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/app/**,**/policy/**,**/tools/**"/>
-        </ivy:buildlist>
-        <ivy:buildlist reference="appserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/blitz/**,**/policy/**,**/tools/**"/>
+            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
         </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
     </target>
@@ -132,19 +129,6 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-ear" description="Build ear and copy to dist" depends="init">
-        <iterate buildpathref="appserver.buildpath" target="dist"/>
-        <!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
-        <iterate buildpathref="blitzserver.buildpath" target="install"/>
-        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-webadmin" description="Build WebAdmin and copy to dist" depends="init">
-        <antcall target="build-ear" inheritRefs="true" inheritAll="true"/>
-        <iterate buildpathref="WebAdmin.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-    </target>
-
     <target name="build-importer" description="Build importer and copy to dist/client" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
@@ -207,10 +191,6 @@ build-* targets.
                 includes="bin/omero"
                 filemode="755"/>
         </tar>
-    </target>
-
-    <target name="deploy" description="Copy the dist/${product.name}.ear to $JBOSS_HOME/server/default/deploy" depends="init">
-        <iterate buildpathref="app.buildpath" target="deploy"/>
     </target>
 
     <!-- Internal target -->
@@ -329,14 +309,8 @@ build-* targets.
             </fileset>
             <fileset dir="components/rendering/" defaultexcludes="yes">
                 <patternset refid="all.java.files"/>
-            </fileset>
-                <fileset dir="components/client/" defaultexcludes="yes">
-                <patternset refid="all.java.files"/>
-            </fileset>
             <!-- Skipping generated files for blitz. Just too many -->
             <fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
-            <fileset dir="components/tools/WebAdmin" defaultexcludes="yes">
-                <patternset refid="all.java.files"/>
             </fileset>
             <fileset dir="components/tools/admin" defaultexcludes="yes">
                 <patternset refid="all.java.files"/>

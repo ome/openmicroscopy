@@ -202,12 +202,4 @@
     </property>
   </bean>
 
-  <!-- internal- prefix because the definition is used for self-configuration.
-  see BeanHelper.configure and OmeroContext.applyBeanPropertyValues. -->
-  <bean id="internal-ome.services.util.OmeroAroundInvokeName" lazy-init="true"
-     class="ome.services.util.OmeroAroundInvoke">
-  	<property name="queryFactory" ref="queryFactory"/>
-  	<property name="securitySystem" ref="securitySystem"/>
-  </bean>
-
 </beans>

@@ -6,13 +6,6 @@
  */
 package ome.services.licenses;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * (CLIENT) Exception thrown on license acquisition when no licenses
  * are available.
@@ -20,7 +13,6 @@ import javax.ejb.ApplicationException;
  * @author Josh Moore, josh.moore @ gmx.de
  * @since  3.0-RC1
  */
-@ApplicationException
 public class NoAvailableLicensesException extends LicenseException {
 
     private static final long serialVersionUID = -3912767194002701163L;

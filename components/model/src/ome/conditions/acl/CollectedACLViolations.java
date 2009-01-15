@@ -6,15 +6,9 @@
  */
 package ome.conditions.acl;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.internal.Permissions;
 
 /**
@@ -26,7 +20,6 @@ import ome.model.internal.Permissions;
  * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
-@ApplicationException
 public class CollectedACLViolations extends ome.conditions.SecurityViolation {
 
     /**

@@ -1,5 +1,5 @@
 /*
- * ome.logic.AdminImpl
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -16,18 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
 import ome.annotations.NotNull;
+import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.annotations.RolesAllowed;
 import ome.api.IAdmin;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
@@ -59,7 +52,6 @@ import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -73,9 +65,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -90,29 +79,20 @@ import org.springframework.util.Assert;
 /**
  * Provides methods for administering user accounts, passwords, as well as
  * methods which require special privileges.
- * 
+ *
  * Developer note: As can be expected, to perform these privileged the Admin
  * service has access to several resources that should not be generally used
  * while developing services. Misuse could circumvent security or auditing.
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision:1754 $, $Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $
  * @see SecuritySystem
  * @see Permissions
  * @since 3.0-M3
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
 @RevisionDate("$Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $")
 @RevisionNumber("$Revision:1754 $")
-@Stateless
-@Remote(IAdmin.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IAdmin", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(IAdmin.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IAdmin")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         ApplicationContextAware {
 
@@ -120,7 +100,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * Action used by various methods to save objects with the blessing of the
      * {@link SecuritySystem}.Only the first object will be saved and returned,
      * but all of the varargs will be given a token.
-     * 
+     *
      * @see SecuritySystem#doAction(IObject, SecureAction)
      */
     private static class SecureUpdate implements SecureAction {

@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.api.ServiceInterface;
-import ome.api.local.Destroy;
 import ome.system.OmeroContext;
 import omero.ServerError;
 import omero.util.IceMapper;
@@ -241,52 +240,27 @@ public class IceMethodInvoker {
     }
 
     /**
-     * Call the method as given unless it is named "close" in which case special
-     * logic must be performed, including calling destroy and <em>not</em>
-     * calling "close".
-     * 
-     * To replicate the lifecycle logic of the application server, it's
-     * necessary to catch all calls to "close()" (which is also done within the
-     * Hibernate SessionHandler), and ALSO call the "destroy()" method if
-     * present. TODO This could be much better placed, but this location is
-     * sufficient, since no call will be made on the delegation targets without
-     * going through this method.
-     * 
-     * Unfortunately, however, the destroy method is not on the interface and so
-     * must be checked directly.
+     * Call the method as given and if is named "close" perform
+     * special logic. {@link ome.tools.hibernate.SessionHandler} also
+     * specially catches close() calls, but cannot remove the servant
+     * from the {@link Ice.ObjectAdapter} and thereby prevent any
+     * further communication. Once the invocation is finished, though,
+     * it is possible to raise the message and have the servant
+     * cleaned up.
      */
     private Object callOrClose(Object obj, Ice.Current current, Info info,
             Object[] objs) throws Throwable, IllegalAccessException,
             InvocationTargetException {
 
         Object retVal = null;
-        if ("close".equals(info.method.getName())) {
-            Method destroy = null;
-            int tries = 10;
-            while (obj instanceof Advised) {
-                Advised advised = (Advised) obj;
-                obj = advised.getTargetSource().getTarget();
-                tries--;
-                if (tries == 0) {
-                    throw new RuntimeException("More than 10 layers of AOP");
-                }
-            }
-            if (obj instanceof Destroy) {
-                try {
-                    destroy = Destroy.class.getMethod("destroy");
-                    destroy.invoke(obj);
-                } catch (Exception ex) {
-                    log.error("Exception on service.destroy()", ex);
-                }
-            }
-            UnregisterServantMessage usm = new UnregisterServantMessage(this,
+	try {
+	    retVal = info.method.invoke(obj, objs);
+	} finally {
+	    if ("close".equals(info.method.getName())) {
+		UnregisterServantMessage usm = new UnregisterServantMessage(this,
                     Ice.Util.identityToString(current.id), current);
-            ctx.publishMessage(usm);
-        } else {
-            // Here we are skipping the close() since there is currently
-            // no logic in any of them. This is also essentially a HACK
-            // and should be reworked.
-            retVal = info.method.invoke(obj, objs);
+		ctx.publishMessage(usm);
+	    }
         }
         return retVal;
     }

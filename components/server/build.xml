@@ -15,19 +15,13 @@
 
     <target name="reload-db" depends="prepare,setup-db"/>
 
-    <target name="compile" depends="generate">
-        <hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"
-            token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
-
-    </target>
-
-   <target name="initdb" depends="compile">
+    <target name="initdb" depends="compile">
         <taskdef classname="ome.tools.DbUpdateTask" classpathref="omero.classpath" name="dbUpdate"/>
         <dbUpdate sqldir="${sql.dir}" classpathref="omero.classpath"
             driver="${hibernate.connection.driver_class}"
             url="${hibernate.connection.url}"
             userid="${hibernate.connection.username}"
-            password="${hibernate.connection.password}" 
+            password="${hibernate.connection.password}"
          />
     </target>
 

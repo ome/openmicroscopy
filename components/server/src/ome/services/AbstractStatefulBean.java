@@ -9,10 +9,8 @@ package ome.services;
 
 import java.io.Serializable;
 
-import javax.annotation.security.RolesAllowed;
-
+import ome.annotations.RolesAllowed;
 import ome.api.StatefulServiceInterface;
-import ome.api.local.Destroy;
 import ome.api.local.LocalQuery;
 import ome.security.SecuritySystem;
 import ome.services.util.BeanHelper;
@@ -28,7 +26,7 @@ import ome.system.SimpleEventContext;
  * @since 3.0-Beta2
  */
 public abstract class AbstractStatefulBean implements SelfConfigurableService,
-        StatefulServiceInterface, Serializable, Destroy {
+        StatefulServiceInterface, Serializable {
 
     private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
 

@@ -54,7 +54,9 @@ import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._RenderingEngineOperations;
 import omero.constants.projection.ProjectionType;
@@ -375,6 +377,21 @@ public class RenderingEngineI extends AbstractAmdServant implements
             AMD_RenderingEngine_updateCodomainMap __cb,
             CodomainMapContext mapCtx, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, mapCtx);
+
+    }
+
+    // Stateful interface methods
+    // =========================================================================
+
+    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

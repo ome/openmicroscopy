@@ -1,4 +1,6 @@
 /*
+ *   $Id$
+ *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -15,15 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
 import ome.annotations.NotNull;
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IShare;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
@@ -31,7 +27,6 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.SessionAnnotationLink;
@@ -47,15 +42,11 @@ import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -64,16 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-Beta4
  * @see IShare
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateless
-@Remote(IShare.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IShare"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IShare", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(IShare.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IShare")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class ShareBean extends AbstractLevel2Service implements IShare {
 
     public final static Log log = LogFactory.getLog(ShareBean.class);

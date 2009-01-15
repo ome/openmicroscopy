@@ -11,19 +11,8 @@ import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRepositoryInfo;
 import ome.api.RawPixelsStore;
@@ -35,17 +24,15 @@ import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
-import ome.services.util.OmeroAroundInvoke;
 import omeis.providers.re.RenderingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * implementation of the IUpdate service interface
+ *
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
@@ -53,16 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
  *          16:13:52 $) </small>
  * @since OMERO3
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateful
-@Remote(RawPixelsStore.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.RawPixelsStore"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.RawPixelsStore", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(RenderingEngine.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.RawPixelsStore")
-@Interceptors( { OmeroAroundInvoke.class })
 public class RawPixelsBean extends AbstractStatefulBean implements
         RawPixelsStore {
     /** The logger for this particular class */
@@ -135,36 +113,31 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     // ~ Lifecycle methods
     // =========================================================================
 
-    @PostConstruct
-    @PostActivate
-    public void create() {
-        selfConfigure();
-        // no longer trying to recreate here because of transactional
-        // difficulties. instead we'll set reset, and let errorIfNotLoaded()
-        // do the work.
+    // See documentation on JobBean#passivate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)    
+    public void passivate() {
+	// Nothing necessary
+    }
+
+    // See documentation on JobBean#activate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)    
+    public void activate() {
         if (id != null) {
             reset = id;
             id = null;
         }
     }
 
-    @PrePassivate
-    @PreDestroy
     @RolesAllowed("user")
-    public void destroy() {
-        // id is the only thing passivated.
+    @Transactional(readOnly = true)
+    public void close() {
         dataService = null;
         pixelsInstance = null;
         closePixelBuffer();
         buffer = null;
         readBuffer = null;
-    }
-
-    @RolesAllowed("user")
-    @Remove
-    @Transactional(readOnly = true)
-    public void close() {
-        closePixelBuffer();
     }
 
     /**

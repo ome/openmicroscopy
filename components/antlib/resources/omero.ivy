@@ -14,9 +14,8 @@
   <dependencies>
     <!-- NOTE: Jars from lib/tools will be copied separately -->
     <!-- Internal -->
-    <dependency name="client" rev="${omero.version}" changing="true" conf="client->client;testing->*"/>
     <dependency name="server" rev="${omero.version}" changing="true" conf="server->server"/>
-    <dependency name="blitz" rev="${omero.version}" changing="true" conf="server->server;client->client"/>
+    <dependency name="blitz" rev="${omero.version}" changing="true" conf="server->server;client->client;testing->*"/>
     <!-- For java omero.class -->
     <dependency org="ant" name="ant-launcher" rev="${versions.ant}" conf="server->default"/>
     <dependency org="ant" name="ant-nodeps" rev="${versions.ant}" conf="server->default"/>

@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.services.RenderingBean;
-import ome.services.jboss.OmeroContextHook;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
@@ -87,12 +86,6 @@ public class ContextTest extends TestCase {
         re.selfConfigure();
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);
-    }
-
-    @Test
-    public void testStartupHook() throws Exception {
-        OmeroContextHook hook = new OmeroContextHook();
-        hook.start();
     }
 
 }

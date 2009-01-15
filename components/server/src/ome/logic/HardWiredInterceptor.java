@@ -7,19 +7,14 @@
 
 package ome.logic;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.ejb.SessionContext;
-
-// Third-party imports
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ReflectiveMethodInvocation;
 
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.system.OmeroContext;
@@ -27,11 +22,10 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 
 /**
- * Extension point for interceptors which should be compiled in from 
- * third-party code. Subclasses can be added to the 
- * {@link ome.services.util.OmeroAroundInvoke} class via server/build.xml and the
+ * Extension point for interceptors which should be compiled in from
+ * third-party code. Subclasses can be added to the build system via the
  * omero.hard-wired.interceptors property value. All subclasses must
- * have a no-arg constructor, but can assess various environment 
+ * have a no-arg constructor, but can assess various environment
  * variables via the getters defined on this class.
  *
  * @author Josh Moore, josh.moore at gmx.de

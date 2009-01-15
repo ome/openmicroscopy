@@ -14,7 +14,9 @@ import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
 import omero.api.AMD_RawFileStore_setFileId;
 import omero.api.AMD_RawFileStore_write;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._RawFileStoreOperations;
 import Ice.Current;
@@ -57,6 +59,21 @@ public class RawFileStoreI extends AbstractAmdServant implements
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
             long position, int length, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, buf, position, length);
+
+    }
+
+    // Stateful interface methods
+    // =========================================================================
+
+    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

@@ -42,7 +42,9 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import omero.RInt;
 import omero.RType;
 import omero.ServerError;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.BufferedImage;
 import omero.api.ContainerClass;
@@ -371,27 +373,6 @@ public class OmeroGateway
 		imageService.setActive(pixelsId, w, active);
 	}
 
-	
-	/* (non-Javadoc)
-	 * @see omero.api._StatefulServiceInterfaceOperations#close_async(omero.api.AMD_StatefulServiceInterface_close, Ice.Current)
-	 */
-	public void close_async(AMD_StatefulServiceInterface_close __cb,
-			Current __current) throws ServerError
-	{
-		  close();
-		  __cb.ice_response();
-	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._StatefulServiceInterfaceOperations#getCurrentEventContext_async(omero.api.AMD_StatefulServiceInterface_getCurrentEventContext, Ice.Current)
-	 */
-	public void getCurrentEventContext_async(
-			AMD_StatefulServiceInterface_getCurrentEventContext __cb,
-			Current __current) throws ServerError
-	{
-		__cb.ice_exception(new omero.InternalException(null,null,"NYI"));
-	}	
-
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#copyImage(long, int, int, int, int, java.util.List, java.lang.String, Ice.Current)
 	 */
@@ -447,7 +428,38 @@ public class OmeroGateway
 	{
 		return imageService.getRawPlane(pixelsId, z, c, t);
 	}
-	
+
+        // Stateful interface methods
+        // =========================================================================
+
+        public void activate_async(AMD_StatefulServiceInterface_activate __cb, Current __current)
+        {
+                 __cb.ice_exception(new omero.InternalException(null,null,"NYI"));
+        }
+
+        public void passivate_async(AMD_StatefulServiceInterface_passivate __cb, Current __current)
+        {
+	         __cb.ice_exception(new omero.InternalException(null,null,"NYI"));
+        }
+
+	/* (non-Javadoc)
+	 * @see omero.api._StatefulServiceInterfaceOperations#close_async(omero.api.AMD_StatefulServiceInterface_close, Ice.Current)
+	 */
+	public void close_async(AMD_StatefulServiceInterface_close __cb,
+			Current __current) throws ServerError
+	{
+		  close();
+		  __cb.ice_response();
+	}
+
+	/* (non-Javadoc)
+	 * @see omero.api._StatefulServiceInterfaceOperations#getCurrentEventContext_async(omero.api.AMD_StatefulServiceInterface_getCurrentEventContext, Ice.Current)
+	 */
+	public void getCurrentEventContext_async(
+			AMD_StatefulServiceInterface_getCurrentEventContext __cb,
+			Current __current) throws ServerError
+	{
+		__cb.ice_exception(new omero.InternalException(null,null,"NYI"));
+	}	
+
 }
-
-

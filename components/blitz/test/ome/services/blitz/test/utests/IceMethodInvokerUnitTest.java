@@ -116,8 +116,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     @Test
     void testAllCallsOnCloseAlsoCallDestroy() throws Exception {
         invoker.invoke(tb, current, mapper);
-        assertTrue(tb.toString(), tb.closed == 0);
-        assertTrue(tb.toString(), tb.destroyed == 1);
+        assertTrue(tb.toString(), tb.closed == 1);
     }
 
     public static class Destroyable implements ThumbnailStore {
@@ -125,15 +124,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         @Override
         public String toString() {
             return String
-                    .format("%d closes and %d destroys", closed, destroyed);
+		.format("%d closes", closed);
         }
 
-        int destroyed = 0;
         int closed = 0;
 
-        public void destroy() {
-            destroyed++;
-        }
+	public void activate() {
+	}
+
+	public void passivate() {
+	}
 
         public void close() {
             closed++;

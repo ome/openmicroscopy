@@ -36,7 +36,9 @@ import omero.api.AMD_RawPixelsStore_setRegion;
 import omero.api.AMD_RawPixelsStore_setRow;
 import omero.api.AMD_RawPixelsStore_setStack;
 import omero.api.AMD_RawPixelsStore_setTimepoint;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._RawPixelsStoreOperations;
 import Ice.Current;
@@ -212,6 +214,28 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
 
     }
 
+    public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,
+            int c, int t, Current __current) throws ServerError
+    {
+        callInvokerOnRawArgs(__cb, __current, x, z, c, t);
+
+    }
+
+    // Stateful interface methods
+    // =========================================================================
+
+    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
         callInvokerOnRawArgs(__cb, __current);
@@ -222,13 +246,6 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
-    }
-
-    public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,
-            int c, int t, Current __current) throws ServerError
-    {
-        callInvokerOnRawArgs(__cb, __current, x, z, c, t);
 
     }
 

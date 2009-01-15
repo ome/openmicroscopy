@@ -10,8 +10,7 @@ package ome.security;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-
+import ome.annotations.RolesAllowed;
 import ome.conditions.SecurityViolation;
 import ome.system.Principal;
 

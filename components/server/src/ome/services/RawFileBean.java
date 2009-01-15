@@ -15,19 +15,8 @@ import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
+import ome.annotations.RolesAllowed;
 import ome.api.IRepositoryInfo;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
@@ -36,13 +25,9 @@ import ome.conditions.ResourceError;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
-import ome.services.util.OmeroAroundInvoke;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -54,18 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
  *          2005/06/08 15:21:59 $) </small>
  * @since OMERO3.0
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
-@Stateful
-@Remote(RawFileStore.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.RawFileStore"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.RawFileStore",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
-@Local(RawFileStore.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.RawFileStore")
-@Interceptors( { OmeroAroundInvoke.class })
 public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /**
      * 
@@ -132,26 +106,23 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         getBeanHelper().throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
     }
-    
-    @PostConstruct
-    @PostActivate
-    public void create() {
-        selfConfigure();
+
+
+    // See documentation on JobBean#passivate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)    
+    public void passivate() {
+	// Nothing necessary
+    }
+
+    // See documentation on JobBean#activate
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)    
+    public void activate() {
         if (id != null) {
             reset = id;
             id = null;
         }
-    }
-
-    @PrePassivate
-    @PreDestroy
-    @RolesAllowed("user")
-    public void destroy() {
-        // id is the only thing passivated.
-        ioService = null;
-        file = null;
-        closeFileBuffer();
-        buffer = null;
     }
 
     /*
@@ -160,12 +131,14 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      * @see ome.api.StatefulServiceInterface#close()
      */
     @RolesAllowed("user")
-    @Remove
     @Transactional(readOnly = true)
     public void close() {
+        ioService = null;
+        file = null;
         closeFileBuffer();
+        buffer = null;
     }
-    
+
     /**
      * Close the active file buffer, cleaning up any potential messes left by
      * the file buffer itself.

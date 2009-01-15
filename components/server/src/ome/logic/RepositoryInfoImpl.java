@@ -1,17 +1,18 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.logic;
 
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
+import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.annotations.RolesAllowed;
 import ome.api.IRepositoryInfo;
 import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
@@ -24,9 +25,6 @@ import ome.tools.RepositoryTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -37,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>
  * Copyright 2007 Glencoe Software Inc. All rights reserved. Use is subject to
  * license terms supplied in LICENSE.txt <p/>
- * 
+ *
  * @author David L. Whitehurst &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:david@glencoesoftware.com">david@glencoesoftware.com</a>
  * @version $Revision$
@@ -46,16 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
-@Stateless
-@Remote(IRepositoryInfo.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IRepositoryInfo"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IRepositoryInfo", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(IRepositoryInfo.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.IRepositoryInfo")
-@Interceptors( { SimpleLifecycle.class })
 public class RepositoryInfoImpl extends AbstractLevel2Service implements
         IRepositoryInfo {
 

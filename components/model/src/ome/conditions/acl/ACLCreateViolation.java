@@ -6,13 +6,6 @@
  */
 package ome.conditions.acl;
 
-// Java imports
-import javax.ejb.ApplicationException;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * User does not have permissions to perform given action.
  * 
@@ -21,7 +14,6 @@ import javax.ejb.ApplicationException;
  * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
-@ApplicationException
 public class ACLCreateViolation extends ACLViolation {
 
     /**

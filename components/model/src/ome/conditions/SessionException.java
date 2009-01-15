@@ -6,8 +6,6 @@
  */
 package ome.conditions;
 
-import javax.ejb.ApplicationException;
-
 /**
  * Base session related exception. May be thrown be any service method. All
  * services other than {@link ISession} will most likely throw
@@ -18,7 +16,6 @@ import javax.ejb.ApplicationException;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@ApplicationException
 public abstract class SessionException extends RootException {
 
     private static final long serialVersionUID = -4513364892739872987L;

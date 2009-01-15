@@ -19,7 +19,9 @@ import omero.api.AMD_JobHandle_jobMessage;
 import omero.api.AMD_JobHandle_jobRunning;
 import omero.api.AMD_JobHandle_jobStatus;
 import omero.api.AMD_JobHandle_submit;
+import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._JobHandleOperations;
 import omero.model.Job;
@@ -93,6 +95,21 @@ public class JobHandleI extends AbstractAmdServant implements
     public void submit_async(AMD_JobHandle_submit __cb, Job j, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, j);
+
+    }
+
+    // Stateful interface methods
+    // =========================================================================
+
+    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

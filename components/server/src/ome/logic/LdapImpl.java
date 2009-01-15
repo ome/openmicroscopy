@@ -1,5 +1,5 @@
 /*
- * ome.logic.AdminImpl
+ *   $Id$
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -7,7 +7,6 @@
 
 package ome.logic;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,13 +14,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
@@ -31,8 +23,10 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 
+import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.annotations.RolesAllowed;
 import ome.api.IAdmin;
 import ome.api.ILdap;
 import ome.api.ServiceInterface;
@@ -43,12 +37,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.LdapUtil;
 import ome.security.SecuritySystem;
-import ome.services.util.OmeroAroundInvoke;
 import ome.system.OmeroContext;
 
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
@@ -64,11 +54,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Provides methods for administering user accounts, passwords, as well as
  * methods which require special privileges.
- * 
+ *
  * Developer note: As can be expected, to perform these privileged the Admin
  * service has access to several resources that should not be generally used
  * while developing services. Misuse could circumvent security or auditing.
- * 
+ *
  * @author Aleksandra Tarkowska, A.Tarkowska@dundee.ac.uk
  * @version $Revision: 1552 $, $Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May
  *          2007) $
@@ -76,18 +66,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @see Permissions
  * @since 3.0-M3
  */
-@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
 @RevisionDate("$Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May 2007) $")
 @RevisionNumber("$Revision: 1552 $")
-@Stateless
-@Remote(ILdap.class)
-@RemoteBindings( {
-        @RemoteBinding(jndiBinding = "omero/remote/ome.api.ILdap"),
-        @RemoteBinding(jndiBinding = "omero/secure/ome.api.ILdap", clientBindUrl = "sslsocket://0.0.0.0:3843") })
-@Local(ILdap.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalLdap")
-@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     protected transient LdapOperations ldapOperations;
