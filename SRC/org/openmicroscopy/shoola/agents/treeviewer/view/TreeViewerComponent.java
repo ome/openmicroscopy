@@ -1588,7 +1588,6 @@ class TreeViewerComponent
 				}
 			}
 		}
-		
 		while (i.hasNext()) {
 			node = (DataObject) i.next();
 			if (node instanceof ProjectData) {
@@ -1613,6 +1612,8 @@ class TreeViewerComponent
 						value.setChildrenLoaded(true);
 					}
 				}
+				model.setState(READY);
+				fireStateChange();
 				db = DataBrowserFactory.getDataBrowser(project, set);
 			} else if (node instanceof TagAnnotationData) {
 				tag = (TagAnnotationData) node;
@@ -1636,6 +1637,8 @@ class TreeViewerComponent
 						value.setChildrenLoaded(true);
 					}
 				}
+				model.setState(READY);
+				fireStateChange();
 				db = DataBrowserFactory.getDataBrowser(tag, set);
 			}
 			if (db != null) {

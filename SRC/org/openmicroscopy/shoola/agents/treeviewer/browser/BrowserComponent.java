@@ -1234,16 +1234,6 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setHierarchyRoots(Set, TreeImageDisplay, boolean)
-	 */
-	public void setHierarchyRoots(Set roots, TreeImageDisplay node, 
-								boolean refresh)
-	{
-		model.getParentModel().browseHierarchyRoots(node, roots);
-	}
-
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#browse(TreeImageDisplay)
 	 */
 	public void browse(TreeImageDisplay node)

@@ -534,21 +534,6 @@ public interface Browser
     
     /** Refreshes the experimenter data. */
     public void refreshExperimenter();
-    
-    /**
-     * Callback used by a data loader to set the root nodes of the retrieved 
-     * hierarchy.
-     * 
-     * @param roots 	The root nodes.
-     * @param node		
-     * @param refresh	Pass <code>false</code> if we retrieve the data for
-     * 					the first time, <code>true</code> otherwise.            
-     * @throws IllegalStateException If the current state is not
-     *                               {@link #LOADING_HIERARCHY}.
-     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
-     */
-    public void setHierarchyRoots(Set roots, TreeImageDisplay node, 
-    							boolean refresh);
 
     /**
      * Browses the specified node.
