@@ -65,7 +65,7 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiView;
  * </small>
  * @since OME3.0
  */
-public class UpeXmlReader {
+public class CPEimport {
 	
 	/**  The name of the element used to hold the top level of steps */
 	public static final String 			STEPS = "steps";
