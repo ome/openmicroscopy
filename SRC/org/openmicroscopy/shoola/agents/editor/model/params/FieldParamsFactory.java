@@ -53,7 +53,6 @@ public class FieldParamsFactory {
 		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
 		DateTimeParam.DATE_TIME_PARAM,
-		TimeParam.TIME_PARAM, 
 		LinkParam.LINK_PARAM, 
 		ImageParam.IMAGE_PARAM, 
 		OntologyTermParam.ONTOLOGY_TERM_PARAM
@@ -127,9 +126,6 @@ public class FieldParamsFactory {
 		}
 		else if (paramType.equals(BooleanParam.BOOLEAN_PARAM)) {
 			fieldValue = new BooleanParam();
-		}
-		else if (paramType.equals(TimeParam.TIME_PARAM)) {
-			fieldValue = new TimeParam();
 		}
 		else if (paramType.equals(DateTimeParam.DATE_TIME_PARAM)) {
 			fieldValue = new DateTimeParam();

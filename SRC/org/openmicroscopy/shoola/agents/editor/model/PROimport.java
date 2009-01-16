@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 import org.openmicroscopy.shoola.agents.editor.util.Ontologies;
 
@@ -338,12 +337,17 @@ public class PROimport {
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.TIME_FIELD)) {
-			 param = getFieldParam(TimeParam.TIME_PARAM);
+			 param = getFieldParam(NumberParam.NUMBER_PARAM);
+			 String secs;
 			 // old (pre 7th March 08) use the old value "hh:mm:ss" and default
-			 setValueAndDefault(allAttributes, param);
-			 // newer XML uses SECONDS attribute for timeInSecs. 
-			 String secs = allAttributes.get(DataFieldConstants.SECONDS);
-			 param.setAttribute(TimeParam.SECONDS, secs);
+			 String hhmmss = param.getAttribute(DataFieldConstants.VALUE);
+			 if (hhmmss != null) {
+				 secs = getSeconds(hhmmss);
+			 } else {
+				 // newer XML uses SECONDS attribute for timeInSecs. 
+				 secs = allAttributes.get(DataFieldConstants.SECONDS);
+			 }
+			 saveTimeAsNumber(param, secs);
 			 
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
@@ -413,6 +417,63 @@ public class PROimport {
 		 }
 		 
 		 return param;
+	}
+	
+	/**
+	 * Convenience method for getting the number of seconds represented by
+	 * the time in hh:mm:ss format. 
+	 * 
+	 * @param hhmmss		Time in hh:mm:ss format
+	 * @return				Time in seconds as a string
+	 */
+	private static String getSeconds(String hhmmss) 
+	{
+		String[] split = hhmmss.split(":");
+		if (split.length != 3) {
+			return hhmmss;
+		}
+		int seconds = 0;
+		
+		seconds += Integer.parseInt(split[0]) * 3600;
+		seconds += Integer.parseInt(split[1]) * 60;
+		seconds += Integer.parseInt(split[0]);
+		
+		return seconds + "";
+	}
+	
+	/**
+	 * Convenience method for converting Time data into a Number parameter. 
+	 * Before Beta-4, TimeField stored time in seconds. 
+	 * But cpe.xml doesn't support Time data, and Timer field is poorly used.
+	 * Better to simplify UI and data model by using Number parameter.
+	 * 
+	 * @param numberParam
+	 * @param s
+	 */
+	private static void saveTimeAsNumber(IParam numberParam, String secs) {
+		
+		if (secs == null)		return;
+		
+		try {
+			int seconds = Integer.parseInt(secs);
+			
+			String units = "seconds";
+			String value = secs;
+			if (seconds % 60 == 0)  {
+				units = "minutes";
+				value = (seconds / 60) + "";
+			}
+			if (seconds % 3600 == 0) {
+				units = "hours";
+				value = (seconds / 3600) + "";
+			}
+			if (seconds == 0)	units = "seconds";
+			
+			numberParam.setAttribute(NumberParam.PARAM_UNITS, units);
+			numberParam.setAttribute(TextParam.PARAM_VALUE, value);
+		} catch (NumberFormatException ex) {
+			
+		}
 	}
 	
 	private static IParam getFieldParam(String paramType) 

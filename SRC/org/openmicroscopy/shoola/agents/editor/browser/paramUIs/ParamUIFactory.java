@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
 /** 
  * This is a factory that creates UI editing components for IParam objects.
@@ -119,10 +118,6 @@ public class ParamUIFactory
 		
 		if (inputType.equals(BooleanParam.BOOLEAN_PARAM)) {
 			return new BooleanEditor(paramObject);
-		}
-		
-		if (inputType.equals(TimeParam.TIME_PARAM)) {
-			return new TimerField(paramObject);
 		}
 		
 		if (inputType.equals(LinkParam.LINK_PARAM)) {

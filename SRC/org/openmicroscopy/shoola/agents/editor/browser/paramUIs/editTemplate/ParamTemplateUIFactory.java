@@ -31,7 +31,6 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
@@ -39,7 +38,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
 /** 
  * A Factory for creating the UI components for editing the Template part
@@ -89,10 +87,6 @@ public class ParamTemplateUIFactory {
 		
 		if (inputType.equals(DateTimeParam.DATE_TIME_PARAM)) {
 			return new DateTimeTemplate(paramObject);
-		}
-		
-		if (inputType.equals(TimeParam.TIME_PARAM)) {
-			return new TimerTemplate(paramObject);
 		}
 		
 		if (inputType.equals(NumberParam.NUMBER_PARAM)) {

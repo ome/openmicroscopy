@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 
 
@@ -135,7 +134,6 @@ public class AddParamActions
 				new AddBooleanParamAction(),
 				new AddEnumParamAction(),
 				new AddDateTimeParamAction(),
-				new AddTimeParamAction(),
 				new AddLinkParamAction(),
 				new AddImageParamAction(),
 				new AddOntologyParamAction()};
@@ -364,36 +362,6 @@ public class AddParamActions
 		{
 			controller.addParamToField(field, DateTimeParam.DATE_TIME_PARAM, 
 					tree, node);
-		}
-	}
-	
-	/**
-	 * Action for adding a Time Parameter
-	 * 
-	 * @author will
-	 */
-	public class AddTimeParamAction 
-		extends AbstractAction 
-	{
-		/**
-		 * Creates an instance. 
-		 */
-		public AddTimeParamAction() 
-		{
-			putValue(Action.NAME, "Add Time Parameter");
-			putValue(Action.SHORT_DESCRIPTION,
-					"Add a timer parameter to this field");
-			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.TIMER_ICON)); 
-		}
-		
-		/** 
-	     * Adds a new Time Parameter
-	     * 
-	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	     */
-		public void actionPerformed(ActionEvent e) 
-		{
-			controller.addParamToField(field, TimeParam.TIME_PARAM, tree, node);
 		}
 	}
 	
