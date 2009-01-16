@@ -69,7 +69,6 @@ public class FieldParamsFactory {
 		"Check-Box", 
 		"Number", 
 		"Date & Time", 
-		"Time", 
 		"Link", 
 		"Image", 
 		"Ontology Term"

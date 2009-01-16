@@ -77,6 +77,9 @@ public abstract class AbstractParam
 	 */
 	public static final String 		PARAM_REQUIRED = "paramRequired";
 	
+	/** This property can be used to store a description for a parameter. */
+	public static final String 		PARAM_DESC = "paramDescription";
+	
 	/**
 	 * A map of the attributes that define this parameter. 
 	 * Can be used to store any name, value pair. 
