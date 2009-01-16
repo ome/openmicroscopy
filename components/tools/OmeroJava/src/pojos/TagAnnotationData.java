@@ -29,8 +29,9 @@ import java.util.List;
 import java.util.Set;
 
 import static omero.rtypes.*;
-import omero.model.Image;
+import omero.model.DatasetAnnotationLink;
 import omero.model.ImageAnnotationLink;
+import omero.model.ProjectAnnotationLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
@@ -47,14 +48,21 @@ import omero.model.TextAnnotation;
  */
 public class TagAnnotationData extends AnnotationData {
 
+	
+	/**
+     * The name space used to indicate that the tag is used a tag set.
+     */
+    public static final String INSIGHT_TAGSET_NS = 
+    	"openmicroscopy.org/omero/insight/tagset";
+    
     /** The descriptions of the tag. */
     private List<TextualAnnotationData> descriptions;
 
     /** The textual description of the tag. */
     private TextualAnnotationData description;
 
-    /** The collection of images related to the tag. */
-    private Set<ImageData> images;
+    /** The collection of data object related to the tag. */
+    private Set<DataObject> dataObjects;
 
     /** The collection of tags related to the tags. */
     private Set<TagAnnotationData> tags;
@@ -64,9 +72,21 @@ public class TagAnnotationData extends AnnotationData {
      * 
      * @param tag
      *            The text of the tag.
+     * @param asTagSet Pass <code>true</code> to create the tag as a tag set,
+     * 					<code>false</code> otherwise.
+     */
+    public TagAnnotationData(String tag, boolean asTagSet) {
+        this(tag, null, asTagSet);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param tag
+     *            The text of the tag.
      */
     public TagAnnotationData(String tag) {
-        this(tag, null);
+        this(tag, null, false);
     }
 
     /**
@@ -78,10 +98,28 @@ public class TagAnnotationData extends AnnotationData {
      *            The description of the tag.
      */
     public TagAnnotationData(String tag, String description) {
+        this(tag, description, false);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param tag
+     *            	The text of the tag.
+     * @param description
+     *            	The description of the tag.
+     * @param asTagSet 
+     * 				Pass <code>true</code> to create the tag as a tag set,
+     * 				<code>false</code> otherwise.
+     */
+    public TagAnnotationData(String tag, String description, boolean asTagSet) {
         super(TagAnnotationI.class);
         setTagValue(tag);
         setTagDescription(description);
+        if (asTagSet)
+        	setNameSpace(INSIGHT_TAGSET_NS);
     }
+    
 
     /**
      * Creates a new instance.
@@ -114,17 +152,17 @@ public class TagAnnotationData extends AnnotationData {
     }
 
     /**
-     * Sets the collection of images.
+     * Sets the collection of data objects related to that tag.
      * 
-     * @param images
+     * @param dataObjects
      *            The value to set.
      */
-    public void setImages(Set<ImageData> images) {
-        if (tags != null) {
-            throw new IllegalArgumentException("Cannot add images to "
-                    + "a tagSet.");
-        }
-        this.images = images;
+    public void setDataObjects(Set<DataObject> dataObjects) {
+    	String ns = getNameSpace();
+    	if (INSIGHT_TAGSET_NS.equals(ns)) 
+    		throw new IllegalArgumentException("Cannot add dataObject to "
+                    + "a Tag Set.");
+        this.dataObjects = dataObjects;
     }
 
     /**
@@ -134,10 +172,10 @@ public class TagAnnotationData extends AnnotationData {
      *            The value to set.
      */
     public void setTags(Set<TagAnnotationData> tags) {
-        if (images != null) {
-            throw new IllegalArgumentException("Cannot add tags to "
-                    + "a tag with images.");
-        }
+    	String ns = getNameSpace();
+    	if (!INSIGHT_TAGSET_NS.equals(ns)) 
+    		throw new IllegalArgumentException("Can only add Tags to " +
+    				"a Tag Set.");
         this.tags = tags;
     }
 
@@ -151,22 +189,33 @@ public class TagAnnotationData extends AnnotationData {
     }
 
     /**
-     * Returns the collection of images related to this tag.
+     * Returns the collection of data objects related to this tag.
      * FIXME 
      * @return See above.
      */
-    public Set<ImageData> getImages()
+    public Set<DataObject> getDataObjects()
     { 
-            if (images == null && asAnnotation().sizeOfAnnotationLinks() >= 0) {
-                List l = asAnnotation().copyAnnotationLinks();
-                images = new HashSet<ImageData>();
-                for (Object object : l) {
-                    ImageAnnotationLink link = (ImageAnnotationLink) object;
-                    Image i = link.getParent();
-                    images.add( new ImageData( i ));
-                }
-            }
-    return images == null ? null : new HashSet<ImageData>(images);
+    	if (dataObjects == null && asAnnotation().sizeOfAnnotationLinks() >= 0)
+    	{
+    		List l = asAnnotation().copyAnnotationLinks();
+    		dataObjects = new HashSet<DataObject>();
+    		ImageAnnotationLink iaLink;
+    		DatasetAnnotationLink daLink;
+    		ProjectAnnotationLink paLink;
+    		for (Object object : l) {
+    			if (object instanceof ImageAnnotationLink) {
+    				iaLink = (ImageAnnotationLink) object;
+    				dataObjects.add(new ImageData(iaLink.getParent()));
+    			} else if (object instanceof DatasetAnnotationLink) {
+    				daLink = (DatasetAnnotationLink) object;
+    				dataObjects.add(new DatasetData(daLink.getParent()));
+    			} else if (object instanceof ProjectAnnotationLink) {
+    				paLink = (ProjectAnnotationLink) object;
+    				dataObjects.add(new ProjectData(paLink.getParent()));
+    			}
+    		}
+    	}
+    	return dataObjects == null ? null : new HashSet<DataObject>(dataObjects);
     }  
 
     /**
