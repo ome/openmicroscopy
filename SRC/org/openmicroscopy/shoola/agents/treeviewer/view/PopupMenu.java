@@ -286,10 +286,10 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU:
 				add(createProject);
 				add(createDataset);
-				add(new JSeparator(JSeparator.HORIZONTAL));
+				//add(new JSeparator(JSeparator.HORIZONTAL));
 				add(createScreen);
-				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(createTag);
+				//add(new JSeparator(JSeparator.HORIZONTAL));
+				//add(createTag);
 		}
 	}
 

@@ -163,25 +163,25 @@ public class OneKnobSliderUI
 		img = icons.getImageIcon(IconManager.THUMB_DISABLED);
 		disabledThumbImage = img.getImage();
 
-		img = icons.getImageIcon(IconManager.UP_ARROW_DISABLED);
+		img = icons.getImageIcon(IconManager.UP_ARROW_DISABLED_10);
 		arrowWidth = img.getIconWidth();
 		arrowHeight = img.getIconHeight();
 		minArrowHeight = arrowHeight;
 		minArrowWidth = arrowWidth;
 		upArrowDisabledImage = img.getImage();
-		img = icons.getImageIcon(IconManager.DOWN_ARROW_DISABLED);
+		img = icons.getImageIcon(IconManager.DOWN_ARROW_DISABLED_10);
 		downArrowDisabledImage = img.getImage();
-		img = icons.getImageIcon(IconManager.LEFT_ARROW_DISABLED);
+		img = icons.getImageIcon(IconManager.LEFT_ARROW_DISABLED_10);
 		leftArrowDisabledImage = img.getImage();
-		img = icons.getImageIcon(IconManager.RIGHT_ARROW_DISABLED);
+		img = icons.getImageIcon(IconManager.RIGHT_ARROW_DISABLED_10);
 		rightArrowDisabledImage = img.getImage();
-		img = icons.getImageIcon(IconManager.UP_ARROW);
+		img = icons.getImageIcon(IconManager.UP_ARROW_10);
 		upArrowImage = img.getImage();
-		img = icons.getImageIcon(IconManager.DOWN_ARROW);
+		img = icons.getImageIcon(IconManager.DOWN_ARROW_10);
 		downArrowImage = img.getImage();
-		img = icons.getImageIcon(IconManager.LEFT_ARROW);
+		img = icons.getImageIcon(IconManager.LEFT_ARROW_10);
 		leftArrowImage = img.getImage();
-		img = icons.getImageIcon(IconManager.RIGHT_ARROW);
+		img = icons.getImageIcon(IconManager.RIGHT_ARROW_10);
 		rightArrowImage = img.getImage();
 	}	
 

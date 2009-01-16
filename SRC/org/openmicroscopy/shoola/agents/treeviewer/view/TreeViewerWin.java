@@ -212,7 +212,7 @@ class TreeViewerWin
     	a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
     	item = new JMenuItem(a);
     	item.setText(a.getActionName());
-    	menu.add(item);
+    	//menu.add(item);
     	return menu;
     }
     

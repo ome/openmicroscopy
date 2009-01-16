@@ -115,12 +115,12 @@ public class SizeButton
         //NOTE: We can only receive COLLAPSED_PROPERTY changes, see attach().
         IconManager icons = IconManager.getInstance();
         if (model.isCollapsed()) {
-            setIcon(icons.getIcon(IconManager.PLUS));
-            setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
+            setIcon(icons.getIcon(IconManager.PLUS_9));
+            setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER_9));
             setToolTipText(EXPAND_TOOLTIP);
         } else {
-            setIcon(icons.getIcon(IconManager.MINUS));
-            setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));   
+            setIcon(icons.getIcon(IconManager.MINUS_9));
+            setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER_9));   
             setToolTipText(COLLAPSE_TOOLTIP);
         }
     }

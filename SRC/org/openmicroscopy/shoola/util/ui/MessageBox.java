@@ -106,7 +106,7 @@ public class MessageBox
 	public MessageBox(JDialog owner, String title, String message)
 	{
 		this(owner, title, message, IconManager.getInstance().getIcon
-				(IconManager.QUESTION_ICON));
+				(IconManager.QUESTION_ICON_48));
 	}
 	
 	/**
@@ -121,7 +121,7 @@ public class MessageBox
 	public MessageBox(JFrame owner, String title, String message)
 	{
 		this(owner, title, message, IconManager.getInstance().getIcon
-				(IconManager.QUESTION_ICON));
+				(IconManager.QUESTION_ICON_48));
 	}
 
 	/**

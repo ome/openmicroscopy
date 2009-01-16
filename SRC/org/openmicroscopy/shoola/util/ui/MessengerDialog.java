@@ -240,7 +240,7 @@ public class MessengerDialog
 			IconManager icons = IconManager.getInstance();
 			MessageBox box = new MessageBox(this, "Unvalid email", 
 											EMAIL_MESSAGE,
-					icons.getIcon(IconManager.INFORMATION_MESSAGE));
+					icons.getIcon(IconManager.INFORMATION_MESSAGE_48));
 			box.hideNoButton();
 			box.setYesText("OK");
 			box.centerMsgBox();

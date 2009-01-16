@@ -95,13 +95,13 @@ class SizeButton
     	IconManager icons = IconManager.getInstance();
         switch (type) {
             case COLLAPSE:
-                setIcon(icons.getIcon(IconManager.MINUS));
-                setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));
+                setIcon(icons.getIcon(IconManager.MINUS_9));
+                setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER_9));
                 setToolTipText(COLLAPSE_TOOLTIP);
                 break;
             case EXPAND:
-                setIcon(icons.getIcon(IconManager.PLUS));
-                setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
+                setIcon(icons.getIcon(IconManager.PLUS_9));
+                setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER_9));
                 setToolTipText(EXPAND_TOOLTIP);
         }
     }

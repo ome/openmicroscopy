@@ -206,7 +206,7 @@ public class ServerEditor
 		//finishButton.setEnabled(true);
 		int m = model.getRowCount();
 		Object[] newRow = new Object[3];
-		newRow[0] = icons.getIcon(IconManager.SERVER);
+		newRow[0] = icons.getIcon(IconManager.SERVER_22);
 		newRow[1] = "";
 		newRow[2] = defaultPort;
 		model.insertRow(m, newRow);
@@ -223,7 +223,7 @@ public class ServerEditor
 	private void initComponents(Map<String, String> servers)
 	{
 		table = new ServerTable(this, servers, 
-				icons.getIcon(IconManager.SERVER));
+				icons.getIcon(IconManager.SERVER_22));
 		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
 		UIUtilities.unifiedButtonLookAndFeel(removeButton);
 		removeButton.setToolTipText("Remove the selected server " +

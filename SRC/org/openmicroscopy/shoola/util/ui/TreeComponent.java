@@ -85,13 +85,13 @@ public class TreeComponent
 		
 		switch (orientation) {
 			case VERTICAL:
-				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_BLACK);
-				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_BLACK);
+				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_BLACK_10);
+				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_BLACK_10);
 				setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 				break;
 			case HORIZONTAL:
-				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_BLACK);
-				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_BLACK);
+				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_BLACK_10);
+				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_BLACK_10);
 				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		}
 	}

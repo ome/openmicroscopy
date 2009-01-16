@@ -322,7 +322,7 @@ public class FileChooser
     {
     	IconManager im = IconManager.getInstance();
         FileSaverDialog d = new FileSaverDialog(this, 
-                					im.getIcon(IconManager.QUESTION));
+                					im.getIcon(IconManager.QUESTION_32));
         UIUtilities.centerAndShow(d);
     }
     

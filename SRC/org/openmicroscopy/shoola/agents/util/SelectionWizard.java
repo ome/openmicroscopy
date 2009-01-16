@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.agents.util;
 
 
-
-
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -55,7 +52,6 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.AnnotationData;
 
 /** 
  * A modal dialog to select collection of objects.
@@ -148,8 +144,8 @@ public class SelectionWizard
 		selectedItemsListbox = new JList();
 		selectedItemsListbox.setCellRenderer(new DataObjectListCellRenderer());
 		IconManager icons = IconManager.getInstance();
-		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW_16));
-		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW_16));
+		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
+		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
 		addAllButton = new JButton(
 								icons.getIcon(IconManager.DOUBLE_RIGHT_ARROW));
 		removeAllButton = new JButton(
@@ -494,7 +490,7 @@ public class SelectionWizard
 		setTitle(title);
 		if (titleIcon == null) {
 			IconManager icons = IconManager.getInstance();
-			titleIcon = icons.getIcon(IconManager.WIZARD);
+			titleIcon = icons.getIcon(IconManager.WIZARD_48);
 		}
 		TitlePanel tp = new TitlePanel(title, text,	titleIcon);
 		getContentPane().add(tp, BorderLayout.NORTH);

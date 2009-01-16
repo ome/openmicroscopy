@@ -90,6 +90,15 @@ class GeneralPaneUI
 	/** Main component. */
 	private JPanel						content;
 	
+	/** The layout index of the {@link annotationUI}. */
+	private int							annotationLayoutIndex;
+	
+	/** The layout index of the {@link textualAnnotationsUI}. */
+	private int							textualAnnotationsLayoutIndex;
+	
+	/** The layout index of the {@link browserTaskPane}. */
+	private int							browserIndex;
+	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -143,11 +152,14 @@ class GeneralPaneUI
 		content.add(propertiesUI, "0, "+i);
 		i++;
 		i++;
+		annotationLayoutIndex = i;
 		content.add(annotationUI, "0, "+i);
 		i++;
 		i++;
+		textualAnnotationsLayoutIndex = i;
 		content.add(textualAnnotationsUI, "0, "+i);
 		i++;
+		browserIndex = i;
 		content.add(browserTaskPane, "0, "+i);
 		getViewport().add(content);
 	}
@@ -183,7 +195,6 @@ class GeneralPaneUI
 		annotationUI.buildUI();
 		textualAnnotationsUI.buildUI();
 		TableLayout layout = (TableLayout) content.getLayout();
-		int n = layout.getNumRow();
 		double h = 0;
 		String s = "";
 		boolean multi = model.isMultiSelection();
@@ -204,7 +215,7 @@ class GeneralPaneUI
 			}
 		}
 		browserTaskPane.setTitle(s);
-		layout.setRow(n-1, h);
+		layout.setRow(browserIndex, h);
 	}
 	
 	/** 
@@ -248,9 +259,14 @@ class GeneralPaneUI
 		annotationUI.clearDisplay();
     	textualAnnotationsUI.clearDisplay();
     	propertiesUI.buildUI();
-    	if (model.isMultiSelection()) {
-    		TableLayout layout = (TableLayout) content.getLayout();
-    		layout.setRow(layout.getNumRow()-1, 0);
+    	Object uo = model.getRefObject();
+    	TableLayout layout = (TableLayout) content.getLayout();
+    	if (uo instanceof AnnotationData) { //hide everything
+    		layout.setRow(annotationLayoutIndex, 0);
+    		layout.setRow(textualAnnotationsLayoutIndex, 0);
+    		layout.setRow(browserIndex, 0);
+    	} else {
+    		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
     	}
 		revalidate();
     	repaint();
@@ -260,6 +276,7 @@ class GeneralPaneUI
 	void setThumbnails() { annotationUI.setThumbnails(); }
 	
 	/** Sets the existing tags. */
+	
 	void setExistingTags()
 	{
 		annotationUI.setExistingTags();

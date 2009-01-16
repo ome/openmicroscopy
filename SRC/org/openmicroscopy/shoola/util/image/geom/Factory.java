@@ -148,7 +148,7 @@ public class Factory
     														int height)
     {
     	IconManager icons = IconManager.getInstance();
-    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE96);
+    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
     	if (img == null) return createDefaultImageThumbnail(); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
@@ -169,7 +169,7 @@ public class Factory
     public static BufferedImage createDefaultImageThumbnail()
     {
     	IconManager icons = IconManager.getInstance();
-    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE96);
+    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
     	if (img == null) return createDefaultImageThumbnail(); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();

@@ -32,8 +32,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -59,7 +57,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
-
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
@@ -218,17 +215,6 @@ class EditorControl
 	{
 		view.onTagsLoading(true);
 		model.loadExistingTags();
-	}
-	
-	/**
-	 * Creates a manufacturer action for the passed component.
-	 * 
-	 * @param component The component to display.
-	 * @return See above
-	 */
-	ManufacturerAction createManufacturerAction(JComponent component)
-	{
-		return new ManufacturerAction(model, component);
 	}
 	
 	/**

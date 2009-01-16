@@ -149,7 +149,7 @@ class TabbedPaneUI
     	toolbar = new JToolBar();
     	IconManager icons = IconManager.getInstance();
         colourWheelButton = new JToggleButton(
-        icons.getIcon(IconManager.COLOUR_WHEEL));
+        icons.getIcon(IconManager.COLOUR_WHEEL_24));
         UIUtilities.unifiedButtonLookAndFeel(colourWheelButton);
         colourWheelButton.setBorderPainted(true);
         colourWheelButton.setToolTipText("Show HSV Colour Wheel");
@@ -164,7 +164,7 @@ class TabbedPaneUI
         
         colourWheelButton.addActionListener(action);
         RGBSlidersButton = new JToggleButton(
-        icons.getIcon(IconManager.COLOUR_SLIDER));
+        icons.getIcon(IconManager.COLOUR_SLIDER_24));
         UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
         RGBSlidersButton.setBorderPainted(true);
         RGBSlidersButton.setToolTipText("Show RGB Colour Sliders");
@@ -179,7 +179,7 @@ class TabbedPaneUI
         };
         RGBSlidersButton.addActionListener(action);
         colourSwatchButton = new JToggleButton(
-        icons.getIcon(IconManager.COLOUR_SWATCH));
+        icons.getIcon(IconManager.COLOUR_SWATCH_24));
         colourSwatchButton.setToolTipText("Show Colour List");
         UIUtilities.unifiedButtonLookAndFeel(colourSwatchButton);
         colourSwatchButton.setBorderPainted(true);

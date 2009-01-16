@@ -83,8 +83,8 @@ public class Spinner
 		minus.setOpaque(false);  //B/c button=icon.
 		minus.setFocusPainted(false);  //Don't paint focus box on top of icon.
 		minus.setRolloverEnabled(true);
-		minus.setIcon(icons.getIcon(IconManager.MINUS));
-		minus.setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));
+		minus.setIcon(icons.getIcon(IconManager.MINUS_9));
+		minus.setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER_9));
 		minus.setToolTipText("Decrease the value");
 		minus.addActionListener(this);
 		minus.setActionCommand(""+DECREASE);
@@ -94,8 +94,8 @@ public class Spinner
 		plus.setOpaque(false);  //B/c button=icon.
 		plus.setFocusPainted(false);  //Don't paint focus box on top of icon.
 		plus.setRolloverEnabled(true);
-		plus.setIcon(icons.getIcon(IconManager.PLUS));
-		plus.setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
+		plus.setIcon(icons.getIcon(IconManager.PLUS_9));
+		plus.setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER_9));
 		plus.setToolTipText("Increase the value");
 		plus.addActionListener(this);
 		plus.setActionCommand(""+INCREASE);

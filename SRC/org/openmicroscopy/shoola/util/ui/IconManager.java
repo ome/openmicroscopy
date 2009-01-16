@@ -53,22 +53,22 @@ public class IconManager
 {
 
     /** ID of the <code>Colour slider</code> icon. */
-    public static final int COLOUR_SLIDER = 0;
+    public static final int COLOUR_SLIDER_24 = 0;
     
     /** ID of the <code>Colour watch</code> icon. */
-    public static final int COLOUR_SWATCH = 1;
+    public static final int COLOUR_SWATCH_24 = 1;
     
     /** ID of the <code>Colour wheel</code> icon. */
-    public static final int COLOUR_WHEEL = 2;
+    public static final int COLOUR_WHEEL_24 = 2;
     
     /** ID of the <code>Cancel</code> icon. */
-    public static final int CANCEL = 3;
+    public static final int CANCEL_22 = 3;
     
     /** ID of the <code>OK</code> icon. */
-    public static final int OK = 4;
+    public static final int OK_22 = 4;
     
     /** ID of the <code>Undo</code> icon. */
-    public static final int UNDO = 5;
+    public static final int UNDO_22 = 5;
     
     /** ID of the <code>Thumb</code> icon for the slider. */
     public static final int THUMB = 6;
@@ -77,31 +77,31 @@ public class IconManager
     public static final int THUMB_DISABLED = 7;
 
     /** ID of the <code>UpArrow</code> icon for the slider. */
-    public static final int UP_ARROW = 8;
+    public static final int UP_ARROW_10 = 8;
     
     /** ID of the <code>DownArrow</code> icon for the slider. */
-    public static final int DOWN_ARROW = 9;
+    public static final int DOWN_ARROW_10 = 9;
     
     /** ID of the <code>LeftArrow</code> icon for the slider. */
-    public static final int LEFT_ARROW = 10;
+    public static final int LEFT_ARROW_10 = 10;
     
     /** ID of the <code>RightArrow</code> icon for the slider. */
-    public static final int RIGHT_ARROW = 11;
+    public static final int RIGHT_ARROW_10 = 11;
     
     /** ID of the <code>UpArrowDisabled</code> icon for the slider. */
-    public static final int UP_ARROW_DISABLED = 12;
+    public static final int UP_ARROW_DISABLED_10 = 12;
     
     /** ID of the <code>DownArrowDisabled</code> icon for the slider. */
-    public static final int DOWN_ARROW_DISABLED = 13;
+    public static final int DOWN_ARROW_DISABLED_10 = 13;
 
     /** ID of the <code>LeftArrowDisabled</code> icon for the slider. */
-    public static final int LEFT_ARROW_DISABLED = 14;
+    public static final int LEFT_ARROW_DISABLED_10 = 14;
 
     /** ID of the <code>RightArrowDisabled</code> icon for the slider. */
-    public static final int RIGHT_ARROW_DISABLED = 15;
+    public static final int RIGHT_ARROW_DISABLED_10 = 15;
 
     /** ID of the <code>QuestionIcon</code> icon for the slider. */
-    public static final int QUESTION_ICON = 16;
+    public static final int QUESTION_ICON_48 = 16;
     
     /** ID of the <code>Annotation 48</code> icon. */
     public static final int ANNOTATION_48 = 17;
@@ -122,7 +122,7 @@ public class IconManager
     public static final int ERROR_ICON_64 = 22;
     
     /** ID of the <code>Server</code> icon. */
-    public static final int SERVER = 23;
+    public static final int SERVER_22 = 23;
     
     /** ID of the <code>Remove</code> icon. */
     public static final int REMOVE = 24;
@@ -146,16 +146,16 @@ public class IconManager
     public static final int DOWNLOAD_48 = 30;
     
     /** ID of the <code>Minus</code> icon. */
-    public static final int MINUS = 31;
+    public static final int MINUS_9 = 31;
     
     /** ID of the <code>Minus over</code> icon. */
-    public static final int MINUS_OVER = 32;
+    public static final int MINUS_OVER_9 = 32;
     
     /** ID of the <code>Plus</code> icon. */
-    public static final int PLUS = 33;
+    public static final int PLUS_9 = 33;
     
     /** ID of the <code>Plus over</code> icon. */
-    public static final int PLUS_OVER = 34;
+    public static final int PLUS_OVER_9 = 34;
     
     /** ID of the <code>Cross</code> icon. */
     public static final int CROSS = 35;
@@ -191,25 +191,25 @@ public class IconManager
     public static final int DATASET = 45;
  
     /** ID of the single-view icon in the browser's internal frame. */
-    public static final int	SINGLE_VIEW_MODE = 46;
+    public static final int	SINGLE_VIEW_MODE_9 = 46;
     
     /** ID of the single-view over icon in the browser's internal frame. */
-    public static final int	SINGLE_VIEW_MODE_OVER = 47;
+    public static final int	SINGLE_VIEW_MODE_OVER_9 = 47;
 
     /** ID of the multi-view icon in the browser's internal frame. */
     public static final int	MULTI_VIEW_MODE = 48;
     
     /** ID of the views list icon in the browser's internal frame. */
-    public static final int	VIEWS_LIST = 49;
+    public static final int	VIEWS_LIST_9 = 49;
     
     /** ID of the views list over icon in the browser's internal frame. */
-    public static final int	VIEWS_LIST_OVER = 50;
+    public static final int	VIEWS_LIST_OVER_9 = 50;
     
     /** ID of <code>information message</code> icon. */
-    public static final int	INFORMATION_MESSAGE = 51;
+    public static final int	INFORMATION_MESSAGE_48 = 51;
 
     /** ID of <code>information message</code> icon. */
-    public static final int	QUESTION = 52;
+    public static final int	QUESTION_32 = 52;
 
     /** ID of <code>Save 48</code> icon. */
     public static final int	SAVE_48 = 53;
@@ -251,7 +251,7 @@ public class IconManager
     public static final int	TAG_GROUP = 65;
     
     /** The <code>Tag big</code> icon. */
-    public static final int	TAG_BIG = 66;
+    public static final int	TAG_48 = 66;
     
     /** The <code>Tag used</code> icon. */
     public static final int	TAG_USED = 67;
@@ -269,7 +269,7 @@ public class IconManager
     public static final int	SEARCH_TAG_SET = 71;
     
     /** The <code>Edit remove</code> icon. */
-    public static final int	EDIT_REMOVE = 72;
+    public static final int	EDIT_REMOVE_12 = 72;
     
     /** The <code>Add 12</code> icon. */
     public static final int	ADD_12 = 73;
@@ -302,7 +302,7 @@ public class IconManager
     public static final int	START_UNSELECTED = 82;
     
     /** The <code>Start unselected</code> icon. */
-    public static final int	BROKEN_FILE96 = 83;
+    public static final int	BROKEN_FILE_96 = 83;
     
     /** ID of the <code>RightArrow</code> icon for the slider. */
     public static final int DOUBLE_RIGHT_ARROW = 84;
@@ -311,16 +311,16 @@ public class IconManager
     public static final int DOUBLE_LEFT_ARROW = 85;
     
     /** ID of the <code>RightArrow</code> icon for the slider. */
-    public static final int RIGHT_ARROW_16 = 86;
+    public static final int RIGHT_ARROW = 86;
     
     /** ID of the <code>Double</code> icon for the slider. */
-    public static final int LEFT_ARROW_16 = 87;
+    public static final int LEFT_ARROW = 87;
     
     /** The <code>Tag</code> icon. */
     public static final int	TAG_OWNER = 88;
     
     /** The <code>Wizard</code> icon. */
-    public static final int	WIZARD = 89;
+    public static final int	WIZARD_48 = 89;
     
     /** The <code>Start selected</code> icon. */
     public static final int START_SELECTED_12 = 90;
@@ -341,10 +341,10 @@ public class IconManager
     public static final int	BROWSER = 95;
     
     /** ID of the <code>LeftArrowDisabled</code> icon for the slider. */
-    public static final int DOWN_ARROW_BLACK = 96;
+    public static final int DOWN_ARROW_BLACK_10 = 96;
 
     /** ID of the <code>RightArrowDisabled</code> icon for the slider. */
-    public static final int RIGHT_ARROW_BLACK = 97;
+    public static final int RIGHT_ARROW_BLACK_10 = 97;
     
     /** ID of the <code>Forward</code> icon. */
     public static final int FORWARD = 98;
@@ -353,7 +353,7 @@ public class IconManager
     public static final int BACKWARD = 99;
     
     /** ID of the <code>Backward</code> icon. */
-    public static final int ACQUISITION = 100;
+    public static final int ACQUISITION_48 = 100;
     
     /** The <code>PDF File</code> icon. */
     public static final int	FILE_PDF = 101;
@@ -391,35 +391,35 @@ public class IconManager
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
     static {  
-        relPaths[COLOUR_SLIDER] = "coloursliders24.png";
-        relPaths[COLOUR_SWATCH] = "colourswatch24.png";
-        relPaths[COLOUR_WHEEL] = "colourwheel24.png";
-        relPaths[CANCEL] = "nuvola_cancel22.png";
-        relPaths[OK] = "nuvola_button_accept22.png";
-        relPaths[UNDO] = "nuvola_undo22.png";
+        relPaths[COLOUR_SLIDER_24] = "coloursliders24.png";
+        relPaths[COLOUR_SWATCH_24] = "colourswatch24.png";
+        relPaths[COLOUR_WHEEL_24] = "colourwheel24.png";
+        relPaths[CANCEL_22] = "nuvola_cancel22.png";
+        relPaths[OK_22] = "nuvola_button_accept22.png";
+        relPaths[UNDO_22] = "nuvola_undo22.png";
         relPaths[THUMB] = "sliderthumb.png";
         relPaths[THUMB_DISABLED] = "sliderthumb_disabled.png";
-        relPaths[UP_ARROW] = "nuvola_player_play10_up.png";
-        relPaths[DOWN_ARROW] = "nuvola_player_play10_down.png";
-        relPaths[LEFT_ARROW] = "nuvola_player_play10_left.png"; 
-        relPaths[RIGHT_ARROW] = "nuvola_player_play10_right.png";
-        relPaths[UP_ARROW_DISABLED] = "nuvola_player_play10_up_disabled.png";
-        relPaths[DOWN_ARROW_DISABLED] = 
+        relPaths[UP_ARROW_10] = "nuvola_player_play10_up.png";
+        relPaths[DOWN_ARROW_10] = "nuvola_player_play10_down.png";
+        relPaths[LEFT_ARROW_10] = "nuvola_player_play10_left.png"; 
+        relPaths[RIGHT_ARROW_10] = "nuvola_player_play10_right.png";
+        relPaths[UP_ARROW_DISABLED_10] = "nuvola_player_play10_up_disabled.png";
+        relPaths[DOWN_ARROW_DISABLED_10] = 
         							"nuvola_player_play10_down_disabled.png";
-        relPaths[LEFT_ARROW_DISABLED] = 
+        relPaths[LEFT_ARROW_DISABLED_10] = 
         							"nuvola_player_play10_left_disabled.png"; 
-        relPaths[RIGHT_ARROW_DISABLED] = 
+        relPaths[RIGHT_ARROW_DISABLED_10] = 
         						"nuvola_player_play10_right_disabled.png";
-        relPaths[RIGHT_ARROW_BLACK] = "nuvola_player_play10_right_black.png";
-        relPaths[DOWN_ARROW_BLACK] = "nuvola_player_play10_down_black.png";
-        relPaths[QUESTION_ICON] = "nuvola_filetypes48.png";
+        relPaths[RIGHT_ARROW_BLACK_10] = "nuvola_player_play10_right_black.png";
+        relPaths[DOWN_ARROW_BLACK_10] = "nuvola_player_play10_down_black.png";
+        relPaths[QUESTION_ICON_48] = "nuvola_filetypes48.png";
     	relPaths[ANNOTATION_48] = "nuvola_kwrite48.png";
     	relPaths[INFO] = "nuvola_messagebox_info16.png";
     	relPaths[PROGRESS] = "eclipse_progress_none16";
     	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";
     	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_mail_send64.png";
-    	relPaths[SERVER] = "nuvola_server22.png";
+    	relPaths[SERVER_22] = "nuvola_server22.png";
     	relPaths[CONFIG] = "config.png";
     	relPaths[CONFIG_PRESSED] = "config_pressed.png";
     	relPaths[CONFIG_48] = "nuvola_configure48.png";
@@ -427,10 +427,10 @@ public class IconManager
     	relPaths[ADD] = "add16.png";//"nuvola_edit_add16.png";
     	relPaths[INFO_32] = "nuvola_messagebox_info32.png";
     	relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
-    	relPaths[MINUS] = "minus.png";
-    	relPaths[MINUS_OVER] = "minus_over.png";
-    	relPaths[PLUS] = "plus.png";
-    	relPaths[PLUS_OVER] = "plus_over.png";
+    	relPaths[MINUS_9] = "minus.png";
+    	relPaths[MINUS_OVER_9] = "minus_over.png";
+    	relPaths[PLUS_9] = "plus.png";
+    	relPaths[PLUS_OVER_9] = "plus_over.png";
     	relPaths[CROSS] = "cross.png";
     	relPaths[CROSS_OVER] = "cross_over.png";
     	relPaths[ERROR] = "eclipse_error_tsk16.png";
@@ -442,13 +442,13 @@ public class IconManager
         relPaths[CALENDAR] = "nuvola_date16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
-        relPaths[SINGLE_VIEW_MODE] = "sinlge_view_mode.png";
-        relPaths[SINGLE_VIEW_MODE_OVER] = "sinlge_view_mode_over.png";
+        relPaths[SINGLE_VIEW_MODE_9] = "sinlge_view_mode.png";
+        relPaths[SINGLE_VIEW_MODE_OVER_9] = "sinlge_view_mode_over.png";
         relPaths[MULTI_VIEW_MODE] = "nuvola_view_multicolumn16.png";
-        relPaths[VIEWS_LIST] = "frame_list.png";
-        relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
-        relPaths[INFORMATION_MESSAGE] = "nuvola_messagebox_info48.png";
-        relPaths[QUESTION] = "nuvola_filetypes32.png";
+        relPaths[VIEWS_LIST_9] = "frame_list.png";
+        relPaths[VIEWS_LIST_OVER_9] = "frame_list_over.png";
+        relPaths[INFORMATION_MESSAGE_48] = "nuvola_messagebox_info48.png";
+        relPaths[QUESTION_32] = "nuvola_filetypes32.png";
         relPaths[SAVE_48] = "nuvola_filesaveas48.png";
         relPaths[LOAD_48] = "nuvola_revert48.png";
         relPaths[SEARCH_48] = "nuvola_find48.png";
@@ -462,13 +462,13 @@ public class IconManager
         relPaths[SEARCH_PROJECT] = "search_document16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
         relPaths[TAG_GROUP] = "tag_folder16.png";
-        relPaths[TAG_BIG] = "nuvola_knotes48.png";
+        relPaths[TAG_48] = "nuvola_knotes48.png";
         relPaths[TAG_USED] = "tag_used16.png";
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "zoom16.png";
         relPaths[OWNER_48] ="nuvola_kdmconfig48.png";
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
-        relPaths[EDIT_REMOVE] = "remove12.png";
+        relPaths[EDIT_REMOVE_12] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
         relPaths[CLOSE] = "nuvola_fileclose16.png";
         relPaths[CLOSE_OVER] = "filecloseRed16.png";
@@ -479,13 +479,13 @@ public class IconManager
         relPaths[URL_ANNOTATION] = "nuvola_browser16.png";
         relPaths[START_SELECTED] = "nuvola_mozilla16.png";
         relPaths[START_UNSELECTED] = "mozilla_grey16.png";
-        relPaths[BROKEN_FILE96] = "nuvola_file_broken96.png";
+        relPaths[BROKEN_FILE_96] = "nuvola_file_broken96.png";
         relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow16.png";
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow16.png";
-        relPaths[LEFT_ARROW_16] = "nuvola_1leftarrow16.png";
-        relPaths[RIGHT_ARROW_16] = "nuvola_1rightarrow16.png";
+        relPaths[LEFT_ARROW] = "nuvola_1leftarrow16.png";
+        relPaths[RIGHT_ARROW] = "nuvola_1rightarrow16.png";
         relPaths[TAG_OWNER] = "nuvola_1rightarrow16.png";
-        relPaths[WIZARD] ="nuvola_wizard48.png";
+        relPaths[WIZARD_48] ="nuvola_wizard48.png";
         relPaths[START_SELECTED_12] = "nuvola_mozilla12.png";
         relPaths[START_UNSELECTED_12] = "mozilla_grey12.png";
         relPaths[START_SELECTED_8] = "nuvola_mozilla8.png";
@@ -494,7 +494,7 @@ public class IconManager
         relPaths[BROWSER] = "nuvola_browser16.png";
         relPaths[FORWARD] = "eclipse_forward_nav16.png";
         relPaths[BACKWARD] = "eclipse_backward_nav16.png";
-        relPaths[ACQUISITION] = "nuvola_help48.png";
+        relPaths[ACQUISITION_48] = "nuvola_help48.png";
         relPaths[FILE_PDF] = "nuvola_acroread16.png";
         relPaths[FILE_TEXT] = "nuvola_txt16.png";
         relPaths[FILE_WORD] = "alienOSX_Microsoft_Word16.png";

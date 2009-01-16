@@ -288,12 +288,12 @@ class ViewModeButton
         //NOTE: We can only receive SINGLE_VIEW_PROPERTY changes, see attach().
         IconManager icons = IconManager.getInstance();
         if (model.isSingleViewMode()) {
-            setIcon(icons.getIcon(IconManager.VIEWS_LIST));
-            setRolloverIcon(icons.getIcon(IconManager.VIEWS_LIST_OVER));
+            setIcon(icons.getIcon(IconManager.VIEWS_LIST_9));
+            setRolloverIcon(icons.getIcon(IconManager.VIEWS_LIST_OVER_9));
             setToolTipText(DROP_DOWN_TOOLTIP);
         } else {
-            setIcon(icons.getIcon(IconManager.SINGLE_VIEW_MODE));
-            setRolloverIcon(icons.getIcon(IconManager.SINGLE_VIEW_MODE_OVER));
+            setIcon(icons.getIcon(IconManager.SINGLE_VIEW_MODE_9));
+            setRolloverIcon(icons.getIcon(IconManager.SINGLE_VIEW_MODE_OVER_9));
             setToolTipText(SINGLE_VIEW_TOOLTIP);
         }
     }

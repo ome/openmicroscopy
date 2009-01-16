@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -48,7 +46,6 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 
@@ -295,68 +292,6 @@ class AcquisitionDataUI
         //c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
         if (button != null) pane.add(button, c);
-	}
-	
-	/**
-	 * Formats the manufacturer. 
-	 * 
-	 * @param details 	The value to format.
-	 * @param sizeLabel The size of the label.
-	 * @param fields	The fields to keep track of.
-	 * @return See above
-	 */
-	JComponent formatManufacturer(Map<String, Object> details, int sizeLabel, 
-			 Map<String, JComponent> fields)
-	{
-		JLabel l = UIUtilities.setTextFont(
-				AnnotationDataUI.MANUFACTURER_DETAILS, Font.ITALIC, sizeLabel);
-    	l.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	l.setForeground(UIUtilities.HYPERLINK_COLOR);
-    	l.setToolTipText(AnnotationDataUI.MANUFACTURER_TOOLTIP);
-    	//Format details
-    	JPanel content = new JPanel();
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		Iterator i = details.keySet().iterator();
-        JLabel label;
-        JComponent area;
-        String key;
-        Object value;
-        label = new JLabel();
-        
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            key = (String) i.next();
-            value = details.get(key);
-            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-            label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            area = UIUtilities.createComponent(OMETextArea.class, null);
-            if (value == null || value.equals(""))
-             	value = AnnotationUI.DEFAULT_TEXT;
-            ((OMETextArea) area).setText((String) value);
-       	 	((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
-            
-            label.setLabelFor(area);
-            c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-            fields.put(key, area);
-        }
-        l.addMouseListener(controller.createManufacturerAction(content));
-    	return l;
 	}
 	
 	/**
