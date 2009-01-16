@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -132,10 +133,8 @@ public class ParamEditor
 				}
 		}
 
-		JPanel nameAndTypeContainer = new JPanel(new BorderLayout());
-		nameAndTypeContainer.setBackground(null);
-		nameAndTypeContainer.add(nameEditor, BorderLayout.CENTER);
-		nameAndTypeContainer.add(paramTypeChooser, BorderLayout.EAST);
+		// need somewhere for small icons to show 'required', 'info' etc. 
+		Box miniToolBar = Box.createHorizontalBox();
 		
 		// indicate whether parameter is necessary (required)
 		if (parameter.isAttributeTrue(AbstractParam.PARAM_REQUIRED)) {
@@ -143,8 +142,26 @@ public class ParamEditor
 										(IconManager.RED_ASTERISK_ICON_11);
 			JButton requiredButton = new CustomButton(red);
 			requiredButton.setToolTipText("This parameter is 'required'");
-			nameAndTypeContainer.add(requiredButton, BorderLayout.WEST);
+			miniToolBar.add(requiredButton);
 		}
+		
+		// indicate whether parameter has description (show with toolTip)
+		String paramDesc = parameter.getAttribute(AbstractParam.PARAM_DESC);
+		if (paramDesc != null) {
+			Icon info = IconManager.getInstance().getIcon
+										(IconManager.INFO_12_ICON);
+			JButton infoButton = new CustomButton(info);
+			infoButton.setToolTipText("<html><div style='width:250px; " +
+					"padding:2px'>" + "Parameter Description:<br>" + 
+					paramDesc + "</div></html>");
+			miniToolBar.add(infoButton);
+		}
+		
+		JPanel nameAndTypeContainer = new JPanel(new BorderLayout());
+		nameAndTypeContainer.setBackground(null);
+		nameAndTypeContainer.add(nameEditor, BorderLayout.CENTER);
+		nameAndTypeContainer.add(paramTypeChooser, BorderLayout.EAST);
+		nameAndTypeContainer.add(miniToolBar, BorderLayout.WEST);
 		
 		add(nameAndTypeContainer);
 		
