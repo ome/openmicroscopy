@@ -127,6 +127,8 @@ public class TagsModel 	extends DataBrowserModel
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
+		if (imagesLoaded != 0 && ids != null)
+			imagesLoaded = imagesLoaded-ids.size();
 		if (imagesLoaded == numberOfImages) return null;
 		//only load thumbnails not loaded.
 		List<ImageNode> nodes = browser.getVisibleImageNodes();
@@ -134,15 +136,19 @@ public class TagsModel 	extends DataBrowserModel
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
 		List<ImageData> imgs = new ArrayList<ImageData>();
+		List<Long> loaded = new ArrayList<Long>();
+		ImageData img;
 		if (ids != null) {
-			ImageData img;
 			while (i.hasNext()) {
 				node = i.next();
-				img = (ImageData) node.getHierarchyObject();
-				if (ids.contains(img.getId())) {
-					if (node.getThumbnail().getFullScaleThumb() == null) {
-						imgs.add((ImageData) node.getHierarchyObject());
-						imagesLoaded++;
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					img = (ImageData) node.getHierarchyObject();
+					if (ids.contains(img.getId())) {
+						if (!loaded.contains(img.getId())) {
+							imgs.add(img);
+							loaded.add(img.getId());
+							imagesLoaded++;
+						}
 					}
 				}
 			}
@@ -150,8 +156,12 @@ public class TagsModel 	extends DataBrowserModel
 			while (i.hasNext()) {
 				node = i.next();
 				if (node.getThumbnail().getFullScaleThumb() == null) {
-					imgs.add((ImageData) node.getHierarchyObject());
-					imagesLoaded++;
+					img = (ImageData) node.getHierarchyObject();
+					if (!loaded.contains(img.getId())) {
+						imgs.add(img);
+						loaded.add(img.getId());
+						imagesLoaded++;
+					}
 				}
 			}
 		}
