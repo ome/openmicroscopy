@@ -618,7 +618,7 @@ class OmeroDataServiceImpl
 		if (!(property.equals(IMAGES_PROPERTY)))
 			throw new IllegalArgumentException("Property not supported.");
 		if (rootNodeType.equals(TagAnnotationData.class))
-			return gateway.getImagesTaggedCount(rootNodeIDs);
+			return gateway.getDataObjectsTaggedCount(rootNodeIDs);
 		return gateway.getCollectionCount(rootNodeType, property, rootNodeIDs, 
 				new PojoOptions().map());
 	}

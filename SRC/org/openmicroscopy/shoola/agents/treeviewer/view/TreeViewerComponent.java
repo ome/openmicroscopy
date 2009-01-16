@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -458,9 +460,17 @@ class TreeViewerComponent
 						"or SAVE state.");
 		}
 		if (object == null) return;
-		EditorDialog d = new EditorDialog(view, object, withParent);
-		d.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(d);
+		JDialog d = null;
+		if ((object instanceof ProjectData) || (object instanceof DatasetData) 
+				|| (object instanceof ScreenData) || 
+				(object instanceof TagAnnotationData)) {
+			d = new EditorDialog(view, object, withParent);
+		}
+		
+		if (d != null) {
+			d.addPropertyChangeListener(controller);
+			UIUtilities.centerAndShow(d);
+		}
 	}
 	
 	/**
@@ -1360,11 +1370,12 @@ class TreeViewerComponent
 	 */
 	public void createObject(DataObject object, boolean withParent)
 	{
-		//TODO: check state
+		if (model.getState() == DISCARDED) return;
+		if (object == null) return;
 		model.fireDataObjectCreation(object, withParent);
 		fireStateChange();
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setLeaves(TreeImageSet, Set)
@@ -1375,12 +1386,17 @@ class TreeViewerComponent
 		TreeImageDisplay display = parent.getParentDisplay();
 		Object grandParentObject = null;
 		if (display != null) grandParentObject =  display.getUserObject();
-		DataBrowser dataBrowser = DataBrowserFactory.getDataBrowser(
-					grandParentObject, parentObject, leaves);
-		dataBrowser.addPropertyChangeListener(controller);
-		dataBrowser.activate();
+		DataBrowser db;
+		if (parentObject instanceof TagAnnotationData) {
+			db = DataBrowserFactory.getTagsBrowser(
+					(TagAnnotationData) parentObject, leaves);
+		} else 
+			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
+					parentObject, leaves);
+		db.addPropertyChangeListener(controller);
+		db.activate();
 		view.removeAllFromWorkingPane();
-		view.addComponent(dataBrowser.getUI());
+		view.addComponent(db.getUI());
 	}
 	
 	/**
@@ -1400,7 +1416,7 @@ class TreeViewerComponent
 		Iterator j;
 		TreeImageDisplay child, value;
 		long id; 
-		Set set, images;
+		Set set, dataObjects;
 		DatasetData d;
 		long userID = model.getExperimenter().getId();
 		long groupID = model.getUserGroupID();
@@ -1429,10 +1445,10 @@ class TreeViewerComponent
 					d = (DatasetData) j.next();
 					value = m.get(d.getId());
 					if (value != null) {
-						images = d.getImages();
-						if (images != null) {
+						dataObjects = d.getImages();
+						if (dataObjects != null) {
 							value.removeAllChildrenDisplay();
-							k = images.iterator();
+							k = dataObjects.iterator();
 							while (k.hasNext()) {
 								value.addChildDisplay(
 								 TreeViewerTranslator.transformDataObject(
@@ -1454,14 +1470,14 @@ class TreeViewerComponent
 					tagImage = (TagAnnotationData) j.next();
 					value = m.get(tagImage.getId());
 					if (value != null) {
-						images = tagImage.getImages();
-						if (images != null) {
+						dataObjects = tagImage.getDataObjects();
+						if (dataObjects != null) {
 							value.removeAllChildrenDisplay();
-							k = images.iterator();
+							k = dataObjects.iterator();
 							while (k.hasNext()) {
 								value.addChildDisplay(
 								 TreeViewerTranslator.transformDataObject(
-										 (ImageData) k.next(), userID, groupID)
+										 (DataObject) k.next(), userID, groupID)
 										);
 							}
 						}

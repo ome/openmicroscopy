@@ -97,7 +97,10 @@ public class DataObjectListCellRenderer
 		if (value instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) value;
 			setText(tag.getTagValue());
-			setIcon(icons.getIcon(IconManager.TAG));
+			String ns = tag.getNameSpace();
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+				setIcon(icons.getIcon(IconManager.TAG_SET));
+			else setIcon(icons.getIcon(IconManager.TAG));
 		} else if (value instanceof FileAnnotationData) {
 			FileAnnotationData fad = (FileAnnotationData) value;
 			setText(fad.getFileName());

@@ -295,22 +295,31 @@ public class TreeViewerTranslator
             tag.setNumberItems(tags.size());
             return tag;
         }
-        Set images = data.getImages();
+        Set dataObjects = data.getDataObjects();
         //
-        if (images == null || images.size() == 0) tag.setNumberItems(-1);
+        if (dataObjects == null || dataObjects.size() == 0) 
+        	tag.setNumberItems(-1);
         else {
         	tag.setChildrenLoaded(Boolean.TRUE);
-        	tag.setNumberItems(images.size());
-            Iterator i = images.iterator();
+        	tag.setNumberItems(dataObjects.size());
+            Iterator i = dataObjects.iterator();
             DataObject tmp;
-            ImageData child;
+            ProjectData p;
             while (i.hasNext()) {
             	tmp = (DataObject) i.next();
-                if (tmp instanceof ImageData) {
-                	 child = (ImageData) tmp;
-                	 if (EditorUtil.isReadable(child, userID, groupID))
-                		 tag.addChildDisplay(transformImage(child));
-                }
+            	if (EditorUtil.isReadable(tmp, userID, groupID)) {
+            		if (tmp instanceof ImageData)
+            			tag.addChildDisplay(transformImage((ImageData) tmp));
+            		else if (tmp instanceof DatasetData) 
+            			tag.addChildDisplay(transformDataset((DatasetData) tmp, 
+            								userID, groupID));
+            		else if (tmp instanceof ProjectData) {
+            			p = (ProjectData) tmp;
+            			tag.addChildDisplay(transformProject(p, p.getDatasets(), 
+            					userID, groupID));
+            		}	
+            	}
+                
             }
         }
 

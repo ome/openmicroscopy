@@ -298,17 +298,29 @@ public interface DataManagerView
 	/**
 	 * Loads the tags containing tags and creates a pseudo hierarchy.
 	 * 
-	 * @param id        The id of the tag or <code>-1</code> if no id passed.
-	 * @param images    Pass <code>true</code> to load the images related 
-     * 					to the tags, <code>false</code> otherwise.
-	 * @param userID	The user id.
-	 * @param observer 	Callback handler.
+	 * @param id        	The id of the tag or <code>-1</code>.
+	 * @param dataObject    Pass <code>true</code> to load the 
+	 * 						<code>DataObject</code> related 
+     * 						to the tags, <code>false</code> otherwise.
+	 * @param userID		The user id.
+	 * @param observer 		Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadTags(Long id, boolean images, long userID, 
+	public CallHandle loadTags(Long id, boolean dataObject, long userID, 
 							AgentEventListener observer);
 	
-	public CallHandle loadTagSets(Long id, boolean images, long userID, 
+	/**
+	 * Loads the tags containing tags and creates a pseudo hierarchy.
+	 * 
+	 * @param id        	The id of the tag or <code>-1</code>.
+	 * @param dataObject    Pass <code>true</code> to load the 
+	 * 						<code>DataObject</code> related 
+     * 						to the tags, <code>false</code> otherwise.
+	 * @param userID		The user id.
+	 * @param observer 		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadTagSets(Long id, boolean dataObject, long userID, 
 			AgentEventListener observer);
   
 	

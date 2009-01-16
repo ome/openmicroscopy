@@ -71,7 +71,7 @@ public class DataBrowserTranslator
 {
 
 	 /** Message for unclassified images. */
-    private static final String UNCLASSIFIED = "Wild at heart and free images.";
+    //private static final String UNCLASSIFIED = "Wild at heart and free images.";
     
     /** 
      * The left element displayed before the number of items contained in a 
@@ -324,7 +324,7 @@ public class DataBrowserTranslator
         if (!isReadable(tag, userID, groupID)) return null;
         ImageSet data = null;
         Set tags = tag.getTags();
-        Set images = tag.getImages();
+        Set dataObjects = tag.getDataObjects();
         String note = "";
         Iterator i;
         if (tags != null && tags.size() > 0) {
@@ -336,14 +336,35 @@ public class DataBrowserTranslator
         		child = (TagAnnotationData) i.next();
 				data.addChildDisplay(transformTag(child, userID, groupID));
 			}
-        } if (images != null && images.size() > 0) {
-        	note += LEFT+images.size()+RIGHT;
+        } if (dataObjects != null && dataObjects.size() > 0) {
+        	note += LEFT+dataObjects.size()+RIGHT;
         	data = new ImageSet(tag.getTagValue(), note, tag);
-        	ImageData child;
-        	i = images.iterator();
+        	DataObject child, dataset;
+        	i = dataObjects.iterator();
+        	ProjectData p;
+        	Iterator k;
+        	Set datasets;
         	while (i.hasNext()) {
-        		child = (ImageData) i.next();
-        		linkImageTo(child, data);
+        		child = (DataObject) i.next();
+        		if (child instanceof ImageData)
+        			linkImageTo((ImageData) child, data);
+        		else if (child instanceof DatasetData) {
+        			 data.addChildDisplay(linkImages(child, userID, 
+                             groupID));
+        		} else if (child instanceof ProjectData) {
+        			p = (ProjectData) child;
+        			datasets = p.getDatasets();
+        			if (datasets != null) {
+        				k = datasets.iterator();
+        				while (k.hasNext()) {
+							dataset = (DataObject) k.next();
+							if (isReadable(dataset, userID, groupID)) 
+	                            data.addChildDisplay(linkImages(dataset, userID, 
+	                                                             groupID));
+						}
+        			}
+        		}
+        			
 			}
         } else data = new ImageSet(tag.getTagValue(), "", tag);
         formatToolTipFor(data);
@@ -451,11 +472,14 @@ public class DataBrowserTranslator
                                             groupID)));
             else if (ho instanceof ImageData) {
                 if (isReadable(ho, userID, groupID)) {
+                	/*
                     if (unclassified == null) {
                         unclassified = new ImageSet(UNCLASSIFIED, new Object());
                         formatToolTipFor(unclassified);
                     }
                     linkImageTo((ImageData) ho, unclassified);
+                    */
+                	results.add(linkImageTo((ImageData) ho, null));
                 }
             } else if (ho instanceof TagAnnotationData) {
             	child = transformTag((TagAnnotationData) ho, userID, 

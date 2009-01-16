@@ -60,12 +60,15 @@ public class ContainerCounterLoader
     /** The lastly retrieved map. */
     private Map			currentMap;
 
+    /** The batch call. */
     private BatchCall	loadCall;
     
     /** 
      * Creates a {@link BatchCall} to retrieve the number of items per 
      * container.
      * 
+     * @param ids  The ids of the node to count.
+     * @param type The type of nodes.
      * @return See above
      */
     private BatchCall makeBatchCall(final List<Long> ids, final Class type)

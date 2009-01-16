@@ -207,12 +207,15 @@ class TreeViewerWin
     	a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
     	item = new JMenuItem(a);
     	item.setText(a.getActionName());
+    	//menu.add(item);
+    	a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG_SET);
+    	item = new JMenuItem(a);
+    	item.setText(a.getActionName());
     	menu.add(item);
-    	
     	a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
     	item = new JMenuItem(a);
     	item.setText(a.getActionName());
-    	//menu.add(item);
+    	menu.add(item);
     	return menu;
     }
     
@@ -277,7 +280,6 @@ class TreeViewerWin
         item = new JMenuItem(a);
         menu.add(item);
         item.setText(a.getActionName());
-        
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.BROWSE);
         item = new JMenuItem(a);

@@ -389,13 +389,14 @@ class MetadataViewerComponent
 				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}	
+			/*
 			TagAnnotationData tag = (TagAnnotationData) refObject;
 			Set set = tag.getTags();
 			if (set != null) {
 				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
 			}
-			set = tag.getImages();
+			set = tag.getDataObjects();
 			boolean toAsk = false;
 			if (set != null && set.size() > 0) toAsk = true;
 			if (!toAsk) {
@@ -425,6 +426,7 @@ class MetadataViewerComponent
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
+			*/
 		}
 		fireStateChange();
 	}

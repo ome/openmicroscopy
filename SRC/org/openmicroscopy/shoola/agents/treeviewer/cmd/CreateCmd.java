@@ -76,6 +76,9 @@ public class CreateCmd
     /** Indicates to import an <code>Image</code>. */
     public static final int IMAGE = 5;
     
+    /** Indicates to create a <code>Tag Set</code>. */
+    public static final int TAG_SET = 6;
+    
     /** Reference to the model. */
     private TreeViewer  model;
     
@@ -102,6 +105,7 @@ public class CreateCmd
             case DATASET: return new DatasetData(); 
             case SCREEN: return new ScreenData(); 
             case TAG: return new TagAnnotationData("foo");
+            case TAG_SET: return new TagAnnotationData("foo", true);
             case PLATE: return new PlateData();
             case IMAGE: return new ImageData();
             default:
@@ -140,14 +144,12 @@ public class CreateCmd
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
-        //model.showProperties(userObject, TreeViewer.CREATE_EDITOR);
         if (userObject instanceof ImageData) {
         	Object object = browser.getLastSelectedDisplay().getUserObject();
         	if (object instanceof DatasetData) {
         		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
             	bus.post(new LoadFSImporter((DatasetData) object));
         	}
-        	
         } else
         	model.createDataObject(userObject, withParent);
     }

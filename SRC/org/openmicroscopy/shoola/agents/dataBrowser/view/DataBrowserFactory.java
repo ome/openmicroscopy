@@ -135,6 +135,19 @@ public class DataBrowserFactory
 	 * @param nodes		The collection to set.
 	 * @return See above.
 	 */
+	public static final DataBrowser getTagsBrowser(TagAnnotationData parent, 
+												Set<DataObject> nodes)
+	{
+		return singleton.createTagsDataBrowser(parent, nodes);
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of images.
+	 * 
+	 * @param parent	The parent's node.
+	 * @param nodes		The collection to set.
+	 * @return See above.
+	 */
 	public static final DataBrowser getDataBrowser(ProjectData parent, 
 													Set<DatasetData> nodes)
 	{
@@ -352,6 +365,25 @@ public class DataBrowserFactory
 											Set<DatasetData> datasets)
 	{
 		DataBrowserModel model = new DatasetsModel(parent, datasets);
+		DataBrowserComponent comp = new DataBrowserComponent(model);
+		model.initialize(comp);
+		comp.initialize();
+		String key = parent.toString()+parent.getId();
+		browsers.put(key, comp);
+		return comp;
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of tags.
+	 * 
+	 * @param parent 		The parent's node.
+	 * @param dataObjects	The collection to set.
+	 * @return See above.
+	 */
+	private DataBrowser createTagsDataBrowser(DataObject parent, 
+											Set<DataObject> dataObjects)
+	{
+		DataBrowserModel model = new TagsModel(parent, dataObjects);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

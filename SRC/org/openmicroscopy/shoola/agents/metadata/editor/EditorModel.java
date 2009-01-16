@@ -890,9 +890,6 @@ class EditorModel
 	/** Fires an asynchronous retrieval of existing tags. */
 	void loadExistingTags()
 	{
-		int level = TagsLoader.LEVEL_TAG;
-		if (getRefObject() instanceof TagAnnotationData)
-			level = TagsLoader.LEVEL_TAG_SET;
 		EditorLoader l;
 		boolean exist = false;
 		Iterator i = loaders.iterator();
@@ -904,7 +901,7 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		TagsLoader loader = new TagsLoader(component, level);
+		TagsLoader loader = new TagsLoader(component);
 		loader.load();
 		loaders.add(loader);
 	}

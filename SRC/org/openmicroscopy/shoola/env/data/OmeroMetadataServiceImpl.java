@@ -1725,13 +1725,14 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadTagSetsContainer(Long, boolean, long)
 	 */
-	public Collection loadTagSetsContainer(Long id, boolean images, long userID)
+	public Collection loadTagSetsContainer(Long id, boolean dataObject, 
+										long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//Collection of tags linked to tags.
-		if (id >= 0) {
-			return gateway.loadTagSetsAndImages(id, images);
-		}
+		if (id >= 0)
+			return gateway.loadTagSetsAndDataObjects(id, dataObject);
+	
 		Collection c = gateway.loagTagSets(userID);
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = c.iterator();
@@ -1767,11 +1768,25 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadTagsContainer(Long, boolean, long)
 	 */
-	public Collection loadTagsContainer(Long id, boolean images, long userID)
+	public Collection loadTagsContainer(Long id, boolean dataObject, 
+										long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (images) return gateway.loadTagAndImages(id, images);
-		return loadAnnotations(TagAnnotationData.class, null, id, userID);
+		if (dataObject) return gateway.loadTagAndDataObjects(id, dataObject);
+		Collection l = loadAnnotations(TagAnnotationData.class, null, id, 
+				userID);
+		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		if (l == null) return annotations;
+		Iterator i = l.iterator();
+		TagAnnotationData tag;
+		String ns;
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			ns = tag.getNameSpace();
+			if (ns == null || !TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+				annotations.add(tag);
+		}
+		return annotations;
 	}
 
 	/**

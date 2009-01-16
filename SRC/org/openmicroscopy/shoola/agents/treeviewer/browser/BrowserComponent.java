@@ -370,6 +370,7 @@ class BrowserComponent
         fireStateChange();
     }
 
+ 
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setWells(Set, TreeImageSet)

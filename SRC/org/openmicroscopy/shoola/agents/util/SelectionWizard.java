@@ -326,13 +326,11 @@ public class SelectionWizard
 		JPanel container = new JPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
 		container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		//container.add(Box.createHorizontalStrut(10));
 		container.add(createAvailableItemsPane());
 		container.add(Box.createHorizontalStrut(20));
 		container.add(createSelectionPane());
 		container.add(Box.createHorizontalStrut(20));
 		container.add(createSelectedItemsPane());
-		//container.add(Box.createHorizontalStrut(10));
 		return container;
 	}
 	
@@ -358,8 +356,7 @@ public class SelectionWizard
 		controlPanel.add(resetButton);
 		controlPanel.add(acceptButton);
 		controlPanel.add(cancelButton);
-		JPanel p = UIUtilities.buildComponentPanelRight(controlPanel);
-		return p;
+		return UIUtilities.buildComponentPanelRight(controlPanel);
 	}
 	
 	/**
@@ -371,9 +368,8 @@ public class SelectionWizard
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		JScrollPane pane = new JScrollPane(selectedItemsListbox);
 		p.add(new JLabel("Selected:"), BorderLayout.NORTH);
-		p.add(pane, BorderLayout.CENTER);
+		p.add(new JScrollPane(selectedItemsListbox), BorderLayout.CENTER);
 		populateSelectedItems();
 		return p;
 	}
@@ -408,9 +404,8 @@ public class SelectionWizard
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		JScrollPane pane = new JScrollPane(availableItemsListbox);
 		p.add(new JLabel("Available:"), BorderLayout.NORTH);
-		p.add(pane, BorderLayout.CENTER);
+		p.add(new JScrollPane(availableItemsListbox), BorderLayout.CENTER);
 		populateAvailableItems();
 		return p;
 	}

@@ -266,7 +266,10 @@ class GeneralPaneUI
     		layout.setRow(textualAnnotationsLayoutIndex, 0);
     		layout.setRow(browserIndex, 0);
     	} else {
+    		layout.setRow(annotationLayoutIndex, TableLayout.PREFERRED);
+    		layout.setRow(textualAnnotationsLayoutIndex, TableLayout.PREFERRED);
     		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
+    		else layout.setRow(browserIndex, TableLayout.PREFERRED);
     	}
 		revalidate();
     	repaint();

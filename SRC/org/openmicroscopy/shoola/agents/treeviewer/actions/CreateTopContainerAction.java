@@ -35,9 +35,13 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Creates a top container either a project or a categoryGroup.
@@ -68,6 +72,9 @@ public class CreateTopContainerAction
 	/** Indicates to create a <code>Screen</code>. */
 	public static final int SCREEN = CreateCmd.SCREEN;
 	
+	/** Indicates to create a <code>Tag SEt</code>. */
+	public static final int TAG_SET = CreateCmd.TAG_SET;
+	
     /** The name of the action for the creation of a <code>Project</code>. */
     private static final String NAME = "New...";
     
@@ -80,8 +87,14 @@ public class CreateTopContainerAction
     /** The name of the action for the creation of a <code>Tag</code>. */
     private static final String NAME_TAG = "New Tag...";
     
+    /** The name of the action for the creation of a <code>Tag Set</code>. */
+    private static final String NAME_TAG_SET = "New Tag Set...";
+    
     /** The name of the action for the creation of a <code>Screen</code>. */
     private static final String NAME_SCREEN = "New Screen...";
+    
+    /** Description of the action for a <code>Tag</code> . */
+    private static final String DESCRIPTION_TAG_SET = "Create a new Tag Set.";
     
     /** Description of the action for a <code>Tag</code> . */
     private static final String DESCRIPTION_TAG = "Create a new Tag.";
@@ -124,6 +137,12 @@ public class CreateTopContainerAction
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.TAG));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_TAG));
+				break;
+			case TAG_SET:
+				name = NAME_TAG_SET;
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.TAG_SET));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_TAG_SET));
 				break;
 			case SCREEN:
 				name = NAME_SCREEN;
@@ -215,8 +234,34 @@ public class CreateTopContainerAction
     {
 
         if (nodeType == -1) return;
+        boolean withParent = false;
+        
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+        	int n = browser.getSelectedDisplays().length;
+        	if (n == 1) {
+        		TreeImageDisplay node = browser.getLastSelectedDisplay();
+        		Object uo = node.getUserObject();
+        		switch (nodeType) {
+					case DATASET:
+						if (uo instanceof ProjectData) withParent = true;
+						break;
+					case TAG:
+						if (uo instanceof TagAnnotationData) {
+							TagAnnotationData tag = (TagAnnotationData) uo;
+							String ns = tag.getNameSpace();
+							if (ns != null && 
+									TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+											ns));
+								withParent = true;
+						}
+				}
+        	}
+        }
+		
+        
         CreateCmd cmd = new CreateCmd(model, nodeType);
-        cmd.setWithParent(false);
+        cmd.setWithParent(withParent);
         cmd.execute();
     }
     

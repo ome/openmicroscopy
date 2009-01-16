@@ -115,6 +115,7 @@ public class ImageSet
     public void addChildDisplay(ImageDisplay child)
     {
         if (child == null) throw new NullPointerException("No child.");
+        /*
         Class childClass = child.getClass();
         if (containsImages == null) {  //First time add is invoked.
             containsImages = new Boolean(childClass.equals(ImageNode.class));
@@ -123,14 +124,9 @@ public class ImageSet
                 if (!childClass.equals(ImageNode.class))
                     throw new IllegalArgumentException(
                         "This node can only contain ImageNodes.");
-            } else  { //Children are ImageSets.
-            	/*
-                if (!childClass.equals(ImageSet.class))
-                    throw new IllegalArgumentException(
-                        "This node can only contain ImageSets.");
-                        */
             }
         }
+        */
         super.addChildDisplay(child);
     }
     

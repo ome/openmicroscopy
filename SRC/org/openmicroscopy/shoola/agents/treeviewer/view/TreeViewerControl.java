@@ -55,8 +55,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.AddMetadataAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseImageCategoriesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
@@ -136,11 +134,6 @@ class TreeViewerControl
 	 */
 	static final Integer	HIERARCHY_EXPLORER = new Integer(7);
 
-	/** 
-	 * Identifies the <code>Category Explorer</code> action in the View menu.
-	 */
-	static final Integer	CATEGORY_EXPLORER = new Integer(8);
-
 	/** Identifies the <code>Images Explorer</code> action in the View menu. */
 	static final Integer	IMAGES_EXPLORER = new Integer(9);
 
@@ -195,12 +188,6 @@ class TreeViewerControl
 	 */
 	static final Integer    SWITCH_USER = new Integer(23);
 
-	/** Identifies the <code>Annotate children action</code>. */
-	static final Integer    ANNOTATE_CHILDREN = new Integer(24);
-
-	/** Identifies the <code>Classify children action</code>. */
-	//static final Integer    CLASSIFY_CHILDREN = new Integer(25);
-
 	/** Identifies the <code>Roll over action</code>. */
 	static final Integer    ROLL_OVER = new Integer(26);
 
@@ -209,9 +196,6 @@ class TreeViewerControl
 
 	/** Identifies the <code>Refresh experimenter action</code>. */
 	static final Integer    REFRESH_EXPERIMENTER = new Integer(29);
-
-	/** Identifies the <code>Browse categories action</code>. */
-	static final Integer    BROWSE_CATEGORIES = new Integer(30);
 
 	/** Identifies the <code>Paste rendering settings action</code>. */
 	static final Integer    PASTE_RND_SETTINGS = new Integer(31);
@@ -255,6 +239,8 @@ class TreeViewerControl
 	/** Identifies the <code>Files Explorer</code> action in the View menu. */
 	static final Integer	FILES_EXPLORER = new Integer(44);
 	
+	/** Identifies the <code>Create tag set</code> in the File menu. */
+	static final Integer    CREATE_TOP_TAG_SET = new Integer(45);
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -309,13 +295,10 @@ class TreeViewerControl
 		actionsMap.put(CUT_OBJECT, new CutAction(model));
 		actionsMap.put(ACTIVATION, new ActivationAction(model));
 		actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
-		actionsMap.put(ANNOTATE_CHILDREN, new AddMetadataAction(model));
 		actionsMap.put(ROLL_OVER, new RollOverAction(model));
 		actionsMap.put(REMOVE_FROM_DISPLAY, new RemoveExperimenterNode(model));
 		actionsMap.put(REFRESH_EXPERIMENTER, 
 				new RefreshExperimenterData(model));
-		actionsMap.put(BROWSE_CATEGORIES, 
-				new BrowseImageCategoriesAction(model));
 		actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
 		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
@@ -327,6 +310,9 @@ class TreeViewerControl
 		actionsMap.put(VIEW, new ViewImageAction(model));
 		actionsMap.put(NEW_OBJECT, new NewObjectAction(model));
 		actionsMap.put(EDITOR, new EditorAction(model));
+		actionsMap.put(CREATE_TOP_TAG_SET,  
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.TAG_SET));
 	}
 
 	/** 

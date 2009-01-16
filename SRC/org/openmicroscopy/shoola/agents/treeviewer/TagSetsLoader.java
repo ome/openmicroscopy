@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @since OME3.0
  */
 public class TagSetsLoader 
-extends DataTreeViewerLoader
+	extends DataTreeViewerLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */

@@ -59,41 +59,29 @@ public class Browse
     /** Event ID corresponding to a browse Dataset event. */
     public static final int DATASET = 1;
     
-    /** Event ID corresponding to a browse categoryGroup event. */
-    public static final int CATEGORY_GROUP = 2;
-    
-    /** Event ID corresponding to a browse category event. */
-    public static final int CATEGORY = 3;
-    
     /** Event ID corresponding to a browse images event. */
-    public static final int IMAGES = 4;
+    public static final int IMAGES = 2;
     
     /** Event ID corresponding to a browse datasets event. */
-    public static final int DATASETS = 5;
-    
-    /** Event ID corresponding to a browse categories event. */
-    public static final int CATEGORIES = 6;
-    
+    public static final int DATASETS = 3;
+
     /** Event ID corresponding to a browse projects event. */
-    public static final int PROJECTS = 7;
-    
-    /** Event ID corresponding to a browse category groups event. */
-    public static final int CATEGORY_GROUPS = 8;
-    
+    public static final int PROJECTS = 4;
+
     /** 
      * Event ID indicating to browse all categories containing a 
      * specified image. 
      */
-    public static final int IMAGE_TO_CATEGORIES = 9;
+    public static final int IMAGE_TO_CATEGORIES = 5;
     
     /** 
      * Event ID indicating to browse the images imported during a given 
      * period of time.
      */
-    public static final int IMAGE_PER_DATE = 10;
+    public static final int IMAGE_PER_DATE = 6;
     
     /** Event ID corresponding to a browse tags event. */
-    public static final int	TAGS = 11;
+    public static final int	TAGS = 7;
     
     /** ID of the top element in the hierarchy. */
     private long        		hierarchyObjectID;
@@ -127,9 +115,6 @@ public class Browse
         switch (index) {
             case PROJECT:
             case DATASET:
-            case CATEGORY_GROUP:
-            case CATEGORY:
-            case IMAGE_TO_CATEGORIES:
                 return; 
             default:
                 throw new IllegalArgumentException("Event index not valid.");
@@ -146,9 +131,7 @@ public class Browse
         switch (index) {
             case IMAGES:
             case DATASETS:
-            case CATEGORIES:
             case PROJECTS:
-            case CATEGORY_GROUPS:
             case TAGS:
                 return; 
             default:

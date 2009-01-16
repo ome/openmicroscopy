@@ -103,6 +103,7 @@ public class TreeImageSet
     public void addChildDisplay(TreeImageDisplay child)
     {
         if (child == null) throw new NullPointerException("No child.");
+        /*
         Class childClass = child.getClass();
         if (containsImages == null) {  //First time add is invoked.
             containsImages = 
@@ -119,6 +120,7 @@ public class TreeImageSet
                         "This node can only contain TreeImageSets.");
             }
         }
+        */
         super.addChildDisplay(child);
     }
     

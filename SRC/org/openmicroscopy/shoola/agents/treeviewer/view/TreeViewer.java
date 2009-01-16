@@ -611,7 +611,7 @@ public interface TreeViewer
 	 * @param leaves	The leaves to convert and add to the node.
 	 */
 	public void setLeaves(TreeImageSet parent, Set leaves);
-
+	
 	/**
 	 * Sets the selected node.
 	 * 

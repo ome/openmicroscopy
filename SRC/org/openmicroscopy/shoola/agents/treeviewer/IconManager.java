@@ -266,7 +266,7 @@ public class IconManager
     /** The <code>Set original Rendering settings</code> icon. */
     public static int           SET_RND_SETTINGS = 70;
     
-    /** The <code>Tag</code> icon. */
+    /** The <code>Tag Set</code> icon. */
     public static int           TAG_SET = 71;
     
     /** The <code>Add metadata</code> icon. */

@@ -104,6 +104,7 @@ public class BrowserSelectionAction
      * @param browserType 	The Browser's type. One of the following constants:
      * 						{@link Browser#PROJECT_EXPLORER}, 
      * 						{@link Browser#IMAGES_EXPLORER},
+     * 						{@link Browser#FILES_EXPLORER}
      * 						{@link Browser#TAGS_EXPLORER} and 
      * 						{@link Browser#SCREENS_EXPLORER}.
      * 						 

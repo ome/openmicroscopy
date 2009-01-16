@@ -40,7 +40,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+
+import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -83,9 +87,32 @@ class TagSetsModel
         layoutBrowser();
         Iterator<TagAnnotationData> i = tagSets.iterator();
         TagAnnotationData tag;
+        Set<DataObject> objects;
+        Iterator<DataObject> k;
+        DataObject child;
+        Set<DatasetData> datasets;
+        Iterator<DatasetData> j;
 		while (i.hasNext()) {
 			tag = i.next();
-			numberOfImages += tag.getImages().size();
+			objects = tag.getDataObjects();
+			if (objects != null) {
+				k = objects.iterator();
+				while (k.hasNext()) {
+					child = k.next();
+					if (child instanceof ImageData)
+						numberOfImages++;
+					else if (child instanceof DatasetData) {
+						numberOfImages += 
+							((DatasetData) child).getImages().size();
+					} else if (child instanceof ProjectData) {
+						datasets = ((ProjectData) child).getDatasets();
+						j = datasets.iterator();
+						while (j.hasNext()) {
+							numberOfImages += (j.next()).getImages().size();
+						}
+					}
+				}
+			}
 		}
 	}
 	

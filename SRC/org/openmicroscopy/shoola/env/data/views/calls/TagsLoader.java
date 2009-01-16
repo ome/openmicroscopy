@@ -177,20 +177,21 @@ public class TagsLoader
      * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
      * user.
      * 
-     * @param id
-     * @param images	Pass <code>true</code> to load the images related 
-     * 					to the tags, <code>false</code> otherwise.
-     * @param userID	The id of the user.
+     * @param id			The id of the tag or <code>-1</code>.
+     * @param dataObject    Pass <code>true</code> to load the 
+	 * 						<code>DataObject</code> related 
+     * 						to the tags, <code>false</code> otherwise.
+     * @param userID		The id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadTagsCall(final Long id, final boolean images, 
+    private BatchCall loadTagsCall(final Long id, final boolean dataObject, 
     								final long userID)
     {
         return new BatchCall("Loading tags.") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTagsContainer(id, images, userID);
+            	result = os.loadTagsContainer(id, dataObject, userID);
             }
         };
     }
@@ -199,20 +200,21 @@ public class TagsLoader
      * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
      * user.
      * 
-     * @param id
-     * @param images	Pass <code>true</code> to load the images related 
-     * 					to the tags, <code>false</code> otherwise.
-     * @param userID	The id of the user.
+     * @param id			The id of the tag or <code>-1</code>.
+     * @param dataObject    Pass <code>true</code> to load the 
+	 * 						<code>DataObject</code> related 
+     * 						to the tags, <code>false</code> otherwise.
+     * @param userID		The id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadTagSetsCall(final Long id, final boolean images,
+    private BatchCall loadTagSetsCall(final Long id, final boolean dataObject,
     								final long userID)
     {
         return new BatchCall("Loading tagSets.") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTagSetsContainer(id, images, userID);
+            	result = os.loadTagSetsContainer(id, dataObject, userID);
             }
         };
     }

@@ -247,7 +247,7 @@ public class ExperimenterDataLoader
 								parent, expNode);
 					} else if (object instanceof TagAnnotationData) {
 						viewer.setLeaves(
-									((TagAnnotationData) object).getImages(), 
+								((TagAnnotationData) object).getDataObjects(), 
 								parent, expNode);
 					}
 				}

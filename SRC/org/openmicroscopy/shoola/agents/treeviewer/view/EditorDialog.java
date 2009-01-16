@@ -53,7 +53,9 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -119,6 +121,9 @@ class EditorDialog
     
     /** Box used to indicate that the new object will be private. */
     private JCheckBox			privateBox;
+    
+    /** The type of object to create. */
+    private String				typeName;
     
     /** 
      * Sets to <code>true</code> if the object will have a parent,
@@ -224,20 +229,18 @@ class EditorDialog
     {
         IconManager im = IconManager.getInstance();
         TitlePanel tp = null;
-        if (data instanceof ProjectData) {
-        	tp = new TitlePanel("Create project", "Create a new project.", 
-        			im.getIcon(IconManager.CREATE_48));
-        } else if (data instanceof DatasetData) {
-        	tp = new TitlePanel("Create dataset", "Create a new dataset.", 
-        			im.getIcon(IconManager.CREATE_48));
-        } else if (data instanceof ScreenData) {
-        	tp = new TitlePanel("Create screen", "Create a new screen.", 
-        			im.getIcon(IconManager.CREATE_48));
-        } else if (data instanceof TagAnnotationData) {
-        	tp = new TitlePanel("Create tag", "Create a new tag.", 
-        			im.getIcon(IconManager.CREATE_48));
+        if (data instanceof ProjectData) typeName = "Project";
+        else if (data instanceof DatasetData) typeName = "Dataset";
+        else if (data instanceof ScreenData) typeName = "Screen";
+        else if (data instanceof TagAnnotationData) {
+        	String ns = ((TagAnnotationData) data).getNameSpace();
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+        		typeName = "Tag Set";
+        	else typeName = "Tag";
         }
-       return tp;
+        tp = new TitlePanel("Create "+typeName, "Create a new "+typeName+".", 
+    			im.getIcon(IconManager.CREATE_48));
+        return tp;
     }
     
     /**
@@ -264,27 +267,43 @@ class EditorDialog
         dispose();
     }
     
+    /** Notifies the user that the name was not valid. */
+    private void notifyUser()
+    {
+    	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+    	un.notifyInfo("Create "+typeName, 
+    			"The name of the "+typeName+" must be a string with at least " +
+    			" 1 character and not more than 256 characters.");
+    	return;
+    }
+    
+    
     /** Creates a new item. */
     private void save()
     {
+    	String name = nameArea.getText();
+    	if (name == null) notifyUser();
+    	name = name.trim();
+    	int n = name.length();
+    	if (n == 0 || n > 256) notifyUser();
     	if (data instanceof ProjectData) {
     		ProjectData p  = (ProjectData) data;
-			p.setName(nameArea.getText().trim());
+			p.setName(name);
 			p.setDescription(descriptionArea.getText().trim());
 			data = p;
     	} else if (data instanceof DatasetData) {
     		DatasetData d = (DatasetData) data;
-			d.setName(nameArea.getText().trim());
+			d.setName(name);
 			d.setDescription(descriptionArea.getText().trim());
 			data = d;
     	} else if (data instanceof ScreenData) {
     		ScreenData d = (ScreenData) data;
-			d.setName(nameArea.getText().trim());
+			d.setName(name);
 			d.setDescription(descriptionArea.getText().trim());
 			data = d;
     	} else if (data instanceof TagAnnotationData) {
     		TagAnnotationData d = (TagAnnotationData) data;
-    		d.setContent(nameArea.getText().trim());
+    		d.setContent(name);
 			d.setTagDescription(descriptionArea.getText().trim());
 			data = d;
     	}

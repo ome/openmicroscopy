@@ -232,8 +232,22 @@ class TagsUI
 	{
 		if (data == null) return;
 		removeLatestTextEntry();
-		if (isTagEntered(data)) return;
-		addedTags.add(data);
+		String ns = data.getNameSpace();
+		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+			Set<TagAnnotationData> tags = data.getTags();
+			if (tags != null && tags.size() > 0) {
+				Iterator<TagAnnotationData> i = tags.iterator();
+				TagAnnotationData tag;
+				while (i.hasNext()) {
+					tag = i.next();
+					if (!isTagEntered(tag))
+						addedTags.add(tag);
+				}
+			}
+		} else {
+			if (isTagEntered(data)) return;
+			addedTags.add(data);
+		}
 	}
 
     /**

@@ -3346,16 +3346,18 @@ class OMEROGateway
 	 * Loads the tags linked to images, returns the images linked to the tag
 	 * if the passed value is <code>true</code>.
 	 * 
-	 * @param tagID 			The class identifying the object to search for.
-	 * @param images			Pass <code>true</code> to load the images,
-	 * 							<code>false</code> otherwise.
+	 * @param tagID 		The id of the tag.
+	 * @param dataObject    Pass <code>true</code> to load the 
+	 * 						<code>DataObject</code> related 
+     * 						to the tags, <code>false</code> otherwise.
+     * @param userID		The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List loadTagAndImages(long tagID, boolean images)
+	List loadTagAndDataObjects(long tagID, boolean dataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3375,23 +3377,8 @@ class OMEROGateway
 			TagAnnotationData tag = 
 						(TagAnnotationData) PojoMapper.asDataObject(object);
 			//Condition
-			if (images) {
-				sb = new StringBuilder();
-				sb.append("select img from Image as img ");
-				sb.append("left outer join fetch "
-	                    + "img.annotationLinksCountPerOwner img_a_c ");
-				sb.append("left outer join fetch img.annotationLinks ail ");
-				sb.append("left outer join fetch img.pixels as pix ");
-	            sb.append("left outer join fetch pix.pixelsType as pt ");
-	            sb.append("where ail.child.id = :tagID");
-	            Set imgs = PojoMapper.asDataObjects(
-	            			service.findAllByQuery(sb.toString(), p));
-	            //Retrieve the projects.
-	            tag.setImages(imgs);
-			}
-			//sb.append("where ann.id = :tagID");
-			//Test
-			//
+			if (dataObject) 
+	            tag.setDataObjects(loadRelatedObjects(tagID));
 			List r = new ArrayList();
 			r.add(tag);
 			return r;
@@ -3399,6 +3386,62 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
+	}
+	
+	private Set<DataObject> loadRelatedObjects(long tagID)
+		throws Exception
+	{
+		IQueryPrx service = getQueryService();
+		Parameters p = new ParametersI();
+		p.map = new HashMap<String, RType>();
+		p.map.put("tagID", omero.rtypes.rlong(tagID));
+
+		Set<DataObject> objects = new HashSet<DataObject>();
+		StringBuilder sb = new StringBuilder();
+		sb.append("select img from Image as img ");
+		sb.append("left outer join fetch "
+				+ "img.annotationLinksCountPerOwner img_a_c ");
+		sb.append("left outer join fetch img.annotationLinks ail ");
+		sb.append("left outer join fetch img.pixels as pix ");
+		sb.append("left outer join fetch pix.pixelsType as pt ");
+		sb.append("where ail.child.id = :tagID");
+		Set l = PojoMapper.asDataObjects(
+				service.findAllByQuery(sb.toString(), p));
+		if (l != null && l.size() > 0)
+			objects.addAll(l);
+		sb = new StringBuilder();
+		sb.append("select d from Dataset as d ");
+		sb.append("left outer join fetch "
+				+ "d.annotationLinksCountPerOwner d_a_c ");
+		sb.append("left outer join fetch d.annotationLinks ail ");
+		sb.append("where ail.child.id = :tagID");
+		l = PojoMapper.asDataObjects(
+				service.findAllByQuery(sb.toString(), p));
+		if (l != null && l.size() > 0)
+			objects.addAll(l);
+		//Retrieve the projects.
+		sb = new StringBuilder();
+		sb.append("select p from Project as p ");
+		sb.append("left outer join fetch "
+				+ "p.annotationLinksCountPerOwner p_a_c ");
+		sb.append("left outer join fetch p.annotationLinks ail ");
+		sb.append("where ail.child.id = :tagID");
+		List list = service.findAllByQuery(sb.toString(), p);
+		if (list != null && list.size() > 0) {
+			List<Long> ids = new ArrayList<Long>();
+			Iterator k = list.iterator();
+			IObject o;
+			while (k.hasNext()) {
+				o = (IObject) k.next();
+				ids.add(o.getId().getValue());
+			}
+			PojoOptions po = new PojoOptions();
+			po.leaves();
+			l = loadContainerHierarchy(ProjectData.class, ids, po.map());
+			if (l != null && l.size() > 0)
+				objects.addAll(l);
+		}
+		return objects;
 	}
 	
 	/**
@@ -3448,16 +3491,18 @@ class OMEROGateway
 	 * Loads the tags linked to images, returns the images linked to the tag
 	 * if the passed value is <code>true</code>.
 	 * 
-	 * @param tagID 			The class identifying the object to search for.
-	 * @param images			Pass <code>true</code> to load the images,
-	 * 							<code>false</code> otherwise.
+	 * @param id 		The id of the tag set.
+	 * @param dataObject    Pass <code>true</code> to load the 
+	 * 						<code>DataObject</code> related 
+     * 						to the tags, <code>false</code> otherwise.
+     * @param userID		The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection loadTagSetsAndImages(long tagID, boolean images)
+	Collection loadTagSetsAndDataObjects(long id, boolean dataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3465,7 +3510,7 @@ class OMEROGateway
 			String type = "ome.model.annotations.TagAnnotation";
 			IQueryPrx service = getQueryService();
 			ParametersI param = new ParametersI();
-			param.addLong("tagID", tagID);
+			param.addLong("tagID", id);
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("select ann from Annotation as ann ");
@@ -3497,23 +3542,8 @@ class OMEROGateway
 					child = (TagAnnotationData) 
 							PojoMapper.asDataObject(link.getChild());
 					children.add(child);
-					if (images) { //load images 
-						sb = new StringBuilder();
-						sb.append("select img from Image as img ");
-						sb.append("left outer join fetch "
-			                    + "img.annotationLinksCountPerOwner " +
-			                    		"img_a_c ");
-						sb.append("left outer join fetch img.annotationLinks " +
-								"ail ");
-						sb.append("left outer join fetch img.pixels as pix ");
-			            sb.append("left outer join fetch pix.pixelsType as pt ");
-			            sb.append("where ail.child.id = :id");
-			            param = new ParametersI();
-			            param.addLong("id", child.getId());
-
-			            Set imgs = PojoMapper.asDataObjects(
-			            		service.findAllByQuery(sb.toString(), param));
-			            child.setImages(imgs);
+					if (dataObject) { //load images 
+			            child.setDataObjects(loadRelatedObjects(child.getId()));
 					}
 				}
 				tag.setTags(children);
@@ -3536,7 +3566,7 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Map getImagesTaggedCount(List rootNodeIDs)
+	Map getDataObjectsTaggedCount(List rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3552,11 +3582,42 @@ class OMEROGateway
             Iterator i = rootNodeIDs.iterator();
             Long id;
             Map<Long, Long> m = new HashMap<Long, Long>();
-            
+            //Image first
             while (i.hasNext()) {
 				id = (Long) i.next();
 				param.addLong("tagID", id);
+				
 				m.put(id, new Long(service.findAllByQuery(query, param).size()));
+			}
+            //Dataset
+            sb = new StringBuilder();
+			sb.append("select d from Dataset as d ");
+			sb.append("left outer join fetch d.annotationLinks ail ");
+            sb.append("where ail.child.id = :tagID");
+            i = rootNodeIDs.iterator();
+            Long value;
+            long r;
+            while (i.hasNext()) {
+				id = (Long) i.next();
+				param.addLong("tagID", id);
+				value = m.get(id);
+				r = service.findAllByQuery(sb.toString(), param).size();
+				value += r;
+				m.put(id, value);
+			}
+            //Project
+            sb = new StringBuilder();
+			sb.append("select d from Project as d ");
+			sb.append("left outer join fetch d.annotationLinks ail ");
+            sb.append("where ail.child.id = :tagID");
+            i = rootNodeIDs.iterator();
+            while (i.hasNext()) {
+				id = (Long) i.next();
+				param.addLong("tagID", id);
+				value = m.get(id);
+				r = service.findAllByQuery(sb.toString(), param).size();
+				value += r;
+				m.put(id, value);
 			}
 			return m;
 		} catch (Throwable t) {

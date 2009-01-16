@@ -247,8 +247,8 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static final int	TAG = 64;
     
-    /** The <code>Tag group</code> icon. */
-    public static final int	TAG_GROUP = 65;
+    /** The <code>Tag Set</code> icon. */
+    public static final int	TAG_SET = 65;
     
     /** The <code>Tag big</code> icon. */
     public static final int	TAG_48 = 66;
@@ -461,7 +461,7 @@ public class IconManager
         relPaths[SEARCH_DATASET] = "search_folder_image16.png";
         relPaths[SEARCH_PROJECT] = "search_document16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
-        relPaths[TAG_GROUP] = "tag_folder16.png";
+        relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[TAG_48] = "nuvola_knotes48.png";
         relPaths[TAG_USED] = "tag_used16.png";
         relPaths[BROWSE] = "zoom16.png";

@@ -78,12 +78,6 @@ class PopupMenu
 	/** Button to delete the selected elements. */
 	private JMenuItem           deleteElement;
 
-	/** Button to browse the categories the image belongs to. */
-	private JMenuItem			browseClassificationElement;
-
-	/** Button to annotate the images contained in the selected element. */
-	private JMenuItem          	annotateChildrenElement;
-
 	/** Button to remove experimenter node from the display. */
 	private JMenuItem			removeExperimenterElement;
 
@@ -177,10 +171,6 @@ class PopupMenu
 				existingElement = new JMenuItem(a);
 				initMenuItem(existingElement, a.getActionName());
 				
-				a = controller.getAction(TreeViewerControl.ANNOTATE_CHILDREN);
-				annotateChildrenElement = new JMenuItem(a);
-				initMenuItem(annotateChildrenElement, a.getActionName());
-				
 				a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
 				removeExperimenterElement = new JMenuItem(a);
 				initMenuItem(removeExperimenterElement, a.getActionName());
@@ -188,9 +178,6 @@ class PopupMenu
 						TreeViewerControl.REFRESH_EXPERIMENTER);
 				refreshExperimenterElement = new JMenuItem(a);
 				initMenuItem(refreshExperimenterElement, null);
-				a = controller.getAction(TreeViewerControl.BROWSE_CATEGORIES);
-				browseClassificationElement = new JMenuItem(a);
-				initMenuItem(browseClassificationElement, a.getActionName());
 				a = controller.getAction(TreeViewerControl.PASTE_RND_SETTINGS);
 				pasteRndElement = new JMenuItem(a);
 				initMenuItem(pasteRndElement, a.getActionName());
@@ -265,10 +252,6 @@ class PopupMenu
 				add(view);
 				add(createManagementMenu());
 				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(browseClassificationElement);
-				//add(new JSeparator(JSeparator.HORIZONTAL));
-				//add(annotateChildrenElement);
-				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(copyRndElement);
 				add(pasteRndElement);
 				add(resetRndElement);
@@ -286,10 +269,7 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU:
 				add(createProject);
 				add(createDataset);
-				//add(new JSeparator(JSeparator.HORIZONTAL));
 				add(createScreen);
-				//add(new JSeparator(JSeparator.HORIZONTAL));
-				//add(createTag);
 		}
 	}
 
