@@ -247,6 +247,9 @@ public class CPEexport {
 				}
 				parameter.addChild(enumList);
 			}
+			String units = param.getAttribute(NumberParam.PARAM_UNITS);
+			if (units != null)
+				addChildContent(parameter, CPEimport.UNITS, units);
 		} 
 		else 
 		if (param instanceof TextParam) {

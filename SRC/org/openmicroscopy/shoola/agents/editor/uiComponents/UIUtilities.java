@@ -129,7 +129,7 @@ public class UIUtilities {
 		
 		dimensions.put(SPINNER_H, 25);
 		dimensions.put(SPINNER_W, 45);
-		dimensions.put(TEXT_FIELD_MIN_WIDTH, 120);
+		dimensions.put(TEXT_FIELD_MIN_WIDTH, 50);
 		dimensions.put(NUMB_FIELD_MIN_WIDTH, 75);
 		dimensions.put(SINGLE_ROW_HEiGHT, 18);
 		dimensions.put(DOUBLE_DIGIT_FIELD_W, 21);

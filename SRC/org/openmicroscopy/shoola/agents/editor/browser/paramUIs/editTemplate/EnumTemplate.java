@@ -37,7 +37,9 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.EnumEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
@@ -71,6 +73,11 @@ public class EnumTemplate
 	private AbstractParamEditor			defaultValueComboBox;
 	
 	/**
+	 * A text field for editing the units of the enumeration
+	 */
+	private AttributeEditLine 			unitsEditor;
+	
+	/**
 	 * Initialises the UI components. 
 	 */
 	private void initialise() {
@@ -91,6 +98,11 @@ public class EnumTemplate
 		defaultValueComboBox.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 
+		// Text field for editing/displaying units
+		unitsEditor = new AttributeEditNoLabel
+			(param, NumberParam.PARAM_UNITS, "units");
+		unitsEditor.addPropertyChangeListener
+			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 	}
 	
 	/**
@@ -102,7 +114,7 @@ public class EnumTemplate
 		add(optionsFieldEditor, BorderLayout.NORTH);
 		add(new CustomLabel("Default Value: "), BorderLayout.WEST);
 		add(defaultValueComboBox, BorderLayout.CENTER);
-		
+		add(unitsEditor, BorderLayout.EAST);
 	}
 	
 	public EnumTemplate(IAttributes param) {
@@ -170,6 +182,14 @@ public class EnumTemplate
 				newAttributes.put(EnumParam.ENUM_OPTIONS, newOptions);
 				attributeEdited("Drop-down options", newAttributes);
 				
+			}
+			
+			if (evt.getSource().equals(unitsEditor)) {
+				String newUnits = null;
+				if (evt.getNewValue() != null)
+					newUnits = evt.getNewValue().toString();
+				// simply change the new value of default attribute
+				attributeEdited(NumberParam.PARAM_UNITS, newUnits);
 			}
 			
 		}
