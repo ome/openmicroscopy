@@ -241,6 +241,10 @@ public class PROimport {
 			 field.addContent(param);
 		 }
 		 
+		 // is this a 'required' field?
+		 boolean fieldRequired = "true".equals(
+				 allAttributes.get(DataFieldConstants.REQUIRED_FIELD));
+		 
 		 // parameter that represents the field 
 		 // if field contains tabular data, add a parameter for each column...
 		 if (paramType.equals(DataFieldConstants.TABLE)) {
@@ -253,6 +257,8 @@ public class PROimport {
 			 for (int c=0; c<colNames.length; c++) {
 				 paramName = colNames[c].trim();
 				 param = getFieldParam(TextParam.TEXT_LINE_PARAM);
+				 if(fieldRequired) param.setAttribute
+				 			(AbstractParam.PARAM_REQUIRED, "true");
 				 param.setAttribute(AbstractParam.PARAM_NAME, paramName);
 				 field.addContent(param);
 			 }
@@ -281,6 +287,8 @@ public class PROimport {
 			 // all other field types can be converted to a single parameter.
 			 param = getParameter(paramType, allAttributes);
 			 if (param != null) {
+				 if(fieldRequired) param.setAttribute
+		 			(AbstractParam.PARAM_REQUIRED, "true");
 				 field.addContent(param);
 			 }
 		 }

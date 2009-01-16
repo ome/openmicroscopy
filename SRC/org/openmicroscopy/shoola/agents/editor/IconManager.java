@@ -287,11 +287,15 @@ public class IconManager
     /** The <code>Save to Server</code> icon. */
     public  static int			SAVE_SERVER_ICON = 73;
     
+    /** The <code>Red Asterisk</code> icon. */
+    public  static int			RED_ASTERISK_11_ICON = 74;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 73;
+    private static int          MAX_ID = 74;
+   
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -377,6 +381,7 @@ public class IconManager
         relPaths[WWW_FOLDER_ICON] = "nuvola_folder_http16.png";
         relPaths[WWW_FOLDER_ICON_48] = "nuvola_folder_html48.png";
         relPaths[SAVE_SERVER_ICON] = "nuvola_save_server16.png";
+        relPaths[RED_ASTERISK_11_ICON] = "red_asterisk_11.png";
     }
     
     

@@ -29,6 +29,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -36,11 +38,13 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.DropDownMenu;
 
 /** 
@@ -132,6 +136,15 @@ public class ParamEditor
 		nameAndTypeContainer.setBackground(null);
 		nameAndTypeContainer.add(nameEditor, BorderLayout.CENTER);
 		nameAndTypeContainer.add(paramTypeChooser, BorderLayout.EAST);
+		
+		// indicate whether parameter is necessary (required)
+		if (parameter.isAttributeTrue(AbstractParam.PARAM_REQUIRED)) {
+			Icon red = IconManager.getInstance().getIcon
+										(IconManager.RED_ASTERISK_11_ICON);
+			JButton requiredButton = new CustomButton(red);
+			requiredButton.setToolTipText("This parameter is 'required'");
+			nameAndTypeContainer.add(requiredButton, BorderLayout.WEST);
+		}
 		
 		add(nameAndTypeContainer);
 		

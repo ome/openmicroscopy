@@ -216,7 +216,11 @@ public class CPEexport {
 		}
 		addChildContent(parameter, CPEimport.NAME, name);
 		addChildContent(parameter, CPEimport.ID, paramID++ +"");
-		addChildContent(parameter, CPEimport.NECESSITY, "OPTIONAL");
+		
+		// parameter necessity
+		boolean required = param.isAttributeTrue(AbstractParam.PARAM_REQUIRED);
+		String necessity = required ? CPEimport.REQUIRED : CPEimport.OPTIONAL;
+		addChildContent(parameter, CPEimport.NECESSITY, necessity);
 		
 		// Depending on the type of parameter, set the param-type, 
 		// and add any additional attributes. 

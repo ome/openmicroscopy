@@ -72,6 +72,12 @@ public abstract class AbstractParam
 	public static final String 		PARAM_NAME = "paramName";
 	
 	/**
+	 * A property that should be set to 'true' to indicate that this 
+	 * parameter must be filled in. 
+	 */
+	public static final String 		PARAM_REQUIRED = "paramRequired";
+	
+	/**
 	 * A map of the attributes that define this parameter. 
 	 * Can be used to store any name, value pair. 
 	 * E.g. Parameter-Name, Default-Value, etc. 

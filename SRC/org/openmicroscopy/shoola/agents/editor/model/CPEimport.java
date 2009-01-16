@@ -38,6 +38,7 @@ import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
@@ -141,6 +142,12 @@ public class CPEimport {
 	
 	/**  The name of the element used to store the 'necessity' of a parameter */
 	public static final String 			NECESSITY =	"necessity";
+	
+	/**  Possible option for content of the 'necessity' element */
+	public static final String 			OPTIONAL = "OPTIONAL";
+	
+	/**  Possible option for content of the 'necessity' element */
+	public static final String 			REQUIRED = "REQUIRED";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -186,6 +193,11 @@ public class CPEimport {
 		}
 		attributeValue = getChildContent(cpeParam, DEFAULT);
 		param.setAttribute(TextParam.DEFAULT_VALUE, attributeValue);
+		
+		// read whether the parameter is 'required'
+		attributeValue = getChildContent(cpeParam, NECESSITY);
+		if (REQUIRED.equals(attributeValue))	
+			param.setAttribute(AbstractParam.PARAM_REQUIRED, "true");
 	}
 	
 	/**
