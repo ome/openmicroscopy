@@ -83,7 +83,7 @@ public class DropDownMenu
 	 */
 	public DropDownMenu(String[] options) 
 	{
-		Icon upDownIcon = IconManager.getInstance().getIcon(IconManager.UP_DOWN);
+		Icon upDownIcon = IconManager.getInstance().getIcon(IconManager.UP_DOWN_9_12);
 		setIcon(upDownIcon);
 		setHorizontalTextPosition(SwingConstants.LEFT);
 		setIconTextGap(2);

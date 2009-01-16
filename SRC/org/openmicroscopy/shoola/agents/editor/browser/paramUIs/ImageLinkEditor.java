@@ -142,7 +142,7 @@ public class ImageLinkEditor
 		zoomButton.setToolTipText("Zoom Image");
 		zoomButton.addMouseListener(new PopupListener());
 		
-		noImageIcon = iM.getImageIcon(IconManager.NO_IMAGE_ICON);
+		noImageIcon = iM.getImageIcon(IconManager.NO_IMAGE_ICON_32);
 		
 		// set the value of the pop-up menu, according to IMAGE_ZOOM attribute
 		zoomPercent = getParameter().getAttribute(ImageParam.IMAGE_ZOOM);

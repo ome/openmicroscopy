@@ -115,7 +115,7 @@ public class IconManager
     public  static int			ZOOM_ICON = 17;
     
     /** The <code>No Image</code> icon. */
-    public  static int			NO_IMAGE_ICON = 18;
+    public  static int			NO_IMAGE_ICON_32 = 18;
     
     /** The <code>Link to local file</code> icon. */
     public  static int			LINK_LOCAL_ICON = 19;
@@ -243,7 +243,7 @@ public class IconManager
     public  static int			SAVE_ICON = 58;
     
     /** The <code>Up-Down</code> icon. */
-    public  static int			UP_DOWN = 59;
+    public  static int			UP_DOWN_9_12 = 59;
     
     /** The <code>Spacer-16</code> icon. */
     public  static int			SPACER = 60;
@@ -288,7 +288,7 @@ public class IconManager
     public  static int			SAVE_SERVER_ICON = 73;
     
     /** The <code>Red Asterisk</code> icon. */
-    public  static int			RED_ASTERISK_11_ICON = 74;
+    public  static int			RED_ASTERISK_ICON_11 = 74;
     
     /** 
      * The maximum ID used for the icon IDs.
@@ -341,21 +341,22 @@ public class IconManager
                  
         relPaths[OPEN_IMAGE_ICON] = "nuvola_folder_image16.png";
         relPaths[ZOOM_ICON] = "zoom16.png";
-        relPaths[NO_IMAGE_ICON] = "nuvola_file_broken32.png";
+        relPaths[NO_IMAGE_ICON_32] = "nuvola_file_broken32.png";
         relPaths[LINK_LOCAL_ICON] = "nuvola_link_local16.png";
         relPaths[LINK_RELATIVE_ICON] = "nuvola_link_relative16.png";
         relPaths[LINK_SCIENCE_ICON] = "nuvola_link_science16.png";
-        relPaths[LINK_SCIENCE_RELATIVE_ICON] = "nuvola_link_science_relative16.png";
+        relPaths[LINK_SCIENCE_RELATIVE_ICON] = 
+        	"nuvola_link_science_relative16.png";
         relPaths[FILE_CLOSE_ICON] = "nuvola_fileclose16.png";
         relPaths[WRENCH_ICON] = "nuvola_configure16.png";
         relPaths[NEW_ROW_ICON] = "nuvola_view_bottom16.png";
         relPaths[CLEAR_ROW_ICON] = "nuvola_view_clear16.png";
         relPaths[TIMER_START_ICON] = "nuvola_timerStart16.png";
         relPaths[TIMER_STOP_ICON] = "nuvola_timerStop16.png";
-        relPaths[INFO_ICON] =  "nuvola_messagebox_info16.png";
-        relPaths[N0] =  "nuvola_no16.png";
-        relPaths[UNDO_ICON] =  "nuvola_undo16.png";
-        relPaths[REDO_ICON] =  "nuvola_redo16.png";
+        relPaths[INFO_ICON] = "nuvola_messagebox_info16.png";
+        relPaths[N0] = "nuvola_no16.png";
+        relPaths[UNDO_ICON] = "nuvola_undo16.png";
+        relPaths[REDO_ICON] = "nuvola_redo16.png";
         relPaths[ADD_ICON] = "nuvola_edit_add16.png";
         relPaths[DELETE_ICON] = "nuvola_cancel16.png";
         relPaths[CONFIGURE_ICON] = "nuvola_package_utilities16.png";
@@ -366,7 +367,7 @@ public class IconManager
         relPaths[FULL_LOCK] = "nuvola_encrypted_red16.png";
         relPaths[OMERO_EDITOR] = "omeroEditorLink16.png";
         relPaths[SAVE_ICON] = "nuvola_filesave16.png";
-        relPaths[UP_DOWN] = "upDown.png";
+        relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[SPACER] = "spacer16.png";
         relPaths[NEW_FILE_ICON] = "nuvola_filenew16.png";
         relPaths[EDIT_XML_ICON] = "nuvola_kwrite16.png";
@@ -381,7 +382,7 @@ public class IconManager
         relPaths[WWW_FOLDER_ICON] = "nuvola_folder_http16.png";
         relPaths[WWW_FOLDER_ICON_48] = "nuvola_folder_html48.png";
         relPaths[SAVE_SERVER_ICON] = "nuvola_save_server16.png";
-        relPaths[RED_ASTERISK_11_ICON] = "red_asterisk_11.png";
+        relPaths[RED_ASTERISK_ICON_11] = "red_asterisk_11.png";
     }
     
     

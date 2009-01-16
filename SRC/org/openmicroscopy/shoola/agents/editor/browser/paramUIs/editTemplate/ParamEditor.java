@@ -140,7 +140,7 @@ public class ParamEditor
 		// indicate whether parameter is necessary (required)
 		if (parameter.isAttributeTrue(AbstractParam.PARAM_REQUIRED)) {
 			Icon red = IconManager.getInstance().getIcon
-										(IconManager.RED_ASTERISK_11_ICON);
+										(IconManager.RED_ASTERISK_ICON_11);
 			JButton requiredButton = new CustomButton(red);
 			requiredButton.setToolTipText("This parameter is 'required'");
 			nameAndTypeContainer.add(requiredButton, BorderLayout.WEST);

@@ -61,7 +61,7 @@ public class DDTableCellRenderer
 	public DDTableCellRenderer() {
 		
 		IconManager iM = IconManager.getInstance();
-		ddIcon = iM.getIcon(IconManager.UP_DOWN);
+		ddIcon = iM.getIcon(IconManager.UP_DOWN_9_12);
 		
 		setIcon(ddIcon);
 		setHorizontalTextPosition(SwingConstants.LEFT);
