@@ -147,8 +147,6 @@ public class ThumbnailLoader
     {
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
         if (single) {
-        	if (td != null)  //Last fe has null object.
-        		viewer.setThumbnail(td.getThumbnail(), td.getImageID());
         } else {
         	if (td != null)  {
             	//Last fe has null object.

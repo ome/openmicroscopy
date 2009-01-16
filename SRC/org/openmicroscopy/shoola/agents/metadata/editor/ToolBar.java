@@ -157,6 +157,7 @@ class ToolBar
     	bars.add(buildGeneralBar());
     	bars.add(Box.createHorizontalStrut(2));
     	imageBar = buildImageToolBar();
+    	imageBar.setVisible(false);
     	bars.add(imageBar);
     	JPanel p = new JPanel();
     	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));

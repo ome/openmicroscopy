@@ -152,14 +152,6 @@ public interface Editor
 	public void setChannelsData(List list, boolean updateView);
 
 	/**
-	 * Sets the passed image.
-	 * 
-	 * @param thumbnail The image to set.
-	 * @param imageID	The id of the image.
-	 */
-	public void setThumbnail(BufferedImage thumbnail, long imageID);
-	
-	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
 	 * otherwise.
 	 * 

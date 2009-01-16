@@ -383,7 +383,8 @@ class ChannelAcquisitionComponent
                 			Editor.LASER_TYPE, (String) value);
                 	if (selected != null) {
                 		laserTypeBox.setSelectedItem(selected);
-                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(
+                				selected.toString()))
     						set = false;
                 	}
                 	laserTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -394,7 +395,8 @@ class ChannelAcquisitionComponent
                 			(String) value);
                 	if (selected != null) {
                 		laserMediumBox.setSelectedItem(selected);
-                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(
+                				selected.toString()))
     						set = false;
                 	}
                 	laserMediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -454,7 +456,8 @@ class ChannelAcquisitionComponent
             				Editor.ARC_TYPE, (String) value);
                 	if (selected != null) {
                 		arcTypeBox.setSelectedItem(selected);
-                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(
+                				selected.toString()))
     						set = false;
                 	}
                 	arcTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -466,7 +469,8 @@ class ChannelAcquisitionComponent
                 			Editor.FILAMENT_TYPE, (String) value);
                 	if (selected != null) {
                 		filamentTypeBox.setSelectedItem(selected);
-                		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+                		if (AcquisitionDataUI.UNSET_ENUM.contains(
+                				selected.toString()))
     						set = false;
                 	}
                 	filamentTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -588,7 +592,8 @@ class ChannelAcquisitionComponent
             			(String) value);
             	if (selected != null) {
             		detectorBox.setSelectedItem(selected);
-            		if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+            		if (AcquisitionDataUI.UNSET_ENUM.contains(
+            				selected.toString()))
 						set = false;
             	}
             	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);

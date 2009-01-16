@@ -256,7 +256,8 @@ class ImageAcquisitionComponent
 						Editor.IMMERSION, (String) value);
 				if (selected != null) {
 					immersionBox.setSelectedItem(selected);
-					if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+					if (AcquisitionDataUI.UNSET_ENUM.contains(
+							selected.toString()))
 						set = false;
 				}
 				immersionBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -266,7 +267,8 @@ class ImageAcquisitionComponent
 						Editor.CORRECTION, (String) value);
 				if (selected != null) {
 					coatingBox.setSelectedItem(selected);
-					if (AcquisitionDataUI.UNSET_ENUM.contains(selected))
+					if (AcquisitionDataUI.UNSET_ENUM.contains(
+							selected.toString()))
 						set = false;
 				}
 				area = coatingBox;

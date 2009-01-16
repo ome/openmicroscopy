@@ -420,14 +420,20 @@ class AcquisitionDataUI
 		}
 	}
 	
-	/** Updates display when the new root node is set. */
-	void setRootObject()
+	/** 
+	 * Updates display when the new root node is set. 
+	 * Loads the acquisition data if the passed parameter is <code>true</code>
+	 * and the {@link #imagePane} is expanded.
+	 * 
+	 * @param load 	Pass <code>true</code> to load the image data,
+	 * 				<code>false</code> otherwise.*/
+	void setRootObject(boolean load)
 	{
 		imageAcquisition.setRootObject();
 		channelAcquisitionPanes.clear();
 		layoutUI();
 		repaint();
-		if (!imagePane.isCollapsed())
+		if (!imagePane.isCollapsed() && load)
 			controller.loadImageAcquisitionData();
 	}
 	

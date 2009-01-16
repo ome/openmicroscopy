@@ -148,7 +148,6 @@ class MetadataViewerUI
 	MetadataViewerUI()
 	{
 		super("");
-		//super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 	}
 	
 	/**
@@ -184,7 +183,8 @@ class MetadataViewerUI
 	 * 
 	 * @param thumbnail The thumbnail to set.
 	 */
-	void setThumbnail(BufferedImage thumbnail) {
+	void setThumbnail(BufferedImage thumbnail)
+	{
 		JLabel label = new JLabel(new ImageIcon(thumbnail));
         label.setBorder(new FrameBorder(Color.BLACK));
         label.addMouseListener(new MouseAdapter() {

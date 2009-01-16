@@ -340,6 +340,7 @@ class PropertiesUI
 	protected void buildUI()
 	{
 		removeAll();
+		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
@@ -503,15 +504,16 @@ class PropertiesUI
 	 */
 	protected void clearData()
 	{
-		//namePane.getDocument().removeDocumentListener(this);
-		//descriptionPane.getDocument().removeDocumentListener(this);
+		originalName = model.getRefObjectName();
+		originalDisplayedName = originalName;
+		originalDescription = model.getRefObjectDescription();
+		namePane.getDocument().removeDocumentListener(this);
+		descriptionPane.removeDocumentListener(this);
 		idLabel.setText("");
-		namePane.setText(model.getRefObjectName());
-		descriptionPane.setText(model.getRefObjectDescription());
-		//namePane.getDocument().addDocumentListener(this);
-		//descriptionPane.getDocument().addDocumentListener(this);
-		originalName = namePane.getText();
-		originalDescription = descriptionPane.getText();
+		namePane.setText(originalName);
+		descriptionPane.setText(originalDescription);
+		namePane.getDocument().addDocumentListener(this);
+		descriptionPane.addDocumentListener(this);
 		channelsArea.setText("");
 	}
 	

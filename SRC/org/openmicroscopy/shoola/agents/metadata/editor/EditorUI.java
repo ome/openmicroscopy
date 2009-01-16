@@ -26,9 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -197,47 +195,28 @@ public class EditorUI
 			add(component, BorderLayout.CENTER);
 			revalidate();
 	    	repaint();
-		} else if (uo instanceof ExperimenterData) 
+		} else if (uo instanceof ExperimenterData) {
 			layoutUI();
-		else {
-			if (!(uo instanceof ImageData)) {
+		} else {
+			boolean load = false;
+			if (model.isMultiSelection()) {
 				tabbedPane.setSelectedIndex(GENERAL_INDEX);
 				tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);
-			} else
-				tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+			} else {
+				if (uo instanceof ImageData) {
+					load = true;
+					tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+				} else {
+					tabbedPane.setSelectedIndex(GENERAL_INDEX);
+					tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);
+				}
+				load = true;
+			}
 			generalPane.setRootObject();
-			acquisitionPane.setRootObject();
+			acquisitionPane.setRootObject(load);
 		}
 	}
 	
-	/**
-	 * Sets either to single selection or to multi selection.
-	 * 
-	 * @param single	Pass <code>true</code> when single selection, 
-	 * 					<code>false</code> otherwise.
-	 */
-    void setSelectionMode(boolean single)
-    {
-    	Component comp = getComponent(0);
-    	/*
-    	Object refObject = model.getRefObject();
-    	if (refObject instanceof DataObject) {
-    		if (comp instanceof JPanel) {
-        		removeAll();
-        		add(emptyPane, BorderLayout.CENTER);
-        	}
-    	} else {
-    		if (comp instanceof JScrollPane) {
-        		removeAll();
-        		add(mainPane, BorderLayout.CENTER);
-        	}
-    	}
-    	*/
-    	//layoutUI();
-    	//modify layout
-    	repaint();
-    }
-    
     /** Save data. */
 	void saveData()
 	{
@@ -268,26 +247,6 @@ public class EditorUI
 		revalidate();
     	repaint();
 	}
-	
-	/**
-	 * Displays the passed image.
-	 * 
-	 * @param thumbnail
-	 */
-	void setThumbnail(BufferedImage thumbnail)
-	{
-		/*
-		ThumbnailCanvas canvas = new ThumbnailCanvas(model, thumbnail, null);
-		if (topLeftPane != null) leftPane.remove(topLeftPane);
-		topLeftPane = canvas;
-		TableLayout layout = (TableLayout) leftPane.getLayout();
-		layout.setRow(0, TableLayout.PREFERRED);
-		leftPane.add(topLeftPane, "0, 0");
-		leftPane.revalidate();
-		revalidate();
-    	repaint();
-    	*/
-	}
 
 	/** Shows the image's info. */
     void showChannelData()
@@ -317,12 +276,6 @@ public class EditorUI
 		if (!(ref instanceof DataObject)) return false;
 		if (ref instanceof ExperimenterData)
 			return userUI.hasDataToSave();
-		if (model.isMultiSelection()) {
-			//if (!propertiesUI.isNameValid()) {
-			//	setDataToSave(false);
-			//	return false;
-			//}
-		}
 		boolean b = generalPane.hasDataToSave();
 		if (b) return b;
 		//Check metadata.
@@ -335,26 +288,6 @@ public class EditorUI
 		saved = false;
 		generalPane.clearData();
 		setCursor(Cursor.getDefaultCursor());
-	}
-
-	/**
-	 * Adds the specified component.
-	 * 
-	 * @param c The component to add.
-	 */
-	void addTopLeftComponent(JComponent c)
-	{
-		/*
-		added = true;
-		if (topLeftPane != null) leftPane.remove(topLeftPane);
-		topLeftPane = c;
-		TableLayout layout = (TableLayout) leftPane.getLayout();
-		layout.setRow(0, TableLayout.PREFERRED);
-		leftPane.add(topLeftPane, "0, 0");
-		leftPane.revalidate();
-		revalidate();
-    	repaint();
-    	*/
 	}
 	
 	/** Clears the password fields. */

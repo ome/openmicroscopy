@@ -487,7 +487,6 @@ class MetadataViewerComponent
 	{
 		model.setSelectionMode(single);
 		model.getEditor().setSelectionMode(single);
-		//model.getEditor().showEditorUI(show);
 	}
 
 	/** 

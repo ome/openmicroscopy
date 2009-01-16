@@ -142,11 +142,9 @@ class GeneralPaneUI
 
 		content.add(propertiesUI, "0, "+i);
 		i++;
-		//content.add(new JSeparator(), "0, "+i);
 		i++;
 		content.add(annotationUI, "0, "+i);
 		i++;
-		//content.add(new JSeparator(), "0, "+i);
 		i++;
 		content.add(textualAnnotationsUI, "0, "+i);
 		i++;
@@ -188,23 +186,22 @@ class GeneralPaneUI
 		int n = layout.getNumRow();
 		double h = 0;
 		String s = "";
+		boolean multi = model.isMultiSelection();
 		Object refObject = model.getRefObject();
 		if (refObject instanceof TagAnnotationData) {
 			propertiesUI.setObjectDescription();
 			browserTaskPane.setCollapsed(true);
-			if (model.hasTagsAsChildren()) {
-				//tagsTaskPane.setCollapsed(true);
-				//tagsTaskPane.setTreeEnabled(false);
-			}
 		} else if  (refObject instanceof DatasetData) {
-			//tagsTaskPane.setCollapsed(true);
-			//tagsTaskPane.setTreeEnabled(false);
-			h = TableLayout.PREFERRED;
-			s = "Contained in Projects";
+			if (!multi) {
+				h = TableLayout.PREFERRED;
+				s = "Contained in Projects";
+			}
 		}  else if (refObject instanceof ImageData) {
-			h = TableLayout.PREFERRED;
-			s = "Contained in Datasets";
-			controller.loadChannelData();
+			if (!multi) {
+				h = TableLayout.PREFERRED;
+				s = "Contained in Datasets";
+				controller.loadChannelData();
+			}
 		}
 		browserTaskPane.setTitle(s);
 		layout.setRow(n-1, h);
@@ -250,8 +247,11 @@ class GeneralPaneUI
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
     	textualAnnotationsUI.clearDisplay();
-    	if (!model.isMultiSelection())
-    		propertiesUI.buildUI();
+    	propertiesUI.buildUI();
+    	if (model.isMultiSelection()) {
+    		TableLayout layout = (TableLayout) content.getLayout();
+    		layout.setRow(layout.getNumRow()-1, 0);
+    	}
 		revalidate();
     	repaint();
 	}

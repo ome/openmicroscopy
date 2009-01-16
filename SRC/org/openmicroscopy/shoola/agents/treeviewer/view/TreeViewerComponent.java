@@ -626,8 +626,7 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			browser.onSelectedNode(parent, selected, size > 0);
 		}
-		
-		
+
 		mv.setSelectionMode(size == 0);
 		mv.setRootObject(selected);
 		if (size > 0) mv.setRelatedNodes(siblings);

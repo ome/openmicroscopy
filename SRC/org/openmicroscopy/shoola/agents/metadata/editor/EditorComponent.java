@@ -40,12 +40,10 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
@@ -189,20 +187,6 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#setThumbnail(BufferedImage, long)
-	 */
-	public void setThumbnail(BufferedImage thumbnail, long imageID)
-	{
-		Object ref = model.getRefObject();
-		if (!(ref instanceof ImageData)) return;
-		ImageData img = (ImageData) ref;
-		if (img.getId() == imageID && thumbnail != null)
-			view.setThumbnail(thumbnail);
-			//model.setThumbnail(thumbnail);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#hasDataToSave()
 	 */
 	public boolean hasDataToSave()
@@ -288,7 +272,7 @@ class EditorComponent
 	 */
 	public void setSelectionMode(boolean single)
 	{
-		view.setSelectionMode(single);
+		view.repaint();
 	}
 
 	/** 
