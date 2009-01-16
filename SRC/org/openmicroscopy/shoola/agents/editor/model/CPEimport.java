@@ -283,7 +283,6 @@ public class CPEimport {
 				// if paramType not recognised, return text text parameter
 				param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
 				setNameValueDefault(cpeParam, param);
-				return param;
 			}
 			setName(cpeParam, param);
 			/*
@@ -298,7 +297,7 @@ public class CPEimport {
 		}
 		
 		
-		IXMLElement data = cpeParam.getFirstChildNamed("data");
+		IXMLElement data = cpeParam.getFirstChildNamed(DATA);
 		if (data != null) {
 			int index = 0;
 			List <IXMLElement> values = data.getChildrenNamed(VALUE);
@@ -306,6 +305,9 @@ public class CPEimport {
 				param.setValueAt(index++, element.getContent());
 			}
 		}
+		
+		attributeValue = getChildContent(cpeParam, DESCRIPTION);
+		param.setAttribute(AbstractParam.PARAM_DESC, attributeValue);
 		
 		return param;
 	}
