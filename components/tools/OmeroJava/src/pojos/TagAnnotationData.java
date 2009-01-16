@@ -116,8 +116,7 @@ public class TagAnnotationData extends AnnotationData {
         super(TagAnnotationI.class);
         setTagValue(tag);
         setTagDescription(description);
-        if (asTagSet)
-        	setNameSpace(INSIGHT_TAGSET_NS);
+        if (asTagSet) setNameSpace(INSIGHT_TAGSET_NS);
     }
     
 
