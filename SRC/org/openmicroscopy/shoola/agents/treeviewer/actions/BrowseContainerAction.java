@@ -41,11 +41,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Browses the selected node depending on the hierarchy object type.
@@ -112,7 +114,8 @@ public class BrowseContainerAction
         }
         if (ho == null || !(ho instanceof DataObject) ||
         	ho instanceof ExperimenterData || ho instanceof ImageData ||
-        	ho instanceof FileAnnotationData) 
+        	ho instanceof FileAnnotationData || ho instanceof DatasetData ||
+        	ho instanceof TagAnnotationData) 
         	setEnabled(false);
         else {
             if (browser != null) {

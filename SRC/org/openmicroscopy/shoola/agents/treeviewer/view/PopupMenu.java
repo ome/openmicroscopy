@@ -120,6 +120,8 @@ class PopupMenu
 	/** Button to create a new screen. */
 	private JMenuItem			createScreen;
 	
+	/** Button to create a new Tag Set. */
+	private JMenuItem			createTagSet;
 	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
@@ -217,9 +219,9 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
 				createTag = new JMenuItem(a);
 				initMenuItem(createTag, a.getActionName());
-				a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
-				createScreen = new JMenuItem(a);
-				initMenuItem(createScreen, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG_SET);
+				createTagSet = new JMenuItem(a);
+				initMenuItem(createTagSet, a.getActionName());
 				break;
 		}
 	}
@@ -269,7 +271,10 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU:
 				add(createProject);
 				add(createDataset);
-				add(createScreen);
+				add(createTagSet);
+				add(createTag);
+				
+				//add(createScreen);
 		}
 	}
 

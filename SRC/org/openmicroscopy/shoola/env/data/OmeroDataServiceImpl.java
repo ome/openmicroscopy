@@ -293,6 +293,8 @@ class OmeroDataServiceImpl
 			gateway.deleteObject(
 					gateway.findIObject(OriginalFile.class.getName(), 
 							originalFileID));
+		} else if (data instanceof TagAnnotationData) {
+			//TODO
 		}
 		return result;
 	}
@@ -300,6 +302,7 @@ class OmeroDataServiceImpl
 	/**
 	 * Returns the collection of annotations to delete before deleting
 	 * the object.
+	 * 
 	 * @param types
 	 * @param annotations
 	 * @return See above.

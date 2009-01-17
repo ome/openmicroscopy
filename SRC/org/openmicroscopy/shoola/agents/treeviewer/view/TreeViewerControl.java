@@ -165,12 +165,6 @@ class TreeViewerControl
 	static final Integer    MANAGER = new Integer(19);
 
 	/** 
-	 * Identifies the <code>Classifier action</code> in the 
-	 * File menu.
-	 */
-	//static final Integer    CLASSIFIER = new Integer(20);
-
-	/** 
 	 * Identifies the <code>Cut action</code> in the 
 	 * Edit menu.
 	 */

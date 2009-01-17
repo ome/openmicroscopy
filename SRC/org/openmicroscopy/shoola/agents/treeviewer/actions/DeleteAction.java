@@ -43,6 +43,7 @@ import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Action to delete the selected element and {@link DeleteCmd} is executed.
@@ -176,7 +177,8 @@ public class DeleteAction
         }
         */
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
-        	(ho instanceof ImageData) || (ho instanceof FileAnnotationData)) {
+        	(ho instanceof ImageData) || (ho instanceof FileAnnotationData) ||
+        	(ho instanceof TagAnnotationData)) {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
         	else {

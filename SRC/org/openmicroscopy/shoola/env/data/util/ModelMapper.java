@@ -310,11 +310,7 @@ public class ModelMapper
         	model.setDescription(omero.rtypes.rstring(data.getDescription()));
             return model;
         } else if (child instanceof TagAnnotationData) {
-        	TagAnnotationData data = (TagAnnotationData) child;
-        	TagAnnotation model = new TagAnnotationI();
-        	model.setTextValue(omero.rtypes.rstring(data.getTagValue()));
-        	//model.setDescription(omero.rtypes.rstring(data.getTagDescription()));
-            return model;
+        	return createAnnotation((TagAnnotationData) child);
         }
         throw new IllegalArgumentException("Child and parent are not " +
         		"compatible.");
@@ -399,6 +395,10 @@ public class ModelMapper
     		annotation = new TagAnnotationI();
     		((TagAnnotation) annotation).setTextValue(
     				omero.rtypes.rstring(data.getContentAsString()));
+    		String ns = data.getNameSpace();
+    		if (ns != null && ns.length() > 0) {
+    			annotation.setNs(omero.rtypes.rstring(ns));
+    		}
     	}
     	return annotation;
     }
