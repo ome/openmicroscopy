@@ -953,48 +953,6 @@ class OmeroDataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#annotateChildren(Set, AnnotationData)
-	 */
-	public List annotateChildren(Set folders, AnnotationData data) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (folders == null || folders.size() == 0)
-			throw new IllegalArgumentException("No DataObject to annotate."); 
-		if (data == null)
-			throw new IllegalArgumentException("No annotation."); 
-		Iterator i = folders.iterator(), j;
-		DataObject object;
-		Set images = null;
-		Class klass = null;
-		List<Long> ids;
-		DataObject image;
-		List<DataObject> results = new ArrayList<DataObject>();
-		PojoOptions po = new PojoOptions();
-		po.allExps();
-		Map map = po.map();
-		while (i.hasNext()) {
-			object = (DataObject) i.next();
-			ids = new ArrayList<Long>(1);
-			ids.add(new Long(object.getId()));
-			if (object instanceof DatasetData) {
-				klass = DatasetData.class;
-			} 
-			if (klass != null) 
-				images = gateway.getContainerImages(klass, ids, map);
-
-			if (images != null) {
-				j = images.iterator();
-				while (j.hasNext()) {
-					image = createAnnotationFor((DataObject) j.next(), data);
-					results.add(image);
-				}
-			}
-		}
-		return results;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#changePassword(String, String)
 	 */
 	public Boolean changePassword(String oldPassword, String newPassword) 

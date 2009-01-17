@@ -59,8 +59,7 @@ public interface DataManagerView
 {
 	
 	/**
-	 * Retrieves the hierarchies specified by the 
-	 * parameters.
+	 * Retrieves the hierarchies specified by the parameters.
 	 * 
 	 * @param rootNodeType  The type of the root node. Can only be one out of:
 	 *                      <code>ProjectData, DatasetData</code>.
@@ -324,9 +323,29 @@ public interface DataManagerView
 			AgentEventListener observer);
   
 	
-	public CallHandle loadScreenPlates(Class rootType, List rootIDs, long userID, 
-			AgentEventListener observer);
+	/**
+	 * Loads the Screen/Plate hierarchy.
+	 * 
+	 * @param rootType  The type of the root node. Can only be one out of:
+	 *                  <code>ScreenData</code> or <code>PlateData</code>.
+	 * @param rootIDs   A set of the IDs of top-most containers. Passed
+	 *                  <code>null</code> to retrieve all the top-most
+	 *                  container specified by the rootNodeType. 
+	 * @param userID	The Id of the user.
+	 * @param observer  Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadScreenPlates(Class rootType, List rootIDs, 
+									long userID, AgentEventListener observer);
 	
+	/**
+	 * Loads to the wells contained within the specified plate.
+	 * 
+	 * @param plateID 	The id of the plate.
+	 * @param userID 	The Id of the user.
+	 * @param observer  Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle loadPlateWells(long plateID, long userID, 
 								AgentEventListener observer);
 	

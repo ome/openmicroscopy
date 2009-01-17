@@ -27,8 +27,6 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -36,9 +34,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
 
 /** 
 * Provides methods to support annotation.
@@ -57,106 +52,6 @@ public interface DataHandlerView
 	extends DataServicesView
 {
 
-	/** 
-	 * Creates an annotation of the specified type for the specified node.
-	 * 
-	 * @param annotatedObject   The <code>DataObject</code> to annotate.
-	 *                          One of the following type:
-	 *                          <code>DatasetData</code>,
-	 *                          <code>ImageData</code>.   
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation to create.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle createAnnotation(DataObject annotatedObject,
-			AnnotationData data,  AgentEventListener observer);
-
-	/**
-	 * Updates the specified annotation.
-	 * 
-	 * @param annotatedObject   The annotated <code>DataObject</code>.
-	 *                          One of the following type:
-	 *                          <code>DatasetData</code>,
-	 *                          <code>ImageData</code>.   
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The Annotation object to update.
-	 *                          Mustn't be <code>null</code>.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle updateAnnotation(DataObject annotatedObject,
-			AnnotationData data, AgentEventListener observer);
-
-	/**
-	 * Deletes the specified annotations.
-	 * 
-	 * @param annotatedObject   The annotated <code>DataObject</code>.
-	 *                          One of the following type:
-	 *                          <code>DatasetData</code>,
-	 *                          <code>ImageData</code>.   
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              Collection of annotation objects to delete. 
-	 * 
-	 *                          Mustn't be <code>null</code>.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle deleteAnnotation(DataObject annotatedObject,
-							List data, AgentEventListener observer);
-	
-	/**
-	 * Deletes the specified annotation.
-	 * 
-	 * @param annotatedObject   The annotated <code>DataObject</code>.
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation to remove. 
-	 *                          Mustn't be <code>null</code>.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle deleteAnnotation(DataObject annotatedObject,
-							AnnotationData data, AgentEventListener observer);
-
-	/** 
-	 * Creates an annotation of the specified type for the specified node.
-	 * 
-	 * @param annotatedObjects  The <code>DataObject</code>s to annotate. 
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation to create.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle createAnnotation(Set annotatedObjects, 
-			AnnotationData data,  
-			AgentEventListener observer);
-
-	/**
-	 * Updates the specified annotation.
-	 * 
-	 * @param annotatedObjects  The annotated <code>DataObject</code>s. 
-	 *                          Mustn't be <code>null</code>.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle updateAnnotation(Map annotatedObjects,
-			AgentEventListener observer);
-
-	/**
-	 * Updates and creates the specified annotation.
-	 * 
-	 * @param toUpdate  		The annotated <code>DataObject</code>s.
-	 *                          Mustn't be <code>null</code>.
-	 * @param toCreate  		The annotated <code>DataObject</code>s.
-	 *                          Mustn't be <code>null</code>.                          
-	 * @param data              The Annotation object to update.
-	 *                          Mustn't be <code>null</code>.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle updateAndCreateAnnotation(Map toUpdate, Set toCreate, 
-			AnnotationData data, AgentEventListener observer);
-
 	/**
 	 * Loads the original archived files if any linked to the set of pixels.
 	 * 
@@ -167,18 +62,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle loadArchivedFiles(String location, long pixelsID, 
 			AgentEventListener observer);
-
-	/**
-	 * Annotates the images contained in the passed folder.
-	 * 
-	 * @param folders		Collection of folders containing the images
-	 * 						to annotate.
-	 * @param annotation	The annotation.
-	 * @param observer		Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle annotateChildren(Set folders, 
-			AnnotationData annotation, AgentEventListener observer);
 	
 	/**
 	 * Loads the images imported during the passed period.
@@ -285,38 +168,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle setRndSettings(TimeRefObject ref, 
 										AgentEventListener observer);
-
-	/**
-	 * Annotates the images imported during the given period of time.
-	 * 
-	 * @param timeRef		The time reference.
-	 * @param annotation	The annotation.
-	 * @param observer		Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle annotateChildren(TimeRefObject timeRef, 
-			AnnotationData annotation, AgentEventListener observer);
-	
-	/**
-	 * Retrieves the objects specified by the context of the search.
-	 * 
-	 * @param scope			The scope of the search.
-	 * @param values		The terms to find.
-	 * @param users			The users' data.
-	 * @param start			The start of the time interval.
-	 * @param end			The end of the time interval.
-	 * @param separator		The separator between words, either <code>and</code>
-	 * 						or <code>or</code>.
-	 * @param caseSensitive Pass <code>true</code> to take into account the
-	 * 						case sensitivity while searching, 
-	 * 						<code>false</code> otherwise.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			String separator, boolean caseSensitive,
-			AgentEventListener observer);
 	
 	/**
 	 * Retrieves the objects specified by the context of the search.

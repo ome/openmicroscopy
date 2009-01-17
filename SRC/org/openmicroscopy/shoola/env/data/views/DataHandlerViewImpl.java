@@ -26,23 +26,17 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
 
 /** 
 * Implementation of the {@link DataHandlerView} implementation.
@@ -63,97 +57,6 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#createAnnotation(DataObject, AnnotationData,
-	 *                                      AgentEventListener)
-	 */
-	public CallHandle createAnnotation(DataObject annotatedObject, 
-			AnnotationData data,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
-				AnnotationSaver.CREATE);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#updateAnnotation(DataObject, AnnotationData,
-	 *                                      AgentEventListener)
-	 */
-	public CallHandle updateAnnotation(DataObject annotatedObject,
-			AnnotationData data,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
-				AnnotationSaver.UPDATE);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#deleteAnnotation(DataObject, List,
-	 *                                       AgentEventListener)
-	 */
-	public CallHandle deleteAnnotation(DataObject annotatedObject,
-			List data,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
-				AnnotationSaver.DELETE);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#deleteAnnotation(DataObject, AnnotationData,
-	 *                                       AgentEventListener)
-	 */
-	public CallHandle deleteAnnotation(DataObject annotatedObject,
-										AnnotationData data,
-											AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
-				AnnotationSaver.DELETE);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#createAnnotation(Set, AnnotationData, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle createAnnotation(Set annotatedObjects, 
-			AnnotationData d, AgentEventListener observer) 
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObjects, d, false);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#updateAndCreateAnnotation(Map, Set, 
-	 * 									AnnotationData, AgentEventListener)
-	 */
-	public CallHandle updateAndCreateAnnotation(Map toUpdate, Set toCreate, 
-			AnnotationData data, AgentEventListener observer) 
-	{
-		BatchCallTree cmd = new AnnotationSaver(toUpdate, toCreate, data);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#updateAnnotation(Map, AgentEventListener)
-	 */
-	public CallHandle updateAnnotation(Map annotatedObjects, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObjects);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#loadArchivedFiles(String, long, AgentEventListener)
 	 */
 	public CallHandle loadArchivedFiles(String location, long pixelsID, 
@@ -162,19 +65,6 @@ public class DataHandlerViewImpl
 		BatchCallTree cmd = new ArchivedFilesLoader(location, pixelsID);
 		return cmd.exec(observer);
 	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#annotateChildren(Set, AnnotationData, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle annotateChildren(Set set, AnnotationData annotation, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(set, annotation, true);
-		return cmd.exec(observer);
-	}
-
 
 	/**
 	 * Implemented as specified by the view interface.
@@ -259,32 +149,6 @@ public class DataHandlerViewImpl
 		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
 								RenderingSettingsSaver.SET_ORIGINAL);
 		return cmd.exec(observer);
-	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#annotateChildren(TimeRefObject, AnnotationData, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle annotateChildren(TimeRefObject timeRef, 
-			AnnotationData annotation, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(timeRef, annotation);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#advancedSearchFor(List, List, List, Timestamp, 
-	 * 									Timestamp, String, boolean,
-	 * 									AgentEventListener)
-	 */
-	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			String separator, boolean caseSensitive, 
-			AgentEventListener observer)
-	{
-		return null;
 	}
 	
 	/**

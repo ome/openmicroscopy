@@ -27,23 +27,15 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.DataObject;
 import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Implementation of the {@link HierarchyBrowsingView} interface.
@@ -87,8 +79,6 @@ class HierarchyBrowsingViewImpl
     								int maxWidth, int maxHeight, long userID,
                                      AgentEventListener observer)
     {
-        //BatchCallTree cmd = new ThumbnailLoader(images, maxWidth, 
-        //							maxHeight, userID);
     	BatchCallTree cmd = new ThumbnailSetLoader(images, maxHeight);
         return cmd.exec(observer);
     }
@@ -104,77 +94,5 @@ class HierarchyBrowsingViewImpl
         BatchCallTree cmd = new ThumbnailLoader(images, userID);
         return cmd.exec(observer);
     }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findPDIHierarchies(List, long, 
-     *                                              AgentEventListener)
-     */
-    public CallHandle findPDIHierarchies(List ids, long userID,
-                                        AgentEventListener observer)
-    {
-        BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids, userID);
-        return cmd.exec(observer);
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadImages(List, long, AgentEventListener)
-     */
-    public CallHandle loadImages(List imageIDs, long userID, 
-    							AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ImagesLoader(ImageData.class, imageIDs, userID);
-        return cmd.exec(observer);
-    }
 
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#updateDataObject(DataObject, 
-     *                                          AgentEventListener)
-     */
-    public CallHandle updateDataObject(DataObject userObject, 
-                    AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DataObjectSaver(userObject, null,
-                DataObjectSaver.UPDATE);
-        return cmd.exec(observer); 
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadChannelsData(long, AgentEventListener)
-     */
-    public CallHandle loadChannelsData(long pixelsID, 
-                                        AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ChannelMetadataLoader(pixelsID);
-        return cmd.exec(observer);
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#removeDataObjects(Set, DataObject, 
-     *                                      AgentEventListener)
-     */
-    public CallHandle removeDataObjects(Set userObjects, DataObject parent, 
-                                    AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DataObjectSaver(userObjects, parent, 
-                                            DataObjectSaver.REMOVE);
-        return cmd.exec(observer);  
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#removeDataObjects(Map, AgentEventListener)
-     */
-    public CallHandle removeDataObjects(Map objects,
-                                    AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DataObjectSaver(objects, 
-                                           DataObjectSaver.REMOVE);
-        return cmd.exec(observer);                            
-    }
-    
 }

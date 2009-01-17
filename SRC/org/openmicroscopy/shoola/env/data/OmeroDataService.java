@@ -247,24 +247,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Creates the specified annotation for the specified
-	 * <code>DataObject</code>. The updated <code>DataObject</code> is
-	 * then returned.
-	 * 
-	 * @param annotatedObject   The object to annotate.
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation to create. 
-	 *                          Mustn't be <code>null</code>.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public DataObject createAnnotationFor(DataObject annotatedObject,
-			AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Creates a new <code>DataObject</code> and links it to the specified 
 	 * parent. The parent will be <code>null</code> if the
 	 * <code>DataObject</code> to create is either a <code>Project</code>,
@@ -368,36 +350,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Creates the specified annotation for the specified
-	 * <code>DataObject</code>s. The updated <code>DataObject</code> are
-	 * then returned.
-	 * 
-	 * @param toAnnotate	The objects to handle. Mustn't be <code>null</code>.
-	 * @param data          The annotation to create. 
-	 *                      Mustn't be <code>null</code>.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public List createAnnotationFor(Set toAnnotate, AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Updates the specified annotation. The updated <code>DataObject</code>s 
-	 * are then returned.
-	 * 
-	 * @param toUpdate	The objects to handle. Mustn't be <code>null</code>.
-	 *                          
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public List updateAnnotationFor(Map toUpdate)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Retrieves and saves the archived files.
 	 * Returns a map whose keys are the number of archived files retrieves
 	 * and the values are the number of files actually saved.
@@ -411,21 +363,6 @@ public interface OmeroDataService
 	 */
 	public Map getArchivedFiles(String location, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Annotates the images contained in the passed folders i.e. 
-	 * datasets categories.
-	 * 
-	 * @param folders	The folders containing the images to annotate.
-	 * 					Mustn't be <code>null</code>.
-	 * @param data		The annotation. Mustn't be <code>null</code>.
-	 * @return The annotated images.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public List annotateChildren(Set folders, AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException;		
 
 	/**
 	 * Changes the password of the user currently logged in.

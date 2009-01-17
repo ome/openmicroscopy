@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
