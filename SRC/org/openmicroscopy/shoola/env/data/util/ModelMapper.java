@@ -30,6 +30,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
@@ -214,6 +215,14 @@ public class ModelMapper
             ScreenPlateLink l = new ScreenPlateLinkI();
             l.link(unloadedScreen, unloadedPlate);
             return l;
+        } else if (parent instanceof TagAnnotation) {
+        	if (!(child instanceof TagAnnotation))
+                throw new IllegalArgumentException("Child not valid.");
+        	RString ns = ((TagAnnotation) parent).getNs();
+        	if (ns == null || !ns.getValue().equals(
+        			TagAnnotationData.INSIGHT_TAGSET_NS))
+        		throw new IllegalArgumentException("Parent not valid.");
+        	return linkAnnotation(parent, (TagAnnotation) child);
         }
         return null;
     }

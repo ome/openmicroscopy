@@ -55,6 +55,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -709,7 +710,8 @@ class BrowserComponent
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
                 (object instanceof ScreenData) ||
-                ((object instanceof DatasetData) && parent == null)) {
+                ((object instanceof DatasetData) && parent == null) ||
+                ((object instanceof TagAnnotationData) && parent == null)) {
                 nodes = new ArrayList(1);
                 nodes.add(loggedUser);
                 parentDisplay = loggedUser;

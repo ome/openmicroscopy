@@ -62,7 +62,6 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -628,27 +627,6 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
-	 */
-	public DataObject createAnnotationFor(DataObject annotatedObject,
-			AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (data == null) 
-			throw new IllegalArgumentException("No annotation to create.");
-		if (annotatedObject == null) 
-			throw new IllegalArgumentException("No DataObject to annotate."); 
-		//First make sure the annotated object is current.
-		IObject ho = gateway.findIObject(annotatedObject.asIObject());
-		if (ho == null) return null;
-		IObject object = gateway.createObject(
-				ModelMapper.createAnnotationAndLink(ho, data), 
-				(new PojoOptions()).map());
-		return PojoMapper.asDataObject(ModelMapper.getAnnotatedObject(object));
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#createDataObject(DataObject, DataObject, 
 	 * 										Collection)
 	 */
@@ -666,8 +644,21 @@ class OmeroDataServiceImpl
 		Map options = (new PojoOptions()).map();
 
 		IObject created = gateway.createObject(obj, options);
-		if (parent != null)
-			ModelMapper.linkParentToChild(created, parent.asIObject());
+		IObject link;
+		if (child instanceof TagAnnotationData) {
+			//add description.
+			TagAnnotationData tag = (TagAnnotationData) child;
+			OmeroMetadataService service = context.getMetadataService(); 
+			service.annotate(TagAnnotationData.class, created.getId().getValue(), 
+					tag.getTagDescription());
+		}
+		if (parent != null) {
+			link = ModelMapper.linkParentToChild(created, parent.asIObject());
+			if ((child instanceof TagAnnotationData) && link != null) {
+				gateway.createObject(link, options);
+			}
+		}
+			
 		if (children != null && children.size() > 0) {
 			Iterator i = children.iterator();
 			Object node;
@@ -869,76 +860,6 @@ class OmeroDataServiceImpl
 		return m;
 	}
 
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#createAnnotationFor(Set, AnnotationData)
-	 */
-	public List createAnnotationFor(Set toAnnotate, AnnotationData d) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (d == null) 
-			throw new IllegalArgumentException("No annotation to create.");
-		if (toAnnotate == null || toAnnotate.size() == 0) 
-			throw new IllegalArgumentException("No DataObject to annotate."); 
-		Iterator i = toAnnotate.iterator();
-		DataObject annotatedObject;
-		IObject[] toCreate = new IObject[toAnnotate.size()];
-		IObject[] objects = new IObject[toAnnotate.size()];
-		int index = 0;
-		IObject ho;
-		while (i.hasNext()) {
-			annotatedObject = (DataObject) i.next();
-			ho = gateway.findIObject(annotatedObject.asIObject());
-			if (ho != null) {
-				toCreate[index] = ModelMapper.createAnnotationAndLink(ho, d);
-				
-				objects[index] = gateway.createObject(toCreate[index], 
-						(new PojoOptions()).map());
-				index++;
-			}
-
-		}
-		List<DataObject> results = new ArrayList<DataObject>(objects.length);
-		//TODO review that code.
-		DataObject data;
-		for (int j = 0; j < objects.length; j++) {
-			data = PojoMapper.asDataObject(
-					ModelMapper.getAnnotatedObject(objects[j]));
-			results.add(data);
-		}
-		return results;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#updateAnnotationFor(Map)
-	 */
-	public List updateAnnotationFor(Map nodes) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (nodes == null || nodes.size() == 0) 
-			throw new IllegalArgumentException("No DataObject to annotate."); 
-
-		Map options = (new PojoOptions()).map();
-		Iterator i = nodes.keySet().iterator();
-		DataObject annotatedObject;
-		IObject object, updated, toUpdate;
-		List<DataObject> results = new ArrayList<DataObject>(nodes.size());
-		while (i.hasNext()) {
-			annotatedObject = (DataObject) i.next();
-			object = gateway.findIObject(annotatedObject.asIObject());
-			if (object != null) {
-				ModelMapper.unloadCollections(object);
-				updated = gateway.updateObject(object, options);
-				toUpdate = ((AnnotationData) 
-						nodes.get(annotatedObject)).asIObject();
-				ModelMapper.setAnnotatedObject(updated, toUpdate);
-				gateway.updateObject(toUpdate, options);
-				results.add(PojoMapper.asDataObject(updated));
-			}
-		}
-		return results;
-	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

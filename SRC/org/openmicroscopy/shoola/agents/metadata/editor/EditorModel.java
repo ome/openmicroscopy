@@ -166,8 +166,7 @@ class EditorModel
      * most recent.
      * 
      * @param annotations   Collection of {@link AnnotationData} linked to 
-     *                      the currently edited <code>Dataset</code> or
-     *                      <code>Image</code>.
+     *                      the currently edited <code>DataObject</code>.
      */
     private void sortAnnotationByDate(List annotations)
     {
@@ -315,6 +314,11 @@ class EditorModel
 			return ((ScreenData) refObject).getDescription();
 		else if (refObject instanceof PlateData)
 			return ((PlateData) refObject).getDescription();
+		else if (refObject instanceof TagAnnotationData) {
+			List l = getTextualAnnotationsByDate();
+			if (l == null || l.size() == 0) return "";
+			return ((TextualAnnotationData) l.get(l.size()-1)).getText();
+		}
 		return "";
 	}
 	

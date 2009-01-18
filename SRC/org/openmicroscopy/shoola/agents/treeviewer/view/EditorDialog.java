@@ -158,6 +158,7 @@ class EditorDialog
         //UIUtilities.setTextAreaDefault(nameArea);
         nameArea.getDocument().addDocumentListener(this);
         descriptionArea = new MultilineLabel();
+        descriptionArea.setEditable(true);
         //UIUtilities.setTextAreaDefault(descriptionArea);
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Close the dialog.");
@@ -233,10 +234,10 @@ class EditorDialog
         else if (data instanceof DatasetData) typeName = "Dataset";
         else if (data instanceof ScreenData) typeName = "Screen";
         else if (data instanceof TagAnnotationData) {
+        	typeName = "Tag";
         	String ns = ((TagAnnotationData) data).getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
         		typeName = "Tag Set";
-        	else typeName = "Tag";
         }
         tp = new TitlePanel("Create "+typeName, "Create a new "+typeName+".", 
     			im.getIcon(IconManager.CREATE_48));

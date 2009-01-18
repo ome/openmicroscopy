@@ -289,8 +289,9 @@ class PropertiesUI
          p.add(l);
          Object refObject = model.getRefObject();
          if ((refObject instanceof ImageData) || 
-        	(refObject instanceof DatasetData) ||
-        	(refObject instanceof ProjectData)) {
+            (refObject instanceof DatasetData) ||
+        	(refObject instanceof ProjectData) || 
+        	(refObject instanceof TagAnnotationData)) {
         	 p.add(Box.createVerticalStrut(5));
              p.add(descriptionPane);
          }
