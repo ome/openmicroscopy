@@ -96,7 +96,9 @@ public class CPEexport {
 	 */
 	private IXMLElement buildSteps(TreeNode node) 
 	{
-		IXMLElement rootStep = createStepElement(node);
+		IField field = getFieldFromTreeNode(node);
+		
+		IXMLElement rootStep = createStepElement(field);
 		IXMLElement childSteps = new XMLElement("step-children");
 		
 		TreeNode childNode;
@@ -109,14 +111,32 @@ public class CPEexport {
 			childSteps.addChild(step);
 		}
 		
-		// only add child-steps element if not empty.
+		String stepType = field.getAttribute(Field.STEP_TYPE);
+		
+		// set step-type depending on whether children exist.
 		if (childSteps.getChildrenCount() > 0) {
 			// add the step_type attribute before the child steps
-			// TODO should be "SPLIT_STEP" if this has been set somehow
-			addChildContent(rootStep, "step_type", "STEP_GROUP");
+			// If step-type is not a split step, must be STEP_GROUP
+			if (! CPEimport.SPLIT_STEP.equals(stepType)) {
+				addChildContent(rootStep, CPEimport.STEP_TYPE, 
+													CPEimport.STEP_GROUP);
+			}
+			else {
+				addChildContent(rootStep, CPEimport.STEP_TYPE, 
+													CPEimport.SPLIT_STEP);
+			}
+			// only add child-steps element if not empty.
 			rootStep.addChild(childSteps);
 		} else {
-			addChildContent(rootStep, "step_type","SINGLE_STEP");
+			// no children. 
+			// Step-type is SINGLE_STEP, unless otherwise defined
+			if (stepType == null) {
+				addChildContent(rootStep, CPEimport.STEP_TYPE, 
+													CPEimport.SINGLE_STEP);
+			}
+			else {
+				addChildContent(rootStep, CPEimport.STEP_TYPE, stepType);
+			}
 		}
 		
 		return rootStep;
@@ -130,12 +150,11 @@ public class CPEexport {
 	 * @param treeNode		The node used to generate a new Element
 	 * @return				A new Element, based on the node. 
 	 */
-	private IXMLElement createStepElement(TreeNode treeNode) 
+	private IXMLElement createStepElement(IField field) 
 	{
 		// create element, add essential attributes
 		IXMLElement step = new XMLElement(CPEimport.STEP);
 		
-		IField field = getFieldFromTreeNode(treeNode);
 		if (field == null) return step;
 	
 		// name

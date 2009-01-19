@@ -54,6 +54,7 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
+import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -182,6 +183,17 @@ public class FieldParamEditor
 			notesButton.setToolTipText(notesToolTip);
 			nameContainer.add(notesButton);
 		}
+		
+		// show whether this step is a "SPLIT_STEP"
+		String stepType = field.getAttribute(Field.STEP_TYPE);
+		if (CPEimport.SPLIT_STEP.equals(stepType)) {
+			Icon split = IconManager.getInstance().getIcon
+												(IconManager.SPLIT_12_ICON);
+			JButton splitButton = new CustomButton(split);
+			splitButton.setToolTipText("This step is a 'Split Step'");
+			nameContainer.add(splitButton);
+		}
+		
 		
 		nameContainer.add(nameEditor);
 		attributeFieldsPanel.add(nameContainer);

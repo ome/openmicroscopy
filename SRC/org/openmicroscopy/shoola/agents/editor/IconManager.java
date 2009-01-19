@@ -293,11 +293,14 @@ public class IconManager
     /** The <code>Info</code> icon, 12 pixels square. */
     public  static int			INFO_12_ICON = 75;
     
+    /** The <code>Split</code> icon, 12 pixels square. */
+    public  static int			SPLIT_12_ICON = 76;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 75;
+    private static int          MAX_ID = 76;
    
     
     /** Paths of the icon files. */
@@ -387,6 +390,7 @@ public class IconManager
         relPaths[SAVE_SERVER_ICON] = "nuvola_save_server16.png";
         relPaths[RED_ASTERISK_ICON_11] = "red_asterisk_11.png";
         relPaths[INFO_12_ICON] = "info_12.png";
+        relPaths[SPLIT_12_ICON] = "split_12.png";
     }
     
     

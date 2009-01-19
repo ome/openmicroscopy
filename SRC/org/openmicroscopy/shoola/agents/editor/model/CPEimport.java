@@ -77,6 +77,20 @@ public class CPEimport {
 	/**  The name of the element used to define a protocol step */
 	public static final String 			STEP = "step";
 	
+	/**  The name of the element used to store a step type, 
+	 * Possible values are SINGLE_STEP, STEP_GROUP, SPLIT_STEP.
+	 */
+	public static final String 			STEP_TYPE = "step-type";
+	
+	/**  One option for content of the {@link #STEP_TYPE} element */
+	public static final String 			SINGLE_STEP = "SINGLE_STEP";
+	
+	/**  One option for content of the {@link #STEP_TYPE} element */
+	public static final String 			STEP_GROUP = "STEP_GROUP";
+	
+	/**  One option for content of the {@link #STEP_TYPE} element */
+	public static final String 			SPLIT_STEP = "SPLIT_STEP";
+	
 	/**
 	 * The name of the element used to store the name of parameter and
 	 * step elements in cpe.xml files. 
@@ -468,6 +482,10 @@ public class CPEimport {
 		
 		// handles reading of step notes. 
 		addStepNotes(field, cpeStep);
+		
+		// step type. export is different, depending on child-steps
+		String stepType = getChildContent(cpeStep, STEP_TYPE);
+		field.setAttribute(Field.STEP_TYPE, stepType);
 		
 		return field;
 	}

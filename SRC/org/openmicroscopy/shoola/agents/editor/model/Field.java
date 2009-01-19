@@ -72,6 +72,11 @@ public class Field
 	 */
 	public static final String 			BACKGROUND_COLOUR = "backgroundColour";
 	
+	/**  The name of the attribute used to store a step type, 
+	 * Possible values are SINGLE_STEP, STEP_GROUP, SPLIT_STEP.
+	 */
+	public static final String 			STEP_TYPE = "step-type";
+	
 	/**
 	 * A display property of this field.
 	 * getDisplayAttribute(TOOL_TIP_TEXT) should return a string composed
