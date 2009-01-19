@@ -201,6 +201,24 @@ public class RotateEllipseFigure
 	}
 	
 	/**
+	 * Return the Transformed ellipse as a transformedShape, of type Shape 
+	 * @return see above.
+	 */
+	protected Shape getTransformedShape(double i, double j)
+	{
+		if (AttributeKeys.TRANSFORM.get(this)==null)
+		{
+			cachedTransformedShape=ellipse;
+		}
+		else
+		{
+			Ellipse2D.Double newEllipse = new Ellipse2D.Double(ellipse.x-i,ellipse.y-j,ellipse.width+i,ellipse.height+j);
+			cachedTransformedShape= AttributeKeys.TRANSFORM.get(this).createTransformedShape(newEllipse);
+		}
+		return cachedTransformedShape; 
+	}
+	
+	/**
 	 * Get the ellipse.
 	 * @return see above.
 	 */

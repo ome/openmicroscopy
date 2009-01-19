@@ -27,7 +27,10 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -66,6 +69,8 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
+	private final static double EPSILON = 0.5;
+	
 	Rectangle2D measurementBounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
@@ -464,13 +469,19 @@ public class MeasureEllipseFigure
 	 */
 	public List<Point> getPoints()
 	{
-		Rectangle r = this.getTransformedShape().getBounds();
-		List<Point> vector = new ArrayList<Point>(r.height*r.width);
-		int xEnd = r.x+r.width, yEnd = r.y+r.height;
+		Shape transformedEllipse = getTransformedShape(EPSILON, EPSILON);
+		Rectangle2D r = transformedEllipse.getBounds2D();
+		System.err.println(r.toString());
+		List<Point> vector = new ArrayList<Point>((int)r.getHeight()*(int)r.getWidth());
+		int xEnd = (int)(r.getX()+r.getWidth());
+		int yEnd = (int)(r.getY()+r.getHeight());
+		int startX = (int)r.getX();
+		int startY = (int)r.getY();
 		int x, y;
-		for (y=r.y; y<yEnd; ++y)
-			for (x=r.x; x<xEnd; ++x)
-				if (this.getTransformedShape().contains(x, y)) 
+		Point p;
+		for (y=startY; y<yEnd; ++y)
+			for (x=startX; x<xEnd; ++x)
+				if (transformedEllipse.contains(x,y))
 					vector.add(new Point(x, y));
 		return vector; 
 	}

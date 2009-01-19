@@ -288,6 +288,7 @@ class ObjectInspector
 				fieldTable.repaint();
 			}
 		} catch (Exception e) {
+			System.err.println("Exception"+l.get(0).toString());
 			MeasurementAgent.getRegistry().getLogger().info(this, 
 													"Figures selection"+e);;
 		}

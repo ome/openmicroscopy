@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Point;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
@@ -61,6 +63,12 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 public class IntensityValuesDialog
 	extends JDialog
 {	
+	
+	/** The minimum width of the row header. */
+	private final static int ROWWIDTHMIN = 24;
+	
+	/** Spacer for the row header. */
+	private final static String ROWSPACER = "  ";
 	
 	/** Table Model. */
 	private IntensityModel	tableModel;
@@ -121,6 +129,11 @@ public class IntensityValuesDialog
 		for(int i = 0 ; i < model.getRowCount(); i++)
 			listData.add(i);
 		intensityTableRowHeader.setListData(listData);
+		Font font = table.getFont();
+		FontMetrics metrics = getFontMetrics(font);
+		int w = metrics.stringWidth(ROWSPACER+model.getRowCount() + ROWSPACER);
+		int rowWidth = Math.max(w, ROWWIDTHMIN);
+		intensityTableRowHeader.setFixedCellWidth(rowWidth);
 		intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
 	}
 
