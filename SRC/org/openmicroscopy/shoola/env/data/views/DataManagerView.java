@@ -111,39 +111,6 @@ public interface DataManagerView
 			AgentEventListener observer);
 
 	/**
-	 * Updates the specified <code>DataObject</code>.
-	 * 
-	 * @param userObject    The <code>DataObject</code> to save.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle updateDataObject(DataObject userObject,
-			AgentEventListener observer);
-
-	/**
-	 * Removes the specified <code>DataObject</code> from the specified 
-	 * parents.
-	 * 
-	 * @param userObjects 	The <code>DataObject</code>s to remove.
-	 * @param parent 		The parent of the <code>DataObject</code>.  
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle removeDataObjects(Set userObjects, DataObject parent, 
-			AgentEventListener observer);
-
-	/**
-	 * Removes the specified <code>DataObject</code> from the specified 
-	 * parents.
-	 * 
-	 * @param objects   The <code>DataObject</code>s to remove.
-	 * @param observer  Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle removeDataObjects(Map objects, 
-			AgentEventListener observer);
-
-	/**
 	 * Counts the number of items contained in the specified containers.
 	 * 
 	 * @param rootNodeIDs   Collection of top-most containers.

@@ -1827,14 +1827,18 @@ class TreeViewerComponent
 		Class type = null;
 		boolean ann = false;
 		boolean content = false;
+		String ns = null;
 		while (i.hasNext()) {
 			node = (TreeImageDisplay) i.next();
 			if (node.isAnnotated()) ann = true;
 			if (node.hasChildren()) content = true;
-			type = node.getUserObject().getClass();
+			Object uo = node.getUserObject();
+			type = uo.getClass();
+			if (uo instanceof TagAnnotationData) 
+				ns = ((TagAnnotationData) uo).getNameSpace();
 			break;
 		}
-		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), 
+		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), ns, 
 										view);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			ann = dialog.deleteAnnotations();

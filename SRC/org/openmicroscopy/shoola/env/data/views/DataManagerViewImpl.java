@@ -123,42 +123,6 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#updateDataObject(DataObject, AgentEventListener)
-	 */
-	public CallHandle updateDataObject(DataObject userObject,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new DataObjectSaver(userObject, null,
-				DataObjectSaver.UPDATE);
-		return cmd.exec(observer);  
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#removeDataObjects(Set, DataObject, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle removeDataObjects(Set userObjects, DataObject parent, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new DataObjectSaver(userObjects, parent, 
-				DataObjectSaver.REMOVE);
-		return cmd.exec(observer);  
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#removeDataObjects(Map, AgentEventListener)
-	 */
-	public CallHandle removeDataObjects(Map objects,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new DataObjectSaver(objects, 
-				DataObjectSaver.REMOVE);
-		return cmd.exec(observer);                            
-	}
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#countContainerItems(Set, AgentEventListener)
 	 */
 	public CallHandle countContainerItems(Set rootIDs, 

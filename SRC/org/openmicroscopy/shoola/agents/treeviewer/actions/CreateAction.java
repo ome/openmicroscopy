@@ -42,6 +42,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Creates a new <code>DataObject</code> of the corresponding type.
@@ -64,6 +65,9 @@ public class CreateAction
     /** The name of the action for the creation of a <code>Dataset</code>. */
     private static final String NAME_DATASET = "New Dataset...";
     
+    /** The name of the action for the creation of a <code>Tag</code>. */
+    private static final String NAME_TAG = "New Tag...";
+    
     /** The name of the action for the creation of a <code>Plate</code>. */
     private static final String NAME_PLATE = "New Plate...";
     
@@ -71,22 +75,28 @@ public class CreateAction
     private static final String NAME_IMAGE = "Import...";
     
     /** 
-     * Description of the action if the selected node is a <code>Dataset</code>.
+     * Description of the action if the selected node is a <code>Tag Set</code>.
      */
-    private static final String DESCRIPTION_DATASET = "Create a new dataset " +
-    		"and add it to the selected project.";
+    private static final String DESCRIPTION_TAG = "Create a new Tag " +
+    		"and add it to the selected Tag Set.";
+    
+    /** 
+     * Description of the action if the selected node is a <code>Project</code>.
+     */
+    private static final String DESCRIPTION_DATASET = "Create a new Dataset " +
+    		"and add it to the selected Project.";
  
     /** 
-     * Description of the action if the selected node is a <code>Plate</code>.
+     * Description of the action if the selected node is a <code>Screen</code>.
      */
-    private static final String DESCRIPTION_PLATE = "Create a new plate " +
-    		"and add it to the selected screen.";
+    private static final String DESCRIPTION_PLATE = "Create a new Plate " +
+    		"and add it to the selected Screen.";
     
     /** 
      * Description of the action if the selected node is a <code>Image</code>.
      */
     private static final String DESCRIPTION_IMAGE = "Import image into the " +
-    												"selected dataset.";
+    												"selected Dataset.";
     
     /** Default Description of the action. */
     private static final String DESCRIPTION = "Create a new element.";
@@ -157,6 +167,21 @@ public class CreateAction
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
+        } else if (ho instanceof TagAnnotationData) {
+        	String ns = ((TagAnnotationData) ho).getNameSpace();
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+        		setEnabled(model.isObjectWritable(ho));
+            	nodeType = CreateCmd.TAG;
+            	putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
+            	name = NAME_TAG;
+            	putValue(Action.SHORT_DESCRIPTION, 
+            			UIUtilities.formatToolTipText(DESCRIPTION_TAG)); 
+        	} else {
+        		setEnabled(false);
+                name = NAME;
+                putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION));
+        	}
         } else {
             setEnabled(false);
             name = NAME;

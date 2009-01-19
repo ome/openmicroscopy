@@ -382,6 +382,9 @@ class PropertiesUI
 			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
 			descriptionPane.setText(data.getText());
 			originalDescription = descriptionPane.getText();
+		} else {
+			descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
+			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		}
 		if (b)
 			descriptionPane.addDocumentListener(this);
@@ -411,7 +414,8 @@ class PropertiesUI
 			p.setDescription(desc);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
-			p.setTagDescription(desc);
+			if (desc.length() > 0)
+				p.setTagDescription(desc);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);

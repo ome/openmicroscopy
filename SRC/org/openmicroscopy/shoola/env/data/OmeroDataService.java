@@ -37,7 +37,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -265,21 +264,6 @@ public interface OmeroDataService
 	 */
 	public DataObject createDataObject(DataObject newObject, DataObject parent, 
 										Collection children)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Unlinks the specified <code>DataObject</code> and the parent object.
-	 * 
-	 * @param children  The children to remove. Mustn't be <code>null</code>.
-	 * @param parent    The child's parent. The parent is <code>null</code> if 
-	 *                  the child is a top node container i.e. 
-	 *                  <code>Project</code> or <code>Categorygroup</code>.
-	 * @return          The updated parent.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set removeDataObjects(Set children, DataObject parent)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -513,22 +497,6 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection getOriginalFiles(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException;
-
-
-	/**
-	 * Deletes the specified data objects.
-	 * 
-	 * @param object Deletes the specifed data object.
-	 * @param content Pass <code>true</code> to delete the object and 
-	 * the content
-	 *
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public void deleteContainer(DataObject object, boolean content)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

@@ -492,7 +492,8 @@ public abstract class TreeImageDisplay
     {
     	Object uo = getUserObject();
     	if ((uo instanceof ProjectData) || (uo instanceof ScreenData) ||
-    		(uo instanceof PlateData) || (uo instanceof DatasetData)) {
+    		(uo instanceof PlateData) || (uo instanceof DatasetData) ||
+    		(uo instanceof TagAnnotationData)) {
     		if (numberItems > 0) return true;
         	return hasChildrenDisplay();
     	}

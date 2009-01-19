@@ -89,6 +89,9 @@ public class DeleteBox
 	/** The type of object to remove. */
 	private Class					type;
 	
+	/** The Name space of the object to remove. */
+	private String					nameSpace;
+	
 	/** Flag indicating if the objects have been annotated. */
 	private boolean					annotation;
 	
@@ -198,9 +201,14 @@ public class DeleteBox
 				p.add(withAnnotation);
 				p.add(typesPane);
 			}
-		} else if (FileAnnotationData.class.equals(type)) {
-			add = true;
-			//p.add(typesPane);
+		} else if (TagAnnotationData.class.equals(type)) {
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
+				add = true;
+				if (children) {
+					p.add(withContent);
+					p.add(withoutContent);
+				}
+			}
 		}
 		if (add)
 			addBodyComponent(p);
@@ -212,33 +220,43 @@ public class DeleteBox
 	 * 
 	 * @param type			The type of object to handle.
 	 * @param number		The number of object to remove.
+	 * @param nameSpace		Name space related to the data object if any.
 	 * @param annotation	Pass <code>true</code> if the objects have been 
 	 * 						annotated, <code>false</code> otherwise.
 	 * @param children		Pass <code>true</code> if the objects have been 
 	 * 						annotated, <code>false</code> otherwise.
 	 * @return See above. 
 	 */
-	private static String getMessage(Class type, int number, boolean annotation,
-						boolean children)
+	private static String getMessage(Class type, int number, String nameSpace,
+						boolean annotation, boolean children)
 	{
 		StringBuffer buffer = new StringBuffer(); 
 		String end = "?";
 		if (number > 1) end = "s?";
 		if (ImageData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" image"+end);
+			buffer.append(DEFAULT_TEXT+" Image"+end);
 			buffer.append("\n");
 			if (annotation || children) buffer.append("If yes, ");
 		} else if (DatasetData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" dataset"+end);
+			buffer.append(DEFAULT_TEXT+" Dataset"+end);
 			buffer.append("\n");
 			if (annotation || children) buffer.append("If yes, ");
 		} else if (ProjectData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" project"+end);
+			buffer.append(DEFAULT_TEXT+" Project"+end);
 			buffer.append("\n");
 			if (annotation || children) buffer.append("If yes, ");
 		} else if (FileAnnotationData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" file"+end);
+			buffer.append(DEFAULT_TEXT+" File"+end);
 			buffer.append("\n");
+		} else if (TagAnnotationData.class.equals(type)) {
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
+				buffer.append(DEFAULT_TEXT+" Tag Set"+end);
+				buffer.append("\n");
+				if (children) buffer.append("If yes, ");
+			} else {
+				buffer.append(DEFAULT_TEXT+" Tag"+end);
+				buffer.append("\n");
+			}
 		}
 		return buffer.toString();
 	}
@@ -252,13 +270,16 @@ public class DeleteBox
 	 * @param children		Pass <code>true</code> if the object has 
 	 * 						children, <code>false</code> otherwise.
 	 * @param number		The number of objects to delete.
+	 * @param nameSpace		Name space related to the data object if any.
 	 * @param parent 		The parent of the frame
 	 */
 	public DeleteBox(Class type, boolean annotation, boolean children,
-			int number, JFrame parent)
+			int number, String nameSpace, JFrame parent)
 	{
 		super(parent, TITLE, 
-				DeleteBox.getMessage(type, number, annotation, children));
+				DeleteBox.getMessage(type, number, nameSpace,
+						annotation, children));
+		this.nameSpace = nameSpace;
 		this.type = type;
 		this.annotation = annotation;
 		this.children = children;

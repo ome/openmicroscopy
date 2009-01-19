@@ -26,11 +26,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -39,11 +34,9 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ProjectData;
 
 /** 
- * Command to save a <code>DataObject</code>.
+ * Command to create a <code>DataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,13 +52,7 @@ public class DataObjectSaver
 
     /** Indicates to create a <code>DataObject</code>. */
     public static final int CREATE = 0;
-    
-    /** Indicates to update the <code>DataObject</code>. */
-    public static final int UPDATE = 1;
-    
-    /** Indicates to remove the <code>DataObject</code>. */
-    public static final int REMOVE = 2;
-    
+
     /** The save call. */
     private BatchCall       saveCall;
     
@@ -91,68 +78,7 @@ public class DataObjectSaver
             }
         };
     }
-    
-    /**
-     * Creates a {@link BatchCall} to update the specified {@link DataObject}.
-     * 
-     * @param object The <code>DataObject</code> to update.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall update(final DataObject object)
-    {
-        return new BatchCall("Update Data object.") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                result = os.updateDataObject(object);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to update the specified {@link DataObject}.
-     * 
-     * @param objects	The <code>DataObject</code>s to remove.
-     * @param parent    The parent of the <code>DataObject</code>.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall remove(final Set objects, final DataObject parent)
-    {
-        return new BatchCall("Remove Data objects.") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                result = os.removeDataObjects(objects, parent);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to update the specified {@link DataObject}.
-     * 
-     * @param objects   The <code>DataObject</code>s to remove.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall remove(final Map objects)
-    {
-        return new BatchCall("Remove Data objects.") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                Iterator i = objects.keySet().iterator();
-                DataObject p;
-                Set nodes;
-                Map results = new HashMap(objects.size());
-                while (i.hasNext()) {
-                    p = (DataObject) i.next();
-                    nodes = os.removeDataObjects((Set) objects.get((p)), p);
-                    results.put(p, nodes);
-                }
-                result = results;
-            }
-        };
-    }
-    
+ 
     /**
      * Adds the {@link #saveCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -181,85 +107,9 @@ public class DataObjectSaver
     {
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject.");
-        /*
-        if (index == CREATE || index == REMOVE) {
-            if (userObject instanceof DatasetData) {
-                if (!(parent instanceof ProjectData))
-                throw new IllegalArgumentException("Parent not valid.");
-            } else if (userObject instanceof CategoryData) {
-                if (!(parent instanceof CategoryGroupData))
-                    throw new IllegalArgumentException("Parent not valid.");
-            }
-        }
-        */
-        if (index == REMOVE) {
-            if (userObject instanceof DatasetData) {
-                if (!(parent instanceof ProjectData))
-                throw new IllegalArgumentException("Parent not valid.");
-            }
-        }
         switch (index) {
             case CREATE:
                 saveCall = create(userObject, parent, null);
-                break;
-            case UPDATE:
-                saveCall = update(userObject);
-                break;
-            case REMOVE:
-                Set l = new HashSet(1);
-                l.add(userObject);
-                saveCall = remove(l, parent);   
-                break;
-            default:
-                throw new IllegalArgumentException("Operation not supported.");
-        }
-    }
-  
-    /**
-     * Creates a new instance.
-     * If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the caller's thread.
-     * 
-     * @param userObjects   The {@link DataObject}s to remove.
-     *                      Mustn't be <code>null</code>.
-     * @param parent        The parent of the <code>DataObject</code>. 
-     *                      The value is <code>null</code> if there 
-     *                      is no parent.
-     * @param index         One of the following constants: {@link #REMOVE}.
-     */
-    public  DataObjectSaver(Set userObjects, DataObject parent, int index)
-    {
-        if (userObjects == null)
-            throw new IllegalArgumentException("No DataObject.");
-        if (userObjects.size() == 0)
-            throw new IllegalArgumentException("No DataObject.");
-        switch (index) {
-            case REMOVE:
-                saveCall = remove(userObjects, parent);   
-                break;
-            default:
-                throw new IllegalArgumentException("Operation not supported.");
-        }
-    }
-
-    /**
-     * Creates a new instance.
-     * If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the caller's thread.
-     * 
-     * @param objects       The {@link DataObject} to remove.
-     *                      Mustn't be <code>null</code>.
-     * @param index         One of the following constants: {@link #REMOVE}.
-     */
-    public DataObjectSaver(Map objects, int index)
-    {
-        if (objects == null)
-            throw new IllegalArgumentException("No DataObject.");
-        if (objects.size() == 0)
-            throw new IllegalArgumentException("No DataObject.");
-        switch (index) {
-            case REMOVE:
-                saveCall = remove(objects);   
                 break;
             default:
                 throw new IllegalArgumentException("Operation not supported.");
