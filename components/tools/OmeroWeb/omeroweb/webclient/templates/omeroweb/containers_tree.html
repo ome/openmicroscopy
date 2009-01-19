@@ -51,7 +51,7 @@
                     
                 }
             },
-            /*afterDblClick:function(node){
+            afterDblClick:function(node){
                 //alert("text-"+$('span:first',node).text());
             },
             afterMove:function(destination, source, pos){
@@ -63,7 +63,7 @@
             },
             afterContextMenu:function(node){
                 alert("contextmenu");
-            },*/
+            },
             animate:true
             //,docToFolderConvert:true
             });
@@ -137,8 +137,6 @@
 </div>
 
 <div class="clear"> </div>
-
-{% include "omeroweb/message.html" %}
 
 {% if not manager.c_mg_size and not manager.c_size %}
     <h1>No data.</h1>

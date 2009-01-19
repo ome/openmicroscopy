@@ -107,6 +107,9 @@ class TextAnnotationForm(forms.Form):
 class UrlAnnotationForm(forms.Form):
     link = UrlField(widget=forms.TextInput(attrs={'size':55}))
 
+class TagAnnotationForm(forms.Form):
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':55}))
+
 class UploadFileForm(forms.Form):
     custom_file  = forms.FileField()
 

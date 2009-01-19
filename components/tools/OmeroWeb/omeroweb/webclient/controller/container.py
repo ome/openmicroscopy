@@ -451,18 +451,17 @@ class BaseContainer(BaseController):
                         up_pdl.setChild(ds._obj)
                         up_pdl.setParent(new_pr._obj)
                         self.conn.updateObject(up_pdl)
-                        
-                    
             elif destination[0] == '0':
                 up_pdl = None
-                pdls = self.conn.getProjectDatasetLinks(source[1])
-                already_there = None
+                pdls = list(self.conn.getProjectDatasetLinks(source[1]))
                 
-                for pdl in pdls:
-                    if pdl.parent.id.val == long(parent[1]):
-                        up_pdl = pdl
-                self.conn.deleteObject(up_pdl._obj)
-
+                if len(pdls) == 1:
+                    # gets old parent to delete
+                    if pdls[0].parent.id.val == long(parent[1]):
+                        up_pdl = pdls[0]
+                        self.conn.deleteObject(up_pdl._obj)
+                else:
+                    return False
         elif source[0] == "img":
             if destination[0] == 'ds':
                 up_dsl = None
@@ -498,13 +497,14 @@ class BaseContainer(BaseController):
             elif destination[0] == '0':
                 if parent[0] != destination[0]:
                     up_dsl = None
-                    dsls = self.conn.getDatasetImageLinks(source[1]) #gets every links for child
-                
-                    for dsl in dsls:
-                        # gets old parent to update of delete
-                        if dsl.parent.id.val == long(parent[1]):
-                            up_dsl = dsl
-                    self.conn.deleteObject(up_dsl._obj)
+                    dsls = list(self.conn.getDatasetImageLinks(source[1])) #gets every links for child
+                    if len(dsls) == 1:
+                        # gets old parent to delete
+                        if dsls[0].parent.id.val == long(parent[1]):
+                            up_dsl = dsls[0]
+                            self.conn.deleteObject(up_dsl._obj)
+                    else:
+                        return False
         else:
             return False
         return True

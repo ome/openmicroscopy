@@ -272,7 +272,7 @@
         </script>
     </div>
     {% endif %}
-
+    
     {% if form_url %}
     <div class="url">
         <h1>Add new url:</h1>
@@ -288,7 +288,7 @@
         </form>
     </div>
     {% endif %}
-
+    
     {% if form_file %}
     <div class="file">
         <h1>Upload a file</h1>
@@ -320,3 +320,6 @@
 {% endif %}
 {% endblock %}
 
+{% block advice %}
+    {% include "omeroweb/advice.html" %}
+{% endblock %}

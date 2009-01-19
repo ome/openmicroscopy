@@ -16,7 +16,7 @@ html {
 
 body {
   overflow: hidden;
-  background: url(/webclient/static/images/logo.jpg) no-repeat ;
+  background: url(/webclient/static/images/logo.png) no-repeat ;
 }
 
 #body { 
