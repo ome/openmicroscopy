@@ -3572,22 +3572,24 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IQueryPrx service = getQueryService();
-			ParametersI param = new ParametersI();
+			ParametersI param;
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("select img from Image as img ");
 			sb.append("left outer join fetch img.annotationLinks ail ");
             sb.append("where ail.child.id = :tagID");
-			String query = sb.toString();
             Iterator i = rootNodeIDs.iterator();
             Long id;
             Map<Long, Long> m = new HashMap<Long, Long>();
             //Image first
+            List l;
             while (i.hasNext()) {
 				id = (Long) i.next();
+				param = new ParametersI();
 				param.addLong("tagID", id);
-				
-				m.put(id, new Long(service.findAllByQuery(query, param).size()));
+				l = service.findAllByQuery(sb.toString(), param);
+				if (l != null) 
+					m.put(id, new Long(l.size()));
 			}
             //Dataset
             sb = new StringBuilder();
@@ -3599,10 +3601,15 @@ class OMEROGateway
             long r;
             while (i.hasNext()) {
 				id = (Long) i.next();
+				param = new ParametersI();
 				param.addLong("tagID", id);
 				value = m.get(id);
-				r = service.findAllByQuery(sb.toString(), param).size();
-				value += r;
+				l = service.findAllByQuery(sb.toString(), param);
+				if (l != null) {
+					r = l.size();
+					if (value == null) value = r;
+					else value += r;
+				}
 				m.put(id, value);
 			}
             //Project
@@ -3613,14 +3620,20 @@ class OMEROGateway
             i = rootNodeIDs.iterator();
             while (i.hasNext()) {
 				id = (Long) i.next();
+				param = new ParametersI();
 				param.addLong("tagID", id);
 				value = m.get(id);
-				r = service.findAllByQuery(sb.toString(), param).size();
-				value += r;
+				l = service.findAllByQuery(sb.toString(), param);
+				if (l != null) {
+					r = l.size();
+					if (value == null) value = r;
+					else value += r;
+				}
 				m.put(id, value);
 			}
 			return m;
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot count the collection.");
 		}
 		return new HashMap();

@@ -154,8 +154,7 @@ class BrowserControl
     		return null;
     	}
     	ho = parent.getUserObject();
-    	if (ho instanceof ExperimenterData) 
-    		return parent;
+    	if (ho instanceof ExperimenterData) return parent;
     	return getDataOwner(parent);
     }
 
@@ -243,28 +242,53 @@ class BrowserControl
         }
      	//more than one node selected.
     	TreeImageDisplay previous = model.getLastSelectedDisplay();
-    	Class ref = previous.getUserObject().getClass();
+    	Object ho = previous.getUserObject();
+    	Class ref = ho.getClass();
     	
     	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
     	List<TreePath> toRemove = new ArrayList<TreePath>();
+    	TagAnnotationData tag;
+    	String ns = null;
+    	if (TagAnnotationData.class.equals(ref)) {
+    		ns = ((TagAnnotationData) ho).getNameSpace();
+    	}
     	if (added != null) {
     		Iterator<TreePath> i = added.iterator();
+    		Object nho;
+    		String nsNode;
         	while (i.hasNext()) {
     			path = i.next();
     			node = (TreeImageDisplay) path.getLastPathComponent();
-    			if (node.getUserObject().getClass().equals(ref)) 
-    				l.add(node);
+    			nho = node.getUserObject();
+    			if (nho.getClass().equals(ref)) {
+    				if (nho.getClass().equals(TagAnnotationData.class)) {
+    					nsNode = ((TagAnnotationData) nho).getNameSpace();
+    					if (ns == null && nsNode == null) l.add(node);
+    					else if (ns == null && nsNode != null)
+    						toRemove.add(path);
+    					else if (ns != null && nsNode == null)
+    						toRemove.add(path);
+    					else if (ns.equals(nsNode))
+    						l.add(node);
+    				} else l.add(node);
+    			}
+    				
     			else toRemove.add(path);
     		}
     	}
     	
     	if (toRemove.size() > 0) {
     		String text = "";
-        	if (ImageData.class.equals(ref)) text = "images.";
-        	else if (ProjectData.class.equals(ref)) text = "projects.";
-        	else if (DatasetData.class.equals(ref)) text = "datasets.";
-        	else if (TagAnnotationData.class.equals(ref)) text = "tags.";
-        	else if (FileAnnotationData.class.equals(ref)) text = "files.";
+        	if (ImageData.class.equals(ref)) text = "Images.";
+        	else if (ProjectData.class.equals(ref)) text = "Projects.";
+        	else if (DatasetData.class.equals(ref)) text = "Datasets.";
+        	else if (TagAnnotationData.class.equals(ref)) {
+        		tag = (TagAnnotationData) ho;
+        		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+        				tag.getNameSpace())) text = "Tag Sets.";
+        		else text = "Tags.";
+        	}
+        	else if (FileAnnotationData.class.equals(ref)) text = "Files.";
         	UserNotifier un = 
         		TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Tree selection", "You can only select "+text);

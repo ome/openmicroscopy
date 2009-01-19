@@ -386,15 +386,6 @@ class BrowserUI
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         
         TreeImageSet root = new TreeImageSet("");
-        /*
-        if (exp != null) root.setUserObject(exp);
-        DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
-        treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
-                                root.getChildCount());
-        treeDisplay.setModel(new DefaultTreeModel(root));
-        treeDisplay.collapsePath(new TreePath(root.getPath()));
-        */
-        //NEW
         treeDisplay.setModel(new DefaultTreeModel(root));
         TreeImageSet node = createExperimenterNode(exp);
         treeDisplay.collapsePath(new TreePath(node.getPath()));

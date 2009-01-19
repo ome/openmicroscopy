@@ -542,6 +542,16 @@ class AnnotationDataUI
 	 */
 	private void handleAutoCompleteTagEnter(TagAnnotationData tag)
 	{
+		String ns = tag.getNameSpace();
+		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+			Set<TagAnnotationData> tags = tag.getTags();
+			if (tags != null) {
+				Iterator<TagAnnotationData> k = tags.iterator();
+				while (k.hasNext())
+					handleAutoCompleteTagEnter(k.next());
+			}
+			return;
+		}
     	String[] names = tagsPane.getText().split(SearchUtil.COMMA_SEPARATOR);
     	String value = "";
     	int n = names.length-1;
@@ -562,6 +572,16 @@ class AnnotationDataUI
 	 */
 	private void handleTagEnter(TagAnnotationData tag)
 	{
+		String ns = tag.getNameSpace();
+		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+			Set<TagAnnotationData> tags = tag.getTags();
+			if (tags != null) {
+				Iterator<TagAnnotationData> k = tags.iterator();
+				while (k.hasNext())
+					handleTagEnter(k.next());
+			}
+			return;
+		}
 		String value = tagsPane.getText();
 		String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
 		List<String> values = new ArrayList<String>();

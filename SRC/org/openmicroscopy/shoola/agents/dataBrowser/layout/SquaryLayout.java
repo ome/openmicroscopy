@@ -264,24 +264,9 @@ class SquaryLayout
         		LayoutUtils.doSquareGridLayout(node, sorter, itemsPerRow);
         	else visitContainerNode(node);
         } else {
+        	/*
         	Set o = getOldChildren(node);
         	Set n = node.getChildrenDisplay();
-        	//if (node.containsImages()) {
-        	/*
-        	if (o == null || n == null || o.size() != n.size()) {
-        		node.restoreDisplay();
-                if (node.isSingleViewMode()) return;
-                if (node.getChildrenDisplay().size() == 0) {//node with no child
-                    LayoutUtils.noChildLayout(node);
-                    return;
-                }
-            	if (node.containsImages()) 
-            		LayoutUtils.doSquareGridLayout(node, sorter);
-            	else visitContainerNode(node);
-        	} else {
-        		LayoutUtils.redoLayout(node, (ImageSet) getOldNode(node), n, o);
-        	}
-        	*/
         	if (o != null && n != null && o.size() >= n.size())
         		LayoutUtils.redoLayout(node, (ImageSet) getOldNode(node), n, o);
         	else {
@@ -295,7 +280,7 @@ class SquaryLayout
             		LayoutUtils.doSquareGridLayout(node, sorter, itemsPerRow);
             	else visitContainerNode(node);
         	}
-        		
+        		*/
         }
     }
     

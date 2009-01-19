@@ -193,8 +193,9 @@ abstract class DataBrowserModel
     				LayoutUtils.DEFAULT_PER_ROW);
             browser.setSelectedLayout(layout);
     	}
-        browser.accept(browser.getSelectedLayout(), 
-        				ImageDisplayVisitor.IMAGE_SET_ONLY);
+        //browser.accept(browser.getSelectedLayout(), 
+        //				ImageDisplayVisitor.IMAGE_SET_ONLY);
+        browser.accept(browser.getSelectedLayout());
     }
     
     /**

@@ -709,23 +709,6 @@ class TreeViewerComponent
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
 		}
-	    
-		//Browser browser = model.getSelectedBrowser();
-		//browser.refreshEdition(data, operation);
-		//browser.refreshLoggedExperimenterData();
-		/*
-		if (operation == UPDATE_OBJECT) {
-			Map browsers = model.getBrowsers();
-			Iterator i = browsers.keySet().iterator();
-			while (i.hasNext()) {
-				browser = (Browser) browsers.get(i.next());
-				if (!(browser.equals(model.getSelectedBrowser())))
-					browser.refreshEdition(data, operation);
-			}
-		}
-		*/
-		//onSelectedDisplay();
-		
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
