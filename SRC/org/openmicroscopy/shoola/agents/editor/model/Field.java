@@ -31,20 +31,16 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.TableModel;
-import javax.swing.text.html.HTML;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.browser.FieldTextArea;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
-import org.openmicroscopy.shoola.agents.editor.model.tables.FieldTableModelAdaptor;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 
 /**
@@ -102,12 +98,19 @@ public class Field
 	private TableModel 					tableData;
 	
 	/**
+	 * A list of notes that can be added to a Field/Step when a protocol is
+	 * performed, to become an experiment. 
+	 */
+	private	List<Note>					stepNotes;
+	
+	/**
 	 * Default constructor.
 	 */
 	public Field() 
 	{
 		templateAttributesMap = new HashMap<String, String>();
 		fieldParams = new ArrayList<IFieldContent>();
+		stepNotes = new ArrayList<Note>();
 	}
 	
 	/**
@@ -321,6 +324,24 @@ public class Field
 		
 		return params;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * @see {@link IField#addNote(Note)}
+	 */
+	public void addNote(Note note) { stepNotes.add(note); }
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * @see {@link IField#getNoteCount()}
+	 */
+	public int getNoteCount() { return stepNotes.size(); }
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * @see {@link IField#getNoteAt(int)}
+	 */
+	public Note getNoteAt(int index) { return stepNotes.get(index); }
 	
 	/**
 	 * Returns a String containing the field description, plus the 

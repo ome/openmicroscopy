@@ -110,6 +110,29 @@ public interface IField
 	public List<IParam> getAtomicParams();
 	
 	/**
+	 * Adds a note to this Field/Step
+	 * Notes are added to a 'protocol' to create an annotated 'experiment'
+	 * 
+	 * @param note		Note to add
+	 */
+	public void addNote(Note note);
+	
+	/**
+	 * Gets the number of notes added to this Field/Step
+	 * 
+	 * @return		see above
+	 */
+	public int getNoteCount();
+	
+	/**
+	 * Gets the note at the specified index in the list. 
+	 * 
+	 * @param index		Index of note
+	 * @return			The note at the index
+	 */
+	public Note getNoteAt(int index);
+	
+	/**
 	 * Indicates whether all parameters have been filled out. 
 	 * 
 	 * @return		True if all the parameters have been filled. 

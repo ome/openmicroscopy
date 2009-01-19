@@ -147,8 +147,40 @@ public class CPEexport {
 		// add parameters (and step description)
 		addParameters(field, step);
 		
+		// add step notes
+		addNotes(field, step);
+		
 		return step;
 	}
+	
+	/**
+	 * Copies the notes from a {@link IField} data object into an 
+	 * {@link IXMLElement} XML step element;
+	 *  
+	 * @param field			The field data object
+	 * @param step			The step XML element
+	 */
+	private void addNotes(IField field, IXMLElement step)
+	{
+		int noteCount = field.getNoteCount();
+		if (noteCount == 0)		return;
+		
+		IXMLElement notes = new XMLElement(CPEimport.NOTES);
+		IXMLElement note;
+		Note noteData;
+		String name, content;
+		for (int i = 0; i < noteCount; i++) {
+			note = new XMLElement(CPEimport.NOTE);
+			noteData = field.getNoteAt(i);
+			name = noteData.getName();
+			content = noteData.getContent();
+			addChildContent(note, CPEimport.NAME, name);
+			addChildContent(note, CPEimport.CONTENT, content);
+			notes.addChild(note);
+		}
+		step.addChild(notes);
+	}
+	 
 	
 	/**
 	 * This method uses the parameters from the field (of the editor data model)
@@ -158,7 +190,7 @@ public class CPEexport {
 	 * @param field			see above
 	 * @param step			see above
 	 */
-	protected void addParameters(IField field, IXMLElement step) 
+	private void addParameters(IField field, IXMLElement step) 
 	{
 		// add parameters
 		int contentCount = field.getContentCount();
@@ -204,7 +236,7 @@ public class CPEexport {
 	 * @param param			The parameter object 
 	 * @return				A new XML Element that defines the parameter
 	 */
-	protected IXMLElement createParamElement(IParam param) 
+	private IXMLElement createParamElement(IParam param) 
 	{
 		IXMLElement parameter = new XMLElement(CPEimport.PARAMETER);
 		
@@ -326,7 +358,7 @@ public class CPEexport {
 	 * @param childName			The name of the new Child element
 	 * @param childContent		The text content of the new child element
 	 */
-	protected static void addChildContent(IXMLElement parent, 
+	private static void addChildContent(IXMLElement parent, 
 									String childName, String childContent) 
 	{
 		// check not null

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -50,14 +51,18 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.Note;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
@@ -145,10 +150,41 @@ public class FieldParamEditor
 		
 		// Name: Label and text box
 		AttributeEditLine nameEditor = new AttributeEditNoLabel
-			(field, Field.FIELD_NAME, "Field Name");
+			(field, Field.FIELD_NAME, "Step Name");
 		nameEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
-		attributeFieldsPanel.add(nameEditor);
+		
+		// holds the name-editor and any additional buttons
+		Box nameContainer = Box.createHorizontalBox();
+		
+		// indicate whether step has notes (show with toolTip)
+		// Can't currently edit these notes, 
+		// but at least Editor supports cmp.xml!
+		int noteCount = field.getNoteCount();
+		if (noteCount > 0) {
+			String notesToolTip = "<html><div style='width:250px; " +
+			"padding:1px'>" + "Step Notes:<br>";
+			
+			Note note;
+			String name, content;
+			for (int i = 0; i < noteCount; i++) {
+				note = field.getNoteAt(i);
+				name = note.getName();
+				content = note.getContent();
+				notesToolTip = notesToolTip + "<div style='padding:4px'><b>" +
+					name + ":</b><br>" + content + "</div>";
+			}
+			notesToolTip = notesToolTip + "</div></html>";
+			
+			Icon notes = IconManager.getInstance().getIcon
+											(IconManager.INFO_12_ICON);
+			JButton notesButton = new CustomButton(notes);
+			notesButton.setToolTipText(notesToolTip);
+			nameContainer.add(notesButton);
+		}
+		
+		nameContainer.add(nameEditor);
+		attributeFieldsPanel.add(nameContainer);
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		
 		// Parameters: Label and "Add" button

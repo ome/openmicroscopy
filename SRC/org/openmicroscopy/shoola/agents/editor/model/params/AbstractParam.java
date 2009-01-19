@@ -129,18 +129,6 @@ public abstract class AbstractParam
 	{
 		valueAttributesMap = newAttributes;
 	}
-
-	/**
-	 * Unless specified by subclasses, parameter has no default values.
-	 * If a list of default values is given, these should be given in the 
-	 * same order as the value attributes to which they apply 
-	 * 
-	 * @see getValueAttributes();
-	 */
-	public String[] getDefaultAttributes() 
-	{
-		return new String[] {};
-	}
 	
 	/**
 	 * This field is filled if the value isn't null, and 

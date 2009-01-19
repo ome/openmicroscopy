@@ -148,6 +148,15 @@ public class CPEimport {
 	
 	/**  Possible option for content of the 'necessity' element */
 	public static final String 			REQUIRED = "REQUIRED";
+	
+	/**  The name of the element within 'step' that holds a list of notes */
+	public static final String 			NOTES = "notes";
+	
+	/**  The name of the element within 'notes' that defines a note */
+	public static final String 			NOTE = "note";
+	
+	/**  The name of the element within 'note' that defines the note's content */
+	public static final String 			CONTENT = "content";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -457,7 +466,33 @@ public class CPEimport {
 			}
 		}
 		
+		// handles reading of step notes. 
+		addStepNotes(field, cpeStep);
+		
 		return field;
+	}
+	
+	/**
+	 * This method copies Step Notes from the {@link IXMLElement} step element 
+	 * into the {@link IField} step data object. 
+	 * 
+	 * @param field
+	 * @param stepElement
+	 */
+	private static void addStepNotes(IField field, IXMLElement stepElement)
+	{
+		IXMLElement notes = stepElement.getFirstChildNamed(NOTES);
+		if (notes == null)		return;
+		
+		List <IXMLElement> noteList = notes.getChildrenNamed(NOTE);
+		String name, content;
+		Note note;
+		for (IXMLElement element : noteList) {
+			name = getChildContent(element, NAME);
+			content = getChildContent(element, CONTENT);
+			note = new Note(name, content);
+			field.addNote(note);
+		}
 	}
 	
 	/**
