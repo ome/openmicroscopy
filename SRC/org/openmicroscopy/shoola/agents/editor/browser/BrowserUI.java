@@ -183,7 +183,10 @@ class BrowserUI
         
         add(leftSplitPane, BorderLayout.CENTER);
         
-        add(new ToolBar(controller, navTree), BorderLayout.NORTH);
+        JPanel toolBarContainer = new JPanel(new BorderLayout());
+        toolBarContainer.add(new ToolBar(controller, navTree), 
+        												BorderLayout.WEST);
+        add(toolBarContainer, BorderLayout.NORTH);
     }
     
     /**

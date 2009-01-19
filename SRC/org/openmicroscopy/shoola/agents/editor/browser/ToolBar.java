@@ -28,7 +28,9 @@ import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -75,14 +77,18 @@ public class ToolBar
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// add(createButton(BrowserControl.EDIT)); Toggle editing. 
-		add(createButton(BrowserControl.UNDO_ACTION));
-		add(createButton(BrowserControl.REDO_ACTION));
 		add(createButton(BrowserControl.ADD_FIELD_ACTION));
 		add(createButton(BrowserControl.DELETE_FIELD_ACTION));
 		add(createButton(BrowserControl.INDENT_LEFT_ACTION));
 		add(createButton(BrowserControl.INDENT_RIGHT_ACTION));
 		add(createButton(BrowserControl.MOVE_UP_ACTION));
 		add(createButton(BrowserControl.MOVE_DOWN_ACTION));
+		
+		add(new JSeparator(SwingConstants.VERTICAL));
+		add(createButton(BrowserControl.UNDO_ACTION));
+		add(createButton(BrowserControl.REDO_ACTION));
+		
+		add(new JSeparator(SwingConstants.VERTICAL));
 		add(createButton(BrowserControl.COPY_FIELDS_ACTION));
 		add(createButton(BrowserControl.PASTE_FIELDS_ACTION));
 	}

@@ -103,6 +103,9 @@ public class FieldTextArea
 	/**  The text area that displays and allows users to edit the text */
 	protected HtmlContentEditor		htmlEditor;
 	
+	private static String 			addParamToolTip = 
+									"Add a parameter to this step";
+	
 	/** The field that is represented by this UI component */
 	private IField 					field;
 
@@ -221,6 +224,7 @@ public class FieldTextArea
 		add(htmlEditor, BorderLayout.CENTER);
 		
 		addParamButton = new CustomButton(addParamIcon);
+		addParamButton.setToolTipText(addParamToolTip);
 		addParamButton.addActionListener(this);
 
 		JPanel buttonContainer = new JPanel(new BorderLayout());
