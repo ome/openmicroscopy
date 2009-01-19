@@ -15,13 +15,13 @@
 			Display Settings 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
-	<type id="ome.model.display.Thumbnail">
+	<type id="ome.model.display.Thumbnail"><!-- TODO: review-->
 		<properties>
 			<required name="pixels" type="ome.model.core.Pixels"/><!--TODO: not in model-->
-			<required name="mimeType" type="string"/>
+			<required name="mimeType" type="string"/><!-- TODO: called MIMEtype in model-->
 			<required name="sizeX" type="int"/><!--TODO: not in model-->
 			<required name="sizeY" type="int"/><!--TODO: not in model-->
-			<optional name="ref" type="string"/>
+			<optional name="ref" type="string"/><!-- TODO: called href in model-->
 		</properties>
 	</type>
 	<type id="ome.model.display.RenderingDef"><!--TODO: not in model-->

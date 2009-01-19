@@ -11,7 +11,7 @@
 -->
 <types>
 <!-- Main types -->
-	<type id="ome.model.screen.Screen" named="true" described="true" annotated="true">
+	<type id="ome.model.screen.Screen" named="true" described="true" annotated="true"><!-- TODO: Name is optional in model-->
 		<properties>
 			<optional name="type" type="string"/>
 			<optional name="protocolIdentifier" type="string"/>
@@ -31,7 +31,7 @@
 			<child name="wellSampleLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.WellSample"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true">
+	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true"><!-- TODO: Name is optional in model-->
 		<properties>
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
@@ -39,11 +39,11 @@
 			<zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Well" annotated="true">
+	<type id="ome.model.screen.Well" annotated="true"><!-- TODO: review-->
 		<properties>
 			<optional name="column" type="int"/>
 			<optional name="row" type="int"/>
-			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/>
+			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/><!-- TODO: only one reagent per well in model-->
 			<optional name="externalDescription" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
 			<optional name="type" type="string"/>
@@ -52,18 +52,18 @@
 		</properties>
 	</type>
 <!-- A WellSample is effectively a WellImageLink -->
-	<type id="ome.model.screen.WellSample" annotated="true">
+	<type id="ome.model.screen.WellSample" annotated="true"><!-- TODO: review-->
 		<properties>
 			<optional name="index" type="int"/>
 			<optional name="posX" type="float"/>
 			<optional name="posY" type="float"/>
 			<optional name="timepoint" type="int"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples"/>
-			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
+			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/><!-- TODO: is manyone correct? should be 1to1? equivalent of ImageRef in model-->
 			<parent name="screenAcquisitionLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.ScreenAcquisition"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
+	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true"><!-- TODO: Name is optional in model-->
 		<properties>
 			<optional name="reagentIdentifier" type="string"/>
 			<manyone name="screen" type="ome.model.screen.Screen" inverse="reagent"/>

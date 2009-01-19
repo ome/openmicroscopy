@@ -15,39 +15,39 @@
 		Acquisition Context 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<type id="ome.model.core.Image" named="true" described="true" annotated="true">
+	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!-- TODO: review-->
 		<properties>
 			<!-- Acquisition Context 1 -->
-			<required name="acquisitionDate" type="timestamp"/> <!-- in the model this is creationDate but the DB already has a creation date for the object -->
-			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/>
-			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings">
+			<required name="acquisitionDate" type="timestamp"/> <!--TODO: optional in the model, Note: in the model this is creationDate but the DB already has a creation date for the object -->
+			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/><!-- TODO: called ImagingEnvironment in model-->
+			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings"><!-- TODO: maps to ObjectiveRef (ID and values) in model-->
 				<rule id="INS_OBJ_SYNCH" description="only if instrument defined"/>
 			</optional>
-			<optional name="setup" type="ome.model.acquisition.Instrument"/>
-			<optional name="position" type="ome.model.acquisition.StageLabel"/>
-			<optional name="context" type="ome.model.experiment.Experiment"/>
-			<optional name="defaultPixels" type="ome.model.core.Pixels"/>
+			<optional name="setup" type="ome.model.acquisition.Instrument"/><!-- TODO: called InstrumentRef (ID only ref) in model-->
+			<optional name="position" type="ome.model.acquisition.StageLabel"/><!-- TODO: called StageLabel in model-->
+			<optional name="context" type="ome.model.experiment.Experiment"/><!-- TODO: called ExperimentRef (ID only ref) in model-->
+			<optional name="defaultPixels" type="ome.model.core.Pixels"/><!-- TODO: required in model-->
 			<optional name="acquiredPixels" type="ome.model.core.Pixels"/>
-			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
+			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/><!-- TODO: onemany in model-->
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.ObjectiveSettings">
+	<type id="ome.model.acquisition.ObjectiveSettings"><!-- TODO: stored in ObjectiveRef in model-->
 		<properties>
 			<optional name="correctionCollar" type="float"/>
 			<optional name="medium" type="ome.model.enums.Medium"/>
 			<optional name="refractiveIndex" type="float"/>
-			<required name="objective" type="ome.model.acquisition.Objective"/>
+			<required name="objective" type="ome.model.acquisition.Objective"/><!-- TODO: ID in model-->
 		</properties>
 	</type>
-	<type id="ome.model.core.Pixels" annotated="true">
+	<type id="ome.model.core.Pixels" annotated="true"><!-- TODO: review-->
 		<properties>
 			<!-- Acquisition Context 1 -->
-			<manyone name="image" type="ome.model.core.Image" ordered="true"/>
+			<manyone name="image" type="ome.model.core.Image" ordered="true"/><!-- TODO: is manyone correct?-->
 			<optional name="relatedTo" type="ome.model.core.Pixels"/><!--TODO: not in model-->
-			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
+			<required name="pixelsType" type="ome.model.enums.PixelsType"/><!-- TODO: called PixelType in model-->
 			<required name="sizeX" type="int"/>
 			<required name="sizeY" type="int"/>
 			<required name="sizeZ" type="int"/>
@@ -62,7 +62,7 @@
 			<optional name="waveIncrement" type="int"/>
 			<optional name="timeIncrement" type="float"/>
 			<optional name="methodology" type="string"/>
-			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels">
+			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels"><!-- TODO: called Plane in model, zeromany in model-->
 				<rule id="PLANE_INFO_CARDINALITY" description="0|sizez*sizey*sizec"/>
 			</onemany>
 			<!-- TODO: storage -->
@@ -94,17 +94,17 @@
 			<required name="format" type="ome.model.enums.Format"/>
 		</properties>
 	</type>
-	<type id="ome.model.core.PlaneInfo" annotated="true">
+	<type id="ome.model.core.PlaneInfo" annotated="true"><!-- TODO: called Plane in model-->
 		<properties>
 			<manyone name="pixels" type="ome.model.core.Pixels"/>
 			<required name="theZ" type="int"/>
 			<required name="theC" type="int"/>
 			<required name="theT" type="int"/>
-			<optional name="deltaT" type="float"/>
-			<optional name="positionX" type="float"/>
-			<optional name="positionY" type="float"/>
-			<optional name="positionZ" type="float"/>
-			<optional name="exposureTime" type="float"/>
+			<optional name="deltaT" type="float"/><!-- TODO: stored in PlaneTiming in model-->
+			<optional name="positionX" type="float"/><!-- TODO: stored in StagePosition in model-->
+			<optional name="positionY" type="float"/><!-- TODO: stored in StagePosition in model-->
+			<optional name="positionZ" type="float"/><!-- TODO: stored in StagePosition in model-->
+			<optional name="exposureTime" type="float"/><!-- TODO: stored in PlaneTiming in model-->
 			<!-- TODO: see mac notes -->
 		</properties>
 	</type>
@@ -122,11 +122,11 @@
 			<manyone name="experiment" type="ome.model.experiment.Experiment"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.StageLabel" named="true">
+	<type id="ome.model.acquisition.StageLabel" named="true"><!-- TODO: review-->
 		<properties>
-			<optional name="positionX" type="float"/>
-			<optional name="positionY" type="float"/>
-			<optional name="positionZ" type="float"/>
+			<optional name="positionX" type="float"/><!-- TODO: called X in model-->
+			<optional name="positionY" type="float"/><!-- TODO: called Y in model-->
+			<optional name="positionZ" type="float"/><!-- TODO: called Z in model-->
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.ImagingEnvironment">
@@ -146,7 +146,7 @@
 			Acquisition Context 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<type id="ome.model.core.Channel" annotated="true">
+	<type id="ome.model.core.Channel" annotated="true"><!-- TODO: not in model-->
 		<properties>
 			<optional name="statsInfo" type="ome.model.stats.StatsInfo"><!--TODO: not in model-->
 				<rule id="STATSINFO_DEP" type="dependency" description="depends on pixelType"/>
@@ -172,22 +172,22 @@
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
 	</type>
-	<type id="ome.model.core.LogicalChannel">
+	<type id="ome.model.core.LogicalChannel"><!-- TODO: review-->
 		<properties>
 			<optional name="name" type="string"/>
 			<optional name="pinHoleSize" type="float"/>
-			<optional name="illumination" type="ome.model.enums.Illumination"/>
+			<optional name="illumination" type="ome.model.enums.Illumination"/><!-- TODO: called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
-			<optional name="excitationWave" type="int"/>
-			<optional name="emissionWave" type="int"/>
+			<optional name="excitationWave" type="int"/><!-- TODO: called exWave in model-->
+			<optional name="emissionWave" type="int"/><!-- TODO: called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="float"/>
-			<optional name="otf" type="ome.model.acquisition.OTF"/>
-			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings">
+			<optional name="otf" type="ome.model.acquisition.OTF"/><!-- TODO: called OTFRef (ID only Ref) in model-->
+			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings"><!-- TODO: called DetectorRef (ID and values) in model-->
 				<rule id="DETECTOR_SETTINGS_REQ" type="conditionalNull" description="if defined, the instrument must be defined"/>
 			</optional>
-			<optional name="lightSourceSettings" type="ome.model.acquisition.LightSettings"/>
-			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
+			<optional name="lightSourceSettings" type="ome.model.acquisition.LightSettings"/><!-- TODO: called LightSourceRef (ID and values) in model-->
+			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/><!-- TODO: called FilterSetRef (ID only Ref) in model-->
 			<optional name="secondaryEmissionFilter" type="ome.model.acquisition.Filter"/>
 			<optional name="secondaryExcitationFilter" type="ome.model.acquisition.Filter"/>
 			<optional name="samplesPerPixel" type="int"/>
@@ -206,18 +206,18 @@
 		<properties>
 			<optional name="voltage" type="float"/>
 			<optional name="gain" type="float"/>
-			<optional name="offsetValue" type="float"/>
+			<optional name="offsetValue" type="float"/><!-- TODO: called Offset in model-->
 			<optional name="readOutRate" type="float"/>
 			<optional name="binning" type="ome.model.enums.Binning"/>
-			<required name="detector" type="ome.model.acquisition.Detector"/>
+			<required name="detector" type="ome.model.acquisition.Detector"/><!-- TODO: ID in model-->
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.OTF">
+	<type id="ome.model.acquisition.OTF"><!-- TODO: review-->
 		<properties>
 			<required name="sizeX" type="int"/>
 			<required name="sizeY" type="int"/>
-			<required name="opticalAxisAvg" type="boolean"/>
-			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
+			<required name="opticalAxisAvg" type="boolean"/><!-- TODO: called OpticalAxisAveraged in model-->
+			<required name="pixelsType" type="ome.model.enums.PixelsType"/><!-- TODO: called PixelType and using ExtendedPixelTypes in model-->
 			<required name="path" type="string"/><!-- TODO: no FK? --><!--TODO: not in model-->
 			<!--TODO: BinaryFile in model - is this path?-->
 			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
@@ -226,14 +226,13 @@
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.LightSettings">
-		<!-- in model as LightSourceRef-->
+	<type id="ome.model.acquisition.LightSettings"><!-- in model as LightSourceRef-->
 		<properties>
 			<optional name="attenuation" type="float">
 				<rule id="ATTENUATION_RANGE" type="range" description="0-1"/>
 			</optional>
 			<optional name="wavelength" type="int"/>
-			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
+			<required name="lightSource" type="ome.model.acquisition.LightSource"/><!-- TODO: ID in model-->
 		</properties>
 	</type>
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,10 +257,10 @@
 			<required name="type" type="ome.model.enums.FilamentType"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.Laser" superclass="ome.model.acquisition.LightSource">
+	<type id="ome.model.acquisition.Laser" superclass="ome.model.acquisition.LightSource"><!-- TODO: review-->
 		<properties>
 			<required name="type" type="ome.model.enums.LaserType"/>
-			<required name="laserMedium" type="ome.model.enums.LaserMedium"/>
+			<required name="laserMedium" type="ome.model.enums.LaserMedium"/><!-- TODO: uses enum LaserMedia in model-->
 			<optional name="frequencyMultiplication" type="int"/>
 			<optional name="tuneable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
@@ -280,14 +279,14 @@
 			Acquisition Context 4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<type id="ome.model.acquisition.Detector" manufactured="true">
+	<type id="ome.model.acquisition.Detector" manufactured="true"><!-- TODO: review-->
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<optional name="voltage" type="float"/>
 			<optional name="gain" type="float"/>
-			<optional name="offsetValue" type="float"/>
+			<optional name="offsetValue" type="float"/><!-- TODO: called Offset in model-->
 			<optional name="zoom" type="float"/>
 			<optional name="amplificationGain" type="float"/>
 			<required name="type" type="ome.model.enums.DetectorType"/>
@@ -310,8 +309,8 @@
 			<optional name="nominalMagnification" type="int"/>
 			<optional name="calibratedMagnification" type="float"/>
 			<optional name="lensNA" type="float"/>
-			<optional name="immersion" type="ome.model.enums.Immersion"/>
-			<optional name="correction" type="ome.model.enums.Correction"/><!-- called Correction in model -->
+			<optional name="immersion" type="ome.model.enums.Immersion"/><!-- TODO: required in model-->
+			<optional name="correction" type="ome.model.enums.Correction"/><<!-- TODO: required in model-->
 			<optional name="workingDistance" type="float"/>
 			<optional name="iris" type="boolean"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
@@ -345,14 +344,14 @@
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.FilterSet" manufactured="true">
+	<type id="ome.model.acquisition.FilterSet" manufactured="true"><!-- TODO: review-->
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
-			<optional name="exFilter" type="ome.model.acquisition.Filter"/>
-			<optional name="emFilter" type="ome.model.acquisition.Filter"/>
-			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
+			<optional name="exFilter" type="ome.model.acquisition.Filter"/><!-- TODO: called ExFilterRef (ID only Ref) in model-->
+			<optional name="emFilter" type="ome.model.acquisition.Filter"/><!-- TODO: called ExFilterRef (ID only Ref) in model-->
+			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/><!-- TODO: called DichroicRef (ID only Ref) in model-->
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
@@ -381,7 +380,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
 <!-- ExperimentType -->
-	<enum id="ome.model.enums.ExperimentType">
+	<enum id="ome.model.enums.ExperimentType"><!-- TODO: add Unknown ?-->
 		<entry name="FP"/>
 		<entry name="FRET"/>
 		<entry name="TimeLapse"/>
@@ -399,7 +398,7 @@
 		<entry name="Photobleaching"/>
 		<entry name="Other"/>
 	</enum>
-	<enum id="ome.model.enums.MicrobeamManipulationType">
+	<enum id="ome.model.enums.MicrobeamManipulationType"><!-- TODO: add Unknown ?-->
 		<entry name="FRAP"/>
 		<entry name="Photoablation"/>
 		<entry name="Photoactivation"/>
@@ -408,14 +407,14 @@
 		<entry name="Other"/>
 	</enum>
 <!-- Objective Settings Entity -->
-	<enum id="ome.model.enums.Medium">
+	<enum id="ome.model.enums.Medium"><!-- TODO: add Other / Unknown ?-->
 		<entry name="Air"/>
 		<entry name="Oil"/>
 		<entry name="Water"/>
 		<entry name="Glycerol"/>
 	</enum>
 <!-- Microscope Entity -->
-	<enum id="ome.model.enums.MicroscopeType">
+	<enum id="ome.model.enums.MicroscopeType"><!-- TODO: add Other ?-->
 		<entry name="Upright"/>
 		<entry name="Inverted"/>
 		<entry name="Dissection"/>
@@ -453,7 +452,7 @@
 	</enum>
 
 <!-- OriginalFile Entity -->
-	<enum id="ome.model.enums.Format"><!-- not in model but used by OriginalFile-->
+	<enum id="ome.model.enums.Format"><!-- not in model but used by OriginalFile--><!-- TODO: add Other / Unknown ?-->
 		<entry name="PNG"/>
 		<entry name="JPEG"/>
 		<entry name="PGM"/>
@@ -531,7 +530,7 @@
 		<entry name="XYTCZ"/>
 		<entry name="XYTZC"/>
 	</enum>
-	<enum id="ome.model.enums.PixelsType">
+	<enum id="ome.model.enums.PixelsType"><!-- TODO: add Bit ?--><!-- TODO: called PixelTypes and ExtendedPixelTypes in model-->
 		<entry name="int8"/>
 		<entry name="int16"/>
 		<entry name="int32"/>
@@ -549,7 +548,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
 <!-- AcquisitionContext Entity -->
-	<enum id="ome.model.enums.PhotometricInterpretation">
+	<enum id="ome.model.enums.PhotometricInterpretation"><!-- TODO: add Other / Unknown ?-->
 		<entry name="RGB"/>
 		<entry name="ARGB"/>
 		<entry name="CMYK"/>
@@ -557,7 +556,7 @@
 		<entry name="Monochrome"/>
 		<entry name="ColorMap"/>
 	</enum>
-	<enum id="ome.model.enums.AcquisitionMode">
+	<enum id="ome.model.enums.AcquisitionMode"><!-- This is the mode value in LogicalChannel --><!-- TODO: add Other / Unknown / Comment ? -->
 		<entry name="WideField"/>
 		<entry name="LaserScanningMicroscopy"/>
 		<entry name="LaserScanningConfocal"/>
@@ -575,14 +574,14 @@
 		<entry name="Other"/>
 	</enum>
 <!-- Detector Settings Entity -->
-	<enum id="ome.model.enums.Binning">
+	<enum id="ome.model.enums.Binning"><!-- TODO: add Other / Unknown ?-->
 		<entry name="1x1"/>
 		<entry name="2x2"/>
 		<entry name="4x4"/>
 		<entry name="8x8"/>
 	</enum>
 <!-- Detector Entity -->
-	<enum id="ome.model.enums.DetectorType">
+	<enum id="ome.model.enums.DetectorType"><!-- TODO: add Other ?-->
 		<entry name="CCD"/>
 		<entry name="IntensifiedCCD"/>
 		<entry name="AnalogVideo"/>
@@ -604,7 +603,7 @@
 		<entry name="Oblique"/>
 		<entry name="NonLinear"/>
 	</enum>
-	<enum id="ome.model.enums.ContrastMethod">
+	<enum id="ome.model.enums.ContrastMethod"><!-- TODO: add Other / Unknown / Comment ?-->
 		<entry name="Brightfield"/>
 		<entry name="Phase"/>
 		<entry name="DIC"/>
@@ -620,20 +619,20 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
 <!-- Arc Entity -->
-	<enum id="ome.model.enums.ArcType">
+	<enum id="ome.model.enums.ArcType"><!-- TODO: add Other ?-->
 		<entry name="Hg"/>
 		<entry name="Xe"/>
 		<entry name="HgXe"/>
 		<entry name="Unknown"/>
 	</enum>
 <!-- Filament Entity -->
-	<enum id="ome.model.enums.FilamentType">
+	<enum id="ome.model.enums.FilamentType"><!-- TODO: add Other ?-->
 		<entry name="Incandescent"/>
 		<entry name="Halogen"/>
 		<entry name="Unknown"/>
 	</enum>
 <!-- Laser Entity -->
-	<enum id="ome.model.enums.LaserMedium">
+	<enum id="ome.model.enums.LaserMedium"><!-- TODO: called LaserMedia in model--><!-- TODO: Solid State Medium is missing--><!-- TODO: add Other ?-->
 <!-- Dye Laser Medium -->
 		<entry name="Rhodamine6G"/>
 		<entry name="CoumarinC30"/>
@@ -667,7 +666,7 @@
 <!-- Unknown Laser Medium -->
 		<entry name="Unknown"/>
 	</enum>
-	<enum id="ome.model.enums.LaserType">
+	<enum id="ome.model.enums.LaserType"><!-- TODO: add Other ?-->
 		<entry name="Excimer"/>
 		<entry name="Gas"/>
 		<entry name="MetalVapor"/>
@@ -677,7 +676,7 @@
 		<entry name="FreeElectron"/>
 		<entry name="Unknown"/>
 	</enum>
-	<enum id="ome.model.enums.Pulse">
+	<enum id="ome.model.enums.Pulse"><!-- TODO: add Other / Unknown / Comment ?-->
 		<entry name="CW"/>
 		<entry name="Single"/>
 		<entry name="QSwitched"/>
@@ -690,7 +689,7 @@
 	Acquisition Context 5 Enumerations 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<enum id="ome.model.enums.FilterType">
+	<enum id="ome.model.enums.FilterType"><!-- TODO: add Other / Unknown / Comment ?-->
 		<entry name="LongPass"/>
 		<entry name="ShortPass"/>
 		<entry name="BandPass"/>

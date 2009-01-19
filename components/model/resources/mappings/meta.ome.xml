@@ -16,13 +16,13 @@
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.Experimenter" global="true" annotated="true">
+	<type id="ome.model.meta.Experimenter" global="true" annotated="true"><!-- TODO: review-->
 		<properties>
 			<parent name="groupExperimenterMap" ordered="true" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.ExperimenterGroup"/>
 			<!-- TODO: should be "at least one of firstName, lastName, email and omeName" -->
 			<required name="omeName" type="string" unique="true"/>
 			<required name="firstName" type="string"/>
-			<optional name="middleName" type="string"/>
+			<optional name="middleName" type="string"/><!-- TODO: not in model-->
 			<required name="lastName" type="string"/>
 			<optional name="institution" type="string"/>
 			<component id="ome.model.internal.Email" required="false">
