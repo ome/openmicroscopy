@@ -310,7 +310,7 @@
 			<optional name="calibratedMagnification" type="float"/>
 			<optional name="lensNA" type="float"/>
 			<optional name="immersion" type="ome.model.enums.Immersion"/><!-- TODO: required in model-->
-			<optional name="correction" type="ome.model.enums.Correction"/><<!-- TODO: required in model-->
+			<optional name="correction" type="ome.model.enums.Correction"/><!-- TODO: required in model-->
 			<optional name="workingDistance" type="float"/>
 			<optional name="iris" type="boolean"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
