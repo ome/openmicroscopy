@@ -18,35 +18,24 @@ module omero {
     module internal {
 
         /*
-         * Callback passed to the discover method of the Cluster
-         * interface. Each server instance will have a single Cluster
-         * instance reachable via multicast and will respond with
-         * its uuid. The uuid is an internal value and does not
-         * correspond to a session.
+         * Interface implemented by each server instance. Instances lookup one
+         * another in the IceGrid registry.
          */
-        interface DiscoverCallback {
-            void clusterNodeUuid(string uuid);
-        };
-
-        /*
-         * Interface implemented by each server instance. Instances communicate
-         * via a multicast adapter defined in etc/internal.cfg. It should be
-         * assumed that communication along the cluster is not completely secure
-         * and so all values and operations should be checked.
-         */
-        interface Cluster {
+        interface ClusterNode {
 
             /*
-             * Method called via multicast to discover all active
-             * instances within an OMERO cluster.
+             * Each node acquires the uuids of all other active nodes on start
+             * up. The uuid is an internal value and does not
+             * correspond to a session.
              */
-            void discover(DiscoverCallback* cb);
-
+             string getNodeUuid();
+             
             /*
              * Let all cluster nodes know that the instance with this
              * uuid is going down.
              */
             void down(string uuid);
+
         };
 
     };

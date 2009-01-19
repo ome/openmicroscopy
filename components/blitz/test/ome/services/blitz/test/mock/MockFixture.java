@@ -7,7 +7,6 @@
 package ome.services.blitz.test.mock;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +17,7 @@ import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
+import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.test.utests.TestCache;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.scheduler.SchedulerFactoryBean;
@@ -134,6 +134,10 @@ public class MockFixture {
                 .getBean("swappableAdapterSource");
         ts.swap(blitz.getBlitzAdapter());
 
+        // Add our topic manager
+        TopicManager tm = new TopicManager(blitz.getCommunicator());
+        this.ctx.addApplicationListener(tm);
+        
         // Setup mock router which allows us to use omero.client
         // rather than solely ServiceFactoryProxies, though it is
         // still necessary to call the proper mock methods.
@@ -330,8 +334,10 @@ public class MockFixture {
         public void destroySession(Current arg0)
                 throws SessionNotExistException {
             SessionPrx prx = sessionByConnection.get(arg0.con);
-            log.info("Destroying " + prx);
-            prx.destroy();
+            if (prx != null) {
+                log.info("Destroying " + prx);
+                prx.destroy();
+            }        
         }
 
         public String getCategoryForClient(Current arg0) {

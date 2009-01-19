@@ -27,7 +27,8 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import omero.ApiUsageException;
-import omero.api.ServiceFactoryPrx;
+import omero.api.ClientCallbackPrx;
+import omero.api.ClientCallbackPrxHelper;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 
@@ -225,6 +226,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      */
     public void requestHeartBeats() {
         log.info("Performing requestHeartbeats");
+        this.context.publishEvent(new TopicManager.TopicMessage(this, 
+                "HeartBeat", new ClientCallbackPrxHelper(), "requestHeartbeat"));
         Set<String> sessionIds = sessionToClientIds.keySet();
         for (String sessionId : sessionIds) {
             Set<String> clientIds = sessionToClientIds.get(sessionId);

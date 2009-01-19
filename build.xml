@@ -113,6 +113,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
+    <!-- includes C++ -->
     <target name="build-all" description="Build everything and copy to dist" depends="init">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>

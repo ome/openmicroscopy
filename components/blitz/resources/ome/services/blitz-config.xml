@@ -33,13 +33,18 @@
   </bean>
 
   <bean id="ring" class="ome.services.blitz.fire.Ring">
-      <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="simpleJdbcTemplate"/>
+  </bean>
+  
+  <bean id="topicManager" class="ome.services.blitz.fire.TopicManager">
+    <constructor-arg ref="Ice.Communicator"/>
   </bean>
 
   <bean id="Ice.Communicator" factory-bean="configuration" factory-method="getCommunicator"/>
   <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
   <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>
   <bean id="BlitzVerifier" factory-bean="configuration" factory-method="getBlitzVerifier"/>
+  <bean id="Registry" factory-bean="configuration" factory-method="getRegistry"/>
   
   <bean id="requestHeartBeatsRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="BlitzManager" />

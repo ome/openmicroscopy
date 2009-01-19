@@ -40,13 +40,20 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
     public boolean checkPermissions(String userId, String password,
             StringHolder reason, Current __current) {
+        
         boolean value = false;
         try {
-            if (ring.checkPassword(userId)) {
-                return true;
-            } else {
-                value = manager.executePasswordCheck(userId, password);
+            // First check locally. Since we typically use redirects in the
+            // cluster, it's most likely that our password will be in memory
+            // in this instance.
+            value = manager.executePasswordCheck(userId, password);
+            
+            // If that doesn't work, make sure that the cluster doesn't know
+            // something this instance doesn't.
+            if ( ! value) {
+                value = ring.checkPassword(userId);
             }
+
         } catch (Throwable t) {
             reason.value = "Internal error. Please contact your administrator:\n"
                     + t.getMessage();

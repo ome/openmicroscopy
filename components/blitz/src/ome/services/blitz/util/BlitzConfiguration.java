@@ -6,15 +6,11 @@
 
 package ome.services.blitz.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.PermissionsVerifierI;
+import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.util.Executor;
@@ -53,6 +49,8 @@ public class BlitzConfiguration {
     private final SessionManager blitzManager;
 
     private final PermissionsVerifier blitzVerifier;
+    
+    private final Registry registry;
 
     private final Ice.InitializationData id;
 
@@ -104,8 +102,12 @@ public class BlitzConfiguration {
         }
 
         try {
+            
+            // This component is inert, and so can be created early.
+            registry = new Registry(this.communicator);
+            
             registerObjectFactory();
-            blitzAdapter = createAdapter();
+                        blitzAdapter = createAdapter();
             blitzManager = createAndRegisterManager(sessionManager,
                     securitySystem, executor);
             blitzVerifier = createAndRegisterVerifier(sessionManager);
@@ -113,11 +115,12 @@ public class BlitzConfiguration {
 
             blitzAdapter.activate();
 
+
             // When using adapter methods from within the ring, it is necessary
             // to start the adapter first.
+            blitzRing.setRegistry(registry);
             blitzRing.init(blitzAdapter, communicator
                     .proxyToString(getDirectProxy()));
-
         } catch (RuntimeException e) {
             try {
                 destroy();
@@ -222,7 +225,7 @@ public class BlitzConfiguration {
     }
 
     /**
-     * Registers both the code generated {@link ObjectFactory} for all the
+     * Registers both the code generated {@link Ice.ObjectFactory} for all the
      * omero.model.* classes as well as all the classes which the server would
      * like to receive from clients.
      */
@@ -317,7 +320,7 @@ public class BlitzConfiguration {
         }
         return communicator;
     }
-
+    
     public Ice.ObjectAdapter getBlitzAdapter() {
         if (blitzAdapter == null) {
             throw new IllegalStateException("Adapter is null");
@@ -339,6 +342,12 @@ public class BlitzConfiguration {
         return blitzVerifier;
     }
 
+    public Registry getRegistry() {
+        if (registry == null) {
+            throw new IllegalStateException("Registry is null");
+        }
+        return registry;
+    }
     /**
      * Return a direct proxy to the session manager in this object adapter.
      */

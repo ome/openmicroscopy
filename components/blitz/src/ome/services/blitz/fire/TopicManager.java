@@ -1,0 +1,129 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
+package ome.services.blitz.fire;
+
+import java.lang.reflect.Method;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+
+import IceStorm.NoSuchTopic;
+
+/**
+ * Local dispatcher to {@link IceStorm.TopicManager}
+ * 
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since December 2008
+ */
+public final class TopicManager implements ApplicationListener {
+
+    public final static class TopicMessage extends ApplicationEvent {
+
+        private final String topic;
+        private final Ice.ObjectPrxHelperBase base;
+        private final String method;
+        private final Object[] args;
+
+        public TopicMessage(Object source, String topic,
+                Ice.ObjectPrxHelperBase base, String method, Object... args) {
+            super(source);
+            this.topic = topic;
+            this.base = base;
+            this.method = method;
+            this.args = args;
+        }
+    }
+
+    private final static Log log = LogFactory.getLog(TopicManager.class);
+
+    private final Ice.Communicator communicator;
+
+    private final IceStorm.TopicManagerPrx topicManager;
+
+    public TopicManager(Ice.Communicator communicator) {
+        this.communicator = communicator;
+        this.topicManager = lookupTopicManagerOrNull();
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof TopicMessage) {
+            if (topicManager == null) {
+                log.warn("No topic manager");
+                return;
+            }
+            TopicMessage msg = (TopicMessage) event;
+            try {
+                Ice.ObjectPrx obj = createOrRetrieveTopicGetPublisher(msg.topic);
+                msg.base.__copyFrom(obj);
+                Method m = msg.base.getClass().getMethod(msg.method);
+                m.invoke(msg.base, msg.args);
+            } catch (Exception e) {
+                log.error("Error publishing to topic:" + msg.topic, e);
+            }
+        }
+    }
+
+    public void register(String topicName, Ice.ObjectPrx prx) {
+        
+    }
+    
+    // Helpers
+    // =========================================================================
+
+    protected IceStorm.TopicManagerPrx lookupTopicManagerOrNull() {
+        
+        Ice.ObjectPrx objectPrx = communicator.stringToProxy("IceGrid/Query");
+        Ice.ObjectPrx[] candidates = null;
+        
+        try {
+            IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
+                    .checkedCast(objectPrx);
+            candidates = query
+                    .findAllObjectsByType("::IceStorm::TopicManager");
+        } catch (Exception e) {
+            log.warn("Error querying for topic manager", e);
+        }
+        IceStorm.TopicManagerPrx tm = null;
+
+        if (candidates == null || candidates.length == 0) {
+            log.warn("Found no topic manager");
+        } else if (candidates.length > 1) {
+            log.warn("Found wrong number of topic managers: "
+                    + candidates.length);
+        } else {
+            try {
+                tm = IceStorm.TopicManagerPrxHelper.checkedCast(candidates[0]);
+            } catch (Exception e) {
+                log.warn("Could not cast to TopicManager", e);
+            }
+        }
+        return tm;
+    }
+
+    protected Ice.ObjectPrx createOrRetrieveTopicGetPublisher(String name) {
+        IceStorm.TopicPrx topic = null;
+        Ice.ObjectPrx pub = null;
+        try {
+            topic = topicManager.create(name);
+        } catch (IceStorm.TopicExists ex2) {
+            try {
+                topic = topicManager.retrieve(name);
+            } catch (NoSuchTopic e) {
+                throw new RuntimeException("Race condition retriving topic: "
+                        + name);
+            }
+        }
+        if (topic != null) {
+            pub = topic.getPublisher().ice_oneway();
+        }
+        return pub;
+    }
+
+}

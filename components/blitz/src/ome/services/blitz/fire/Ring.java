@@ -10,6 +10,7 @@ package ome.services.blitz.fire;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,17 +20,14 @@ import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
-import omero.internal.ClusterPrx;
-import omero.internal.ClusterPrxHelper;
-import omero.internal.DiscoverCallbackPrx;
-import omero.internal._ClusterDisp;
+import omero.internal.ClusterNodePrx;
+import omero.internal.ClusterNodePrxHelper;
+import omero.internal._ClusterNodeDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgroups.blocks.ReplicatedHashMap;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -56,8 +54,7 @@ import Ice.Current;
  * 
  *@since Beta4
  */
-public class Ring extends _ClusterDisp implements ApplicationListener,
-        ApplicationEventPublisherAware {
+public class Ring extends _ClusterNodeDisp implements ApplicationListener {
 
     private final static Log log = LogFactory.getLog(Ring.class);
 
@@ -75,24 +72,14 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
 
     private final SimpleJdbcTemplate jdbc;
 
-    private/* final */ApplicationEventPublisher publisher;
-
     private/* final */Ice.Communicator communicator;
+
+    private/* final */Registry registry;
 
     /**
      * Standard blitz adapter which is used for the callback.
      */
     private/* final */Ice.ObjectAdapter adapter;
-    
-    /**
-     * Multicast-based adapter solely for cluster communication.
-     */
-    private/* final */Ice.ObjectAdapter clusterAdapter;
-
-    /**
-     * Multicast (datagram) proxy to all other cluster nodes.
-     */
-    private/* final */ClusterPrx cluster;
 
     /**
      * Direct proxy value to the {@link SessionManager} in this blitz instance.
@@ -113,11 +100,11 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
     }
 
     /**
-     * Passed to the {@link Discovery} instance for signalling completion from
-     * its background {@link Thread}
+     * Sets the {@link Registry} for this instance. This is currently done in
+     * {@link BlitzConfiguration}
      */
-    public void setApplicationEventPublisher(ApplicationEventPublisher arg0) {
-        this.publisher = arg0;
+    public void setRegistry(Registry registry) {
+        this.registry = registry;
     }
 
     // Configuration and cluster usage
@@ -145,52 +132,83 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
      * to the cluster.
      */
     protected void checkClusterAndAddSelf() {
-        
-        // The cluster we belong to.
-        Ice.ObjectPrx prx = this.communicator.propertyToProxy("ClusterProxy");
-        if (prx == null) {
-            log.warn("Could not obtain ClusterProxy. "
-                    + "Is multicast property properly set?");
-            return; // EARLY EXIT
-        }
-        
-        // But we have to use datagrams
-        prx = prx.ice_datagram();
-        if (prx == null) {
-            log.warn("Could no get datagram proxy. "
-                    + "Please check your multicast configuration.");
-            return; // EARLY EXIT
-        }
-        cluster = ClusterPrxHelper.uncheckedCast(prx);
-        
-        // Now create the call back and start it
-        // The instance registers and removes itself.
-        Discovery discovery = new Discovery(adapter, this, this.publisher);
-        try {
-            cluster.discover(discovery.getProxy());
-            new Thread(discovery).start();
-        } catch (Ice.NoEndpointException nee) {
-            log.warn("No cluster endpoints found", nee);
-        }
 
-        // Now our checking is done, add ourselves.
-        this.clusterAdapter = this.communicator.createObjectAdapter("Cluster");
-        this.clusterAdapter.add(this, this.communicator
-                .stringToIdentity("Cluster"));
-        this.clusterAdapter.activate();
+        ClusterNodePrx[] nodes = registry.lookupClusterNodes();
+
+        // Contact each of the cluster. This instance has not been added, so
+        // this will not cause a callback.
+        Set<String> nodeUuids = new HashSet<String>();
+        for (int i = 0; i < nodes.length; i++) {
+            ClusterNodePrx prx = nodes[i];
+            if (prx == null) {
+                return;
+            } else {
+                try {
+                    nodeUuids.add(nodes[i].getNodeUuid());
+                } catch (Exception e) {
+                    log.warn("Error getting uuid from node " + nodes[i]
+                            + " -- removing.");
+                    registry.removeObjectSafely(prx.ice_getIdentity());
+                }
+            }
+        }
+        log.info("Got " + nodeUuids.size() + " cluster uuids : " + nodeUuids);
+
+        // Now any stale nodes (ones not found in the registry) are forcibly
+        // removed, since it is assumed they didn't shut down cleanly.
+        assertNodes(nodeUuids);
+
+        try {
+            // Now our checking is done, add ourselves.
+            Ice.Identity clusterNode = this.communicator
+                    .stringToIdentity("ClusterNode/" + uuid);
+            this.adapter.add(this, clusterNode);
+            registry.addObject(this.adapter.createDirectProxy(clusterNode));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot register self as node: ", e);
+        }
     }
 
-    /**
-     * Returns the uuid for this manager instance. Other instances will use this
-     * value to keep the session_ring table in sync.
-     */
-    public void discover(DiscoverCallbackPrx cb, Current __current) {
+    public void destroy() {
         try {
-            cb.clusterNodeUuid(uuid);
-            log.info("Sent cluster node uuid: " + uuid);
+            Ice.Identity id = this.communicator.stringToIdentity("ClusterNode/"
+                    + uuid);
+            registry.removeObjectSafely(id);
+            remove(MANAGERS + uuid);
+            int count = jdbc.update("delete from session_ring where value = ?",
+                    uuid);
+            log.info("Removed " + count + " entries for " + uuid);
+            log.info("Disconnected from OMERO.cluster");
         } catch (Exception e) {
-            log.warn("Exception while sending cluster node uuid: " + uuid, e);
+            log.error("Error stopping ring " + this, e);
+        } finally {
+            ClusterNodePrx[] nodes = null;
+            try {
+                // TODO this would be better served with a storm message!
+                nodes = registry.lookupClusterNodes();
+                for (ClusterNodePrx clusterNodePrx : nodes) {
+                    try {
+                        clusterNodePrx = ClusterNodePrxHelper
+                                .uncheckedCast(clusterNodePrx.ice_oneway());
+                        clusterNodePrx.down(this.uuid);
+                    } catch (Exception e) {
+                        String msg = "Error signaling down to "
+                                + clusterNodePrx;
+                        log.warn(msg, e);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Error signaling down to: "
+                        + Arrays.deepToString(nodes), e);
+            }
         }
+    }
+
+    // Cluster Node API
+    // =========================================================================
+
+    public String getNodeUuid(Current __current) {
+        return this.uuid;
     }
 
     /**
@@ -201,25 +219,6 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
         removeIfEquals(CONFIG + "redirect", downUuid);
         if (putIfAbsent(CONFIG + "redirect", this.uuid)) {
             log.info("Installed self as new redirect: " + uuid);
-        }
-    }
-
-    public void destroy() {
-        try {
-            if (this.clusterAdapter != null) {
-                this.clusterAdapter.deactivate();
-            }
-            remove(MANAGERS + uuid);
-            int count = jdbc.update("delete from session_ring where value = ?",
-                    uuid);
-            log.info("Removed " + count + " entries for " + uuid);
-            log.info("Disconnected from OMERO.cluster");
-        } catch (Exception e) {
-            log.error("Error stopping ring " + this, e);
-        } finally {
-            if (cluster != null) {
-                cluster.down(this.uuid);
-            }
         }
     }
 
@@ -372,8 +371,7 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
         }
         sb.append(")");
         int count = jdbc.update(sb.toString(), (Object[]) params
-                .toArray(new Object[params
-                .size()]));
+                .toArray(new Object[params.size()]));
         if (count != 0) {
             log.info("Removed " + count + " stale sessions");
         }
@@ -381,12 +379,19 @@ public class Ring extends _ClusterDisp implements ApplicationListener,
 
     protected void purgeNode(String manager) {
         log.info("Purging node: " + manager);
-        int count = jdbc.update("delete from session_ring where value = ?",
-                manager);
-        log.info("Removed " + count + " entries with value " + manager);
-        count = jdbc.update("delete from session_ring where key = ?", MANAGERS
-                + manager);
-        log.info("Removed " + MANAGERS + manager);
+        try {
+            Ice.Identity id = this.communicator.stringToIdentity("ClusterNode/"
+                    + manager);
+            registry.removeObjectSafely(id);
+            int count = jdbc.update("delete from session_ring where value = ?",
+                    manager);
+            log.info("Removed " + count + " entries with value " + manager);
+            count = jdbc.update("delete from session_ring where key = ?",
+                    MANAGERS + manager);
+            log.info("Removed " + MANAGERS + manager);
+        } catch (Exception e) {
+            log.error("Failed to purge node " + manager, e);
+        }
         putIfAbsent(CONFIG + "redirect", uuid);
     }
 

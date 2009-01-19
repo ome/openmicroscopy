@@ -396,7 +396,7 @@ public class client {
      * @throws CannotCreateSessionException
      */
     public ServiceFactoryPrx joinSession(String session)
-            throws CannotCreateSessionException, PermissionDeniedException {
+            throws CannotCreateSessionException, PermissionDeniedException, ServerError {
         return createSession(session, session);
     }
 
@@ -404,7 +404,7 @@ public class client {
      * Calls {@link #createSession(String, String)} with null values
      */
     public ServiceFactoryPrx createSession()
-            throws CannotCreateSessionException, PermissionDeniedException {
+            throws CannotCreateSessionException, PermissionDeniedException, ServerError {
         return createSession(null, null);
     }
 
@@ -421,7 +421,8 @@ public class client {
      * @throws PermissionDeniedException
      */
     public ServiceFactoryPrx createSession(String username, String password)
-            throws CannotCreateSessionException, PermissionDeniedException {
+            throws CannotCreateSessionException, PermissionDeniedException,
+            ServerError {
 
         synchronized (lock) {
 
@@ -470,8 +471,10 @@ public class client {
             }
 
             // Set the client callback on the session
+            // and pass it to icestorm
             Ice.ObjectPrx raw = __ic.stringToProxy("ClientCallback");
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
+            __sf.subscribe("HeartBeat", raw);
             return this.__sf;
 
         }
@@ -547,7 +550,6 @@ public class client {
             } finally {
                 oldIc.destroy();
             }
-
         }
 
     }
@@ -737,13 +739,14 @@ public class client {
             } catch (Exception e) {
                 try {
                     ic.getLogger().error(
-                            "Error performing "+action+": " + e.getMessage());
+                            "Error performing " + action + ": "
+                                    + e.getMessage());
                 } catch (Exception e2) {
                     // This could be a null pointer exception or any number
                     // of things. But it's important for us to know that a
                     // heartbeat could not be performed, for exampleì
-                    System.err.println("Error performing "+action+" :"+
-                            e.getMessage());
+                    System.err.println("Error performing " + action + " :"
+                            + e.getMessage());
                     System.err.println("(Stderr due to: " + e2.getMessage()
                             + ")");
                 }
