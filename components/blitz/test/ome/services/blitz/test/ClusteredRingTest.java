@@ -8,7 +8,6 @@ package ome.services.blitz.test;
 
 import java.util.Set;
 
-import ome.services.blitz.fire.Discovery;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.test.mock.MockFixture;
 import ome.services.messages.CreateSessionMessage;
@@ -39,17 +38,6 @@ public class ClusteredRingTest extends MockObjectTestCase {
     @BeforeTest
     public void setup() throws Exception {
 
-        // Setting up listener for discovery to speed up test
-        final int[] count = new int[] { 0 };
-        OmeroContext ctx = MockFixture.basicContext();
-        ctx.addApplicationListener(new ApplicationListener() {
-            public void onApplicationEvent(ApplicationEvent arg0) {
-                if (arg0 instanceof Discovery.Finished) {
-                    count[0]++;
-                }
-            }
-        });
-
         // To run everything in a single transaction, uncomment;
         // tm = (PlatformTransactionManager) ctx.getBean("transactionManager");
         // TransactionAttribute ta = new DefaultTransactionAttribute(){
@@ -62,10 +50,6 @@ public class ClusteredRingTest extends MockObjectTestCase {
 
         fixture1 = new MockFixture(this);
         fixture2 = new MockFixture(this);
-        long start = System.currentTimeMillis();
-        while (count[0] < 2 && System.currentTimeMillis() < start + 10 * 1000L) {
-            Thread.sleep(1000L);
-        }
     }
 
     @AfterTest(alwaysRun = true)
@@ -99,21 +83,8 @@ public class ClusteredRingTest extends MockObjectTestCase {
             // then this test has failed before. oh well.
         }
 
-        final boolean[] called = new boolean[] { false };
-        fixture1.ctx.addApplicationListener(new ApplicationListener() {
-            public void onApplicationEvent(ApplicationEvent arg0) {
-                if (arg0 instanceof Discovery.Finished) {
-                    called[0] = true;
-                }
-            }
-        });
-
         // Creating a new ring should automatically clean up "foo"
         MockFixture fixture3 = new MockFixture(this);
-        long start = System.currentTimeMillis();
-        while (! called[0] && System.currentTimeMillis() < start + 10*1000L) {
-            Thread.sleep(1000L);
-        }
         fixture3.tearDown();
 
         Set<String> managers = fixture1.blitz.getRing().knownManagers();

@@ -46,11 +46,9 @@ public class RingTest extends MockObjectTestCase {
     @Test
     public void testFirstTakesOver() throws Exception {
         Ring one = new Ring(jdbc);
-        one.setApplicationEventPublisher(ctx);
         one.init(oa, "one");
         assertEquals("one", one.getRedirect());
         Ring two = new Ring(jdbc);
-        two.setApplicationEventPublisher(ctx);
         two.init(oa, "two");
         assertEquals("one", two.getRedirect());
     }
