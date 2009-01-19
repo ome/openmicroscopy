@@ -15,16 +15,18 @@
 			Display Settings 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
-	<type id="ome.model.display.Thumbnail"><!-- TODO: review-->
+	<type id="ome.model.display.Thumbnail">
+		<!-- Note: Thumbnail differs from the Thumbnail in model -->
 		<properties>
-			<required name="pixels" type="ome.model.core.Pixels"/><!--TODO: not in model-->
-			<required name="mimeType" type="string"/><!-- TODO: called MIMEtype in model-->
-			<required name="sizeX" type="int"/><!--TODO: not in model-->
-			<required name="sizeY" type="int"/><!--TODO: not in model-->
-			<optional name="ref" type="string"/><!-- TODO: called href in model-->
+			<required name="pixels" type="ome.model.core.Pixels"/>
+			<required name="mimeType" type="string"/>
+			<required name="sizeX" type="int"/>
+			<required name="sizeY" type="int"/>
+			<optional name="ref" type="string"/>
 		</properties>
 	</type>
-	<type id="ome.model.display.RenderingDef"><!--TODO: not in model-->
+	<type id="ome.model.display.RenderingDef">
+		<!-- Note: RenderingDef is not in model-->
 		<properties>
 			<manyone name="pixels" type="ome.model.core.Pixels"/>
 			<required name="defaultZ" type="int"/>
@@ -38,7 +40,8 @@
 			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
 		</properties>
 	</type>
-	<type id="ome.model.display.QuantumDef"><!--TODO: not in model-->
+	<type id="ome.model.display.QuantumDef">
+		<!-- Note: QuantumDef is not in model-->
 		<properties>
 			<required name="cdStart" type="int"/>
 			<required name="cdEnd" type="int"/>
@@ -46,7 +49,8 @@
 			<rules/>
 		</properties>
 	</type>
-	<type id="ome.model.display.ChannelBinding"><!--TODO: not in model-->
+	<type id="ome.model.display.ChannelBinding">
+		<!-- Note: ChannelBinding is not in model-->
 		<properties>
 			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
 			<required name="family" type="ome.model.enums.Family"/>
@@ -70,7 +74,8 @@
 		</properties>
 	</type>
 
-	<type id="ome.model.display.ColorFix"><!--TODO: Temp Fix-->
+	<type id="ome.model.display.ColorFix">
+		<!--TODO: ColorFix is a temp fix and should be removed asap -->
 		<properties>
 			<required name="red" type="int"/>
 			<required name="green" type="int"/>
@@ -84,17 +89,20 @@
 			Display Settings 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<abstract id="ome.model.display.CodomainMapContext"><!--TODO: not in model-->
+	<abstract id="ome.model.display.CodomainMapContext">
+		<!-- Note: CodomainMapContext is not in model-->
 		<properties>
 			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
 		</properties>
 	</abstract>
-	<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext"><!--TODO: not in model-->
+	<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
+		<!-- Note: ReverseIntensityContext is not in model-->
 		<properties>
 			<required name="reverse" type="boolean"/>
 		</properties>
 	</type>
-	<type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext"><!--TODO: not in model-->
+	<type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext">
+		<!-- Note: PlaneSlicingContext is not in model-->
 		<properties>
 			<required name="upperLimit" type="int"/>
 			<required name="lowerLimit" type="int"/>
@@ -103,7 +111,8 @@
 			<required name="constant" type="boolean"/>
 		</properties>
 	</type>
-	<type id="ome.model.display.ContrastStretchingContext" superclass="ome.model.display.CodomainMapContext"><!--TODO: not in model-->
+	<type id="ome.model.display.ContrastStretchingContext" superclass="ome.model.display.CodomainMapContext">
+		<!-- Note: ContrastStretchingContext is not in model-->
 		<properties>
 			<required name="xstart" type="int"/>
 			<required name="ystart" type="int"/>
@@ -116,11 +125,13 @@
 		Display Settings Enumerations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<enum id="ome.model.enums.RenderingModel"><!--TODO: not in model-->
+	<enum id="ome.model.enums.RenderingModel">
+		<!-- Note: RenderingModel is not in model-->
 		<entry name="rgb"/>
 		<entry name="greyscale"/>
 	</enum>
-	<enum id="ome.model.enums.Family"><!--TODO: not in model-->
+	<enum id="ome.model.enums.Family">
+		<!-- Note: Family is not in model-->
 		<entry name="linear"/>
 		<entry name="polynomial"/>
 		<entry name="exponential"/>

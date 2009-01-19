@@ -11,7 +11,8 @@
 -->
 <types>
 <!-- Job running -->
-	<enum id="ome.model.jobs.JobStatus"><!--TODO: not in model-->
+	<enum id="ome.model.jobs.JobStatus">
+		<!-- Note: JobStatus is not in model-->
 		<entry name="Submitted"/>
 		<entry name="Resubmitted"/>
 		<entry name="Queued"/>
@@ -22,7 +23,8 @@
 		<entry name="Finished"/>
 		<entry name="Cancelled"/>
 	</enum>
-	<type id="ome.model.jobs.Job" abstract="true"><!--TODO: not in model-->
+	<type id="ome.model.jobs.Job" abstract="true">
+		<!-- Note: Job is not in model-->
 		<properties>
 			<required name="username" type="string"/>
 			<required name="groupname" type="string"/>
@@ -36,18 +38,21 @@
 			<child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.core.OriginalFile"/>
 		</properties>
 	</type>
-	<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job"><!--TODO: not in model-->
+	<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
+		<!-- Note: ImportJob is not in model-->
 		<properties>
 			<required name="imageName" type="string"/>
 			<required name="imageDescription" type="string"/>
 		</properties>
 	</type>
-	<type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job"><!--TODO: not in model-->
+	<type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
+		<!-- Note: ScriptJob is not in model-->
 		<properties>
 			<optional name="description" type="string"/>
 		</properties>
 	</type>
-	<link id="ome.model.jobs.JobOriginalFileLink"><!--TODO: not in model-->
+	<link id="ome.model.jobs.JobOriginalFileLink">
+		<!-- Note: JobOriginalFileLink is not in model-->
 		<properties>
 			<from_parent type="ome.model.jobs.Job"/>
 			<to_child type="ome.model.core.OriginalFile"/>

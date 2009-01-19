@@ -11,7 +11,8 @@
 -->
 <types>
 <!-- Main types -->
-	<type id="ome.model.screen.Screen" named="true" described="true" annotated="true"><!-- TODO: Name is optional in model-->
+	<type id="ome.model.screen.Screen" named="true" described="true" annotated="true">
+		<!-- Note: Name is optional in model-->
 		<properties>
 			<optional name="type" type="string"/>
 			<optional name="protocolIdentifier" type="string"/>
@@ -31,7 +32,8 @@
 			<child name="wellSampleLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.WellSample"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true"><!-- TODO: Name is optional in model-->
+	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true">
+		<!-- Note: Name is optional in model-->
 		<properties>
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
@@ -63,7 +65,8 @@
 			<parent name="screenAcquisitionLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.ScreenAcquisition"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true"><!-- TODO: Name is optional in model-->
+	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
+		<!-- Note: Name is optional in model-->
 		<properties>
 			<optional name="reagentIdentifier" type="string"/>
 			<manyone name="screen" type="ome.model.screen.Screen" inverse="reagent"/>

@@ -11,7 +11,8 @@
 -->
 <types>
 <!-- MANAGEMENT -->
-	<type id="ome.model.meta.ExperimenterGroup" named="true" described="true" annotated="true"><!--TODO: relates to Group in model-->
+	<type id="ome.model.meta.ExperimenterGroup" named="true" described="true" annotated="true">
+		<!-- Note: relates to Group in model-->
 		<properties>
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 		</properties>
@@ -31,14 +32,16 @@
 			<!-- TODO: ## add to dsl [email/] -->
 		</properties>
 	</type>
-	<link id="ome.model.meta.GroupExperimenterMap"><!--TODO: not in model-->
+	<link id="ome.model.meta.GroupExperimenterMap">
+		<!-- Note: GroupExperimenterMap is not in model-->
 		<properties>
 			<from_parent type="ome.model.meta.ExperimenterGroup"/>
 			<to_child type="ome.model.meta.Experimenter" ordered="true"/>
 		</properties>
 	</link>
 	<!-- EVENTS -->
-	<type id="ome.model.meta.Session" global="true" annotated="true"><!--TODO: not in model-->
+	<type id="ome.model.meta.Session" global="true" annotated="true">
+		<!-- Note: Session is not in model-->
 		<properties>
 			<!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
@@ -61,7 +64,8 @@
             -->
 		</properties>
 	</type>
-	<enum id="ome.model.enums.EventType"><!--TODO: not in model-->
+	<enum id="ome.model.enums.EventType">
+		<!-- Note: EventType is not in model-->
 		<entry name="Import"/>
 		<entry name="Internal"/>
 		<entry name="Shoola"/>
@@ -72,7 +76,8 @@
 		<entry name="FullText"/>
 		<entry name="Sessions"/>
 	</enum>
-	<type id="ome.model.meta.Event" immutable="true" global="true"><!--TODO: not in model-->
+	<type id="ome.model.meta.Event" immutable="true" global="true">
+		<!-- Note: Event is not in model-->
 		<properties>
 <!-- Type & Group are not really optional. Needed to bootstrap.
         Constraints are added later -->
@@ -86,7 +91,8 @@
 			<manyone name="session" type="ome.model.meta.Session"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.EventLog" immutable="true" global="true"><!--TODO: not in model-->
+	<type id="ome.model.meta.EventLog" immutable="true" global="true">
+		<!-- Note: EventLog is not in model-->
 		<properties>
 			<required name="entityId" type="long"/>
 			<required name="entityType" type="string"/>
@@ -94,7 +100,8 @@
 			<manyone name="event" type="ome.model.meta.Event"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.ExternalInfo" immutable="true"><!--TODO: not in model-->
+	<type id="ome.model.meta.ExternalInfo" immutable="true">
+		<!-- Note: ExternalInfo not in model-->
 		<properties>
 			<required name="entityId" type="long" mutable="false"/>
 			<required name="entityType" type="string" mutable="false"/>
@@ -102,7 +109,8 @@
 			<optional name="uuid" type="string" mutable="false"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.DBPatch" immutable="true" global="true"><!--TODO: not in model-->
+	<type id="ome.model.meta.DBPatch" immutable="true" global="true">
+		<!-- Note: DBPatch is not in model-->
 		<properties>
 			<required name="currentVersion" type="string" mutable="false"/>
 			<required name="currentPatch" type="int" mutable="false"/>
@@ -112,7 +120,8 @@
 			<optional name="message" type="string" mutable="false"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session"><!--TODO: not in model-->
+	<type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
+		<!-- Note: Share is not in model-->
 		<properties>
 			<required name="itemCount" type="long"/>
 			<required name="active" type="boolean"/>
