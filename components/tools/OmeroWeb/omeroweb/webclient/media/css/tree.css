@@ -137,6 +137,39 @@
 	margin-left:-16px;
 	background: url(/webclient/static/images/tree/expandable-sub-last-static.png) 0 -2px no-repeat #fff;
 }
+
+.simpleTree .orfolder-open
+{
+	margin-left:-16px;
+	background: url(/webclient/static/images/tree/collapsable-or.png) 0 -2px no-repeat #fff;
+}
+.simpleTree .orfolder-open-last
+{
+	margin-left:-16px;
+	background: url(/webclient/static/images/tree/collapsable-or-last.png) 0 -2px no-repeat #fff;
+}
+.simpleTree .orfolder-open-last-static
+{
+	margin-left:-16px;
+	background: url(/webclient/static/images/tree/collapsable-or-last-static.png) 0 -2px no-repeat #fff;
+}
+.simpleTree .orfolder-close
+{
+	margin-left:-16px;
+	background: url(/webclient/static/images/tree/expandable-or.png) 0 -2px no-repeat #fff;
+}
+.simpleTree .orfolder-close-last
+{
+	margin-left:-16px;
+	background: url(/webclient/static/images/tree/expandable-or-last.png) 0 -2px no-repeat #fff;
+}
+.simpleTree .orfolder-close-last-static
+{
+	margin-left:-16px;
+	background: url(/webclient/static/images/tree/expandable-or-last-static.png) 0 -2px no-repeat #fff;
+}
+
+
 .simpleTree .doc
 {
 	cursor: default;

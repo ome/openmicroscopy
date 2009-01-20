@@ -189,7 +189,7 @@
             
             {% if not manager.project and not manager.dataset %}
             {% if not manager.orphaned %}
-                <li id='0' class="orphaned" ><span>Orphaned images</span>
+                <li id='orphan' ><span>Orphaned images</span>
                     <ul class="ajax">
                         {% ifequal nav.whos "mydata" %}
                             <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/ajaxorphaned/?view=tree}</li>

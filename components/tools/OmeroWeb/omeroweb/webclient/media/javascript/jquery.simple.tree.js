@@ -139,7 +139,7 @@ $.fn.simpleTree = function(opt){
 			.bind('selectstart', function() {
 				return false;
 			}).click(function(){
-				$('.active',TREE).attr('class','text');
+			    $('.active',TREE).attr('class','text');
 				if(this.className=='text')
 				{
 					this.className='active';
@@ -171,19 +171,24 @@ $.fn.simpleTree = function(opt){
 				}
 				return false;
 			}).mousedown(function(event){
-				mousePressed = true;
-				cloneNode = $(this).parent().clone();
-				var LI = $(this).parent();
-				if(TREE.option.drag)
-				{
-					$('>ul', cloneNode).hide();
-					$('body').append('<div id="drag_container"><ul></ul></div>');
-					$('#drag_container').hide().css({opacity:'0.8'});
-					$('#drag_container >ul').append(cloneNode);
-					$("<img>").attr({id	: "tree_plus",src	: "/webclient/static/images/tree/plus.gif"}).css({width: "7px",display: "block",position: "absolute",left	: "5px",top: "5px", display:'none'}).appendTo("body");
-					$(document).bind("mousemove", {LI:LI}, TREE.dragStart).bind("mouseup",TREE.dragEnd);
-				}
-				return false;
+			    //if elemnt is static don't drag it
+			    if($(this).parent().get(0).id=='orphan') {
+			        return false;
+				} else {
+				    mousePressed = true;
+    				cloneNode = $(this).parent().clone();
+    				var LI = $(this).parent();
+    				if(TREE.option.drag)
+    				{
+    					$('>ul', cloneNode).hide();
+    					$('body').append('<div id="drag_container"><ul></ul></div>');
+    					$('#drag_container').hide().css({opacity:'0.8'});
+    					$('#drag_container >ul').append(cloneNode);
+    					$("<img>").attr({id	: "tree_plus",src	: "/webclient/static/images/tree/plus.gif"}).css({width: "7px",display: "block",position: "absolute",left	: "5px",top: "5px", display:'none'}).appendTo("body");
+    					$(document).bind("mousemove", {LI:LI}, TREE.dragStart).bind("mouseup",TREE.dragEnd);
+    				}
+    				return false;
+    			}
 			}).mouseup(function(){
 				if(mousePressed && mouseMoved && dragNode_source)
 				{
@@ -198,8 +203,15 @@ $.fn.simpleTree = function(opt){
 				var LI = this;
 				var childNode = $('>ul',this);
 				if(childNode.size()>0){
-					var setClassName = 'folder-';
-					if(this.id.indexOf('pr')) var setClassName = 'subfolder-'; //new
+					if(this.id=='orphan') {
+				        var setClassName = 'orfolder-';
+					} else {
+					    if(this.id.indexOf('pr')) {
+    					    var setClassName = 'subfolder-'; //new
+					    }else {
+					        var setClassName = 'folder-';
+					    }
+					}
 					if(className && className.indexOf('open')>=0){
 						setClassName=setClassName+'open';
 						open=true;
