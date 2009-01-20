@@ -74,8 +74,8 @@ public class IndentLeftAction
 		// treeUI may be null at this point.
 		undoableTreeEdit = new IndentLeftEdit(treeUI);
 		
-		setName("Indent Fields to Left");
-		setDescription("Indent currently selected fields to the left");
+		setName("Indent Steps to Left");
+		setDescription("Indent currently selected steps to the left");
 		setIcon(IconManager.INDENT_LEFT);  
 	}
 

@@ -68,8 +68,8 @@ extends AbstractTreeEditAction
 		// treeUI may be null at this point.
 		undoableTreeEdit = new MoveDownEdit(treeUI);
 		
-		setName("Move Fields Down");
-		setDescription("Move selected fields down the page");
+		setName("Move Steps Down");
+		setDescription("Move selected steps down the page");
 		setIcon(IconManager.DOWN_ICON);  
 	}
 

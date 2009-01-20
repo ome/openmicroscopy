@@ -74,8 +74,8 @@ public class IndentRightAction
 		// treeUI may be null at this point.
 		undoableTreeEdit = new IndentRightEdit(treeUI);
 		
-		setName("Indent Fields to Right");
-		setDescription("Indent currently selected fields to the right");
+		setName("Indent Steps to Right");
+		setDescription("Indent currently selected steps to the right");
 		setIcon(IconManager.INDENT_RIGHT);  
 	}
 

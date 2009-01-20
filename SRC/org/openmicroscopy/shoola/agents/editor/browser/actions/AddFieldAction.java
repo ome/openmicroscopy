@@ -78,7 +78,7 @@ public class AddFieldAction
 		// treeUI is null at this point.
 		undoableTreeEdit = new AddFieldEdit(treeUI);
 		
-		setName("Add Field");
+		setName("Add Step");
 		setDescription("Add a new field");
 		setIcon(IconManager.ADD_ICON); 
 		

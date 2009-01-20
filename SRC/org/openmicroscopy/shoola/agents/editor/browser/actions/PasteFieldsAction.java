@@ -71,8 +71,8 @@ public class PasteFieldsAction
 		// treeUI is null at this point.
 		undoableTreeEdit = new PasteFieldsEdit(treeUI);
 		
-		setName("Paste Fields");
-		setDescription("Paste fields from the clipboard");
+		setName("Paste Steps");
+		setDescription("Paste steps from the clipboard");
 		setIcon(IconManager.PASTE_ICON); 
 		
 		refreshState();

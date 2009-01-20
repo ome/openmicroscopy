@@ -99,8 +99,8 @@ public class CopyFieldsAction
 	public CopyFieldsAction(Browser model) {
 		super(model);
 		
-		setName("Copy Selected Fields");
-		setDescription("Copy the selected fields to the clipboard");
+		setName("Copy Selected Steps");
+		setDescription("Copy the selected steps to the clipboard");
 		setIcon(IconManager.COPY_ICON);  
 	}
 	

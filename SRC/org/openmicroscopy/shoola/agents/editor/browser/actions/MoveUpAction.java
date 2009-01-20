@@ -69,8 +69,8 @@ public class MoveUpAction
 		// treeUI may be null at this point.
 		undoableTreeEdit = new MoveUpEdit(treeUI);
 		
-		setName("Move Fields Up");
-		setDescription("Move selected fields up the page");
+		setName("Move Steps Up");
+		setDescription("Move selected steps up the page");
 		setIcon(IconManager.UP_ICON);  
 	}
 

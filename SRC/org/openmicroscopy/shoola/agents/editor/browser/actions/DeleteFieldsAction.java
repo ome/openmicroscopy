@@ -77,8 +77,8 @@ public class DeleteFieldsAction
 		// treeUI is null at this point.
 		undoableTreeEdit = new DeleteFieldsEdit(treeUI);
 		
-		setName("Delete Fields");
-		setDescription("Delete the currently selected fields");
+		setName("Delete Steps");
+		setDescription("Delete the currently selected steps");
 		setIcon(IconManager.DELETE_ICON);  
 	}
 
