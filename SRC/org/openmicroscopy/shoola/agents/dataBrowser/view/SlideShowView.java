@@ -466,8 +466,8 @@ class SlideShowView
 		buildGUI();
 		attachWindowListener();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = 8*(screenSize.width/10);
-        int height = 8*(screenSize.height/10);
+        int width = 6*(screenSize.width/10);
+        int height = 6*(screenSize.height/10);
         setSize(width, height); 	
 	}
 	

@@ -53,12 +53,10 @@ import monitors.EventType;
 import monitors.MonitorClientPrx;
 import monitors.MonitorServerPrx;
 import monitors.PathMode;
-
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-
 import Ice.Communicator;
 import Ice.ObjectAdapter;
 import Ice.ObjectPrx;

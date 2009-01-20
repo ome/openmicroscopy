@@ -135,6 +135,7 @@ public class LensComponent
 	 */
 	void setZoomFactor(float zoomFactor)
 	{
+		
 		lensController.setZoomFactor(zoomFactor);
 		int index = ZoomAction.factorToIndex(zoomFactor);
 		menu.setZoomIndex(index);
@@ -249,6 +250,10 @@ public class LensComponent
 	 */
 	public void setImageZoomFactor(float imageZoomFactor)
 	{
+		if (imageZoomFactor < LensModel.MINIMUM_ZOOM)
+			imageZoomFactor = LensModel.MINIMUM_ZOOM;
+		if (imageZoomFactor > LensModel.MAXIMUM_ZOOM)
+			imageZoomFactor = LensModel.MAXIMUM_ZOOM;
 		lensModel.setImageZoomFactor(imageZoomFactor);
 		lens.setImageZoomFactor();
 	}

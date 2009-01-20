@@ -545,12 +545,12 @@ class EditorModel
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
 			exp = def.getExperimenter();
-			//if (exp.getId() != userID) {
+			if (exp.getId() != userID) {
 				value = formatOwner(exp);
 				names.add(value);
 				m.put(value, def);
 				def.setFormattedExperimenter(value);
-			//}
+			}
 		}
 		l = sorter.sort(names);
 		i = l.iterator();

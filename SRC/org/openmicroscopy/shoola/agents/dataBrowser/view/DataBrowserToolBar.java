@@ -197,8 +197,8 @@ class DataBrowserToolBar
 		IconManager icons = IconManager.getInstance();
 		manageMenu = new JPopupMenu();
 		
-		JMenuItem menuItem = new JMenuItem("New dataset");
-		menuItem.setToolTipText("Create a dataset.");
+		JMenuItem menuItem = new JMenuItem("New Dataset");
+		menuItem.setToolTipText("Create a Dataset.");
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);

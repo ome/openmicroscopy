@@ -86,7 +86,6 @@ public class DMLoader
                 	results = os.loadContainerHierarchy(rootNodeType, 
                 					rootNodeIDs, withLeaves, userID);
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
                 
             }

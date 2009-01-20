@@ -69,13 +69,7 @@ public class DataServicesFactory
 	
 	/** The name of the fs configuration file in the config directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
-	
-	/**
-	 * The default amount of time, in milliseconds, that the 
-	 * application should wait before exiting if the server is not responding. 
-	 */
-	private static final int		EXIT_TIMEOUT = 10000;
-	 
+
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
@@ -102,34 +96,28 @@ public class DataServicesFactory
 	 * Reference to the container, to exit the application when the session
 	 * has expired.
 	 */
-	private Container				container;
+	private Container					container;
 
 	/** A reference to the container's registry. */
-	private static Registry         registry;
+	private static Registry         	registry;
 
 	/** Unified access point to the various OMERO services. */
-	private static OMEROGateway		omeroGateway;
+	private static OMEROGateway			omeroGateway;
 
 	/** The omero service adapter. */
-	private OmeroDataService		ds;
+	private OmeroDataService			ds;
 
 	/** The image service adapter. */
-	private OmeroImageService		is;
+	private OmeroImageService			is;
 
 	/** The metadata service adapter. */
-	private OmeroMetadataService 	ms;
-
-    /** 
-     * The timer used to establish disconner from an <code>OMERO</code>
-     * server.
-     */
-    private Timer 					timer;
-    
+	private OmeroMetadataService 		ms;
+ 
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
 	
     
-    private Properties 				fsConfig;
+    private Properties 					fsConfig;
     
     /**
 	 * Reads in the specified file as a property object.
@@ -149,14 +137,6 @@ public class DataServicesFactory
 		}
 		return config;
 	}
-	
-    /** Initiliazes the timer. */
-    private void initTimer()
-    {
-    	if (timer != null) return;
-    	timer = new Timer();
-    	timer.schedule(new ExitTask(), EXIT_TIMEOUT);
-    }
     
 	/**
 	 * Attempts to create a new instance.
@@ -185,9 +165,7 @@ public class DataServicesFactory
         is = new OmeroImageServiceImpl(omeroGateway, registry);
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
         
-        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
-        executor = new ScheduledThreadPoolExecutor(1);
-        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
+        
         
         //fs stuff
         fsConfig = loadConfig(c.resolveConfigFile(FS_CONFIG_FILE));
@@ -340,7 +318,12 @@ public class DataServicesFactory
                                                     uc.getHostName(),
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
-        //fs stuff
+        
+        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
+        executor = new ScheduledThreadPoolExecutor(1);
+        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
+        
+        
         //replace Server string in fs config
         Iterator k = fsConfig.keySet().iterator();
         String value, key;

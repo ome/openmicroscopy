@@ -519,17 +519,18 @@ class AnnotationDataUI
 					r.add(data);
 			}
 		}
-		
 		Registry reg = MetadataViewerAgent.getRegistry();
 		if (r.size() == 0) {
 			UserNotifier un = reg.getUserNotifier();
-			un.notifyInfo("Existing Tags", "No tags found.");
+			un.notifyInfo("Existing Tags", "No Tags or Tag Sets found.");
 			return;
 		}
 		SelectionWizard wizard = new SelectionWizard(
 										reg.getTaskBar().getFrame(), r);
 		IconManager icons = IconManager.getInstance();
-		wizard.setTitle("Tags Selection", "Select your  existing tags", 
+		wizard.setTitle("Tags Selection", "Select your  existing Tags. \n" +
+				" If you select a Tag Set, the Tags related to it will " +
+				"be selected.", 
 				icons.getIcon(IconManager.TAGS_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);

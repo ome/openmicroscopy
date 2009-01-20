@@ -1767,14 +1767,6 @@ class ImViewerComponent
 					logger.debug(this, e.getMessage());
 					discard();
 				}
-				/*
-				if (msg.centerMsgBox() == MessageBox.YES_OPTION) 
-					discard();
-				else {
-					//TODO: reset to previous history item.
-					setImage(null);
-				}
-				*/
 			} else {
 				un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
 						e.getCause());
@@ -1785,6 +1777,7 @@ class ImViewerComponent
 			model.fireRenderingControlReloading();
 			fireStateChange();
 		}
+		return;
 	}
 
 	/** 

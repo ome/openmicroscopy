@@ -187,7 +187,6 @@ class DataBrowserUI
 				model.cancelSlideShow();
 				slideShowView.close();
 			}
-			//slideShowView = null; 
 			return;
 		}
 		
@@ -209,7 +208,6 @@ class DataBrowserUI
 						nodes.add((ImageNode) n);
 				}
 			}
-			
 		}
 		if (nodes == null || nodes.size() == 0) {
 			toolBar.enableSlideShow(true);

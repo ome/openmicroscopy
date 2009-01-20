@@ -52,7 +52,18 @@ class ZoomWindow
 	private ZoomWindowUI 	zoomWindowUI;
 	
 	/**
-	 * Constructor of the zoomWindow. This creates an instance of the 
+	 * Creates a  new  instance.
+	 * 
+	 * @param lensComponent The parent component of the ZoomWindow.
+	 * 						Mustn't be <code>null</code>.
+	 */
+	ZoomWindow(LensComponent lensComponent)
+	{
+		this(null, lensComponent);
+	}
+	
+	/**
+	 * Creates a  new  instance. This creates an instance of the 
 	 * ZoomWindowUI(JDialog).
 	 * 
 	 * @param parent JFrame parent window.  
@@ -61,22 +72,11 @@ class ZoomWindow
 	 */
 	ZoomWindow(JFrame parent, LensComponent lensComponent)
 	{
+		if (lensComponent == null)
+			throw new IllegalArgumentException("No parent.");
 		zoomWindowUI = new ZoomWindowUI(parent, lensComponent);
 	}
 	
-	/**
-	 * Creates a  new  instance.
-	 * 
-	 * @param lensComponent The parent component of the ZoomWindow.
-	 * 						Mustn't be <code>null</code>.
-	 */
-	ZoomWindow(LensComponent lensComponent)
-	{
-		if (lensComponent == null)
-			throw new IllegalArgumentException("No parent.");
-		zoomWindowUI = new ZoomWindowUI(null, lensComponent);
-	}
-
 	/**
 	 * Displays in pixels if <code>true</code> or in microns otherwise.
 	 * 

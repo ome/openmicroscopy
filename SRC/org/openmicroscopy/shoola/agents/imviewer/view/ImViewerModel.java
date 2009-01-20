@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -939,21 +938,27 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeX() { return currentRndControl.getPixelsPhysicalSizeX(); }
+	float getPixelsSizeX()
+	{ 
+		return currentRndControl.getPixelsPhysicalSizeX(); 
+	}
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeY() { return currentRndControl.getPixelsPhysicalSizeY(); }
+	float getPixelsSizeY()
+	{ 
+		return currentRndControl.getPixelsPhysicalSizeY(); 
+	}
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeZ() { return currentRndControl.getPixelsPhysicalSizeZ(); }
+	float getPixelsSizeZ(){ return currentRndControl.getPixelsPhysicalSizeZ(); }
 
 	/**
 	 * Returns <code>true</code> if the unit bar is painted on top of 
@@ -1317,36 +1322,6 @@ class ImViewerModel
 				id, true);
 		loader.load();
 		state = ImViewer.PASTING;
-	}
-	
-	/**
-	 * Resets the rendering settings.
-	 * Returns <code>true</code> if it is possible to copy the rendering 
-	 * settings, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 * @throws DSAccessException  			If the data cannot be retrieved.
-	 */
-	boolean pasteRndSettings() 
-		throws RenderingServiceException, DSOutOfServiceException,
-				DSAccessException
-	{
-		//First check that the pixels are compatible
-		/*
-		if (pixels == null) {
-			OmeroImageService 
-			os = ImViewerAgent.getRegistry().getImageService();
-			pixels = os.loadPixels(ImViewerFactory.getRefPixelsID());
-		}
-		if (currentRndControl.validatePixels(pixels)) {
-			resetMappingSettings(ImViewerFactory.getRenderingSettings(), true);
-			return true;
-		}
-		*/
-		return false;
 	}
 
 	/** 

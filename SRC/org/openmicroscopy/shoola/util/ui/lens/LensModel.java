@@ -279,13 +279,18 @@ class LensModel
      */
 	BufferedImage getZoomedImage()
 	{
-		if (planeImage == null) return null;
-		ColorModel cm = planeImage.getColorModel();
-		Raster r = planeImage.getData().createChild(getX(), 
-				            getY(), getWidth(), getHeight(), 0, 0, null);
-		BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
-																	null);
-		return scaleBufferedImage(img, zoomFactor, zoomFactor);
+		try {
+			if (planeImage == null) return null;
+			ColorModel cm = planeImage.getColorModel();
+			Raster r = planeImage.getData().createChild(getX(), 
+					            getY(), getWidth(), getHeight(), 0, 0, null);
+			BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
+																		null);
+			return scaleBufferedImage(img, zoomFactor, zoomFactor);
+		} catch (Exception e) {
+			//e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**
