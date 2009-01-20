@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JComponent;
@@ -800,7 +801,6 @@ class DataBrowserComponent
 				count++;
 			}
 			
-
 			writer.createSheet("Legend");
 			i = nodes.iterator();
 			row = 0;
@@ -848,7 +848,8 @@ class DataBrowserComponent
 		if (data == null || data.size() == 0) return;
 		UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
 		//tags for now
-		Iterator<ImageNode> i = data.keySet().iterator();
+		List sorted = model.sortCollection(data.keySet());
+		Iterator<ImageNode> i = sorted.iterator();
 		ImageNode node;
 		Map<Long, List> tagImageMap = new HashMap<Long, List>();
 		Map<Long, TagAnnotationData> 
@@ -866,7 +867,6 @@ class DataBrowserComponent
 			writer.createSheet("Tags");
 			
 			//write tags
-
 			String imageName;
 			int col = 0;
 			int row = 0;
@@ -904,7 +904,8 @@ class DataBrowserComponent
 			
 			col = 2;
 			row = 0;
-			k = tagMap.keySet().iterator();
+			List sortedTags = model.sortCollection(tagMap.keySet());
+			k = sortedTags.iterator();
 			Object object;
 			int value;
 			int numberOfImages = data.size();
@@ -943,7 +944,7 @@ class DataBrowserComponent
 			writer.sizeAllColumnsToFit();
 			//second sheet
 			writer.createSheet("Thumbnails");
-			i = data.keySet().iterator();
+			i = sorted.iterator();
 			//ready to build report
 			BufferedImage thumbnail;
 			int n = model.getBrowser().getSelectedLayout().getImagesPerRow();

@@ -183,7 +183,7 @@ class RenderingControlProxy
             //if (xyCache != null) xyCache.add(pd, object);
         	if (cacheID >= 0) {
         		int index = pd.z+getPixelsDimensionsZ()*pd.t;
-        		context.getCacheService().addElement(cacheID, index, object);
+        		context.getCacheService().addElement(cacheID, new Integer(index), object);
         	}
         }
     }

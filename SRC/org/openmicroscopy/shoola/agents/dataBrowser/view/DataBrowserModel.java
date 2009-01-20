@@ -526,6 +526,17 @@ abstract class DataBrowserModel
 	 */
 	boolean isRollOver() { return browser.isRollOver(); }
 	
+	/**
+	 * Returns the sorted collection.
+	 * 
+	 * @param collection The collection to sort.
+	 * @return See above.
+	 */
+	List sortCollection(Collection collection)
+	{
+		return sorter.sort(collection);
+	}
+	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
@@ -546,10 +557,5 @@ abstract class DataBrowserModel
     protected abstract int getType(); 
     
     protected abstract Set<ImageDisplay> getNodes();
-
-	boolean hasRndSettings() {
-		// TODO Auto-generated method stub
-		return false;
-	}
     
 }

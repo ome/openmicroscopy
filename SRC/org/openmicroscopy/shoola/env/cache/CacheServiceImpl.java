@@ -31,6 +31,7 @@ import java.io.InputStream;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 //Application-internal dependencies
 
@@ -100,8 +101,13 @@ class CacheServiceImpl
 				cacheID++;
 				//name, maximum number of elements, overflow to disk, eternal
 				//time to Idle, time to live
-				cache = new Cache(""+cacheID, size, true, false, 300, 600);
+				//cache = new Cache(""+cacheID, size, true, false, 300, 600);
+				cache = new Cache(""+cacheID, size, 
+						MemoryStoreEvictionPolicy.LRU, true, 
+						manager.getDiskStorePath(), false, 300, 600,
+						false, 300, null, null, 10000000);
 				manager.addCache(cache);
+				//cache.initialise();
 				break;
 			case DEFAULT:
 				cacheID++;
