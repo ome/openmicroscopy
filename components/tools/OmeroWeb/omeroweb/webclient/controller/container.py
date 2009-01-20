@@ -60,6 +60,8 @@ class BaseContainer(BaseController):
     file_annotations = None
     urlannSize = 0
     
+    orphaned = False
+    
     def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
@@ -75,6 +77,8 @@ class BaseContainer(BaseController):
         elif o1_type == "image":
             self.image = self.conn.getImageWithMetadata(o1_id)
             self.image._loadPixels()
+        elif o1_type == "orphaned":
+            self.orphaned = True
     
     def buildBreadcrumb(self, menu):
         if menu == 'new' or menu == 'addnew':
@@ -86,6 +90,8 @@ class BaseContainer(BaseController):
                 self.eContext['breadcrumb'] = ['Edit dataset: %s' % (self.dataset.breadcrumbName())]
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
+        elif self.orphaned:
+            self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), "Orphaned images"]
         else:
             if self.project is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
@@ -116,9 +122,9 @@ class BaseContainer(BaseController):
     def listMyRoots(self):
         pr_list = list(self.conn.listProjectsMine())
         ds_list = list(self.conn.listDatasetsOutoffProjectMine())
-        im_list = list(self.conn.listImagesOutoffDatasetMine())
-        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list}
-        self.c_size = len(pr_list)+len(ds_list)+len(im_list)
+        #im_list = list(self.conn.listImagesOutoffDatasetMine())
+        self.containers={'projects': pr_list, 'datasets': ds_list}#, 'images': im_list}
+        self.c_size = len(pr_list)+len(ds_list)#+len(im_list)
 
     def listMyDatasetsInProject(self, project_id):
         ds_list = list(self.conn.listDatasetsInProjectMine(project_id))
@@ -133,13 +139,18 @@ class BaseContainer(BaseController):
     def loadMyContainerHierarchy(self):
         pr_list = list(self.conn.loadMyContainerHierarchy())
         ds_list = list(self.conn.listDatasetsOutoffProjectMine())
-        im_list = list(self.conn.listImagesOutoffDatasetMine())
-        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list}
-        self.c_size = len(pr_list)+len(ds_list)+len(im_list)
+        #im_list = list(self.conn.listImagesOutoffDatasetMine())
+        self.containers={'projects': pr_list, 'datasets': ds_list}#, 'images': im_list}
+        self.c_size = len(pr_list)+len(ds_list)#+len(im_list)
 
     def loadMyImages(self, dataset_id):
         self.subcontainers = list(self.conn.listImagesInDatasetMine(long(dataset_id)))
 
+    def loadMyOrphanedImages(self):
+        im_list = list(self.conn.listImagesOutoffDatasetMine())
+        self.containers = {'images': im_list}
+        self.subcontainers = im_list
+        self.c_size = len(im_list)
 
     # COLLABORATION - User
     def listRootsInUser(self, exp_id):
@@ -147,9 +158,9 @@ class BaseContainer(BaseController):
         self.containers = dict()
         pr_exp = list(self.conn.listProjectsInUser(exp_id))
         ds_exp = list(self.conn.listDatasetsOutoffProjectInUser(exp_id))
-        im_exp = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
-        self.containers={'projects': pr_exp, 'datasets': ds_exp, 'images': im_exp}
-        self.c_size = len(pr_exp)+len(ds_exp)+len(im_exp)
+        #im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
+        self.containers={'projects': pr_exp, 'datasets': ds_exp}#, 'images': im_list}
+        self.c_size = len(pr_exp)+len(ds_exp)#+len(im_list)
 
     def listDatasetsInProjectInUser(self, project_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
@@ -167,41 +178,46 @@ class BaseContainer(BaseController):
         self.experimenter = self.conn.getExperimenter(exp_id)
         pr_list = list(self.conn.loadUserContainerHierarchy(exp_id))
         ds_list = list(self.conn.listDatasetsOutoffProjectInUser(exp_id))
-        im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
-        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list}
-        self.c_size = len(pr_list)+len(ds_list)+len(im_list)
+        #im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
+        self.containers={'projects': pr_list, 'datasets': ds_list}#, 'images': im_list}
+        self.c_size = len(pr_list)+len(ds_list)#+len(im_list)
         
     def loadUserImages(self, dataset_id, exp_id):
         self.subcontainers = list(self.conn.listImagesInDatasetInUser(dataset_id, exp_id))
-
-    # COLLABORATION
+    
+    def loadUserOrphanedImages(self, exp_id):
+        im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
+        self.containers = {'images': im_list}
+        self.c_size = len(im_list)
+    
+    # COLLABORATION - group
     def listRootsInGroup(self, group_id):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()
         pr_mygroups = list(self.conn.listProjectsInGroup(group_id))
         ds_mygroups = list(self.conn.listDatasetsOutoffProjectInGroup(group_id))
-        im_mygroups = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
+        #im_mygroups = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
         user_set = set()
         for pr in pr_mygroups:
             user_set.add(pr.details.owner.id.val)
         for ds in ds_mygroups:
             user_set.add(ds.details.owner.id.val)
-        for im in im_mygroups:
-            user_set.add(im.details.owner.id.val)
+        #for im in im_mygroups:
+        #    user_set.add(im.details.owner.id.val)
         
         if len(user_set) > 0:
             experimenters = self.conn.getExperimenters(user_set)
             for e in experimenters:
-                self.containersMyGroups[e.id]={'name': e.getFullName(), 'projects': list(), 'datasets': list(), 'images': list()}
+                self.containersMyGroups[e.id]={'name': e.getFullName(), 'projects': list(), 'datasets': list()}#, 'images': list()}
         
             for pr in pr_mygroups:
                 self.containersMyGroups[pr.details.owner.id.val]['projects'].append(pr)
             for ds in ds_mygroups:
                 self.containersMyGroups[ds.details.owner.id.val]['datasets'].append(ds)
-            for im in im_mygroups:
-                self.containersMyGroups[im.details.owner.id.val]['images'].append(im)
+            #for im in im_mygroups:
+            #    self.containersMyGroups[im.details.owner.id.val]['images'].append(im)
             
-            self.c_mg_size = len(pr_mygroups)+len(ds_mygroups)+len(im_mygroups)
+            self.c_mg_size = len(pr_mygroups)+len(ds_mygroups)#+len(im_mygroups)
 
     def listDatasetsInProjectInGroup(self, project_id, group_id):
         self.myGroup = self.conn.getGroup(group_id)
@@ -243,12 +259,17 @@ class BaseContainer(BaseController):
         self.myGroup = self.conn.getGroup(group_id)
         pr_list = list(self.conn.loadGroupContainerHierarchy(group_id))
         ds_list = list(self.conn.listDatasetsOutoffProjectInGroup(group_id))
-        im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
-        self.containersMyGroups={'projects': pr_list, 'datasets': ds_list, 'images': im_list}
-        self.c_mg_size = len(pr_list)+len(ds_list)+len(im_list)
+        #im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
+        self.containersMyGroups={'projects': pr_list, 'datasets': ds_list}#, 'images': im_list}
+        self.c_mg_size = len(pr_list)+len(ds_list)#+len(im_list)
 
     def loadGroupImages(self, dataset_id, group_id):
         self.subcontainers = list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id))
+    
+    def loadGroupOrphanedImages(self, group_id):
+        im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
+        self.containers = {'images': im_list}
+        self.c_size = len(im_list)
     
     ############################################################
     # Update and save

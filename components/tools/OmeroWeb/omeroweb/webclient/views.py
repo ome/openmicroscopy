@@ -717,6 +717,8 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
                 manager.listMyImagesInDataset(o1_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
+    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned' :
+        manager.loadMyOrphanedImages()
     else:
         if view == 'tree':
             manager.loadMyContainerHierarchy()
@@ -826,6 +828,9 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
     elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
+        template = "omeroweb/container_subtree.html"
+        context = {'manager':manager, 'eContext':manager.eContext}
+    elif view == 'tree' and o1_type=='ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1022,6 +1027,8 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                     manager.listImagesInDatasetInUser(o1_id, filter_user_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
+    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned' :
+        manager.loadUserOrphanedImages(filter_user_id)
     else:
         if view == 'tree':
             if filter_user_id is not None:
@@ -1041,6 +1048,9 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
     elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
+        template = "omeroweb/container_subtree.html"
+        context = {'manager':manager, 'eContext':manager.eContext}
+    elif view == 'tree' and o1_type=='ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1215,6 +1225,8 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                     manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
         if o1_type == 'image':
             template = "omeroweb/image_details.html"
+    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned' :
+        manager.loadGroupOrphanedImages(filter_group_id)
     else:
         if view == 'tree':
             if filter_group_id is not None:
@@ -1233,6 +1245,9 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
     elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
+        template = "omeroweb/container_subtree.html"
+        context = {'manager':manager, 'eContext':manager.eContext}
+    elif view == 'tree' and o1_type=='ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1336,6 +1351,8 @@ def manage_metadata(request, o_type=None, o_id=None, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+    
+    print request.REQUEST['matadataType'], request.REQUEST['metadataValue']
     
     return HttpResponse('done')
 

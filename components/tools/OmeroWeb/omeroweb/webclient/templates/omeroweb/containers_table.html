@@ -224,6 +224,20 @@
             <td>{{ c.details.group.name.val }}</td>
         </tr> 
         {% endfor %}
+        
+        {% if not manager.project and not manager.dataset %}
+        {% ifequal nav.whos "mydata" %}
+        {% if not manager.orphaned %}
+        <tr> 
+            <td class="product"><a href="{% get_webclient_root_url %}/mydata/orphaned/"><img src="{% get_webclient_static_url %}/images/folder_yellow32.png" title="Orphaned images" alt="Orphaned images"/></a></td> 
+            <td><a href="{% get_webclient_root_url %}/mydata/orphaned/">Orphaned images</a></td> 
+            <td></td> 
+            <td>System directory</td>
+            <td></td> 
+        </tr>
+        {% endif %}
+        {% endifequal %}
+        {% endif %}
     </tbody> 
     </table>
     </div>
