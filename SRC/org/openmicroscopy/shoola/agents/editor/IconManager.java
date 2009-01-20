@@ -296,11 +296,14 @@ public class IconManager
     /** The <code>Split</code> icon, 12 pixels square. */
     public  static int			SPLIT_12_ICON = 76;
     
+    /** The <code>Split</code> icon, 12 pixels square. */
+    public  static int			EXP_9_11_ICON = 77;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 76;
+    private static int          MAX_ID = 77;
    
     
     /** Paths of the icon files. */
@@ -391,6 +394,7 @@ public class IconManager
         relPaths[RED_ASTERISK_ICON_11] = "red_asterisk_11.png";
         relPaths[INFO_12_ICON] = "info_12.png";
         relPaths[SPLIT_12_ICON] = "split_12.png";
+        relPaths[EXP_9_11_ICON] = "exp_9_11.png";
     }
     
     

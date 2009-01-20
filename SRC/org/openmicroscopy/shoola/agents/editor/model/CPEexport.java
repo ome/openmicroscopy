@@ -462,6 +462,21 @@ public class CPEexport {
 		// revision. Optional. Not used by Editor. Preserve cpe.xml data only. 
 		String revision = protocolRoot.getAttribute(CPEimport.REVISION);
 		addChildContent(protocolInfo, CPEimport.REVISION, revision);
+		
+		// experiment-info. Not yet used by Editor. Preserve cpe.xml data only. 
+		String expDate = protocolRoot.getAttribute(CPEimport.EXP_DATE);
+		String investigName = protocolRoot.getAttribute(CPEimport.INVESTIG_NAME);
+		if (expDate != null || investigName != null) {
+			IXMLElement expInfo = new XMLElement(CPEimport.EXP_INFO);
+			// make sure neither are null
+			if (expDate == null)	expDate = now.getTime() + "";
+			if (investigName == null)	{
+				investigName = System.getProperty("user.name");
+			}
+			addChildContent(expInfo, CPEimport.EXP_DATE, expDate);
+			addChildContent(expInfo, CPEimport.INVESTIG_NAME, investigName);
+			protocolInfo.addChild(expInfo);
+		}
 
 		// steps element holds top level of step elements
 		XMLElement steps = new XMLElement(CPEimport.STEPS);

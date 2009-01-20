@@ -77,6 +77,16 @@ public class CPEimport {
 	/**  The name of the element used to hold the protocol revision number */
 	public static final String 			REVISION = "revision";
 	
+	/**  The name of the element within 'protocol-info' that has exp info */
+	public static final String 			EXP_INFO = "experiment-information";
+	
+	/**  The name of the element within 'exp-info' that has exp date */
+	public static final String 			EXP_DATE = "experiment-date";
+	
+	/**  The name of the element within 'exp-info' that has 
+	 * investigator's name */
+	public static final String 			INVESTIG_NAME = "investigator-name";
+	
 	/**  The name of the element used to hold the top level of steps */
 	public static final String 			STEPS = "steps";
 	
@@ -555,9 +565,9 @@ public class CPEimport {
 	static TreeModel createTreeModel(IXMLElement root) {
 		
 		// parse the top elements...
-		IXMLElement protocol = root.getFirstChildNamed("protocol");
+		IXMLElement protocol = root.getFirstChildNamed(PROTOCOL);
 		IXMLElement protocolInfo = protocol.
-									getFirstChildNamed("protocol-information");
+									getFirstChildNamed(PROTOCOL_INFO);
 		
 		// create a protocol root field and add name, description
 		IField rootField = new Field();
@@ -570,12 +580,21 @@ public class CPEimport {
 		protName = getChildContent(protocolInfo, REVISION);
 		rootField.setAttribute(REVISION, protName);
 		
+		// experiment-info. 
+		IXMLElement expInfo = protocolInfo.getFirstChildNamed(EXP_INFO);
+		if (expInfo != null) {
+			protName = getChildContent(expInfo, EXP_DATE);
+			rootField.setAttribute(EXP_DATE, protName);
+			protName = getChildContent(expInfo, INVESTIG_NAME);
+			rootField.setAttribute(INVESTIG_NAME, protName);
+		}
+		
 		// place new Field in a node
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
 		
 		
 		// process the steps of this protocol, creating a field for each
-		IXMLElement steps = protocol.getFirstChildNamed("steps");
+		IXMLElement steps = protocol.getFirstChildNamed(STEPS);
 		List<IXMLElement> stepList = steps.getChildren();
 		
 		DefaultMutableTreeNode treeNode;

@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -184,7 +186,7 @@ public class FieldParamEditor
 			nameContainer.add(notesButton);
 		}
 		
-		// show whether this step is a "SPLIT_STEP"
+		// show whether this step is a "SPLIT_STEP" (can't edit yet)
 		String stepType = field.getAttribute(Field.STEP_TYPE);
 		if (CPEimport.SPLIT_STEP.equals(stepType)) {
 			Icon split = IconManager.getInstance().getIcon
@@ -194,6 +196,33 @@ public class FieldParamEditor
 			nameContainer.add(splitButton);
 		}
 		
+		// if root node, and contains 'experiment-info' display via tool tip
+		// Can't edit this, but it is displayed to support cpe.xml 
+		if (treeNode.isRoot()) {
+			String expDate = field.getAttribute(CPEimport.EXP_DATE);
+			String investigName = field.getAttribute(CPEimport.INVESTIG_NAME);
+			if (expDate != null || investigName != null) {
+				Icon e = IconManager.getInstance().getIcon
+												(IconManager.EXP_9_11_ICON);
+				String date = "no date";
+				
+				SimpleDateFormat f = new SimpleDateFormat("d MMM, yyyy");
+				try {
+					long millis = new Long(expDate);
+					date = f.format(new Date(millis));
+				} catch (NumberFormatException ex) {}
+				
+				String expToolTip = "<html><div style='width:250px; " +
+				"padding:1px'>" + "Experiment Information: " +
+						"<div style='padding:4px'>"
+				 + date + "<br>Investigator: " + investigName + 
+				 "</div></div></html>";
+				
+				JButton expButton = new CustomButton(e);
+				expButton.setToolTipText(expToolTip);
+				nameContainer.add(expButton);
+			}
+		}
 		
 		nameContainer.add(nameEditor);
 		attributeFieldsPanel.add(nameContainer);
