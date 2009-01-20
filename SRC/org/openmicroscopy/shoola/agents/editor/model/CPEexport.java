@@ -438,9 +438,9 @@ public class CPEexport {
 		protocolArchive.addChild(archiveInfo);
 		
 		// add protocol element, which contains info and steps 
-		IXMLElement protocol = new XMLElement("protocol");
+		IXMLElement protocol = new XMLElement(CPEimport.PROTOCOL);
 		protocolArchive.addChild(protocol);
-		IXMLElement protocolInfo = new XMLElement("protocol-information");
+		IXMLElement protocolInfo = new XMLElement(CPEimport.PROTOCOL_INFO);
 		protocol.addChild(protocolInfo);
 		
 		// get the root of the data
@@ -450,8 +450,11 @@ public class CPEexport {
 		// name
 		String protName = protocolRoot.getAttribute(Field.FIELD_NAME);
 		if ((protName != null) && (protName.length() >0)) {
-			addChildContent(protocolInfo, "name", protName);
+			addChildContent(protocolInfo, CPEimport.NAME, protName);
 		}
+		// revision. Optional. Not used by Editor. Preserve cpe.xml data only. 
+		String revision = protocolRoot.getAttribute(CPEimport.REVISION);
+		addChildContent(protocolInfo, CPEimport.REVISION, revision);
 
 		// description
 		if (protocolRoot.getContentCount() >0) {

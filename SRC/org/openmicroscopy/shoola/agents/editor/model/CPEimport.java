@@ -68,6 +68,15 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiView;
  */
 public class CPEimport {
 	
+	/**  The name of the root element of a protocol */
+	public static final String 			PROTOCOL = "protocol";
+	
+	/**  The name of the element within 'protocol' that has protocol info */
+	public static final String 			PROTOCOL_INFO = "protocol-information";
+	
+	/**  The name of the element used to hold the protocol revision number */
+	public static final String 			REVISION = "revision";
+	
 	/**  The name of the element used to hold the top level of steps */
 	public static final String 			STEPS = "steps";
 	
@@ -552,10 +561,14 @@ public class CPEimport {
 		
 		// create a protocol root field and add name, description
 		IField rootField = new Field();
-		String protName = getChildContent(protocolInfo, "name");
+		String protName = getChildContent(protocolInfo, NAME);
 		rootField.setAttribute(Field.FIELD_NAME, protName);
-		protName = getChildContent(protocolInfo, "description");
+		protName = getChildContent(protocolInfo, DESCRIPTION);
 		rootField.addContent(new TextContent(protName));
+		
+		// revision. Optional 
+		protName = getChildContent(protocolInfo, REVISION);
+		rootField.setAttribute(REVISION, protName);
 		
 		// place new Field in a node
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
