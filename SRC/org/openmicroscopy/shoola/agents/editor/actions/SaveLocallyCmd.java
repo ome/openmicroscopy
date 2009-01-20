@@ -30,15 +30,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -132,9 +135,11 @@ public class SaveLocallyCmd
 			// if file exists, get user to confirm. Otherwise exit! 
 			if (file.exists()) {
 				String title = "File Exists";
-				String message = "File Exists.\nOverwrite Existing File?";
-				if (! org.openmicroscopy.shoola.agents.editor.uiComponents.
-						UIUtilities.showConfirmDialog(title, message)) {
+				String message = "File Exists. Overwrite Existing File?";
+				JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+				MessageBox msg = new MessageBox(f, title, message);
+				int option = msg.centerMsgBox();
+				if (option != MessageBox.YES_OPTION) {
 					return;
 				}
 			}

@@ -452,19 +452,19 @@ public class CPEexport {
 		if ((protName != null) && (protName.length() >0)) {
 			addChildContent(protocolInfo, CPEimport.NAME, protName);
 		}
+		
+		// description
+		if (protocolRoot.getContentCount() >0) {
+			String desc = protocolRoot.getContentAt(0).toString();
+			addChildContent(protocolInfo, CPEimport.DESCRIPTION, desc);
+		}
+		
 		// revision. Optional. Not used by Editor. Preserve cpe.xml data only. 
 		String revision = protocolRoot.getAttribute(CPEimport.REVISION);
 		addChildContent(protocolInfo, CPEimport.REVISION, revision);
 
-		// description
-		if (protocolRoot.getContentCount() >0) {
-			String desc = protocolRoot.getContentAt(0).toString();
-			addChildContent(protocolInfo, "description", desc);
-		}
-		// could add revision info if available
-		// addChildContent(protocolInfo, "revision", "1");
-		
-		XMLElement steps = new XMLElement("steps");
+		// steps element holds top level of step elements
+		XMLElement steps = new XMLElement(CPEimport.STEPS);
 		protocol.addChild(steps);
 		
 		TreeNode childNode;
