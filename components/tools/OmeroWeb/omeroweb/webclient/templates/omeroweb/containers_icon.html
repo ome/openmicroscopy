@@ -217,13 +217,11 @@
         {% endfor %}
         
         {% if not manager.project and not manager.dataset %}
-        {% ifequal nav.whos "mydata" %}
         {% if not manager.orphaned %}
         <li class="product"><em>Orphaned images</em>
-            <a href="{% get_webclient_root_url %}/mydata/orphaned/?view=icon"><img class="catzoom" src="{% get_webclient_static_url %}/images/folder_image64.png" title="Orphaned images" alt="project"/></a><div class="center">Orphaned images</div>
+            <a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/orphaned/"><img class="catzoom" src="{% get_webclient_static_url %}/images/folder_yellow64.png" title="Orphaned images" alt="project"/></a><div class="center">Orphaned images</div>
         </li>
         {% endif %}
-        {% endifequal %}
         {% endif %}
     </ul>
     {% endif %}
@@ -249,6 +247,18 @@
             </li>
             {% endfor %}
     {% endfor %}
+    
+    {% if not manager.project and not manager.dataset %}
+    {% ifequal nav.whos "groupdata" %}
+    {% if not manager.orphaned %}
+    <li class="clear"> </li>
+    <li class="owner_name">System containers</li>
+    <li class="product"><em>Orphaned images</em>
+        <a href="{% get_webclient_root_url %}/groupdata/orphaned/"><img class="catzoom" src="{% get_webclient_static_url %}/images/folder_yellow64.png" title="Orphaned images" alt="project"/></a><div class="center">Orphaned images</div>
+    </li>
+    {% endif %}
+    {% endifequal %}
+    {% endif %}
     </ul>
     {% endif %}
 {% endif %}

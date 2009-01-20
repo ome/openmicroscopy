@@ -37,7 +37,7 @@
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $("#dataTable").tablesorter( {sortList: [[3,0], [0,0]]} ); 
+                $("#dataTable").tablesorter( {sortList: [[1,1]]} ); 
             
                 $('table#dataTable tbody tr').quicksearch({
                     attached: "div#view",
@@ -226,17 +226,15 @@
         {% endfor %}
         
         {% if not manager.project and not manager.dataset %}
-        {% ifequal nav.whos "mydata" %}
         {% if not manager.orphaned %}
         <tr> 
-            <td class="product"><a href="{% get_webclient_root_url %}/mydata/orphaned/"><img src="{% get_webclient_static_url %}/images/folder_image32.png" title="Orphaned images" alt="Orphaned images"/></a></td> 
-            <td><a href="{% get_webclient_root_url %}/mydata/orphaned/">Orphaned images</a></td> 
+            <td class="product"><a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/orphaned/"><img src="{% get_webclient_static_url %}/images/folder_yellow32.png" title="Orphaned images" alt="Orphaned images"/></a></td> 
+            <td><a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/orphaned/">Orphaned images</a></td> 
             <td></td> 
-            <td>System directory</td>
+            <td></td>
             <td></td> 
         </tr>
         {% endif %}
-        {% endifequal %}
         {% endif %}
     </tbody> 
     </table>
@@ -285,7 +283,19 @@
             </tr>
             {% endfor %}
         {% endfor %}
-
+        {% if not manager.project and not manager.dataset %}
+        {% ifequal nav.whos "groupdata" %}
+        {% if not manager.orphaned %}
+        <tr> 
+            <td class="product"><a href="{% get_webclient_root_url %}/groupdata/orphaned/"><img src="{% get_webclient_static_url %}/images/folder_yellow32.png" title="Orphaned images" alt="Orphaned images"/></a></td> 
+            <td><a href="{% get_webclient_root_url %}/groupdata/orphaned/">Orphaned images</a></td> 
+            <td></td> 
+            <td></td>
+            <td></td> 
+        </tr>
+        {% endif %}
+        {% endifequal %}
+        {% endif %}
     </tbody> 
     </table>
     {% endif %}

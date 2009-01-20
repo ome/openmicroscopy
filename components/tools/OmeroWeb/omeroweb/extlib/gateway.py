@@ -1291,12 +1291,8 @@ class BlitzGateway (threading.Thread):
         p.map["id"] = rlong(self.getEventContext().userId)
         p.map["start"] = rtime(long(start))
         p.map["end"] = rtime(long(end))
-        sql = "select i from Image i join fetch i.details.creationEvent join fetch i.details.owner " \
-              "join fetch i.details.group left outer join fetch i.datasetLinks dil " \
-              "left outer join fetch dil.parent d left outer join fetch d.projectLinks pdl " \
-              "left outer join fetch pdl.parent p " \
-              "where i.details.owner.id=:id and (i.details.creationEvent.time > :start or i.details.updateEvent.time > :start) " \
-              "and (i.details.creationEvent.time < :end or i.details.updateEvent.time < :end)"
+        sql = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
+              "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
     
@@ -1307,12 +1303,8 @@ class BlitzGateway (threading.Thread):
         p.map["id"] = rlong(self.getEventContext().userId)
         p.map["start"] = rtime(long(start))
         p.map["end"] = rtime(long(end))
-        sql = "select i from Image i join fetch i.details.creationEvent join fetch i.details.owner " \
-              "join fetch i.details.group left outer join fetch i.datasetLinks dil " \
-              "left outer join fetch dil.parent d left outer join fetch d.projectLinks pdl " \
-              "left outer join fetch pdl.parent p " \
-              "where i.details.owner.id=:id and (i.details.creationEvent.time > :start or i.details.updateEvent.time > :start) " \
-              "and (i.details.creationEvent.time < :end or i.details.updateEvent.time < :end)"
+        sql = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
+              "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
         res = q.findAllByQuery(sql, p)
         return len(res)
     
@@ -1399,6 +1391,9 @@ class BlitzGateway (threading.Thread):
         return len(res)
 
     def getEventsByPeriod (self, start, end):
+        from omero_model_EventLogI import EventLogI
+        from omero_model_EventI import EventI
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1406,8 +1401,7 @@ class BlitzGateway (threading.Thread):
         p.map["start"] = rtime(long(start))
         p.map["end"] = rtime(long(end))
         sql1 = "select el from EventLog el left outer join fetch el.event ev " \
-              "where el.entityType in ('ome.model.core.Image', " \
-              "'ome.model.containers.Dataset', 'ome.model.containers.Project') and " \
+              "where el.entityType in ('ome.model.containers.Dataset', 'ome.model.containers.Project') and " \
               "el.action = 'INSERT' and " \
               "ev.id in (select id from Event where experimenter.id=:id and time > :start and time < :end)"
         sql2 = "select el from EventLog el left outer join fetch el.event ev " \
@@ -1415,9 +1409,27 @@ class BlitzGateway (threading.Thread):
               "(select rd from RenderingDef rd where rd.pixels.image in " \
               "(select id from Image i where i.details.owner.id=:id)) and " \
               "ev.id in (select id from Event where time > :start and time < :end)"
+              
+        sql3 = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
+              "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
+                    
         res1 = q.findAllByQuery(sql1, p)
         res2 = q.findAllByQuery(sql2, p)
         res1.extend(res2)
+        
+        image_list = list()
+        for i in q.findAllByQuery(sql3, p):
+            ev = EventI()
+            ev.setTime(rtime(i.acquisitionDate.val))
+            evl = EventLogI()
+            evl.setEntityId(i.id.val)
+            evl.setEntityType(rstring('ome.model.core.Image'))
+            evl.setAction(rstring('INSERT'))
+            evl.setEvent(ev)
+            image_list.append(evl)
+        
+        res1.extend(image_list)
+        
         for e in res1:
             yield EventLogWrapper(self, e)
     
