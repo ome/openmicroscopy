@@ -297,7 +297,7 @@ class ObjectManager
 	 * 
 	 * @param shapeList The collection of ROIShapes to add.
 	 */
-	public void addROIShapes(ArrayList<ROIShape> shapeList)
+	public void addROIShapes(List<ROIShape> shapeList)
 	{
 		objectsTable.addROIShapeList(shapeList);
 	}

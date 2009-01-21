@@ -512,9 +512,9 @@ class MeasurementViewerUI
 		try
 		{
 			model.setDataChanged();
-			for(ROIShape shape : shapeList)
+			for (ROIShape shape : shapeList)
 			{
-				if(getDrawing().contains(shape.getFigure()))
+				if (getDrawing().contains(shape.getFigure()))
 				{
 					shape.getFigure().removeFigureListener(controller);
 					getDrawing().removeDrawingListener(controller);
@@ -523,9 +523,7 @@ class MeasurementViewerUI
 				}
 				model.deleteShape(shape.getID(), shape.getCoord3D());
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
 	}
@@ -912,23 +910,24 @@ class MeasurementViewerUI
 	 */
 	void propagateShape(ROIShape shape, int timePoint, int zSection) 
 	{
-		ArrayList<ROIShape> addedShapes;
+		List<ROIShape> addedShapes;
 		try
 		{
 			addedShapes = model.propagateShape(shape, timePoint, zSection);
+			ROIFigure figToDelete = null;
+			ROIFigure roiFig;
 			for(ROIShape newShape : addedShapes)
 			{
-				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
 					getDrawing().removeDrawingListener(controller);
-					ROIFigure figToDelete = null;
-					for(Figure f : getDrawing().getFigures())
-					{
-						ROIFigure roiFig = (ROIFigure)f;
-						if(roiFig.getROI().getID()==newShape.getID())
-								figToDelete = roiFig;
+					figToDelete = null;
+					for (Figure f : getDrawing().getFigures()) {
+						roiFig = (ROIFigure) f;
+						if (roiFig.getROI().getID() == newShape.getID())
+							figToDelete = roiFig;
 					}
-					if(figToDelete!=null)
+					if (figToDelete!=null)
 						getDrawing().remove(figToDelete);
 					this.getDrawing().add(newShape.getFigure());
 					newShape.getFigure().addFigureListener(controller);

@@ -60,6 +60,9 @@ public class MeasurementViewerAction
 	 /** The name of the action. */
     protected String			name;
     
+    /** Sub-classes should implement this mehod. */
+    protected void onStateChange() {}
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -93,6 +96,7 @@ public class MeasurementViewerAction
 	public void stateChanged(ChangeEvent e)
 	{
 		setEnabled(model.getState() == MeasurementViewer.READY);
+		onStateChange();
 	}
 
 	/** 

@@ -71,7 +71,7 @@ class TextualAnnotationsUI
 {
     
 	/** The default description. */
-    private static final String	DEFAULT_TEXT = "Comments";
+    private static final String	DEFAULT_TEXT_COMMENT = "Comments";
     
 	/** The title associated to this component. */
 	private static final String TITLE = "Comments ";
@@ -182,8 +182,9 @@ class TextualAnnotationsUI
 		
 		commentArea = new OMEWikiComponent();
 		commentArea.addPropertyChangeListener(controller);
-		commentArea.setDefaultText(DEFAULT_TEXT);
-		commentArea.setText(DEFAULT_TEXT);
+		originalText = DEFAULT_TEXT_COMMENT;
+		commentArea.setDefaultText(originalText);
+		commentArea.setText(originalText);
 		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 	}
@@ -265,8 +266,15 @@ class TextualAnnotationsUI
 	{
 		TextualAnnotationData data = model.getLastUserAnnotation();
 		if (data != null) {
-			setAreaText(data.getText(), false);
-			originalText = data.getText();
+			boolean b = false;
+			String text = data.getText();
+			if (text == null || text.trim().length() == 0) {
+				text = DEFAULT_TEXT_COMMENT;
+				b = true;
+			}
+			originalText = text;
+			setAreaText(text, b);
+			
 		}
 		TableLayout layout = (TableLayout) getLayout();
 		layout.setRow(1, 0);
@@ -322,6 +330,7 @@ class TextualAnnotationsUI
 		text = text.trim();
 		if (text.length() == 0) return false;
 		if (text.equals(originalText)) return false;
+		System.err.println(text+" "+originalText);
 		return true;
 	}
 	
@@ -331,8 +340,8 @@ class TextualAnnotationsUI
 	 */
 	protected void clearDisplay() 
 	{ 
-		setAreaText(DEFAULT_TEXT, true);
-		originalText = DEFAULT_TEXT;
+		originalText = DEFAULT_TEXT_COMMENT;
+		setAreaText(DEFAULT_TEXT_COMMENT, true);
 	}
 	
 	/**
@@ -341,8 +350,7 @@ class TextualAnnotationsUI
 	 */
 	protected void clearData()
 	{
-		setAreaText(DEFAULT_TEXT, true);
-		originalText = DEFAULT_TEXT;
+		clearDisplay();
 	}
 	
 	/**
@@ -401,8 +409,13 @@ class TextualAnnotationsUI
 		String text;
 		if (src == commentArea) {
 			text = commentArea.getText();
-			if (text == null || text.length() == 0) 
-				setAreaText(DEFAULT_TEXT, true);
+			boolean b = false;
+			if (text == null || text.length() == 0) {
+				text = DEFAULT_TEXT_COMMENT;
+				b = true;
+			}
+			originalText = text;
+			setAreaText(DEFAULT_TEXT_COMMENT, b);
 		}
 	}
 	

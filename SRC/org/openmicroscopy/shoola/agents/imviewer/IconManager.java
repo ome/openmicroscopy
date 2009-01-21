@@ -304,7 +304,7 @@ public class IconManager
         relPaths[HISTORY_CLEAR_12] = "nuvola_history_clear12.png";
         relPaths[SET_RND_SETTINGS] = "nuvola_redo16.png";
         relPaths[PROJECTION] = "projBlack16.png";//"projection16.png";
-        relPaths[PROJECTION_48] = "projection48.png"; 
+        relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
     }
     

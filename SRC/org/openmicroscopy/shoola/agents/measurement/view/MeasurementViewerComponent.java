@@ -46,7 +46,6 @@ import org.jhotdraw.draw.Drawing;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -155,8 +154,16 @@ class MeasurementViewerComponent
 		int state = model.getState();
         switch (state) {
             case NEW:
-            	model.fireChannelMetadataLoading();
-                fireStateChange();
+            	//Sets the dimension of the drawing canvas;
+        		double f = model.getMagnification();
+        		Dimension d = new Dimension((int) (model.getSizeX()*f), 
+        							(int) (model.getSizeY()*f));
+        		UIUtilities.setDefaultSize(model.getDrawingView(), d);
+        		model.getDrawingView().setSize(d);
+        		model.fireROILoading(null);
+        		fireStateChange();
+            	//model.fireChannelMetadataLoading();
+                //fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -198,7 +205,11 @@ class MeasurementViewerComponent
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setDataChanged()
      */
-	public void setDataChanged() { model.setDataChanged(); }
+	public void setDataChanged()
+	{ 
+		model.setDataChanged(); 
+		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -350,12 +361,51 @@ class MeasurementViewerComponent
 		view.setVisible(b);
 	}
 
+	private FileChooser createChooserDialog(int type)
+	{
+		String word = "Save ";
+		if (type == FileChooser.LOAD) word = "Load ";
+		String title = word+"the ROI File";
+		String text = word+"the ROI data in the file associate with the image.";
+		
+		List<FileFilter> filters = new ArrayList<FileFilter>();
+		filters.add(new XMLFilter());
+		FileChooser chooser = new FileChooser(view, type, title, text, filters);
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) chooser.setCurrentDirectory(f);
+		try
+		{
+			String s = FileMap.getSavedFile(model.getServerName(), 
+						model.getUserName(), model.getPixelsID());
+			File savedFile;
+			if (s != null) {
+				savedFile = new File(s);
+				chooser.setCurrentDirectory(savedFile);
+				chooser.setSelectedFile(savedFile);
+			} else {
+				if (type == FileChooser.SAVE) {
+					s = model.getImageName();
+					savedFile = new File(s);
+					chooser.setSelectedFile(savedFile.getName());
+				}
+			}
+		} catch (ParsingException e) {
+			// Do nothing as we're really only looking to see if the default
+			// directory or filename should be set for loading.
+		}
+		
+		return chooser;
+	}
+	
+	
+	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#loadROI()
      */
 	public void loadROI()
 	{
+		/*
 		List<FileFilter> filterList = new ArrayList<FileFilter>();
 		FileFilter filter = new XMLFilter();
 		filterList.add(filter);
@@ -388,6 +438,15 @@ class MeasurementViewerComponent
 		model.fireROILoading(chooser.getSelectedFile().getAbsolutePath());
 		fireStateChange();
 		view.updateDrawingArea();
+		*/
+		FileChooser chooser = createChooserDialog(FileChooser.LOAD);
+		
+		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
+		File f = chooser.getSelectedFile();
+		if (f == null) return;
+		model.fireROILoading(f.getAbsolutePath());
+		fireStateChange();
+		view.updateDrawingArea();
 	}
 
 	/** 
@@ -396,31 +455,30 @@ class MeasurementViewerComponent
      */
 	public void saveROI()
 	{
-		Registry reg = MeasurementAgent.getRegistry();
-		UserNotifier un = reg.getUserNotifier();
-		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new XMLFilter();
-		filterList.add(filter);
-		FileChooser chooser=
+		/*
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		filterList.add(new XMLFilter());
+		FileChooser chooser =
 				new FileChooser(
 					view, FileChooser.SAVE, "Save the ROI File",
 					"Save the ROI data in the file associate with this image.",
 					filterList);
-		File f=UIUtilities.getDefaultFolder();
+		File f = UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
+			String savedFileString = FileMap.getSavedFile(model.getServerName(), 
 							model.getUserName(), model.getPixelsID());
-			if(savedFileString==null)
+			File savedFile;
+			if (savedFileString == null)
 			{
 				savedFileString = model.getImageName();
-				File savedFile = new File(savedFileString);
+				savedFile = new File(savedFileString);
 				chooser.setSelectedFile(savedFile.getName());
 			}
 			else
 			{
-				File savedFile = new File(savedFileString);
+				savedFile = new File(savedFileString);
 				chooser.setCurrentDirectory(savedFile);
 				chooser.setSelectedFile(savedFile);
 			}
@@ -433,21 +491,20 @@ class MeasurementViewerComponent
 		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
-		if (!file.getAbsolutePath().endsWith(XMLFilter.XML))
-		{
+		if (!XMLFilter.XML.endsWith(file.getAbsolutePath())) {
 			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
 			file = new File(fileName);
 		}
-	
-		try {
-			model.saveROI(file.getAbsolutePath(), true);
-		} catch (ParsingException e) {
-			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
-			un.notifyInfo("Save ROI", "Cannot save ROI " +
-										"for "+model.getImageID());
+		saveBackROI(file.getAbsolutePath());
+		*/
+		FileChooser chooser = createChooserDialog(FileChooser.SAVE);
+		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
+		File file = chooser.getSelectedFile();
+		if (!XMLFilter.XML.endsWith(file.getAbsolutePath())) {
+			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
+			file = new File(fileName);
 		}
-		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
-									"successfully saved. ");
+		saveBackROI(file.getAbsolutePath());
 	}
 	
 	/** 
@@ -698,19 +755,41 @@ class MeasurementViewerComponent
 	}
 
 	/** 
+	 * Saves the ROI without displaying a file chooser. 
+	 * 
+	 * @param path The absolute path to the file.
+	 */
+	private void saveBackROI(String path)
+	{
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		try {
+			model.saveROI(path, false);
+		} catch (ParsingException e) {
+			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
+			un.notifyInfo("Save ROI", "Cannot save ROI " +
+										"for "+model.getImageID());
+		}
+		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
+									"successfully saved. ");
+		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+
+	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#saveAndDiscard()
 	 */
 	public void saveAndDiscard()
 	{
+		String fileSaved = model.getFileSaved();
+		if (fileSaved != null) {
+			saveBackROI(fileSaved);
+			return;
+		}
 		//TODO: Externalize the UI code in a customized FileChooser Dialog
-		Registry reg = MeasurementAgent.getRegistry();
-		UserNotifier un = reg.getUserNotifier();
-		
-		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new XMLFilter();
-		filterList.add(filter);
-		FileChooser chooser=
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		filterList.add(new XMLFilter());
+		FileChooser chooser =
 				new FileChooser(
 					view, FileChooser.SAVE, "Save the ROI File",
 					"Save the ROI data in the file associate with this image.",
@@ -719,17 +798,18 @@ class MeasurementViewerComponent
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
+			String savedFileString = FileMap.getSavedFile(model.getServerName(), 
 							model.getUserName(), model.getPixelsID());
-			if(savedFileString==null)
+			File savedFile;
+			if (savedFileString == null)
 			{
 				savedFileString = model.getImageName();
-				File savedFile = new File(savedFileString);
+				savedFile = new File(savedFileString);
 				chooser.setSelectedFile(savedFile.getName());
 			}
 			else
 			{
-				File savedFile = new File(savedFileString);
+				savedFile = new File(savedFileString);
 				chooser.setCurrentDirectory(savedFile);
 				chooser.setSelectedFile(savedFile);
 			}
@@ -742,22 +822,11 @@ class MeasurementViewerComponent
 		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
-		if (!file.getAbsolutePath().endsWith(XMLFilter.XML))
-		{
+		if (!XMLFilter.XML.endsWith(file.getAbsolutePath())) {
 			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
 			file = new File(fileName);
 		}
-	
-		try {
-			model.saveROI(file.getAbsolutePath(), false);
-		} catch (ParsingException e) {
-			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
-			un.notifyInfo("Save ROI", "Cannot save ROI " +
-										"for "+model.getImageID());
-		}
-		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
-									"successfully saved. ");
-		
+		saveBackROI(file.getAbsolutePath());
 		discard();
 	}
 	
@@ -791,4 +860,14 @@ class MeasurementViewerComponent
 		model.setRenderedImage(rndImage);
 	}
     
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#hasROIToSave()
+     */
+	public boolean hasROIToSave() 
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.hasROIToSave();
+	}
+	
 }

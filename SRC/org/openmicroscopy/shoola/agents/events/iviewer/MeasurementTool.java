@@ -33,6 +33,9 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
+import pojos.ChannelData;
+import pojos.PixelsData;
+
 /** 
  * Event to bring the measurement tool.
  *
@@ -50,8 +53,8 @@ public class MeasurementTool
 	extends RequestEvent
 {
 
-    /** The ID of the pixels set. */
-    private long        	pixelsID;
+    /** The pixels set the measurement tool is for. */
+    private PixelsData      pixels;
     
     /** The ID of the image. */
     private long        	imageID;
@@ -80,11 +83,14 @@ public class MeasurementTool
     /** The rendered image. */
     private BufferedImage	renderedImage;
     
+    /** The channel metadata. */
+    private ChannelData[] 	channelData;
+    
     /**
      * Creates a new instance.
      * 
      * @param imageID   		The image ID.
-     * @param pixelsID  		The pixels set ID.
+     * @param pixels  			The pixels set the measurement tool is for.
      * @param name      		The name of the image.
      * @param defaultZ			The currently selected z-section.
      * @param defaultT			The currently selected timepoint.
@@ -92,16 +98,21 @@ public class MeasurementTool
      * 							(channel's index, channel's color).
      * @param magnification 	The magnification factor.
      * @param bounds    		The bounds of the component posting the event.
+     * @param channelData		The channel metadata.
      */
-    public MeasurementTool(long imageID, long pixelsID, String name, 
+    public MeasurementTool(long imageID, PixelsData pixels, String name, 
     						int defaultZ, int defaultT, Map activeChannels,
-    						double magnification, Rectangle bounds)
+    						double magnification, Rectangle bounds,
+    						ChannelData[] channelData)
     {
-        if (pixelsID < 0) 
-            throw new IllegalArgumentException("Pixels set ID not valid.");
+        if (pixels == null) 
+            throw new IllegalArgumentException("Pixels set not valid.");
         if (imageID < 0) 
             throw new IllegalArgumentException("Image ID not valid.");
-        this.pixelsID = pixelsID;
+        if (channelData == null || channelData.length == 0) 
+            throw new IllegalArgumentException("Channel data not valid.");
+        this.channelData = channelData;
+        this.pixels = pixels;
         this.imageID = imageID;
         this.name = name;
         this.defaultT = defaultT;
@@ -160,11 +171,11 @@ public class MeasurementTool
     public String getName() { return name; }
 
     /**
-     * Returns the pixels set ID.
+     * Returns the pixels set.
      * 
      * @return See above. 
      */
-    public long getPixelsID() { return pixelsID; }
+    public PixelsData getPixels() { return pixels; }
     
     /**
      * Returns the bounds of the component posting the event. 
@@ -201,5 +212,12 @@ public class MeasurementTool
      * @return See above.
      */
     public Map getActiveChannels() { return activeChannels; }
+   
+    /**
+     * Returns the channel metadata. 
+     * 
+     * @return See above.
+     */
+    public ChannelData[] getChannelData() { return channelData; }
     
 }

@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 
@@ -150,7 +151,9 @@ public class ImViewerAgent
     {
     	if (evt == null) return;
     	MeasurementTool request = (MeasurementTool) evt.getACT();
-    	long pixelsID = request.getPixelsID();
+    	PixelsData pixels = request.getPixels();
+    	if (pixels == null) return;
+    	long pixelsID = pixels.getId();
     	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
     	if (view != null) {
     		switch (evt.getIndex()) {

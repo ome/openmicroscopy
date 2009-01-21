@@ -296,7 +296,7 @@ public class ROITable
 	 * the ROIShape. 
 	 * @param shapeList see above.
 	 */
-	public void addROIShapeList(ArrayList<ROIShape> shapeList)
+	public void addROIShapeList(List<ROIShape> shapeList)
 	{
 		ROINode parent=null;
 		for(ROIShape shape : shapeList)

@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ImageData;
 

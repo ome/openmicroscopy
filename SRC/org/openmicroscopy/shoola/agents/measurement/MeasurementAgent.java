@@ -45,6 +45,8 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
+import pojos.PixelsData;
+
 /** 
  * The Measurement agent. This agent displays 
  * controls to create and manipulate Regions of Interest.
@@ -73,14 +75,16 @@ public class MeasurementAgent
      */
     private void handleMeasurementToolEvent(MeasurementTool evt)
     {
+    	PixelsData pixels = evt.getPixels();
+    	if (pixels == null) return;
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
-				evt.getPixelsID());
+    			pixels.getId());
     	if (viewer == null) {
     		viewer = MeasurementViewerFactory.getViewer(
-        			evt.getPixelsID(), evt.getImageID(), evt.getName(),
+        			evt.getPixels(), evt.getImageID(), evt.getName(),
         			evt.getRequesterBounds(), evt.getDefaultZ(), 
         			evt.getDefaultT(), evt.getMagnification(), 
-        			evt.getActiveChannels());
+        			evt.getActiveChannels(), evt.getChannelData());
     	}
     	if (viewer != null) {
     		viewer.setIconImage(evt.getThumbnail());

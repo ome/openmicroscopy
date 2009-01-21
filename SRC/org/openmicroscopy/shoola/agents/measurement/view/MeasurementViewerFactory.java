@@ -37,6 +37,9 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 
+import pojos.ChannelData;
+import pojos.PixelsData;
+
 /** 
  * Factory to create {@link MeasurementViewer} components.
  * This class keeps track of all {@link MeasurementViewer} instances that have 
@@ -67,7 +70,7 @@ public class MeasurementViewerFactory
      * Returns a viewer to display the image corresponding to the specified id.
      * Recycles or creates a viewer.
      * 
-     * @param pixelsID  		The id of the pixels set.
+     * @param pixels 			The pixels set the measurement tool is for.
      * @param imageID   		The id of the image.
      * @param name      		The name of the image.
      * @param bounds    		The bounds of the component invoking the 
@@ -76,15 +79,17 @@ public class MeasurementViewerFactory
      * @param t					The selected timepoint.
      * @param magnification		The image's magnification factor.
      * @param activeChannels	Collection of active channels.
+     * @param channelsData		The channels metadata.
      * @return See above.
      */
-	public static MeasurementViewer getViewer(long pixelsID, long imageID, 
+	public static MeasurementViewer getViewer(PixelsData pixels, long imageID, 
 										String name, Rectangle bounds, 
 										int z, int t, double magnification,
-										Map activeChannels)
+										Map activeChannels, ChannelData[]
+										channelsData)
 	{
 		MeasurementViewerModel model = new MeasurementViewerModel(imageID, 
-											pixelsID, name, bounds);
+				pixels, name, bounds, channelsData);
 		model.setPlane(z, t);
 		model.setMagnification(magnification);
 		model.setActiveChannels(activeChannels);
@@ -129,9 +134,13 @@ public class MeasurementViewerFactory
 	{
 		Iterator v = singleton.requests.iterator();
 		MeasurementTool request;
+		PixelsData pixels;
         while (v.hasNext()) {
         	request = (MeasurementTool) v.next();
-            if (request.getPixelsID() == pixelsID) return request;
+        	pixels = request.getPixels();
+        	if (pixels != null) {
+        		if (pixels.getId() == pixelsID) return request;
+        	}
         }
 		return null;
 	}

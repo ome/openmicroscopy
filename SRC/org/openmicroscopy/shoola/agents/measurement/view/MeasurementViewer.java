@@ -81,6 +81,9 @@ public interface MeasurementViewer
     /** Flag to denote the <i>Value adjusting</i> state. */
     public static final int     VALUE_ADJUSTING = 7;
  
+    /** Bound property indicating that the ROI component has changed. */
+    public static final String	ROI_CHANGED_PROPERTY = "roiChanged";
+    
     /**
      * Starts the data loading process when the current state is {@link #NEW} 
      * and puts the window on screen.
@@ -280,5 +283,13 @@ public interface MeasurementViewer
      * @param rndImage	The rendered image.
      */
 	public void setRndImage(BufferedImage rndImage);
+	
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasROIToSave();
 	
 }

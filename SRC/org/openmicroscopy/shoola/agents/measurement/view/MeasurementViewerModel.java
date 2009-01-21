@@ -48,10 +48,8 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
-import org.openmicroscopy.shoola.agents.measurement.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
-import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -100,7 +98,7 @@ class MeasurementViewerModel
 	private long					imageID;
 	
 	/** The id of the pixels set this {@link MeasurementViewer} is for. */
-	private long					pixelsID;
+	//private long					pixelsID;
 	
 	/** The name of the image this {@link MeasurementViewer} is for. */
 	private String					name;
@@ -138,7 +136,7 @@ class MeasurementViewerModel
     private Map						analysisResults;
     
     /** Metadata for the pixels set. */
-    private ChannelData[]		metadata;
+    private ChannelData[]			metadata;
     
     /** 
      * Will either be a data loader or
@@ -148,12 +146,7 @@ class MeasurementViewerModel
     
     /** Reference to the component that embeds this model. */
     private MeasurementViewer		component;
-    
-    /** Has the data been saved since last update. 			*/
-    private Boolean					hasBeenSaved;
-    
-    private Boolean 				pixelDataAvailable;
-    
+
     /** 
      * Reference to the event posted to save the data when closing the
      * viewer.
@@ -162,8 +155,55 @@ class MeasurementViewerModel
     
     /** The rendered image. */
     private BufferedImage 			rndImage;
+
+    /** The roi file previously saved if any. */
+    private String					fileSaved;
     
-    /**
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param imageID		The image's id.
+	 * @param pixels		The pixels set the measurement tool is for.
+	 * @param name			The image's name.
+	 * @param bounds		The bounds of the component requesting the model.
+	 * @param channelsData	The channel metadata.
+	 */
+	MeasurementViewerModel(long imageID, PixelsData pixels, String name, 
+						Rectangle bounds, ChannelData[] channelsData)
+	{
+		metadata = channelsData;
+		this.imageID = imageID;
+		this.pixels = pixels;
+		this.name = name;
+		requesterBounds = bounds;
+		state = MeasurementViewer.NEW;
+		drawingComponent = new DrawingComponent();
+		roiComponent = new ROIComponent();
+		roiFileName = imageID+".xml";
+		fileSaved = null;
+	}
+	
+	/**
+	 * Called by the <code>ROIViewer</code> after creation to allow this
+	 * object to store a back reference to the embedding component.
+	 * 
+	 * @param component The embedding component.
+	 */
+	void initialize(MeasurementViewer component)
+	{
+		this.component = component;
+	}
+
+	/**
+	 * Get a link to the ROIComponent. 
+	 * @return see above.
+	 */
+	ROIComponent getROIComponent()
+	{
+		return roiComponent;
+	}
+	
+	/**
      * Returns the name used to log in.
      * 
      * @return See above.
@@ -182,60 +222,7 @@ class MeasurementViewerModel
     {
     	return MeasurementAgent.getRegistry().getDataService().getServerName();
     }
-
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param imageID	The image's id.
-	 * @param pixelsID	The id of the pixels set.
-	 * @param name		The image's name.
-	 * @param bounds	The bounds of the component requesting the component.
-	 */
-	MeasurementViewerModel(long imageID, long pixelsID, String name, 
-						Rectangle bounds)
-	{
-		this.imageID = imageID;
-		this.pixelsID = pixelsID;
-		this.name = name;
-		requesterBounds = bounds;
-		state = MeasurementViewer.NEW;
-		drawingComponent = new DrawingComponent();
-		roiComponent = new ROIComponent();
-		roiFileName = imageID+".xml";
-		hasBeenSaved = true;
-		pixelDataAvailable = false;
-	}
-	
-	/**
-	 * Get a link to the ROIComponent. 
-	 * @return see above.
-	 */
-	public ROIComponent getROIComponent()
-	{
-		return roiComponent;
-	}
-	
-	public Boolean isPixelDataAvailable()
-	{
-		return pixelDataAvailable;
-	}
-	
-	private void setPixelDataAvailable(Boolean value)
-	{
-		pixelDataAvailable = value;
-	}
-	
-	/**
-    * Called by the <code>ROIViewer</code> after creation to allow this
-    * object to store a back reference to the embedding component.
-    * 
-    * @param component The embedding component.
-    */
-	void initialize(MeasurementViewer component)
-	{
-		this.component = component;
-	}
-	
+    
 	/**
 	 * Sets the selected z-section and timepoint.
 	 * 
@@ -245,7 +232,6 @@ class MeasurementViewerModel
 	void setPlane(int z, int t) 
 	{ 
 		currentPlane = new Coord3D(z, t);
-		setPixelDataAvailable(false);
 	}
 	
 	/**
@@ -260,7 +246,8 @@ class MeasurementViewerModel
     boolean isSameDisplay(MeasurementViewerModel other)
     {
         if (other == null) return false;
-        return ((other.pixelsID == pixelsID) && (other.imageID == imageID));
+        return ((other.pixels.getId() == getPixelsID()) 
+        		&& (other.imageID == imageID));
     }
     
     /**
@@ -275,7 +262,7 @@ class MeasurementViewerModel
      * 
      * @return See above.
      */
-    long getPixelsID() { return pixelsID; }
+    long getPixelsID() { return pixels.getId(); }
     
 	/**
 	 * Returns the name of the image.
@@ -348,9 +335,11 @@ class MeasurementViewerModel
 	/** Fires an asynchronous retrieval of the pixels set. */
 	void firePixelsLoading()
 	{
+		/*
 		state = MeasurementViewer.LOADING_DATA;
 		currentLoader = new PixelsLoader(component, pixelsID);
 		currentLoader.load();
+		*/
 	}
 
 	/**
@@ -383,8 +372,8 @@ class MeasurementViewerModel
 	{ 
 		this.magnification = magnification;
 		if (state != MeasurementViewer.NEW)
-			getDrawingView().setScaleFactor(magnification, new 
-						Dimension(getSizeX(), getSizeY()));
+			getDrawingView().setScaleFactor(magnification,
+					new Dimension(getSizeX(), getSizeY()));
 		else 
 			getDrawingView().setScaleFactor(magnification);
 	}
@@ -397,7 +386,7 @@ class MeasurementViewerModel
 	public void setAttributes(AttributeKey key, Object value)
 	{
 		List<Figure> figures =  getDrawing().getFigures();
-		for(Figure f : figures)
+		for (Figure f : figures)
 			f.setAttribute(key, value);
 		getDrawingView().repaint();
 	}
@@ -503,7 +492,7 @@ class MeasurementViewerModel
 	Collection<ROI> getSelectedROI()
 	{
 		Collection<Figure> selectedFigs = getDrawingView().getSelectedFigures();
-		ArrayList<ROI> roiList = new ArrayList<ROI>();
+		List<ROI> roiList = new ArrayList<ROI>();
 		Iterator<Figure> figIterator = selectedFigs.iterator();
 		ROIFigure fig;
 		while (figIterator.hasNext())
@@ -525,18 +514,17 @@ class MeasurementViewerModel
 		throws NoSuchROIException
 	{
 		ROIShape shape = roiComponent.getShape(id, getCurrentView());
-		if(shape!=null)
+		if (shape != null)
 		{
-			if(drawingComponent.contains(shape.getFigure()))
+			if (drawingComponent.contains(shape.getFigure()))
 				drawingComponent.removeFigure(shape.getFigure());
-			else
-			roiComponent.deleteShape(id, getCurrentView());
+			else roiComponent.deleteShape(id, getCurrentView());
 		}
 	}
 		
 	/**
-	 * Removes the <code>ROIShape</code> corresponding to the passed id on the plane
-	 * coord.
+	 * Removes the <code>ROIShape</code> corresponding to the passed id on 
+	 * the plane coord.
 	 * 
 	 * @param id The id of the <code>ROI</code>.
 	 * @param coord the coord of the shape to delete.
@@ -546,9 +534,8 @@ class MeasurementViewerModel
 		throws NoSuchROIException
 	{
 		ROIShape shape = roiComponent.getShape(id, coord);
-		if(shape!=null)
-		{
-			if(drawingComponent.contains(shape.getFigure()))
+		if (shape != null) {
+			if (drawingComponent.contains(shape.getFigure()))
 				drawingComponent.removeFigure(shape.getFigure());
 			else
 				roiComponent.deleteShape(id, coord);
@@ -565,12 +552,11 @@ class MeasurementViewerModel
 		throws NoSuchROIException
 	{
 		ROIShape shape = roiComponent.getShape(id, getCurrentView());
-		if(shape!=null)
-		{
-			if(drawingComponent.contains(shape.getFigure()))
+		if (shape != null) {
+			if (drawingComponent.contains(shape.getFigure()))
 				drawingComponent.removeFigure(shape.getFigure());
 		}
-		if(roiComponent.containsROI(id))
+		if (roiComponent.containsROI(id))
 			roiComponent.deleteROI(id);
 	}
 	
@@ -672,7 +658,6 @@ class MeasurementViewerModel
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());
-		setPixelDataAvailable(false);
 	}
 	
 	
@@ -688,10 +673,9 @@ class MeasurementViewerModel
 		InputStream stream = null;
 		try {
 			if (fileName == null)
-			{
 				fileName = FileMap.getSavedFile(getServerName(), getUserName(), 
 												getPixelsID());
-			}
+			fileSaved = fileName;
 			stream = IOUtil.readFile(fileName);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
@@ -706,15 +690,13 @@ class MeasurementViewerModel
 		}
 	}
 	
-	/**
-	 * Saves the current ROISet in the roi component to file.
-	 * @throws ParsingException
+	/** 
+	 * Returns the path to the file where the ROIs have been saved
+	 * or <code>null</code> if not previously saved.
+	 * 
+	 * @return See above.
 	 */
-	void saveROI()
-		throws ParsingException
-	{
-		saveROI(roiFileName, true);
-	}
+	String getFileSaved() { return fileSaved; }
 	
 	/**
 	 * Saves the current ROISet in the roi component to file.
@@ -757,7 +739,7 @@ class MeasurementViewerModel
 	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
 	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
-	ArrayList<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
+	List<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
 		setDataChanged();
@@ -782,8 +764,9 @@ class MeasurementViewerModel
 		else
 		{
 			setDataChanged();
-			roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
-			new Coord3D(zSection, timePoint));
+			roiComponent.deleteShape(
+					shape.getID(), shape.getCoord3D(), new Coord3D(zSection, 
+							timePoint));
 		}
 	}
 
@@ -819,7 +802,6 @@ class MeasurementViewerModel
 	void setActiveChannels(Map activeChannels)
 	{
 		this.activeChannels = activeChannels;
-		setPixelDataAvailable(false);
 	}
 		
 	/**
@@ -840,9 +822,11 @@ class MeasurementViewerModel
 	/** Fires an asynchronous call to retrieve the channel metadata. */
 	void fireChannelMetadataLoading()
 	{
+		/*
 		state = MeasurementViewer.LOADING_DATA;
 		currentLoader = new ChannelMetadataLoader(component, pixelsID);
 		currentLoader.load();
+		*/
 	}
 	
 	/**
@@ -889,7 +873,6 @@ class MeasurementViewerModel
 	void setAnalysisResults(Map analysisResults)
 	{
 		this.analysisResults = analysisResults;
-		this.setPixelDataAvailable(true);
 		state = MeasurementViewer.READY;
 	}
 	
@@ -941,25 +924,17 @@ class MeasurementViewerModel
 	{
 		return (activeChannels.get(index) != null);
 	}
-	
-	/**
-	 * Has the data been saved since the last update in the model.
-	 * 
-	 * @return See above.
-	 */
-	boolean isDataSaved() { return hasBeenSaved; }
-	
+
 	/**
 	 * Don't care about data changes.
 	 * Notifies listeners that the measurement tool does not have data to save.
 	 */
 	void setDataDiscarded()
 	{
-		hasBeenSaved = true;
 		if (event == null) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-		event = new SaveRelatedData(pixelsID, 
-					new SaveData(pixelsID, SaveData.MEASUREMENT_TYPE), 
+		event = new SaveRelatedData(getPixelsID(), 
+					new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE), 
 									"The ROI", false);
 		bus.post(event);
 		event = null;
@@ -971,12 +946,10 @@ class MeasurementViewerModel
 	 */
 	void setDataChanged()
 	{
-		//Post an event.
-		hasBeenSaved = false;
 		if (event != null) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-		event = new SaveRelatedData(pixelsID, 
-						new SaveData(pixelsID, SaveData.MEASUREMENT_TYPE),
+		event = new SaveRelatedData(getPixelsID(), 
+						new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE),
 									"The ROI", true);
 		bus.post(event);
 	}
@@ -991,18 +964,42 @@ class MeasurementViewerModel
 		component.analyseShapeList(shapeList);
 	}
 
+	/**
+	 * Clones the specifed ROI.
+	 * 
+	 * @param id The id of the ROI to clone.
+	 * @return See above.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
 	ROI cloneROI(long id) 
 		throws ROICreationException, NoSuchROIException
 	{
 		return roiComponent.cloneROI(id);
 	}
 	
+	/**
+	 * Deletes the shapes.
+	 * 
+	 * @param id
+	 * @param coord
+	 * @throws NoSuchROIException
+	 */
 	void deleteShape(long id, Coord3D coord) 
 		throws NoSuchROIException
 	{
 		roiComponent.deleteShape(id, coord);
 	}
 	
+	/**
+	 * Adds a new shape to the ROI component.
+	 * 
+	 * @param id
+	 * @param coord
+	 * @param shape
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
 	void addShape(long id, Coord3D coord, ROIShape shape) 
 		throws ROICreationException, NoSuchROIException
 	{
@@ -1025,5 +1022,13 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	BufferedImage getRenderedImage() { return rndImage; }
+
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasROIToSave() { return event != null; }
 	
 }	

@@ -536,7 +536,7 @@ class ImViewerModel
 	String getColorModel() { return currentRndControl.getModel(); }
 	
 	/**
-	 * Returns an array of <code>ChannelData</code> object.
+	 * Returns an array of <code>ChannelData</code> objects.
 	 * 
 	 * @return See above.
 	 */
@@ -1789,6 +1789,17 @@ class ImViewerModel
 	{
 		this.lastProjStart = lastProjStart;
 		this.lastProjEnd = lastProjEnd;
+	}
+	
+	/**
+	 * Returns the pixels data.
+	 * 
+	 * @return See above.
+	 */
+	PixelsData getPixelsData()
+	{ 
+		if (image == null) return null;
+		return image.getDefaultPixels();
 	}
 	
 }

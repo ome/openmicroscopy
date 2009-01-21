@@ -29,7 +29,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -72,7 +71,6 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -226,9 +224,10 @@ class MeasurementViewerControl
 		ROI roi = shape.getROI();
 		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		ROIShape thisShape;
 		while (shapeIterator.hasNext())
 		{
-			ROIShape thisShape =shapeMap.get(shapeIterator.next()); 
+			thisShape = shapeMap.get(shapeIterator.next()); 
 			shapeList.add(thisShape);
 		}
 		

@@ -303,14 +303,12 @@ class ImViewerComponent
 			showBox = true;
 		}
 		JCheckBox annotationBox = null;
-		/*
 		if (model.hasMetadataToSave()) {
 			annotationBox = new JCheckBox(ANNOTATION);
 			annotationBox.setSelected(true);
 			p.add(annotationBox);
 			showBox = true;
 		}
-		*/
 		msg.addBodyComponent(p);
 		List<SaveEventBox> boxes = null;
 		SaveEventBox box;
@@ -1989,10 +1987,10 @@ class ImViewerComponent
 	{
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		MeasurementTool request = new MeasurementTool(model.getImageID(), 
-				model.getPixelsID(), model.getImageName(), 
+				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(), model.getZoomFactor(), 
-				view.getBounds());
+				view.getBounds(), model.getChannelData());
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		bus.post(request);

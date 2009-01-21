@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -49,6 +52,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class SaveROIAction
 	extends MeasurementViewerAction
+	implements PropertyChangeListener
 {
 
 	/** The name of the action. */
@@ -58,6 +62,16 @@ public class SaveROIAction
 	private static final String DESCRIPTION = "Save the ROI.";
 
 	/**
+	 * Sets the enabled flag
+	 * @see MeasurementViewerAction#onStateChange()
+	 */
+	protected void onStateChange()
+	{
+		if (model.getState() == MeasurementViewer.READY) 
+			setEnabled(model.hasROIToSave());
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model The model. Mustn't be <code>null</code>.
@@ -65,6 +79,8 @@ public class SaveROIAction
 	public SaveROIAction(MeasurementViewer model)
 	{
 		super(model);
+		model.addPropertyChangeListener(
+				MeasurementViewer.ROI_CHANGED_PROPERTY, this);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -76,9 +92,17 @@ public class SaveROIAction
      * Saves the ROI.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.saveROI();
-    }
+    public void actionPerformed(ActionEvent e) { model.saveROI(); }
+
+    /**
+     * Sets the enabled flag to <code>true</code> if ROI to save.
+     * @param evt The event to handle.
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (MeasurementViewer.ROI_CHANGED_PROPERTY.equals(name))
+			onStateChange();
+	}
     
 }
