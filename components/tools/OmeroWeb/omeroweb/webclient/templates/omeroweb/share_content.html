@@ -8,10 +8,10 @@
 {% if share.prSize %}
 {% for c in share.projectInShare %}
 <div class="clear"></div>
-<div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/>
+<div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" />
     {% if c.copyDatasetLinks %}
     {% for d in c.listChildren %}
-    <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/>
+    <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" />
         {% if d.copyImageLinks %}
         {% for e in d.listChildren %}
         <div class="imageInDataset"><ul id="products">
@@ -31,7 +31,7 @@
 {% if share.dsSize %}
 <div class="clear"></div>
 {% for d in share.datasetInShare %}
-<div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/>
+<div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" />
     {% if d.copyImageLinks %}
     {% for e in d.listChildren %}
     <div class="imageInDataset"><ul id="products">

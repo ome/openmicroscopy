@@ -230,6 +230,7 @@ form ul.errorlist {
 }
 .center {
     text-align: center;
+    padding: 1px;
 }
 label {
     font-weight: bold;

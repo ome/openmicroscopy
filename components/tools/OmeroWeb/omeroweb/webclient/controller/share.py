@@ -109,7 +109,7 @@ class BaseShare(BaseController):
         self.cmSize = len(self.comments)
 
     def getShare(self, share_id):
-        self.membersInShare = list(self.conn.getAllMembers(share_id))
+        self.membersInShare = ms = [m.id for m in self.conn.getAllMembers(share_id)]
         #self.guestsInShare = ";".join(self.conn.getAllGuests(share_id))
         self.allInShare = list(self.conn.getAllUsers(share_id))
 

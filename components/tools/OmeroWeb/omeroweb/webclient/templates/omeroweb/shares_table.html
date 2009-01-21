@@ -49,8 +49,8 @@
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $("#shareTable").tablesorter( {sortList: [[2,0], [0,0]]} ); 
-                $("#sharedTable").tablesorter( {sortList: [[2,0], [0,0]]} ); 
+                $("#shareTable").tablesorter( {sortList: [[2,0]]} ); 
+                $("#sharedTable").tablesorter( {sortList: [[2,0]]} ); 
             } 
         );
     </script>
@@ -75,6 +75,7 @@
 <tr> 
     <th>Type</th> 
     <th>Name</th> 
+    <th>Action</th> 
     <th>Start - End</th>
     <th>Items</th>
     <th>Members</th>
@@ -89,7 +90,8 @@
         {% else %}
             <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% endif %}</td> 
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> </td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td>
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>
@@ -110,7 +112,8 @@
 <thead> 
 <tr> 
     <th>Type</th> 
-    <th>Name</th> 
+    <th>Name</th>
+    <th>Action</th> 
     <th>Start - End</th>
     <th>Items</th>
     <th>Members</th>
@@ -125,7 +128,8 @@
         {% else %}
             <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% endif %}</a></td> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td> 
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> </td> 
+        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td>
         <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>

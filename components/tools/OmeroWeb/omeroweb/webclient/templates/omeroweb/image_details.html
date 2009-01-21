@@ -137,7 +137,7 @@
 </div>
 <div class="clear"></div>
 
-{% if manager.image.countAnnotations %}<div id="annotation"><h1>Annotations</h1><a href="#" class="loadAnnotation">Show annotations... ({{ manager.image.countAnnotations }})</a></div>{% endif %}
+{% if manager.image.countAnnotations %}<div id="annotation"><h1>Annotations</h1><a href="#">Show annotations associated with... [{{ manager.image.countAnnotations }}]</a></div>{% endif %}
 
 <div id="annotation_form">
     {% if form_comment %}
@@ -195,7 +195,7 @@
 
 <div class="clear"> </div>
 
-<h1>Where this image is? </h1>
+<h1>Where this image is linked?</h1>
 <div id="hierarchy"><a href="#" class="loadData">Show the hierarchy structure...</a></div>
 
 {% endblock %}

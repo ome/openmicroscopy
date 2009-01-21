@@ -45,6 +45,7 @@ class BaseSearch(BaseController):
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
+        self.eContext['breadcrumb'] = ['Search']
         self.criteria = dict()
 
     def search(self, query, onlyTypes, period):

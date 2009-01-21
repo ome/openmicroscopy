@@ -1051,8 +1051,12 @@ class BlitzGateway (threading.Thread):
             store.write(chunk, pos, rlen)
             pos = pos + rlen
     
+    ################################################
+    ##   Counters
     
-    
+    def getCollectionCount(self, parent, child, ids):
+        pojos = self.getPojosService()
+        return pojos.getCollectionCount(parent, child, ids, None)
     
     ################################################
     ##   Enumeration
@@ -1608,6 +1612,9 @@ class BlitzObjectWrapper (object):
     CHILD_WRAPPER_CLASS = None
     PARENT_WRAPPER_CLASS = None
     
+    child_counter = None
+    annotation_counter = None
+    
     def __init__ (self, conn=None, obj=None, **kwargs):
         if conn is None:
             return None
@@ -1643,6 +1650,18 @@ class BlitzObjectWrapper (object):
         except:
             raise NotImplementedError
     
+    def countChild (self):
+        if self.child_counter is not None:
+            return self.child_counter
+        else:
+            pojos = self._conn.getPojosService()
+            m = pojos.getCollectionCount(self._obj.__class__.__name__, (self.LINK_NAME[4].lower()+self.LINK_NAME[5:]), [self._oid], None)
+            if m[self._oid] > 0:
+                self.child_counter = m[self._oid]
+                return self.child_counter
+            else:
+                return 0
+    
     def listAnnotations (self):
         pojos = self._conn.getPojosService()
         self.annotations = pojos.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
@@ -1651,12 +1670,16 @@ class BlitzObjectWrapper (object):
             yield AnnotationWrapper(self._conn, ann)
     
     def countAnnotations (self):
-        pojos = self._conn.getPojosService()
-        m = pojos.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
-        if m[self._oid] > 0:
-            return m[self._oid]
+        if self.annotation_counter is not None:
+            return self.annotation_counter
         else:
-            return None
+            pojos = self._conn.getPojosService()
+            m = pojos.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            if m[self._oid] > 0:
+                self.annotation_counter = m[self._oid]
+                return self.annotation_counter
+            else:
+                return None
     
     def isEditable(self):
         if self._obj.details.permissions.getUserWrite():
@@ -1757,18 +1780,18 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l <= 20:
+            if l <= 19:
                 return name
-            elif l > 20 and l <= 52:
+            elif l > 19 and l <= 60:
                 splited = []
-                for v in range(0,len(name),20):
-                    splited.append(name[v:v+20]+" ")
+                for v in range(0,len(name),23):
+                    splited.append(name[v:v+23]+" ")
                 return "".join(splited)
-            elif l > 52:
-                nname = "..." + name[l - 52:]
+            elif l > 60:
+                nname = "..." + name[l - 60:]
                 splited = list()
-                for v in range(0,len(nname),20):
-                    splited.append(nname[v:v+20]+" ")
+                for v in range(0,len(nname),23):
+                    splited.append(nname[v:v+23]+" ")
                 return "".join(splited)
         except:
             logger.debug(traceback.format_exc())

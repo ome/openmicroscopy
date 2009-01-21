@@ -707,17 +707,19 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
         if o1_type == 'ajaxdataset':
+            template = "omeroweb/container_subtree.html"
             manager.loadMyImages(o1_id)
         elif o1_type == 'project':
             manager.listMyDatasetsInProject(o1_id)
         elif o1_type == 'dataset':
-            if view == 'tree':
-                manager.loadMyImages(o1_id)
-            else:
-                manager.listMyImagesInDataset(o1_id)
+            #if view == 'tree':
+                #manager.loadMyImages(o1_id)
+            #else:
+            manager.listMyImagesInDataset(o1_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
-    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned' :
+    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned':
+        template = "omeroweb/container_subtree.html"
         manager.loadMyOrphanedImages()
     else:
         if view == 'tree':
@@ -824,14 +826,15 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+    elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
+        template = "omeroweb/containers_table.html"
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
-    elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
-        template = "omeroweb/container_subtree.html"
+    elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         context = {'manager':manager, 'eContext':manager.eContext}
-    elif view == 'tree' and o1_type=='ajaxorphaned':
-        template = "omeroweb/container_subtree.html"
+    elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective}
@@ -1013,21 +1016,23 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
         if o1_type == 'ajaxdataset':
+            template = "omeroweb/container_subtree.html"
             if filter_user_id is not None:
                 manager.loadUserImages(o1_id, filter_user_id)
         elif o1_type == 'project':
             if filter_user_id is not None:
                 manager.listDatasetsInProjectInUser(o1_id, filter_user_id)
         elif o1_type == 'dataset':
-            if view == 'tree':
-                if filter_user_id is not None:
-                    manager.loadUserImages(o1_id, filter_user_id)
-            else:
-                if filter_user_id is not None:
-                    manager.listImagesInDatasetInUser(o1_id, filter_user_id)
+            #if view == 'tree':
+                #if filter_user_id is not None:
+                    #manager.loadUserImages(o1_id, filter_user_id)
+            #else:
+            if filter_user_id is not None:
+                manager.listImagesInDatasetInUser(o1_id, filter_user_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
-    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned' :
+    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned':
+        template = "omeroweb/container_subtree.html"
         manager.loadUserOrphanedImages(filter_user_id)
     else:
         if view == 'tree':
@@ -1044,13 +1049,16 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+    elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
+        template = "omeroweb/containers_table.html"
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
-    elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
+    elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
-    elif view == 'tree' and o1_type=='ajaxorphaned':
+    elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1211,21 +1219,23 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
         if o1_type == 'ajaxdataset':
+            template = "omeroweb/container_subtree.html"
             if filter_group_id is not None:
                 manager.loadGroupImages(o1_id, filter_group_id)
         elif o1_type == 'project':
             if filter_group_id is not None:
                 manager.listDatasetsInProjectInGroup(o1_id, filter_group_id)
         elif o1_type == 'dataset':
-            if view == 'tree':
-                if filter_group_id is not None:
-                    manager.loadGroupImages(o1_id, filter_group_id)
-            else:
-                if filter_group_id is not None:
-                    manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
+            #if view == 'tree':
+                #if filter_group_id is not None:
+                    #manager.loadGroupImages(o1_id, filter_group_id)
+            #else:
+            if filter_group_id is not None:
+                manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
         if o1_type == 'image':
             template = "omeroweb/image_details.html"
-    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned' :
+    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned':
+        template = "omeroweb/container_subtree.html"
         manager.loadGroupOrphanedImages(filter_group_id)
     else:
         if view == 'tree':
@@ -1241,13 +1251,16 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+    elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
+        template = "omeroweb/containers_table.html"
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
-    elif view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
+    elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
-    elif view == 'tree' and o1_type=='ajaxorphaned':
+    elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
@@ -1754,6 +1767,7 @@ def manage_share(request, action, oid=None, **kwargs):
         share.getShare(oid)
         share.loadShareContent(oid)
         share.getComments(oid)
+        
         form = ShareForm(initial={'message': share.share.message, 'expiretion': share.share.getExpiretionDate, \
                                     'shareMembers': share.membersInShare, 'enable': share.share.active, \
                                     'experimenters': experimenters}) #'guests': share.guestsInShare,
@@ -1769,15 +1783,15 @@ def manage_share(request, action, oid=None, **kwargs):
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
             enable = request.REQUEST['enable']
-            #share.updateShare(message, expiretion, members, enable)
-            return HttpResponseRedirect("/%s/shares/" % (settings.WEBCLIENT_ROOT_BASE))
+            share.updateShare(message, expiretion, members, enable)
+            return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             share.getShare(oid)
             share.loadShareContent(oid)
             share.getComments(oid)
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'delete':
-        return HttpResponseRedirect("/%s/shares/" % (settings.WEBCLIENT_ROOT_BASE))
+        return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == 'view':
         template = "omeroweb/share_details.html"
         share.getShare(oid)

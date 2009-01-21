@@ -152,11 +152,11 @@
     <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.omeName }}{% endif %}@{{ nav.blitz }}</span>
         <ul>
             {% for c in manager.containers.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span> 
+            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} [{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span> 
                 <ul>
                     {% if c.copyDatasetLinks %}
                     {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span> 
+                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} [{{ d.countChild }}]{% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span> 
                             <ul class="ajax">
                                 {% ifequal nav.whos "mydata" %}
                                     <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/ajaxdataset/{{ d.id }}/?view=tree}</li>
@@ -173,7 +173,7 @@
             </li>
             {% endfor %}
             {% for c in manager.containers.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span>
+                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} [{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span>
                     <ul class="ajax">
                         {% ifequal nav.whos "mydata" %}
                             <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/mydata/ajaxdataset/{{ c.id }}/?view=tree}</li>
@@ -184,7 +184,7 @@
                 </li>
             {% endfor %}
             {% for d in manager.containers.images %}
-                <li id='img-{{ d.id }}'><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span></li>
+                <li id='img-{{ d.id }}'><span>{{ d.shortName }} [{{ d.countChild }}]{% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span></li>
             {% endfor %}
             
             {% if not manager.project and not manager.dataset %}
@@ -211,11 +211,11 @@
     <li class="root" id='0'><span>{{ manager.myGroup.name }}@{{ nav.blitz }}</span>
         <ul>
             {% for c in manager.containersMyGroups.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span> 
+            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} [{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span> 
                 <ul>
                     {% if c.copyDatasetLinks %}
                     {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span> 
+                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} [{{ d.countChild }}]{% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span> 
                             <ul class="ajax">
                                 <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxdataset/{{ d.id }}/?view=tree}</li>
                             </ul>
@@ -228,14 +228,14 @@
             </li>
             {% endfor %}
             {% for c in manager.containersMyGroups.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} {% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ c.countAnnotations }}){% endif %}</span> 
+                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} [{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span> 
                     <ul class="ajax">
                         <li id='{{ c.id }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxdataset/{{ c.id }}/?view=tree}</li>
                     </ul>
                 </li>
             {% endfor %}
             {% for d in manager.containersMyGroups.images %}
-                <li id='img-{{ d.id }}'><span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>({{ d.countAnnotations }}){% endif %}</span></li>
+                <li id='img-{{ d.id }}'><span>{{ d.shortName }} [{{ d.countChild }}]{% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span></li>
             {% endfor %}
             
             {% if not manager.project and not manager.dataset %}
