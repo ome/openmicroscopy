@@ -486,6 +486,7 @@ class PropertiesUI
 	 */
 	protected boolean hasDataToSave()
 	{
+		if (model.isMultiSelection()) return false;
 		String name = originalName;//model.getRefObjectName().trim();
 		String value = namePane.getText();
 		value = value.trim();

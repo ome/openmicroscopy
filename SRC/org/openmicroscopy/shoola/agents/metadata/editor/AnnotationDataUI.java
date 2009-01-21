@@ -344,13 +344,6 @@ class AnnotationDataUI
 		
 		content.add(p, "0, "+i+", l, t");
 		content.add(tagsPane, "2, "+i);
-		/*
-		i++;
-		layout.insertRow(i, TableLayout.PREFERRED);
-		content.add(UIUtilities.setTextFont("url", Font.BOLD, size), 
-				"0, "+i+", l, t");
-		content.add(urlPane, "2, "+i);
-		*/
 		i++;
 		layout.insertRow(i, TableLayout.PREFERRED);
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -840,9 +833,11 @@ class AnnotationDataUI
 		Object refObject = model.getRefObject();
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
-		if (refObject instanceof ImageData) {
-			if (layoutViewedBy()) h = TableLayout.PREFERRED;
-		} 
+		if (!model.isMultiSelection()) {
+			if (refObject instanceof ImageData) {
+				if (layoutViewedBy()) h = TableLayout.PREFERRED;
+			} 
+		}
 		layout.setRow(viewedByRow, h);
 		
 		Iterator i;

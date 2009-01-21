@@ -153,13 +153,13 @@ class EditorModel
 	private ImageAcquisitionData	imageAcquisitionData;
 	
 	/** The enumerations related to channel metadata. */
-	private Map						channelEnumerations;
+	private Map<String, List<EnumerationObject>>	channelEnumerations;
 	
 	/** The enumerations related to image metadata. */
-	private Map						imageEnumerations;
+	private Map<String, List<EnumerationObject>>	imageEnumerations;
 	
 	/** The map hosting the channels acquisition data. */
-	private Map<Integer, ChannelAcquisitionData> channelAcquisitionDatMap;
+	private Map<Integer, ChannelAcquisitionData> 	channelAcquisitionDatMap;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -185,6 +185,29 @@ class EditorModel
             }
         };
         Collections.sort(annotations, c);
+    }
+    
+    /** 
+     * Sorts the passed collection of enumerations.
+     * 
+     * @param enumerations   Collection of {@link EnumerationObject}.
+     */
+    private void sortEnumerations(List<EnumerationObject> enumerations)
+    {
+        if (enumerations == null || enumerations.size() == 0) return;
+        Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                String s1 = ((EnumerationObject) o1).getValue(),
+                        s2 = ((EnumerationObject) o2).getValue();
+                int v = 0;
+                int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
+                if (result < 0) v = -1;
+                else if (result > 0) v = 1;
+                return v;
+            }
+        };
+        Collections.sort(enumerations, c);
     }
     
 	/**
@@ -1398,21 +1421,40 @@ class EditorModel
 	/**
 	 * Sets the enumerations related to channel metadata.
 	 * 
-	 * @param channelEnumerations The value to set.
+	 * @param enumerations The value to set.
 	 */
-	void setChannelEnumerations(Map channelEnumerations)
+	void setChannelEnumerations(Map enumerations)
 	{
-		this.channelEnumerations = channelEnumerations;
+		channelEnumerations = new HashMap<String, List<EnumerationObject>>();
+		Iterator i = enumerations.keySet().iterator();
+		String key;
+		List<EnumerationObject> values;
+		while (i.hasNext()) {
+			key = (String) i.next();
+			values = (List<EnumerationObject>) enumerations.get(key);
+			sortEnumerations(values);
+			channelEnumerations.put(key, values);
+		}
 	}
 
 	/**
 	 * Sets the enumerations related to image metadata.
 	 * 
-	 * @param imageEnumerations The value to set.
+	 * @param enumerations The value to set.
 	 */
-	void setImageEnumerations(Map imageEnumerations)
+	void setImageEnumerations(Map enumerations)
 	{
-		this.imageEnumerations = imageEnumerations;
+		imageEnumerations = new HashMap<String, List<EnumerationObject>>();
+		Iterator i = enumerations.keySet().iterator();
+		String key;
+		List<EnumerationObject> values;
+		while (i.hasNext()) {
+			key = (String) i.next();
+			System.err.println(key);
+			values = (List<EnumerationObject>) enumerations.get(key);
+			sortEnumerations(values);
+			imageEnumerations.put(key, values);
+		}
 	}
 	
 }

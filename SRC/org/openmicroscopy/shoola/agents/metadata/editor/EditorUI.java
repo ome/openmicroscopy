@@ -233,7 +233,12 @@ public class EditorUI
 		List<AnnotationData>[] array = generalPane.prepareDataToSave();
 		List<AnnotationData> toAdd = array[0];
 		List<AnnotationData> toRemove = array[1];
-		List<Object> metadata = acquisitionPane.prepareDataToSave();
+		List<Object> metadata = null;
+		Object refObject = model.getRefObject();
+		if (refObject instanceof ImageData) {
+			metadata = acquisitionPane.prepareDataToSave();
+		}
+		
 		model.fireAnnotationSaving(toAdd, toRemove, metadata);
 	}
 
