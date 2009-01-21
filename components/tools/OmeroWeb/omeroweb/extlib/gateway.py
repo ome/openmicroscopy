@@ -594,11 +594,6 @@ class BlitzGateway (threading.Thread):
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group where pr.id in (:ids) order by pr.name"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
-
-    def getThumbnailsSet(self, pixelsIds):
-        tb = self.createThumbnailStore()
-        return tb.getThumbnailSet(rint(120), rint(120), pixelsIds)
-    
     
     # HIERARCHY
     def loadMyContainerHierarchy(self):
@@ -1784,14 +1779,14 @@ class BlitzObjectWrapper (object):
                 return name
             elif l > 19 and l <= 60:
                 splited = []
-                for v in range(0,len(name),23):
-                    splited.append(name[v:v+23]+" ")
+                for v in range(0,len(name),22):
+                    splited.append(name[v:v+22]+" ")
                 return "".join(splited)
             elif l > 60:
                 nname = "..." + name[l - 60:]
                 splited = list()
-                for v in range(0,len(nname),23):
-                    splited.append(nname[v:v+23]+" ")
+                for v in range(0,len(nname),22):
+                    splited.append(nname[v:v+22]+" ")
                 return "".join(splited)
         except:
             logger.debug(traceback.format_exc())
@@ -2303,11 +2298,6 @@ class DatasetWrapper (BlitzObjectWrapper):
             self._pub = "Muliple"
             self._pubId = "Multiple"
             return "Multiple"
-
-    def getThumbnailSet (self, pixelsIds):
-        tb = self._conn.createThumbnailStore()
-        th = tb.getThumbnailSet(120, 120, pixelsIds)
-        return th
 
 class RenderingDefWrapper (BlitzObjectWrapper):
 
