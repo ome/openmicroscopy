@@ -190,6 +190,12 @@ public class CPEimport {
 	
 	/**  The name of the element within 'note' that defines the note's content */
 	public static final String 			CONTENT = "content";
+	
+	/**  The name of the element within 'step' that holds data reference list */
+	public static final String 			DATA_REFS = "data-references";
+	
+	/**  The name of the element that holds a data reference */
+	public static final String 			DATA_REF = "data-reference";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -506,7 +512,45 @@ public class CPEimport {
 		String stepType = getChildContent(cpeStep, STEP_TYPE);
 		field.setAttribute(Field.STEP_TYPE, stepType);
 		
+		// data-references
+		addDataReferences(field, cpeStep);
+		
 		return field;
+	}
+	
+	/**
+	 * This method copies any data-references from the step {@link IXMLElement}
+	 * to the field. 
+	 * 
+	 * @param field		The new Step/Field
+	 * @param cpeStep	The XML step element
+	 */
+	private static void addDataReferences(IField field, IXMLElement cpeStep)
+	{
+		IXMLElement dataRefs = cpeStep.getFirstChildNamed(DATA_REFS);
+		if (dataRefs != null) {
+			DataReference dr;
+			String value;
+			List<IXMLElement> dRefs = dataRefs.getChildrenNamed(DATA_REF);
+			for (IXMLElement dataRef : dRefs) {
+				dr = new DataReference();
+				value = getChildContent(dataRef, DataReference.NAME);
+				dr.setAttribute(DataReference.NAME, value);
+				value = getChildContent(dataRef, DataReference.DESCRIPTION);
+				dr.setAttribute(DataReference.DESCRIPTION, value);
+				value = getChildContent(dataRef, DataReference.REFERENCE);
+				dr.setAttribute(DataReference.REFERENCE, value);
+				value = getChildContent(dataRef, DataReference.SIZE);
+				dr.setAttribute(DataReference.SIZE, value);
+				value = getChildContent(dataRef, DataReference.MIME_TYPE);
+				dr.setAttribute(DataReference.MIME_TYPE, value);
+				value = getChildContent(dataRef, DataReference.CREATION_TIME);
+				dr.setAttribute(DataReference.CREATION_TIME, value);
+				value = getChildContent(dataRef, DataReference.MODIFICATION_TIME);
+				dr.setAttribute(DataReference.MODIFICATION_TIME, value);
+				field.addDataRef(dr);
+			}
+		}
 	}
 	
 	/**

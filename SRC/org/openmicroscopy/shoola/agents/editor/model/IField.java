@@ -125,6 +125,29 @@ public interface IField
 	public int getNoteCount();
 	
 	/**
+	 * Gets the {@link DataReference} at the specified index in the list. 
+	 * 
+	 * @param index		Index of data reference
+	 * @return			The reference at the index
+	 */
+	public DataReference getDataRefAt(int index);
+	
+	/**
+	 * Adds a {@link DataReference} to this Field/Step
+	 * Data is added to a 'protocol' to create an 'experiment' with linked data
+	 * 
+	 * @param ref		{@link DataReference} to add
+	 */
+	public void addDataRef(DataReference ref);
+	
+	/**
+	 * Gets the number of {@link DataReference} added to this Field/Step
+	 * 
+	 * @return		see above
+	 */
+	public int getDataRefCount();
+	
+	/**
 	 * Gets the note at the specified index in the list. 
 	 * 
 	 * @param index		Index of note
@@ -146,15 +169,6 @@ public interface IField
 	 * @return		see above.
 	 */
 	public String getToolTipText();
-	
-	/**
-	 * Returns a string representation of this field's content, with parameters
-	 * in context with description. This is for e.g. display or export to UPE, 
-	 * which doesn't support parameters in context.  
-	 * 
-	 * @return		see above.
-	 */
-	public String getDescription();
 	
 	/**
 	 * If this field has tabular data (multiple values for each parameter) then
