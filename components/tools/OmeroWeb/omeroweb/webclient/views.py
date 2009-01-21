@@ -718,7 +718,9 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             manager.listMyImagesInDataset(o1_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
-    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned':
+    elif o1_type == 'orphaned':
+        manager.loadMyOrphanedImages()
+    elif o1_type == 'ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         manager.loadMyOrphanedImages()
     else:
@@ -1031,7 +1033,9 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                 manager.listImagesInDatasetInUser(o1_id, filter_user_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
-    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned':
+    elif o1_type == 'orphaned':
+        manager.loadUserOrphanedImages(filter_user_id)
+    elif o1_type == 'ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         manager.loadUserOrphanedImages(filter_user_id)
     else:
@@ -1234,7 +1238,9 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                 manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
         if o1_type == 'image':
             template = "omeroweb/image_details.html"
-    elif o1_type == 'orphaned' or o1_type == 'ajaxorphaned':
+    elif o1_type == 'orphaned':
+        manager.loadGroupOrphanedImages(filter_group_id)
+    elif o1_type == 'ajaxorphaned':
         template = "omeroweb/container_subtree.html"
         manager.loadGroupOrphanedImages(filter_group_id)
     else:

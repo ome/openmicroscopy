@@ -41,7 +41,7 @@
     </div>
 </div>
 
-{% if image.image.countAnnotations %}<div id="annotation"><h1>Annotations</h1><a href="#">Show annotations associated with... [{{ image.image.countAnnotations }}]</a></div>{% endif %}
+{% if image.image.countAnnotations %}<div id="annotation"><h1>Annotations</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ image.image.countAnnotations }}]</a></div>{% endif %}
 <div id="annotation"></div>
 
 {% endblock %}
