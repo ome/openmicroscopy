@@ -28,18 +28,15 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -70,17 +67,15 @@ public class MeasureBezierFigure
 	extends BezierTextFigure
 	implements ROIFigure
 {
-
 	
-	boolean c;
 	/** The list of X coords of the nodes on the line. */
-	private ArrayList<Double>			pointArrayX;
+	private List<Double>			pointArrayX;
 
 	/** The list of Y coords of the nodes on the line. */
-	private ArrayList<Double>			pointArrayY;
+	private List<Double>			pointArrayY;
 	
 	/** The list of lengths of sections on the line. */
-	private ArrayList<Double>			lengthArray;
+	private List<Double>			lengthArray;
 	
 	/** The bounds of the bezier figure. */
 	private	Rectangle2D bounds;
@@ -94,94 +89,91 @@ public class MeasureBezierFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 		
+	/** 
+	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
+	 * {@link ROIFigure#MOVING}. 
+	 */
 	private int 					status;
 	
-	/** Create an instance of the bezier figure. */
+	/** Creates an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
-		super("Text",false);
-		c = true;
-		shape = null;
-		roi = null;
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
-		lengthArray = new ArrayList<Double>();
-		status = IDLE;
+		this(false);
 	}
 	
 	/**
 	 * Creates an instance of the bezier figure.
-	 * @param closed if true the figure is a polygon, else a polyline.
+	 * 
+	 * @param closed Pass <code>true</code> if the figure is a polygon,
+	 * 				 <code>false</code> if it is a polyline.
 	 */
 	public MeasureBezierFigure(boolean closed)
 	{
-		super("Text", closed);
-		c = closed;
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
-		lengthArray = new ArrayList<Double>();
-		status = IDLE;
+		this(ROIFigure.DEFAULT_TEXT, closed);
 	}
 	
 	/**
 	 * Creates an instance of the bezier figure (closed).
-	 * @param text the string displayed in the figure. 
+	 * 
+	 * @param text The string displayed in the figure. 
 	 */
 	public MeasureBezierFigure(String text)
 	{
-		super(text, false);
-		c = true;
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
-		lengthArray = new ArrayList<Double>();
-		status = IDLE;
+		this(text, false);
 	}
 	
 	/**
 	 * Creates an instance of the bezier figure.
-	 * @param text the string displayed in the figure. 
-	 * @param closed if true the figure is a polygon, else a polyline.
+	 * 
+	 * @param text 	 The string displayed in the figure. 
+	 * @param closed Pass <code>true</code> if the figure is a polygon,
+	 * 				 <code>false</code> if it is a polyline.
 	 */
 	public MeasureBezierFigure(String text, boolean closed)
 	{
 		super(text, closed);
-		c = closed;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
 		status = IDLE;
 	}
-	
-	  
+
     /**
-     * Draw the figure on the graphics context.
-     * @param g the graphics context.
+     * Draws the figure on the graphics context.
+     * 
+     * @param g The graphics context.
      */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
+				MeasurementAttributes.SHOWID.get(this))
 		{
-			if(isClosed())
+			if (isClosed())
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				String polygonArea = formatter.format(getArea());
 				polygonArea = addAreaUnits(polygonArea);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
+				double sz = ((Double) this.getAttribute(
+							MeasurementAttributes.FONT_SIZE));
+				g.setFont(new Font("Arial",Font.PLAIN, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
-				bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
+				bounds = new Rectangle2D.Double(
+						this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-				if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+				if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 				{
-					g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-					g.drawString(polygonArea, (int)bounds.getX(), (int)bounds.getY());
+					g.setColor(
+							MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+					g.drawString(polygonArea, (int)bounds.getX(), 
+							(int)bounds.getY());
 				}
-				if(MeasurementAttributes.SHOWID.get(this))
+				if (MeasurementAttributes.SHOWID.get(this))
 				{
 					g.setColor(this.getTextColor());
-					g.drawString(this.getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
+					g.drawString(this.getROI().getID()+"", (int)bounds.getX(), 
+							(int)bounds.getY());
 				}
 			}
 			else
@@ -189,11 +181,12 @@ public class MeasureBezierFigure
 				NumberFormat formatter = new DecimalFormat("###.#");
 				String polygonLength = formatter.format(getLength());
 				polygonLength = addLineUnits(polygonLength);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
+				double sz = ((Double) 
+						this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
-				if(super.getNodeCount() > 1)
+				if (super.getNodeCount() > 1)
 				{
 					int midPoint = this.getNodeCount()/2-1;
 					if(midPoint<0)
@@ -201,58 +194,70 @@ public class MeasureBezierFigure
 					Point2D p0 = getPoint(midPoint);
 					Point2D p1 = getPoint(midPoint+1);
 					double x, y;
-					x = Math.min(p0.getX(),p1.getX())+Math.abs(p0.getX()-p1.getX());
-					y = Math.min(p0.getY(),p1.getY())+Math.abs(p0.getY()-p1.getY());
+					x = Math.min(p0.getX(),p1.getX())+Math.abs(p0.getX()
+							-p1.getX());
+					y = Math.min(p0.getY(),p1.getY())+Math.abs(p0.getY()
+							-p1.getY());
 					bounds = new Rectangle2D.Double(x-bounds.getWidth()/2,
 							y+bounds.getHeight()/2,
 							bounds.getWidth(), bounds.getHeight());
-					if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+					if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 					{
-						g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-						g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
+						g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+						g.drawString(
+								this.getROI().getID()+"", 
+								(int) path.getCenter().getX(), 
+								(int) path.getCenter().getY());
 					}
-					if(MeasurementAttributes.SHOWID.get(this))
+					if (MeasurementAttributes.SHOWID.get(this))
 					{
 						g.setColor(this.getTextColor());
-						g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
+						g.drawString(this.getROI().getID()+"", 
+								(int) path.getCenter().getX(), 
+								(int) path.getCenter().getY());
 					}
 				}
 			}
 		}
 	}
 
-	
 	/**
-	 * Calculates the bounds of the rendered figure, including the text rendered. 
-	 * @return see above.
+	 * Calculates the bounds of the rendered figure, including the text 
+	 * rendered.
+	 *  
+	 * @return See above.
 	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
-		if(bounds!=null)
+		if (bounds == null) return newBounds;
+		double diff;
+		if (newBounds.getX() > bounds.getX())
 		{
-			if(newBounds.getX()>bounds.getX())
-			{
-				double diff = newBounds.x-bounds.getX();
-				newBounds.x = bounds.getX();
-				newBounds.width = newBounds.width+diff;
-			}
-			if(newBounds.getY()>bounds.getY())
-			{
-				double diff = newBounds.y-bounds.getY();
-				newBounds.y = bounds.getY();
-				newBounds.height = newBounds.height+diff;
-			}
-			if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
-			{
-				double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
-				newBounds.width = newBounds.width+diff;
-			}
-			if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
-			{
-				double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
-				newBounds.height = newBounds.height+diff;
-			}
+			diff = newBounds.x-bounds.getX();
+			newBounds.x = bounds.getX();
+			newBounds.width = newBounds.width+diff;
+		}
+		if (newBounds.getY() > bounds.getY())
+		{
+			diff = newBounds.y-bounds.getY();
+			newBounds.y = bounds.getY();
+			newBounds.height = newBounds.height+diff;
+		}
+		if (bounds.getX()+bounds.getWidth() > 
+			newBounds.getX()+newBounds.getWidth())
+		{
+			diff = bounds.getX()+bounds.getWidth()-newBounds.getX()
+				+newBounds.getWidth();
+			newBounds.width = newBounds.width+diff;
+		}
+		if (bounds.getY()+bounds.getHeight() > 
+			newBounds.getY()+newBounds.getHeight())
+		{
+			diff = bounds.getY()+bounds.getHeight()-newBounds.getY()
+				+newBounds.getHeight();
+			newBounds.height = newBounds.height+diff;
 		}
 		return newBounds;
 	}
@@ -412,12 +417,11 @@ public class MeasureBezierFigure
 	 */
 	public void calculateMeasurements() 
 	{
-		if (shape==null) return;
-		if(getNodeCount()<2)
-			return;
+		if (shape == null) return;
+		if (getNodeCount() < 2) return;
 		pointArrayX.clear();
 		pointArrayY.clear();
-		Point2D.Double pt;
+
 		for (int i = 0 ; i < path.size(); i++)
 		{
 			pointArrayY.add(path.get(i).getControlPoint(0).getY());
@@ -445,11 +449,13 @@ public class MeasureBezierFigure
 		}
 	}
 	
+	/**
+	 * Overridden to return a copy of the figure
+	 * @see BezierTextFigure#clone()
+	 */
 	public MeasureBezierFigure clone()
 	{
-		
-		MeasureBezierFigure that = (MeasureBezierFigure)super.clone();
-		return that;
+		return (MeasureBezierFigure) super.clone();
 	}
 	
 	/**
@@ -477,10 +483,8 @@ public class MeasureBezierFigure
 	 */
 	public List<Point> getPoints()
 	{
-		if (isClosed())
-			return getAreaPoints();
-		else
-			return getLinePoints();
+		if (isClosed()) return getAreaPoints();
+		return getLinePoints();
 	}
 	
 	/**
@@ -515,12 +519,12 @@ public class MeasureBezierFigure
 	private List<Point> getLinePoints()
 	{
 		List<Point> vector = new ArrayList<Point>();
+		Point2D pt1, pt2;
 		for (int i = 0 ; i < getNodeCount()-1; i++)
 		{
-			Point2D pt1 = getPoint(i);
-			Point2D pt2 = getPoint(i+1);
-			Line2D line = new Line2D.Double(pt1, pt2);
-			iterateLine(line, vector);
+			pt1 = getPoint(i);
+			pt2 = getPoint(i+1);
+			iterateLine(new Line2D.Double(pt1, pt2), vector);
 		}
 		return vector;
 	}
@@ -534,30 +538,42 @@ public class MeasureBezierFigure
 	{
 		Point2D start = line.getP1();
 		Point2D end = line.getP2();
-		Point2D m = new Point2D.Double(end.getX()-start.getX(), end.getY()-start.getY());
+		Point2D m = new Point2D.Double(end.getX()-start.getX(),
+				end.getY()-start.getY());
 		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
 		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
-		LinkedHashMap<Point2D, Boolean> map = new LinkedHashMap<Point2D, Boolean>();
-		for(double i = 0 ; i < lengthM ; i+=0.1)
+		LinkedHashMap<Point2D, Boolean> 
+		map = new LinkedHashMap<Point2D, Boolean>();
+		Point2D pt;
+		Point2D quantisedPoint;
+		for (double i = 0 ; i < lengthM ; i+=0.1)
 		{
-			Point2D pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+			pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
 				start.getY()+i*mNorm.getY());
-			Point2D quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+			quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
 				Math.floor(pt.getY()));
-			if(!map.containsKey(quantisedPoint))
-				map.put(quantisedPoint, new Boolean(true));
+			if (!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, Boolean.TRUE);
 		}
 		Iterator<Point2D> i = map.keySet().iterator();
-		while(i.hasNext())
+		while (i.hasNext())
 		{
-			Point2D p  = i.next();
-			vector.add(new Point((int) p.getX(), (int) p.getY()));
+			pt  = i.next();
+			vector.add(new Point((int) pt.getX(), (int) pt.getY()));
 		}
 		
 	}
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setStatus(int)
+	 */
 	public void setStatus(int status) { this.status = status; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getStatus()
+	 */
 	public int getStatus() { return status; }
 	
 }

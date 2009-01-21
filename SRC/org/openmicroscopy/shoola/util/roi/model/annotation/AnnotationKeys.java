@@ -24,11 +24,11 @@ package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,28 +70,28 @@ public class AnnotationKeys {
 	/** A list of angles in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows. 
 	 */
-	public  static final AnnotationKey<ArrayList<Double>> ANGLE = 
-		new AnnotationKey<ArrayList<Double>>("measurementAngle", null);
+	public  static final AnnotationKey<List<Double>> ANGLE = 
+		new AnnotationKey<List<Double>>("measurementAngle", null);
 	
 	/** A list of lenghts in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows. 
 	 */
-	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
-		new AnnotationKey<ArrayList<Double>>("measurementLength", null);
+	public static final AnnotationKey<List<Double>> LENGTH = 
+		new AnnotationKey<List<Double>>("measurementLength", null);
 	
 	/** A list of X coords in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows, this is 
 	 * the x coord of the eablow and start and end point. 
 	 */
-	public static final AnnotationKey<ArrayList<Double>> POINTARRAYX= 
-		new AnnotationKey<ArrayList<Double>>("measurementPointsX", null);
+	public static final AnnotationKey<List<Double>> POINTARRAYX= 
+		new AnnotationKey<List<Double>>("measurementPointsX", null);
 	
 	/** A list of Y coords in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows, this is 
 	 * the y coord of the eablow and start and end point. 
 	 */
-	public static final AnnotationKey<ArrayList<Double>> POINTARRAYY= 
-		new AnnotationKey<ArrayList<Double>>("measurementPointsY", null);
+	public static final AnnotationKey<List<Double>> POINTARRAYY= 
+		new AnnotationKey<List<Double>>("measurementPointsY", null);
 	
 	/** The X coord of the centre of the object. */
 	public static final AnnotationKey<Double> CENTREX= 
@@ -179,9 +179,7 @@ public class AnnotationKeys {
         
         supportedAnnotationMap = Collections.unmodifiableMap(am);
     }
-    	
-	
-	
+
 }
 
 

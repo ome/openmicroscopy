@@ -1450,7 +1450,6 @@ class EditorModel
 		List<EnumerationObject> values;
 		while (i.hasNext()) {
 			key = (String) i.next();
-			System.err.println(key);
 			values = (List<EnumerationObject>) enumerations.get(key);
 			sortEnumerations(values);
 			imageEnumerations.put(key, values);

@@ -53,6 +53,9 @@ public interface ROIFigure
 	extends Figure
 {
 		
+	/** The default text. */
+	static final String DEFAULT_TEXT = "Text";
+	
 	/** Identified the <code>IDLE</code> status. */
 	public static final int IDLE = 0;
 	

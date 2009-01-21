@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Font;
 import javax.swing.BorderFactory;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -37,7 +36,6 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 
@@ -231,6 +229,7 @@ class PopupMenu
 	 * 
 	 * @return See above
 	 */
+	/*
 	private JMenu createManagementMenu()
 	{
 		JMenu managementMenu = new JMenu();
@@ -244,6 +243,7 @@ class PopupMenu
 		managementMenu.add(deleteElement);
 		return managementMenu;
 	}
+	*/
 
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
@@ -252,7 +252,13 @@ class PopupMenu
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(view);
-				add(createManagementMenu());
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(newElement);
+				add(cutElement);
+				add(copyElement);
+				add(pasteElement);
+				add(deleteElement);
+				//add(createManagementMenu());
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(copyRndElement);
 				add(pasteRndElement);

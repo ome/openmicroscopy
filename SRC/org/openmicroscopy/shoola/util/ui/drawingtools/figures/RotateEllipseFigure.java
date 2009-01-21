@@ -36,8 +36,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
@@ -52,8 +50,10 @@ import org.jhotdraw.samples.svg.SVGAttributeKeys;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 
+//Application-internal dependencies
+
 /** 
- * 
+ * Version of an EllipseFigure that the user can rotate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,66 +84,69 @@ public class RotateEllipseFigure
 	}
 	
 	/**
-	 * Create a new rotated Ellipse with position x, y and width and height
-	 * @param x see above.
-	 * @param y see above.
-	 * @param width see above.
-	 * @param height see above.
+	 * Created a new rotated Ellipse with position x, y and width and height.
+	 * 
+	 * @param x 		The x-coordinate of the top-left corner.
+	 * @param y 		The y-coordinate of the top-left corner.
+	 * @param width 	The width of the ellipse.
+	 * @param height 	The height of the ellipse.
 	 */
 	public RotateEllipseFigure(double x, double y, double width, double height)
 	{
-		ellipse=new Ellipse2D.Double(x, y, width, height);
+		ellipse = new Ellipse2D.Double(x, y, width, height);
 		AffineTransform transform = new AffineTransform();
 		transform.setToIdentity();
 		AttributeKeys.TRANSFORM.set(this, transform);
 	}
 		    
 	/**
-	 *  Set the attribute key to the value newValue on the figure. If the 
+	 *  Sets the attribute key to the value newValue on the figure. If the 
 	 *  attribute is an AffineTransform then we need to redraw the image.
+	 *  
 	 *  @param key The attribute key.
 	 *  @param newValue The new value of the attribute. 
 	 */
 	public void setAttribute(AttributeKey key, Object newValue)
 	{
-		if (key == TRANSFORM) 
-		{
-	    	invalidate();
-	    }
+		if (key == TRANSFORM) invalidate();
         super.setAttribute(key, newValue);
 	} 
-	    
-		
+
 	/**
-	 * Get the bounds of the ellipse before applying the affinetransform.
-	 * @return see above. 
+	 * Returns the bounds of the ellipse before applying the affine transform.
+	 * 
+	 * @return See above. 
 	 */
 	public Rectangle2D.Double getBounds()
 	{
 		return new Rectangle2D.Double(ellipse.getBounds2D().getX(),
-			ellipse.getBounds2D().getY(),ellipse.getBounds2D().getWidth(),
+			ellipse.getBounds2D().getY(), ellipse.getBounds2D().getWidth(),
 			ellipse.getBounds2D().getHeight());
 	}
 	
-	@Override
+	/**
+	 * Overridden to return the drawing area, taking into account the 
+	 * affine transformation.
+	 * @see AbstractAttributedFigure#getDrawingArea()
+	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
-		Rectangle2D rx=getTransformedShape().getBounds2D();
-		Rectangle2D.Double r=
+		Rectangle2D rx = getTransformedShape().getBounds2D();
+		Rectangle2D.Double r =
 				(rx instanceof Rectangle2D.Double) ? (Rectangle2D.Double) 
 						rx : new Rectangle2D.Double(rx.getX(), rx.getY(), 
 							rx.getWidth(), rx.getHeight());
-		if (AttributeKeys.TRANSFORM.get(this)==null)
+		AffineTransform object = AttributeKeys.TRANSFORM.get(this);
+		if (object == null)
 		{
-			double g=SVGAttributeKeys.getPerpendicularHitGrowth(this)*2;
+			double g = SVGAttributeKeys.getPerpendicularHitGrowth(this)*2;
 			Geom.grow(r, g, g);
 		}
 		else
 		{
-			double strokeTotalWidth=AttributeKeys.getStrokeTotalWidth(this);
-			double width=strokeTotalWidth/2d;
-			width*= Math.max(AttributeKeys.TRANSFORM.get(this).getScaleX(),
-						AttributeKeys.TRANSFORM.get(this).getScaleY());
+			double strokeTotalWidth = AttributeKeys.getStrokeTotalWidth(this);
+			double width = strokeTotalWidth/2d;
+			width *= Math.max(object.getScaleX(), object.getScaleY());
 			Geom.grow(r, width, width);
 		}
 		return r;
@@ -151,6 +154,7 @@ public class RotateEllipseFigure
 	
 	/**
 	 * Checks if a Point2D.Double is inside the figure.
+	 * @see AbstractAttributedFigure#contains(Point2D.Double)
 	 */
 	public boolean contains(Point2D.Double p)
 	{
@@ -159,78 +163,83 @@ public class RotateEllipseFigure
 	}
 	
 	/**
-	 * Return the ellipse after the affine transform has been applied to it.
+	 * Returns the ellipse after the affine transform has been applied to it.
 	 * This will return the ellipse with the correct width and height, but the 
 	 * x, y coords will be the lead.x, lead.y of the transformed shape.
+	 * 
 	 * @return see above.
 	 */
 	public Ellipse2D.Double getTransformedEllipse()
 	{
-		if(AttributeKeys.TRANSFORM.get(this)==null)
-			return ellipse;
-		Ellipse2D.Double e = new Ellipse2D.Double(0,0,0,0);
 		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
-		Point2D.Double  startW = (Point2D.Double)t.transform(new Point2D.Double(0, ellipse.getCenterY()), null);
-		Point2D.Double  endW = (Point2D.Double)t.transform(new Point2D.Double(ellipse.getWidth(), ellipse.getCenterY()), null);
-		Point2D.Double  startH = (Point2D.Double)t.transform(new Point2D.Double(ellipse.getCenterX(),0), null);
-		Point2D.Double  endH = (Point2D.Double)t.transform(new Point2D.Double(ellipse.getCenterX(), ellipse.getHeight()), null);
-		Point2D.Double lead = (Point2D.Double)t.transform(new Point2D.Double(0,0), null);
-		e.width= Math.round(startW.distance(endW));
-		e.height= Math.round(startH.distance(endH));
+		if (t == null) return ellipse;
+		
+		Ellipse2D.Double e = new Ellipse2D.Double(0,0,0,0);
+		
+		Point2D.Double startW = (Point2D.Double) t.transform(
+				new Point2D.Double(0, ellipse.getCenterY()), null);
+		Point2D.Double endW = (Point2D.Double) t.transform(
+				new Point2D.Double(ellipse.getWidth(), 
+						ellipse.getCenterY()), null);
+		Point2D.Double startH = (Point2D.Double) t.transform(
+				new Point2D.Double(ellipse.getCenterX(), 0), null);
+		Point2D.Double endH = (Point2D.Double) t.transform(
+				new Point2D.Double(ellipse.getCenterX(), ellipse.getHeight()),
+				null);
+		Point2D.Double lead = (Point2D.Double) t.transform(
+				new Point2D.Double(0,0), null);
+		e.width = Math.round(startW.distance(endW));
+		e.height = Math.round(startH.distance(endH));
 		e.x = Math.round(lead.getX());
 		e.y = Math.round(lead.getY());
 		return e;
-		
 	}
 	
 	/**
-	 * Return the Transformed ellipse as a transformedShape, of type Shape 
-	 * @return see above.
+	 * Returns the Transformed ellipse as a transformedShape, of type Shape.
+	 * 
+	 * @return See above.
 	 */
 	protected Shape getTransformedShape()
 	{
-		if (AttributeKeys.TRANSFORM.get(this)==null)
-		{
-			cachedTransformedShape=ellipse;
-		}
-		else
-		{
-			cachedTransformedShape= AttributeKeys.TRANSFORM.get(this).createTransformedShape(ellipse);
-		}
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		if (t == null) cachedTransformedShape = ellipse;
+		else cachedTransformedShape = t.createTransformedShape(ellipse);
 		return cachedTransformedShape; 
 	}
 	
 	/**
-	 * Return the Transformed ellipse as a transformedShape, of type Shape 
-	 * @return see above.
+	 * Returns the Transformed ellipse as a transformedShape, of type Shape.
+	 * 
+	 * @return See above.
 	 */
 	protected Shape getTransformedShape(double i, double j)
 	{
-		if (AttributeKeys.TRANSFORM.get(this)==null)
-		{
-			cachedTransformedShape=ellipse;
-		}
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		if (t == null) cachedTransformedShape = ellipse;
 		else
 		{
-			Ellipse2D.Double newEllipse = new Ellipse2D.Double(ellipse.x-i,ellipse.y-j,ellipse.width+i,ellipse.height+j);
-			cachedTransformedShape= AttributeKeys.TRANSFORM.get(this).createTransformedShape(newEllipse);
+			Ellipse2D.Double newEllipse = new Ellipse2D.Double(
+					ellipse.x-i, ellipse.y-j, ellipse.width+i, ellipse.height+j);
+			cachedTransformedShape = t.createTransformedShape(newEllipse);
 		}
 		return cachedTransformedShape; 
 	}
 	
 	/**
-	 * Get the ellipse.
-	 * @return see above.
+	 * Returns the ellipse.
+	 * 
+	 * @return See above.
 	 */
-	public Ellipse2D.Double getEllipse()
-	{
-		return ellipse;
-	}
+	public Ellipse2D.Double getEllipse() { return ellipse; }
 	
-	@Override
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
 	public Collection<Handle> createHandles(int detailLevel)
 	{
-		LinkedList<Handle> handles=new LinkedList<Handle>();
+		LinkedList<Handle> handles = new LinkedList<Handle>();
 		switch (detailLevel%2)
 		{
 			case 0:
@@ -246,7 +255,7 @@ public class RotateEllipseFigure
 	} 
 	
 	/**
-	 * Set the ellipse geometry.
+	 * Sets the ellipse geometry.
 	 * @param x see above.
 	 * @param y see above.
 	 * @param width see above.
@@ -262,23 +271,25 @@ public class RotateEllipseFigure
 	}
 	
 	/**
-	 * Set the bounds of the ellipse from the anchor to lead. 
+	 * Sets the bounds of the ellipse from the anchor to lead. 
+	 * 
 	 * @param anchor The start point of the drawing action.
 	 * @param lead The end point the drawing action.
 	 * 
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
 	{
-		ellipse.x=Math.min(anchor.x, lead.x);
-		ellipse.y=Math.min(anchor.y, lead.y);
-		ellipse.width=Math.max(0.1, Math.abs(lead.x-anchor.x));
-		ellipse.height=Math.max(0.1, Math.abs(lead.y-anchor.y));
+		ellipse.x = Math.min(anchor.x, lead.x);
+		ellipse.y = Math.min(anchor.y, lead.y);
+		ellipse.width = Math.max(0.1, Math.abs(lead.x-anchor.x));
+		ellipse.height = Math.max(0.1, Math.abs(lead.y-anchor.y));
 		invalidate();
 	}
 
 	/**
-	 * Get the height of the transformed ellipse.
-	 * @return see above.
+	 * Returns the height of the transformed ellipse.
+	 * 
+	 * @return See above.
 	 */
 	public double getHeight()
 	{
@@ -286,8 +297,9 @@ public class RotateEllipseFigure
 	}
 
 	/**
-	 * Get the width of the transformed ellipse.
-	 * @return see above.
+	 * Returns the width of the transformed ellipse.
+	 * 
+	 * @return See above.
 	 */
 	public double getWidth()
 	{
@@ -302,9 +314,9 @@ public class RotateEllipseFigure
 	 */
 	public void setWidth(double newWidth)
 	{
-		if(AttributeKeys.TRANSFORM.get(this)==null)
-			return;
 		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		if (t == null) return;
+		
 		double centreX = getCentreX();
 		double centreY = getCentreY();
 		double height = getHeight();
@@ -313,12 +325,14 @@ public class RotateEllipseFigure
 		matrix[4] = 0;
 		matrix[5] = 0;
 		AffineTransform aT = new AffineTransform(matrix);
-		Point2D.Double a = (Point2D.Double)aT.transform(new Point2D.Double(1,0), null);
+		Point2D.Double a = (Point2D.Double) aT.transform(
+				new Point2D.Double(1,0), null);
 		double theta = Math.asin(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
 		AffineTransform newT = new AffineTransform();
 		newT.setToRotation(theta);
 		
-		Ellipse2D.Double newEllipse = new Ellipse2D.Double(0,0,newWidth, height);
+		Ellipse2D.Double newEllipse = new Ellipse2D.Double(0, 0,
+									newWidth, height);
 		
 		Shape rotatedShape = newT.createTransformedShape(newEllipse);
 		double rotatedShapeCentreX = rotatedShape.getBounds2D().getCenterX();
@@ -329,7 +343,8 @@ public class RotateEllipseFigure
 	
 		Point2D.Double lead = new Point2D.Double(diffX, diffY);
 		
-		AffineTransform rT = AffineTransform.getTranslateInstance(lead.x, lead.y);
+		AffineTransform rT = AffineTransform.getTranslateInstance(lead.x, 
+							lead.y);
 		rT.concatenate(newT);
 		
 		ellipse = newEllipse;
@@ -338,16 +353,16 @@ public class RotateEllipseFigure
 	}
 	
 	/**
-	 * Set the height of the ellipse to the newHieght, the new ellipse will 
+	 * Returns the height of the ellipse to the newHieght, the new ellipse will 
 	 * still be centred around the same point as the original ellipse.
 	 * 
 	 * @param newHeight see above.
 	 */
 	public void setHeight(double newHeight)
 	{
-		if(AttributeKeys.TRANSFORM.get(this)==null)
-			return;
 		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		if (t == null) return;
+		
 		double centreX = getCentreX();
 		double centreY = getCentreY();
 		double width = getWidth();
@@ -356,12 +371,14 @@ public class RotateEllipseFigure
 		matrix[4] = 0;
 		matrix[5] = 0;
 		AffineTransform aT = new AffineTransform(matrix);
-		Point2D.Double a = (Point2D.Double)aT.transform(new Point2D.Double(1,0), null);
+		Point2D.Double a = (Point2D.Double) aT.transform(
+					new Point2D.Double(1, 0), null);
 		double theta = Math.asin(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
 		AffineTransform newT = new AffineTransform();
 		newT.setToRotation(theta);
 		
-		Ellipse2D.Double newEllipse = new Ellipse2D.Double(0,0,width, newHeight);
+		Ellipse2D.Double newEllipse = new Ellipse2D.Double(0, 0, width, 
+									newHeight);
 		
 		Shape rotatedShape = newT.createTransformedShape(newEllipse);
 		double rotatedShapeCentreX = rotatedShape.getBounds2D().getCenterX();
@@ -372,7 +389,8 @@ public class RotateEllipseFigure
 	
 		Point2D.Double lead = new Point2D.Double(diffX, diffY);
 		
-		AffineTransform rT = AffineTransform.getTranslateInstance(lead.x, lead.y);
+		AffineTransform rT = AffineTransform.getTranslateInstance(lead.x, 
+									lead.y);
 		rT.concatenate(newT);
 		
 		ellipse = newEllipse;
@@ -381,38 +399,36 @@ public class RotateEllipseFigure
 	}
 	
 	/** 
-	 * Get the x coord of the figure. 
-	 * @return see above.
+	 * Returns the x coord of the figure. 
+	 * 
+	 * @return See above.
 	 */
 	public double getCentreX()
 	{
-		if(AttributeKeys.TRANSFORM.get(this)!=null)
-		{
-			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
-			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
-			Point2D dest = new Point2D.Double();
-			t.transform(src, dest);
-			return dest.getX();
-		}
-		return ellipse.getCenterX();
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		if (t == null) return ellipse.getCenterX();
+		Point2D src = new Point2D.Double(ellipse.getCenterX(), 
+									ellipse.getCenterY());
+		Point2D dest = new Point2D.Double();
+		t.transform(src, dest);
+		return dest.getX();
 	}
 	
 	/** 
-	 * Get the y coord of the figure. 
+	 * Returns the y coord of the figure. 
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	public double getCentreY()
 	{
-		if(AttributeKeys.TRANSFORM.get(this)!=null)
-		{
-			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
-			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
-			Point2D dest = new Point2D.Double();
-			t.transform(src, dest);
-			return dest.getY();
-		}
-		return ellipse.getCenterY();
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		if (t == null) return ellipse.getCenterY();
+		
+		Point2D src = new Point2D.Double(ellipse.getCenterX(), 
+					ellipse.getCenterY());
+		Point2D dest = new Point2D.Double();
+		t.transform(src, dest);
+		return dest.getY();
 	}
 	
 	/**
@@ -422,13 +438,13 @@ public class RotateEllipseFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (AttributeKeys.TRANSFORM.get(this)==null)
+		if (AttributeKeys.TRANSFORM.get(this) == null)
 		{
 			AttributeKeys.TRANSFORM.basicSetClone(this, tx);
 		}
 		else
 		{
-			AffineTransform t=AttributeKeys.TRANSFORM.getClone(this);
+			AffineTransform t = AttributeKeys.TRANSFORM.getClone(this);
 			t.preConcatenate(tx);
 			AttributeKeys.TRANSFORM.basicSet(this, t);
 		}
@@ -477,7 +493,7 @@ public class RotateEllipseFigure
 	 */
 	public void restoreTransformTo(Object geometry)
 	{
-		Object[] restoreData=(Object[]) geometry;
+		Object[] restoreData = (Object[]) geometry;
 		ellipse=(Ellipse2D.Double) ((Ellipse2D.Double) restoreData[0]).clone();
 		SVGAttributeKeys.TRANSFORM.basicSetClone(this, (AffineTransform) restoreData[1]);
 		SVGAttributeKeys.FILL_GRADIENT.basicSetClone(this, (Gradient) restoreData[2]);
@@ -502,59 +518,59 @@ public class RotateEllipseFigure
 	
 	
 	/**
-	 * Clone the figure.
+	 * Clones the figure.
 	 */
 	public RotateEllipseFigure clone()
 	{
-		RotateEllipseFigure that=(RotateEllipseFigure) super.clone();
-		that.ellipse=(Ellipse2D.Double) this.ellipse.clone();
-		that.cachedTransformedShape=null;
+		RotateEllipseFigure that = (RotateEllipseFigure) super.clone();
+		that.ellipse = (Ellipse2D.Double) this.ellipse.clone();
+		that.cachedTransformedShape = null;
 		return that;
 	}
 	
 	// EVENT HANDLING
 	public boolean isEmpty()
 	{
-		Rectangle2D.Double b=getBounds();
-		return b.width<=0||b.height<=0;
+		Rectangle2D.Double b = getBounds();
+		return b.width <= 0|| b.height <= 0;
 	}
 	
-	@Override
 	/**
 	 * Invalidate the figure and remove the cachedTransformedShape, this means
 	 * that the figures geometry has changed and it should be redrawn.
+	 * @see AbstractAttributedFigure#invalidate()
 	 */
 	public void invalidate()
 	{
 		super.invalidate();
-		cachedTransformedShape=null;
+		cachedTransformedShape = null;
 	}
 	
 	/*
 	 * Drawing code.
 	 */
 	/**
-	 * Draw the figure 
+	 * Draws the figure 
+	 * @see AbstractAttributedFigure#draw(Graphics2D)
 	 */
-	public void draw(Graphics2D g)
-	{
-		drawFigure(g);
-	}
+	public void draw(Graphics2D g) { drawFigure(g); }
 	
 	/**
 	 * This method is invoked before the rendered image of the figure is
 	 * a composite figure.
+	 * 
+	 * @param g The graphics context.
 	 */
-	public void drawFigure(Graphics2D g)
+	private void drawFigure(Graphics2D g)
 	{
-		Paint paint=SVGAttributeKeys.getFillPaint(this);
-		if (paint!=null)
+		Paint paint = SVGAttributeKeys.getFillPaint(this);
+		if (paint != null)
 		{
 			g.setPaint(paint);
 			drawFill(g);
 		}
-		paint=SVGAttributeKeys.getStrokePaint(this);
-		if (paint!=null&&STROKE_WIDTH.get(this)>0)
+		paint = SVGAttributeKeys.getStrokePaint(this);
+		if (paint != null && STROKE_WIDTH.get(this) > 0)
 		{
 			g.setPaint(paint);
 			g.setStroke(AttributeKeys.getStroke(this));
@@ -563,7 +579,7 @@ public class RotateEllipseFigure
 	}
 	
 	/**
-	 * Draw the fill of the ellipse.
+	 * Draws the fill of the ellipse.
 	 */
 	protected void drawFill(Graphics2D g)
 	{
@@ -571,11 +587,10 @@ public class RotateEllipseFigure
 	}
 	
 	/**
-	 * Draw the stroke of the ellipse.
+	 * Draws the stroke of the ellipse.
 	 */
 	protected void drawStroke(Graphics2D g)
 	{
-		
 		g.draw(getTransformedShape());
 	}
 
