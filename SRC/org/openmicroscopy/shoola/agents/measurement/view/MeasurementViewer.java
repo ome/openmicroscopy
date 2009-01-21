@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.PixelsData;
 
 /** 
  * Defines the interface provided by the measurement component. 
@@ -133,13 +132,6 @@ public interface MeasurementViewer
 	 * @param rois The value to set.
 	 */
 	public void setROI(InputStream rois);
-
-	/**
-	 * Sets the set of pixels this measurement tool is for.
-	 * 
-	 * @param pixels The value to set.
-	 */
-	public void setPixels(PixelsData pixels);
 	
 	/** 
 	 * Closes the window, before closing, ask the user if he/she wants
@@ -234,13 +226,6 @@ public interface MeasurementViewer
 	 * 				Mustn't be <code>null</code>.
 	 */
 	public void analyseShapeList(List<ROIShape> shape);
-
-	/**
-	 * Sets the metadata.
-	 * 
-	 * @param list The value to set.
-	 */
-	public void setChannelMetadata(List list);
 	
 	/** 
 	 * Returns the selected figures in the view.

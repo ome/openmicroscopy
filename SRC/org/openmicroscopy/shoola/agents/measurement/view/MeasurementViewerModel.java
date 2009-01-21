@@ -181,6 +181,9 @@ class MeasurementViewerModel
 		roiComponent = new ROIComponent();
 		roiFileName = imageID+".xml";
 		fileSaved = null;
+		roiComponent.setMicronsPixelX(getPixelSizeX());
+		roiComponent.setMicronsPixelY(getPixelSizeY());
+		roiComponent.setMicronsPixelZ(getPixelSizeZ());
 	}
 	
 	/**
@@ -331,16 +334,6 @@ class MeasurementViewerModel
     	if (currentLoader != null) currentLoader.cancel();
     	state = MeasurementViewer.READY;
     }
-
-	/** Fires an asynchronous retrieval of the pixels set. */
-	void firePixelsLoading()
-	{
-		/*
-		state = MeasurementViewer.LOADING_DATA;
-		currentLoader = new PixelsLoader(component, pixelsID);
-		currentLoader.load();
-		*/
-	}
 
 	/**
 	 * Returns the currently selected z-section.
@@ -647,20 +640,6 @@ class MeasurementViewerModel
 		}
 	}
 	
-	/**
-	 * Sets the pixels set this model is for.
-	 * 
-	 * @param pixels The value to set.
-	 */
-	void setPixels(PixelsData pixels)
-	{ 
-		this.pixels = pixels;
-		roiComponent.setMicronsPixelX(getPixelSizeX());
-		roiComponent.setMicronsPixelY(getPixelSizeY());
-		roiComponent.setMicronsPixelZ(getPixelSizeZ());
-	}
-	
-	
 	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
 	 * 
@@ -759,7 +738,7 @@ class MeasurementViewerModel
 	void deleteShape(ROIShape shape, int timePoint, int zSection) 
 		throws NoSuchROIException
 	{
-		if(drawingComponent.contains(shape.getFigure()))
+		if (drawingComponent.contains(shape.getFigure()))
 			drawingComponent.getDrawing().remove(shape.getFigure());
 		else
 		{
@@ -780,19 +759,16 @@ class MeasurementViewerModel
 	{
 		roiComponent.showMeasurementsInMicrons(inMicrons);
 	}
-	
 
 	/** 
-	 * Show the measurements in the ROIFigures in microns. 
+	 * Returns the type of units.
 	 * 
-	 * @param inMicrons show the measurement in microns if true.
-	 *
+	 * @return See above.
 	 */
 	MeasurementUnits getMeasurementUnits()
 	{
 		return roiComponent.getMeasurementUnits();
 	}
-	
 	
 	/**
 	 * Sets the active channels.
@@ -817,32 +793,6 @@ class MeasurementViewerModel
 		if (currentLoader != null) currentLoader.cancel();
 		currentLoader = new Analyser(component, pixels, channels, shapeList);
 		currentLoader.load();
-	}
-	
-	/** Fires an asynchronous call to retrieve the channel metadata. */
-	void fireChannelMetadataLoading()
-	{
-		/*
-		state = MeasurementViewer.LOADING_DATA;
-		currentLoader = new ChannelMetadataLoader(component, pixelsID);
-		currentLoader.load();
-		*/
-	}
-	
-	/**
-	 * Sets the channel metadata.
-	 * 
-	 * @param m The value to set.
-	 */
-	void setChannelMetadata(List m)
-	{
-		metadata = new ChannelData[m.size()];
-        Iterator i = m.iterator();
-        ChannelData cm;
-        while (i.hasNext()) {
-        	cm = (ChannelData) i.next();
-            metadata[cm.getIndex()] = cm;
-        }
 	}
 	
 	/**

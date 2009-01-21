@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import pojos.PixelsData;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -115,6 +114,49 @@ class MeasurementViewerComponent
 		bus.post(response);
     }
 
+    /**
+     * Creates a file chooser corresponding to the passed type.
+     * 
+     * @param type The type of the file chooser.
+     * @return See above.
+     */
+	private FileChooser createChooserDialog(int type)
+	{
+		String word = "Save ";
+		if (type == FileChooser.LOAD) word = "Load ";
+		String title = word+"the ROI File";
+		String text = word+"the ROI data in the file associate with the image.";
+		
+		List<FileFilter> filters = new ArrayList<FileFilter>();
+		filters.add(new XMLFilter());
+		FileChooser chooser = new FileChooser(view, type, title, text, filters);
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) chooser.setCurrentDirectory(f);
+		try
+		{
+			String s = FileMap.getSavedFile(model.getServerName(), 
+						model.getUserName(), model.getPixelsID());
+			File savedFile;
+			if (s != null) {
+				savedFile = new File(s);
+				chooser.setCurrentDirectory(savedFile);
+				chooser.setSelectedFile(savedFile);
+			} else {
+				if (type == FileChooser.SAVE) {
+					s = model.getImageName();
+					savedFile = new File(s);
+					chooser.setSelectedFile(savedFile.getName());
+				}
+			}
+		} catch (ParsingException e) {
+			// Do nothing as we're really only looking to see if the default
+			// directory or filename should be set for loading.
+		}
+		
+		return chooser;
+	}
+	
+	
 	/**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -308,24 +350,6 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setPixels(PixelsData)
-     */
-	public void setPixels(PixelsData pixels)
-	{
-		if (model.getState() != LOADING_DATA) return;
-		model.setPixels(pixels);
-		//Sets the dimension of the drawing canvas;
-		double f = model.getMagnification();
-		Dimension d = new Dimension((int) (model.getSizeX()*f), 
-							(int) (model.getSizeY()*f));
-		UIUtilities.setDefaultSize(model.getDrawingView(), d);
-		model.getDrawingView().setSize(d);
-		model.fireROILoading(null);
-		fireStateChange();
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#close()
      */
 	public void close()
@@ -361,42 +385,7 @@ class MeasurementViewerComponent
 		view.setVisible(b);
 	}
 
-	private FileChooser createChooserDialog(int type)
-	{
-		String word = "Save ";
-		if (type == FileChooser.LOAD) word = "Load ";
-		String title = word+"the ROI File";
-		String text = word+"the ROI data in the file associate with the image.";
-		
-		List<FileFilter> filters = new ArrayList<FileFilter>();
-		filters.add(new XMLFilter());
-		FileChooser chooser = new FileChooser(view, type, title, text, filters);
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
-		try
-		{
-			String s = FileMap.getSavedFile(model.getServerName(), 
-						model.getUserName(), model.getPixelsID());
-			File savedFile;
-			if (s != null) {
-				savedFile = new File(s);
-				chooser.setCurrentDirectory(savedFile);
-				chooser.setSelectedFile(savedFile);
-			} else {
-				if (type == FileChooser.SAVE) {
-					s = model.getImageName();
-					savedFile = new File(s);
-					chooser.setSelectedFile(savedFile.getName());
-				}
-			}
-		} catch (ParsingException e) {
-			// Do nothing as we're really only looking to see if the default
-			// directory or filename should be set for loading.
-		}
-		
-		return chooser;
-	}
-	
+
 	
 	
 	/** 
@@ -700,18 +689,6 @@ class MeasurementViewerComponent
 		}
 		if (model.getActiveChannels().size() == 0) return;
 		model.fireAnalyzeShape(shapeList);
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#setChannelMetadata(List)
-	 */
-	public void setChannelMetadata(List list)
-	{
-		if (model.getState() != LOADING_DATA) return;
-		model.setChannelMetadata(list);
-		model.firePixelsLoading();
 		fireStateChange();
 	}
 
