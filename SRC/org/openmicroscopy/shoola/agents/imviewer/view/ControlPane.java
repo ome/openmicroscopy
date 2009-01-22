@@ -600,7 +600,6 @@ class ControlPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        ChannelData[] data = model.getChannelData();
         ChannelButton button;
         p.add(Box.createRigidArea(VBOX));
         channelButtons = createChannelButtons();
@@ -622,7 +621,7 @@ class ControlPane
         int k = 1;
         controls.add(buildToolBar(), "0, "+k+", c, c");
         k++;
-        if (data.length > MAX_CHANNELS) 
+        if (channelButtons.size() > MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), "0, "+k);
         else controls.add(p, "0, "+k);
         k++;
@@ -696,26 +695,30 @@ class ControlPane
     List<ChannelButton> createChannelButtons()
     {
     	List<ChannelButton> channelButtons = new ArrayList<ChannelButton>();
-    	ChannelData[] data = model.getChannelData();
+    	List<ChannelData> data = model.getChannelData();
     	boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
     	ChannelButton button;
-        ChannelData d;
-        Dimension dim;
-        Dimension dimMax = ChannelButton.DEFAULT_MIN_SIZE;
-        for (int k = 0; k < data.length; k++) {
-            d = data[k];
-            button = new ChannelButton(""+d.getChannelLabeling(), 
-                    model.getChannelColor(k), k, model.isChannelActive(k));
-            if (gs) button.setGrayedOut(gs);
-            channelButtons.add(button);
-            dim = button.getPreferredSize();
-            if (dim.width > dimMax.width) 
-            	dimMax = new Dimension(dim.width, dimMax.height);
-        }
-        Iterator<ChannelButton> i = channelButtons.iterator();
-        while (i.hasNext())
-			i.next().setPreferredSize(dimMax);
-        return channelButtons;
+    	ChannelData d;
+    	Dimension dim;
+    	Dimension dimMax = ChannelButton.DEFAULT_MIN_SIZE;
+    	Iterator<ChannelData> i = data.iterator();
+    	int k;
+    	while (i.hasNext()) {
+    		d = i.next();
+    		k = d.getIndex();
+    		button = new ChannelButton(""+d.getChannelLabeling(), 
+    				model.getChannelColor(k), k, model.isChannelActive(k));
+    		if (gs) button.setGrayedOut(gs);
+    		channelButtons.add(button);
+    		dim = button.getPreferredSize();
+    		if (dim.width > dimMax.width) 
+    			dimMax = new Dimension(dim.width, dimMax.height);
+    	}
+
+    	Iterator<ChannelButton> j = channelButtons.iterator();
+    	while (j.hasNext())
+    		j.next().setPreferredSize(dimMax);
+    	return channelButtons;
     }
     
     /** 

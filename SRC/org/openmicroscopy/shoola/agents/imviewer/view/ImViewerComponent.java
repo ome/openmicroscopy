@@ -2632,5 +2632,14 @@ class ImViewerComponent
 		}
 		fireStateChange();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getSortedChannelData()
+	 */
+	public List<ChannelData> getSortedChannelData()
+	{
+		return model.getChannelData();
+	}
 	
 }

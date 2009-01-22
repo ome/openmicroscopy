@@ -57,6 +57,8 @@ import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.ScatterPlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
+import pojos.ChannelData;
+
 /** 
  * 
  *
@@ -385,8 +387,7 @@ class GraphPane
 	{
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		Map<Integer, double[]> data = pixelStats.get(coord);
-		if(data==null)
-			return;
+		if (data == null) return;
 		shape = shapeMap.get(coord);
 		double[] dataY;
 		double[][] dataXY;
@@ -399,13 +400,15 @@ class GraphPane
 		channelXYData.clear();
 		channelData.clear();
 		Iterator<Integer>channelIterator = data.keySet().iterator();
+		ChannelData cData;
 		while (channelIterator.hasNext())
 		{
 			channel = channelIterator.next();
 			if (model.isChannelActive(channel)) 
 			{
-				channelName.add(
-					model.getMetadata(channel).getEmissionWavelength()+"");
+				cData = model.getMetadata(channel);
+				if (cData != null)
+				channelName.add(cData.getChannelLabeling());
 				c = model.getActiveChannelColor(channel);
 				if (c == null) return;
 				channelColour.add(c);

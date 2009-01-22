@@ -58,6 +58,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -254,23 +255,38 @@ class DomainPane
         JPanel p = new JPanel();
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        ChannelData[] data = model.getChannelData();
+        List<ChannelData> data = model.getChannelData();
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         ChannelData d;
         ChannelToggleButton item;
         p.add(Box.createRigidArea(VBOX));
-        for (int j = 0; j < data.length; j++) {
-        	d = data[j];
-        	item = new ChannelToggleButton(""+d.getChannelLabeling(), 
-        							model.getChannelColor(j), j);
-        	item.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	channelList.add(item);
-        	item.setSelected(model.getSelectedChannel() == j);
-        	item.setGrayedOut(gs);
-        	item.addPropertyChangeListener(controller);
-            p.add(item);
-            p.add(Box.createRigidArea(VBOX));
-        }
+        Dimension dMax = ChannelToggleButton.DEFAULT_MAX_SIZE;
+        Dimension dim;
+        Iterator<ChannelData> i = data.iterator();
+        int j;
+        while (i.hasNext()) {
+			d = i.next();
+			j = d.getIndex();
+			item = new ChannelToggleButton(""+d.getChannelLabeling(), 
+					model.getChannelColor(j), j);
+			dim = item.getPreferredSize();
+			if (dim.width > dMax.width) 
+				dMax = new Dimension(dim.width, dMax.height);
+			item.setBackground(UIUtilities.BACKGROUND_COLOR);
+			channelList.add(item);
+			item.setSelected(model.getSelectedChannel() == j);
+			item.setGrayedOut(gs);
+			item.addPropertyChangeListener(controller);
+			p.add(item);
+			p.add(Box.createRigidArea(VBOX));
+		}
+ 
+        Iterator<ChannelToggleButton> k = channelList.iterator();
+        while (k.hasNext()) {
+			k.next().setPreferredSize(dMax);
+		}
+        
+        
         JPanel content = UIUtilities.buildComponentPanel(p);  
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         return content;  

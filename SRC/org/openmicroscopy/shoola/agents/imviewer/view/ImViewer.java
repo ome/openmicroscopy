@@ -947,5 +947,13 @@ public interface ImViewer
 	 * @param rndProxyDef The settings to paste.
 	 */
 	public void setSettingsToPaste(RndProxyDef rndProxyDef);
+
+	/**
+	 * Returns the collection of <code>ChannelData</code> sorted by emission 
+	 * wavelength.
+	 * 
+	 * @return See above.
+	 */
+	public List<ChannelData> getSortedChannelData();
 	
 }

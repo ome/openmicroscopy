@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 //Java imports
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -54,37 +55,37 @@ public class MeasurementTool
 {
 
     /** The pixels set the measurement tool is for. */
-    private PixelsData      pixels;
+    private PixelsData      	pixels;
     
     /** The ID of the image. */
-    private long        	imageID;
+    private long        		imageID;
     
     /** The name of the image. */
-    private String      	name;
+    private String      		name;
     
     /** The currently selected z-section. */
-    private int				defaultZ;
+    private int					defaultZ;
     
     /** The currently selected timepoint. */
-    private int				defaultT;
+    private int					defaultT;
     
     /** Collection of pairs (channel's index, channel's color). */
-    private Map				activeChannels;
+    private Map					activeChannels;
     
     /** The image's magnification factor. */
-    private double			magnification;
+    private double				magnification;
     
     /** The bounds of the component posting the event. */
-    private Rectangle   	requesterBounds;
+    private Rectangle   		requesterBounds;
 
     /** Thumbnail of the rendered image. */
-    private BufferedImage	thumbnail;
+    private BufferedImage		thumbnail;
     
     /** The rendered image. */
-    private BufferedImage	renderedImage;
+    private BufferedImage		renderedImage;
     
     /** The channel metadata. */
-    private ChannelData[] 	channelData;
+    private List<ChannelData> 	channelData;
     
     /**
      * Creates a new instance.
@@ -103,13 +104,13 @@ public class MeasurementTool
     public MeasurementTool(long imageID, PixelsData pixels, String name, 
     						int defaultZ, int defaultT, Map activeChannels,
     						double magnification, Rectangle bounds,
-    						ChannelData[] channelData)
+    						List<ChannelData> channelData)
     {
         if (pixels == null) 
             throw new IllegalArgumentException("Pixels set not valid.");
         if (imageID < 0) 
             throw new IllegalArgumentException("Image ID not valid.");
-        if (channelData == null || channelData.length == 0) 
+        if (channelData == null || channelData.size() == 0) 
             throw new IllegalArgumentException("Channel data not valid.");
         this.channelData = channelData;
         this.pixels = pixels;
@@ -218,6 +219,6 @@ public class MeasurementTool
      * 
      * @return See above.
      */
-    public ChannelData[] getChannelData() { return channelData; }
+    public List<ChannelData> getChannelData() { return channelData; }
     
 }

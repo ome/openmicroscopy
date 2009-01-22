@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
@@ -85,7 +86,7 @@ public class MeasurementViewerFactory
 	public static MeasurementViewer getViewer(PixelsData pixels, long imageID, 
 										String name, Rectangle bounds, 
 										int z, int t, double magnification,
-										Map activeChannels, ChannelData[]
+										Map activeChannels, List<ChannelData>
 										channelsData)
 	{
 		MeasurementViewerModel model = new MeasurementViewerModel(imageID, 

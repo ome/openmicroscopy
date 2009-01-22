@@ -96,10 +96,7 @@ class MeasurementViewerModel
 	
 	/** The id of the image this {@link MeasurementViewer} is for. */
 	private long					imageID;
-	
-	/** The id of the pixels set this {@link MeasurementViewer} is for. */
-	//private long					pixelsID;
-	
+
 	/** The name of the image this {@link MeasurementViewer} is for. */
 	private String					name;
 	
@@ -136,7 +133,7 @@ class MeasurementViewerModel
     private Map						analysisResults;
     
     /** Metadata for the pixels set. */
-    private ChannelData[]			metadata;
+    private List<ChannelData>		metadata;
     
     /** 
      * Will either be a data loader or
@@ -169,7 +166,7 @@ class MeasurementViewerModel
 	 * @param channelsData	The channel metadata.
 	 */
 	MeasurementViewerModel(long imageID, PixelsData pixels, String name, 
-						Rectangle bounds, ChannelData[] channelsData)
+						Rectangle bounds, List<ChannelData> channelsData)
 	{
 		metadata = channelsData;
 		this.imageID = imageID;
@@ -796,13 +793,6 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Returns the channel metadata.
-	 * 
-	 * @return See above.
-	 */
-	ChannelData[] getMetadata() { return metadata; }
-	
-	/**
 	 * Returns the metadata corresponding to the specified index or 
 	 * <code>null</code> if the index is not valid.
 	 * 
@@ -811,8 +801,14 @@ class MeasurementViewerModel
 	 */
 	ChannelData getMetadata(int index) 
 	{
-		if (index < 0 || index >= metadata.length) return null;
-		return metadata[index];
+		if (index < 0 || index >= metadata.size()) return null;
+		Iterator<ChannelData> i = metadata.iterator();
+		ChannelData d;
+		while (i.hasNext()) {
+			d = i.next();
+			if (d.getIndex() == index) return d;
+		}
+		return null;
 	}
 	
 	/**

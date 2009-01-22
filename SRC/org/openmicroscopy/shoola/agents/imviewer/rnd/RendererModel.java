@@ -117,7 +117,7 @@ class RendererModel
 
 	/** Flag to denote if the widget is visible or not. */
 	private boolean             visible;
-
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -447,9 +447,9 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	ChannelData[] getChannelData()
+	List<ChannelData> getChannelData()
 	{
-		return rndControl.getChannelData();
+		return parentModel.getSortedChannelData();
 	}
 
 	/**

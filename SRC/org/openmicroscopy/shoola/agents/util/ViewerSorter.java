@@ -39,6 +39,7 @@ import javax.swing.filechooser.FileFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -199,6 +200,10 @@ public class ViewerSorter
      */
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
+    	if (o1 instanceof ChannelData) {
+    		return compareNumbers(((ChannelData) o1).getEmissionWavelength(), 
+    				((ChannelData) o2).getEmissionWavelength());
+    	}
     	if (o1 instanceof WellData) {
     		return compareNumbers(((WellData) o1).getRow(), 
     				((WellData) o2).getRow());

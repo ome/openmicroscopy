@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -258,6 +259,9 @@ class ImViewerModel
     
     /** The collection of containers hosting the image. */
     private Collection 					containers;
+    
+    /** The collection of sorted channel data, sorted by emission wavelength. */
+    private List<ChannelData>			sortedChannels;
     
     /**
 	 * Transforms 3D coords into linear coords.
@@ -540,9 +544,14 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	ChannelData[] getChannelData()
+	List<ChannelData> getChannelData()
 	{ 
-		return currentRndControl.getChannelData();
+		if (sortedChannels == null) {
+			ChannelData[] data = currentRndControl.getChannelData();
+			ViewerSorter sorter = new ViewerSorter();
+			sortedChannels = sorter.sort(data);
+		}
+		return sortedChannels;
 	}
 
 	/**
@@ -1482,12 +1491,7 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			ChannelData[] data = getChannelData();
-			List<ChannelData> l = new ArrayList<ChannelData>(data.length);
-			for (int i = 0; i < data.length; i++) 
-				l.add(data[i]);
-			
-			metadataViewer.activate(l); 
+			metadataViewer.activate(getChannelData()); 
 		}
 	}
 

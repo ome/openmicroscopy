@@ -1004,12 +1004,13 @@ class ImViewerUI
 		toolBar.buildComponent();
 		controlPane.buildComponent();
 		buildGUI();
-		ChannelData[] data = model.getChannelData();
+		List<ChannelData> data = model.getChannelData();
 		ChannelData d;
 		int index;
 		PlaneInfoComponent comp;
-		for (int i = 0; i < data.length; i++) {
-			d = data[i];
+		Iterator<ChannelData> i = data.iterator();
+		while (i.hasNext()) {
+			d = i.next();
 			index = d.getIndex();
 			comp = new PlaneInfoComponent(index, model.getChannelColor(index));
 			comp.addPropertyChangeListener(
@@ -1479,15 +1480,18 @@ class ImViewerUI
 	{
 		switch (menuID) {
 			case ImViewer.COLOR_PICKER_MENU:
-				ChannelData[] data = model.getChannelData();
+				List<ChannelData> data = model.getChannelData();
 				ChannelData d;
 				JPopupMenu menu = new JPopupMenu();
 				ChannelColorMenuItem item;
-				for (int j = 0; j < data.length; j++) {
-					d = data[j];
+				Iterator<ChannelData> i = data.iterator();
+				int index;
+				while (i.hasNext()) {
+					d = i.next();
+					index = d.getIndex();
 					item = new ChannelColorMenuItem(
 							"Wavelength "+d.getEmissionWavelength(), 
-							model.getChannelColor(j), j);
+							model.getChannelColor(index), index);
 					menu.add(item);
 					item.addPropertyChangeListener(controller);
 				}
