@@ -1446,10 +1446,11 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, NEW " +
 						"or LOADING_RENDERING_CONTROL state.");
+			case DISCARDED:
+				return null;
 		}
 		return model.getDisplayedImage();
 	}
@@ -1463,10 +1464,11 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW " +
+						"This method can't be invoked in the NEW " +
 						"or LOADING_RENDERING_CONTROL state.");
+			case DISCARDED:
+				return -1;
 		}
 		return model.getPixelsSizeX();
 	}
@@ -1480,10 +1482,11 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW " +
+						"This method can't be invoked in the NEW " +
 						"or LOADING_RENDERING_CONTROL state.");
+			case DISCARDED:
+				return -1;
 		}
 		return model.getPixelsSizeY();
 	}
@@ -1497,10 +1500,11 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW " +
+						"This method can't be invoked in the NEW " +
 						"or LOADING_RENDERING_CONTROL state.");
+			case DISCARDED:
+				return -1;
 		}
 		return model.getPixelsSizeZ();
 	}
@@ -1511,9 +1515,7 @@ class ImViewerComponent
 	 */
 	public String getViewTitle()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+		if (model.getState() == DISCARDED) return "";
 		return view.getTitle();
 	}
 
@@ -1552,9 +1554,7 @@ class ImViewerComponent
 	 */
 	public boolean isUnitBar()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+		if (model.getState() == DISCARDED) return false;
 		return model.isUnitBar();
 	}
 
@@ -1564,9 +1564,7 @@ class ImViewerComponent
 	 */
 	public void setUnitBar(boolean b)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+		if (model.getState() == DISCARDED) return;
 		model.getBrowser().setUnitBar(b);
 		controller.setPreferences();
 	}
@@ -1586,7 +1584,7 @@ class ImViewerComponent
 	 */
 	public Color getChannelColor(int index)
 	{
-		// TODO Check state
+		if (model.getState() == DISCARDED) return null;
 		return model.getChannelColor(index);
 	}
 
@@ -1596,9 +1594,7 @@ class ImViewerComponent
 	 */
 	public void setUnitBarSize(double size)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return;
 		model.getBrowser().setUnitBarSize(size);
 		controller.setPreferences();
 	}
@@ -1609,9 +1605,7 @@ class ImViewerComponent
 	 */
 	public void showUnitBarSelection()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return;
 		UnitBarSizeDialog d = new UnitBarSizeDialog(view);
 		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
@@ -1637,9 +1631,7 @@ class ImViewerComponent
 	 */
 	public String getUnitBarValue()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return "";
 		return model.getBrowser().getUnitBarValue();
 	}
 
@@ -1649,9 +1641,7 @@ class ImViewerComponent
 	 */
 	public double getUnitBarSize()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return 0;
 		return model.getBrowser().getUnitBarSize();
 	}
 
@@ -1661,9 +1651,7 @@ class ImViewerComponent
 	 */
 	public Color getUnitBarColor()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return null;
 		if (model.getBrowser() == null) return null;
 		return model.getBrowser().getUnitBarColor();
 	}
@@ -1683,9 +1671,7 @@ class ImViewerComponent
 	 */
 	public void showLens()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return;
 		view.setLensVisible(!view.isLensVisible(), model.getTabbedIndex());
 	}
 
@@ -1695,9 +1681,7 @@ class ImViewerComponent
 	 */
 	public BufferedImage getZoomedLensImage()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return null;
 		return view.getZoomedLensImage();
 	}
 
@@ -1707,9 +1691,7 @@ class ImViewerComponent
 	 */
 	public void showMenu(int menuID, Component source, Point location)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("The method cannot be invoked in " +
-			"the DISCARDED state.");
+		if (model.getState() == DISCARDED) return;
 		if (source == null) throw new IllegalArgumentException("No component.");
 		if (location == null) throw new IllegalArgumentException("No point.");
 		switch (menuID) {

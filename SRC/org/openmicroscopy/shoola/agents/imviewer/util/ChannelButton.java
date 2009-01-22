@@ -32,13 +32,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Customized button used to select the rendered channel.
@@ -62,7 +66,7 @@ public class ChannelButton
 	public static final Dimension 	DEFAULT_MIN_SIZE = new Dimension(30, 30);
 	
 	/** The default size of the component. */
-	public static final Dimension 	DEFAULT_MAX_SIZE = new Dimension(40, 40);
+	public static final Dimension 	DEFAULT_MAX_SIZE = new Dimension(60, 30);
 	
     /** 
      * Bound property name indicating that the channel is or is not selected. 
@@ -152,10 +156,24 @@ public class ChannelButton
          int width = getFontMetrics(getFont()).stringWidth(getText());
          Dimension d = DEFAULT_MIN_SIZE;
          if (width > DEFAULT_MIN_SIZE.width &&
-         		width < DEFAULT_MAX_SIZE.width) d = new Dimension(width, width);
-         else if (width > DEFAULT_MAX_SIZE.width)
+         		width < DEFAULT_MAX_SIZE.width) d = new Dimension(width+6, 
+         				DEFAULT_MIN_SIZE.height);
+         else if (width >= DEFAULT_MAX_SIZE.width)
         	 return setComponentSize(decrease-1);
          return d;
+    }
+    
+    /**
+     * Parses the text.
+     * 
+     * @param text The text to parse.
+     * @return See above.
+     */
+    private String parseText(String text)
+    {
+    	String[] values = text.split("\\(");
+    	if (values == null || values.length == 0) return text;
+    	return values[0].trim();
     }
     
     /**
@@ -173,6 +191,8 @@ public class ChannelButton
     public ChannelButton(String text, Color color, int index, boolean selected)
     {
         super(text, color);
+        setText(parseText(text));
+        //Need to parse the String.
         this.index = index;
         rightClickSupported = true;
         setSelected(selected);
@@ -180,7 +200,10 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
-        setToolTipText(DESCRIPTION);
+        List<String> l = new ArrayList<String>(2);
+        l.add(text);
+        l.add(DESCRIPTION);
+        setToolTipText(UIUtilities.formatToolTipText(l));
         setPreferredSize(setComponentSize(0));
     }
     

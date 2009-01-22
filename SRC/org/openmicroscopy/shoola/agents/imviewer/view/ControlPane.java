@@ -700,14 +700,21 @@ class ControlPane
     	boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
     	ChannelButton button;
         ChannelData d;
+        Dimension dim;
+        Dimension dimMax = ChannelButton.DEFAULT_MIN_SIZE;
         for (int k = 0; k < data.length; k++) {
             d = data[k];
             button = new ChannelButton(""+d.getChannelLabeling(), 
                     model.getChannelColor(k), k, model.isChannelActive(k));
             if (gs) button.setGrayedOut(gs);
-            //button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
             channelButtons.add(button);
+            dim = button.getPreferredSize();
+            if (dim.width > dimMax.width) 
+            	dimMax = new Dimension(dim.width, dimMax.height);
         }
+        Iterator<ChannelButton> i = channelButtons.iterator();
+        while (i.hasNext())
+			i.next().setPreferredSize(dimMax);
         return channelButtons;
     }
     

@@ -376,7 +376,7 @@ public class ImgSaver
     {
     	int width = image.getWidth();
         int h = image.getHeight();
-        String v = model.getUnitBarValue(); 
+        String v = getUnitBarValue(); 
         int s = (int) model.getUnitBarSize();
         
         BufferedImage newImage = new BufferedImage(width, h, 
@@ -402,8 +402,8 @@ public class ImgSaver
     	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.
         boolean unitBar = model.isUnitBar();
-        String v = model.getUnitBarValue(); 
-        int s = (int) model.getUnitBarSize();
+        String v = getUnitBarValue(); 
+        int s = (int) getUnitBarSize();
         boolean constrain;
         if (imageComponents == null) {
         	constrain = unitBar && v != null && s < mainImage.getWidth() 

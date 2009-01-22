@@ -64,13 +64,11 @@ public class ColouredButton
 	private static final Color	FOREGROUND_DARK = Color.BLACK.brighter();
 	
 	/** The foreground color when the color of the button is light. */
-	private static final Color	FOREGROUND_LIGHT = Color.GRAY.darker();
+	private static final Color	FOREGROUND_LIGHT = Color.DARK_GRAY.darker();//Color.GRAY.darker();
 	
+	/** The default color. */
 	private static final Color	DEFAULT = new Color(255, 255, 255, 
 											(int) (255*0.5));
-	
-    /** The UI for this button. */
-    private ColouredButtonUI uiDelegate;
 	
     /** The background color. */
     private Color	color;
@@ -88,7 +86,8 @@ public class ColouredButton
         	newColor.getBlue(), 0);
         
         //Maybe use foregroundPainter
-        if (UIUtilities.isDarkColor(newColor)) setForeground(FOREGROUND_LIGHT);
+        if (UIUtilities.isDarkColor(newColor)) 
+        	setForeground(FOREGROUND_LIGHT);
         else setForeground(FOREGROUND_DARK);
         
         GradientPaint bgToTranslucent = new GradientPaint(
@@ -97,9 +96,8 @@ public class ColouredButton
         MattePainter veil = new MattePainter(bgToTranslucent);
         veil.setPaintStretched(true);
         Painter backgroundPainter = new RectanglePainter(color, null);
-        Painter p = new CompoundPainter(new GlossPainter(), veil, 
-			 backgroundPainter);
-        setBackgroundPainter(p);
+        setBackgroundPainter(new CompoundPainter(new GlossPainter(), veil, 
+   			 backgroundPainter));
     }
     
     /**
