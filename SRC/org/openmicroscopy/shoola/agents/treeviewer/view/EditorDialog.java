@@ -36,11 +36,12 @@ import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -117,10 +118,10 @@ class EditorDialog
     private DataObject			data;
     
     /** Box used to indicate that the new object will have group visibility. */
-    private JCheckBox			publicBox;
+    private JRadioButton		publicBox;
     
     /** Box used to indicate that the new object will be private. */
-    private JCheckBox			privateBox;
+    private JRadioButton		privateBox;
     
     /** The type of object to create. */
     private String				typeName;
@@ -148,12 +149,13 @@ class EditorDialog
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	publicBox =  new JCheckBox(EditorUtil.PUBLIC);
+    	publicBox =  new JRadioButton(EditorUtil.PUBLIC);
     	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
     	publicBox.setEnabled(false);
-        privateBox =  new JCheckBox(EditorUtil.PRIVATE);
+        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
         privateBox.setSelected(true);
-        publicBox.setEnabled(false);
+        privateBox.setEnabled(false);
+        
         nameArea = new JTextField();
         //UIUtilities.setTextAreaDefault(nameArea);
         nameArea.getDocument().addDocumentListener(this);
@@ -230,17 +232,27 @@ class EditorDialog
     {
         IconManager im = IconManager.getInstance();
         TitlePanel tp = null;
-        if (data instanceof ProjectData) typeName = "Project";
-        else if (data instanceof DatasetData) typeName = "Dataset";
-        else if (data instanceof ScreenData) typeName = "Screen";
-        else if (data instanceof TagAnnotationData) {
+        Icon icon = im.getIcon(IconManager.CREATE_48);
+        if (data instanceof ProjectData) {
+        	typeName = "Project";
+        	icon = im.getIcon(IconManager.PROJECT_48);
+        } else if (data instanceof DatasetData) {
+        	typeName = "Dataset";
+        	icon = im.getIcon(IconManager.DATASET_48);
+        } else if (data instanceof ScreenData) {
+        	typeName = "Screen";
+        	icon = im.getIcon(IconManager.SCREEN_48);
+        } else if (data instanceof TagAnnotationData) {
         	typeName = "Tag";
+        	icon = im.getIcon(IconManager.TAG_48);
         	String ns = ((TagAnnotationData) data).getNameSpace();
-        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
         		typeName = "Tag Set";
+        		icon = im.getIcon(IconManager.TAG_SET_48);
+        	}
         }
         tp = new TitlePanel("Create "+typeName, "Create a new "+typeName+".", 
-    			im.getIcon(IconManager.CREATE_48));
+    			icon);
         return tp;
     }
     

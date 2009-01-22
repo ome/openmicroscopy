@@ -332,11 +332,23 @@ public class IconManager
     /** The <code>Tag 48</code> icon. */
     public static int           TAG_48 = 92;
     
+    /** A 48x48 version of the <code>Project</code> icon. */
+    public static int           PROJECT_48 = 93;
+    
+    /** A 48x48 version of the <code>Dataset</code> icon. */
+    public static int           DATASET_48 = 94;
+    
+    /** A 48x48 version of the <code>Tag Set</code> icon. */
+    public static int           TAG_SET_48 = 95;
+    
+    /** A 48x48 version of the <code>Screen</code> icon. */
+    public static int           SCREEN_48 = 96;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 92;
+    private static int          MAX_ID = 96;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -438,6 +450,10 @@ public class IconManager
         relPaths[IMPORTER] = "omeroImporterLink16.png";
         relPaths[REMOVE_48] = "nuvola_trashcan_full48.png";
         relPaths[TAG_48] = "nuvola_knotes48.png";
+        relPaths[TAG_SET_48] = "nuvola_knotes_red48.png";
+        relPaths[PROJECT_48] = "nuvola_folder_blue_open48.png";
+        relPaths[DATASET_48] = "nuvola_folder_image48.png";
+        relPaths[SCREEN_48] = "nuvola_knotes48.png";
     }
     
     /** The sole instance. */

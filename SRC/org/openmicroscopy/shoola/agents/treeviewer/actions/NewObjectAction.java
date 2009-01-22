@@ -59,14 +59,43 @@ public class NewObjectAction
     implements MouseListener
 {
 
+	/** Indicates to show the menu for tags. */
+	public static final int		NEW_TAGS = 0;
+	
+	/** Indicates to show the menu for tags. */
+	public static final int		NEW_CONTAINERS = 1;
+	
     /** The description of the action. */
     public static final String NAME = "New";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Create new object.";
+    private static final String DESCRIPTION = "Create new Project, Dataset, " +
+    		"etc.";
+
+    /** The description of the action. */
+    private static final String DESCRIPTION_TAGS = "Create new Tag Set or Tag";
 
     /** The location of the mouse pressed. */
-    private Point point;
+    private Point 	point;
+    
+    /** One of the constants defined by this class. */
+    private int		index;
+    
+    /**
+     * Controls if the passed index is valid or not.
+     * 
+     * @param index
+     */
+    private void checkIndex(int index)
+    {
+    	switch (index) {
+			case NEW_CONTAINERS:
+			case NEW_TAGS:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -91,14 +120,25 @@ public class NewObjectAction
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param index One of the constantsd defined by this class.
      */
-    public NewObjectAction(TreeViewer model)
+    public NewObjectAction(TreeViewer model, int index)
     {
         super(model);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+        checkIndex(index);
+        this.index = index;
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+        switch (index) {
+			case NEW_TAGS:
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_TAGS));
+				break;
+			case NEW_CONTAINERS:
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+			putValue(Action.SHORT_DESCRIPTION, 
+	                UIUtilities.formatToolTipText(DESCRIPTION));
+		}
     }
     
     /** 
@@ -115,9 +155,18 @@ public class NewObjectAction
     public void mouseReleased(MouseEvent me)
     {
         Object source = me.getSource();
-        if (source instanceof Component && isEnabled())
-            model.showMenu(TreeViewer.CREATE_MENU, 
-            		(Component) source, point);
+        if (source instanceof Component && isEnabled()) {
+        	switch (index) {
+				case NEW_TAGS:
+					model.showMenu(TreeViewer.CREATE_MENU_TAGS, 
+		            		(Component) source, point);
+					break;
+				case NEW_CONTAINERS:
+					model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
+		            		(Component) source, point);
+        	}
+        }
+            
     }
     
     /** 

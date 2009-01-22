@@ -206,7 +206,7 @@ class PopupMenu
 				quitElement = new JMenuItem(a);
 				initMenuItem(quitElement, a.getActionName());
 				break;
-			case TreeViewer.CREATE_MENU:
+			case TreeViewer.CREATE_MENU_CONTAINERS:
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
 				createProject = new JMenuItem(a);
 				initMenuItem(createProject, a.getActionName());
@@ -214,6 +214,8 @@ class PopupMenu
 						TreeViewerControl.CREATE_TOP_DATASET);
 				createDataset = new JMenuItem(a);
 				initMenuItem(createDataset, a.getActionName());
+				break;
+			case TreeViewer.CREATE_MENU_TAGS:
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
 				createTag = new JMenuItem(a);
 				initMenuItem(createTag, a.getActionName());
@@ -274,13 +276,13 @@ class PopupMenu
 				add(switchUserElement);
 				add(quitElement);
 				break;
-			case TreeViewer.CREATE_MENU:
+			case TreeViewer.CREATE_MENU_CONTAINERS:
 				add(createProject);
 				add(createDataset);
+				break;
+			case TreeViewer.CREATE_MENU_TAGS:
 				add(createTagSet);
 				add(createTag);
-				
-				//add(createScreen);
 		}
 	}
 

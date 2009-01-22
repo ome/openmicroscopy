@@ -568,8 +568,10 @@ class TreeViewerWin
             case TreeViewer.MANAGER_MENU:
                 toolBar.showManagementMenu(c, p);
                 break;
-            case TreeViewer.CREATE_MENU:
-                toolBar.showCreateMenu(c, p);
+            case TreeViewer.CREATE_MENU_CONTAINERS:
+            case TreeViewer.CREATE_MENU_TAGS:
+                toolBar.showCreateMenu(c, p, menuID);
+                break;
         }  
     }
     

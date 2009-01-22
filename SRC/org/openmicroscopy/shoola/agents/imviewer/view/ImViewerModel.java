@@ -1481,10 +1481,18 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean hasMetadataToSave() { return metadataViewer.hasDataToSave(); }
+	boolean hasMetadataToSave()
+	{ 
+		if (metadataViewer == null) return false;
+		return metadataViewer.hasDataToSave();
+	}
 
 	/** Saves the data. */
-	void saveMetadata() { metadataViewer.saveData(); }
+	void saveMetadata()
+	{ 
+		if (metadataViewer != null)
+			metadataViewer.saveData();
+	}
 
 	/** Loads the data. */
 	void loadMetadata()

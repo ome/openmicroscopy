@@ -33,9 +33,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
-
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -107,10 +106,10 @@ class PropertiesUI
     private JLabel				idLabel;
     
     /** Indicates if the <code>DataObject</code> has group visibility. */
-    private JCheckBox 			publicBox;
+    private JRadioButton 		publicBox;
     
     /** Indicates if the <code>DataObject</code> is only visible by owner. */
-    private JCheckBox 			privateBox;
+    private JRadioButton 		privateBox;
     
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
@@ -236,17 +235,17 @@ class PropertiesUI
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
         Font f;
-    	publicBox =  new JCheckBox(EditorUtil.PUBLIC);
+    	publicBox =  new JRadioButton(EditorUtil.PUBLIC);
     	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
     	publicBox.setEnabled(false);
     	f = publicBox.getFont();
-        privateBox =  new JCheckBox(EditorUtil.PRIVATE);
+        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
         privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
         publicBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
         privateBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
         privateBox.setSelected(true);
-        
+        privateBox.setEnabled(false);
     	ButtonGroup group = new ButtonGroup();
        	group.add(privateBox);
        	group.add(publicBox);

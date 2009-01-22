@@ -101,7 +101,11 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((NewObjectAction) a);
         bar.add(b);
-      
+        a = controller.getAction(TreeViewerControl.NEW_TAG_OBJECT);
+        b = new JButton(a);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        b.addMouseListener((NewObjectAction) a);
+        bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
@@ -185,15 +189,16 @@ class ToolBar
      * Brings up the <code>ManagePopupMenu</code>on top of the specified
      * component at the specified location.
      * 
-     * @param c The component that requested the popup menu.
-     * @param p The point at which to display the menu, relative to the
-     *            <code>component</code>'s coordinates.
+     * @param c 	The component that requested the popup menu.
+     * @param p 	The point at which to display the menu, relative to the
+     *            	<code>component</code>'s coordinates.
+     * @param index The index of the menu.
      */
-    void showCreateMenu(Component c, Point p)
+    void showCreateMenu(Component c, Point p, int index)
     {
         if (c == null) throw new IllegalArgumentException("No component.");
         if (p == null) throw new IllegalArgumentException("No point.");
-        PopupMenu menu = new PopupMenu(controller, TreeViewer.CREATE_MENU);
+        PopupMenu menu = new PopupMenu(controller,index);
         menu.show(c, p.x, p.y);
     }
     

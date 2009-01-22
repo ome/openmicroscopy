@@ -235,6 +235,9 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Create tag set</code> in the File menu. */
 	static final Integer    CREATE_TOP_TAG_SET = new Integer(45);
+	
+	/** Identifies the <code>Create tag sets or tags</code> in the menu. */
+	static final Integer    NEW_TAG_OBJECT = new Integer(46);
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -302,11 +305,14 @@ class TreeViewerControl
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.SCREEN));
 		actionsMap.put(VIEW, new ViewImageAction(model));
-		actionsMap.put(NEW_OBJECT, new NewObjectAction(model));
+		actionsMap.put(NEW_OBJECT, new NewObjectAction(model, 
+								NewObjectAction.NEW_CONTAINERS));
 		actionsMap.put(EDITOR, new EditorAction(model));
 		actionsMap.put(CREATE_TOP_TAG_SET,  
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.TAG_SET));
+		actionsMap.put(NEW_TAG_OBJECT, new NewObjectAction(model, 
+				NewObjectAction.NEW_TAGS));
 	}
 
 	/** 
