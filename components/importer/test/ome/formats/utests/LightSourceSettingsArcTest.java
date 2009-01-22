@@ -70,7 +70,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	{
         List<Image> images = (List<Image>) store.getRoot();
         Image image = images.get(0);
-        Instrument instrument = image.getSetup();
+        Instrument instrument = image.getInstrument();
         Iterator<Channel> iter = image.getPrimaryPixels().iterateChannels();
         while (iter.hasNext())
         {
@@ -89,7 +89,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	{
         List<Image> images = (List<Image>) store.getRoot();
         Image image = images.get(0);
-        Instrument instrument = image.getSetup();
+        Instrument instrument = image.getInstrument();
         assertEquals(2, instrument.sizeOfLightSource());
 	}
 	
@@ -129,7 +129,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	{
         List<Image> images = (List<Image>) store.getRoot();
         Image image = images.get(0);
-        Instrument instrument = image.getSetup();
+        Instrument instrument = image.getInstrument();
         Iterator<Channel> iter = image.getPrimaryPixels().iterateChannels();
         while (iter.hasNext())
         {

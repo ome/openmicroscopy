@@ -14,7 +14,7 @@
 		<properties>
 			<!-- TODO: rewrite all ROI -->
 		</properties>
-		<manyone name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
+		<manyzero name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
 	</type>
 	<link id="ome.model.display.RoiLink" annotated="true">
 		<properties>

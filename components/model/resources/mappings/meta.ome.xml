@@ -17,13 +17,18 @@
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.Experimenter" global="true" annotated="true"><!-- TODO: review-->
+	<type id="ome.model.meta.Experimenter" global="true" annotated="true">
 		<properties>
 			<parent name="groupExperimenterMap" ordered="true" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.ExperimenterGroup"/>
-			<!-- TODO: should be "at least one of firstName, lastName, email and omeName" -->
+			<!-- Note: in the model "at least one of firstName, lastName, email and omeName"
+			     must be completed. The restriction here is more rigid so empty strings may 
+			     need to be used if importing data directly from the model. In most cases 
+			     the user should either be on the system or it will be sufficient to provide
+			     as close a representation as practical to the imported data -->
 			<required name="omeName" type="string" unique="true"/>
 			<required name="firstName" type="string"/>
-			<optional name="middleName" type="string"/><!-- TODO: not in model-->
+			<optional name="middleName" type="string"/>
+			<!-- Note: middleName is not used model -->
 			<required name="lastName" type="string"/>
 			<optional name="institution" type="string"/>
 			<component id="ome.model.internal.Email" required="false">

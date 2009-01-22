@@ -125,14 +125,14 @@ public class DetectorSettingsTest extends TestCase
         List<Image> images = (List<Image>) store.getRoot();
         for (Image image : images)
         {
-        	assertEquals(1, image.getSetup().sizeOfDetector());
+        	assertEquals(1, image.getInstrument().sizeOfDetector());
         }
 	}
 	
 	public void testImageInstrumentDetectorModelPreserved()
 	{
         List<Image> images = (List<Image>) store.getRoot();
-        Instrument instrument = images.get(0).getSetup();
+        Instrument instrument = images.get(0).getInstrument();
         Detector detector = instrument.iterateDetector().next();
         assertEquals(DETECTOR_MODEL, detector.getModel());
 	}
@@ -141,10 +141,10 @@ public class DetectorSettingsTest extends TestCase
 	{
         List<Image> images = (List<Image>) store.getRoot();
         Detector detector =
-        	images.get(0).getSetup().iterateDetector().next();
+        	images.get(0).getInstrument().iterateDetector().next();
         for (Image image : images)
         {
-        	Instrument instrument = image.getSetup();
+        	Instrument instrument = image.getInstrument();
         	assertEquals(instrument.iterateDetector().next(), detector);
         }
 	}

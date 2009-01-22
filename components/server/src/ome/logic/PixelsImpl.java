@@ -192,10 +192,10 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     	iTo.setAcquisitionDate(iFrom.getAcquisitionDate());
     	iTo.setName(name);
     	iTo.setObjectiveSettings(iFrom.getObjectiveSettings());
-       	iTo.setCondition(iFrom.getCondition());
-       	iTo.setContext(iFrom.getContext());
-       	iTo.setPosition(iFrom.getPosition());
-       	iTo.setSetup(iFrom.getSetup());
+       	iTo.setImagingEnvironment(iFrom.getImagingEnvironment());
+       	iTo.setExperiment(iFrom.getExperiment());
+       	iTo.setStageLabel(iFrom.getStageLabel());
+       	iTo.setInstrument(iFrom.getInstrument());
     	
     	// Copy each Pixels set that the source image has
     	Iterator<Pixels> i = iFrom.iteratePixels();

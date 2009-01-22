@@ -72,11 +72,11 @@ public class ImageAcquisitionData
 	/** The objective used to acquire the image. */
 	private ObjectiveSettings	objective;
 	
-	/** Flag indicating if the position is dirty. */
+	/** Flag indicating if the StageLabel is dirty. */
 	private boolean				labelDirty;
 	
-	/** Flag indicating if the condition is dirty. */
-	private boolean				conditionDirty;
+	/** Flag indicating if the imagingEnvironment is dirty. */
+	private boolean				imagingEnvironmentDirty;
 	
 	/** Flag indicating if the objective settings is dirty. */
 	private boolean				objectiveSettingsDirty;
@@ -114,8 +114,8 @@ public class ImageAcquisitionData
         if (image == null)
             throw new IllegalArgumentException("Object cannot null.");
         setValue(image);
-        label = image.getPosition();
-        environment = image.getCondition();
+        label = image.getStageLabel();
+        environment = image.getImagingEnvironment();
         objective = image.getObjectiveSettings();
         medium = null;
         immersion = null;
@@ -518,7 +518,7 @@ public class ImageAcquisitionData
 	 */
 	public void setTemperature(float temperature)
 	{
-		conditionDirty = true;
+		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
 		environment.setTemperature(omero.rtypes.rfloat(temperature));
 	}
@@ -530,7 +530,7 @@ public class ImageAcquisitionData
 	 */
 	public void setAirPressure(float pressure)
 	{
-		conditionDirty = true;
+		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
 		environment.setAirPressure(omero.rtypes.rfloat(pressure));
 	}
@@ -545,7 +545,7 @@ public class ImageAcquisitionData
 		if (humidity < 0 || humidity > 1)
 			throw new IllegalArgumentException("Humidity must " +
 					"be a value in [0, 1]");
-		conditionDirty = true;
+		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
 		environment.setHumidity(omero.rtypes.rfloat(humidity));
 	}
@@ -559,7 +559,7 @@ public class ImageAcquisitionData
 	{
 		if (co2 < 0 || co2 > 1)
 			throw new IllegalArgumentException("Co2 must be a value in [0, 1]");
-		conditionDirty = true;
+		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
 		environment.setCo2percent(omero.rtypes.rfloat(co2));
 	}
@@ -679,15 +679,15 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isPositionDirty() { return labelDirty; }
+	public boolean isStageLabelDirty() { return labelDirty; }
 	
 	/**
-	 * Returns <code>true</code> if the position has been updated,
+	 * Returns <code>true</code> if the StageLabel has been updated,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isConditionDirty() { return conditionDirty; }
+	public boolean isImagingEnvironmentDirty() { return imagingEnvironmentDirty; }
 	
 	/**
 	 * Returns <code>true</code> if the objective settings has been updated,
@@ -711,7 +711,7 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public long getPositionId()
+	public long getStageLabelId()
 	{
 		if (label == null) return -1;
 		RLong id = label.getId();
@@ -725,7 +725,7 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public long getConditionId()
+	public long getImagingEnvironmentDirtyId()
 	{
 		if (environment == null) return -1;
 		RLong id = environment.getId();

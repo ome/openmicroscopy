@@ -1008,7 +1008,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         Image image = getImage(imageIndex);
         log.debug(String.format(
                 "Setting ImageInstrumentRef[%s] image: '%d'", instrumentRef, imageIndex));
-        image.setSetup((Instrument) lsidMap.get(instrumentRef));
+        image.setInstrument((Instrument) lsidMap.get(instrumentRef));
     }
     
     /* ---- Pixels ---- */
@@ -1087,7 +1087,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             //Lightsettings still needs to be implemented in bio-formats for this to work correctly
             //Lightsettings method in bio-formats need to specify lightsourceindex and channelindex
             Image image = getImage(imageIndex);
-            Instrument instrument = image.getSetup();
+            Instrument instrument = image.getInstrument();
             if (instrument != null)
             {
                 LightSource ls = instrument.iterateLightSource().next();
@@ -1204,7 +1204,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         p.setPhysicalSizeZ(physicalSizeZ);
     }
 
-    /* ---- Imaging Environment (OMERO Image.Condition) ---- */    
+    /* ---- Imaging Environment (OMERO Image.ImagingEnvironment) ---- */    
 
     /**
      * Get ImagingEnvironment, creating one if it doesn't exist
@@ -1214,11 +1214,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private ImagingEnvironment getImagingEnvironment (int imageIndex)
     {
         Image i = getImage(imageIndex);
-        ImagingEnvironment ie = i.getCondition();
+        ImagingEnvironment ie = i.getImagingEnvironment();
         if (ie == null)
         {
             ie = new ImagingEnvironment();
-            i.setCondition(ie);
+            i.setImagingEnvironment(ie);
         }
         return ie;       
     }
@@ -1550,7 +1550,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         // FIXME: Should pockel cell be String or Integer?
     }
 
-    /* --- Stage Position --- */
+    /* --- StageLabel --- */
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Float, int, int, int)
@@ -1601,11 +1601,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private StageLabel getStageLabel (int imageIndex)
     {
         Image i = getImage(imageIndex);
-        StageLabel sl = i.getPosition();
+        StageLabel sl = i.getStageLabel();
         if (sl == null)
         {
             sl = new StageLabel();
-            i.setPosition(sl);
+            i.setStageLabel(sl);
         }
         return sl;       
     }
@@ -2021,7 +2021,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // instance so we need to update them.
                 for (Image image : imageList)
                 {
-                	if (image.getSetup() == instrument)
+                	if (image.getInstrument() == instrument)
                 	{
                 		Iterator<Channel> iter = 
                 			image.getPrimaryPixels().iterateChannels();
@@ -2182,7 +2182,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 // instance so we need to update them.
                 for (Image image : imageList)
                 {
-                	if (image.getSetup() == instrument)
+                	if (image.getInstrument() == instrument)
                 	{
                 		Iterator<Channel> iter = 
                 			image.getPrimaryPixels().iterateChannels();
@@ -2285,7 +2285,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             	// instance so we need to update them.
             	for (Image image : imageList)
             	{
-            		if (image.getSetup() == instrument)
+            		if (image.getInstrument() == instrument)
             		{
             			Iterator<Channel> iter = 
             				image.getPrimaryPixels().iterateChannels();

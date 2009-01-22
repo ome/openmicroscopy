@@ -41,11 +41,12 @@
 			<zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Well" annotated="true"><!-- TODO: review-->
+	<type id="ome.model.screen.Well" annotated="true">
 		<properties>
 			<optional name="column" type="int"/>
 			<optional name="row" type="int"/>
-			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/><!-- TODO: only one reagent per well in model-->
+			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/>
+			<!-- Note: only one reagent per well in model-->
 			<optional name="externalDescription" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
 			<optional name="type" type="string"/>
@@ -54,14 +55,14 @@
 		</properties>
 	</type>
 <!-- A WellSample is effectively a WellImageLink -->
-	<type id="ome.model.screen.WellSample" annotated="true"><!-- TODO: review-->
+	<type id="ome.model.screen.WellSample" annotated="true">
 		<properties>
 			<optional name="index" type="int"/>
 			<optional name="posX" type="float"/>
 			<optional name="posY" type="float"/>
 			<optional name="timepoint" type="int"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples"/>
-			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/><!-- TODO: is manyone correct? should be 1to1? equivalent of ImageRef in model-->
+			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
 			<parent name="screenAcquisitionLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.ScreenAcquisition"/>
 		</properties>
 	</type>

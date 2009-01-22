@@ -21,18 +21,20 @@
 			<required name="acquisitionDate" type="timestamp"/> 
 			<!-- Note: in the model acquisitionDate is called creationDate but the DB already has a creation date for the object -->
 			<!-- Note: in the model acquisitionDate(creationDate) is optional so if not available should be set to current time on import-->
-			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/><!-- FIX: called ImagingEnvironment in model-->
+			<optional name="imagingEnvironment" type="ome.model.acquisition.ImagingEnvironment"/>
 			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings">
-				<!-- Note: ObjectiveSettings maps to ObjectiveRef (ID and values) in model-->
+				<!-- Note: objectiveSettings maps to ObjectiveRef (ID and values) in model-->
 				<rule id="INS_OBJ_SYNCH" description="only if instrument defined"/>
 			</optional>
-			<optional name="setup" type="ome.model.acquisition.Instrument"/><!-- FIX: called InstrumentRef (ID only ref) in model-->
-			<optional name="position" type="ome.model.acquisition.StageLabel"/><!-- FIX: called StageLabel in model-->
-			<optional name="context" type="ome.model.experiment.Experiment"/><!-- FIX: called ExperimentRef (ID only ref) in model-->
+			<optional name="instrument" type="ome.model.acquisition.Instrument"/>
+			<!-- Note: instrument is called InstrumentRef (ID only ref) in model-->
+			<optional name="stageLabel" type="ome.model.acquisition.StageLabel"/>
+			<optional name="experiment" type="ome.model.experiment.Experiment"/>
+			<!-- Note: experiment is called ExperimentRef (ID only ref) in model-->
 			<optional name="defaultPixels" type="ome.model.core.Pixels"/>
 			<!-- Note: defaultPixels is required in model-->
 			<optional name="acquiredPixels" type="ome.model.core.Pixels"/>
-			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/><!-- TODO: onemany in model-->
+			<onemany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
@@ -48,10 +50,10 @@
 			<!-- Note: the objective link used ID in model-->
 		</properties>
 	</type>
-	<type id="ome.model.core.Pixels" annotated="true"><!-- TODO: review-->
+	<type id="ome.model.core.Pixels" annotated="true">
 		<properties>
 			<!-- Acquisition Context 1 -->
-			<manyone name="image" type="ome.model.core.Image" ordered="true"/><!-- TODO: is manyone correct?-->
+			<manyone name="image" type="ome.model.core.Image" ordered="true"/>
 			<optional name="relatedTo" type="ome.model.core.Pixels"/>
 			<!-- Note: relatedTo is not used in model-->
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
@@ -137,7 +139,8 @@
 			<required name="type" type="ome.model.enums.MicrobeamManipulationType"/>
 			<onemany name="roi" type="ome.model.display.Roi" inverse="microbeamManipulation"/>
 			<!-- Note: roi is called ROIRef (ID only Ref) in model-->
-			<!-- FIX: need to add LightSourceRef from model-->
+			<zeromany name="lightSourceSettings" type="ome.model.acquisition.LightSettings" inverse="microbeamManipulation"/>
+			<!-- Note: lightSourceSettings is called LightSourceRef (ID and values) in model-->
 			<manyone name="experiment" type="ome.model.experiment.Experiment"/>
 			<!-- Note: experiment is not in model-->
 		</properties>
@@ -247,11 +250,11 @@
 			<!-- Note: detector is ID in model-->
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.OTF"><!-- TODO: review-->
+	<type id="ome.model.acquisition.OTF">
 		<properties>
 			<required name="sizeX" type="int"/>
 			<required name="sizeY" type="int"/>
-			<required name="opticalAxisAvg" type="boolean"/><!-- Fix: called OpticalAxisAveraged in model-->
+			<required name="opticalAxisAveraged" type="boolean"/>
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType and using ExtendedPixelTypes in model-->
 			<required name="path" type="string"/><!-- TODO: no FK? -->
@@ -271,7 +274,8 @@
 			</optional>
 			<optional name="wavelength" type="int"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
-			<!-- TODO: lightSource is ID in model-->
+			<!-- Note: lightSource is ID in model-->
+			<manyzero name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
 		</properties>
 	</type>
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -350,8 +354,8 @@
 			<optional name="nominalMagnification" type="int"/>
 			<optional name="calibratedMagnification" type="float"/>
 			<optional name="lensNA" type="float"/>
-			<optional name="immersion" type="ome.model.enums.Immersion"/><!-- TODO: required in model-->
-			<optional name="correction" type="ome.model.enums.Correction"/><!-- TODO: required in model-->
+			<required name="immersion" type="ome.model.enums.Immersion"/>
+			<required name="correction" type="ome.model.enums.Correction"/>
 			<optional name="workingDistance" type="float"/>
 			<optional name="iris" type="boolean"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
@@ -571,7 +575,7 @@
 		<entry name="application/ms-powerpoint"/>
 		<entry name="application/ms-word"/>
 		<entry name="application/octet-stream"/>
-		<!-- Note: Other and Unknown are not needed use text/plain or  application/octet-stream -->
+		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
 	</enum>
 <!-- Pixels Entity -->
 	<enum id="ome.model.enums.DimensionOrder">
@@ -583,9 +587,10 @@
 		<entry name="XYTZC"/>
 		<!-- Note: Other and Unknown are not available -->
 	</enum>
-	<enum id="ome.model.enums.PixelsType"><!-- TODO: add Bit ?-->
+	<enum id="ome.model.enums.PixelsType">
 		<!-- Note: a combination of the objects PixelTypes and
 		     ExtendedPixelTypes from the model -->
+		<!-- Note: 'bit' is not implemented at present -->
 		<entry name="int8"/>
 		<entry name="int16"/>
 		<entry name="int32"/>
@@ -730,8 +735,16 @@
 		<entry name="CO2"/>
 		<entry name="H2O"/>
 		<entry name="HFl"/>
-<!-- FIX: add Solid State Medium -->
-
+<!-- add Solid State Medium -->
+		<entry name="NdGlass"/>
+		<entry name="NdYAG"/>
+		<entry name="ErGlass"/>
+		<entry name="ErYAG"/>
+		<entry name="HoYLF"/>
+		<entry name="HoYAG"/>
+		<entry name="Ruby"/>
+		<entry name="TiSapphire"/>
+		<entry name="Alexandrite"/>
 <!-- Unknown Laser Medium -->
 		<entry name="Other"/>
 		<entry name="Unknown"/>

@@ -56,7 +56,7 @@ public class InstrumentTest extends TestCase
         List<Image> images = (List<Image>) store.getRoot();
         for (Image image : images)
         {
-        	assertNotNull(image.getSetup());
+        	assertNotNull(image.getInstrument());
         }
 	}
 	
@@ -65,14 +65,14 @@ public class InstrumentTest extends TestCase
         List<Image> images = (List<Image>) store.getRoot();
         for (Image image : images)
         {
-        	assertEquals(1, image.getSetup().sizeOfLightSource());
+        	assertEquals(1, image.getInstrument().sizeOfLightSource());
         }
 	}
 	
 	public void testImageInstrumentLightSourceModelPreserved()
 	{
         List<Image> images = (List<Image>) store.getRoot();
-        Instrument instrument = images.get(0).getSetup();
+        Instrument instrument = images.get(0).getInstrument();
         LightSource lightSource = instrument.iterateLightSource().next();
         assertEquals(LIGHTSOURCE_MODEL, lightSource.getModel());
 	}
@@ -80,10 +80,10 @@ public class InstrumentTest extends TestCase
 	public void testReferences()
 	{
         List<Image> images = (List<Image>) store.getRoot();
-        Instrument instrument = images.get(0).getSetup();
+        Instrument instrument = images.get(0).getInstrument();
         for (Image image : images)
         {
-        	assertEquals(image.getSetup(), instrument);
+        	assertEquals(image.getInstrument(), instrument);
         }
 	}
 }

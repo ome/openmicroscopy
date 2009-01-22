@@ -91,14 +91,14 @@ public class ObjectiveSettingsTest extends TestCase
         List<Image> images = (List<Image>) store.getRoot();
         for (Image image : images)
         {
-        	assertEquals(1, image.getSetup().sizeOfObjective());
+        	assertEquals(1, image.getInstrument().sizeOfObjective());
         }
 	}
 	
 	public void testImageInstrumentObjectiveModelPreserved()
 	{
         List<Image> images = (List<Image>) store.getRoot();
-        Instrument instrument = images.get(0).getSetup();
+        Instrument instrument = images.get(0).getInstrument();
         Objective objective = instrument.iterateObjective().next();
         assertEquals(OBJECTIVE_MODEL, objective.getModel());
 	}
@@ -107,10 +107,10 @@ public class ObjectiveSettingsTest extends TestCase
 	{
         List<Image> images = (List<Image>) store.getRoot();
         Objective objective =
-        	images.get(0).getSetup().iterateObjective().next();
+        	images.get(0).getInstrument().iterateObjective().next();
         for (Image image : images)
         {
-        	Instrument instrument = image.getSetup();
+        	Instrument instrument = image.getInstrument();
         	assertEquals(instrument.iterateObjective().next(), objective);
         }
 	}
