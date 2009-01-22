@@ -93,6 +93,8 @@ public class BooleanParam
 	{
 		Object obj = super.getValueAt(index);
 		
+		if (obj == null)
+			return null;
 		return Boolean.valueOf(obj.toString());
 	}
 }
