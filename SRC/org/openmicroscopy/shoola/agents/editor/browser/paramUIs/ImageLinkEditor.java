@@ -51,8 +51,8 @@ import javax.swing.JToolBar;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
+import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomPopupMenu;
@@ -62,7 +62,8 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * This is the UI component for choosing and displaying a link to an image. 
- * Currently this is a link to a locally held image. 
+ * Currently this UI class is not used!!
+ * 
  * If the link is valid, the image will be retrieved and displayed.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -145,11 +146,14 @@ public class ImageLinkEditor
 		noImageIcon = iM.getImageIcon(IconManager.NO_IMAGE_ICON_32);
 		
 		// set the value of the pop-up menu, according to IMAGE_ZOOM attribute
-		zoomPercent = getParameter().getAttribute(ImageParam.IMAGE_ZOOM);
+		/*
+		 zoomPercent = getParameter().getAttribute(ImageParam.IMAGE_ZOOM);
 		if (zoomPercent == null) {
 			zoomPercent = "100";
 		}
+		
 		zoomPopupMenu.setSelectedItem(zoomPercent + "%");
+		*/
 		zoomPopupMenu.addPropertyChangeListener(this);
 	}
 
@@ -176,20 +180,7 @@ public class ImageLinkEditor
 	private void getAndDisplayImageLink() {
 		
 		imagePath = getParameter().getAttribute
-			(ImageParam.ABSOLUTE_IMAGE_PATH);
-		
-		if (imagePath == null) {
-			String relativeImagePath = getParameter().
-				getAttribute(ImageParam.RELATIVE_IMAGE_PATH);
-			if (relativeImagePath != null) {
-				//File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-					// TODO get reference to file!
-				//imagePath = FilePathMethods.getAbsolutePathFromRelativePath
-					//(editorFile, relativeImagePath);
-				imagePath = relativeImagePath;	// won't find image, but better
-												// than nothing. 
-			}
-		}
+			(DataReference.REFERENCE);
 		
 		refreshImage();
 	}
@@ -267,43 +258,8 @@ public class ImageLinkEditor
 			return;		// user canceled
 	
 		
-		// If the user checked "Relative Link", save as a relative link.
-		if (relFileChooser.isRelativeLink()) {
-			saveLinkToParam(ImageParam.RELATIVE_IMAGE_PATH, linkedFilePath);
-		} else {
-			//OR, save the absolute Path
-			saveLinkToParam(ImageParam.ABSOLUTE_IMAGE_PATH, linkedFilePath);
-		}
+		attributeEdited(DataReference.REFERENCE, linkedFilePath);
 		
-	}
-
-	/**
-	 * To ensure that only one type of link is saved to the ImageParam.
-	 * Update several attributes at once, making sure that all apart from 
-	 * one are null.
-	 * 
-	 * @param name		Name of the attribute you're saving
-	 * @param value		The value of the attribute
-	 */
-	private void saveLinkToParam(String name, String value) 
-	{	
-		if (name == null) return;
-
-		if (name.equals(ImageParam.ABSOLUTE_IMAGE_PATH) || 
-				name.equals(ImageParam.RELATIVE_IMAGE_PATH)) {
-			
-			/*
-			 * Make a map with all values null, then update one.
-			 */
-			HashMap<String, String> newValues = new HashMap<String, String>();
-			newValues.put(ImageParam.ABSOLUTE_IMAGE_PATH, null);
-			newValues.put(ImageParam.RELATIVE_IMAGE_PATH, null);
-			
-			newValues.put(name, value);
-			
-			// Updates new values, and adds to undo queue as one action. 
-			attributeEdited("Image", newValues);
-		}	
 	}
 
 	/**
@@ -361,7 +317,7 @@ public class ImageLinkEditor
 			zoomPercent = zoom;
 			// zoom attribute is saved directly.
 			// not added to undo/redo via controller. 
-			getParameter().setAttribute(ImageParam.IMAGE_ZOOM, zoom);
+			// getParameter().setAttribute(ImageParam.IMAGE_ZOOM, zoom);
 			/*refresh the whole panel, and stay in editing mode*/
 			ImageLinkEditor.this.firePropertyChange
 				(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);;

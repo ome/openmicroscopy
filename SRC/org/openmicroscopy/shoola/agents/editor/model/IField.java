@@ -141,6 +141,22 @@ public interface IField
 	public void addDataRef(DataReference ref);
 	
 	/**
+	 * Adds data reference at the specified index in the list. 
+	 * 
+	 * @param index		The index to add
+	 * @param ref		The reference to add
+	 */
+	public void addDataRef(int index, DataReference ref);
+	
+	/**
+	 * Removes the specified {@link DataReference}. 
+	 * 
+	 * @param ref		The reference to remove
+	 * @return	The index of the parameter before removal (or -1 if not found)
+	 */
+	public int removeDataRef(DataReference ref);
+	
+	/**
 	 * Gets the number of {@link DataReference} added to this Field/Step
 	 * 
 	 * @return		see above

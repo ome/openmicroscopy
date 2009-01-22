@@ -36,6 +36,13 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 /** 
  * This Panel is the abstract superclass of all UI components
  * that edit IParam instances (parameter objects).
+ * 
+ * By implementing {@link ITreeEditComp}, this enables subclasses to notify
+ * propertyChangeListeners of changes to properties of IParam by calling
+ * {@link #attributeEdited(String, Object)};
+ * When this class is subsequently queried for the name of the attribute that
+ * was edited, using {@link #getAttributeName()}, it returns the most 
+ * recently edited attribute.  
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

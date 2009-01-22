@@ -53,8 +53,6 @@ public class FieldParamsFactory {
 		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
 		DateTimeParam.DATE_TIME_PARAM,
-		LinkParam.LINK_PARAM, 
-		ImageParam.IMAGE_PARAM, 
 		OntologyTermParam.ONTOLOGY_TERM_PARAM
 		// OBSERVATION_DEFINITION
 	};
@@ -69,8 +67,6 @@ public class FieldParamsFactory {
 		"Check-Box", 
 		"Number", 
 		"Date & Time", 
-		"Link", 
-		"Image", 
 		"Ontology Term"
 		// "Phenote Observation"
 		};
@@ -128,12 +124,6 @@ public class FieldParamsFactory {
 		}
 		else if (paramType.equals(DateTimeParam.DATE_TIME_PARAM)) {
 			fieldValue = new DateTimeParam();
-		}
-		else if (paramType.equals(ImageParam.IMAGE_PARAM)) {
-			fieldValue = new ImageParam(ImageParam.IMAGE_PARAM);
-		}
-		else if (paramType.equals(LinkParam.LINK_PARAM)) {
-			fieldValue = new LinkParam(LinkParam.LINK_PARAM);
 		}
 		else if (paramType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {
 			fieldValue = new OntologyTermParam();

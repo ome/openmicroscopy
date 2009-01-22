@@ -169,6 +169,9 @@ public class CPEexport {
 		// add step notes
 		addNotes(field, step);
 		
+		// add data references
+		addDataRefs(field, step);
+		
 		return step;
 	}
 	
@@ -199,7 +202,44 @@ public class CPEexport {
 		}
 		step.addChild(notes);
 	}
-	 
+	
+	/**
+	 * Copies the data references from a {@link IField} data object into an 
+	 * {@link IXMLElement} XML step element;
+	 *  
+	 * @param field			The field data object
+	 * @param step			The step XML element
+	 */
+	private void addDataRefs(IField field, IXMLElement step)
+	{
+		int dRefCount = field.getDataRefCount();
+		if (dRefCount == 0)		return;
+		
+		IXMLElement drefs = new XMLElement(CPEimport.DATA_REFS);
+		IXMLElement ref;
+		IAttributes noteData;
+		String attribute;
+		for (int i = 0; i < dRefCount; i++) {
+			ref = new XMLElement(CPEimport.DATA_REF);
+			noteData = field.getDataRefAt(i);
+			attribute = noteData.getAttribute(DataReference.NAME);
+			addChildContent(ref, DataReference.NAME, attribute);
+			attribute = noteData.getAttribute(DataReference.REFERENCE);
+			addChildContent(ref, DataReference.REFERENCE, attribute);
+			attribute = noteData.getAttribute(DataReference.DESCRIPTION);
+			addChildContent(ref, DataReference.DESCRIPTION, attribute);
+			attribute = noteData.getAttribute(DataReference.MIME_TYPE);
+			addChildContent(ref, DataReference.MIME_TYPE, attribute);
+			attribute = noteData.getAttribute(DataReference.SIZE);
+			addChildContent(ref, DataReference.SIZE, attribute);
+			attribute = noteData.getAttribute(DataReference.CREATION_TIME);
+			addChildContent(ref, DataReference.CREATION_TIME, attribute);
+			attribute = noteData.getAttribute(DataReference.MODIFICATION_TIME);
+			addChildContent(ref, DataReference.MODIFICATION_TIME, attribute);
+			drefs.addChild(ref);
+		}
+		step.addChild(drefs);
+	}
 	
 	/**
 	 * This method uses the parameters from the field (of the editor data model)

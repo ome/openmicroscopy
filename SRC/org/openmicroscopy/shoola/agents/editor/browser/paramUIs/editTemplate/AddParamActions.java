@@ -41,12 +41,11 @@ import javax.swing.tree.TreeNode;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
+import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
@@ -134,9 +133,8 @@ public class AddParamActions
 				new AddBooleanParamAction(),
 				new AddEnumParamAction(),
 				new AddDateTimeParamAction(),
-				new AddLinkParamAction(),
-				new AddImageParamAction(),
-				new AddOntologyParamAction()};
+				new AddOntologyParamAction(),
+				new AddDataRefAction()};
 		
 		Icon addIcon = iM.getIcon(IconManager.ADD_NUMBER);
 		
@@ -366,64 +364,32 @@ public class AddParamActions
 	}
 	
 	/**
-	 * Action for adding a Link Parameter
-	 * 
-	 * @author will
-	 */
-	public class AddLinkParamAction 
-		extends AbstractAction 
-	{
-		/**
-		 * Creates an instance. 
-		 */
-		public AddLinkParamAction() 
-		{
-			putValue(Action.NAME, "Add Link Parameter");
-			putValue(Action.SHORT_DESCRIPTION,
-					"Add a link parameter to this field");
-			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.LINK_LOCAL_ICON)); 
-		}
-		
-		/** 
-	     * Adds a new Link Parameter
-	     * 
-	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	     */
-		public void actionPerformed(ActionEvent e) 
-		{
-			controller.addParamToField(field, LinkParam.LINK_PARAM, 
-					tree, node);
-		}
-	}
-	
-	/**
 	 * Action for adding a Image Parameter
 	 * 
 	 * @author will
 	 */
-	public class AddImageParamAction 
+	public class AddDataRefAction 
 		extends AbstractAction 
 	{
 		/**
 		 * Creates an instance. 
 		 */
-		public AddImageParamAction() 
+		public AddDataRefAction() 
 		{
-			putValue(Action.NAME, "Add Image Parameter");
+			putValue(Action.NAME, "Add Data Link");
 			putValue(Action.SHORT_DESCRIPTION,
-					"Add an image parameter to this field");
-			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.IMAGE_ICON)); 
+					"Add a link to data");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.LINK_LOCAL_ICON)); 
 		}
 		
 		/** 
-	     * Adds a new Image Parameter
+	     * Adds a new Data Reference
 	     * 
 	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, ImageParam.IMAGE_PARAM, 
-					tree, node);
+			controller.addDataRefToField(field, tree, node);
 		}
 	}
 	

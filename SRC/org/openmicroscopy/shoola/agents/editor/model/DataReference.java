@@ -48,7 +48,8 @@ import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
  * </small>
  * @since 3.0-Beta4
  */
-public class DataReference {
+public class DataReference 
+	implements IAttributes {
 	
 	/** The name of the data reference */
 	public static final String 		NAME = "name";
@@ -97,13 +98,21 @@ public class DataReference {
 	}
 	
 	/**
-	 * Sets an attribute of the data-reference.
+	 * Implemented as specified by the {@link IAttributes} interface. 
 	 * 
-	 * @param name		Name of attribute
-	 * @param value		New value of attribute
+	 * @see IAttributes#setAttribute(String, String)
 	 */
 	public void setAttribute(String name, String value) 
 	{
 		valueAttributesMap.put(name, value);
+	}
+
+	/**
+	 * Implemented as specified by the {@link IAttributes} interface. 
+	 * 
+	 * @see IAttributes#isAttributeTrue(String)
+	 */
+	public boolean isAttributeTrue(String attributeName) {
+		return "true".equals(valueAttributesMap.get(attributeName));
 	}
 }

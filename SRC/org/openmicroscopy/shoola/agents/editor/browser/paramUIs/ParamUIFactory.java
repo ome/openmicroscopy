@@ -39,8 +39,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
@@ -118,14 +116,6 @@ public class ParamUIFactory
 		
 		if (inputType.equals(BooleanParam.BOOLEAN_PARAM)) {
 			return new BooleanEditor(paramObject);
-		}
-		
-		if (inputType.equals(LinkParam.LINK_PARAM)) {
-			return new LinkEditor(paramObject);
-		}
-		
-		if (inputType.equals(ImageParam.IMAGE_PARAM)) {
-			return new ImageLinkEditor(paramObject);
 		}
 		
 		if (inputType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {

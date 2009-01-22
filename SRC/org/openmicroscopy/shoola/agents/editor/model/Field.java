@@ -425,4 +425,25 @@ public class Field
 	public int getDataRefCount() {
 		return dataRefs.size();
 	}
+
+	/**
+	 * Implemented as specified by the {@link IField} interface. 
+	 * 
+	 * @see IField#addDataRef(int, DataReference)
+	 */
+	public void addDataRef(int index, DataReference ref) {
+		dataRefs.add(index, ref);
+	}
+
+	/**
+	 * Implemented as specified by the {@link IField} interface. 
+	 * 
+	 * @see IField#removeDataRef(DataReference)
+	 */
+	public int removeDataRef(DataReference ref) {
+		int index = dataRefs.indexOf(ref);
+		
+		dataRefs.remove(ref);
+		return index;
+	}
 }

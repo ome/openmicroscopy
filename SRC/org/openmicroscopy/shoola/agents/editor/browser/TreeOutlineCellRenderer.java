@@ -44,8 +44,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -117,14 +115,10 @@ public class TreeOutlineCellRenderer
 						paramIcon = imF.getIcon(IconManager.TEXT_BOX_ICON);
 					else if (DateTimeParam.DATE_TIME_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.CALENDAR_ICON);
-					else if (ImageParam.IMAGE_PARAM.equals(paramType)) 
-						paramIcon = imF.getIcon(IconManager.IMAGE_ICON);
 					else if (BooleanParam.BOOLEAN_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.CHECK_BOX);
 					else if (EnumParam.ENUM_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.DROP_DOWN);
-					else if (LinkParam.LINK_PARAM.equals(paramType)) 
-						paramIcon = imF.getIcon(IconManager.WWW_ICON);
 					else if (NumberParam.NUMBER_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.NUMBER);
 				}

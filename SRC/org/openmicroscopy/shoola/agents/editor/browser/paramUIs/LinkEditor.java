@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.RelativeFileChooser;
@@ -60,6 +59,9 @@ import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 
 /** 
  * This is the UI class for editing a Link.
+ * 
+ * ** NO-LONGER-USED! **
+ * 
  * The link can be either an "Absolute" path to a local file,
  * a "Relative" path from the file that contains this parameter (must be 
  * saved somewhere), or a URL.
@@ -217,7 +219,7 @@ public class LinkEditor
 		/*
 		 * First check the value of the Absolute file path attribute
 		 */
-		URLlink = getParameter().getAttribute(LinkParam.ABSOLUTE_FILE_LINK);
+		//URLlink = getParameter().getAttribute(DataRefParam.ABSOLUTE_FILE_LINK);
 		if (URLlink != null) {
 			
 			File linkedFile = new File(URLlink);
@@ -233,7 +235,7 @@ public class LinkEditor
 		
 		// if null, check the Relative file path attribute..
 		else {
-			URLlink = getParameter().getAttribute(LinkParam.RELATIVE_FILE_LINK);
+			//URLlink = getParameter().getAttribute(DataRefParam.RELATIVE_FILE_LINK);
 			// .. and if not null, convert it to absolute path.
 			if (URLlink != null) {
 				
@@ -264,7 +266,7 @@ public class LinkEditor
 		}
 		// if still null, check the URL 
 		if (URLlink == null) {
-			URLlink = getParameter().getAttribute(LinkParam.URL_LINK);
+			//URLlink = getParameter().getAttribute(DataRefParam.URL_LINK);
 			linkType = URL_LINK;
 		}
 		
@@ -357,7 +359,7 @@ public class LinkEditor
 			}
 			
 			// Save the URL to dataField
-			saveLinkToParam(LinkParam.URL_LINK, url);
+			//saveLinkToParam(DataRefParam.URL_LINK, url);
 		}
 	}
 
@@ -392,34 +394,7 @@ public class LinkEditor
 		}
 	}
 
-	/**
-	 * To ensure that only one type of link is saved to the parameter.
-	 * Update several attributes at once, making sure that all apart from 
-	 * one are null.
-	 * Pass a this map of values to {@link #attributeEdited(String, Object)}
-	 * 
-	 * @param name		The name of the attribute to save
-	 * @param value		The value of the attribute
-	 */
-	private void saveLinkToParam(String name, String value) 
-	{	
-		if (name.equals(LinkParam.URL_LINK) || 
-				name.equals(LinkParam.ABSOLUTE_FILE_LINK) ||
-				name.equals(LinkParam.RELATIVE_FILE_LINK)) {
-			
-			// Make a map with all values null, then update one.
-			HashMap<String, String> newValues = new HashMap<String, String>();
-			newValues.put(LinkParam.URL_LINK, null);
-			newValues.put(LinkParam.ABSOLUTE_FILE_LINK, null);
-			newValues.put(LinkParam.RELATIVE_FILE_LINK, null);
-			
-			newValues.put(name, value);
-			
-			// Updates new values, and adds to undo queue as one action. 
-			attributeEdited("Link", newValues);
-		}
-			
-	}
+	
 
 	/**
 	 * Opens a fileChooser, for the user to pick a file.
@@ -443,13 +418,7 @@ public class LinkEditor
 		if (linkedFilePath == null) 
 			return;		// user canceled
 	
-		// If the user checked "Relative Link", save as a relative link...
-		if (relFileChooser.isRelativeLink()) {
-			saveLinkToParam(LinkParam.RELATIVE_FILE_LINK, linkedFilePath);
-		} else {
-			// Otherwise, save the absolute Path
-			saveLinkToParam(LinkParam.ABSOLUTE_FILE_LINK, linkedFilePath);
-		}
+		
 	}
 
 	/**

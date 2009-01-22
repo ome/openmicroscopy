@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.ImageParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
@@ -228,17 +226,13 @@ public class PROimport {
 		 
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
 		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
+		 // if there was a url set, add this as text into content.
+		 // In future, want to add regex parsing to recognise urls in text
+		 if (url != null) {
+			 field.addContent(new TextContent(url + " "));
+		 }
 		 
 		 field.addContent(new TextContent(description));
-		 
-		 
-		 IParam param;
-		 // if there was a url set, add this as a link parameter. 
-		 if (url != null) {
-			 param = getFieldParam(LinkParam.LINK_PARAM);
-			 param.setAttribute(LinkParam.URL_LINK, url);
-			 field.addContent(param);
-		 }
 		 
 		 // is this a 'required' field?
 		 boolean fieldRequired = "true".equals(
@@ -246,6 +240,7 @@ public class PROimport {
 		 
 		 // parameter that represents the field 
 		 // if field contains tabular data, add a parameter for each column...
+		 IParam param;
 		 if (paramType.equals(DataFieldConstants.TABLE)) {
 			 
 			// fill columns
@@ -282,12 +277,43 @@ public class PROimport {
 						 DataFieldConstants.ROW_DATA_NUMBER + row);
 			 }
 			 
+		 } else if (paramType.equals(DataFieldConstants.LINK_FIELD) || 
+				 paramType.equals(DataFieldConstants.IMAGE_FIELD)){
+			 DataReference dataRef = new DataReference();
+			 String name = "File link";
+			 String link = allAttributes.get(
+					 DataFieldConstants.ABSOLUTE_FILE_LINK);
+			 if (link == null) {
+				 link = allAttributes.get(
+						 DataFieldConstants.RELATIVE_FILE_LINK);
+				 name = "Relative File link";
+			 }
+			 if (link == null) {
+				 link = allAttributes.get(DataFieldConstants.URL_LINK);
+				 name = "Url";
+			 }
+			 if (link == null) {
+				 link = allAttributes.get(DataFieldConstants.ABSOLUTE_IMAGE_PATH);
+				 name = "Image link";
+			 }
+			 if (link == null) {
+				 link = allAttributes.get(DataFieldConstants.RELATIVE_IMAGE_PATH);
+				 name = "Relative image link";
+			 }
+			 if (link != null) {
+				dataRef.setAttribute(DataReference.REFERENCE, link);
+				dataRef.setAttribute(DataReference.NAME, name);
+			 } else {
+				 dataRef.setAttribute(DataReference.NAME, "No link");
+			 }
+			 field.addDataRef(dataRef);
+			 
 		 } else {
 			 // all other field types can be converted to a single parameter.
 			 param = getParameter(paramType, allAttributes);
 			 if (param != null) {
 				 if(fieldRequired) param.setAttribute
-		 			(AbstractParam.PARAM_REQUIRED, "true");
+		 				(AbstractParam.PARAM_REQUIRED, "true");
 				 field.addContent(param);
 			 }
 		 }
@@ -378,30 +404,6 @@ public class PROimport {
 				}
 			 }
 		 } 
-		 else if (paramType.equals(DataFieldConstants.LINK_FIELD)){
-			 param = getFieldParam(LinkParam.LINK_PARAM);
-			 String link = allAttributes.get(
-					 DataFieldConstants.ABSOLUTE_FILE_LINK);
-			 param.setAttribute(LinkParam.ABSOLUTE_FILE_LINK, link);
-			 link = allAttributes.get(
-					 DataFieldConstants.RELATIVE_FILE_LINK);
-			 param.setAttribute(LinkParam.RELATIVE_FILE_LINK, link);
-			 link = allAttributes.get(
-					 DataFieldConstants.URL_LINK);
-			 param.setAttribute(LinkParam.URL_LINK, link);
-		 }
-		 else if (paramType.equals(DataFieldConstants.IMAGE_FIELD)){
-			 param = getFieldParam(ImageParam.IMAGE_PARAM);
-			 String link = allAttributes.get(
-					 DataFieldConstants.ABSOLUTE_IMAGE_PATH);
-			 param.setAttribute(ImageParam.ABSOLUTE_IMAGE_PATH, link);
-			 link = allAttributes.get(
-					 DataFieldConstants.RELATIVE_IMAGE_PATH);
-			 param.setAttribute(ImageParam.RELATIVE_IMAGE_PATH, link);
-			 String zoom = allAttributes.get(
-					 DataFieldConstants.IMAGE_ZOOM);
-			 param.setAttribute(ImageParam.IMAGE_ZOOM, zoom);
-		 }
 		 else if (paramType.equals(DataFieldConstants.OLS_FIELD)){
 			 param = getFieldParam(OntologyTermParam.ONTOLOGY_TERM_PARAM);
 			 String ontologyTermName = allAttributes.get

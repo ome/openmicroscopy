@@ -55,8 +55,10 @@ import javax.swing.tree.TreePath;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.DataRefEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
+import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -235,6 +237,8 @@ public class FieldParamEditor
 		// For each parameter of this field, add the components for
 		// editing their default or template values. 
 		addParameters();
+		// add data refs
+		addDataRefs();
 		
 		this.setLayout(new BorderLayout());
 		add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -259,6 +263,30 @@ public class FieldParamEditor
 				
 				addParam(param);
 			}
+		}
+	}
+	
+	/**
+	 * Add additional UI components for editing the data references of this field.
+	 */
+	protected void addDataRefs() 
+	{
+		JPanel dataRefHeader = new JPanel(new BorderLayout());
+		dataRefHeader.setBackground(null);
+		dataRefHeader.add(new CustomLabel("Data Links:"), BorderLayout.WEST);
+		attributeFieldsPanel.add(dataRefHeader);
+		
+		int dataRefCount = field.getDataRefCount();
+			
+		DataRefEditor drEditor;
+		DataReference dataRef;
+		for (int i=0; i<dataRefCount; i++) {
+			dataRef = field.getDataRefAt(i);
+			drEditor = new DataRefEditor(dataRef, this);
+			drEditor.addPropertyChangeListener(
+					ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+			attributeFieldsPanel.add(Box.createVerticalStrut(10));
+			attributeFieldsPanel.add(drEditor);
 		}
 	}
 

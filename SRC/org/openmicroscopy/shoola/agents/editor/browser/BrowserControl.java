@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddDataRefEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldTableEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributeEdit;
@@ -329,6 +330,18 @@ public class BrowserControl
 			JTree tree, TreeNode node) {
 		
 		UndoableEdit edit = new AddParamEdit(field, paramType, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by creating and adding a Data reference to a field/step
+	 * 
+	 * @param field		The field to add a new parameter to.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void addDataRefToField(IField field, JTree tree, TreeNode node) {
+		UndoableEdit edit = new AddDataRefEdit(field, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	
