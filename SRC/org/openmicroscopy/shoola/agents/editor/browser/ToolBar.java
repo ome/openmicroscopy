@@ -29,6 +29,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
 
@@ -76,21 +77,28 @@ public class ToolBar
 	{
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setRollover(true);
+		bar.setBorder(null);
+		
 		// add(createButton(BrowserControl.EDIT)); Toggle editing. 
-		add(createButton(BrowserControl.ADD_FIELD_ACTION));
-		add(createButton(BrowserControl.DELETE_FIELD_ACTION));
-		add(createButton(BrowserControl.INDENT_LEFT_ACTION));
-		add(createButton(BrowserControl.INDENT_RIGHT_ACTION));
-		add(createButton(BrowserControl.MOVE_UP_ACTION));
-		add(createButton(BrowserControl.MOVE_DOWN_ACTION));
+		bar.add(createButton(BrowserControl.ADD_FIELD_ACTION));
+		bar.add(createButton(BrowserControl.DELETE_FIELD_ACTION));
+		bar.add(createButton(BrowserControl.INDENT_LEFT_ACTION));
+		bar.add(createButton(BrowserControl.INDENT_RIGHT_ACTION));
+		bar.add(createButton(BrowserControl.MOVE_UP_ACTION));
+		bar.add(createButton(BrowserControl.MOVE_DOWN_ACTION));
 		
-		add(new JSeparator(SwingConstants.VERTICAL));
-		add(createButton(BrowserControl.UNDO_ACTION));
-		add(createButton(BrowserControl.REDO_ACTION));
+		bar.add(new JSeparator(SwingConstants.VERTICAL));
+		bar.add(createButton(BrowserControl.UNDO_ACTION));
+		bar.add(createButton(BrowserControl.REDO_ACTION));
 		
-		add(new JSeparator(SwingConstants.VERTICAL));
-		add(createButton(BrowserControl.COPY_FIELDS_ACTION));
-		add(createButton(BrowserControl.PASTE_FIELDS_ACTION));
+		bar.add(new JSeparator(SwingConstants.VERTICAL));
+		bar.add(createButton(BrowserControl.COPY_FIELDS_ACTION));
+		bar.add(createButton(BrowserControl.PASTE_FIELDS_ACTION));
+		
+		add(bar);
 	}
 	
 	/**

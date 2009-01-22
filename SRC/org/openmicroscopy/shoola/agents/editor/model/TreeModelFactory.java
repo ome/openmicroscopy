@@ -76,11 +76,13 @@ public class TreeModelFactory
 		IXMLElement root = null;
 		
 		String errMsg = null;
+		String absPath = null;
 		
 		try {
 			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
 
-			IXMLReader reader = StdXMLReader.fileReader(xHtmlFile.getAbsolutePath());
+			absPath = xHtmlFile.getAbsolutePath();
+			IXMLReader reader = StdXMLReader.fileReader(absPath);
 
 			parser.setReader(reader);
 			
@@ -88,7 +90,8 @@ public class TreeModelFactory
 		} catch (Exception ex) {
 			
 			ex.printStackTrace();
-			errMsg = "Error reading XML file: " + ex.toString();
+			errMsg = "Error reading XML file at " + absPath + "/n" 
+			+ ex.toString();
 		} 
 		
 		String rootName = null;
