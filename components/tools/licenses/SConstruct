@@ -12,12 +12,14 @@ env = OmeroEnvironment()
 env.Repository("generated", "resources")
 env.Append(CPPPATH=["generated",tools_include])
 
-if not env.GetOption('clean'):
+if os.environ.has_key("NOMAKE"):
+    build_cpp = False
+elif not env.GetOption('clean'):
     conf = Configure(env)
-    has_client_lib = conf.CheckLibWithHeader("omero_client", "omero/ClientErrors.h", "C++")
+    build_cpp = conf.CheckLibWithHeader("omero_client", "omero/ClientErrors.h", "C++")
     conf.Finish()
 else:
-    has_client_lib = False
+    build_cpp = False
 
 #
 # Defining licenses version of DEPMAP.
@@ -52,7 +54,7 @@ env.Alias("slice", actions)
 #
 # Build library
 #
-if has_client_lib:
+if build_cpp:
     lib = env.SharedLibrary("omero_licenses",
         ["omero/LicensesAPI.cpp"],
         LIBS=["omero_client","Ice","Glacier2","IceUtil"])
