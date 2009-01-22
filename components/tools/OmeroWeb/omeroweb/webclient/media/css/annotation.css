@@ -1,13 +1,11 @@
 #annotation {
-    margin: 5px 0;
-    padding: 0;
-    min-height: 20px;
+    border-top:1px solid #BBBBBB;
+    margin: 50px 0 10px;
+    padding: 10px 0;
 }
 #annotation_form {
-    border-top:1px solid #BBBBBB;
     border-bottom:1px solid #BBBBBB;
     height: 300px;
-    margin-top: 70px;
 }
 
 div.comment {

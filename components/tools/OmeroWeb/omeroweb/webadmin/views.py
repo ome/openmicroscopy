@@ -743,6 +743,7 @@ def my_account(request, action=None, **kwargs):
             email = request.REQUEST['email']
             institution = request.REQUEST['institution']
             defaultGroup = request.REQUEST['default_group']
+            print "'",request.REQUEST['password'],"'"
             try:
                 if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
                     password = None

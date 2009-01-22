@@ -2177,6 +2177,13 @@ def myaccount(request, action, **kwargs):
                 password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
+    elif action == "upload":
+        if request.method == 'POST':
+            form_file = UploadFileForm(request.POST, request.FILES)
+            if form_file.is_valid():
+                controller = BaseUploadFile(conn)
+                controller.attache_photo(request.FILES['photo'])
+                return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     else:
         if controller.ldapAuth == "" or controller.ldapAuth is None:
             form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
@@ -2190,11 +2197,21 @@ def myaccount(request, action, **kwargs):
                                     'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['memberOfGroups']})
-    
-    context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group}
+    form_file = UploadFileForm()
+    context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group, 'form_file':form_file}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
+
+@isUserConnected
+def myphoto(request, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    photo = conn.getExperimenterPhoto()
+    return HttpResponse(photo, mimetype='image/jpeg')
 
 @isUserConnected
 def help(request, menu, **kwargs):
