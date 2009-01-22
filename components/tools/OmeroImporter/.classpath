@@ -12,8 +12,6 @@
 	<classpathentry kind="lib" path="target/libs/commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/bio-formats"/>
-	<classpathentry kind="lib" path="target/libs/jbossall-client.jar"/>
 	<classpathentry kind="lib" path="target/libs/ini4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/java-getopt.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
@@ -22,5 +20,6 @@
 	<classpathentry kind="lib" path="target/libs/omero_client.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/importer-common.jar"/>
+	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
