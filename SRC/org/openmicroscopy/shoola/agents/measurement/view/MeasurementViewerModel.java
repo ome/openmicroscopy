@@ -793,6 +793,13 @@ class MeasurementViewerModel
 	}
 	
 	/**
+	 * Returns the channels metadata.
+	 * 
+	 * @return See above
+	 */
+	List<ChannelData> getMetadata() { return metadata; }
+	
+	/**
 	 * Returns the metadata corresponding to the specified index or 
 	 * <code>null</code> if the index is not valid.
 	 * 

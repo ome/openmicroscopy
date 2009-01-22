@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
@@ -78,8 +77,10 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
+import pojos.ChannelData;
+
 /** 
- * 
+ * Displats the intensity results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -97,46 +98,47 @@ class IntensityResultsView
 {
 	
 	/** Index to identify tab */
-	public final static int		INDEX = MeasurementViewerUI.INTENSITYRESULTVIEW_INDEX;
+	public final static int		INDEX = 
+		MeasurementViewerUI.INTENSITYRESULTVIEW_INDEX;
 	
 	/** The add button name. */
 	private final static String ADDNAME = "Add";
 	
 	/** Tooltip for the add button. */
-	private final static String ADDDESCRIPTION = "Add Intensities for selected ROI to results table.";
+	private final static String ADDDESCRIPTION = "Add Intensities for " +
+							"selected ROI to results table.";
 	
 	/** The remove button name. */
 	private final static String REMOVENAME = "Remove";
 	
 	/** Tooltip for the remove button. */
-	private final static String REMOVEDESCRIPTION = "Remove Results in selected row from table.";
+	private final static String REMOVEDESCRIPTION = "Remove Results in " +
+			"selected row from table.";
 	
 	/** The save button name. */
 	private final static String SAVENAME = "Save";
 	
 	/** Tooltip for the save button. */
-	private final static String SAVEDESCRIPTION = "Save Intensities to CSV File.";
+	private final static String SAVEDESCRIPTION = "Save Intensities " +
+			"to Excel File.";
 	
 	/** Reference to the view. */
-	private MeasurementViewerUI			view;
+	private MeasurementViewerUI view;
 	
 	/** The results table. */
-	JTable results;
+	private JTable results;
 	
 	/** The results model for the results table. */
-	ResultsTableModel resultsModel;
+	private ResultsTableModel resultsModel;
 	
 	/** The remove button. */
-	JButton removeButton;
+	private JButton removeButton;
 	
 	/** The save button. */
-	JButton saveButton;
+	private JButton saveButton;
 	
 	/** The add button. */
-	JButton addButton;
-	
-	/** The intensity panel. */
-	IntensityView intensityView;
+	private JButton addButton;
 	
 	/** The state of the Intensity View. */
 	static enum State 
@@ -247,6 +249,7 @@ class IntensityResultsView
 		buildGUI();
 	}
 	
+	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		resultsModel = new ResultsTableModel();
@@ -329,12 +332,12 @@ class IntensityResultsView
 		
 		
 		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
-		channelName =  new TreeMap<Integer, String>();
+		channelName = new TreeMap<Integer, String>();
 		nameMap = new HashMap<String, Integer>();
 		
-		while(shapeIterator.hasNext())
+		while (shapeIterator.hasNext())
 		{
-			shape = (ROIShape) shapeIterator.next();
+			shape = shapeIterator.next();
 			Map<StatsType, Map> shapeStats;
 			
 			shapeMap.put(shape.getCoord3D(), shape);
@@ -353,11 +356,25 @@ class IntensityResultsView
 			sumStats.put(shape.getCoord3D(), shapeStats.get(StatsType.SUM));
 			stdDevStats.put(shape.getCoord3D(), shapeStats.get(StatsType.STDDEV));
 			
-			/* really inefficient but hey.... quick hack just now till refactor */
-			Iterator<Integer> channelIterator = shapeStats.get(StatsType.MIN).keySet().iterator();
 			channelName.clear();
 			nameMap.clear();
 			channelColour.clear();
+			ChannelData channelData;
+			int channel;
+			List<ChannelData> metadata = model.getMetadata();
+			Iterator<ChannelData> i = metadata.iterator();
+			while (i.hasNext()) {
+				channelData = i.next();
+				channel = channelData.getIndex();
+				if (model.isChannelActive(channel)) 
+				{
+					channelName.put(channel, channelData.getChannelLabeling());
+					nameMap.put(channelName.get(channel), channel);
+					channelColour.put(channel, 
+						(Color) model.getActiveChannels().get(channel));
+				}
+			}
+			/*
 			while(channelIterator.hasNext())
 			{
 				int channel = channelIterator.next();
@@ -370,7 +387,7 @@ class IntensityResultsView
 						(Color) model.getActiveChannels().get(channel));
 				}
 			}
-			
+			*/
 			if(channelName.size()==0 || nameMap.size() ==0 || 
 				channelColour.size() == 0)
 			{

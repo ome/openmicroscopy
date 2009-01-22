@@ -399,11 +399,13 @@ class GraphPane
 		channelColour.clear();
 		channelXYData.clear();
 		channelData.clear();
-		Iterator<Integer>channelIterator = data.keySet().iterator();
+		Iterator<Integer> k = data.keySet().iterator();
 		ChannelData cData;
-		while (channelIterator.hasNext())
-		{
-			channel = channelIterator.next();
+		List<ChannelData> metadata = model.getMetadata();
+		Iterator<ChannelData> j = metadata.iterator();
+		while (j.hasNext()) {
+			cData = j.next();
+			channel = cData.getIndex();
 			if (model.isChannelActive(channel)) 
 			{
 				cData = model.getMetadata(channel);
@@ -416,8 +418,7 @@ class GraphPane
 					return;
 				channelData.add(data.get(channel));
 				
-				if (lineProfileFigure(shape))
-				{
+				if (lineProfileFigure(shape)) {
 					dataY = data.get(channel);
 					dataXY = new double[2][dataY.length];
 					if (dataY.length == 0) 
@@ -431,6 +432,37 @@ class GraphPane
 				}
 			}
 		}
+		/*
+		while (k.hasNext())
+		{
+			channel = k.next();
+			if (model.isChannelActive(channel)) 
+			{
+				cData = model.getMetadata(channel);
+				if (cData != null)
+				channelName.add(cData.getChannelLabeling());
+				c = model.getActiveChannelColor(channel);
+				if (c == null) return;
+				channelColour.add(c);
+				if (data.get(channel).length == 0)
+					return;
+				channelData.add(data.get(channel));
+				
+				if (lineProfileFigure(shape)) {
+					dataY = data.get(channel);
+					dataXY = new double[2][dataY.length];
+					if (dataY.length == 0) 
+						return;
+					for (int i = 0 ; i < dataY.length ; i++)
+					{
+						dataXY[0][i] = i;
+						dataXY[1][i] = dataY[i];
+					}
+					channelXYData.add(dataXY);
+				}
+			}
+		}
+		*/
 		lineProfileChart = null;
 		histogramChart = null;
 		if (lineProfileFigure(shape))

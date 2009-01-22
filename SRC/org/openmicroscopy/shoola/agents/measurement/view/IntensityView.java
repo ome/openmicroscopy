@@ -88,6 +88,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
+import pojos.ChannelData;
+
 /** 
  * Displays stats computed on the pixels intensity value of a given ROI shape.
  *
@@ -527,10 +529,26 @@ class IntensityView
 			pixelStats.put(shape.getCoord3D(), shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
 			
 			/* really inefficient but hey.... quick hack just now till refactor */
-			Iterator<Integer> channelIterator = shapeStats.get(StatsType.MIN).keySet().iterator();
 			channelName.clear();
 			nameMap.clear();
 			channelColour.clear();
+			
+			ChannelData channelData;
+			int channel;
+			List<ChannelData> metadata = model.getMetadata();
+			Iterator<ChannelData> i = metadata.iterator();
+			while (i.hasNext()) {
+				channelData = i.next();
+				channel = channelData.getIndex();
+				if (model.isChannelActive(channel)) 
+				{
+					channelName.put(channel, channelData.getChannelLabeling());
+					nameMap.put(channelName.get(channel), channel);
+					channelColour.put(channel, 
+						(Color) model.getActiveChannels().get(channel));
+				}
+			}
+			/*
 			while(channelIterator.hasNext())
 			{
 				int channel = channelIterator.next();
@@ -543,9 +561,10 @@ class IntensityView
 						(Color)model.getActiveChannels().get(channel));
 				}
 			}
+			*/
 			
 		}
-		if(channelName.size()==0 || nameMap.size() ==0 || 
+		if (channelName.size() == 0 || nameMap.size() == 0 || 
 				channelColour.size() == 0)
 		{
 			state = State.READY;
@@ -556,14 +575,14 @@ class IntensityView
 		maxT = maxT+1;
 		minT = minT+1;
 		
-		if(channelName.size()!=channelColour.size())
+		if (channelName.size() != channelColour.size())
 		{
 			state = State.READY;
 			return;
 		}
 		createComboBox();
-		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
-		String string = (String)nameColour[1];
+		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
+		String string = (String) nameColour[1];
 		selectedChannel = nameMap.get(string);
 		/*if(selectedChannel >= channelSelection.getItemCount())
 		{
@@ -593,24 +612,38 @@ class IntensityView
 		channelSelection.removeAllItems();
 	}
 	
-	/**
-	 * Create the combobox holding the channel list.
-	 *
-	 */
+	/** Creates the combobox holding the channel list. */
 	private void createComboBox()
 	{
-		
-		Object[][] channelCols = new Object[channelName.size()][2]; 
+		Object[][] channelCols = new Object[channelName.size()][2];
+		List<ChannelData> metadata = model.getMetadata();
+		Iterator<ChannelData> i = metadata.iterator();
+		ChannelData channelData;
+		int channel;
+		int index = 0;
+		while (i.hasNext()) {
+			channelData = i.next();
+			channel = channelData.getIndex();
+			if (channelName.containsKey(channel)) 
+			{
+				channelCols[index] = new Object[]{channelColour.get(channel), 
+						channelName.get(channel)};
+				index++;
+			}
+		}
+		/*
 		Iterator<Integer> iterator = channelName.keySet().iterator();
 		int i = 0;
-		while(iterator.hasNext())
+		int channel;
+		while (iterator.hasNext())
 		{
-			int channel = iterator.next();
-			channelCols[i] = new Object[]{ channelColour.get(channel), 
+			channel = iterator.next();
+			channelCols[i] = new Object[]{channelColour.get(channel), 
 											channelName.get(channel)};
 			i++;
 		}
-		if(channelCols.length==0)
+		*/
+		if (channelCols.length == 0)
 			return;
 		
 		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	

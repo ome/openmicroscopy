@@ -1180,8 +1180,6 @@ class ImViewerUI
 		int t = model.getDefaultT();
 		
 			
-		Iterator<Integer> i = indexes.iterator();
-		int index;
 		PlaneInfo info;
 		String s, toolTipText;
 		Map<Integer, Color> colors = model.getActiveChannelsColorMap();
@@ -1190,31 +1188,38 @@ class ImViewerUI
 		Map<String, Object> details;
 		List<String> tips;
 		PlaneInfoComponent comp;
-		while (i.hasNext()) {
-			s = "";
-			toolTipText = "";
-			tips = new ArrayList<String>();
-			index = i.next();
-			info = model.getPlane(z, index, t);
-			comp = planes.get(index);
-			if (info != null) {
-				details = EditorUtil.transformPlaneInfo(info);
-				comp.setColor(colors.get(index));
-				s += details.get(EditorUtil.DELTA_T)+"s ";
-				toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-				toolTipText += details.get(EditorUtil.EXPOSURE_TIME)+"s";
-				tips.add(toolTipText);
+		
+		List<ChannelData> metadata = model.getChannelData();
+		Iterator<ChannelData> c = metadata.iterator();
+		int index;
+		while (c.hasNext()) {
+			index = c.next().getIndex();
+			if (indexes.contains(index)) {
+				s = "";
 				toolTipText = "";
-				toolTipText += "Stage coordinates: ";
-				toolTipText += details.get(EditorUtil.POSITION_X)+", ";
-				toolTipText += details.get(EditorUtil.POSITION_Y)+", ";
-				toolTipText += details.get(EditorUtil.POSITION_Z)+" ";
-				tips.add(toolTipText);
-				comp.setToolTipText(UIUtilities.formatToolTipText(tips));
-				comp.setText(s);
-				panel.add(comp);
+				tips = new ArrayList<String>();
+				info = model.getPlane(z, index, t);
+				comp = planes.get(index);
+				if (info != null) {
+					details = EditorUtil.transformPlaneInfo(info);
+					comp.setColor(colors.get(index));
+					s += details.get(EditorUtil.DELTA_T)+"s ";
+					toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+					toolTipText += details.get(EditorUtil.EXPOSURE_TIME)+"s";
+					tips.add(toolTipText);
+					toolTipText = "";
+					toolTipText += "Stage coordinates: ";
+					toolTipText += details.get(EditorUtil.POSITION_X)+", ";
+					toolTipText += details.get(EditorUtil.POSITION_Y)+", ";
+					toolTipText += details.get(EditorUtil.POSITION_Z)+" ";
+					tips.add(toolTipText);
+					comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+					comp.setText(s);
+					panel.add(comp);
+				}
 			}
 		}
+		
 		statusBar.setCenterStatus(panel);
 		
 	}
