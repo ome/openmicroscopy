@@ -579,12 +579,12 @@ class ControlPane
      * 
      * @return See above.
      */
-    private JPanel buildProjectionBar()
+    private JToolBar buildProjectionBar()
     {
-    	JPanel bar = new JPanel();
-    	bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
-        bar.setBorder(null);
-        //bar.add(projectionPreview);
+    	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
+    	bar.setFloatable(false);
+    	bar.setRollover(true);
+    	bar.setBorder(null);
         bar.add(projectionProject);
         bar.add(Box.createRigidArea(VBOX));
         bar.add(colorModelButtonProjection);
@@ -812,7 +812,6 @@ class ControlPane
         controls.add(Box.createVerticalStrut(20), "0, 0");
         int k = 1;
         controls.add(buildProjectionBar(), "0, "+k+", c, c");
-        //controls.add(colorModelButtonProjection, "0, 2, c, c");
         k++;
         if (channelButtonsProjection.size() > MAX_CHANNELS) 
         	controls.add(new JScrollPane(buttons), "0, "+k+", c, c");

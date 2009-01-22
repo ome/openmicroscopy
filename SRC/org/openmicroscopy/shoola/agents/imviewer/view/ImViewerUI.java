@@ -1573,7 +1573,18 @@ class ImViewerUI
 		model.setTabbedIndex(index);
 		toolBar.onTabbedSelection();
 		tabs.removeChangeListener(controller);
-		tabs.setSelectedIndex(index);
+		int n = tabs.getTabCount();
+		Component c;
+		int tabbedIndex;
+		for (int i = 0; i < n; i++) {
+			c = tabs.getComponentAt(i);
+			if (c instanceof ClosableTabbedPaneComponent) {
+				tabbedIndex = ((ClosableTabbedPaneComponent) c).getIndex();
+				if (tabbedIndex == index) 
+					tabs.setSelectedIndex(i);
+			}
+		}
+		
 		tabs.addChangeListener(controller);
 		setLeftStatus();
 		setPlaneInfoStatus();

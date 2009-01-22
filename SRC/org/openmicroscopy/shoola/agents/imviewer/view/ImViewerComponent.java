@@ -192,7 +192,8 @@ class ImViewerComponent
 						view.setCursor(Cursor.getPredefinedCursor(
 								Cursor.DEFAULT_CURSOR));
 						view.resetDefaults();
-						setSelectedPane(item.getIndex());
+						showView(item.getIndex());
+						//setSelectedPane(item.getIndex());
 						renderXYPlane();
 						model.setLastRndDef(def);
 						
