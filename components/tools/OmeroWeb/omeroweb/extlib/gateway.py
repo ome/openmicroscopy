@@ -1307,7 +1307,7 @@ class BlitzGateway (threading.Thread):
         res = q.findAllByQuery(sql, p)
         return len(res)
     
-    def getRenderingDefByPeriod (self, start, end):
+    '''def getRenderingDefByPeriod (self, start, end):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1333,7 +1333,7 @@ class BlitzGateway (threading.Thread):
               "where i.details.owner.id=:id and (rd.details.creationEvent.time > :start or rd.details.updateEvent.time > :start) " \
               "and (rd.details.creationEvent.time < :end or rd.details.updateEvent.time < :end)"
         res = q.findAllByQuery(sql, p)
-        return len(res)
+        return len(res)'''
     
     def getDatasetsByPeriod (self, start, end):
         q = self.getQueryService()
@@ -1370,7 +1370,7 @@ class BlitzGateway (threading.Thread):
         p.map["id"] = rlong(self.getEventContext().userId)
         p.map["start"] = rtime(long(start))
         p.map["end"] = rtime(long(end))
-        sql = "from Project as p join fetch p.details.creationEvent join fetch p.details.owner join fetch p.details.group " \
+        sql = "select p from Project as p join fetch p.details.creationEvent join fetch p.details.owner join fetch p.details.group " \
               "where p.details.owner.id=:id and (p.details.creationEvent.time > :start or p.details.updateEvent.time > :start) " \
               "and (p.details.creationEvent.time < :end or p.details.updateEvent.time < :end)"
         for e in q.findAllByQuery(sql, p):
@@ -1383,7 +1383,7 @@ class BlitzGateway (threading.Thread):
         p.map["id"] = rlong(self.getEventContext().userId)
         p.map["start"] = rtime(long(start))
         p.map["end"] = rtime(long(end))
-        sql = "from Project as p join fetch p.details.creationEvent join fetch p.details.owner join fetch p.details.group " \
+        sql = "select p from Project as p join fetch p.details.creationEvent join fetch p.details.owner join fetch p.details.group " \
               "where p.details.owner.id=:id and (p.details.creationEvent.time > :start or p.details.updateEvent.time > :start) " \
               "and (p.details.creationEvent.time < :end or p.details.updateEvent.time < :end)"
         res = q.findAllByQuery(sql, p)
@@ -1401,23 +1401,20 @@ class BlitzGateway (threading.Thread):
         p.map["end"] = rtime(long(end))
         sql1 = "select el from EventLog el left outer join fetch el.event ev " \
               "where el.entityType in ('ome.model.containers.Dataset', 'ome.model.containers.Project') and " \
-              "el.action = 'INSERT' and " \
+              "(el.action = 'INSERT' or el.action = 'UPDATE') and " \
               "ev.id in (select id from Event where experimenter.id=:id and time > :start and time < :end)"
-        sql2 = "select el from EventLog el left outer join fetch el.event ev " \
-              "where el.entityType = 'ome.model.display.RenderingDef' and el.action = 'INSERT' and el.entityId in" \
-              "(select rd from RenderingDef rd where rd.pixels.image in " \
-              "(select id from Image i where i.details.owner.id=:id)) and " \
-              "ev.id in (select id from Event where time > :start and time < :end)"
-              
-        sql3 = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
+        sql2 = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
               "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
-                    
+        #sql3 = "select el from EventLog el left outer join fetch el.event ev " \
+        #      "where el.entityType = 'ome.model.display.RenderingDef' and el.action = 'INSERT' and el.entityId in" \
+        #      "(select rd from RenderingDef rd where rd.pixels.image in " \
+        #      "(select id from Image i where i.details.owner.id=:id)) and " \
+        #      "ev.id in (select id from Event where time > :start and time < :end)"
+        
         res1 = q.findAllByQuery(sql1, p)
-        res2 = q.findAllByQuery(sql2, p)
-        res1.extend(res2)
         
         image_list = list()
-        for i in q.findAllByQuery(sql3, p):
+        for i in q.findAllByQuery(sql2, p):
             ev = EventI()
             ev.setTime(rtime(i.acquisitionDate.val))
             evl = EventLogI()
@@ -1426,8 +1423,10 @@ class BlitzGateway (threading.Thread):
             evl.setAction(rstring('INSERT'))
             evl.setEvent(ev)
             image_list.append(evl)
-        
         res1.extend(image_list)
+        
+        #res3 = q.findAllByQuery(sql3, p)
+        #res1.extend(res3)
         
         for e in res1:
             yield EventLogWrapper(self, e)

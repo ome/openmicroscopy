@@ -119,8 +119,8 @@ class BaseCalendar(BaseController):
                 for item in items.get(d):
                     if item.get('type') == 'ome.model.core.Image':
                         imgCounter += 1
-                    elif item.get('type') == 'ome.model.display.RenderingDef':
-                        rdCounter += 1
+                    #elif item.get('type') == 'ome.model.display.RenderingDef':
+                    #    rdCounter += 1
                     elif item.get('type') == 'ome.model.containers.Dataset':
                         dsCounter += 1
                     elif item.get('type') == 'ome.model.containers.Project':
@@ -144,14 +144,14 @@ class BaseCalendar(BaseController):
         start = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         end = long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000
         all_logs = self.conn.getEventsByPeriod(start, end)
+        
         items = dict()
         for d in xrange(1,monthrange+1):
             items[d] = list()
-
         for i in all_logs:
             for d in items:
                 if time.gmtime(i.event.time.val / 1000).tm_mday == d:
-                    items[d].append({'type': i.entityType, 'action': i.action})
+                    items[d].append({'id':i.entityId, 'type': i.entityType, 'action': i.action})
         return items
         
     def month_range(self, year, month):
@@ -183,7 +183,9 @@ class BaseCalendar(BaseController):
         
         self.day_items = list()
         self.day_items_size = 0
-        self.total_items_size = self.conn.countImagesByPeriod(start, end)+self.conn.countRenderingDefByPeriod(start, end)+self.conn.countDatasetsByPeriod(start, end)+self.conn.countProjectsByPeriod(start, end)
+        self.total_items_size = self.conn.countImagesByPeriod(start, end)+self.conn.countDatasetsByPeriod(start, end)+self.conn.countProjectsByPeriod(start, end)
+        #self.conn.countRenderingDefByPeriod(start, end)+
+        
         
         if cal_type is not None:
             if cal_type == 'image':
@@ -201,18 +203,17 @@ class BaseCalendar(BaseController):
                 if len(pr_logs) > 0 :
                     self.day_items.append({'project':pr_logs})
                     self.day_items_size = len(pr_logs)
-            elif cal_type == 'renderdef':
-                rd_logs = list(self.conn.getRenderingDefByPeriod(start, end))
-                if len(rd_logs) > 0 :
-                    self.day_items.append({'rdef':rd_logs})
-                    self.day_items_size = len(rd_logs)
+            #elif cal_type == 'renderdef':
+                #rd_logs = list(self.conn.getRenderingDefByPeriod(start, end))
+                #if len(rd_logs) > 0 :
+                #    self.day_items.append({'rdef':rd_logs})
+                #    self.day_items_size = len(rd_logs)
         else:
             img_logs = list(self.conn.getImagesByPeriod(start, end)) 
-            rd_logs = list(self.conn.getRenderingDefByPeriod(start, end)) 
+            #rd_logs = list(self.conn.getRenderingDefByPeriod(start, end)) 
             ds_logs = list(self.conn.getDatasetsByPeriod(start, end)) 
             pr_logs = list(self.conn.getProjectsByPeriod(start, end)) 
-            if len(img_logs) > 0 or len(rd_logs) > 0 or len(ds_logs) > 0 or len(pr_logs): 
-                self.day_items.append({'rdef':rd_logs, 'image':img_logs, 'dataset':ds_logs, 'project':pr_logs}) 
-                self.day_items_size = len(rd_logs)+len(img_logs)+len(ds_logs)+len(pr_logs)
-
+            if len(img_logs) > 0 or len(ds_logs) > 0 or len(pr_logs): #or len(rd_logs) > 0
+                self.day_items.append({'image':img_logs, 'dataset':ds_logs, 'project':pr_logs}) #'rdef':rd_logs, 
+                self.day_items_size = len(img_logs)+len(ds_logs)+len(pr_logs) #+len(rd_logs)
 

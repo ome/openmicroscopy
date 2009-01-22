@@ -148,7 +148,7 @@ class HistoryTypeForm(forms.Form):
         ('project', 'Projects'),
         ('dataset', 'Datasets'),
         ('image', 'Images'),
-        ('renderdef', 'Views'),
+        #('renderdef', 'Views'),
     )
     
     data_type = forms.ChoiceField(choices=HISTORY_CHOICES,  widget=forms.Select(attrs={'onchange':'window.location.href=\'?history_type=\'+this.options[this.selectedIndex].value'}))

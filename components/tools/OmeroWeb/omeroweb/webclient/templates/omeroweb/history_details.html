@@ -109,20 +109,20 @@
         <td>{{ c.details.group.name.val }}</td>
     </tr>
     {% endfor %}
-    {% for c in i.rdef %}
+    <!--{% for c in i.rdef %}
     <tr> 
         <td class="product"><a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;"><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef32.png" title="{{ c.getImage.name }}" alt="image"/></a></td> 
         <td><a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;">{{ c.getImage.shortName }}</a></td> 
-        <td></td>
+        <td>{{ c.id }}</td>
         <td>{{ c.creationEventDate }} by {{ c.getOwner }}</td>
         <td>{{ c.details.group.name.val }}</td>
     </tr>
-    {% endfor %}
+    {% endfor %}-->
     {% endfor %}
 </tbody> 
 </table>
 
-<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef32.png" title="View" alt="view"/> - View;
+<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image;<!-- <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef32.png" title="View" alt="view"/> - View;-->
 </div>
 
 {% else %}

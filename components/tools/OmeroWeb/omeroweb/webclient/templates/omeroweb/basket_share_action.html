@@ -52,10 +52,10 @@
     {% if basket.prSize %}
     {% for c in basket.projectInBasket %}
     <div class="clear"></div>
-    <div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/><a href="#" onclick="fromBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
+    <div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" "/><a href="#" onclick="fromBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
         {% if c.copyDatasetLinks %}
         {% for d in c.listChildren %}
-        <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" "/>
+        <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" "/>
             {% if d.copyImageLinks %}
             {% for e in d.listChildren %}
             <div class="imageInDataset"><ul id="products">
@@ -75,7 +75,7 @@
     {% if basket.dsSize %}
     <div class="clear"></div>
     {% for d in basket.datasetInBasket %}
-    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_messagebox_info16.png"  title="info" alter="i" /><a href="#" onclick="fromBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
+    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" /><a href="#" onclick="fromBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
         {% if d.copyImageLinks %}
         {% for e in d.listChildren %}
         <div class="imageInDataset"><ul id="products">

@@ -113,7 +113,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 100000 #default 2621440
 WEBADMIN_ROOT_BASE = 'webadmin'
 WEBCLIENT_ROOT_BASE = 'webclient'
 
-WEBCLIENT_STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.png').replace('\\','/')
+STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.png').replace('\\','/')
 DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
 DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
 
