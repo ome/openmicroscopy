@@ -198,7 +198,7 @@ form th {
     border: 0px;
 }
 
-form ul.errorlist {
+ul.errorlist {
     list-style: none;
     color: #e3646f;
     margin: 0;

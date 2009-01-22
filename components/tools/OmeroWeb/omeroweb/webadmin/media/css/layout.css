@@ -203,7 +203,7 @@ td.input {
     padding: 2px 2px 2px 20px;
 }
 
-form ul.errorlist {
+ul.errorlist {
     list-style: none;
     color: #e3646f;
     margin: 0;
