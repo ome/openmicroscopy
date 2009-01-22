@@ -152,6 +152,83 @@ public class RotateEllipseFigure
 		return r;
 	}
 	
+	public boolean containsMapped(double x, double y)
+	{
+		/*AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		double[] matrix = new double[6];
+		t.getMatrix(matrix);
+		matrix[4] = 0;
+		matrix[5] = 0;
+		AffineTransform aT = new AffineTransform(matrix);
+		Point2D.Double a = (Point2D.Double)aT.transform(new Point2D.Double(1,0), null);
+		double theta = Math.asin(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
+		AffineTransform newT = new AffineTransform();
+		newT.setToRotation(theta);
+		Ellipse2D ellipseNoRotation = getTransformedEllipse();
+		Ellipse2D ellipseNoRotationZeroCentred = 
+			new Ellipse2D.Double(ellipseNoRotation.getX()-ellipseNoRotation.getWidth()/2,
+					ellipseNoRotation.getX()-ellipseNoRotation.getWidth()/2,
+					ellipseNoRotation.getWidth(), ellipseNoRotation.getHeight());
+		
+		Shape rotatedEllipse = getTransformedShape();
+		Rectangle2D rotatedEllipseBounds = rotatedEllipse.getBounds2D();
+		double translatedX = x-rotatedEllipseBounds.getX()-ellipseNoRotation.getWidth()/2;
+		double translatedY = y-rotatedEllipseBounds.getY()-ellipseNoRotation.getHeight()/2;
+		Point2D rotatedPoint = new Point2D.Double();
+		newT.transform(new Point2D.Double(translatedX, translatedY), rotatedPoint);
+		if(containsEllipseAlgorithm(rotatedPoint.getX(), rotatedPoint.getY(), 
+				0, 0, ellipseNoRotationZeroCentred.getWidth(), 
+				ellipseNoRotationZeroCentred.getWidth()))
+			return true;*/
+		
+		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+		double[] matrix = new double[6];
+		t.getMatrix(matrix);
+		matrix[4] = 0;
+		matrix[5] = 0;
+		
+		// Create a new transform with rotation only, 
+		AffineTransform aT = new AffineTransform(matrix);
+		Point2D.Double startPt = new Point2D.Double(1,0);
+		Point2D.Double a = (Point2D.Double)aT.transform(startPt, null);
+		// Calculate the starting rotation point.
+		double thetaStart = Math.acos(startPt.y/Math.sqrt(startPt.x*startPt.x+startPt.y*startPt.y));
+		
+		// Calculate the current rotation the ellipse has undergone.
+		double rotation = Math.acos(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
+		// Normalise to compensate for rotations > 180'
+		double theta = rotation-Math.floor(rotation/Math.PI)*Math.PI-thetaStart;
+		AffineTransform newT = new AffineTransform();
+		newT.setToRotation(theta);
+		Point2D rotatedPoint = new Point2D.Double();
+		newT.transform(new Point2D.Double(x, y), rotatedPoint);
+		Ellipse2D ellipseNoRotation = getTransformedEllipse();
+		Ellipse2D ellipseNoRotationZeroCentred = 
+			new Ellipse2D.Double(0-ellipseNoRotation.getWidth()/2,
+					0-ellipseNoRotation.getHeight()/2,
+					ellipseNoRotation.getWidth(), ellipseNoRotation.getHeight());
+//		if(ellipseNoRotationZeroCentred.contains(rotatedPoint))
+		if(containsEllipseAlgorithm(rotatedPoint.getX(), rotatedPoint.getY(),
+				0,0, ellipse.getWidth(), ellipse.getHeight()))
+			return true;
+		return false;
+	}
+	
+	private boolean containsEllipseAlgorithm(double x, double y, 
+							 double cx, double cy, 
+							 double w, double h)
+	{
+		double wr = w/2;
+		double hr = h/2;
+		double xx = x-cx;
+		double yy = y-cy;
+		double dist = (xx*xx)/(wr*wr)+(yy*yy)/(hr*hr);
+		if(dist<1)
+			return true;
+		return false;
+	}
+
+	
 	/**
 	 * Checks if a Point2D.Double is inside the figure.
 	 * @see AbstractAttributedFigure#contains(Point2D.Double)
@@ -161,6 +238,8 @@ public class RotateEllipseFigure
 		// XXX - This does not take the stroke width into account!
 		return getTransformedShape().contains(p);
 	}
+	
+	
 	
 	/**
 	 * Returns the ellipse after the affine transform has been applied to it.

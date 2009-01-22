@@ -466,25 +466,18 @@ public class MeasureEllipseFigure
 		Shape transformedEllipse = getTransformedShape();
 		Rectangle2D r = transformedEllipse.getBounds2D();
 		//getP
-		System.err.println(r.toString());
+
 		List<Point> vector = new ArrayList<Point>
 				((int) r.getHeight()*(int) r.getWidth());
-		int xEnd = (int) (r.getX()+r.getWidth());
-		int yEnd = (int) (r.getY()+r.getHeight());
-		int startX = (int) r.getX();
-		int startY = (int) r.getY();
-		int x, y;
-		System.err.println(transformedEllipse);
-		/*
-		for (y = startY; y < yEnd; ++y)
-			for (x = startX; x < xEnd; ++x)
-				if (transformedEllipse.contains(x,y))
-					vector.add(new Point(x, y));
-					*/
-		for (x = startX; x < xEnd; ++x)
-			for (y = startY; y < yEnd; ++y)
-			if (transformedEllipse.contains(new Point2D.Double(x,y)))
-				vector.add(new Point(x, y));
+		double xEnd = (r.getX()+r.getWidth());
+		double yEnd = (r.getY()+r.getHeight());
+		double startX = r.getX();
+		double startY =  r.getY();
+		double x, y;
+		for (y=startY; y<yEnd; ++y)
+			for (x=startX; x<xEnd; ++x)
+				if(containsMapped(x-r.getWidth()/2-startX, y-r.getHeight()/2-startY))
+					vector.add(new Point((int)x, (int)y));
 		return vector; 
 	}
 	
