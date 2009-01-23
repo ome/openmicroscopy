@@ -3437,7 +3437,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    public void updateObject_async(AMD_MetadataStore_updateObjects __cb,
+    public void updateObjects_async(AMD_MetadataStore_updateObjects __cb,
         final IObjectContainer[] objects, Current __current) throws ServerError
     {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
