@@ -23,7 +23,7 @@ import IceStorm.NoSuchTopic;
 
 /**
  * Local dispatcher to {@link IceStorm.TopicManager}
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since December 2008
  */
@@ -56,10 +56,13 @@ public final class TopicManager implements ApplicationListener {
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof TopicMessage) {
+
+            IceStorm.TopicManagerPrx topicManager = managerOrNull();
             if (topicManager == null) {
                 log.warn("No topic manager");
-                return;
+                return; // EARLY EXIT
             }
+
             TopicMessage msg = (TopicMessage) event;
             try {
                 Ice.ObjectPrx obj = publisherOrNull(msg.topic);
@@ -142,25 +145,25 @@ public final class TopicManager implements ApplicationListener {
     }
 
     protected IceStorm.TopicPrx topicOrNull(String name) {
-	IceStorm.TopicManager topicManager = lookupTopicManagerOrNull();
+        IceStorm.TopicManagerPrx topicManager = managerOrNull();
         IceStorm.TopicPrx topic = null;
-	if (topicManager != null) {
-	    try {
-		topic = topicManager.create(name);
-	    } catch (IceStorm.TopicExists ex2) {
-		try {
-		    topic = topicManager.retrieve(name);
-		} catch (NoSuchTopic e) {
-		    throw new RuntimeException("Race condition retriving topic: "
-					       + name);
-		}
-	    }
+        if (topicManager != null) {
+            try {
+                topic = topicManager.create(name);
+            } catch (IceStorm.TopicExists ex2) {
+                try {
+                    topic = topicManager.retrieve(name);
+                } catch (NoSuchTopic e) {
+                    throw new RuntimeException(
+                            "Race condition retriving topic: " + name);
+                }
+            }
         }
         return topic;
     }
 
     protected Ice.ObjectPrx publisherOrNull(String name) {
-        IceStorm.TopicPrx topic = createOrRetrieveTopic(name);
+        IceStorm.TopicPrx topic = topicOrNull(name);
         Ice.ObjectPrx pub = null;
         if (topic != null) {
             pub = topic.getPublisher().ice_oneway();
