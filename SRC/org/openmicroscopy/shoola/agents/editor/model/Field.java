@@ -367,14 +367,13 @@ public class Field
 		String toolTipText = "";
 		
 		String paramText;
-		for (int i=0; i<getContentCount(); i++) {
-			paramText = getContentAt(i).toString();
-			if ((paramText != null) && (paramText.length() > 0))
-			{
-				if (toolTipText.length() > 0) 
-					toolTipText = toolTipText + ", ";
-				toolTipText = toolTipText + paramText;
-			}
+		
+		List<IParam> params = getAtomicParams();
+		for (IParam param : params) {
+			paramText = param.toString();
+			if (toolTipText.length() > 0) 
+				toolTipText = toolTipText + ", ";
+			toolTipText = toolTipText + paramText;
 		}
 		
 		return toolTipText;
