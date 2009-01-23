@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.model;
 //Java imports
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -81,12 +82,14 @@ public class TreeModelFactory
 		try {
 			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
 
-			absPath = xHtmlFile.getAbsolutePath();
-			IXMLReader reader = StdXMLReader.fileReader(absPath);
+			FileInputStream input = new FileInputStream(xHtmlFile);
+			IXMLReader reader = new StdXMLReader(input);
 
 			parser.setReader(reader);
 			
 			root = (IXMLElement) parser.parse();
+			
+			input.close();
 		} catch (Exception ex) {
 			
 			ex.printStackTrace();
