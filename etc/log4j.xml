@@ -53,7 +53,7 @@ system to be re-configured.
   <!-- Suppressing "Warning missing properties files" -->
   <category name="org.springframework.beans.factory.config"> <priority value="ERROR"/> </category>
   <!-- Whether or not to print jamon timing info. ERROR or TRACE -->
-  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/>
+  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/> </category>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
   <category name="org.hibernate.util.JDBCExceptionReporter"> <priority value="FATAL"/> </category>
   <!-- Quieting blitz startup -->
