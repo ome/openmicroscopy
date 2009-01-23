@@ -27,8 +27,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-validator.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jamon.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/jboss-ejb3x.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>
@@ -47,7 +45,6 @@
 	<classpathentry kind="lib" path="target/libs/grib.jar"/>
 	<classpathentry kind="lib" path="target/libs/ij.jar"/>
 	<classpathentry kind="lib" path="target/libs/netcdf.jar"/>
-	<classpathentry kind="lib" path="target/libs/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi.jar"/>
 	<classpathentry kind="lib" path="target/libs/loci-common.jar"/>

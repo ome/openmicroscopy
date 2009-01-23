@@ -14,6 +14,7 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
+import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.ChannelI;
 import omero.model.Pixels;
@@ -159,10 +160,10 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         if (minMaxSet == null)
         {
-            OMEROMetadataStoreClient store = 
-                (OMEROMetadataStoreClient) reader.getMetadataStore();
+            MetadataStore store = reader.getMetadataStore();
             int series = reader.getSeries();
-            Pixels p = store.getPixels(series);
+            List<Pixels> pixels = (List<Pixels>) store.getRoot();
+            Pixels p = pixels.get(series);
             ChannelI c = (ChannelI) p.getChannel(p.getSizeC().getValue() - 1);
             if (c.getStatsInfo() == null)
             {

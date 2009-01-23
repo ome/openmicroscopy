@@ -130,7 +130,9 @@ module omero {
         dictionary<string, omero::RType> StringRTypeMap;
         dictionary<string, omero::model::Experimenter> UserMap;
         dictionary<string, IObjectList> IObjectListMap;
+        dictionary<string, string> StringStringMap;
         dictionary<string, long> StringLongMap;
+        dictionary<string, int> StringIntMap;
         dictionary<string, Ice::LongSeq> IdListMap;
 
         // Redundant or too specifically named definitions. Should possibly be deprecated.

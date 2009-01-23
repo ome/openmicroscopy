@@ -29,23 +29,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
+import loci.formats.meta.MetadataStore;
 import loci.common.DataTools;
 import ome.formats.OMEROMetadataStoreClient;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.interceptor.CustomizableTraceInterceptor;
 
 import ome.formats.importer.util.Actions;
 
 import static omero.rtypes.*;
-import omero.RBool;
-import omero.RInt;
-import omero.RString;
 import omero.ServerError;
 import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
 import omero.model.Image;
-import omero.model.ImageI;
 import omero.model.Pixels;
 
 /**
@@ -173,9 +172,9 @@ public class ImportLibrary implements IObservable
 
     /** gets {@link Image} instance from {@link OMEROMetadataStoreClient} */
     @SuppressWarnings("unchecked")
-	public List<Image> getRoot()
+	public List<Pixels> getRoot()
     {
-        return (List<Image>) store.getRoot();
+        return (List<Pixels>) store.getRoot();
     }
 
     // ~ Actions
@@ -200,7 +199,13 @@ public class ImportLibrary implements IObservable
         }*/
         
         reader.close();
-        reader.setMetadataStore(store);
+    	ProxyFactory pf = new ProxyFactory(store);
+    	CustomizableTraceInterceptor interceptor =
+    		new CustomizableTraceInterceptor();
+    	interceptor.setEnterMessage("$[methodName] $[arguments]");
+    	pf.addAdvice(interceptor);
+    	MetadataStore proxy = (MetadataStore) pf.getProxy();
+        reader.setMetadataStore(proxy);
         reader.setMinMaxStore(store);
         reader.setId(fileName);
         //reset series count
@@ -219,17 +224,15 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * calculates and returns the number of planes in this image. Also sets the
-     * offset info.
+     * Calculates and returns the number of planes in this pixels set. Also 
+     * sets the offset info.
      * 
      * @param fileName filename for use in {@link #setOffsetInfo(String)}
+     * @param pixels Pixels set for which to calculate the plane count.
      * @return the number of planes in this image (z * c * t)
      */
-    public int calculateImageCount(String fileName, Integer series)
+    public int calculateImageCount(String fileName, Pixels pixels)
     {
-        List<Image> imageList = getRoot();
-        // FIXME: This assumes only *one* Pixels. Image also missing iteratePixels
-        Pixels pixels = (Pixels) ((ImageI) imageList.get(series)).iteratePixels().next();
         this.sizeZ = pixels.getSizeZ().getValue();
         this.sizeC = pixels.getSizeC().getValue();
         this.sizeT = pixels.getSizeT().getValue();
@@ -252,74 +255,58 @@ public class ImportLibrary implements IObservable
 	public List<Pixels> importMetadata(String imageName)
     	throws FormatException, IOException
     {
-        List<Image> imageList = (List<Image>) store.getRoot();
-        // Ensure that our metadata is consistent before writing to the DB.
-        int series = 0;
-        for (Image image : imageList)
-        {
-            int pixelCount = image.sizeOfPixels();
-            
-            // FIXME: This assumes only *one* set of pixels.
-            //Pixels pix = (Pixels) image.iteratePixels().next();
-            // FIXME: above problem is fixed
-            for (int x = 0; x < pixelCount; x++)
-            {
-                Pixels pix = image.getPixels(x);
+    	// Ensure that our metadata is consistent before writing to the DB.
+    	int series = 0;
+    	for (Pixels pixels : store.getSourceObjects(Pixels.class))
+    	{
+    		String name = imageName;
+    		String seriesName = reader.getImageName(series);
 
-                String name = imageName;
-                String seriesName = reader.getImageName(series);
-                
-                if (reader.getImageReader().isRGB() || reader.getImageReader().isIndexed())
-                {
-                    log.debug("Setting color channels to RGB format.");
-                    if (pix.sizeOfChannels() == 3)
-                    {
-                        // red
-                        pix.getChannel(0).setRed(rint(255));
-                        pix.getChannel(0).setGreen(rint(0));
-                        pix.getChannel(0).setBlue(rint(0));
-                        pix.getChannel(0).setAlpha(rint(255));
-                        
-                        // green
-                        pix.getChannel(1).setGreen(rint(255));
-                        pix.getChannel(1).setRed(rint(0));
-                        pix.getChannel(1).setBlue(rint(0));
-                        pix.getChannel(1).setAlpha(rint(255)); 
-                        
-                        // blue
-                        pix.getChannel(2).setBlue(rint(255));
-                        pix.getChannel(2).setGreen(rint(0));
-                        pix.getChannel(2).setRed(rint(0));
-                        pix.getChannel(2).setAlpha(rint(255));            
-                    }
-                }
+    		if (reader.getImageReader().isRGB() || reader.getImageReader().isIndexed())
+    		{
+    			log.debug("Setting color channels to RGB format.");
+    			if (pixels.sizeOfChannels() == 3)
+    			{
+    				// red
+    				pixels.getChannel(0).setRed(rint(255));
+    				pixels.getChannel(0).setGreen(rint(0));
+    				pixels.getChannel(0).setBlue(rint(0));
+    				pixels.getChannel(0).setAlpha(rint(255));
 
-                if (seriesName != null && seriesName.length() != 0)
-                    name += " [" + seriesName + "]";
+    				// green
+    				pixels.getChannel(1).setGreen(rint(255));
+    				pixels.getChannel(1).setRed(rint(0));
+    				pixels.getChannel(1).setBlue(rint(0));
+    				pixels.getChannel(1).setAlpha(rint(255)); 
 
-                store.setImageName(name, series);
+    				// blue
+    				pixels.getChannel(2).setBlue(rint(255));
+    				pixels.getChannel(2).setGreen(rint(0));
+    				pixels.getChannel(2).setRed(rint(0));
+    				pixels.getChannel(2).setAlpha(rint(255));            
+    			}
+    		}
 
-                if (pix.getPhysicalSizeX() == null)
-                    store.setDimensionsPhysicalSizeX(1.0f, series, x);
-                if (pix.getPhysicalSizeY() == null)
-                    store.setDimensionsPhysicalSizeY(1.0f, series, x);
-                if (pix.getPhysicalSizeZ() == null)
-                    store.setDimensionsPhysicalSizeZ(1.0f, series, x);
+    		if (seriesName != null && seriesName.length() != 0)
+    			name += " [" + seriesName + "]";
 
-            }
-            series++;
-        }
+    		store.setImageName(name, series);
+
+    		if (pixels.getPhysicalSizeX() == null)
+    			store.setDimensionsPhysicalSizeX(1.0f, series, 0);
+    		if (pixels.getPhysicalSizeY() == null)
+    			store.setDimensionsPhysicalSizeY(1.0f, series, 0);
+    		if (pixels.getPhysicalSizeZ() == null)
+    			store.setDimensionsPhysicalSizeZ(1.0f, series, 0);
+    	}
         
         log.debug("Saving pixels to DB.");
-        
         List<Pixels> pixelsList = store.saveToDB();
-        
         for (Pixels pixels : pixelsList)
         {
             Image image = pixels.getImage();
             store.addImageToDataset(image, dataset);
         }
-        
         return pixelsList;
     }
 
@@ -406,7 +393,7 @@ public class ImportLibrary implements IObservable
         
         for (int series = 0; series < seriesCount; series++)
         {
-            int count = calculateImageCount(fileName, series);
+            int count = calculateImageCount(fileName, pixList.get(series));
             long pixId = pixList.get(series).getId().getValue(); 
             
             args[4] = getDataset();
@@ -422,6 +409,7 @@ public class ImportLibrary implements IObservable
             
             store.addBooleanAnnotationToPixels(annotation, pixList.get(series));
             
+            /*
             importData(pixId, fileName, series, new ImportLibrary.Step()
             {
                 @Override
@@ -431,6 +419,7 @@ public class ImportLibrary implements IObservable
                     notifyObservers(Actions.IMPORT_STEP, args2);
                 }
             });
+            */
             
             notifyObservers(Actions.DATA_STORED, args);  
            
@@ -474,8 +463,6 @@ public class ImportLibrary implements IObservable
                     "Required SHA-1 message digest algorithm unavailable.");
         }
         
-        store.setPixelsId(pixId);
-        
         FileChannel wChannel = null;
         File f;
         
@@ -514,8 +501,14 @@ public class ImportLibrary implements IObservable
         
         if (dumpPixels)
             wChannel.close();
-        reader.populateSHA1(pixId, md);
-        reader.populateMinMax(pixId, series);
+        if (md != null)
+        {
+            store.populateSHA1(md, pixId);  
+        }
+        if (reader.isMinMaxSet() == false)
+        {
+            store.populateMinMax(pixId, series);
+        }
     }
     
     // ~ Helpers

@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/importer-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

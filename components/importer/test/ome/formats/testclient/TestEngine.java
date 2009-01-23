@@ -20,7 +20,7 @@ public class TestEngine
         //wrapper.setId("/Users/TheBrain/test_images/dv/IAGFP-Noc01_R3D.dv");
         
         wrapper.setId("/Users/TheBrain/test_images/lsm/C1.lsm");
-        System.err.println("DONE BITCHES!");
+        System.err.println("DONE!");
     }
     
     public static void main(String[] args) throws Exception

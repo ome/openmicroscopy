@@ -47,7 +47,7 @@ loci.formats.in.LIFReader             # lif
 loci.formats.in.PictReader            # pict, pct
 #loci.formats.in.SDTReader             # sdt
 #loci.formats.in.EPSReader             # eps, epsi
-#loci.formats.in.SlidebookReader       # sld
+loci.formats.in.SlidebookReader       # sld
 #loci.formats.in.AliconaReader         # al3d
 #loci.formats.in.MNGReader             # mng
 #loci.formats.in.KhorosReader          # xv

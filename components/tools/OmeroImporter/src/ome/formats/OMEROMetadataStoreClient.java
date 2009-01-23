@@ -1,8 +1,24 @@
 package ome.formats;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.security.MessageDigest;
+import java.sql.Timestamp;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,13 +27,16 @@ import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
 import static omero.rtypes.*;
+import ome.formats.enums.EnumerationProvider;
+import ome.formats.enums.IQueryEnumProvider;
+import ome.formats.importer.MetaLightSource;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
-import omero.RType;
+import omero.RTime;
 import omero.ServerError;
 import omero.client;
 import omero.api.IAdminPrx;
@@ -32,20 +51,60 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.constants.METADATASTORE;
+import omero.metadatastore.IObjectContainer;
+import omero.model.AcquisitionMode;
+import omero.model.Arc;
+import omero.model.ArcType;
+import omero.model.Binning;
 import omero.model.BooleanAnnotation;
+import omero.model.ContrastMethod;
+import omero.model.Correction;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.Detector;
+import omero.model.DetectorSettings;
+import omero.model.DetectorType;
+import omero.model.DimensionOrder;
+import omero.model.Experiment;
+import omero.model.ExperimentType;
+import omero.model.Filament;
+import omero.model.FilamentType;
+import omero.model.IObject;
+import omero.model.Illumination;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.ImagingEnvironment;
+import omero.model.Immersion;
+import omero.model.Instrument;
+import omero.model.Laser;
+import omero.model.LaserMedium;
+import omero.model.LaserType;
+import omero.model.LightSettings;
+import omero.model.LightSource;
+import omero.model.LogicalChannel;
+import omero.model.Medium;
+import omero.model.OTF;
+import omero.model.Objective;
+import omero.model.ObjectiveSettings;
+import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
 import omero.model.PixelsAnnotationLink;
 import omero.model.PixelsAnnotationLinkI;
 import omero.model.PixelsI;
+import omero.model.PixelsType;
 import omero.model.PlaneInfo;
+import omero.model.Plate;
 import omero.model.ProjectI;
 import omero.model.Project;
+import omero.model.Pulse;
+import omero.model.Reagent;
+import omero.model.Screen;
+import omero.model.ScreenAcquisition;
+import omero.model.StageLabel;
+import omero.model.Well;
+import omero.model.WellSample;
 
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
@@ -53,23 +112,30 @@ import loci.formats.meta.MetadataStore;
 
 public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 {
-    /** Logger for this class. */
-    private static Log     log    = LogFactory.getLog(OMEROMetadataStoreClient.class);
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
+	
+    private MetadataStorePrx delegate;
     
-    MetadataStorePrx delegate;
+    private Map<LSID, IObjectContainer> containerCache = 
+    	new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
+    private Map<String, String> referenceCache = new HashMap<String, String>();
     
-    ServiceFactoryPrx serviceFactory;
-    IUpdatePrx iUpdate;
-    IQueryPrx iQuery;
-    IAdminPrx iAdmin;
-    RawFileStorePrx rawFileStore;
-    RawPixelsStorePrx rawPixelStore;
-    IRepositoryInfoPrx iRepoInfo;
-    IPojosPrx iPojos;
+    private List<Pixels> pixelsList;
+    
+    private ServiceFactoryPrx serviceFactory;
+    private IUpdatePrx iUpdate;
+    private IQueryPrx iQuery;
+    private IAdminPrx iAdmin;
+    private RawFileStorePrx rawFileStore;
+    private RawPixelsStorePrx rawPixelStore;
+    private IRepositoryInfoPrx iRepoInfo;
+    private IPojosPrx iPojos;
+    
+    /** Our enumeration provider. */
+    private EnumerationProvider enumProvider;
 
     private Long currentPixId;
-    
-    private PlaneInfo pInfo;
 
     private void initialize()
     	throws ServerError
@@ -81,9 +147,14 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
          rawPixelStore = serviceFactory.createRawPixelsStore();
          iRepoInfo = serviceFactory.getRepositoryInfoService();
          iPojos = serviceFactory.getPojosService();
-         
-         
+         enumProvider = new IQueryEnumProvider(iQuery);
+
          delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));        
+    }
+    
+    public IQueryPrx getIQuery()
+    {
+        return iQuery;
     }
     
     /**
@@ -112,9 +183,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         serviceFactory.keepAllAlive(new ServiceInterfacePrx[] 
                 {iQuery, iAdmin, rawFileStore, rawPixelStore, iRepoInfo, iPojos, iUpdate, delegate});
-        
         log.debug("KeepAlive ping");
-
     }
     
     /**
@@ -183,6 +252,17 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         return value == null? null : rfloat(value);
     }
     
+    /**
+     * Transforms a Java type into the corresponding OMERO RType.
+     * @param value Java concrete type value.
+     * @return RType or <code>null</code> if <code>value</code> is 
+     * <code>null</code>.
+     */
+    public RTime toRType(Timestamp value)
+    {
+        return value == null? null : rtime(value);
+    }
+    
     public void logout()
     {
         serviceFactory.destroy();
@@ -207,13 +287,286 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
      */
     public Object getRoot()
     {
+    	return pixelsList;
+    }
+
+    /**
+     * Retrieves a given enumeration from the current enumeration provider.
+     * @param klass Enumeration type.
+     * @param value Enumeration value.
+     * @return See above.
+     */
+    private IObject getEnumeration(Class<? extends IObject> klass, String value)
+    {
+        return enumProvider.getEnumeration(klass, value, false);
+    }
+
+    /**
+     * Returns the current container cache.
+     * @return See above.
+     */
+    public Map<LSID, IObjectContainer> getContainerCache()
+    {
+    	return containerCache;
+    }
+    
+    /**
+     * Retrieves an OMERO Blitz source object for a given Java class and
+     * indexes. 
+     * @param klass Source object class.
+     * @param indexes Indexes into the OME-XML data model.
+     * @return See above.
+     */
+    private <T extends IObject> T getSourceObject(Class<T> klass, LinkedHashMap<String, Integer> indexes)
+    {
+        return (T) getIObjectContainer(klass, indexes).sourceObject;
+    }
+    
+    /**
+     * Retrieves an OMERO Blitz source object for a given LSID.
+     * @param LSID LSID to retrieve a source object for.
+     * @return See above.
+     */
+    public IObject getSourceObject(LSID LSID)
+    {
+        IObjectContainer o = containerCache.get(LSID);
+        if (o == null)
+        {
+            return null;
+        }
+        return o.sourceObject;
+    }
+    
+    /**
+     * Retrieves all OMERO Blitz source objects of a given class.
+     * @param klass Class to retrieve source objects for.
+     * @return See above.
+     */
+    public <T extends IObject> List<T> getSourceObjects(Class<T> klass)
+    {
+    	Set<LSID> keys = containerCache.keySet();
+    	List<T> toReturn = new ArrayList<T>();
+    	for (LSID key : keys)
+    	{
+    		Class<? extends IObject> keyClass = key.getJavaClass();
+    		if (keyClass != null && keyClass.equals(klass))
+    		{
+    			toReturn.add((T) containerCache.get(key).sourceObject);
+    		}
+    	}
+    	return toReturn;
+    }
+    
+    
+    /**
+     * Checks to see if there is currently an active reference for two LSIDs.
+     * @param source LSID of the source object.
+     * @param target LSID of the target object.
+     * @return <code>true</code> if a reference exists, <code>false</code>
+     * otherwise.
+     */
+    public boolean hasReference(LSID source, LSID target)
+    {
+        if (!referenceCache.containsKey(source.toString())
+            || !referenceCache.containsValue(target.toString()))
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Retrieves an IObject container for a given class and location within the
+     * OME-XML data model.
+     * @param klass Class to retrieve a container for.
+     * @param indexes Indexes into the OME-XML data model.
+     * @return See above.
+     */
+    private IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
+    		                                     LinkedHashMap<String, Integer> indexes)
+    {
+    	// Transform an integer collection into an integer array without using
+    	// wrapper objects.
+    	Collection<Integer> indexValues = indexes.values();
+    	int[] indexesArray = new int[indexValues.size()];
+    	int i = 0;
+    	for (Integer index : indexValues)
+    	{
+    		indexesArray[i] = index;
+    		i++;
+    	}
+    	
+    	// Create a new LSID.
+        LSID LSID = new LSID(klass, indexesArray);
+        
+        // Because of the LightSource abstract type, here we need to handle
+        // the upcast to the "real" concrete type and the correct LSID
+        // mapping.
+        if (klass.equals(Arc.class) || klass.equals(Laser.class)
+            || klass.equals(Filament.class)
+            && !containerCache.containsKey(LSID))
+        {
+            LSID lsLSID = new LSID(LightSource.class,
+                                   indexes.get("instrumentIndex"),
+                                   indexes.get("lightSourceIndex"));
+            if (containerCache.containsKey(lsLSID))
+            {
+                IObjectContainer container = containerCache.get(lsLSID);
+                MetaLightSource mls = 
+                    (MetaLightSource) container.sourceObject;
+                LightSource realInstance = 
+                    (LightSource) getSourceObjectInstance(klass);
+                mls.copyData(realInstance);
+                container.sourceObject = realInstance;
+                container.LSID = LSID.toString();
+                containerCache.put(LSID, container);
+                return container;
+            }
+        }
+        // We may have first had a concrete method call request, put the object
+        // in a container and in the cache. Now we have a request with only the
+        // abstract type's class to give us LSID resolution and must handle 
+        // that as well.
+        if (klass.equals(LightSource.class)
+        	&& !containerCache.containsKey(LSID))
+        {
+        	Class[] concreteClasses = 
+        		new Class[] { Arc.class, Laser.class, Filament.class };
+        	for (Class concreteClass : concreteClasses)
+        	{
+                LSID lsLSID = new LSID(concreteClass,
+                                       indexes.get("instrumentIndex"),
+                                       indexes.get("lightSourceIndex"));
+                if (containerCache.containsKey(lsLSID))
+                {
+                	return containerCache.get(lsLSID);
+                }
+        	}
+        }
+        
+        if (!containerCache.containsKey(LSID))
+        {
+            IObjectContainer c = new IObjectContainer();
+            c.indexes = indexes;
+            c.LSID = LSID.toString();
+            c.sourceObject = getSourceObjectInstance(klass);
+            containerCache.put(LSID, c);
+        }
+        
+        return containerCache.get(LSID);
+    }
+    
+    /**
+     * Performs the task of actual source object instantiation using
+     * reflection.
+     * @param klass Class to instantial a source object for.
+     * @return An OMERO Blitz model object.
+     */
+    private <T extends IObject> T getSourceObjectInstance(Class<T> klass)
+    {
         try
         {
-            return delegate.getRoot();
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
+            if (klass.equals(LightSource.class))
+            {
+                return (T) new MetaLightSource();
+            }
+            klass = (Class<T>) Class.forName(klass.getName() + "I");
+            
+            Constructor<? extends IObject> constructor = 
+                klass.getDeclaredConstructor();
+            return (T) constructor.newInstance();
         }
+        catch (Exception e)
+        {
+            String m = "Unable to instantiate object: " + klass;
+            log.error(m, e);
+            throw new RuntimeException(m);
+        }
+    }
+        
+    /**
+     * Counts the number of containers the MetadataStore has of a given class.
+     * @param klass Class to count containers of.
+     * @return See above.
+     */
+    public int countCachedContainers(Class<? extends IObject> klass)
+    {
+        if (klass == null)
+        {
+            return new HashSet<IObjectContainer>(containerCache.values()).size();
+        }
+        
+        int count = 0;
+        for (LSID lsid : containerCache.keySet())
+        {
+        	Class<? extends IObject> lsidClass = lsid.getJavaClass();
+            if (lsidClass != null && lsidClass.equals(klass))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * Counts the number of references the MetadataStore has between objects
+     * of two classes.
+     * @param source Class of the source object. If <code>null</code> it is
+     * treated as a wild card, all references whose target match
+     * <code>target</code> will be counted. 
+     * @param target Class of the target object. If <code>null</code> it is
+     * treated as a wild card, all references whose source match
+     * <code>source</code> will be counted. 
+     * @return See above.
+     */
+    public int countCachedReferences(Class<? extends IObject> source,
+                                     Class<? extends IObject> target)
+    {
+        if (source == null && target == null)
+        {
+            return referenceCache.size();
+        }
+        
+        int count = 0;
+        if (target == null)
+        {
+            for (String lsid : referenceCache.keySet())
+            {
+                String containerClass = lsid.split(":")[0];
+                if (containerClass.equals(source.getName()))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        if (source == null)
+        {
+            for (String lsid : referenceCache.values())
+            {
+                String containerClass = lsid.split(":")[0];
+                if (containerClass.equals(target.getName()))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        for (String lsid : referenceCache.keySet())
+        {
+            String containerClass = lsid.split(":")[0];
+            if (containerClass.equals(source.getName()))
+            {
+                String targetClass = referenceCache.get(lsid).split(":")[0];
+                if (targetClass.equals(target.getName()))
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /* (non-Javadoc)
@@ -222,13 +575,19 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setArcType(String type, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setArcType(toRType(type), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
+        
+        o.setType((ArcType) getEnumeration(ArcType.class, type));
+    }
+
+    private Arc getArc(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("lightSourceIndex", lightSourceIndex);
+        
+        return(Arc) getSourceObject(Arc.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -237,14 +596,6 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setChannelComponentColorDomain(String colorDomain,
             int imageIndex, int logicalChannelIndex, int channelComponentIndex)
     {
-        try
-        {
-            delegate.setChannelComponentColorDomain(toRType(colorDomain), 
-                    imageIndex, logicalChannelIndex, channelComponentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     /* (non-Javadoc)
@@ -253,14 +604,6 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setChannelComponentIndex(Integer index, int imageIndex,
             int logicalChannelIndex, int channelComponentIndex)
     {
-        try
-        {
-            delegate.setChannelComponentIndex(toRType(index), 
-                    imageIndex, logicalChannelIndex, channelComponentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     /* (non-Javadoc)
@@ -269,1920 +612,1220 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setDetectorGain(Float gain, int instrumentIndex,
             int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorGain(toRType(gain), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setGain(toRType(gain));
+    }
+
+    public Detector getDetector(int instrumentIndex, int detectorIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("detectorIndex", detectorIndex);
+        return getSourceObject(Detector.class, indexes);
     }
 
     public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorID(toRType(id), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("detectorIndex", detectorIndex);
+        IObjectContainer o = getIObjectContainer(Detector.class, indexes);
+        
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setDetectorManufacturer(String manufacturer,
             int instrumentIndex, int detectorIndex)
-    {
-        try
-        {
-            delegate.setDetectorManufacturer(toRType(manufacturer), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    {        
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setManufacturer(toRType(manufacturer));
     }
 
     public void setDetectorModel(String model, int instrumentIndex,
             int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorModel(toRType(model), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setModel(toRType(model));
     }
 
     public void setDetectorOffset(Float offset, int instrumentIndex,
             int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorOffset(toRType(offset), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setOffsetValue(toRType(offset));
     }
 
     public void setDetectorSerialNumber(String serialNumber,
             int instrumentIndex, int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorSerialNumber(toRType(serialNumber), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setSerialNumber(toRType(serialNumber));
     }
 
     public void setDetectorSettingsDetector(String detector, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setDetectorSettingsDetector(toRType(detector), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LSID key = new LSID(DetectorSettings.class, imageIndex, logicalChannelIndex);
+        referenceCache.put(key.toString(), detector);
     }
 
+    private DetectorSettings getDetectorSettings(int imageIndex,
+            int logicalChannelIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("logicalChannelIndex", logicalChannelIndex);
+        return getSourceObject(DetectorSettings.class, indexes);
+    }
 
     public void setDetectorSettingsBinning(String binning, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setDetectorSettingsBinning(toRType(binning), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
+        o.setBinning((Binning) getEnumeration(Binning.class, binning));
     }
 
     public void setDetectorSettingsReadOutRate(Float readOutRate,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setDetectorSettingsReadOutRate(toRType(readOutRate), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
+        o.setReadOutRate(toRType(readOutRate));
     }
 
     public void setDetectorSettingsVoltage(Float voltage, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setDetectorSettingsVoltage(toRType(voltage), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
+        o.setVoltage(toRType(voltage));
     }
 
     public void setDetectorSettingsGain(Float gain, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setDetectorSettingsGain(toRType(gain), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
+        o.setGain(toRType(gain));
     }
 
     public void setDetectorSettingsOffset(Float offset, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setDetectorSettingsOffset(toRType(offset), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
+        o.setOffsetValue(toRType(offset));
     }
 
     public void setDetectorType(String type, int instrumentIndex,
             int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorType(toRType(type), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setType((DetectorType) getEnumeration(DetectorType.class, type));
     }
 
     public void setDetectorVoltage(Float voltage, int instrumentIndex,
             int detectorIndex)
     {
-        try
-        {
-            delegate.setDetectorVoltage(toRType(voltage), instrumentIndex, detectorIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setVoltage(toRType(voltage));
     }
 
     public void setDimensionsPhysicalSizeX(Float physicalSizeX, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setDimensionsPhysicalSizeX(toRType(physicalSizeX), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setPhysicalSizeX(toRType(physicalSizeX));
+    }
+
+    private Pixels getPixels(int imageIndex, int pixelsIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("pixelsIndex", pixelsIndex);
+        Pixels p = getSourceObject(Pixels.class, indexes);
+        p.setSha1(rstring("Foo"));
+        return p;
     }
 
     public void setDimensionsPhysicalSizeY(Float physicalSizeY, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setDimensionsPhysicalSizeY(toRType(physicalSizeY), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setPhysicalSizeX(toRType(physicalSizeY));
     }
 
     public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setDimensionsPhysicalSizeZ(toRType(physicalSizeZ), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setPhysicalSizeX(toRType(physicalSizeZ));
     }
 
     public void setDimensionsTimeIncrement(Float timeIncrement, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setDimensionsTimeIncrement(toRType(timeIncrement), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDimensionsWaveIncrement(Integer waveIncrement,
             int imageIndex, int pixelsIndex)
     {
-        try
-        {
-            delegate.setDimensionsWaveIncrement(toRType(waveIncrement), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDimensionsWaveStart(Integer waveStart, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setDimensionsWaveStart(toRType(waveStart), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDisplayOptionsID(String id, int imageIndex)
     {
-        try
-        {
-            delegate.setDisplayOptionsID(toRType(id), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDisplayOptionsProjectionZStart(Integer start, int imageIndex)
     {
-        try
-        {
-            delegate.setDisplayOptionsProjectionZStart(toRType(start), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDisplayOptionsProjectionZStop(Integer stop, int imageIndex)
     {
-        try
-        {
-            delegate.setDisplayOptionsProjectionZStop(toRType(stop), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDisplayOptionsTimeTStart(Integer start, int imageIndex)
     {
-        try
-        {
-            delegate.setDisplayOptionsTimeTStart(toRType(start), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDisplayOptionsTimeTStop(Integer stop, int imageIndex)
     {
-        try
-        {
-            delegate.setDisplayOptionsTimeTStop(toRType(stop), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDisplayOptionsZoom(Float zoom, int imageIndex)
     {
-        try
-        {
-            delegate.setDisplayOptionsZoom(toRType(zoom), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setExperimenterEmail(String email, int experimenterIndex)
     {
-        try
-        {
-            delegate.setExperimenterEmail(toRType(email), experimenterIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setExperimenterFirstName(String firstName, int experimenterIndex)
     {
-        try
-        {
-            delegate.setExperimenterFirstName(toRType(firstName), experimenterIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setExperimenterID(String id, int experimenterIndex)
     {
-        return;
     }
 
     public void setExperimenterInstitution(String institution,
             int experimenterIndex)
     {
-        try
-        {
-            delegate.setExperimenterInstitution(toRType(institution), experimenterIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setExperimenterLastName(String lastName, int experimenterIndex)
     {
-        try
-        {
-            delegate.setExperimenterLastName(toRType(lastName), experimenterIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setFilamentType(String type, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setFilamentType(toRType(type), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setType((FilamentType) getEnumeration(FilamentType.class, type));
+    }
+
+    private Filament getFilament(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("lightSourceIndex", lightSourceIndex);
+        return getSourceObject(Filament.class, indexes);
     }
 
     public void setImageCreationDate(String creationDate, int imageIndex)
     {
-        try
+        if (creationDate != null)
         {
-            delegate.setImageCreationDate(toRType(creationDate), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
+            try
+            {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+                java.util.Date date = sdf.parse(creationDate);
+                Timestamp creationTimestamp = new Timestamp(date.getTime());
+                Image i = getImage(imageIndex);
+                i.setAcquisitionDate(toRType(creationTimestamp));
+            }
+            catch (ParseException e)
+            {
+                log.error(String.format("Parsing start time failed!"), e);
+            }
         }
+    }
+
+    private Image getImage(int imageIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        return getSourceObject(Image.class, indexes);
     }
 
     public void setImageDescription(String description, int imageIndex)
     {
-        try
-        {
-            delegate.setImageDescription(toRType(description), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Image o = getImage(imageIndex);
+        o.setDescription(toRType(description));
     }
 
     public void setImageID(String id, int imageIndex)
     {
-        try
-        {
-            delegate.setImageID(toRType(id), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        IObjectContainer o = getIObjectContainer(Image.class, indexes);
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
-        try
-        {
-            delegate.setImageInstrumentRef(toRType(instrumentRef), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LSID key = new LSID(Image.class, imageIndex);
+        referenceCache.put(key.toString(), instrumentRef);
     }
 
     public void setImageName(String name, int imageIndex)
     {
-        try
-        {
-            delegate.setImageName(toRType(name), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Image o = getImage(imageIndex);
+        o.setName(toRType(name));
     }
 
     public void setImagingEnvironmentAirPressure(Float airPressure,
             int imageIndex)
     {
-        try
-        {
-            delegate.setImagingEnvironmentAirPressure(toRType(airPressure), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setAirPressure(toRType(airPressure));
+    }
+
+    private ImagingEnvironment getImagingEnvironment(int imageIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        return getSourceObject(ImagingEnvironment.class, indexes);
     }
 
     public void setImagingEnvironmentCO2Percent(Float percent, int imageIndex)
     {
-        try
-        {
-            delegate.setImagingEnvironmentCO2Percent(toRType(percent), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setCo2percent(toRType(percent));
     }
 
     public void setImagingEnvironmentHumidity(Float humidity, int imageIndex)
     {
-        try
-        {
-            delegate.setImagingEnvironmentHumidity(toRType(humidity), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setHumidity(toRType(humidity));
     }
 
     public void setImagingEnvironmentTemperature(Float temperature,
             int imageIndex)
     {
-        try
-        {
-            delegate.setImagingEnvironmentTemperature(toRType(temperature), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setTemperature(toRType(temperature));
     }
 
     public void setInstrumentID(String id, int instrumentIndex)
     {
-        try
-        {
-            delegate.setInstrumentID(toRType(id), instrumentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setLaserFrequencyMultiplication(
             Integer frequencyMultiplication, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLaserFrequencyMultiplication(toRType(frequencyMultiplication), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setFrequencyMultiplication(toRType(frequencyMultiplication));
+    }
+
+    private Laser getLaser(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("lightSourceIndex", lightSourceIndex);
+        return getSourceObject(Laser.class, indexes);
     }
 
     public void setLaserLaserMedium(String laserMedium, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLaserLaserMedium(toRType(laserMedium), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, laserMedium));
     }
 
     public void setLaserPulse(String pulse, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLaserPulse(toRType(pulse), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setPulse((Pulse) getEnumeration(Pulse.class, pulse));  
     }
 
     public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLaserTuneable(toRType(tuneable), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setTuneable(toRType(tuneable));  
     }
 
     public void setLaserType(String type, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLaserType(toRType(type), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setType((LaserType) getEnumeration(LaserType.class, type)); 
     }
 
     public void setLaserWavelength(Integer wavelength, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLaserWavelength(toRType(wavelength), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setWavelength(toRType(wavelength));  
     }
 
     public void setLightSourceID(String id, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLightSourceID(toRType(id), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("lightSourceIndex", lightSourceIndex);  
+        IObjectContainer o = getIObjectContainer(LightSource.class, indexes);
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setLightSourceManufacturer(String manufacturer,
             int instrumentIndex, int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLightSourceManufacturer(toRType(manufacturer), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
+        o.setManufacturer(toRType(manufacturer)); 
+    }
+
+    public LightSource getLightSource(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("lightSourceIndex", lightSourceIndex);
+        return getSourceObject(LightSource.class, indexes);
     }
 
     public void setLightSourceModel(String model, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLightSourceModel(toRType(model), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
+        o.setModel(toRType(model)); 
     }
 
     public void setLightSourcePower(Float power, int instrumentIndex,
             int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLightSourcePower(toRType(power), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
+        o.setPower(toRType(power)); 
     }
 
     public void setLightSourceSerialNumber(String serialNumber,
             int instrumentIndex, int lightSourceIndex)
     {
-        try
-        {
-            delegate.setLightSourceSerialNumber(toRType(serialNumber), instrumentIndex, lightSourceIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
+        o.setSerialNumber(toRType(serialNumber)); 
     }
 
     public void setLightSourceSettingsAttenuation(Float attenuation,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLightSourceSettingsAttenuation(toRType(attenuation), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LightSettings o = getLightSettings(imageIndex, logicalChannelIndex);
+        o.setAttenuation(toRType(attenuation)); 
+    }
+
+    private LightSettings getLightSettings(int imageIndex,
+            int logicalChannelIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("logicalChannelIndex", logicalChannelIndex);
+        return getSourceObject(LightSettings.class, indexes);
     }
 
     public void setLightSourceSettingsLightSource(String lightSource,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLightSourceSettingsLightSource(toRType(lightSource), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LSID key = new LSID(LightSettings.class, imageIndex, logicalChannelIndex);
+        referenceCache.put(key.toString(), lightSource);
     }
 
     public void setLightSourceSettingsWavelength(Integer wavelength,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLightSourceSettingsWavelength(toRType(wavelength), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+         LightSettings o = getLightSettings(imageIndex, logicalChannelIndex);
+        o.setWavelength(toRType(wavelength)); 
     }
 
     public void setLogicalChannelContrastMethod(String contrastMethod,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelContrastMethod(toRType(contrastMethod), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setContrastMethod((ContrastMethod) 
+            getEnumeration(ContrastMethod.class, contrastMethod));
+    }
+
+    public LogicalChannel getLogicalChannel(int imageIndex,
+            int logicalChannelIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("logicalChannelIndex", logicalChannelIndex);
+        return getSourceObject(LogicalChannel.class, indexes);
     }
 
     public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
             int logicalChannelIndex)
     {
-        //TODO: Fix this hack on the server
-        if (emWave == null)
-            return;
-        
-         try
-        {
-             log.debug(String.format(
-                     "Setting Image[%d] LogicalChannel[%d] emission wavelength: '%d'",
-                     imageIndex, logicalChannelIndex, emWave));
-            delegate.setLogicalChannelEmWave(toRType(emWave), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setEmissionWave(toRType(emWave));
     }
 
     public void setLogicalChannelExWave(Integer exWave, int imageIndex,
             int logicalChannelIndex)
     {
-        if (exWave == null)
-            return;
-         try
-        {
-            delegate.setLogicalChannelExWave(toRType(exWave), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setExcitationWave(toRType(exWave));
     }
 
     public void setLogicalChannelFluor(String fluor, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelFluor(toRType(fluor), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setFluor(toRType(fluor));
     }
 
     public void setLogicalChannelID(String id, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelID(toRType(id), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("logicalChannelIndex", logicalChannelIndex);  
+        IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setLogicalChannelIlluminationType(String illuminationType,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelID(toRType(illuminationType), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setIllumination((Illumination) 
+            getEnumeration(Illumination.class, illuminationType));
     }
 
     public void setLogicalChannelMode(String mode, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelMode(toRType(mode), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setMode((AcquisitionMode) 
+            getEnumeration(AcquisitionMode.class, mode));
     }
 
     public void setLogicalChannelName(String name, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelName(toRType(name), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setName(toRType(name));
     }
 
     public void setLogicalChannelNdFilter(Float ndFilter, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelNdFilter(toRType(ndFilter), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setNdFilter(toRType(ndFilter));
     }
 
     public void setLogicalChannelPhotometricInterpretation(
             String photometricInterpretation, int imageIndex,
             int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelPhotometricInterpretation(toRType(photometricInterpretation), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setPhotometricInterpretation((PhotometricInterpretation) getEnumeration(
+                    PhotometricInterpretation.class, photometricInterpretation));
     }
 
     public void setLogicalChannelPinholeSize(Float pinholeSize,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelPinholeSize(toRType(pinholeSize), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setPinHoleSize(toRType(pinholeSize));
     }
 
     public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelPockelCellSetting(toRType(pockelCellSetting), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
+        o.setPockelCellSetting(toRType(pockelCellSetting));
     }
 
     public void setLogicalChannelSamplesPerPixel(Integer samplesPerPixel,
             int imageIndex, int logicalChannelIndex)
     {
-        try
-        {
-            delegate.setLogicalChannelSamplesPerPixel(toRType(samplesPerPixel), imageIndex, logicalChannelIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setOTFID(String id, int instrumentIndex, int otfIndex)
     {
-        try
-        {
-            delegate.setOTFID(toRType(id), instrumentIndex, otfIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("otfIndex", otfIndex);  
+        IObjectContainer o = getIObjectContainer(OTF.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
             int instrumentIndex, int otfIndex)
     {
-        try
-        {
-            delegate.setOTFOpticalAxisAveraged(toRType(opticalAxisAveraged), instrumentIndex, otfIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        OTF o = getOTF(instrumentIndex, otfIndex);
+        o.setOpticalAxisAveraged(toRType(opticalAxisAveraged));
+    }
+
+    private OTF getOTF(int instrumentIndex, int otfIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("otfIndex", otfIndex);
+        return getSourceObject(OTF.class, indexes);
     }
 
     public void setOTFPixelType(String pixelType, int instrumentIndex,
             int otfIndex)
     {
-        try
-        {
-            delegate.setOTFPixelType(toRType(pixelType), instrumentIndex, otfIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        OTF o = getOTF(instrumentIndex, otfIndex);
+        o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, pixelType));
     }
 
     public void setOTFSizeX(Integer sizeX, int instrumentIndex, int otfIndex)
     {
-        try
-        {
-            delegate.setOTFSizeX(toRType(sizeX), instrumentIndex, otfIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        OTF o = getOTF(instrumentIndex, otfIndex);
+        o.setSizeX(toRType(sizeX));
     }
 
     public void setOTFSizeY(Integer sizeY, int instrumentIndex, int otfIndex)
     {
-        try
-        {
-            delegate.setOTFSizeY(toRType(sizeY), instrumentIndex, otfIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        OTF o = getOTF(instrumentIndex, otfIndex);
+        o.setSizeY(toRType(sizeY));
     }
 
     public void setObjectiveIris(Boolean iris, int instrumentIndex,
             int objectiveIndex)
     {
-        try
-        {
-            delegate.setObjectiveIris(toRType(iris), instrumentIndex, objectiveIndex);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setIris(toRType(iris));
     }
     
+    public Objective getObjective(int instrumentIndex, int objectiveIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("objectiveIndex", objectiveIndex);
+        return getSourceObject(Objective.class, indexes);
+    }
+
     public void setObjectiveCalibratedMagnification(
             Float calibratedMagnification, int instrumentIndex,
             int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveCalibratedMagnification[%f] instrumentIndex[%d] objectiveIndex[%d]",
-                calibratedMagnification, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveCalibratedMagnification(toRType(calibratedMagnification), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setCalibratedMagnification(toRType(calibratedMagnification));
     }
 
     public void setObjectiveCorrection(String correction, int instrumentIndex,
             int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveCorrection[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                correction, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveCorrection(toRType(correction), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setCorrection((Correction) getEnumeration(Correction.class, correction));
     }
 
     public void setObjectiveID(String id, int instrumentIndex,
             int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveID[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                id, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveID(toRType(id), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("objectiveIndex", objectiveIndex);  
+        IObjectContainer o = getIObjectContainer(Objective.class, indexes);
+        
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
             int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveImmersion[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                immersion, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveImmersion(toRType(immersion), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setImmersion((Immersion) getEnumeration(Immersion.class, immersion));
     }
 
     public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
             int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveLensNA[%f] instrumentIndex[%d] objectiveIndex[%d]",
-                lensNA, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveLensNA(toRType(lensNA), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setLensNA(toRType(lensNA));
     }
 
     public void setObjectiveManufacturer(String manufacturer,
             int instrumentIndex, int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveManufacturer[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                manufacturer, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveManufacturer(toRType(manufacturer), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setManufacturer(toRType(manufacturer));
     }
 
     public void setObjectiveModel(String model, int instrumentIndex,
             int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveModel[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                model, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveModel(toRType(model), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setModel(toRType(model));
     }
 
     public void setObjectiveNominalMagnification(Integer nominalMagnification,
             int instrumentIndex, int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveNominalMagnification[%d] instrumentIndex[%d] objectiveIndex[%d]",
-                nominalMagnification, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveNominalMagnification(toRType(nominalMagnification), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setNominalMagnification(toRType(nominalMagnification));
     }
 
     public void setObjectiveSerialNumber(String serialNumber,
             int instrumentIndex, int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveSerialNumber[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                serialNumber, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveSerialNumber(toRType(serialNumber), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setSerialNumber(toRType(serialNumber));
     }
 
     public void setObjectiveWorkingDistance(Float workingDistance,
             int instrumentIndex, int objectiveIndex)
     {
-        log.debug(String.format(
-                "setObjectiveWorkingDistance[%f] instrumentIndex[%d] objectiveIndex[%d]",
-                workingDistance, instrumentIndex, objectiveIndex));
-        try
-        {
-            delegate.setObjectiveWorkingDistance(toRType(workingDistance), instrumentIndex, objectiveIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setWorkingDistance(toRType(workingDistance));
     }
 
     public void setPixelsBigEndian(Boolean bigEndian, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsBigEndian(toRType(bigEndian), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setPixelsDimensionOrder(String dimensionOrder, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsDimensionOrder(toRType(dimensionOrder), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setDimensionOrder((DimensionOrder) getEnumeration(DimensionOrder.class, dimensionOrder));
     }
 
     public void setPixelsID(String id, int imageIndex, int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsID(toRType(id), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("pixelsIndex", pixelsIndex);  
+        IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setPixelsPixelType(String pixelType, int imageIndex,
             int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsPixelType(toRType(pixelType), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, pixelType));
     }
 
     public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsSizeC(toRType(sizeC), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-        
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setSizeC(toRType(sizeC));
     }
 
     public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsSizeT(toRType(sizeT), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-        
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setSizeT(toRType(sizeT));
     }
 
     public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsSizeZ(toRType(sizeZ), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setSizeZ(toRType(sizeZ));
     }
 
     public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
     {       
-        try
-        {
-            delegate.setPixelsSizeX(toRType(sizeX), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setSizeX(toRType(sizeX));
     }
 
     public void setPixelsSizeY(Integer sizeY, int imageIndex, int pixelsIndex)
     {
-        try
-        {
-            delegate.setPixelsSizeY(toRType(sizeY), imageIndex, pixelsIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Pixels o = getPixels(imageIndex, pixelsIndex);
+        o.setSizeY(toRType(sizeY));
     }
 
     public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
             int planeIndex)
     {    
-        try
-        {
-            
-            delegate.setPlaneTheC(toRType(theC), imageIndex, pixelsIndex, planeIndex);
-            
-            /*
-            if (pInfo == null)
-            {
-                pInfo = new PlaneInfoI();
-            }
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setTheC(toRType(theC));
+    }
 
-            pInfo.setTheC(toRType(theC));
-
-            if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
-            {
-                // Submit the pInfo.
-                delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
-            }
-            */
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    private PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
+            int planeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("pixelsIndex", pixelsIndex);
+        indexes.put("planeIndex", planeIndex);
+        return getSourceObject(PlaneInfo.class, indexes);
     }
 
     public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
-        try
-        {
-            
-            
-            delegate.setPlaneTheT(toRType(theT), imageIndex, pixelsIndex, planeIndex);
-            
-            /*
-            if (pInfo == null)
-            {
-                pInfo = new PlaneInfoI();
-            }
-
-            pInfo.setTheT(toRType(theT));  
-
-            if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
-            {
-                // Submit the pInfo.
-                delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
-            }
-            */
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setTheT(toRType(theT));
     }
 
     public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
-        try
-        {
-            
-            delegate.setPlaneTheZ(toRType(theZ), imageIndex, pixelsIndex, planeIndex);
-            
-            /*
-            if (pInfo == null)
-            {
-                pInfo = new PlaneInfoI();
-            }
-
-            pInfo.setTheZ(toRType(theZ));  
-
-            if (pInfo.getTheC() != null && pInfo.getTheT() != null && pInfo.getTheZ() != null)
-            {
-                // Submit the pInfo.
-                delegate.setPlaneInfo(pInfo, imageIndex, pixelsIndex, planeIndex);
-            }
-            */
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setTheZ(toRType(theZ));
     }
 
     public void setPlaneTimingDeltaT(Float deltaT, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
-        try
-        {
-            delegate.setPlaneTimingDeltaT(toRType(deltaT), imageIndex, pixelsIndex, planeIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setDeltaT(toRType(deltaT));
     }
 
     public void setPlaneTimingExposureTime(Float exposureTime, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
-        try
-        {
-            delegate.setPlaneTimingExposureTime(toRType(exposureTime), imageIndex, pixelsIndex, planeIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setExposureTime(toRType(exposureTime));
     }
 
     public void setPlateDescription(String description, int plateIndex)
     {
-        try
-        {
-            delegate.setPlateDescription(toRType(description), plateIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Plate o = getPlate(plateIndex);
+        o.setDescription(toRType(description));
+    }
+
+    private Plate getPlate(int plateIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("plateIndex", plateIndex);
+        return getSourceObject(Plate.class, indexes);
     }
 
     public void setPlateExternalIdentifier(String externalIdentifier,
             int plateIndex)
     {
-        try
-        {
-            delegate.setPlateExternalIdentifier(toRType(externalIdentifier), plateIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Plate o = getPlate(plateIndex);
+        o.setExternalIdentifier(toRType(externalIdentifier));
     }
 
     public void setPlateID(String id, int plateIndex)
     {
-        try
-        {
-            delegate.setPlateID(toRType(id), plateIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("plateIndex", plateIndex); 
+        IObjectContainer o = getIObjectContainer(Plate.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setPlateName(String name, int plateIndex)
     {
-        try
-        {
-            delegate.setPlateName(toRType(name), plateIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Plate o = getPlate(plateIndex);
+        o.setName(toRType(name));
     }
 
     public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
     {
-        try
-        {
-            delegate.setPlateRefID(toRType(id), screenIndex, plateRefIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setPlateStatus(String status, int plateIndex)
     {
-        try
-        {
-            delegate.setPlateStatus(toRType(status), plateIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Plate o = getPlate(plateIndex);
+        o.setStatus(toRType(status));
     }
 
     public void setROIID(String id, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIID(toRType(id), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIT0(Integer t0, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIT0(toRType(t0), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIT1(Integer t1, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIT1(toRType(t1), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIX0(Integer x0, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIX0(toRType(x0), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIX1(Integer x1, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIX1(toRType(x1), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIY0(Integer y0, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIY0(toRType(y0), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIY1(Integer y1, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIY1(toRType(y1), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIZ0(toRType(z0), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        };
     }
 
     public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
     {
-        try
-        {
-            delegate.setROIZ1(toRType(z1), imageIndex, roiIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setReagentDescription(String description, int screenIndex,
             int reagentIndex)
     {
-        try
-        {
-            delegate.setReagentDescription(toRType(description), screenIndex, reagentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Reagent o = getReagent(screenIndex, reagentIndex);
+        o.setDescription(toRType(description));
+    }
+
+    private Reagent getReagent(int screenIndex, int reagentIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("screenIndex", screenIndex);
+        indexes.put("reagentIndex", reagentIndex);
+        return getSourceObject(Reagent.class, indexes);
     }
 
     public void setReagentID(String id, int screenIndex, int reagentIndex)
     {
-        try
-        {
-            delegate.setReagentID(toRType(id), screenIndex, reagentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("screenIndex", screenIndex);
+        indexes.put("reagentIndex", reagentIndex);  
+        IObjectContainer o = getIObjectContainer(Reagent.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setReagentName(String name, int screenIndex, int reagentIndex)
     {
-        try
-        {
-            delegate.setReagentName(toRType(name), screenIndex, reagentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Reagent o = getReagent(screenIndex, reagentIndex);
+        o.setName(toRType(name));
     }
 
     public void setReagentReagentIdentifier(String reagentIdentifier,
             int screenIndex, int reagentIndex)
     {
-        try
-        {
-            delegate.setReagentReagentIdentifier(toRType(reagentIdentifier), screenIndex, reagentIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Reagent o = getReagent(screenIndex, reagentIndex);
+        o.setReagentIdentifier(toRType(reagentIdentifier));
     }
 
     public void setRoot(Object root)
     {
-        try
-        {
-             delegate.setRoot((RType) root);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        log.debug(String.format("IGNORING: setRoot[%s]", root));
     }
 
     public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
             int screenAcquisitionIndex)
     {
+        ScreenAcquisition o = 
+            getScreenAcquisition(screenIndex, screenAcquisitionIndex);
+        
         try
         {
-             delegate.setScreenAcquisitionEndTime(
-                toRType(endTime), screenIndex, screenAcquisitionIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
+            SimpleDateFormat parser =
+                new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
+            Timestamp ts = new Timestamp(parser.parse(endTime).getTime());
+            o.setEndTime(toRType(ts));
         }
+        catch (ParseException e)
+        {
+            log.error(String.format("Parsing start time failed!"), e);
+        }
+    }
+
+    private ScreenAcquisition getScreenAcquisition(int screenIndex,
+            int screenAcquisitionIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("screenIndex", screenIndex);
+        indexes.put("screenAcquisitionIndex", screenAcquisitionIndex);
+        return getSourceObject(ScreenAcquisition.class, indexes);
     }
 
     public void setScreenAcquisitionID(String id, int screenIndex,
             int screenAcquisitionIndex)
     {
-        try
-        {
-             delegate.setScreenAcquisitionStartTime(
-                toRType(id), screenIndex, screenAcquisitionIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LSID lsid = 
+            new LSID(ScreenAcquisition.class, screenIndex, screenAcquisitionIndex);
+        IObjectContainer o = containerCache.get(lsid);
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setScreenAcquisitionStartTime(String startTime,
             int screenIndex, int screenAcquisitionIndex)
     {
+        ScreenAcquisition o = 
+            getScreenAcquisition(screenIndex, screenAcquisitionIndex);
+        
         try
         {
-             delegate.setScreenAcquisitionStartTime(
-                toRType(startTime), screenIndex, screenAcquisitionIndex);
-        } catch (ServerError e)
+            SimpleDateFormat parser =
+                new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
+            Timestamp ts = new Timestamp(parser.parse(startTime).getTime());
+            o.setStartTime(toRType(ts));
+        }
+        catch (ParseException e)
         {
-            throw new RuntimeException(e);
+            log.error(String.format("Parsing start time failed!"), e);
         }
     }
 
     public void setScreenID(String id, int screenIndex)
     {
-        try
-        {
-             delegate.setScreenID(toRType(id), screenIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("screenIndex", screenIndex); 
+        IObjectContainer o = getIObjectContainer(Screen.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setScreenName(String name, int screenIndex)
     {
-        try
-        {
-             delegate.setScreenName(toRType(name), screenIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Screen o = getScreen(screenIndex);
+        o.setName(toRType(name));
+    }
+
+    private Screen getScreen(int screenIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("screenIndex", screenIndex);
+        return getSourceObject(Screen.class, indexes);
     }
 
     public void setScreenProtocolDescription(String protocolDescription,
             int screenIndex)
     {
-        try
-        {
-             delegate.setScreenProtocolDescription(
-                toRType(protocolDescription), screenIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Screen o = getScreen(screenIndex);
+        o.setProtocolDescription(toRType(protocolDescription));
     }
 
     public void setScreenProtocolIdentifier(String protocolIdentifier,
             int screenIndex)
     {
-        try
-        {
-             delegate.setScreenProtocolIdentifier(
-                toRType(protocolIdentifier), screenIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Screen o = getScreen(screenIndex);
+        o.setProtocolIdentifier(toRType(protocolIdentifier));
     }
 
     public void setScreenReagentSetDescription(String reagentSetDescription,
             int screenIndex)
     {
-        try
-        {
-             delegate.setScreenReagentSetDescription(
-                toRType(reagentSetDescription), screenIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Screen o = getScreen(screenIndex);
+        o.setReagentSetDescription(toRType(reagentSetDescription));
     }
 
     public void setScreenType(String type, int screenIndex)
     {
-        //FIXME: missing in delegate?
-                /*
-        try
-        {
-             delegate.setScreenType(toRType(type), screenIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-        */
-                return;
+        Screen o = getScreen(screenIndex);
+        o.setType(toRType(type));
     }
 
     public void setStageLabelName(String name, int imageIndex)
     {
-        try
-        {
-             delegate.setStageLabelName(toRType(name), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        StageLabel o = getStageLabel(imageIndex);
+        o.setName(toRType(name));
+    }
+
+    private StageLabel getStageLabel(int imageIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        return getSourceObject(StageLabel.class, indexes);
     }
 
     public void setStageLabelX(Float x, int imageIndex)
     {
-        try
-        {
-             delegate.setStageLabelX(toRType(x), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        StageLabel o = getStageLabel(imageIndex);
+        o.setPositionX(toRType(x));
     }
 
     public void setStageLabelY(Float y, int imageIndex)
     {
-        try
-        {
-             delegate.setStageLabelY(toRType(y), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        StageLabel o = getStageLabel(imageIndex);
+        o.setPositionY(toRType(y));
     }
 
     public void setStageLabelZ(Float z, int imageIndex)
     {
-        try
-        {
-             delegate.setStageLabelZ(toRType(z), imageIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        StageLabel o = getStageLabel(imageIndex);
+        o.setPositionZ(toRType(z));
     }
 
     public void setStagePositionPositionX(Float positionX, int imageIndex,
             int pixelsIndex, int planeIndex)
-    {        
-        log.debug(String.format(
-            "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position X: '%f'",
-            imageIndex, pixelsIndex, planeIndex, positionX));
-        try
-        {
-             delegate.setStagePositionPositionX(
-                toRType(positionX), imageIndex, pixelsIndex, planeIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    {    
+    	PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+    	o.setPositionX(toRType(positionX));
     }
 
     public void setStagePositionPositionY(Float positionY, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Y: '%f'",
-                imageIndex, pixelsIndex, planeIndex, positionY));
-        try
-        {
-             delegate.setStagePositionPositionY(
-                toRType(positionY), imageIndex, pixelsIndex, planeIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    	PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+    	o.setPositionY(toRType(positionY));
     }
 
     public void setStagePositionPositionZ(Float positionZ, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Z: '%f'",
-                imageIndex, pixelsIndex, planeIndex, positionZ));
-        try
-        {
-             delegate.setStagePositionPositionZ(
-                toRType(positionZ), imageIndex, pixelsIndex, planeIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    	PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+    	o.setPositionZ(toRType(positionZ));
     }
 
     public void setTiffDataFileName(String fileName, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataFileName(
-                toRType(fileName), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setTiffDataFirstC(Integer firstC, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataFirstC(
-                toRType(firstC), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setTiffDataFirstT(Integer firstT, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataFirstT(
-                toRType(firstT), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataFirstZ(
-                toRType(firstZ), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setTiffDataIFD(Integer ifd, int imageIndex, int pixelsIndex,
             int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataIFD(
-                toRType(ifd), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setTiffDataNumPlanes(Integer numPlanes, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataNumPlanes(
-                toRType(numPlanes), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setTiffDataUUID(String uuid, int imageIndex, int pixelsIndex,
             int tiffDataIndex)
     {
-        try
-        {
-             delegate.setTiffDataUUID(
-                toRType(uuid), imageIndex, pixelsIndex, tiffDataIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setUUID(String uuid)
     {
-        try
-        {
-             delegate.setUUID(toRType(uuid));
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setWellColumn(Integer column, int plateIndex, int wellIndex)
     {
-        try
-        {
-             delegate.setWellColumn(
-                toRType(column), plateIndex, wellIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Well o = getWell(plateIndex, wellIndex);
+        o.setColumn(toRType(column));
+    }
+
+    private Well getWell(int plateIndex, int wellIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("plateIndex", plateIndex);
+        indexes.put("wellIndex", wellIndex);
+        return getSourceObject(Well.class, indexes);
     }
 
     public void setWellExternalDescription(String externalDescription,
             int plateIndex, int wellIndex)
     {
-        try
-        {
-             delegate.setWellExternalDescription(
-                toRType(externalDescription), plateIndex, wellIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Well o = getWell(plateIndex, wellIndex);
+        o.setExternalDescription(toRType(externalDescription));
     }
 
     public void setWellExternalIdentifier(String externalIdentifier,
             int plateIndex, int wellIndex)
     {
-        try
-        {
-             delegate.setWellExternalIdentifier(
-                toRType(externalIdentifier), plateIndex, wellIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Well o = getWell(plateIndex, wellIndex);
+        o.setExternalIdentifier(toRType(externalIdentifier));
     }
 
     public void setWellID(String id, int plateIndex, int wellIndex)
     {
-        try
-        {
-             delegate.setWellID(
-                toRType(id), plateIndex, wellIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("plateIndex", plateIndex);
+        indexes.put("wellIndex", wellIndex);  
+        IObjectContainer o = getIObjectContainer(Well.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setWellRow(Integer row, int plateIndex, int wellIndex)
     {
-        try
-        {
-             delegate.setWellRow(
-                toRType(row), plateIndex, wellIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Well o = getWell(plateIndex, wellIndex);
+        o.setRow(toRType(row));
     }
 
     public void setWellSampleID(String id, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
-        try
-        {
-             delegate.setWellSampleID(
-                toRType(id), plateIndex, wellIndex, wellSampleIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("plateIndex", plateIndex);
+        indexes.put("wellIndex", wellIndex);  
+        IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
+       
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setWellSampleIndex(Integer index, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
-        try
-        {
-             delegate.setWellSampleIndex(
-                toRType(index), plateIndex, wellIndex, wellSampleIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setWellSamplePosX(Float posX, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
-        try
-        {
-             delegate.setWellSamplePosX(
-                toRType(posX), plateIndex, wellIndex, wellSampleIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setPosX(toRType(posX));
+    }
+
+    private WellSample getWellSample(int plateIndex, int wellIndex,
+            int wellSampleIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("plateIndex", plateIndex);
+        indexes.put("wellIndex", wellIndex);
+        indexes.put("wellSampleIndex", wellSampleIndex);
+        return getSourceObject(WellSample.class, indexes);
     }
 
     public void setWellSamplePosY(Float posY, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
-        try
-        {            
-            delegate.setWellSamplePosY(
-                toRType(posY), plateIndex, wellIndex, wellSampleIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setPosY(toRType(posY));
     }
 
     public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
-        try
-        {
-            delegate.setWellSampleTimepoint(
-                toRType(timepoint), plateIndex, wellIndex, wellSampleIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setTimepoint(toRType(timepoint));
     }
 
     public void setWellType(String type, int plateIndex, int wellIndex)
     {
-        try
-        {
-            delegate.setWellType(toRType(type), plateIndex, wellIndex);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        Well o = getWell(plateIndex, wellIndex);
+        o.setType(toRType(type));
     }
     
     public long getExperimenterID()
@@ -2190,7 +1833,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         try
         {
             return iAdmin.getEventContext().userId;
-        } catch (ServerError e)
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
@@ -2216,10 +1860,17 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 
     public List<Pixels> saveToDB()
     {
+    	Collection<IObjectContainer> containers = containerCache.values();
+    	IObjectContainer[] containerArray = 
+    		containers.toArray(new IObjectContainer[containers.size()]);
         try
         {
-            return delegate.saveToDB();
-        } catch (ServerError e)
+        	delegate.updateObjects(containerArray);
+        	delegate.updateReferences(referenceCache);
+        	pixelsList = delegate.saveToDB();
+        	return pixelsList;
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
@@ -2235,7 +1886,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
             l.setChild(unloadedImage);
             l.setParent(unloadedDataset);
             iUpdate.saveObject(l);
-        } catch (ServerError e)
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
@@ -2246,7 +1898,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         try
         {
             return (Project) iQuery.get("Project", projectId);
-        } catch (ServerError e)
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
@@ -2257,13 +1910,13 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         try
         {
             return (Dataset) iQuery.get("Dataset", datasetId);
-        } catch (ServerError e)
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
     }
 
- // FIXME: change to iQuery
     public void addBooleanAnnotationToPixels(BooleanAnnotation annotation,
             Pixels pixels)
     {
@@ -2274,18 +1927,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
             l.setChild(annotation);
             l.setParent(unloadedPixels);
             iUpdate.saveObject(l);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
         }
-    }
-
-    public Pixels getPixels(int series)
-    {
-        try
-        {
-            return delegate.getPixels(series);
-        } catch (ServerError e)
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
@@ -2305,7 +1948,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         try
         {
             return (Dataset) iUpdate.saveAndReturnObject(dataset);
-        } catch (ServerError e)
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
@@ -2356,17 +2000,11 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     
     public void setOriginalFiles(File[] files, String formatString)
     {
-        // TODO Auto-generated method stub
+        // TODO Implement
         //
         throw new RuntimeException("Not implemented yet.");
     }
 
-    public void setPixelsId(long long1)
-    {
-        return;
-    }
-
- // FIXME: change to iQuery
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t) throws ServerError
     {
             if (currentPixId != pixId)
@@ -2448,54 +2086,56 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 
     public void setExperimentDescription(String description, int experimentIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        Experiment o = getExperiment(experimentIndex);
+        o.setDescription(toRType(description));
+    }
+
+    private Experiment getExperiment(int experimentIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("experimentIndex", experimentIndex);
+        return getSourceObject(Experiment.class, indexes);
     }
 
     public void setExperimentID(String id, int experimentIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("experimentIndex", experimentIndex);
+        IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
+        
+        o.LSID = id;
+        containerCache.put(new LSID(id), o);
     }
 
     public void setExperimentType(String type, int experimentIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        Experiment o = getExperiment(experimentIndex);
+        o.setType((ExperimentType) getEnumeration(ExperimentType.class, type));
     }
 
     public void setExperimenterMembershipGroup(String group,
             int experimenterIndex, int groupRefIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
     }
 
     public void setImageDefaultPixels(String defaultPixels, int imageIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        LSID key = new LSID(Image.class, imageIndex);
+        referenceCache.put(key.toString(), defaultPixels);
     }
 
     public void setLogicalChannelOTF(String otf, int imageIndex,
             int logicalChannelIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        LSID key = new LSID(LogicalChannel.class, imageIndex, logicalChannelIndex);
+        referenceCache.put(key.toString(), otf);
     }
 
     public void setOTFObjective(String objective, int instrumentIndex,
             int otfIndex)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        LSID key = new LSID(OTF.class, instrumentIndex, otfIndex);
+        referenceCache.put(key.toString(), objective);
     }
 
     /* ---- Objective Settings ---- */
@@ -2503,59 +2143,134 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setObjectiveSettingsCorrectionCollar(Float correctionCollar,
             int imageIndex)
     {
-        try
-        {
-            delegate.setObjectiveSettingsCorrectionCollar(toRType(correctionCollar), imageIndex);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ObjectiveSettings o = getObjectiveSettings(imageIndex);
+        o.setCorrectionCollar(toRType(correctionCollar));
+    }
+
+    private ObjectiveSettings getObjectiveSettings(int imageIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        return getSourceObject(ObjectiveSettings.class, indexes);
     }
 
     public void setObjectiveSettingsMedium(String medium, int imageIndex)
     {
-        try
-        {
-            delegate.setObjectiveSettingsMedium(toRType(medium), imageIndex);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ObjectiveSettings o = getObjectiveSettings(imageIndex);
+        o.setMedium((Medium) getEnumeration(Medium.class, medium));
     }
 
     public void setObjectiveSettingsObjective(String objective, int imageIndex)
     {
-        try
-        {
-            delegate.setObjectiveSettingsObjective(toRType(objective), imageIndex);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        LSID key = new LSID(ObjectiveSettings.class, imageIndex);
+        referenceCache.put(key.toString(), objective);
     }
 
     public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
             int imageIndex)
     {
-        try
-        {
-            delegate.setObjectiveSettingsRefractiveIndex(toRType(refractiveIndex), imageIndex);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+        ObjectiveSettings o = getObjectiveSettings(imageIndex);
+        o.setRefractiveIndex(toRType(refractiveIndex));
     }
     
-/*
-    public void setLogicalChannelPinholeSize(Float a, int b, int c)
+    public void setEnumerationProvider(EnumerationProvider enumProvider)
     {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
+        this.enumProvider = enumProvider;
     }
-*/
+    
+    public EnumerationProvider getEnumerationProvider()
+    {
+        return enumProvider;
+        
+    }
+    
+    /**
+     * This comparator takes into account the OME-XML data model hierarchy
+     * and uses that to define equivalence.
+     * 
+     * @author Chris Allan <callan at blackcat dot ca>
+     *
+     */
+    public class OMEXMLModelComparator implements Comparator<LSID>
+    {
+    	/** 
+    	 * The collator that we use to alphabetically sort by class name
+    	 * within a given level of the OME-XML hierarchy.
+    	 */
+    	private RuleBasedCollator stringComparator = 
+    		(RuleBasedCollator) Collator.getInstance(Locale.ENGLISH);
+    	
+		public int compare(LSID x, LSID y)
+		{
+			// Handle identical LSIDs
+			if (x.equals(y))
+			{
+				return 0;
+			}
+			
+			// Parse the LSID for hierarchical equivalence tests.
+			Class<? extends IObject> xClass = x.getJavaClass();
+			Class<? extends IObject> yClass = y.getJavaClass();
+			int[] xIndexes = x.getIndexes();
+			int[] yIndexes = y.getIndexes();
+			
+			// Handle the null class (unparsable internal reference) case.
+			if (xClass == null)
+			{
+				if (yClass == null)
+				{
+					// Handle different supplied LSIDs by string difference.
+					return stringComparator.compare(x.toString(), y.toString());
+				}
+				return 1;
+			}
+			if (yClass == null)
+			{
+				return -1;
+			}
+
+			// Assign values to the classes
+			int xVal = getValue(xClass, xIndexes.length);
+			int yVal = getValue(yClass, yIndexes.length);
+			
+			int retval = xVal - yVal;
+			if (retval == 0)
+			{
+				// Handle different classes at the same level in the hierarchy
+				// by string difference. They need to still be different.
+				if (!xClass.equals(yClass))
+				{
+					return stringComparator.compare(x.toString(), y.toString());
+				}
+				for (int i = 0; i < xIndexes.length; i++)
+				{
+					int difference = xIndexes[i] - yIndexes[i];
+					if (difference != 0)
+					{
+						return difference;
+					}
+				}
+				return 0;
+			}
+			return retval;
+		}
+		
+		/**
+		 * Assigns a value to a particular class based on its location in the
+		 * OME-XML hierarchy.
+		 * @param klass Class to assign a value to.
+		 * @param indexed Number of class indexes that were present in its LSID.
+		 * @return The value.
+		 */
+		public int getValue(Class<? extends IObject> klass, int indexes)
+		{
+			// Top-level (Pixels is a special case due to Channel and
+			// LogicalChannel containership weirdness).
+			if (klass.equals(Pixels.class))
+			{
+				return 1;
+			}
+			return indexes;
+		}
+    }
 }

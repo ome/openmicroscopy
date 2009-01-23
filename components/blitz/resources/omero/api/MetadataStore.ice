@@ -21,6 +21,18 @@ module omero {
 
     };
 
+	module metadatastore {
+	
+	class IObjectContainer { 
+		string LSID;
+		omero::api::StringIntMap indexes;
+		omero::model::IObject sourceObject;
+	};
+
+	sequence<IObjectContainer> IObjectContainerArray; 
+	
+	};
+
     module api {
 
 	["ami","amd"] interface MetadataStore extends StatefulServiceInterface
@@ -28,6 +40,8 @@ module omero {
 
 		void createRoot() throws ServerError;
 		void setRoot(RType root) throws ServerError;
+		void updateObjects(omero::metadatastore::IObjectContainerArray objects) throws ServerError;
+		void updateReferences(omero::api::StringStringMap references) throws ServerError;
 		ImageList getRoot() throws ServerError;
 		void setChannelGlobalMinMax(int channelIdx, RDouble globalMin, RDouble globalMax, RInt pixelsIndex) throws ServerError;
 		void setThePixelsId(RLong id) throws ServerError;

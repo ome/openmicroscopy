@@ -17,6 +17,12 @@ import omero.model.PixelsType;
 
 public class TestEngine
 {   
+    // Directory to use for test files
+    private static final String TEST_FOLDER = "/users/TheBrain/test_images_shortrun/";
+    
+    // Display verbose output on command line
+    private static final Boolean VERBOSE = false;
+       
     // usage() name
     private static final String APP_NAME = "import-tester";
     
@@ -35,16 +41,16 @@ public class TestEngine
         wrapper = new OMEROWrapper();
         
         // Login
-        store = new OMEROMetadataStoreClient("root", "ome", "mage.openmicroscopy.org.uk", "1099");
+        store = new OMEROMetadataStoreClient("root", "ome", "warlock.openmicroscopy.org.uk", "1099");
         importLibrary = new ImportLibrary(store, wrapper);
         
         // Create a time stamp and use it for the project name
         String projectName = new Date().toString();
-        System.err.println("Storing project: " + projectName);
+        CPrint("Storing project: " + projectName);
         Project project = store.addProject(projectName, "");
                
         // Parse the sub-directories - these will become our datasets
-        File projectDirectory = new File("/users/TheBrain/test_images/");
+        File projectDirectory = new File(TEST_FOLDER);
         if (projectDirectory.exists() && projectDirectory.isDirectory())
         {
             File[] files = projectDirectory.listFiles();
@@ -54,13 +60,13 @@ public class TestEngine
                 File datasetDirectory = files[i];
                 if (datasetDirectory.exists() && datasetDirectory.isDirectory())
                 {
-                    String datasetName = datasetDirectory.getName();
-                    System.err.println("Storing dataset: " + datasetName);
+                    String datasetName = datasetDirectory.getName(); 
+                    CPrint("Storing dataset: " + datasetName);
                     Dataset dataset = store.addDataset(datasetName, "", project);
                     importLibrary.setDataset(dataset);
                     
                     String dirstring = datasetDirectory + File.separator + "test_setup.ini";
-                    System.err.println("dataset directory: " + dirstring);
+                    CPrint("dataset directory: " + dirstring);
                     
                     // Load up the main ini file
                     ini = IniFileLoader.getNewIniFileLoader(dirstring);
@@ -107,22 +113,22 @@ public class TestEngine
                         // For each image, get or set important data
                         for (int series = 0; series < seriesCount; series++)
                         {
-                            Long pixId = pixList.get(series).getId().getValue();
-
+                        	Pixels pixels = pixList.get(series);
+                            
                             // Get Sha1
-                            String sha1 = store.getPixels(series).getSha1().getValue();
+                            String sha1 = pixels.getSha1().getValue();
 
                             // Get image dimensions
-                            Integer sizeX = store.getPixels(series).getSizeX().getValue();
-                            Integer sizeY = store.getPixels(series).getSizeY().getValue();
-                            Integer sizeZ = store.getPixels(series).getSizeZ().getValue();
-                            Integer sizeC = store.getPixels(series).getSizeC().getValue();
-                            Integer sizeT = store.getPixels(series).getSizeT().getValue();
-                            PixelsType pixelType = store.getPixels(series).getPixelsType();
-                            DimensionOrder dimOrder = store.getPixels(series).getDimensionOrder();
-                            Float pixelSizeX = store.getPixels(series).getPhysicalSizeX().getValue();
-                            Float pixelSizeY = store.getPixels(series).getPhysicalSizeY().getValue();
-                            Float pixelSizeZ = store.getPixels(series).getPhysicalSizeZ().getValue();
+                            Integer sizeX = pixels.getSizeX().getValue();
+                            Integer sizeY = pixels.getSizeY().getValue();
+                            Integer sizeZ = pixels.getSizeZ().getValue();
+                            Integer sizeC = pixels.getSizeC().getValue();
+                            Integer sizeT = pixels.getSizeT().getValue();
+                            PixelsType pixelType = pixels.getPixelsType();
+                            DimensionOrder dimOrder = pixels.getDimensionOrder();
+                            Float pixelSizeX = pixels.getPhysicalSizeX().getValue();
+                            Float pixelSizeY = pixels.getPhysicalSizeY().getValue();
+                            Float pixelSizeZ = pixels.getPhysicalSizeZ().getValue();
 
                             // Compare
                             testValue(fileList[j], "s" + series + "_SHA1", sha1);
@@ -141,11 +147,11 @@ public class TestEngine
                             
                             for (int channel = 0; channel < sizeC; channel++)
                             {
-                                Double globalMin = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMin().getValue();
-                                Double globalMax = store.getPixels(series).getChannel(channel).getStatsInfo().getGlobalMax().getValue();
+                                Double globalMin = pixels.getChannel(channel).getStatsInfo().getGlobalMin().getValue();
+                                Double globalMax = pixels.getChannel(channel).getStatsInfo().getGlobalMax().getValue();
                                 
-                                Integer emWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getEmissionWave().getValue();
-                                Integer exWave = store.getPixels(series).getChannel(channel).getLogicalChannel().getExcitationWave().getValue();                                
+                                Integer emWave = pixels.getChannel(channel).getLogicalChannel().getEmissionWave().getValue();
+                                Integer exWave = pixels.getChannel(channel).getLogicalChannel().getExcitationWave().getValue();                                
                                 
                                 testValue(fileList[j], "s" + series + "_c" + channel + "_globalMin", globalMin);
                                 testValue(fileList[j], "s" + series + "_c" + channel + "_globalMax", globalMax);
@@ -177,7 +183,7 @@ public class TestEngine
         String storedValue = ini.getStringValue(section, key);
         if ((storedValue == null || populateIniFiles == true) && value != null)
         {
-            System.err.println("Storing value for " + section + ": key=" + key + ", value=: " + value);
+            CPrint("Storing value for " + section + ": key=" + key + ", value=: " + value);
             ini.setStringValue(section, key, (String) value);    
         } else if ((value!= null && !storedValue.equals(value)) || (value == null && storedValue != null))
         {
@@ -187,6 +193,12 @@ public class TestEngine
             System.err.println("Skipping null value: " + section + ": key=" + key);
         }
     }   
+    
+    private void CPrint(final String string)
+    {
+        if (VERBOSE)
+            System.err.println(string);
+    }
     
     /**
      * @param args

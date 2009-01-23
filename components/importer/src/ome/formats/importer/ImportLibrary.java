@@ -338,7 +338,7 @@ public class ImportLibrary implements IObservable
       }
       throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
-
+   
     /**
      * @param file
      * @param index
@@ -355,7 +355,7 @@ public class ImportLibrary implements IObservable
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         Object[] args;
-        
+                
         args = new Object[9];
         args[0] = shortName;
         args[1] = index;
@@ -377,7 +377,7 @@ public class ImportLibrary implements IObservable
         String formatString = reader.getImageReader().getReader().getClass().toString();
         formatString = formatString.replace("class loci.formats.in.", "");
         formatString = formatString.replace("Reader", "");
-        System.err.println(formatString);
+        //System.err.println(formatString);
         if (archive == true)
         {
             store.setOriginalFiles(files, formatString);
@@ -435,6 +435,27 @@ public class ImportLibrary implements IObservable
         return pixList;
         
     }
+    
+    /**
+     * overwritten version of importImage that uses a file string instead of a File object
+     * 
+     * @param fileString
+     * @param index
+     * @param numDone
+     * @param total
+     * @param imageName
+     * @param archive
+     * @return 
+     * @throws FormatException if there is an error parsing metadata.
+     * @throws IOException if there is an error reading the file.
+     */
+    public List<Pixels> importImage(String fileString, int index, int numDone, int total, String imageName, boolean archive)
+    throws FormatException, IOException
+    {
+        File file = new File(fileString);
+        return importImage(file, index, numDone, total, imageName, archive);
+    }
+    
     
     /**
      * saves the binary data to the server. After each successful save,

@@ -26,7 +26,6 @@ package ome.formats;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -101,6 +100,7 @@ import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.api.IRepositoryInfo;
+import ome.conditions.ApiUsageException;
 import ome.conditions.SessionException;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
@@ -108,6 +108,7 @@ import ome.formats.importer.MetaLightSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 
 /**
  * An OMERO metadata store. This particular metadata store requires the user to
@@ -215,6 +216,100 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 throw new Exception(t);
             }
         }
+    
+    /**
+     * Updates a given model object in our object graph.
+     * @param LSID LSID of model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should are used to describe the model
+     * object's graph location.
+     */
+    public void updateObject(String LSID, IObject sourceObject,
+    		                 Map<String, Integer> indexes)
+    {
+    	if (sourceObject instanceof Image)
+    	{
+    		handle(LSID, (Image) sourceObject, indexes);
+    	}
+    	if (sourceObject instanceof Pixels)
+    	{
+    		handle(LSID, (Pixels) sourceObject, indexes);
+    	}
+    	if (sourceObject instanceof LogicalChannel)
+    	{
+    		handle(LSID, (LogicalChannel) sourceObject, indexes);
+    	}
+    	if (sourceObject instanceof PlaneInfo)
+    	{
+    		handle(LSID, (PlaneInfo) sourceObject, indexes);
+    	}    	
+    	else
+    	{
+    		throw new ApiUsageException(
+    			"Missing handler for object type: " + sourceObject.getClass());
+    	}
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should are used to describe the model
+     * object's graph location.
+     */
+    private void handle(String LSID, Image sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+        imageList.add(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Pixels sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	int imageIndex = indexes.get("imageIndex");
+    	imageList.get(imageIndex).addPixels(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, LogicalChannel sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	int imageIndex = indexes.get("imageIndex");
+    	int pixelsIndex = indexes.get("pixelsIndex");
+    	Pixels p = imageList.get(imageIndex).getPixels(pixelsIndex);
+    	Channel c = new Channel();
+    	c.setLogicalChannel(sourceObject);
+    	p.addChannel(c);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, PlaneInfo sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	int imageIndex = indexes.get("imageIndex");
+    	int pixelsIndex = indexes.get("pixelsIndex");
+    	Pixels p = imageList.get(imageIndex).getPixels(pixelsIndex);
+    	p.addPlaneInfo(sourceObject);
+    }
 
     /* Makes sure SF is still alive */
     public void checkSF()
