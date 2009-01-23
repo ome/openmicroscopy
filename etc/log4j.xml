@@ -14,209 +14,71 @@
 # Written by:  Josh Moore, josh at glencoesoftware.com
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Log configuration which can be used in JBoss with minor modifications. (See "FOR JBOSS")
+Log configuration which is pointed to by the -Dlog4j.configuration setting in
+lib/omero/java.py but can be overwritten by setting omero.blitz.xargs. This
+file is periodically read during runtime, and any changes cause the log4j
+system to be re-configured.
 
 -->
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
-  <!-- FOR JBOSS: uncoment out this section
-  <appender name="FILE" class="org.jboss.logging.appender.RollingFileAppender">
-    <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
-    <param name="File" value="${jboss.server.log.dir}/server.log"/>
-    <param name="MaxFileSize" value="500000KB"/>
-    <param name="MaxBackupIndex" value="9"/>
-    <param name="Append" value="true"/>
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{ISO8601} %-5p [%c] (%t) %m%n"/>
-    </layout>
-  </appender>
-  -->
-
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-
-    <!-- FOR JBOSS:
-    <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
-    --><!-- ELSE -->
     <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
-
-
-    <!-- FOR JBOSS: If using a file, this might should be lower like WARN -->
     <param name="Threshold" value="INFO"/>
-
     <param name="Target" value="System.out"/>
-
-    <!-- NOT FOR JBOSS: When logging under blitz, it is necessary
-    to follow changes to System.out otherwise the logs end up in
-    strange places. In JBoss, however, this causes the exception:
-    "invalid console appender config detected, console stream is looping"
-    and so must be set to "false"
-    -->
-    <param name="Follow" value="false"/>
-    <!-- END NOT FOR JBOSS -->
-
+    <param name="Follow" value="true"/>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{ISO8601} %-5p [%40.40c] (%10.10t) %m%n"/>
     </layout>
   </appender>
 
-  <!--
-      ================================================================================
-      FILE & CONSOLE appenders are treated identically below, with CONSOLE having a 
-      threshold of WARN.
-      ================================================================================
-    -->
-  <category name="org.apache">
-    <priority value="WARN"/>
-  </category>
-
-  <!-- Limit the org.jboss.serial (jboss-serialization) to INFO as its DEBUG is verbose -->
-  <category name="org.jboss.serial">
-    <priority value="WARN"/>
-  </category>
-
-  <!-- Limit the org.jgroups category to WARN as its INFO is verbose -->
-  <category name="org.jgroups">
-    <priority value="WARN"/>
-  </category>
-
-  <!-- Limit the jacorb category to WARN as its INFO is verbose -->
-  <category name="jacorb">
-    <priority value="WARN"/>
-  </category>
-
-  <!-- Limit JBoss categories -->
-  <category name="org.jboss">
-    <priority value="WARN"/>
-  </category>
-
-  <category name="org.quartz">
-    <priority value="WARN"/>
-  </category>
-
-  <category name="org.hibernate">
-    <priority value="WARN"/>
-  </category>
-
-  <category name="org.springframework">
-    <priority value="WARN"/>
-  </category>
-
-  <category name="ome">
-    <priority value="INFO"/>
-  </category>
-
-  <category name="ome.formats">
-    <priority value="DEBUG"/>
-  </category>
-
-  <category name="omero">
-    <priority value="INFO"/>
-  </category>
-
-  <category name="OMERO">
-    <priority value="INFO"/>
-  </category>
-
-  <!-- Inherits from Spring and so is a bit verbose -->
-  <category name="ome.system.OmeroContext">
-    <priority value="WARN"/>
-  </category>
-  <category name="ome.system.PreferenceContext">
-    <priority value="WARN"/>
-  </category>
-
+  <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
+  <category name="ome"> <priority value="INFO"/> </category>
+  <category name="ome.formats"> <priority value="DEBUG"/> </category>
+  <category name="omero"> <priority value="INFO"/> </category>
+  <category name="OMERO"> <priority value="INFO"/> </category>
+  <!-- Inherit from Spring/etc and so are a bit verbose -->
+  <category name="ome.system.OmeroContext"> <priority value="WARN"/> </category>
+  <category name="ome.system.PreferenceContext"> <priority value="WARN"/> </category>
+  <category name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean"> <priority value="WARN"/> </category>
   <!-- Adapters are also too so is a bit verbose -->
-  <category name="ome.adapters">
-    <priority value="ERROR"/>
-  </category>
+  <category name="ome.adapters"> <priority value="ERROR"/> </category>
 
-  <!-- Quieting blitz startup -->
-  <category name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean">
-    <priority value="WARN"/>
-  </category>
-  <category name="net.sf.ehcache">
-    <priority value="ERROR"/>
-  </category>
-
-  <!-- Quieting build -->
-  <category name="org.hibernate.tool.hbm2x.POJOExporter">
-    <priority value="ERROR"/>
-  </category>
-  <category name="velocity">
-    <priority value="FATAL"/>
-  </category>
-  <category name="ome.dsl.utests">
-    <priority value="WARN"/>
-  </category>
-  <category name="ome.util.utests.PojoOptionsTest">
-    <priority value="WARN"/>
-  </category>
-
+  <!-- THIRD PARTY //////////////////////////////////////////////////////////// -->
+  <category name="org.apache"> <priority value="WARN"/> </category>
+  <category name="org.jgroups"> <priority value="WARN"/> </category>
+  <category name="org.quartz"> <priority value="WARN"/> </category>
+  <category name="org.hibernate"> <priority value="WARN"/> </category>
+  <category name="org.springframework"> <priority value="WARN"/> </category>
   <!-- Suppressing "Warning missing properties files" -->
-  <category name="org.springframework.beans.factory.config">
-    <priority value="ERROR"/>
-  </category>
-
-  <!-- Whether or not to print jamon timing info -->
-  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor">
-    <priority value="ERROR"/> <!-- Alternatively "TRACE" -->
-  </category>
-
-  <!-- WAY too verbose at INFO -->
-  <category name="atomikos">
-    <priority value="WARN"/>
-  </category>
-
+  <category name="org.springframework.beans.factory.config"> <priority value="ERROR"/> </category>
+  <!-- Whether or not to print jamon timing info. ERROR or TRACE -->
+  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
-  <category name="org.hibernate.util.JDBCExceptionReporter">
-    <priority value="FATAL"/>
-  </category>
+  <category name="org.hibernate.util.JDBCExceptionReporter"> <priority value="FATAL"/> </category>
+  <!-- Quieting blitz startup -->
+  <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
 
+  <!-- BUILD ////////////////////////////////////////////////////////////////// -->
+  <category name="org.hibernate.tool.hbm2x.POJOExporter"> <priority value="ERROR"/> </category>
+  <category name="velocity"> <priority value="FATAL"/> </category>
+  <category name="ome.dsl.utests"> <priority value="WARN"/> </category>
+  <category name="ome.util.utests.PojoOptionsTest"> <priority value="WARN"/> </category>
+
+  <!-- DATABASE /////////////////////////////////////////////////////////////// -->
+  <!-- WAY too verbose at INFO -->
+  <category name="atomikos"> <priority value="WARN"/> </category>
   <!-- Limit memory warning -->
-  <category name="org.hibernate.hql.ast.QueryTranslatorImpl">
-    <priority value="ERROR"/>
-  </category>
-
+  <category name="org.hibernate.hql.ast.QueryTranslatorImpl"> <priority value="ERROR"/> </category>
   <!-- Limit fail-safe cleanup -->
-  <category name="org.hibernate.engine.loading.LoadContexts">
-    <priority value="ERROR"/>
-  </category>
-
+  <category name="org.hibernate.engine.loading.LoadContexts"> <priority value="ERROR"/> </category>
   <!-- Overly verbose message printed to server.log -->
-  <category name="org.ajax4jsf">
-    <priority value="WARN"/>
-  </category>
-
+  <category name="org.hibernate.cfg.SettingsFactory"> <priority value="ERROR"/> </category>
   <!-- Overly verbose message printed to server.log -->
-  <category name="org.jboss.deployment.MainDeployer">
-    <priority value="ERROR"/>
-  </category>
-
-  <!-- Overly verbose message printed to server.log -->
-  <category name="org.jboss.resource.connectionmanager.JBossManagedConnectionPool">
-    <priority value="ERROR"/>
-  </category>
-
-  <!-- Overly verbose message printed to server.log -->
-  <category name="org.hibernate.cfg.SettingsFactory">
-    <priority value="ERROR"/>
-  </category>
-
-  <!-- Overly verbose message printed to server.log -->
-  <category name="org.hibernate.hql.PARSER">
-    <priority value="FATAL"/>
-  </category>
-
-  <!-- Reactivating "Started In" -->
-  <category name="org.jboss.system.server.Server">
-    <priority value="INFO"/>
-  </category>
+  <category name="org.hibernate.hql.PARSER"> <priority value="FATAL"/> </category>
 
   <root>
     <appender-ref ref="CONSOLE"/>
-    <!-- FOR JBOSS
-    <appender-ref ref="FILE"/>
-     -->
   </root>
 
 </log4j:configuration>
