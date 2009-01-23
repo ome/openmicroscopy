@@ -23,7 +23,7 @@ import IceStorm.NoSuchTopic;
 
 /**
  * Local dispatcher to {@link IceStorm.TopicManager}
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since December 2008
  */
@@ -50,11 +50,8 @@ public final class TopicManager implements ApplicationListener {
 
     private final Ice.Communicator communicator;
 
-    private final IceStorm.TopicManagerPrx topicManager;
-
     public TopicManager(Ice.Communicator communicator) {
         this.communicator = communicator;
-        this.topicManager = lookupTopicManagerOrNull();
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
@@ -65,7 +62,7 @@ public final class TopicManager implements ApplicationListener {
             }
             TopicMessage msg = (TopicMessage) event;
             try {
-                Ice.ObjectPrx obj = createOrRetrieveTopicGetPublisher(msg.topic);
+                Ice.ObjectPrx obj = publisherOrNull(msg.topic);
                 msg.base.__copyFrom(obj);
                 Method m = msg.base.getClass().getMethod(msg.method);
                 m.invoke(msg.base, msg.args);
@@ -92,9 +89,9 @@ public final class TopicManager implements ApplicationListener {
             throw new ApiUsageException(null, null, "Unknown type for proxy: "
                     + prx.ice_id());
         }
-        IceStorm.TopicPrx topic = createOrRetrieveTopic(topicName);
+        IceStorm.TopicPrx topic = topicOrNull(topicName);
 
-        while (true) { // See 45.7.3 IceStorm Clients under HA IceStorm
+        while (topic != null) { // See 45.7.3 IceStorm Clients under HA IceStorm
             try {
                 topic.subscribeAndGetPublisher(null, prx);
             } catch (Ice.UnknownException ue) {
@@ -114,7 +111,7 @@ public final class TopicManager implements ApplicationListener {
     // Helpers
     // =========================================================================
 
-    protected IceStorm.TopicManagerPrx lookupTopicManagerOrNull() {
+    protected IceStorm.TopicManagerPrx managerOrNull() {
 
         Ice.ObjectPrx objectPrx = communicator.stringToProxy("IceGrid/Query");
         Ice.ObjectPrx[] candidates = null;
@@ -126,6 +123,7 @@ public final class TopicManager implements ApplicationListener {
         } catch (Exception e) {
             log.warn("Error querying for topic manager", e);
         }
+
         IceStorm.TopicManagerPrx tm = null;
 
         if (candidates == null || candidates.length == 0) {
@@ -143,22 +141,25 @@ public final class TopicManager implements ApplicationListener {
         return tm;
     }
 
-    protected IceStorm.TopicPrx createOrRetrieveTopic(String name) {
+    protected IceStorm.TopicPrx topicOrNull(String name) {
+	IceStorm.TopicManager topicManager = lookupTopicManagerOrNull();
         IceStorm.TopicPrx topic = null;
-        try {
-            topic = topicManager.create(name);
-        } catch (IceStorm.TopicExists ex2) {
-            try {
-                topic = topicManager.retrieve(name);
-            } catch (NoSuchTopic e) {
-                throw new RuntimeException("Race condition retriving topic: "
-                        + name);
-            }
+	if (topicManager != null) {
+	    try {
+		topic = topicManager.create(name);
+	    } catch (IceStorm.TopicExists ex2) {
+		try {
+		    topic = topicManager.retrieve(name);
+		} catch (NoSuchTopic e) {
+		    throw new RuntimeException("Race condition retriving topic: "
+					       + name);
+		}
+	    }
         }
         return topic;
     }
 
-    protected Ice.ObjectPrx createOrRetrieveTopicGetPublisher(String name) {
+    protected Ice.ObjectPrx publisherOrNull(String name) {
         IceStorm.TopicPrx topic = createOrRetrieveTopic(name);
         Ice.ObjectPrx pub = null;
         if (topic != null) {

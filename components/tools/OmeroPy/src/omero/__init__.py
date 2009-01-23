@@ -332,7 +332,7 @@ class client(object):
 
             # Set the client callback on the session
             # and pass it to icestorm
-            id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uid )
+            id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
             raw = self.__oa.createProxy(id)
             self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
             self.__sf.subscribe("/public/HeartBeat", raw)
