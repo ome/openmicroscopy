@@ -93,13 +93,21 @@ public final class TopicManager implements ApplicationListener {
                     + prx.ice_id());
         }
         IceStorm.TopicPrx topic = createOrRetrieveTopic(topicName);
-        try {
-            topic.subscribeAndGetPublisher(null, prx);
-        } catch (AlreadySubscribed e) {
-            throw new ApiUsageException(null, null, "Proxy already subscribed.");
-        } catch (BadQoS e) {
-            throw new InternalException(null, null,
-                    "BadQos in TopicManager.subscribe");
+
+        while (true) { // See 45.7.3 IceStorm Clients under HA IceStorm
+            try {
+                topic.subscribeAndGetPublisher(null, prx);
+            } catch (Ice.UnknownException ue) {
+                log.warn("Unknown exception on subscribeAndGetPublisher");
+                continue;
+            } catch (AlreadySubscribed e) {
+                throw new ApiUsageException(null, null,
+                        "Proxy already subscribed: " + prx);
+            } catch (BadQoS e) {
+                throw new InternalException(null, null,
+                        "BadQos in TopicManager.subscribe");
+            }
+            break;
         }
     }
 
