@@ -51,7 +51,7 @@
     <property name="targetMethod" value="requestHeartBeats" />
   </bean>
   <bean id="requestHeartBeatsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    <property name="cronExpression" value="0 0-59/4 * * * ?" />
+    <property name="cronExpression" value="0 0/3 * * * ?" />
     <property name="jobDetail" ref="requestHeartBeatsRun"/>
   </bean>
   <bean class="ome.services.scheduler.SelfRegisteringTrigger">

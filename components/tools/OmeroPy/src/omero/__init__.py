@@ -329,8 +329,11 @@ class client(object):
                 raise ClientError("Obtained object proxy is not a ServiceFactory")
 
             # Set the client callback on the session
-            raw = self.__ic.stringToProxy("ClientCallback")
+            # and pass it to icestorm
+            id = self.__ic.stringToIdentity("ClientCallback")
+            raw = self.__oa.createProxy(id)
             self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
+            self.__sf.subscribe("/public/HeartBeat", raw)
 
             return self.__sf
         finally:
@@ -580,6 +583,8 @@ class client(object):
     # Callback
     #
     def _getCb(self):
+        if not self.__oa:
+            raise ClientError("No session active; call createSession()")
         obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback"))
         if not isinstance(obj, client.CallbackI):
             raise ClientError("Cannot find CallbackI in ObjectAdapter")

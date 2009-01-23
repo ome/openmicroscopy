@@ -226,35 +226,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      */
     public void requestHeartBeats() {
         log.info("Performing requestHeartbeats");
-        this.context.publishEvent(new TopicManager.TopicMessage(this, 
-                "HeartBeat", new ClientCallbackPrxHelper(), "requestHeartbeat"));
-        Set<String> sessionIds = sessionToClientIds.keySet();
-        for (String sessionId : sessionIds) {
-            Set<String> clientIds = sessionToClientIds.get(sessionId);
-            if (clientIds != null) {
-                for (String clientId : clientIds) {
-                    try {
-                        Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
-                                sessionId);
-                        Ice.Object obj = adapter.find(iid);
-                        if (obj == null) {
-                            log.debug(Ice.Util.identityToString(iid)
-                                    + " already removed Can't ping.");
-                        } else {
-                            ServiceFactoryI sf = (ServiceFactoryI) obj;
-                            sf.doRequestHeartbeat();
-                        }
-                    } catch (Ice.ObjectAdapterDeactivatedException oade) {
-                        log.warn("Cannot ping session " + sessionId
-                                + " from client " + clientId
-                                + " since adapter is deactivated.");
-                    } catch (Exception e) {
-                        log.error("Error ping session " + sessionId
-                                + " from client " + clientId, e);
-                    }
-                }
-            }
-        }
+        this.context.publishEvent(new TopicManager.TopicMessage(this,
+                "/public/HeartBeat", new ClientCallbackPrxHelper(),
+                "requestHeartbeat"));
     }
 
     /**

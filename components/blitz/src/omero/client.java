@@ -472,9 +472,10 @@ public class client {
 
             // Set the client callback on the session
             // and pass it to icestorm
-            Ice.ObjectPrx raw = __ic.stringToProxy("ClientCallback");
+            Ice.Identity id = __ic.stringToIdentity("ClientCallback");
+            Ice.ObjectPrx raw = __oa.createProxy(id);
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
-            __sf.subscribe("HeartBeat", raw);
+            __sf.subscribe("/public/HeartBeat", raw);
             return this.__sf;
 
         }
@@ -648,7 +649,7 @@ public class client {
      * Helper method to access session environment
      */
     protected ISessionPrx env() throws ServerError {
-        ISessionPrx s = getServiceFactory().getSessionService();
+        ISessionPrx s = getSession().getSessionService();
         return s;
     }
 
@@ -656,7 +657,7 @@ public class client {
      * Helper method to access session id
      */
     protected String sess() throws ServerError {
-        IAdminPrx a = getServiceFactory().getAdminService();
+        IAdminPrx a = getSession().getAdminService();
         String u = a.getEventContext().sessionUuid;
         return u;
     }

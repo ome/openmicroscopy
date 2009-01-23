@@ -16,6 +16,7 @@ import ome.api.JobHandle;
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ServantHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -125,6 +126,7 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.transaction.TransactionStatus;
 
+import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.Current;
 import Ice.ObjectPrx;
@@ -165,6 +167,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     final SessionManager sessionManager;
 
+    final TopicManager topicManager;
+
     /**
      * {@link Executor} to be used by servant implementations which do not
      * delegate to the server package where all instances are wrapped with AOP
@@ -195,8 +199,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.executor = executor;
         this.principal = p;
         this.cptors = interceptors;
-        initializer = new AopContextInitializer(
-                new ServiceFactory(this.context), this.principal);
+        this.initializer = new AopContextInitializer(new ServiceFactory(
+                this.context), this.principal);
+        // TODO Move this to injection.
+        this.topicManager = (TopicManager) context.getBean("topicManager");
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
@@ -282,11 +288,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
-    public ITimelinePrx getTimelineService(Ice.Current current) throws ServerError {
-        return ITimelinePrxHelper.uncheckedCast(getByName(TIMELINESERVICE.value,
-                current));
+    public ITimelinePrx getTimelineService(Ice.Current current)
+            throws ServerError {
+        return ITimelinePrxHelper.uncheckedCast(getByName(
+                TIMELINESERVICE.value, current));
     }
-    
+
     public ITypesPrx getTypesService(Ice.Current current) throws ServerError {
         return ITypesPrxHelper.uncheckedCast(getByName(TYPESSERVICE.value,
                 current));
@@ -395,9 +402,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public void subscribe(String topicName, ObjectPrx prx, Current __current)
             throws ServerError {
-        // no-op
+
+        if (topicName == null || !topicName.startsWith("/public/")) {
+            throw new omero.ApiUsageException(null, null,
+                    "Currently only \"/public/\" topics allowed.");
+        }
+        topicManager.register(topicName, prx);
+        log.info("Registered " + prx + " for " + topicName);
     }
-    
+
     public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
             int seconds, Current current) throws ServerError {
 
@@ -533,23 +546,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         doClose = true;
     }
 
-    public void doRequestHeartbeat() {
-        ClientCallbackPrx copy = callback;
-        if (copy != null) {
-            try {
-                Ice.ObjectPrx prx = copy.ice_oneway();
-                ClientCallbackPrx oneway = ClientCallbackPrxHelper
-                        .uncheckedCast(prx);
-                oneway.requestHeartbeat();
-            } catch (Ice.ConnectionRefusedException cre) {
-                // oh well.
-            } catch (Exception e) {
-                log.error("Error on oneway "
-                        + "ClientCallback.requestHeartbeat", e);
-            }
-        }
-    }
-
     /**
      * Destruction simply decrements the reference count for a session to allow
      * reconnecting to it. This means that the Glacier timeout property is
@@ -590,11 +586,19 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     ClientCallbackPrx oneway = ClientCallbackPrxHelper
                             .uncheckedCast(prx);
                     oneway.sessionClosed();
+                } catch (Ice.NotRegisteredException nre) {
+                    log.warn(clientId + "'s callback not registered -"
+                            + " perhaps wrong proxy?");
                 } catch (ConnectionRefusedException cre) {
-                    // Oh well. Not much we can do.
+                    log.warn(clientId + "'s callback refused connection -"
+                            + " did the client die?");
+                } catch (ConnectionLostException cle) {
+                    log.debug(clientId + "'s connection lost as expected");
                 } catch (Exception e) {
-                    log.error("Error on oneway "
-                            + "ClientCallback.sessionClosed", e);
+                    log.error("Unknown error on oneway "
+                            + "ClientCallback.sessionClosed to "
+                            + this.adapter.getCommunicator().identityToString(
+                                    copy.ice_getIdentity()), e);
                 }
             }
 
@@ -744,6 +748,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) {
+        
+        // First take measures to keep the session alive
+        sessionManager.getEventContext(this.principal);
+        
         if (proxies == null || proxies.length == 0) {
             return -1; // All set to 1
         }
@@ -751,7 +759,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         long retVal = 0;
         for (int i = 0; i < proxies.length; i++) {
             ServiceInterfacePrx prx = proxies[i];
-            if (!keepAlive(prx, __current)) {
+            Ice.Identity id = prx.ice_getIdentity();
+            if (null == holder.get(id)) {
                 retVal |= 1 << i;
             }
         }
@@ -762,12 +771,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * Currently ignoring the individual proxies
      */
     public boolean keepAlive(ServiceInterfacePrx proxy, Current __current) {
+        
+        // First take measures to keep the session alive
+        sessionManager.getEventContext(this.principal);
+        
         if (proxy == null) {
             return false;
         }
         Ice.Identity id = proxy.ice_getIdentity();
-        // This will keep the session alive.
-        sessionManager.getEventContext(this.principal);
         return null != holder.get(id);
     }
 

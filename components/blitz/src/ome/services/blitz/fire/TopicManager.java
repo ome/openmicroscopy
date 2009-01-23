@@ -9,11 +9,16 @@ package ome.services.blitz.fire;
 
 import java.lang.reflect.Method;
 
+import omero.ApiUsageException;
+import omero.InternalException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+import IceStorm.AlreadySubscribed;
+import IceStorm.BadQoS;
 import IceStorm.NoSuchTopic;
 
 /**
@@ -70,23 +75,46 @@ public final class TopicManager implements ApplicationListener {
         }
     }
 
-    public void register(String topicName, Ice.ObjectPrx prx) {
-        
+    /**
+     * Enforces <em>no</em> security constraints. For the moment, that is the
+     * responsibility of application code. WILL CHANGE>
+     */
+    public void register(String topicName, Ice.ObjectPrx prx)
+            throws omero.ServerError {
+        String id = prx.ice_id();
+        id = id.replaceFirst("::", "");
+        id = id.replace("::", ".");
+        id = id + "PrxHelper";
+        Class<?> pubClass = null;
+        try {
+            pubClass = Class.forName(id);
+        } catch (ClassNotFoundException e) {
+            throw new ApiUsageException(null, null, "Unknown type for proxy: "
+                    + prx.ice_id());
+        }
+        IceStorm.TopicPrx topic = createOrRetrieveTopic(topicName);
+        try {
+            topic.subscribeAndGetPublisher(null, prx);
+        } catch (AlreadySubscribed e) {
+            throw new ApiUsageException(null, null, "Proxy already subscribed.");
+        } catch (BadQoS e) {
+            throw new InternalException(null, null,
+                    "BadQos in TopicManager.subscribe");
+        }
     }
-    
+
     // Helpers
     // =========================================================================
 
     protected IceStorm.TopicManagerPrx lookupTopicManagerOrNull() {
-        
+
         Ice.ObjectPrx objectPrx = communicator.stringToProxy("IceGrid/Query");
         Ice.ObjectPrx[] candidates = null;
-        
+
         try {
             IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
                     .checkedCast(objectPrx);
-            candidates = query
-                    .findAllObjectsByType("::IceStorm::TopicManager");
+            candidates = query.findAllObjectsByType("::IceStorm::TopicManager");
         } catch (Exception e) {
             log.warn("Error querying for topic manager", e);
         }
@@ -107,9 +135,8 @@ public final class TopicManager implements ApplicationListener {
         return tm;
     }
 
-    protected Ice.ObjectPrx createOrRetrieveTopicGetPublisher(String name) {
+    protected IceStorm.TopicPrx createOrRetrieveTopic(String name) {
         IceStorm.TopicPrx topic = null;
-        Ice.ObjectPrx pub = null;
         try {
             topic = topicManager.create(name);
         } catch (IceStorm.TopicExists ex2) {
@@ -120,6 +147,12 @@ public final class TopicManager implements ApplicationListener {
                         + name);
             }
         }
+        return topic;
+    }
+
+    protected Ice.ObjectPrx createOrRetrieveTopicGetPublisher(String name) {
+        IceStorm.TopicPrx topic = createOrRetrieveTopic(name);
+        Ice.ObjectPrx pub = null;
         if (topic != null) {
             pub = topic.getPublisher().ice_oneway();
         }

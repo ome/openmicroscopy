@@ -304,8 +304,11 @@ namespace omero {
 	}
 
 	// Set the client callback on the session
-	Ice::ObjectPrx raw = ic->stringToProxy("ClientCallback");
+	// and pass it to icestorm
+	Ice::Identity id = ic->stringToIdentity("ClientCallback");
+	Ice::ObjectPrx raw = oa->createProxy(id);
 	sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
+	sf->subscribe("/public/HeartBeat", raw);
 	return sf;
     }
 

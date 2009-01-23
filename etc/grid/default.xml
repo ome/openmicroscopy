@@ -30,6 +30,7 @@
       <server-instance template="FSTemplate"/>
       <server-instance template="ProcessorTemplate" index="0"/>
       <server-instance template="ShellTemplate" id="Web"/>
+      <server-instance template="StormTemplate"/>
       <target name="postgres">
         <server-instance template="ShellTemplate" id="postgres"/>
       </target>
