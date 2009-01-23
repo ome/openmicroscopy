@@ -71,6 +71,7 @@ class client(object):
         self.__ic = None
         self.__oa = None
         self.__sf = None
+        self.__uuid = None
         self.__lock = threading.RLock()
 
         # Reassigning based on argument type
@@ -198,15 +199,16 @@ class client(object):
                 of.register(self.__ic)
 
             # Define our unique identifier (used during close/detach)
+            self.__uuid = str(uuid.uuid4())
             ctx = self.__ic.getImplicitContext()
             if not ctx:
                 raise ClientError("Ice.ImplicitContext not set to Shared")
-            ctx.put(omero.constants.CLIENTUUID, str(uuid.uuid4()))
+            ctx.put(omero.constants.CLIENTUUID, self.__uuid)
 
             # Register the default client callback
             cb = client.CallbackI(self)
             self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
-            self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback"))
+            self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid))
             self.__oa.activate()
         finally:
             self.__lock.release()
@@ -330,7 +332,7 @@ class client(object):
 
             # Set the client callback on the session
             # and pass it to icestorm
-            id = self.__ic.stringToIdentity("ClientCallback")
+            id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uid )
             raw = self.__oa.createProxy(id)
             self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
             self.__sf.subscribe("/public/HeartBeat", raw)
@@ -585,7 +587,7 @@ class client(object):
     def _getCb(self):
         if not self.__oa:
             raise ClientError("No session active; call createSession()")
-        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback"))
+        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback/" %  self.__uuid))
         if not isinstance(obj, client.CallbackI):
             raise ClientError("Cannot find CallbackI in ObjectAdapter")
         return obj
@@ -618,8 +620,8 @@ class client(object):
         def __init__(self, client):
             self.client = client
             self.onHeartbeat = self._noop
-            self.onShutdownIn = self._closeSession
-            self.onSessionClosed = self._closeSession
+            self.onShutdownIn = self._noop
+            self.onSessionClosed = self._noop
         def execute(self, myCallable, action):
             ic = self.client.ic
             try:

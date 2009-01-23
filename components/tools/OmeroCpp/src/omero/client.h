@@ -67,6 +67,12 @@ namespace omero {
     protected:
 
 	/*
+	 * Identifier for this client instance. Multiple client uuids may be
+	 * attached to a single session uuid.
+	 */
+	std::string uuid;
+
+	/*
 	 * InitializationData from the last communicator used to create
 	 * ic if nulled after closeSession(). A pointer is used since
 	 * ID is a simple struct.

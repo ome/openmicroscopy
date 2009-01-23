@@ -80,14 +80,20 @@ public class client {
     }
 
     /**
+     * Identifier for this client instance. Multiple client uuids may be
+     * attached to a single session uuid.
+     */
+    private String __uuid;
+
+    /**
      * {@link Ice.InitializationData} from the last communicator used to create
      * the {@link #__ic} if nulled after {@link #closeSession()}.
      */
     private Ice.InitializationData __previous;
 
     /**
-     * {@link Ice.ObjectAdapter} containing the {@link ClientCallback} for
-     * this instance.
+     * {@link Ice.ObjectAdapter} containing the {@link ClientCallback} for this
+     * instance.
      */
     private Ice.ObjectAdapter __oa;
 
@@ -168,7 +174,7 @@ public class client {
      */
     public client(String[] args, Ice.InitializationData id) {
         if (id.properties == null) {
-            id.properties = Ice.Util.createProperties(new String[]{});
+            id.properties = Ice.Util.createProperties(new String[] {});
         }
         args = id.properties.parseIceCommandLineOptions(args);
         args = id.properties.parseCommandLineOptions("omero", args);
@@ -180,7 +186,7 @@ public class client {
      */
     public client(File... files) {
         Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties(new String[]{});
+        id.properties = Ice.Util.createProperties(new String[] {});
         for (File file : files) {
             id.properties.load(file.getAbsolutePath());
         }
@@ -195,7 +201,7 @@ public class client {
      */
     public client(Map p) {
         Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties(new String[]{});
+        id.properties = Ice.Util.createProperties(new String[] {});
         if (p != null) {
             for (Object key : p.keySet()) {
                 id.properties
@@ -289,17 +295,17 @@ public class client {
             __ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
 
             // Define our unique identifer (used during close/detach)
+            __uuid = UUID.randomUUID().toString();
             Ice.ImplicitContext ctx = __ic.getImplicitContext();
             if (ctx == null) {
                 throw new ClientError("Ice.ImplicitContext not set to Shared");
             }
-            ctx.put(omero.constants.CLIENTUUID.value, UUID.randomUUID()
-                    .toString());
+            ctx.put(omero.constants.CLIENTUUID.value, __uuid);
 
             // Register the default client callback.
             CallbackI cb = new CallbackI(this);
             __oa = __ic.createObjectAdapter("omero.ClientCallback");
-            __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback"));
+            __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/"+__uuid));
             __oa.activate();
 
             // Store this instance for cleanup on shutdown.
@@ -396,7 +402,8 @@ public class client {
      * @throws CannotCreateSessionException
      */
     public ServiceFactoryPrx joinSession(String session)
-            throws CannotCreateSessionException, PermissionDeniedException, ServerError {
+            throws CannotCreateSessionException, PermissionDeniedException,
+            ServerError {
         return createSession(session, session);
     }
 
@@ -404,14 +411,15 @@ public class client {
      * Calls {@link #createSession(String, String)} with null values
      */
     public ServiceFactoryPrx createSession()
-            throws CannotCreateSessionException, PermissionDeniedException, ServerError {
+            throws CannotCreateSessionException, PermissionDeniedException,
+            ServerError {
         return createSession(null, null);
     }
 
     /**
      * Performs the actual logic of logging in, which is done via the
-     * {@link #getRouter()}. Disallows an extant {@link ServiceFactoryPrx},
-     * and tries to re-create a null {@link Ice.Communicator}. A null or empty
+     * {@link #getRouter()}. Disallows an extant {@link ServiceFactoryPrx}, and
+     * tries to re-create a null {@link Ice.Communicator}. A null or empty
      * username will throw an exception, but an empty password is allowed.
      * 
      * @param username
@@ -472,7 +480,7 @@ public class client {
 
             // Set the client callback on the session
             // and pass it to icestorm
-            Ice.Identity id = __ic.stringToIdentity("ClientCallback");
+            Ice.Identity id = __ic.stringToIdentity("ClientCallback/"+__uuid);
             Ice.ObjectPrx raw = __oa.createProxy(id);
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
             __sf.subscribe("/public/HeartBeat", raw);
@@ -500,8 +508,8 @@ public class client {
 
         // For whatever reason, we have to set the context
         // on the router context here as well
-        router = Glacier2.RouterPrxHelper.uncheckedCast(router
-                .ice_context(comm.getImplicitContext().getContext()));
+        router = Glacier2.RouterPrxHelper.uncheckedCast(router.ice_context(comm
+                .getImplicitContext().getContext()));
         return router;
     }
 
@@ -535,7 +543,8 @@ public class client {
                 try {
                     oldOa.deactivate();
                 } catch (Exception e) {
-                    oldIc.getLogger().warning("While deactivating adapter: " + e.getMessage());
+                    oldIc.getLogger().warning(
+                            "While deactivating adapter: " + e.getMessage());
                 }
             }
 
@@ -557,7 +566,6 @@ public class client {
 
     // File handling
     // =========================================================================
-
 
     /**
      * Calculates the local sha1 for a file.
@@ -581,11 +589,9 @@ public class client {
 
     }
 
-    
     // Environment methods
     // =========================================================================
 
-    
     /**
      * Retrieves an item from the "input" shared (session) memory.
      */
@@ -666,7 +672,8 @@ public class client {
     // =========================================================================
 
     private CallbackI _getCb() {
-        Ice.Object obj = this.__oa.find(Ice.Util.stringToIdentity("ClientCallback"));
+        Ice.Object obj = this.__oa.find(Ice.Util
+                .stringToIdentity("ClientCallback/"+__uuid));
         if (!(obj instanceof CallbackI)) {
             throw new ClientError("Cannot find CallbackI in ObjectAdapter");
         }
@@ -674,21 +681,20 @@ public class client {
     }
 
     public void onHearbeat(Runnable runnable) {
-       _getCb().onHeartbeat = runnable;
+        _getCb().onHeartbeat = runnable;
     }
 
-
     public void onSessionClosed(Runnable runnable) {
-       _getCb().onSessionClosed = runnable;
+        _getCb().onSessionClosed = runnable;
     }
 
     public void onShutdown(Runnable runnable) {
-       _getCb().onShutdown = runnable;
+        _getCb().onShutdown = runnable;
     }
 
     /**
-     * Implementation of {@link ClientCallback} which will be added to
-     * any {@link Session} which this instance creates.
+     * Implementation of {@link ClientCallback} which will be added to any
+     * {@link Session} which this instance creates.
      */
     private static class CallbackI extends _ClientCallbackDisp {
 
@@ -697,24 +703,25 @@ public class client {
         private Runnable _noop = new Runnable() {
             public void run() {
                 // ok
-           }
+            }
         };
 
         private Runnable _closeSession = new Runnable() {
 
             public void run() {
                 try {
-                    client.closeSession();
+                    client.__oa.deactivate();
+                    client.__sf = null;
                 } catch (Exception e) {
-                    // Oh well.
+                    System.err.println("On session closed: "+e.getMessage());
                 }
             }
 
         };
 
         private Runnable onHeartbeat = _noop;
-        private Runnable onSessionClosed = _closeSession;
-        private Runnable onShutdown = _closeSession;
+        private Runnable onSessionClosed = _noop;
+        private Runnable onShutdown = _noop;
 
         public CallbackI(omero.client client) {
             this.client = client;

@@ -122,16 +122,17 @@ namespace omero {
 	}
 
 	// Define our unique identifier (used during close/detach)
+	uuid = IceUtil::generateUUID();
 	Ice::ImplicitContextPtr ctx = ic->getImplicitContext();
 	if (!ctx) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
 	}
-	ctx->put(omero::constants::CLIENTUUID, IceUtil::generateUUID());
+	ctx->put(omero::constants::CLIENTUUID, uuid);
 
 	// Register the default client callback.
 	CallbackIPtr cb = new CallbackI(this);
 	oa = ic->createObjectAdapter("omero.ClientCallback");
-	oa->add(cb, ic->stringToIdentity("ClientCallback"));
+	oa->add(cb, ic->stringToIdentity("ClientCallback/" + uuid)) ;
 	oa->activate();
 
     }
@@ -305,7 +306,7 @@ namespace omero {
 
 	// Set the client callback on the session
 	// and pass it to icestorm
-	Ice::Identity id = ic->stringToIdentity("ClientCallback");
+	Ice::Identity id = ic->stringToIdentity("ClientCallback/" + uuid);
 	Ice::ObjectPrx raw = oa->createProxy(id);
 	sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
 	sf->subscribe("/public/HeartBeat", raw);
@@ -442,7 +443,7 @@ namespace omero {
     // ====================================================================
 
     CallbackIPtr client::_getCb() {
-	Ice::ObjectPtr obj = oa->find(ic->stringToIdentity("ClientCallback"));
+	Ice::ObjectPtr obj = oa->find(ic->stringToIdentity("ClientCallback" + uuid));
 	CallbackIPtr cb = CallbackIPtr::dynamicCast(obj);
 	if (!cb) {
 	    throw new ClientError(__FILE__,__LINE__,"Cannot find CallbackI in ObjectAdapter");
@@ -465,8 +466,8 @@ namespace omero {
     CallbackI::CallbackI(omero::client* theClient) {
 	client = theClient;
 	onHeartbeat = NoOpCallable();
-	onSessionClosed = CloseSessionCallable(client);
-	onShutdown = CloseSessionCallable(client);
+	onSessionClosed = NoOpCallable();
+	onShutdown = NoOpCallable();
     }
 
     void CallbackI::requestHeartbeat(const Ice::Current& current) {
