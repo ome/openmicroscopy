@@ -189,7 +189,7 @@ public class SessionCache implements ApplicationContextAware {
     public SessionContext getSessionContext(String uuid) {
         return getSessionContext(uuid, true);
     }
-    
+
     public SessionContext getSessionContext(String uuid, boolean blocking) {
 
         if (uuid == null) {
@@ -201,7 +201,7 @@ public class SessionCache implements ApplicationContextAware {
         // later necessary these will be blockage anyway.
         if (blocking) {
             blockingUpdate();
-        }        
+        }
 
         //
         // All times are in milliseconds
@@ -218,7 +218,7 @@ public class SessionCache implements ApplicationContextAware {
             // making that call unneeded.
             throw new RemovedSessionException("No context for " + uuid);
         }
-        
+
         long lastAccess = elt.getLastAccessTime();
         long hits = elt.getHitCount();
         // Up'ing access time
@@ -242,40 +242,41 @@ public class SessionCache implements ApplicationContextAware {
 
         // Do comparisons if timeTo{} is non-0
         if (0 < timeToLive && timeToLive < alive) {
-            internalRemove(uuid);
-            throwExpiredException("timeToLive", lastAccess, hits, start,
+            String reason = reason("timeToLive", lastAccess, hits, start,
                     timeToLive, (alive - timeToLive));
+            internalRemove(uuid, reason);
+            throw new SessionTimeoutException(reason);
         } else if (0 < timeToIdle && timeToIdle < idle) {
-            internalRemove(uuid);
-            throwExpiredException("timeToIdle", lastAccess, hits, start,
+            String reason = reason("timeToIdle", lastAccess, hits, start,
                     timeToIdle, (idle - timeToIdle));
+            internalRemove(uuid, reason);
+            throw new SessionTimeoutException(reason);
         }
         return ctx;
     }
 
-    private void throwExpiredException(String why, long lastAccess, long hits,
-            long start, long setting, long exceeded) {
-        throw new SessionTimeoutException(String.format(
-                "Session (started=%s, hits=%s, last access=%s) "
-                        + "exceeded %s (%s) by %s ms", new Timestamp(start),
-                hits, new Timestamp(lastAccess), why, setting, exceeded));
+    private String reason(String why, long lastAccess, long hits, long start,
+            long setting, long exceeded) {
+        return String.format("Session (started=%s, hits=%s, last access=%s) "
+                + "exceeded %s (%s) by %s ms", new Timestamp(start), hits,
+                new Timestamp(lastAccess), why, setting, exceeded);
     }
 
     public void removeSession(String uuid) {
         blockingUpdate();
-        internalRemove(uuid);
+        internalRemove(uuid, "Remove session called");
     }
 
-    private void internalRemove(String uuid) {
+    private void internalRemove(String uuid, String reason) {
         updateLock.writeLock().lock();
         try {
-            
-            if ( ! sessions.isKeyInCache(uuid)) {
+
+            if (!sessions.isKeyInCache(uuid)) {
                 log.info("Session already destroyed: " + uuid);
                 return; // EARLY EXIT!
             }
-         
-            log.info("Destroying session " + uuid);
+
+            log.info("Destroying session " + uuid + " due to : " + reason);
 
             // Announce to all callbacks.
             Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
@@ -425,18 +426,12 @@ public class SessionCache implements ApplicationContextAware {
                             SessionContext replacement = staleCacheListener
                                     .reload(ctx);
                             if (replacement == null) {
-                                internalRemove(id);
+                                internalRemove(id, "Replacement null");
                             } else {
-                                sessions.putQuiet(new Element(id, replacement));
-                                try {
-                                    getSessionContext(id);
-                                } catch (Exception e) {
-                                    // We are just reloading it to guarantee
-                                    // that it's timeToLive and timeToIdle are
-                                    // properly set and to have the proper
-                                    // cancellation messages sent if necessary.
-                                    // All exceptions can be ignored.
-                                }
+                                // Adding and upping access information.
+                                Element fresh = new Element(id, replacement);
+                                sessions.put(fresh);
+                                fresh = sessions.get(id);
                             }
                         }
                         success = true;

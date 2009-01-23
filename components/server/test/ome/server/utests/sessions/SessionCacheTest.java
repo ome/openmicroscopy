@@ -21,6 +21,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.conditions.InternalException;
+import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
@@ -47,7 +48,8 @@ import org.testng.annotations.Test;
 @Test(groups = "sessions")
 public class SessionCacheTest extends TestCase {
 
-    OmeroContext ctx = new OmeroContext(new String[]{"classpath:ome/services/messaging.xml"});
+    OmeroContext ctx = new OmeroContext(
+            new String[] { "classpath:ome/services/messaging.xml" });
     SessionCache cache;
     final boolean[] called = new boolean[2];
 
@@ -57,7 +59,7 @@ public class SessionCacheTest extends TestCase {
         called[0] = called[0] = false;
     }
 
-    private void initCache(int timeToIdle) {
+    private void initCache(int UNUSED) {
         cache = new SessionCache();
         cache.setUpdateInterval(10000L);
         cache.setApplicationContext(ctx);
@@ -79,6 +81,7 @@ public class SessionCacheTest extends TestCase {
             public void prepareReload() {
                 // noop
             }
+
             public SessionContext reload(SessionContext context) {
                 called[0] = true;
                 return context;
@@ -88,6 +91,7 @@ public class SessionCacheTest extends TestCase {
             public void prepareReload() {
                 // noop
             }
+
             public SessionContext reload(SessionContext context) {
                 called[0] = true;
                 throw new RuntimeException();
@@ -209,6 +213,7 @@ public class SessionCacheTest extends TestCase {
             public void prepareReload() {
                 // noop.
             }
+
             public SessionContext reload(SessionContext context) {
                 throw new RuntimeException();
             }
@@ -249,6 +254,7 @@ public class SessionCacheTest extends TestCase {
             public void prepareReload() {
                 // noop
             }
+
             public SessionContext reload(SessionContext context) {
                 try {
                     Thread.sleep(1000L);
@@ -303,14 +309,15 @@ public class SessionCacheTest extends TestCase {
 
     @Test
     public void testMessageShouldBeRaisedOnRemoveSession() throws Exception {
-        
+
         class Listener implements ApplicationListener {
             boolean called = false;
+
             public void onApplicationEvent(ApplicationEvent arg0) {
-                    called = true;
+                called = true;
             }
         }
-        
+
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
         ApplicationEventMulticaster multicaster = mc();
@@ -320,17 +327,18 @@ public class SessionCacheTest extends TestCase {
         cache.removeSession(uuid);
         assertTrue(listener.called);
     }
-    
+
     @Test
     public void testMessageShouldBeRaisedOnTimeout() throws Exception {
-        
+
         class Listener implements ApplicationListener {
             boolean called = false;
+
             public void onApplicationEvent(ApplicationEvent arg0) {
-                    called = true;
+                called = true;
             }
         }
-        
+
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
         ApplicationEventMulticaster multicaster = mc();
@@ -350,28 +358,30 @@ public class SessionCacheTest extends TestCase {
         }
         assertTrue(listener.called);
     }
-    
+
     @Test
     public void testMessageShouldBeRaisedOnUpdateNeeded() throws Exception {
-        
+
         class Listener implements ApplicationListener {
             boolean called = false;
+
             public void onApplicationEvent(ApplicationEvent arg0) {
-                    called = true;
+                called = true;
             }
         }
-        
+
         StaleCacheListener stale = new StaleCacheListener() {
             public void prepareReload() {
                 // noop
             }
+
             public SessionContext reload(SessionContext context) {
                 return context;
             }
-            
+
         };
         cache.setStaleCacheListener(stale);
-        
+
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
         ApplicationEventMulticaster multicaster = mc();
@@ -386,18 +396,19 @@ public class SessionCacheTest extends TestCase {
         cache.updateEvent(new UserGroupUpdateEvent(this));
         assertTrue(listener.called);
     }
-    
+
     @Test
     public void testTwoSessionsRemovedAtTheSameTimeOnlyCallsOnce() {
-        
+
         // Setup
         Session s = sess();
         cache.putSession("uuid", sc(s));
-        
+
         // Threads
         final CyclicBarrier barrier = new CyclicBarrier(3);
         class Listener implements ApplicationListener {
             boolean failed = false;
+
             public void onApplicationEvent(ApplicationEvent arg0) {
                 if (arg0 instanceof DestroySessionMessage) {
                     try {
@@ -409,7 +420,9 @@ public class SessionCacheTest extends TestCase {
                         failed = true;
                     }
                 }
-            }};
+            }
+        }
+        ;
         Listener listener = new Listener();
         mc().addApplicationListener(listener);
         class Work extends Thread {
@@ -418,7 +431,7 @@ public class SessionCacheTest extends TestCase {
                 cache.removeSession("uuid");
             }
         }
-        
+
         // Run
         new Work().start();
         new Work().start();
@@ -433,14 +446,41 @@ public class SessionCacheTest extends TestCase {
             timeout = true; // This is what we want.
             // Means that the second work thread didn't make it in
         }
-        
+
         // Check
         assertTrue(timeout);
         assertFalse(listener.failed);
-            
+
     }
 
-    
+    @Test
+    public void testGetSessionDoesUpdateTheTimestamp() throws Exception {
+        initCache(1);
+        StaleCacheListener stale = new StaleCacheListener() {
+            public void prepareReload() {
+                // noop
+            }
+            public SessionContext reload(SessionContext context) {
+                return context;
+            }
+            
+        };
+        cache.setStaleCacheListener(stale);
+        
+        called[0] = false;
+        final Session s = sess();
+        s.setTimeToIdle(5*1000L);
+        cache.putSession(s.getUuid(), sc(s));
+        for (int i = 0; i < 10; i++) {
+            Thread.sleep(1*1000L);
+            try {
+                cache.getSessionContext(s.getUuid());
+            } catch (RemovedSessionException rse) {
+                fail("Removed session on loop "+ i);
+            }
+        }
+    }
+
     // Helpers
     // ====================
 
@@ -458,10 +498,10 @@ public class SessionCacheTest extends TestCase {
                 Collections.singletonList(1L), Collections.singletonList(""),
                 new NullSessionStats());
     }
-    
 
     private ApplicationEventMulticaster mc() {
-        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx.getBean("applicationEventMulticaster");
+        ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx
+                .getBean("applicationEventMulticaster");
         return multicaster;
     }
 }
