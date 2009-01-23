@@ -116,6 +116,16 @@ class EditorUI
 		menuBar.add(createMenu());
 		TaskBar tb = EditorAgent.getRegistry().getTaskBar();
 		menuBar.add(tb.getWindowsMenu());
+		
+		/*
+		// want to add help menu here:
+		JMenuBar bar = tb.getTaskBarMenuBar();
+        int barCount = bar.getMenuCount();
+        
+		for (int i = 0; i < barCount; i++) 
+			menuBar.add(bar.getMenu(i));
+		 */
+
 		return menuBar;
 	}
 	

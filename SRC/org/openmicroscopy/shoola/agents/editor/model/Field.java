@@ -36,6 +36,7 @@ import javax.swing.table.TableModel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -329,7 +330,8 @@ public class Field
 		for (IFieldContent content : fieldParams) {
 			if ((content instanceof BooleanParam) ||
 					(content instanceof EnumParam) ||
-					(content instanceof TextParam) || 
+					(TextParam.TEXT_LINE_PARAM.equals(
+							content.getAttribute(AbstractParam.PARAM_TYPE)))|| 
 					(content instanceof NumberParam)){
 				params.add((IParam)content);
 			}

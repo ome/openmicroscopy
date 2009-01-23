@@ -72,7 +72,7 @@ public class CPEexport {
 							"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	
 	public static final String 		CPE_DTD = "<!DOCTYPE protocol-archive " +
-		"PUBLIC \"-//Universal Protocol Exchange Format//DTD upe 1.0//EN\" " +
+		"PUBLIC \"-//Common Protocol Exchange Format//DTD upe 1.0//EN\" " +
 		"\"http://genome.tugraz.at/iLAP/upe/upe.dtd\">";
 
 	/**
