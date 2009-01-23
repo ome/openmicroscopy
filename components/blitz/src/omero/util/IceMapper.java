@@ -8,15 +8,24 @@
 
 package omero.util;
 
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rfloat;
+import static omero.rtypes.rint;
+import static omero.rtypes.rinternal;
+import static omero.rtypes.rlist;
+import static omero.rtypes.rlong;
+import static omero.rtypes.rmap;
+import static omero.rtypes.robject;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,11 +34,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static omero.rtypes.*;
 import ome.api.IPojos;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.ModelBased;
+import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.util.Filterable;
@@ -39,18 +49,6 @@ import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omero.ApiUsageException;
-import omero.RArray;
-import omero.RBool;
-import omero.RClass;
-import omero.RDouble;
-import omero.RFloat;
-import omero.RInt;
-import omero.RInternal;
-import omero.RList;
-import omero.RLong;
-import omero.RObject;
-import omero.RSet;
-import omero.RString;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
@@ -60,6 +58,7 @@ import omero.romio.RedBand;
 import omero.romio.XY;
 import omero.romio.XZ;
 import omero.romio.ZY;
+import omero.rtypes.Conversion;
 import omero.sys.EventContext;
 import omero.sys.Filter;
 import omero.sys.Parameters;
@@ -930,5 +929,89 @@ public class IceMapper extends ome.util.ModelMapper implements
             throw new ApiUsageException(null, null, "Can't handle output "
                     + type);
         }
+    }
+    
+    public Ice.UserException handleException(Throwable t, OmeroContext ctx) {
+
+        // Getting rid of the reflection wrapper.
+        if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
+            t = t.getCause();
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Handling:", t);
+        }
+
+        // First we give registered handlers a chance to convert the message,
+        // if that doesn't succeed, then we try either manually, or just
+        // wrap the exception in an InternalException
+        try {
+            ConvertToBlitzExceptionMessage ctbem = new ConvertToBlitzExceptionMessage(
+                    this, t);
+            ctx.publishMessage(ctbem);
+            if (ctbem.to != null) {
+                t = ctbem.to;
+            }
+        } catch (Throwable handlerT) {
+            // Logging the output, but we shouldn't worry the user
+            // with a failing handler
+            log.error("Exception handler failure", handlerT);
+        }
+
+        Class c = t.getClass();
+        if (Ice.UserException.class.isAssignableFrom(c)) {
+            return (Ice.UserException) t;
+        } else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
+            omero.ValidationException ve = new omero.ValidationException();
+            return IceMapper.fillServerError(ve, t);
+        } else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            return IceMapper.fillServerError(aue, t);
+        } else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
+            omero.SecurityViolation sv = new omero.SecurityViolation();
+            return IceMapper.fillServerError(sv, t);
+        } else if (ome.conditions.OptimisticLockException.class
+                .isAssignableFrom(c)) {
+            omero.OptimisticLockException ole = new omero.OptimisticLockException();
+            return IceMapper.fillServerError(ole, t);
+        } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
+            omero.ResourceError re = new omero.ResourceError();
+            return IceMapper.fillServerError(re, t);
+        } else if (ome.conditions.RemovedSessionException.class
+                .isAssignableFrom(c)) {
+            omero.RemovedSessionException rse = new omero.RemovedSessionException();
+            return IceMapper.fillServerError(rse, t);
+        } else if (ome.conditions.SessionTimeoutException.class
+                .isAssignableFrom(c)) {
+            omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
+            return IceMapper.fillServerError(ste, t);
+        } else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
+            omero.InternalException ie = new omero.InternalException();
+            return IceMapper.fillServerError(ie, t);
+        } else if (ome.conditions.AuthenticationException.class
+                .isAssignableFrom(c)) {
+            // not an omero.ServerError()
+            omero.AuthenticationException ae = new omero.AuthenticationException(
+                    t.getMessage());
+            return ae;
+        } else if (ome.conditions.ExpiredCredentialException.class
+                .isAssignableFrom(c)) {
+            // not an omero.ServerError()
+            omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(
+                    t.getMessage());
+            return ece;
+        } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
+            // Not returning but logging error message.
+            log
+                    .error("RootException thrown which is an unknown subclasss.\n"
+                            + "This most likely means that an exception was added to the\n"
+                            + "ome.conditions hierarchy, without being accountd for in blitz:\n"
+                            + c.getName());
+        }
+
+        // Catch all in case above did not return
+        omero.InternalException ie = new omero.InternalException();
+        return IceMapper.fillServerError(ie, t);
+
     }
 }

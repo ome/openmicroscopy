@@ -943,11 +943,11 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     public void testExceptionsDirect() throws Exception {
         omero.ServerError se = new omero.ServerError();
-        Throwable t = invoker.handleException(se);
+        Throwable t = mapper.handleException(se, ctx);
         assertEquals(t, se);
 
-        t = invoker
-                .handleException(new java.lang.IllegalThreadStateException());
+        t = mapper
+                .handleException(new java.lang.IllegalThreadStateException(), ctx);
         assertTrue(t instanceof omero.InternalException);
     }
 
@@ -968,7 +968,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             }
         });
 
-        Throwable t = invoker.handleException(new NullPointerException());
+        Throwable t = mapper.handleException(new NullPointerException(), ctx);
         assertTrue(t.getClass().toString(),
                 t instanceof omero.InternalException);
     }

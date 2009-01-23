@@ -56,6 +56,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 public interface Executor extends ApplicationContextAware {
 
     /**
+     * Provides access to the context for Work-API consumers who need to publish
+     * events, etc.
+     */
+    public OmeroContext getContext();
+    
+    /**
      * Calls
      * {@link #execute(Principal, ome.services.util.Executor.Work, boolean) with
      * readOnly set to false.
@@ -160,6 +166,10 @@ public interface Executor extends ApplicationContextAware {
             for (String name : proxyNames) {
                 advices.add((Advice) this.context.getBean(name));
             }
+        }
+
+        public OmeroContext getContext() {
+            return this.context;
         }
 
         /**

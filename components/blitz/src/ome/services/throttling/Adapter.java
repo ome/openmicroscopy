@@ -17,18 +17,18 @@ import omero.util.IceMapper;
 
 /**
  * Simple adapter which takes a {@link Executor.Work} instance and executes it
- * as a {@link BlitzExecutor} task. All exceptions are caught and routed to
- * via the {@link #exception(Exception)} method to the provided callback.
+ * as a {@link BlitzExecutor} task. All exceptions are caught and routed to via
+ * the {@link #exception(Exception)} method to the provided callback.
  */
 public class Adapter extends Task {
-    
+
     private final Executor ex;
     private final Executor.Work work;
     private final Principal p;
     private final IceMapper mapper;
 
-    public Adapter(Object callback, Ice.Current current, IceMapper mapper, Executor ex,
-            Principal p, Executor.Work work) {
+    public Adapter(Object callback, Ice.Current current, IceMapper mapper,
+            Executor ex, Principal p, Executor.Work work) {
         super(callback, current, mapper.isVoid());
         this.p = p;
         this.ex = ex;
@@ -42,14 +42,29 @@ public class Adapter extends Task {
 
     public void run() {
         try {
-            Object retVal = this.ex.execute(this.p, this.work);
+            Object retVal = null;
+
+            // If the work throw an exception, we have to handle it as
+            // IceMethodInvoker would.
+            try {
+                retVal = this.ex.execute(this.p, this.work);
+            } catch (Throwable t) {
+                Ice.UserException ue = mapper.handleException(t, ex
+                        .getContext());
+                exception(ue);
+                return; // EARLY EXIT
+            }
+
+            // Any exception thrown now will be thrown as is.
             if (mapper != null && mapper.canMapReturnValue()) {
                 retVal = mapper.mapReturnValue(retVal);
             }
             response(retVal);
+
         } catch (Exception e) {
             exception(e);
         }
+
     }
 
 }

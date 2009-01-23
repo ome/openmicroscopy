@@ -178,7 +178,7 @@ public class IceMethodInvoker {
         try {
             retVal = callOrClose(obj, current, info, objs);
         } catch (Throwable t) {
-            throw handleException(t);
+            throw mapper.handleException(t, ctx);
         }
 
         // Handling case of generics (.e.g Search.next())
@@ -270,90 +270,4 @@ public class IceMethodInvoker {
         return map().get(name).method;
     }
 
-    // ~ Helpers
-    // =========================================================================
-
-    public Ice.UserException handleException(Throwable t) {
-
-        // Getting rid of the reflection wrapper.
-        if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
-            t = t.getCause();
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Handling:", t);
-        }
-
-        // First we give registered handlers a chance to convert the message,
-        // if that doesn't succeed, then we try either manually, or just
-        // wrap the exception in an InternalException
-        try {
-            ConvertToBlitzExceptionMessage ctbem = new ConvertToBlitzExceptionMessage(
-                    this, t);
-            ctx.publishMessage(ctbem);
-            if (ctbem.to != null) {
-                t = ctbem.to;
-            }
-        } catch (Throwable handlerT) {
-            // Logging the output, but we shouldn't worry the user
-            // with a failing handler
-            log.error("Exception handler failure", handlerT);
-        }
-
-        Class c = t.getClass();
-        if (Ice.UserException.class.isAssignableFrom(c)) {
-            return (Ice.UserException) t;
-        } else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
-            omero.ValidationException ve = new omero.ValidationException();
-            return IceMapper.fillServerError(ve, t);
-        } else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            return IceMapper.fillServerError(aue, t);
-        } else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
-            omero.SecurityViolation sv = new omero.SecurityViolation();
-            return IceMapper.fillServerError(sv, t);
-        } else if (ome.conditions.OptimisticLockException.class
-                .isAssignableFrom(c)) {
-            omero.OptimisticLockException ole = new omero.OptimisticLockException();
-            return IceMapper.fillServerError(ole, t);
-        } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
-            omero.ResourceError re = new omero.ResourceError();
-            return IceMapper.fillServerError(re, t);
-        } else if (ome.conditions.RemovedSessionException.class
-                .isAssignableFrom(c)) {
-            omero.RemovedSessionException rse = new omero.RemovedSessionException();
-            return IceMapper.fillServerError(rse, t);
-        } else if (ome.conditions.SessionTimeoutException.class
-                .isAssignableFrom(c)) {
-            omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
-            return IceMapper.fillServerError(ste, t);
-        } else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
-            omero.InternalException ie = new omero.InternalException();
-            return IceMapper.fillServerError(ie, t);
-        } else if (ome.conditions.AuthenticationException.class
-                .isAssignableFrom(c)) {
-            // not an omero.ServerError()
-            omero.AuthenticationException ae = new omero.AuthenticationException(
-                    t.getMessage());
-            return ae;
-        } else if (ome.conditions.ExpiredCredentialException.class
-                .isAssignableFrom(c)) {
-            // not an omero.ServerError()
-            omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(
-                    t.getMessage());
-            return ece;
-        } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
-            // Not returning but logging error message.
-            log
-                    .error("RootException thrown which is an unknown subclasss.\n"
-                            + "This most likely means that an exception was added to the\n"
-                            + "ome.conditions hierarchy, without being accountd for in blitz:\n"
-                            + c.getName());
-        }
-
-        // Catch all in case above did not return
-        omero.InternalException ie = new omero.InternalException();
-        return IceMapper.fillServerError(ie, t);
-
-    }
 }
