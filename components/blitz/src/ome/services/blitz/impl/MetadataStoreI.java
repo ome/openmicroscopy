@@ -7,6 +7,8 @@
 
 package ome.services.blitz.impl;
 
+import java.util.Map;
+
 import ome.formats.OMEROMetadataStore;
 import ome.model.IObject;
 import ome.services.blitz.util.BlitzExecutor;
@@ -27,6 +29,7 @@ import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.api.*;
+import omero.metadatastore.IObjectContainer;
 import omero.model.BooleanAnnotation;
 import omero.model.Dataset;
 import omero.model.Image;
@@ -3434,6 +3437,47 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
+    public void updateObject_async(AMD_MetadataStore_updateObjects __cb,
+        final IObjectContainer[] objects, Current __current) throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+                    for (IObjectContainer o : objects)
+                    {
+                            IObject sourceObject;
+                            try
+                            {
+                                sourceObject = 
+                                    (IObject) mapper.reverse(o.sourceObject);
+                            }
+                            catch (Exception e)
+                            {
+                                // TODO: This is **WRONG**; exception handling
+                                // here is messed up.
+                                throw new RuntimeException(e);
+                            }
+                            store.updateObject(o.LSID, sourceObject, o.indexes);
+                        }
+                        return null;
+                    }
+                }));
+    }
+
+    public void updateReferences_async(AMD_MetadataStore_updateReferences __cb,
+        final Map<String, String> references, Current __current) throws ServerError
+    {
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+                                return null;
+                    }
+                }));
+    }
     /**
      * Transforms an OMERO RType into the corresponding Java type.
      * @param x OMERO RType value.
