@@ -123,14 +123,8 @@ namespace omero {
 	client(const Ice::InitializationData& id = Ice::InitializationData());
 
 	/*
-	 * Creates an Ice::Communicator pointing at the given server using
-	 * GLACIER2PORT
-	 */
-	client(const std::string& host);
-
-	/*
-	 * Creates an Ice::Communicator pointing at the given server with
-	 * the non-standard port.
+	 * Creates an Ice::Communicator pointing at the given server and port,
+	 * which defaults to omero::constants::GLACIER2PORT if none is given.
 	 */
 	client(const std::string& host, int port = omero::constants::GLACIER2PORT);
 

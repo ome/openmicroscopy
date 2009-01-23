@@ -43,7 +43,7 @@ def env_path(key):
 #
 platform = ARGUMENTS.get('OS', Platform())
 mode = ARGUMENTS.get('mode', "debug")
-link = ARGUMENTS.get("link","OMERO_common OMERO_client").split()
+link = ARGUMENTS.get("link","OMERO_client").split()
 builddir = os.path.abspath(os.path.join(os.pardir,"dist"))
 builddir = ARGUMENTS.get("builddir",builddir)
 cpppath = env_path("CPPPATH")
