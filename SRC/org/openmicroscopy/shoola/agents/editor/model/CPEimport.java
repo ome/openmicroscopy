@@ -196,6 +196,14 @@ public class CPEimport {
 	
 	/**  The name of the element that holds a data reference */
 	public static final String 			DATA_REF = "data-reference";
+	
+	/**  
+	 * In order to distinguish between a TEXT parameter that is a single
+	 * line, and one that is a TEXT_BOX; Add this string into the start of 
+	 * the parameter description when saving to cpe.xml 
+	 * (and remove when reading).
+	 */
+	public static final String 			TEXT_BOX_FLAG = "Text Box: ";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -275,14 +283,17 @@ public class CPEimport {
 	 */
 	private static IParam getParameter(IXMLElement cpeParam) 
 	{
-		String attributeValue;
+		String paramType;
 		
 		// need to have a param-type
-		attributeValue = getChildContent(cpeParam, PARAM_TYPE);
-		if (attributeValue == null) 	return null;
+		paramType = getChildContent(cpeParam, PARAM_TYPE);
+		if (paramType == null) 	return null;
+		
+		// parameter description. Set below, after potentially being modified...
+		String desc = getChildContent(cpeParam, DESCRIPTION);
 		
 		IParam param;
-		if (EnumParam.ENUM_PARAM.equals(attributeValue)) {
+		if (EnumParam.ENUM_PARAM.equals(paramType)) {
 			IXMLElement enumList = cpeParam.getFirstChildNamed(ENUM_LIST);
 			List<IXMLElement> enums = enumList.getChildrenNamed(ENUM);
 			// if enumeration options are "true" and "false", need a boolean...
@@ -302,48 +313,45 @@ public class CPEimport {
 					param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
 				}
 				// units
-				attributeValue = getChildContent(cpeParam, UNITS);
-				param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
+				String units = getChildContent(cpeParam, UNITS);
+				param.setAttribute(NumberParam.PARAM_UNITS, units);
 			}
 		} else  
-		if (NumberParam.NUMBER_PARAM.equals(attributeValue)) {
+		if (NumberParam.NUMBER_PARAM.equals(paramType)) {
 			param = FieldParamsFactory.getFieldParam(NumberParam.NUMBER_PARAM);
 			setNameValueDefault(cpeParam, param);
 			// units
-			attributeValue = getChildContent(cpeParam, UNITS);
-			param.setAttribute(NumberParam.PARAM_UNITS, attributeValue);
+			String units = getChildContent(cpeParam, UNITS);
+			param.setAttribute(NumberParam.PARAM_UNITS, units);
 		} 
 		else
-		if (TextParam.TEXT_LINE_PARAM.equals(attributeValue)) {
-			param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
+		if (TextParam.TEXT_LINE_PARAM.equals(paramType)) {
+			paramType = TextParam.TEXT_LINE_PARAM;
+			// if the description has been modified to contain a text-box-flag..
+			if ((desc != null) && (desc.startsWith(TEXT_BOX_FLAG))) {
+				paramType = TextParam.TEXT_BOX_PARAM;		// make a text-box
+				desc = desc.substring(TEXT_BOX_FLAG.length()); // remove flag
+				if (desc.length() == 0)	desc = null;
+			} 
+			param = FieldParamsFactory.getFieldParam(paramType);
 			setNameValueDefault(cpeParam, param);
 		}
 		else
-		if (DateTimeParam.DATE_TIME_PARAM.equals(attributeValue)) {
+		if (DateTimeParam.DATE_TIME_PARAM.equals(paramType)) {
 			param = FieldParamsFactory.getFieldParam(DateTimeParam.DATE_TIME_PARAM);
 			setNameValueDefault(cpeParam, param);
 		}
 		
 		else {
 			System.err.println("UpeXmlReader getParameter() param-type not recognised.");
-			param = FieldParamsFactory.getFieldParam(attributeValue);
+			param = FieldParamsFactory.getFieldParam(paramType);
 			if (param == null) {	
 				// if paramType not recognised, return text text parameter
 				param = FieldParamsFactory.getFieldParam(TextParam.TEXT_LINE_PARAM);
 				setNameValueDefault(cpeParam, param);
 			}
 			setName(cpeParam, param);
-			/*
-			// all parameter attributes are saved as attributes
-			String[] paramAts = param.getParamAttributes();
-			String attValue;
-			for (int a=0; a<paramAts.length; a++){
-				attValue = getChildContent(upeParam, paramAts[a]);
-				param.setAttribute(paramAts[a], attValue);
-			}
-			*/
 		}
-		
 		
 		IXMLElement data = cpeParam.getFirstChildNamed(DATA);
 		if (data != null) {
@@ -354,8 +362,8 @@ public class CPEimport {
 			}
 		}
 		
-		attributeValue = getChildContent(cpeParam, DESCRIPTION);
-		param.setAttribute(AbstractParam.PARAM_DESC, attributeValue);
+		// finally set the description
+		param.setAttribute(AbstractParam.PARAM_DESC, desc);
 		
 		return param;
 	}

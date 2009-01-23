@@ -308,9 +308,8 @@ public class CPEexport {
 		addChildContent(parameter, CPEimport.NAME, name);
 		addChildContent(parameter, CPEimport.ID, paramID++ +"");
 		
-		// parameter description
+		// parameter description. Added below
 		String paramDesc = param.getAttribute(AbstractParam.PARAM_DESC);
-		addChildContent(parameter, CPEimport.DESCRIPTION, paramDesc);
 		
 		// parameter necessity
 		boolean required = param.isAttributeTrue(AbstractParam.PARAM_REQUIRED);
@@ -346,20 +345,28 @@ public class CPEexport {
 		if (param instanceof TextParam) {
 			addChildContent(parameter, CPEimport.PARAM_TYPE, "TEXT");
 			setValueAndDefault(parameter, param);
+			// if text should be a text-box, add flag to parameter description
+			// since text-box parameter type is not supported by cpe.xml
+			if (TextParam.TEXT_BOX_PARAM.equals(
+					param.getAttribute(AbstractParam.PARAM_TYPE))){
+				paramDesc = CPEimport.TEXT_BOX_FLAG + 
+										(paramDesc == null ? "" : paramDesc);
+			}
 		}
 		else 
-			if (param instanceof DateTimeParam) {
-				addChildContent(parameter, CPEimport.PARAM_TYPE, "DATE_TIME");
-				
-				String ms = param.getAttribute(TextParam.PARAM_VALUE);
-				if (ms != null) {
-					IXMLElement data = new XMLElement(CPEimport.DATA);
-					addChildContent(data, CPEimport.VALUE, ms);
-					parameter.addChild(data);
-				}
+		if (param instanceof DateTimeParam) {
+			addChildContent(parameter, CPEimport.PARAM_TYPE, "DATE_TIME");
+			
+			String ms = param.getAttribute(TextParam.PARAM_VALUE);
+			if (ms != null) {
+				IXMLElement data = new XMLElement(CPEimport.DATA);
+				addChildContent(data, CPEimport.VALUE, ms);
+				parameter.addChild(data);
 			}
+		}
 		else 
 			if (param instanceof BooleanParam) {
+				// store boolean as an enumeration (No boolean in cpe.xml)
 				addChildContent(parameter, CPEimport.PARAM_TYPE, "ENUMERATION");
 				setValueAndDefault(parameter, param);
 				IXMLElement enumList = new XMLElement(CPEimport.ENUM_LIST);
@@ -377,6 +384,8 @@ public class CPEexport {
 				addChildContent(parameter, "value", value);
 			}
 		}
+		
+		addChildContent(parameter, CPEimport.DESCRIPTION, paramDesc);
 		
 		return parameter;
 	}
