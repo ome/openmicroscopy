@@ -28,6 +28,7 @@
 		    <src path="${basedir}/generated"/>
                     <include name="omero/**"/>
                     <include name="omero/model/**"/>
+		    <include name="ome/services/blitz/util/ConvertToBlitzExceptionMessage.java"/>
 		</myjavac>
 		<myjavac>
 		    <src path="${src.dir}"/>
