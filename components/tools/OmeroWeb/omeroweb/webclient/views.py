@@ -1370,8 +1370,12 @@ def manage_metadata(request, o_type=None, o_id=None, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+    metadataFamily = request.REQUEST['metadataFamily']
+    matadataType = request.REQUEST['matadataType']
+    metadataValue = request.REQUEST['metadataValue']
     
-    print request.REQUEST['matadataType'], request.REQUEST['metadataValue']
+    manager = BaseContainer(conn, o_type, o_id)
+    manager.saveMetadata(metadataFamily, matadataType, metadataValue)
     
     return HttpResponse('done')
 

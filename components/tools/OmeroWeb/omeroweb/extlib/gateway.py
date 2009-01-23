@@ -1061,6 +1061,10 @@ class BlitzGateway (threading.Thread):
         for e in types.allEnumerations(str(klass)):
             yield EnumerationWrapper(self, e)
     
+    def getEnumeration(self, klass, string):
+        types = self.getTypesService()
+        return types.getEnumeration(str(klass), str(string))
+    
     ################################################
     ##   Validators     
     

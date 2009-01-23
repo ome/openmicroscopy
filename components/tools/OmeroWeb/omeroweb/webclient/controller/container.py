@@ -80,6 +80,43 @@ class BaseContainer(BaseController):
         elif o1_type == "orphaned":
             self.orphaned = True
     
+    def saveMetadata(self, metadataFamily, matadataType, metadataValue):
+        m_name = matadataType[0].upper()+matadataType[1:]
+        enum = None
+        try:
+            enum = self.conn.getEnumeration(m_name+"I", metadataValue)
+        except:
+            pass
+        
+        #self.image._obj.getObjectiveSettings().getObjective().__dict__.has_key("_"+matadataType):
+        meta = getattr(self.image, "get"+metadataFamily)()
+        if meta._obj.__dict__.has_key("_"+matadataType):
+            if enum is not None:
+                setattr(meta._obj, matadataType, enum)
+                self.conn.updateObject(meta._obj)
+            else:
+                if metadataValue == "":
+                    setattr(meta._obj, matadataType, None)
+                    self.conn.updateObject(meta._obj)
+                else:
+                    try:
+                        setattr(meta._obj, matadataType, rint(int(metadataValue)))
+                        self.conn.updateObject(meta._obj)
+                    except:
+                        try:
+                            setattr(meta._obj, matadataType, rfloat(float(metadataValue)))
+                            self.conn.updateObject(meta._obj)
+                        except:
+                            try:
+                                setattr(meta._obj, matadataType, rstring(str(metadataValue)))
+                                self.conn.updateObject(meta._obj)
+                            except:
+                                try:
+                                    setattr(meta._obj, matadataType, rbool(bool(metadataValue.lower())))
+                                    self.conn.updateObject(meta._obj)
+                                except:
+                                    raise "Cannot save the metadata"
+    
     def buildBreadcrumb(self, menu):
         if menu == 'new' or menu == 'addnew':
             self.eContext['breadcrumb'] = ['New container']
@@ -806,7 +843,6 @@ class BaseContainer(BaseController):
             new_pdl.setParent(pr._obj)
             self.conn.createObject(new_pdl)
             return True
-
 
     #####################################################################
     # Permissions
