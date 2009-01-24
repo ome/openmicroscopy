@@ -25,7 +25,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +39,13 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -44,10 +53,10 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -75,7 +84,7 @@ import pojos.TextualAnnotationData;
  */
 class PropertiesUI   
 	extends AnnotationUI
-	implements DocumentListener
+	implements ActionListener, DocumentListener, FocusListener
 {
     
 	/** The title associated to this component. */
@@ -87,6 +96,18 @@ class PropertiesUI
     /** The text for the id. */
     private static final String ID_TEXT = "ID:";
     
+    /** Action ID indicating to edit the name. */
+    private static final int	EDIT_NAME = 0;
+    
+    /** Action ID indicating to edit the description. */
+    private static final int	EDIT_DESC = 1;
+    
+    /** Button to edit the name. */
+	private JButton				editName;
+	
+	/** Button to add documents. */
+	private JButton				editDescription;
+	
     /** The name before possible modification. */
     private String				originalName;
     
@@ -100,7 +121,14 @@ class PropertiesUI
     private JTextArea			namePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
-    private OMEWikiComponent	descriptionPane;
+    //private OMEWikiComponent	descriptionPane;
+    private JTextArea			descriptionPane;
+    
+    /** The component hosting the {@link #namePane}. */
+    private JPanel				namePanel;
+    
+    /** The component hosting the {@link #descriptionPane}. */
+    private JPanel				descriptionPanel;
     
     /** The component hosting the id of the <code>DataObject</code>. */
     private JLabel				idLabel;
@@ -114,9 +142,72 @@ class PropertiesUI
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
 
+	/** The default border of the name and decription components. */
+	private Border				defaultBorder;
+	
 	/** Reference to the control. */
 	private EditorControl		controller;
 	
+	 /** Initializes the components composing this display. */
+    private void initComponents()
+    {
+    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBackground(UIUtilities.BACKGROUND_COLOR);
+        Font f;
+    	publicBox =  new JRadioButton(EditorUtil.PUBLIC);
+    	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
+    	publicBox.setEnabled(false);
+    	f = publicBox.getFont();
+        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
+        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+        publicBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+        privateBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+        privateBox.setSelected(true);
+        privateBox.setEnabled(false);
+    	ButtonGroup group = new ButtonGroup();
+       	group.add(privateBox);
+       	group.add(publicBox);
+       	
+       	idLabel = new JLabel();
+       	idLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	idLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+       	f = idLabel.getFont();
+       	idLabel.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+    	namePane = createTextPane();
+    	namePane.setEditable(false);
+    	namePane.addFocusListener(this);
+    	descriptionPane = createTextPane();//new OMEWikiComponent(false);
+    	descriptionPane.addPropertyChangeListener(controller);
+    	//descriptionPane.setDefaultText(DEFAULT_TEXT);
+    	descriptionPane.setText(DEFAULT_TEXT);
+    	//descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	//descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	descriptionPane.addFocusListener(this);
+    	defaultBorder = namePane.getBorder();
+    	
+    	f = namePane.getFont();
+    	namePane.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
+    	f = descriptionPane.getFont();
+    	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	channelsArea = UIUtilities.createComponent(null);
+    	
+    	IconManager icons = IconManager.getInstance();
+		editName = new JButton(icons.getIcon(IconManager.EDIT_8));
+		UIUtilities.unifiedButtonLookAndFeel(editName);
+		editName.setBackground(UIUtilities.BACKGROUND_COLOR);
+		editName.setToolTipText("Edit the name.");
+		editName.addActionListener(this);
+		editName.setActionCommand(""+EDIT_NAME);
+		editDescription = new JButton(icons.getIcon(IconManager.EDIT_8));
+		UIUtilities.unifiedButtonLookAndFeel(editDescription);
+		editDescription.setBackground(UIUtilities.BACKGROUND_COLOR);
+		editDescription.setToolTipText("Edit the description.");
+		editDescription.addActionListener(this);
+		editDescription.setActionCommand(""+EDIT_DESC);
+    }   
+    
 	/**
      * Builds the panel hosting the information
      * 
@@ -205,12 +296,14 @@ class PropertiesUI
     {
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        content.setBorder(null);
        	if (permissions != null && 
        			permissions.isGroupRead()) publicBox.setSelected(true);
        	content.add(privateBox);
        	content.add(publicBox);
        	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
        	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	p.setBorder(null);
         return p;
     }
   
@@ -229,48 +322,22 @@ class PropertiesUI
     	return pane;
     }
 
-    /** Initializes the components composing this display. */
-    private void initComponents()
+    /**
+     * Lays out the components using a <code>FlowLayout</code>.
+     * 
+     * @param button    The component to lay out.
+     * @param c			The component to lay out.
+     * @return See above.
+     */
+    private JPanel layoutEditablefield(Component button, JComponent c)
     {
-    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(UIUtilities.BACKGROUND_COLOR);
-        Font f;
-    	publicBox =  new JRadioButton(EditorUtil.PUBLIC);
-    	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
-    	publicBox.setEnabled(false);
-    	f = publicBox.getFont();
-        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
-        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-        publicBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-        privateBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-        privateBox.setSelected(true);
-        privateBox.setEnabled(false);
-    	ButtonGroup group = new ButtonGroup();
-       	group.add(privateBox);
-       	group.add(publicBox);
-       	
-       	idLabel = new JLabel();
-       	idLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	idLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-       	f = idLabel.getFont();
-       	idLabel.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-    	namePane = createTextPane();
-    	descriptionPane = new OMEWikiComponent(false);
-    	descriptionPane.addPropertyChangeListener(controller);
-    	descriptionPane.setDefaultText(DEFAULT_TEXT);
-    	descriptionPane.setText(DEFAULT_TEXT);
-    	descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-
-    	f = namePane.getFont();
-    	namePane.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
-    	f = descriptionPane.getFont();
-    	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	channelsArea = UIUtilities.createComponent(null);
-    }   
-  
+    	JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(button);
+		p.add(c);
+    	return p;
+    }
+    
     /**
      * Builds the properties component.
      * 
@@ -279,20 +346,26 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	 JPanel p = new JPanel();
+    	 p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
     	 p.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-         p.add(namePane);
-         p.add(Box.createVerticalStrut(5));
          JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
-         p.add(l);
+         int w = editName.getIcon().getIconWidth()+4;
+         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         namePanel = layoutEditablefield(editName, namePane);
+         p.add(namePanel);
+         p.add(Box.createVerticalStrut(5));
          Object refObject = model.getRefObject();
          if ((refObject instanceof ImageData) || 
             (refObject instanceof DatasetData) ||
         	(refObject instanceof ProjectData) || 
         	(refObject instanceof TagAnnotationData)) {
         	 p.add(Box.createVerticalStrut(5));
-             p.add(descriptionPane);
+             //p.add(descriptionPane);
+        	 descriptionPanel = layoutEditablefield(editDescription, 
+        			 			descriptionPane);
+        	 p.add(descriptionPanel);
          }
          p.add(Box.createVerticalStrut(5));
          p.add(buildPermissions(null));
@@ -342,7 +415,7 @@ class PropertiesUI
 		removeAll();
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
-		descriptionPane.removeDocumentListener(this);
+		descriptionPane.getDocument().removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		namePane.setText(originalName);
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
@@ -358,7 +431,7 @@ class PropertiesUI
         descriptionPane.setEnabled(b);
         if (b) {
         	namePane.getDocument().addDocumentListener(this);
-        	descriptionPane.addDocumentListener(this);
+        	descriptionPane.getDocument().addDocumentListener(this);
         }
         if (model.getRefObject() instanceof TagAnnotationData) {
         	namePane.getDocument().removeDocumentListener(this);
@@ -373,7 +446,7 @@ class PropertiesUI
 		if (!(model.getRefObject() instanceof TagAnnotationData))  return;
 		boolean b = model.isCurrentUserOwner(model.getRefObject());
 		if (b)
-			descriptionPane.removeDocumentListener(this);
+			descriptionPane.getDocument().removeDocumentListener(this);
 		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		List l = annotations.get(userID);
@@ -386,7 +459,7 @@ class PropertiesUI
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		}
 		if (b)
-			descriptionPane.addDocumentListener(this);
+			descriptionPane.getDocument().addDocumentListener(this);
 	}
 	
     /** Sets the focus on the name area. */
@@ -486,14 +559,14 @@ class PropertiesUI
 	protected boolean hasDataToSave()
 	{
 		if (model.isMultiSelection()) return false;
-		String name = originalName;//model.getRefObjectName().trim();
+		String name = originalName;
 		String value = namePane.getText();
 		value = value.trim();
 		if (name == null) return false;
 		if (!name.equals(value) && !originalDisplayedName.equals(value))
 			return true;
 		
-		name = originalDescription;//model.getRefObjectDescription();
+		name = originalDescription;
 		value = descriptionPane.getText();
 		value = value.trim();
 		if (name == null) 
@@ -513,12 +586,12 @@ class PropertiesUI
 		originalDisplayedName = originalName;
 		originalDescription = model.getRefObjectDescription();
 		namePane.getDocument().removeDocumentListener(this);
-		descriptionPane.removeDocumentListener(this);
+		descriptionPane.getDocument().removeDocumentListener(this);
 		idLabel.setText("");
 		namePane.setText(originalName);
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
-		descriptionPane.addDocumentListener(this);
+		descriptionPane.getDocument().addDocumentListener(this);
 		channelsArea.setText("");
 	}
 	
@@ -563,5 +636,78 @@ class PropertiesUI
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
+
+	/** 
+	 * Edits the components displaying the name and description
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case EDIT_NAME:
+				namePanel.setBorder(EDIT_BORDER);
+				namePane.setEditable(true);
+				namePane.requestFocus();
+				break;
+			case EDIT_DESC:
+				descriptionPane.requestFocus();
+				descriptionPanel.setBorder(EDIT_BORDER);
+				descriptionPane.setEditable(true);
+		}
+	}
+	
+	/**
+	 * Resets the default text of the text fields if <code>null</code> or
+	 * length <code>0</code>.
+	 * @see FocusListener#focusLost(FocusEvent)
+	 */
+	public void focusLost(FocusEvent e)
+	{
+		Object src = e.getSource();
+		if (src == namePane) {
+			namePanel.setBorder(defaultBorder);
+			namePane.setEditable(false);
+			String text = namePane.getText();
+			if (text == null || text.trim().length() == 0) {
+				namePane.getDocument().removeDocumentListener(this);
+				namePane.setText(originalName);
+				namePane.getDocument().addDocumentListener(this);
+			}
+		} else if (src == descriptionPane) {
+			descriptionPanel.setBorder(defaultBorder);
+			descriptionPane.setEditable(false);
+			String text = descriptionPane.getText();
+			if (text == null || text.trim().length() == 0) {
+				descriptionPane.getDocument().removeDocumentListener(this);
+				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
+				descriptionPane.getDocument().addDocumentListener(this);
+			}
+			descriptionPane.select(0, 0);
+		}
+	}
+	
+	/**
+	 * Sets the position of the caret and selects the text depending on the
+	 * source.
+	 * @see FocusListener#focusGained(FocusEvent)
+	 */
+	public void focusGained(FocusEvent e)
+	{
+		Object src = e.getSource();
+		if (src == namePane) {
+			namePane.setCaretPosition(0);
+		} else if (src == descriptionPane) {
+			String text = descriptionPane.getText();
+			if (text != null) {
+				if (DEFAULT_DESCRIPTION_TEXT.equals(text.trim())) {
+					descriptionPane.selectAll();
+				} else {
+					int n = text.length()-1;
+					if (n >= 0) descriptionPane.setCaretPosition(n);
+				}
+			}
+		}
+	}
 	
 }

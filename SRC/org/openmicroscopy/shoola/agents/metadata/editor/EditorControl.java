@@ -31,7 +31,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -44,6 +48,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -60,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
+import pojos.TagAnnotationData;
 
 /** 
  * The Editor's controller.
@@ -235,18 +241,20 @@ class EditorControl
 			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			view.attachFile((File) evt.getNewValue());
-		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
+		} else if (AnnotationUI.REMOVE_ANNOTATION_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
 				DocComponent doc = (DocComponent) object;
 				Object data = doc.getData();
 				if (data instanceof File) view.removeAttachedFile(data);
-				else if ((data instanceof FileAnnotationData) &&
-						doc.isAdded())
+				else if ((data instanceof FileAnnotationData))// &&
+						//doc.isAdded())
 					view.removeAttachedFile(data);
-				else if (object instanceof AnnotationData)
-					model.deleteAnnotation((AnnotationData) object);
-			}
+				//else if (object instanceof AnnotationData)
+				//	model.deleteAnnotation((AnnotationData) object);
+				else if (data instanceof TagAnnotationData)
+					view.removeTag((TagAnnotationData) data);
+			} 
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();
 			long id;
@@ -259,6 +267,15 @@ class EditorControl
 				case WikiDataObject.PROTOCOL:
 					viewProtocol(object.getId());
 					break;
+			}
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Iterator i = m.keySet().iterator();
+			Class type;
+			while (i.hasNext()) {
+				type = (Class) i.next();
+				view.handleObjectsSelection(type, (Collection) m.get(type));
 			}
 		}
 	}

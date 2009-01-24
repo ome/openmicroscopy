@@ -44,6 +44,7 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.TagAnnotationData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -253,6 +254,23 @@ public class EditorUI
     	repaint();
 	}
 
+	/**
+	 * Returns the list of tags currently selected by the user.
+	 * 
+	 * @return See above.
+	 */
+	List<TagAnnotationData> getCurrentTagsSelection()
+	{
+		return generalPane.getCurrentTagsSelection();
+	}
+	
+	/**
+	 * Returns the value of the autocomplete flag.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAutoComplete() { return generalPane.isAutoComplete(); }
+	
 	/** Shows the image's info. */
     void showChannelData()
     { 
@@ -357,6 +375,29 @@ public class EditorUI
 		generalPane.attachFile(file);
 	}
 
+	/**
+	 * Removes a tag from the view.
+	 * 
+	 * @param tag The tag to remove.
+	 */
+	void removeTag(TagAnnotationData tag)
+	{
+		if (tag == null) return;
+		generalPane.removeTag(tag);
+	}
+	
+	/**
+	 * Handles the selection of objects via the selection wizard.
+	 * 
+	 * @param type		The type of objects to handle.
+	 * @param objects 	The objects to handle.
+	 */
+	void handleObjectsSelection(Class type, Collection objects)
+	{
+		if (objects == null) return;
+		generalPane.handleObjectsSelection(type, objects);
+	}
+	
 	/** 
 	 * Removes the attached file.
 	 * 

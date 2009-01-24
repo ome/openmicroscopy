@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -161,6 +163,7 @@ class TextualAnnotationsUI
 	private void initComponents()
 	{
 		JButton moreButton = new JButton("...more");
+		moreButton.setBorder(null);
 		UIUtilities.unifiedButtonLookAndFeel(moreButton);
 		moreButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		moreButton.setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -172,6 +175,7 @@ class TextualAnnotationsUI
 
 		JButton hideButton = new JButton("hide");
 		UIUtilities.unifiedButtonLookAndFeel(hideButton);
+		hideButton.setBorder(null);
 		hideButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		hideButton.setForeground(UIUtilities.HYPERLINK_COLOR);
 		hideButton.setToolTipText("Hide previous comments.");
@@ -181,12 +185,14 @@ class TextualAnnotationsUI
 		hideComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		commentArea = new OMEWikiComponent();
+		commentArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		commentArea.addPropertyChangeListener(controller);
 		originalText = DEFAULT_TEXT_COMMENT;
 		commentArea.setDefaultText(originalText);
 		commentArea.setText(originalText);
 		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+		commentArea.setComponentBorder(EDIT_BORDER);
 	}
 
 	/** Lays out the node. */

@@ -30,18 +30,24 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
@@ -50,6 +56,7 @@ import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
 
 /** 
@@ -84,6 +91,31 @@ class EditorComponent
 	/** The View sub-component. */
 	private EditorUI		view;
 
+	/**
+	 * Shows the selection wizard.
+	 * 
+	 * @param type			The type of objects to handle.
+	 * @param available 	The available objects.
+	 * @param selected  	The selected objects.
+	 * @param addCreation	Pass <code>true</code> to add a component
+	 * 						allowing creation of object of the passed type,
+	 * 						<code>false</code> otherwise.
+	 */
+	private void showSelectionWizard(Class type, Collection available, 
+									Collection selected, boolean addCreation)
+	{
+		IconManager icons = IconManager.getInstance();
+		Registry reg = MetadataViewerAgent.getRegistry();
+		SelectionWizard wizard = new SelectionWizard(
+				reg.getTaskBar().getFrame(), available, selected, type,
+				addCreation);
+		wizard.setTitle("Tags Selection", "Select the Tags to add or " +
+				"remove, \nor Create new Tags",  
+				icons.getIcon(IconManager.TAGS_48));
+		wizard.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(wizard);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straigh 
@@ -171,10 +203,47 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
-		view.setExistingTags();
+		if (view.isAutoComplete()) view.setExistingTags();
+		else {
+			Collection setTags = view.getCurrentTagsSelection();
+			Iterator<TagAnnotationData> k = setTags.iterator();
+			List<Long> ids = new ArrayList<Long>();
+			while (k.hasNext()) {
+				ids.add(k.next().getId());
+			}
+			List available = new ArrayList();
+			if (tags != null) {
+				Iterator i = tags.iterator();
+				TagAnnotationData data, tag;
+				String ns;
+				Set<TagAnnotationData> l;
+				Iterator<TagAnnotationData> j;
+				while (i.hasNext()) {
+					data = (TagAnnotationData) i.next();
+					ns = data.getNameSpace();
+					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+						l = data.getTags();
+						if (l != null) {
+							j = l.iterator();
+							while (j.hasNext()) {
+								tag = j.next();
+								if (!ids.contains(tag.getId()))
+									available.add(tag);
+							}
+						}
+					} else {
+						if (!ids.contains(data.getId()))
+							available.add(data);
+					}
+				}
+			}
+			showSelectionWizard(TagAnnotationData.class, available, setTags,
+								true);
+			
+		}
 		setStatus(false);
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setChannelsData(List, boolean)
@@ -251,7 +320,12 @@ class EditorComponent
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
-		view.setExistingAttachements();
+		
+		
+		
+		
+		
+		//view.setExistingAttachements();
 		setStatus(false);
 	}
 	

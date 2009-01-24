@@ -24,8 +24,12 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.util.List;
+
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -51,8 +55,12 @@ abstract class AnnotationUI
 	extends JPanel
 {
 
-	/** Bound property indicating to delete the annotation. */
-	static final String	DELETE_ANNOTATION_PROPERTY = "deleteAnnotation";
+	/** The border when an editable are is editable. */
+	static final Border EDIT_BORDER = BorderFactory.createLineBorder(
+			Color.LIGHT_GRAY);
+	
+	/** Bound property indicating to remove the annotation from the view. */
+	static final String	REMOVE_ANNOTATION_PROPERTY = "removeAnnotation";
 	
 	/** The symbol inserted before the number of annotations. */
 	static final String	LEFT = "[";

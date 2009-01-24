@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JPanel;
@@ -279,13 +280,29 @@ class GeneralPaneUI
 	void setThumbnails() { annotationUI.setThumbnails(); }
 	
 	/** Sets the existing tags. */
-	
 	void setExistingTags()
 	{
 		annotationUI.setExistingTags();
 		revalidate();
     	repaint();
 	}
+	
+	/**
+	 * Returns the list of tags currently selected by the user.
+	 * 
+	 * @return See above.
+	 */
+	List<TagAnnotationData> getCurrentTagsSelection()
+	{
+		return annotationUI.getCurrentTagsSelection();
+	}
+	
+	/**
+	 * Returns the value of the autocomplete flag.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAutoComplete() { return annotationUI.isAutoComplete(); }
 	
 	/** Sets the existing attachments. */
 	void setExistingAttachments()
@@ -364,6 +381,29 @@ class GeneralPaneUI
 	void removeAttachedFile(Object file)
 	{ 
 		annotationUI.removeAttachedFile(file);
+	}
+	
+	/**
+	 * Removes a tag from the view.
+	 * 
+	 * @param tag The tag to remove.
+	 */
+	void removeTag(TagAnnotationData tag)
+	{
+		if (tag == null) return;
+		annotationUI.removeTag(tag);
+	}
+	
+	/**
+	 * Handles the selection of objects via the selection wizard.
+	 * 
+	 * @param type		The type of objects to handle.
+	 * @param objects   The objects to handle.
+	 */
+	void handleObjectsSelection(Class type, Collection objects)
+	{
+		if (objects == null) return;
+		annotationUI.handleObjectsSelection(type, objects);
 	}
 	
 }

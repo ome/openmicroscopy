@@ -107,20 +107,28 @@ class OMEEditPane
 	}
 
 	/**
-	 * Required by the {@link FocusListener} I/F.
+	 * Selects the text and sets the position of the caret.
 	 * @see FocusListener#focusGained(FocusEvent)
 	 */
 	public void focusGained(FocusEvent e)
 	{
-		setText(getText());
+		String text = getText();
+		if (text != null) {
+			if (component.getDefaultText().equals(text))
+				selectAll();
+			else {
+				setText(text);
+				int n = text.length()-1;
+				if (n >= 0) setCaretPosition(n);
+			}
+		}
 	}
 
 	/**
-	 * Required by the {@link FocusListener} I/F but no-op implementation in 
-	 * our case.
+	 * Deselects the text.
 	 * @see FocusListener#focusLost(FocusEvent)
 	 */
-	public void focusLost(FocusEvent e) {}
+	public void focusLost(FocusEvent e) { select(0, 0); }
 	 
 }
 

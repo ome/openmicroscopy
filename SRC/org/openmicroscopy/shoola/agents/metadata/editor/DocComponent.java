@@ -43,14 +43,18 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.TagAnnotationData;
 
 /** 
- * Component displaying the file annotation.
+ * Component displaying the annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,14 +88,14 @@ class DocComponent
 	/**
 	 * Formats the passed annotation.
 	 * 
-	 * @param f The value to format.
+	 * @param data The value to format.
 	 * @return See above.
 	 */
-	private String formatTootTip(FileAnnotationData f)
+	private String formatTootTip(AnnotationData data)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
-		ExperimenterData exp = model.getOwner(f);
+		ExperimenterData exp = model.getOwner(data);
 		if (exp != null) {
 			buf.append("<b>");
 			buf.append("Owner: ");
@@ -99,16 +103,20 @@ class DocComponent
 			buf.append(EditorUtil.formatExperimenter(exp));
 			buf.append("<br>");
 		}
-		buf.append("<b>");
-		buf.append("Date Added: ");
-		buf.append("</b>");
-		buf.append(UIUtilities.formatWDMYDate(f.getLastModified()));
-		buf.append("<br>");
-		buf.append("<b>");
-		buf.append("Size: ");
-		buf.append("</b>");
-		buf.append(UIUtilities.formatFileSize(f.getFileSize()));
-		buf.append("<br>");
+		
+		if (data instanceof FileAnnotationData) {
+			buf.append("<b>");
+			buf.append("Date Added: ");
+			buf.append("</b>");
+			buf.append(UIUtilities.formatWDMYDate(data.getLastModified()));
+			buf.append("<br>");
+			buf.append("<b>");
+			buf.append("Size: ");
+			buf.append("</b>");
+			buf.append(UIUtilities.formatFileSize(
+					((FileAnnotationData) data).getFileSize()));
+			buf.append("<br>");
+		}
 		buf.append("</body></html>");
 		return buf.toString();
 	}
@@ -130,7 +138,7 @@ class DocComponent
 	/** Fires a property to delete the attachment. */
 	private void delete()
 	{
-		firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
+		firePropertyChange(AnnotationUI.REMOVE_ANNOTATION_PROPERTY,
 				null, this);
 	}
 	
@@ -167,15 +175,28 @@ class DocComponent
 				label.setToolTipText(formatTootTip(f));
 				label.setText(EditorUtil.getPartialName(
 						f.getFileName()));
+				initButton();
+				if (f.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+				/*
 				if (added) {
 					initButton();
-					label.setForeground(Color.BLUE);
+					label.setForeground(SELECTED_FOREGROUND);
 				}
+				*/
 			} else if (data instanceof File) {
 				initButton();
 				File f = (File) data;
 				label.setText(f.getName());
 				label.setForeground(Color.BLUE);
+			} else if (data instanceof TagAnnotationData) {
+				TagAnnotationData tag = (TagAnnotationData) data;
+				label.setText(tag.getTagValue());
+				initButton();
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			}
 		}
 			

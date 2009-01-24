@@ -26,13 +26,17 @@ package org.openmicroscopy.shoola.agents.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -45,6 +49,11 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import layout.TableLayout;
 
 //Third-party libraries
 
@@ -52,6 +61,9 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
+import pojos.TagAnnotationData;
 
 /** 
  * A modal dialog to select collection of objects.
@@ -68,35 +80,44 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class SelectionWizard 
 	extends JDialog 
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
 	
 	/** Bound property indicating the selected items. */
-	public static final String	SELECTED_ITEMS_PROPERTY = "selectedItems";
+	public static final String		SELECTED_ITEMS_PROPERTY = "selectedItems";
 	
 	/** Action command ID to add a field to the result table. */
-	private static final int ADD = 0;
+	private static final int 		ADD = 0;
 	
 	/** Action command ID to remove a field from the result table. */
-	private static final int REMOVE = 1;
+	private static final int 		REMOVE = 1;
 	
 	/** Action command ID to add all fields to the result table. */
-	private static final int ADD_ALL = 2;
+	private static final int 		ADD_ALL = 2;
 	
 	/** Action command ID to remove all fields from the result table. */
-	private static final int REMOVE_ALL = 3;
+	private static final int 		REMOVE_ALL = 3;
 	
 	/** Action command ID to Accept the current field selection. */
-	private static final int ACCEPT = 4;
+	private static final int 		ACCEPT = 4;
 
 	/** Action command ID to cancel the wizard. */
-	private static final int CANCEL = 5;
+	private static final int 		CANCEL = 5;
 	
 	/** Action command ID to reset the current field selection. */
-	private static final int RESET = 6;
+	private static final int 		RESET = 6;
+	
+	/** Action command ID to add new object to the selection. */
+	private static final int 		ADD_NEW = 7;
+	
+	/** The default size. */
+	private static final Dimension 	DEFAULT_SIZE = new Dimension(500, 500);
 	
 	/** The original items before the user selects items. */
 	private List<Object>		originalItems;
+	
+	/** The original selected items before the user selects items. */
+	private List<Object>		originalSelectedItems;
 	
 	/** Collection of available items. */
 	private Collection<Object>	availableItems;
@@ -134,11 +155,19 @@ public class SelectionWizard
 	/** Sorts the object. */
 	private ViewerSorter		sorter;
 	
+	/** The type to handle. */
+	private Class				type;
+	
+	/** Button to add new tag to the selection. */
+	private JButton				addNewButton;
+	
+	/** The component used to add new objects. */
+	private JTextField			addField;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		sorter = new ViewerSorter();
-		
 		availableItemsListbox = new JList();
 		availableItemsListbox.setCellRenderer(new DataObjectListCellRenderer());
 		selectedItemsListbox = new JList();
@@ -157,6 +186,12 @@ public class SelectionWizard
 		resetButton = new JButton("Reset");
 		resetButton.setToolTipText("Reset the selection.");
 		
+		addNewButton = new JButton("Add");
+		addNewButton.setEnabled(false);
+		addNewButton.setToolTipText("Add the new elements to the selection.");
+		addNewButton.setActionCommand(""+ADD_NEW);
+		addNewButton.addActionListener(this);
+		
 		addButton.setActionCommand(""+ADD);
 		addButton.addActionListener(this);
 		addAllButton.setActionCommand(""+ADD_ALL);
@@ -173,25 +208,25 @@ public class SelectionWizard
 		cancelButton.addActionListener(this);
 		resetButton.setActionCommand(""+RESET);
 		resetButton.addActionListener(this);
+		
+		
+		//Field creation
+		addField = new JTextField(20);
+		addField.getDocument().addDocumentListener(this);
 		getRootPane().setDefaultButton(cancelButton);
-	}
-	
-	/** Resets the current selection to the original selection. */
-	private void resetSelection()
-	{
-		availableItems.clear();
-		for (Object item : originalItems)
-			availableItems.add(item);
 	}
 
 	/**
-	 * Creates a copy of the original selection set so it can be reset by user.  
+	 * Creates a copy of the original selections  
 	 */
-	private void createOriginalSelection()
+	private void createOriginalSelections()
 	{
 		originalItems = new ArrayList<Object>();
 		for (Object item : availableItems)
 			originalItems.add(item);
+		originalSelectedItems  = new ArrayList<Object>();
+		for (Object item : selectedItems)
+			originalSelectedItems.add(item);
 	}
 	
 	/**
@@ -227,7 +262,7 @@ public class SelectionWizard
 	/** Adds all the items to the selection. */
 	private void addAllItems()
 	{
-		selectedItems.clear();
+		//selectedItems.clear();
 		for (Object item: availableItems)
 			selectedItems.add(item);
 		availableItems.clear();
@@ -245,11 +280,17 @@ public class SelectionWizard
 									selectedItemsListbox.getModel();
 		int [] indexes = selectedItemsListbox.getSelectedIndices();
 		Object object; 
+		TagAnnotationData tag;
 		for (int i = 0 ; i < indexes.length ; i++) {
 			object = model.getElementAt(indexes[i]);
 			if (selectedItems.contains(object)) {
 				selectedItems.remove(object);
-				availableItems.add(object);
+				if (TagAnnotationData.class.equals(type)) {
+					tag = (TagAnnotationData) object;
+					if (tag.getId() > 0) availableItems.add(object);
+				} else {
+					availableItems.add(object);
+				}
 			}
 		}
 		
@@ -259,36 +300,58 @@ public class SelectionWizard
 		setButtonsEnabled();
 	}
 	
-	/** Removes all items from the list. */
+	/** Removes all items from the selection. */
 	private void removeAllItems()
 	{
+		if (TagAnnotationData.class.equals(type)) {
+			TagAnnotationData tag;
+			for (Object item: selectedItems) {
+				tag = (TagAnnotationData) item;
+				if (tag.getId() > 0)
+					availableItems.add(item);
+			}
+		} else {
+			for (Object item: selectedItems) {
+				availableItems.add(item);
+			}
+		}
+		
+			
+		selectedItems.clear();
+		
+		sortLists();
+		populateAvailableItems();
+		populateSelectedItems();
+		setButtonsEnabled();
+		/*
 		resetSelection();
 		sortLists();
 		selectedItems.clear();
 		populateAvailableItems();
 		populateSelectedItems();
 		setButtonsEnabled();
+		*/
 	}
 	
 	/**
 	 * Sets the enabled flag of the {@link #acceptButton} and
 	 * {@link #resetButton}
-	 *
 	 */
 	private void setButtonsEnabled()
 	{
-		
-		if (originalItems.size() != availableItems.size()) {
+		if (originalSelectedItems.size() != selectedItems.size()) {
 			acceptButton.setEnabled(true);
 			resetButton.setEnabled(true);
 		} else {
-			acceptButton.setEnabled(false);
+			boolean b = false;
 			int n = 0;
-			Iterator i = availableItems.iterator();
+			Iterator i = selectedItems.iterator();
 			while (i.hasNext()) {
-				if (originalItems.contains(i.next())) n++;
+				if (originalSelectedItems.contains(i.next())) n++;
 			}
-			resetButton.setEnabled(n != originalItems.size());
+			b = (n != originalSelectedItems.size());
+			acceptButton.setEnabled(b);
+			resetButton.setEnabled(b);
 		}
 	}
 	
@@ -302,15 +365,23 @@ public class SelectionWizard
 	/** Fires a property change with the selected items. */
 	private void accept()
 	{
-		firePropertyChange(SELECTED_ITEMS_PROPERTY, null, selectedItems);
+		Map<Class, Collection<Object>> 
+			r = new HashMap<Class, Collection<Object>>();
+		r.put(type, selectedItems);
+		firePropertyChange(SELECTED_ITEMS_PROPERTY, null, r);
 		cancel();
 	}
 	
 	/** Resets the selection to the original selection. */
 	private void reset()
 	{
-		resetSelection();
+		availableItems.clear();
 		selectedItems.clear();
+		for (Object item : originalItems)
+			availableItems.add(item);
+		for (Object item : originalSelectedItems)
+			selectedItems.add(item);
+		
 		populateAvailableItems();
 		populateSelectedItems();
 		setButtonsEnabled();
@@ -334,12 +405,25 @@ public class SelectionWizard
 		return container;
 	}
 	
-	/** Builds and lays out the UI. */
-	private void buildUI()
+	/** 
+	 * Builds and lays out the UI. 
+	 * 
+	 * @param addCreation	Pass <code>true</code> to add a component
+	 * 						allowing creation of object of the passed type,
+	 * 						<code>false</code> otherwise.
+	 */
+	private void buildUI(boolean addCreation)
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		c.add(layoutSelectionPane(), BorderLayout.CENTER);
+		if (!addCreation) c.add(layoutSelectionPane(), BorderLayout.CENTER);
+		else {
+			JPanel container = new JPanel();
+			container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+			container.add(layoutSelectionPane());
+			container.add(createAdditionPane());
+			c.add(container, BorderLayout.CENTER);
+		}
 		c.add(createControlsPane(), BorderLayout.SOUTH);
 	}
 	
@@ -368,7 +452,7 @@ public class SelectionWizard
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.add(new JLabel("Selected:"), BorderLayout.NORTH);
+		p.add(UIUtilities.setTextFont("Selected:"), BorderLayout.NORTH);
 		p.add(new JScrollPane(selectedItemsListbox), BorderLayout.CENTER);
 		populateSelectedItems();
 		return p;
@@ -396,6 +480,39 @@ public class SelectionWizard
 	}
 	
 	/**
+	 * Builds and lays out the component to add new objects to the selection.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createAdditionPane()
+	{
+		JPanel p = new JPanel();
+		p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		double[][] size = {{TableLayout.PREFERRED}, {TableLayout.PREFERRED,
+			TableLayout.PREFERRED}};
+		
+		p.setLayout(new TableLayout(size));
+		String text = null;
+		String tip = null;
+		if (TagAnnotationData.class.equals(type)) {
+			tip = "Enter the new Tags, use comma to separate them.";
+			text = "New Tag: ";
+		}
+		if (tip != null) {
+			p.add(new JLabel(tip), "0, 0, l, t");
+		}
+		if (text != null) {
+			JPanel pane = new JPanel();
+			pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+			pane.add(UIUtilities.setTextFont(text));
+			pane.add(addField);
+			pane.add(addNewButton);
+			p.add(pane, "0, 1, l, t");
+		}
+		return p;
+	}
+	
+	/**
 	 * Builds and lays out the available tags.
 	 * 
 	 * @return See above.
@@ -404,7 +521,7 @@ public class SelectionWizard
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.add(new JLabel("Available:"), BorderLayout.NORTH);
+		p.add(UIUtilities.setTextFont("Available:"), BorderLayout.NORTH);
 		p.add(new JScrollPane(availableItemsListbox), BorderLayout.CENTER);
 		populateAvailableItems();
 		return p;
@@ -417,9 +534,54 @@ public class SelectionWizard
 		for (Object item : availableItems)
 			listModel.addElement(item);
 		availableItemsListbox.setModel(listModel);
-		
 	}
-
+	
+	/**
+	 * Returns <code>true</code> if an object object of the same type 
+	 * already exist in the list, <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	private boolean doesTagExist(TagAnnotationData object)
+	{
+		Iterator<Object> i = availableItems.iterator();
+		TagAnnotationData ob;
+		String value = object.getTagValue();
+		while (i.hasNext()) {
+			ob = (TagAnnotationData) i.next();
+			if (ob.getTagValue().equals(value)) return true;
+		}
+		i = selectedItems.iterator();
+		while (i.hasNext()) {
+			ob = (TagAnnotationData) i.next();
+			if (ob.getTagValue().equals(value)) return true;
+		}
+		return false;
+	}
+	
+	/** Adds new objects to the selection list. */
+	private void addNewObjects()
+	{
+		if (TagAnnotationData.class.equals(type)) {
+			String text = addField.getText();
+			if (text == null || text.trim().length() == 0) return;
+			String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
+			TagAnnotationData data;
+			for (int i = 0; i < names.length; i++) {
+				if (names[i] != null && names[i].length() > 0) {
+					data = new TagAnnotationData(names[i]);
+					if (!doesTagExist(data))
+						selectedItems.add(data);
+				}
+			}
+		}
+		sortLists();	
+		populateSelectedItems();
+		addField.setText("");
+		setButtonsEnabled();
+	}
+	
 	/** Updates the remaining fields list box. */
 	private void populateSelectedItems()
 	{
@@ -433,33 +595,72 @@ public class SelectionWizard
 	/**
 	 * Creates a new instance. 
 	 * 
-	 * @param owner				The owner of this dialog.
-	 * @param availableItems	The collection of available tags.
+	 * @param owner		The owner of this dialog.
+	 * @param available	The collection of available tags.
+	 * @param type		The type of object to handle.
 	 */
-	public SelectionWizard(JFrame owner, Collection<Object> availableItems)
+	public SelectionWizard(JFrame owner, Collection<Object> available, 
+						Class type)
 	{
-		this(owner, availableItems, null);
+		this(owner, available, null, type);
 	}
 	
 	/**
 	 * Creates a new instance. 
 	 * 
-	 * @param owner				The owner of this dialog.
-	 * @param availableItems	The collection of available items.
-	 * @param selectedItems		The collection of selected items.
+	 * @param owner			The owner of this dialog.
+	 * @param available		The collection of available tags.
+	 * @param type			The type of object to handle.
+	 * @param addCreation	Pass <code>true</code> to add a component
+	 * 						allowing creation of object of the passed type,
+	 * 						<code>false</code> otherwise.
 	 */
-	public SelectionWizard(JFrame owner, Collection<Object> availableItems, 
-							Collection<Object> selectedItems)
+	public SelectionWizard(JFrame owner, Collection<Object> available, 
+						Class type, boolean addCreation)
+	{
+		this(owner, available, null, type, addCreation);
+	}
+	
+	/**
+	 * Creates a new instance. 
+	 * 
+	 * @param owner		The owner of this dialog.
+	 * @param available	The collection of available items.
+	 * @param selected	The collection of selected items.
+	 * @param type		The type of object to handle.
+	 */
+	public SelectionWizard(JFrame owner, Collection<Object> available, 
+							Collection<Object> selected, Class type)
+	{
+		this(owner, available, selected, type, false);
+	}
+	
+	/**
+	 * Creates a new instance. 
+	 * 
+	 *@param owner		    The owner of this dialog.
+	 * @param available	    The collection of available items.
+	 * @param selected	    The collection of selected items.
+	 * @param type			The type of object to handle.
+	 * @param addCreation	Pass <code>true</code> to add a component
+	 * 						allowing creation of object of the passed type,
+	 * 						<code>false</code> otherwise.
+	 */
+	public SelectionWizard(JFrame owner, Collection<Object> available, 
+							Collection<Object> selected, Class type, 
+							boolean addCreation)
 	{
 		super(owner);
 		setModal(true);
 		if (selectedItems == null) selectedItems = new ArrayList<Object>();
-		this.availableItems = availableItems;
-		this.selectedItems = selectedItems;
-		createOriginalSelection();
+		this.availableItems = available;
+		this.selectedItems = selected;
+		this.type = type;
+		createOriginalSelections();
 		initComponents();
-		buildUI();
-		setSize(500, 500);
+		sortLists();
+		buildUI(addCreation);
+		setSize(DEFAULT_SIZE);
 	}
 
 	/**
@@ -519,7 +720,41 @@ public class SelectionWizard
 				break;
 			case RESET:
 				reset();
+				break;
+			case ADD_NEW:
+				addNewObjects();
 		}
 	}
+
+	/**
+	 * Sets the enabled flag of the {@link #addNewButton}.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		String text = addField.getText();
+		boolean b = false;
+		if (text != null && text.trim().length() > 0) b = true;
+		addNewButton.setEnabled(b);
+	}
+
+	/**
+	 * Sets the enabled flag of the {@link #addNewButton}.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		String text = addField.getText();
+		boolean b = false;
+		if (text != null && text.trim().length() > 0) b = true;
+		addNewButton.setEnabled(b);
+	}
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 
 }

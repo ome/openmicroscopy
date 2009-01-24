@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
@@ -223,10 +224,18 @@ public class OMEWikiComponent
 			JPanel bar = UIUtilities.buildComponentPanel(toolBar, 0, 0);
 			bar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			p.add(bar);
+			p.add(Box.createVerticalStrut(2));
 			add(p, BorderLayout.NORTH);
 		}
 		add(pane, BorderLayout.CENTER);
 	}
+	
+	/** 
+	 * Returns the default text or an empty string.
+	 * 
+	 * @return See above.
+	 */
+	String getDefaultText() { return defaultText; }
 	
 	/** Creates a default new instance. */
 	public OMEWikiComponent()
@@ -349,6 +358,16 @@ public class OMEWikiComponent
 	{
 		if (listener != null) 
 			pane.getDocument().removeDocumentListener(listener);
+	}
+	
+	/**
+	 * Sets the border of the component.
+	 * 
+	 * @param border The component to set.
+	 */
+	public void setComponentBorder(Border border)
+	{
+		pane.setBorder(border);
 	}
 	
 	/**

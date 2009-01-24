@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.DataObjectListCellRenderer 
+ * org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -57,6 +58,9 @@ public class DataObjectListCellRenderer
 	extends DefaultListCellRenderer
 {
 
+	/** The foreground color when the object is a new object. */
+	public static final Color	NEW_FOREGROUND_COLOR = Color.red;
+	
 	/** Helper reference to the icon manager. */
 	private IconManager 		icons;
 	
@@ -101,9 +105,13 @@ public class DataObjectListCellRenderer
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
 				setIcon(icons.getIcon(IconManager.TAG_SET));
 			else setIcon(icons.getIcon(IconManager.TAG));
+			if (tag.getId() <= 0)
+				setForeground(NEW_FOREGROUND_COLOR);
 		} else if (value instanceof FileAnnotationData) {
 			FileAnnotationData fad = (FileAnnotationData) value;
 			setText(fad.getFileName());
+			if (fad.getId() <= 0)
+				setForeground(NEW_FOREGROUND_COLOR);
 			String format = fad.getFileFormat();
 			Icon icon = icons.getIcon(IconManager.FILE);
         	if (FileAnnotationData.PDF.equals(format)) 
