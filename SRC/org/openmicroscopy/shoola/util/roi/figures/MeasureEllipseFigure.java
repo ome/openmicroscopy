@@ -476,7 +476,7 @@ public class MeasureEllipseFigure
 		double x, y;
 		for (y=startY; y<yEnd; ++y)
 			for (x=startX; x<xEnd; ++x)
-				if(containsMapped(x-r.getWidth()/2-startX, y-r.getHeight()/2-startY))
+				if(containsMapped(x,y))
 					vector.add(new Point((int)x, (int)y));
 		return vector; 
 	}

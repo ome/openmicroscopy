@@ -45,6 +45,7 @@ import java.util.TreeMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -288,7 +289,7 @@ class IntensityView
 														summaryData);
 		channelSummaryTable = new ChannelSummaryTable(channelSummaryModel);
 	
-		showIntensityTable = new JButton("Show Intensity Values");
+		showIntensityTable = new JButton("Intensity Values");
 		showIntensityTable.addActionListener(this);
 		showIntensityTable.setActionCommand(SHOWTABLEACTION);
 		channelSelection = new JComboBox();
