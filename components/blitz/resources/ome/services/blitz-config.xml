@@ -33,7 +33,8 @@
   </bean>
 
   <bean id="ring" class="ome.services.blitz.fire.Ring">
-    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="sessionCache"/>
   </bean>
   
   <bean id="topicManager" class="ome.services.blitz.fire.TopicManager">

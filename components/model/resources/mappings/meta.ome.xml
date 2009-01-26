@@ -50,9 +50,9 @@
 		<properties>
 			<!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
-			<required name="node" type="string"/>
-			<required name="user" type="ome.model.meta.Experimenter"/>
+            <manyone name="node" type="ome.model.meta.Node"/>                 
 			<required name="uuid" type="string"/>
+			<required name="owner" type="ome.model.meta.Experimenter"/>
 			<required name="timeToIdle" type="long"/>
 			<required name="timeToLive" type="long"/>
 			<required name="started" type="timestamp"/>
@@ -74,6 +74,7 @@
 
 	<type id="ome.model.meta.Node" global="true" annotated="true">
 		<properties>
+		    <onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
 			<required name="uuid"  type="string"/>
 			<required name="conn"  type="string"/>
 			<required name="up"    type="timestamp"/>
@@ -104,7 +105,7 @@
 			<optional name="experimenterGroup" type="ome.model.meta.ExperimenterGroup"/>
 			<optional name="type" type="ome.model.enums.EventType"/>
 			<optional name="containingEvent" type="ome.model.meta.Event"/>
-			<onemany name="logs" type="ome.model.meta.EventLog" inverse="event"/>
+            <onemany name="logs" type="ome.model.meta.EventLog" inverse="event"/>
 			<manyone name="session" type="ome.model.meta.Session"/>
 		</properties>
 	</type>

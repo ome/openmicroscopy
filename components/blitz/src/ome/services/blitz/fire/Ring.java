@@ -7,8 +7,7 @@
 
 package ome.services.blitz.fire;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,25 +15,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.model.meta.Node;
+import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzConfiguration;
-import ome.services.messages.CreateSessionMessage;
-import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.state.SessionCache;
+import ome.services.util.Executor;
+import ome.system.ServiceFactory;
 import omero.internal.ClusterNodePrx;
 import omero.internal.ClusterNodePrxHelper;
 import omero.internal._ClusterNodeDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jgroups.blocks.ReplicatedHashMap;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.SessionManagerPrx;
@@ -54,15 +49,11 @@ import Ice.Current;
  * 
  *@since Beta4
  */
-public class Ring extends _ClusterNodeDisp implements ApplicationListener {
+public class Ring extends _ClusterNodeDisp {
 
     private final static Log log = LogFactory.getLog(Ring.class);
 
-    private final static String CONFIG = "config-";
-
-    private final static String MANAGERS = "manager-";
-
-    private final static String SESSIONS = "session-";
+    private final static String REDIRECT = "omero.cluster.redirect";
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -70,7 +61,9 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
      */
     public final String uuid = UUID.randomUUID().toString();
 
-    private final SimpleJdbcTemplate jdbc;
+    private final Executor executor;
+
+    private final SessionCache cache;
 
     private/* final */Ice.Communicator communicator;
 
@@ -86,17 +79,9 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
      */
     private/* final */String directProxy;
 
-    public Ring(SimpleJdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-        try {
-            jdbc.update("create table session_ring "
-                    + "(key varchar unique, value varchar)");
-            log.info("Created OMERO.cluster table");
-        } catch (BadSqlGrammarException bsge) {
-            // Here we assume that this means that the table
-            // already exists.
-            log.info("session_ring already exists");
-        }
+    public Ring(Executor executor, SessionCache cache) {
+        this.executor = executor;
+        this.cache = cache;
     }
 
     /**
@@ -121,8 +106,8 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
 
         // Before we add our self we check the validity of the cluster.
         checkClusterAndAddSelf();
-        put(MANAGERS + uuid, directProxy);
-        putIfAbsent(CONFIG + "redirect", uuid);
+        addManager(uuid, directProxy);
+        setRedirect(uuid, false);
         log.info("Current redirect: " + getRedirect());
     }
 
@@ -174,9 +159,8 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
             Ice.Identity id = this.communicator.stringToIdentity("ClusterNode/"
                     + uuid);
             registry.removeObjectSafely(id);
-            remove(MANAGERS + uuid);
-            int count = jdbc.update("delete from session_ring where value = ?",
-                    uuid);
+            removeRedirectIfEquals(uuid);
+            int count = closeSessionsForManager(uuid);
             log.info("Removed " + count + " entries for " + uuid);
             log.info("Disconnected from OMERO.cluster");
         } catch (Exception e) {
@@ -216,8 +200,8 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
      * that instance. Then we try to install ourselves.
      */
     public void down(String downUuid, Current __current) {
-        removeIfEquals(CONFIG + "redirect", downUuid);
-        if (putIfAbsent(CONFIG + "redirect", this.uuid)) {
+        removeRedirectIfEquals(downUuid);
+        if (setRedirect(this.uuid, false)) {
             log.info("Installed self as new redirect: " + uuid);
         }
     }
@@ -225,10 +209,13 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
     // Local usage
     // =========================================================================
 
+    /**
+     * Currently only returns false since if the regular password check
+     * performed by {@link ome.services.sessions.SessionManager} cannot find the
+     * session, then the cluster has no extra information.
+     */
     public boolean checkPassword(String userId) {
-        boolean rv = get(SESSIONS + userId) != null;
-        log.info(String.format("Checking password: %s [%s]", userId, rv));
-        return rv;
+        return false;
     }
 
     /**
@@ -238,22 +225,22 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
      * when the first {@link Ring} joins the cluster.
      */
     public String getRedirect() {
-        String redirect = get(CONFIG + "redirect");
-        return redirect;
+        return (String) executor.execute(null, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                return sf.getConfigService().getConfigValue(REDIRECT);
+            }
+        }, true);
     }
 
     /**
      * Set the new redirect value and return the previous value, which might be
-     * null. If the uuidOrProxy is null or empty, then the existing redirect
-     * will be {@link ReplicatedHashMap#remove(Object)} removed. Otherwise the
-     * value is set. In either case, the previous value is returned.
+     * null. If the uuid is null or empty, then the existing redirect will be
+     * removed. Otherwise the value is set. In either case, the previous value
+     * is returned.
      */
-    public void putRedirect(String uuidOrProxy) {
-        if (uuidOrProxy == null || uuidOrProxy.length() == 0) {
-            remove(CONFIG + "redirect");
-        } else {
-            put(CONFIG + "redirect", uuidOrProxy);
-        }
+    public void putRedirect(String uuid) {
+        setRedirect(uuid, true);
     }
 
     public SessionPrx getProxyOrNull(String userId,
@@ -273,10 +260,10 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
                 log.info("Redirect points to this instance; setting null");
                 proxyString = null;
             } else {
-                if (!containsKey(MANAGERS + redirect)) {
+                proxyString = findProxy(redirect);
+                if (proxyString == null || proxyString.length() == 0) {
                     log.warn("No proxy found for manager: " + redirect);
                 } else {
-                    proxyString = get(MANAGERS + redirect);
                     log.info("Resolved redirect to: " + proxyString);
                 }
             }
@@ -286,7 +273,7 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
         else if (!current.ctx.containsKey("omero.routed_from")) {
 
             // Check if the session is in ring
-            proxyString = get(SESSIONS + userId);
+            proxyString = proxyForSession(userId);
             if (proxyString != null && !proxyString.equals(directProxy)) {
                 log.info(String.format("Returning remote session on %s",
                         proxyString));
@@ -296,16 +283,16 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
             else {
                 double IMPOSSIBLE = 314159.0;
                 if (Math.random() > IMPOSSIBLE) {
-                    Set<String> values = filter(MANAGERS);
+                    Set<String> values = getManagerList();
                     if (values != null) {
                         values.remove(uuid);
                         int size = values.size();
                         if (size != 0) {
                             double rnd = Math.floor(size * Math.random());
                             int idx = (int) Math.round(rnd);
-                            List v = new ArrayList(values);
-                            proxyString = (String) v.get(idx);
-                            proxyString = get(MANAGERS + proxyString);
+                            List<String> v = new ArrayList<String>(values);
+                            String uuid = (String) v.get(idx);
+                            proxyString = findProxy(uuid);
                             log.info(String.format("Load balancing to %s",
                                     proxyString));
                         }
@@ -335,13 +322,7 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
     }
 
     public Set<String> knownManagers() {
-        Set<String> managers = filter(MANAGERS);
-        Set<String> rv = new HashSet<String>();
-        for (String manager : managers) {
-            manager = manager.replaceFirst(MANAGERS, "");
-            rv.add(manager);
-        }
-        return rv;
+        return getManagerList();
     }
 
     public void assertNodes(Set<String> nodeUuids) {
@@ -356,25 +337,6 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
                 }
             }
         }
-        // Now removing any stale sessions
-        List<String> params = new ArrayList<String>();
-        StringBuilder sb = new StringBuilder();
-        sb.append("delete from session_ring ");
-        sb.append("where key like 'session-%' ");
-        sb.append("and (");
-        sb.append(" value != ?");
-        params.add(0, uuid);
-        for (String nodeUuid : nodeUuids) {
-            sb.append(" and ");
-            sb.append("value != ?");
-            params.add(nodeUuid);
-        }
-        sb.append(")");
-        int count = jdbc.update(sb.toString(), (Object[]) params
-                .toArray(new Object[params.size()]));
-        if (count != 0) {
-            log.info("Removed " + count + " stale sessions");
-        }
     }
 
     protected void purgeNode(String manager) {
@@ -383,145 +345,115 @@ public class Ring extends _ClusterNodeDisp implements ApplicationListener {
             Ice.Identity id = this.communicator.stringToIdentity("ClusterNode/"
                     + manager);
             registry.removeObjectSafely(id);
-            int count = jdbc.update("delete from session_ring where value = ?",
-                    manager);
+            int count = closeSessionsForManager(manager);
             log.info("Removed " + count + " entries with value " + manager);
-            count = jdbc.update("delete from session_ring where key = ?",
-                    MANAGERS + manager);
-            log.info("Removed " + MANAGERS + manager);
+            setManagerDown(manager);
+            log.info("Removed manager: " + manager);
         } catch (Exception e) {
             log.error("Failed to purge node " + manager, e);
         }
-        putIfAbsent(CONFIG + "redirect", uuid);
+        setRedirect(uuid, false);
     }
 
-    // Events
+    // Database interactions
     // =========================================================================
 
-    public void onApplicationEvent(ApplicationEvent arg0) {
-        if (arg0 instanceof CreateSessionMessage) {
-            String session = ((CreateSessionMessage) arg0).getSessionId();
-            log.info("Adding session " + session + " to manager " + uuid);
-            put(SESSIONS + session, uuid); // Use our uuid rather than proxy
-        } else if (arg0 instanceof DestroySessionMessage) {
-            String session = ((DestroySessionMessage) arg0).getSessionId();
-            remove(SESSIONS + session);
-            log.info("Removing session " + session + " from manager " + uuid);
-        } else if (arg0 instanceof ContextClosedEvent) {
-            // This happens 3 times for each nested context. Perhaps we
-            // should print and destroy?
-        }
-    }
-
-    // Map interface
-    // =========================================================================
-    // If the implementation of this class needs to be changed, these should be
-    // the only methods which need to be replaced. i.e. subclass implementors
-    // may want to start here.
-
-    public boolean containsKey(String key) {
-        int count = jdbc.queryForInt("select count(key) "
-                + "from session_ring " + "where key = ?", key);
-        return count > 0;
-    }
-
-    public String get(String key) {
-        try {
-            String value = (String) jdbc
-                    .queryForObject("select value " + "from session_ring "
-                            + "where key = ?", String.class, key);
-            return value;
-        } catch (EmptyResultDataAccessException erdae) {
-            return null;
-        }
-    }
-
-    public void put(String key, String value) {
-        boolean wasPut = putIfAbsent(key, value);
-        if (!wasPut) {
-            int count = jdbc.update(
-                    "update session_ring set value = ? where key = ?", value,
-                    key);
-            if (count == 0) {
-                log.info("Key not found for update: " + key);
-            } else {
-                log.info(String.format("Updated key %s to %s", key, value));
+    @SuppressWarnings("unchecked")
+    private Set<String> getManagerList() {
+        return (Set<String>) executor.execute(null, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                List<Node> nodes = sf.getQueryService().findAll(Node.class,
+                        null);
+                Set<String> nodeIds = new HashSet<String>();
+                for (Node node : nodes) {
+                    nodeIds.add(node.getUuid());
+                }
+                return nodeIds;
             }
-        }
+        }, true);
     }
 
-    public boolean putIfAbsent(String key, String value) {
-        try {
-            int count = jdbc.update(
-                    "insert into session_ring (key, value) values (?, ?)", key,
-                    value);
-            if (count > 0) {
-                log.info(String.format("Put new key: %s with value: %s ", key,
-                        value));
-                return true;
-            }
-        } catch (DataIntegrityViolationException dive) {
-            // The key already exists in the table. This is therefore
-            // a no-op
-        }
-        return false;
-    }
-
-    /**
-     * Removes a key from the session_ring table if present.
-     * 
-     * @param key
-     */
-    public boolean remove(String key) {
-        int count = jdbc.update("delete from session_ring where key = ?", key);
-        if (count == 0) {
-            log.info("Key not found to remove: " + key);
-            return false;
-        } else {
-            log.info("Removed key: " + key);
-            return true;
-        }
-    }
-
-    /**
-     * Used to remove a key/value pair iff the value equals the value give here.
-     */
-    public boolean removeIfEquals(String key, String value) {
-        int count = jdbc.update(
-                "delete from session_ring where key = ? and value = ?", key,
-                value);
-        if (count == 0) {
-            log.info("Key and value do not match: " + key + "=" + value);
-            return false;
-        } else {
-            log.info("Removed key: " + key + " since value matched: " + value);
-            return true;
-        }
-    }
-
-    public List<String> keySet() {
-        return jdbc.query("select key from session_ring",
-                new ParameterizedRowMapper<String>() {
-                    public String mapRow(ResultSet arg0, int arg1)
-                            throws SQLException {
-                        return arg0.getString(1);
+    private int closeSessionsForManager(String managerUuid) {
+        final String query = "select session from Sesssion session.node.uuid = :uuid";
+        final Parameters p = new Parameters().addString("uuid", managerUuid);
+        return (Integer) executor.execute(null, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                List<ome.model.meta.Session> sessions = sf.getQueryService().findAllByQuery(
+                        query, p);
+                for (ome.model.meta.Session s : sessions) {
+                    // TODO this could possibly be better done by raising a
+                    // new message which is received by SessionManagerImpl
+                    // and then passes it to SessionCache.
+                    try {
+                        cache.removeSession(s.getUuid());
+                    } catch (Exception e) {
+                        log.error("Error calling cache.removeSession", e);
                     }
-                });
-    }
-
-    // Helpers
-    // =========================================================================
-
-    private Set<String> filter(String prefix) {
-        Set<String> values = new HashSet<String>(keySet());
-        Set<String> remove = new HashSet<String>();
-        for (String value : values) {
-            if (!value.startsWith(prefix)) {
-                remove.add(value);
+                    
+                }
+                return sessions.size();
             }
-        }
-        values.removeAll(remove);
-        return values;
+        });
     }
 
+    private void setManagerDown(final String managerUuid) {
+        executor.execute(null, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                Node node = sf.getQueryService().findByString(Node.class,
+                        "uuid", managerUuid);
+                node.setDown(new Timestamp(System.currentTimeMillis()));
+                return sf.getUpdateService().saveAndReturnObject(node);
+            }
+        });
+    }
+
+    private Node addManager(String managerUuid, String proxyString) {
+        final Node node = new Node();
+        node.setConn(proxyString);
+        node.setUuid(managerUuid);
+        node.setUp(new Timestamp(System.currentTimeMillis()));
+        return (Node) executor.execute(null, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                return sf.getUpdateService().saveAndReturnObject(node);
+            }
+        });
+    }
+
+    private boolean setRedirect(String managerUuid, boolean setIfPresent) {
+        // REDIRECt
+        /*
+         * if (uuidOrProxy == null || uuidOrProxy.length() == 0) { remove(CONFIG
+         * + "redirect"); } else { put(CONFIG + "redirect", uuidOrProxy); }
+         */
+        throw new RuntimeException("Requires LocalConfig");
+    }
+
+    private void removeRedirectIfEquals(String uuid) {
+        throw new RuntimeException("Requires LocalConfig");
+    }
+
+    private String findProxy(final String redirect) {
+        final String query = "select node from Node where node.uuid = :uuid";
+        return nodeProxyQuery(redirect, query);
+    }
+
+    private String proxyForSession(final String sessionUuid) {
+        final String query = "select node from Node where node.sessions.uuid = :uuid";
+        return nodeProxyQuery(sessionUuid, query);
+    }
+
+    private String nodeProxyQuery(final String uuid, final String query) {
+        return (String) executor.execute(null, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                Parameters p = new Parameters().addString("uuid", uuid);
+                Node node = sf.getQueryService().findByQuery(query, p);
+                return node.getConn();
+            }
+        }, true);
+    }
 }

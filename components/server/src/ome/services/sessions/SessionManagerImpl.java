@@ -241,7 +241,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
 
         principal = checkPrincipalNameAndDefaultGroup(principal);
-        session = executeUpdate(session);
+        long userId = executeLookupUser(principal);
+        session = executeUpdate(session, userId);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
         if (ctx == null) {
             throw new RemovedSessionException("No info in database for "
@@ -335,7 +336,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     + principal);
         } else {
             Session copy = copy(orig);
-            executeUpdate(copy);
+            executeUpdate(copy, ctx.getCurrentUserId());
             cache.putSession(orig.getUuid(), ctx);
             return copy(orig);
         }
@@ -389,7 +390,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         SessionContext ctx = cache.getSessionContext(uuid);
         return ctx.stats();
     }
-    
+
     /*
      */
     public int close(String uuid) {
@@ -772,10 +773,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     @SuppressWarnings("unchecked")
-    private Session executeUpdate(final Session session) {
+    private Session executeUpdate(final Session session, final long userId) {
         return (Session) executor.execute(asroot, new Executor.Work() {
             public Object doWork(TransactionStatus status,
                     org.hibernate.Session s, ServiceFactory sf) {
+                session.setOwner(new Experimenter(userId, false));
                 return sf.getUpdateService().saveAndReturnObject(session);
             }
         }, false);
@@ -835,6 +837,27 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         }
                     }
                 }, true);
+    }
+
+    /**
+     * Looks up a user id by principal. If the name of the principal is actually
+     * a removed user session, then a {@link RemovedSessionException} is thrown.
+     */
+    private long executeLookupUser(final Principal p) {
+        return (Long) executor.execute(asroot, new Executor.Work() {
+            public Object doWork(TransactionStatus status,
+                    org.hibernate.Session session, ServiceFactory sf) {
+                LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+
+                try {
+                    Experimenter exp = admin.userProxy(p.getName());
+                    return exp.getId();
+                } catch (Exception e) {
+                    throw new RemovedSessionException("Cannot find a user with name "
+                            + p.getName());
+                }
+            }
+        }, true);
     }
 
     /**
@@ -915,6 +938,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         define(s, internal_uuid, "Session Manager internal",
                                 System.currentTimeMillis(), Long.MAX_VALUE, 0L,
                                 "Sessions", p);
+                        s.setOwner(new Experimenter(roles.getRootId(), false));
 
                         // Have to copy values over due to unloaded
                         final Session s2 = copy(s);
