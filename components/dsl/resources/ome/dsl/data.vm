@@ -40,7 +40,7 @@ insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (nextval('seq_experimenter'),0,0,'guest','Guest','Account');
 insert into node
         (id,permissions,uuid,conn,up,down)
-        select 0,-35,'000000000000000000000','unknown',now(),now();
+        select 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
 insert into session
         (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
         select 0,-35,0,0,now(),now(),'rw----','BOOTSTRAP',0000, 0,0;

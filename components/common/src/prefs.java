@@ -353,13 +353,18 @@ public class prefs {
      * @throws BackingStoreException
      */
     public static String[] set(String[] args) throws BackingStoreException {
-        if (args == null || args.length != 2) {
+        if (args == null || args.length < 1) {
             USAGE.fillInStackTrace();
             throw USAGE;
         }
         String key = args[0] == null ? "" : args[0];
-        String val = args[1] == null ? "" : args[1];
-        _node().put(key, val);
+        String val = args.length == 1 ? null : args[1];
+        if (val == null) {
+            _node().remove(key);
+        } else {
+            _node().put(key, val);
+        }
+        
         return args();
     }
 

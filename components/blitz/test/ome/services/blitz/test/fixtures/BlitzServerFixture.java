@@ -16,6 +16,8 @@ import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
+import ome.model.meta.Experimenter;
+import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.services.blitz.Main;
 import ome.services.blitz.Router;
@@ -167,8 +169,8 @@ public class BlitzServerFixture extends MockObjectTestCase {
     }
 
     public void prepareLogin() {
-        session = new Session("uuid", new Long(0), new Long(0), null, "rw----",
-                "Test");
+        session = new Session(new Node(0L, false), "uuid", new Experimenter(0L,
+                false), new Long(0), new Long(0), null, "rw----", "Test");
         sc = new SessionContextImpl(session, Collections.singletonList(1L),
                 Collections.singletonList(1L), Collections
                         .singletonList("user"), new NullSessionStats());

@@ -16,6 +16,7 @@ import omero.api.AMD_IConfig_getDatabaseTime;
 import omero.api.AMD_IConfig_getServerTime;
 import omero.api.AMD_IConfig_getVersion;
 import omero.api.AMD_IConfig_setConfigValue;
+import omero.api.AMD_IConfig_setConfigValueIfEquals;
 import omero.api._IConfigOperations;
 import Ice.Current;
 
@@ -58,6 +59,12 @@ public class ConfigI extends AbstractAmdServant implements _IConfigOperations {
     public void setConfigValue_async(AMD_IConfig_setConfigValue __cb,
             String key, String value, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, key, value);
+    }
+
+    public void setConfigValueIfEquals_async(
+            AMD_IConfig_setConfigValueIfEquals __cb, String key, String value,
+            String test, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, key, value, test);
     }
 
 }

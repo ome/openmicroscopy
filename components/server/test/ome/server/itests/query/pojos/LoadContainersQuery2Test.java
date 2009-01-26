@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.annotations.CommentAnnotation;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -66,7 +66,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
     public void testQueryReturnsCountsForTwoLevels() throws Exception {
         Dataset d = createDataset();
         Project p = new Project("name");
-        TextAnnotation t = new TextAnnotation();
+        CommentAnnotation t = new CommentAnnotation();
         t.setNs("");
         t.setTextValue("t");
         p.linkDataset(d);

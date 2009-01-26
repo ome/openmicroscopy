@@ -12,7 +12,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import ome.api.IAnalysis;
 import ome.api.IConfig;
 import ome.api.IPixels;
 import ome.api.IPojos;
@@ -80,8 +79,6 @@ public class AbstractManagedContextTest extends
 
     protected IConfig iConfig;
 
-    protected IAnalysis iAnalysis;
-
     protected IPojos iPojos;
 
     protected IPixels iPixels;
@@ -143,7 +140,6 @@ public class AbstractManagedContextTest extends
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = (LocalAdmin) factory.getAdminService();
         iLdap = (LocalLdap) factory.getLdapService();
-        iAnalysis = factory.getAnalysisService();
         iConfig = factory.getConfigService();
         iPojos = factory.getPojosService();
         iPixels = factory.getPixelsService();

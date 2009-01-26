@@ -6,9 +6,6 @@
  */
 package ome.server.itests;
 
-// Java imports
-
-// Third-party libraries
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,7 +19,7 @@ import javax.sql.DataSource;
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.model.ILink;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -56,7 +53,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test
     public void test_unannotated_Event_version() throws Exception {
-        ILink link = createLinkedTextAnnotation();
+        ILink link = createLinkedCommentAnnotation();
         iPojos.deleteDataObject(link, null);
 
     }
@@ -83,14 +80,14 @@ public class PojosServiceTest extends AbstractManagedContextTest {
     public void testAnnotationsStillCounted() throws Exception {
         Dataset d = new Dataset();
         d.setName("ticket:657");
-        TextAnnotation da = new TextAnnotation();
+        CommentAnnotation da = new CommentAnnotation();
         da.setTextValue("ticket:657");
         da.setNs("");
         d.linkAnnotation(da);
         Image i = new Image();
         i.setName("ticket:657");
         i.linkDataset(d);
-        TextAnnotation ia = new TextAnnotation();
+        CommentAnnotation ia = new CommentAnnotation();
         ia.setTextValue("ticket:657");
         ia.setNs("");
         i.linkAnnotation(ia);
@@ -190,8 +187,8 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         return (time);
     }
 
-    private ILink createLinkedTextAnnotation() {
-        TextAnnotation da = new TextAnnotation();
+    private ILink createLinkedCommentAnnotation() {
+        CommentAnnotation da = new CommentAnnotation();
         Dataset ds = new Dataset();
         Project p = new Project();
 

@@ -6,6 +6,7 @@
  */
 package ome.server.utests.sec;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,23 +37,23 @@ public class ConfigUnitTest extends MockObjectTestCase {
 
     class Current extends CurrentDetails {
         EventContext ec;
+
         @Override
         public EventContext getCurrentEventContext() {
             return ec;
         }
     }
-    
+
     @BeforeMethod
     public void create() {
 
-        ctx = new OmeroContext(new String[]{"classpath:/ome/config.xml"});
+        ctx = new OmeroContext(new String[] { "classpath:/ome/config.xml" });
         prefs = (PreferenceContext) ctx.getBean("preferenceContext");
-        
+
         cd = new Current();
         ecMock = mock(EventContext.class);
         cd.ec = (EventContext) ecMock.proxy();
-        
-        
+
         jdbcMock = mock(SimpleJdbcOperations.class);
         jdbc = (SimpleJdbcOperations) jdbcMock.proxy();
 
@@ -63,33 +64,34 @@ public class ConfigUnitTest extends MockObjectTestCase {
         bean.setCurrentDetails(cd);
         config = bean;
     }
-    
+
     @Test
     public void testThatVersionsIsAccessible() {
-        ecMock.expects(once()).method("isCurrentUserAdmin").will(returnValue(true));
+        mockAdmin();
         String v = config.getVersion();
         String cv = config.getConfigValue("omero.version");
-        assertEquals(v,cv);
+        assertEquals(v, cv);
     }
-    
+
     @Test(expectedExceptions = SecurityViolation.class)
     public void testThatDatabasePasswordIsNotAcessible() {
-       config.getConfigValue("omero.db.password");
+        mockAdmin();
+        config.getConfigValue("omero.db.pass");
     }
-    
+
     @Test
     public void testGettingAHiddenVariableInternally() {
         String pass = config.getInternalValue("omero.db.pass");
         assertEquals("omero", pass);
     }
-    
+
     @Test
     public void testThatAliasesAreWorking() {
         String host1 = config.getInternalValue("omero.db.host");
         String host2 = config.getInternalValue("database.host");
         assertEquals(host1, host2);
     }
-    
+
     @Test
     public void testVersionRegex() {
         Pattern pattern = Pattern.compile(IConfig.VERSION_REGEX);
@@ -99,6 +101,47 @@ public class ConfigUnitTest extends MockObjectTestCase {
         match(pattern, "123.456.789", "foo.4kj4ma.4k-123.456.789-rc1^$^##@^%&");
     }
 
+    @Test
+    public void testThatValuesAreSettableAsAdmin() {
+        mockAdmin();
+        
+        String test = UUID.randomUUID().toString()+"-config-test";
+
+        notInDatabase();
+        String oldValue = config.getConfigValue(test);
+        assertTrue(oldValue == null || oldValue.length() == 0);
+        
+        notInDatabase();
+        jdbcMock.expects(once()).method("update");
+        config.setConfigValue(test, "new");
+        
+        inDatabase("new");
+        String newValue = config.getConfigValue(test);
+        assertEquals("new", newValue);
+    }
+
+    @Test
+    public void testThatOmeroDataDirIsAccessible() {
+        mockAdmin();
+        notInDatabase();
+        assertTrue(config.getConfigValue("omero.data.dir").contains("OMERO"));
+    }
+    // Helpers
+    // =========================================================================
+
+    private void mockAdmin() {
+        ecMock.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
+                returnValue(true));
+    }
+
+    private void notInDatabase() {
+        jdbcMock.expects(once()).method("queryForObject").will(returnValue(null));
+    }
+    
+    private void inDatabase(String value) {
+        jdbcMock.expects(once()).method("queryForObject").will(returnValue(value));
+    }
+    
     private void match(Pattern pattern, String goal, String text) {
         Matcher matcher = pattern.matcher(text);
         assertTrue(matcher.matches());

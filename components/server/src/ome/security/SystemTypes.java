@@ -16,6 +16,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.model.meta.Node;
 
 /**
  * Defines what {@link IObject} classes are considered "system" types. System
@@ -37,6 +38,8 @@ public class SystemTypes {
         if (klass == null) {
             return false;
         } else if (ome.model.meta.Session.class.isAssignableFrom(klass)) {
+            return true;
+        } else if (Node.class.isAssignableFrom(klass)) {
             return true;
         } else if (Experimenter.class.isAssignableFrom(klass)) {
             return true;

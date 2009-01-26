@@ -27,6 +27,11 @@ import ome.conditions.SecurityViolation;
  * values (such as DB connection info, ports, etc.) must naturally be set before
  * this service is accessible.
  * 
+ * Manages synchronization of the various configuration sources internally. It
+ * is therefore important that as far as possible all configuration changes
+ * take place via this interface and not, for example, directly via
+ * {@link java.util.prefs.Preferences}.
+ * 
  * Also used as the main developer example for developing (stateless) ome.api
  * interfaces. See source code documentation for more.
  * 
@@ -112,20 +117,38 @@ public interface IConfig extends ServiceInterface {
     /**
      * set a configuration value in the backend store. Permissions applied to
      * the configuration value may cause a {@link SecurityViolation} to be
-     * thrown.
+     * thrown. If the value is null or empty, then the configuration will be
+     * removed in all writable configuration sources. If the configuration is
+     * set in a non-modifiable source (e.g. in a property file on the classpath),
+     * then a subsequent call to getConfigValue() will return that value.
      * 
      * @param key
      *            The non-null name of the desired configuration value
      * @param value
      *            The {@link String} value to assign to the given key.
      * @throws ApiUsageException
-     *             if the key or value is null or invalid.
+     *             if the key is null or invalid.
      * @throws SecurityViolation
      *             if the value is not writable.
      */
     void setConfigValue(@NotNull
-    String key, @NotNull
-    String value) throws ApiUsageException, SecurityViolation;
+    String key, String value) throws ApiUsageException, SecurityViolation;
+
+    /**
+     * Calls {@link #setConfigValue(String, String)} if and only if the
+     * configuration property is currently equal to the test argument. If the
+     * test is null or empty, then the configuration property will be set only
+     * if missing.
+     *  
+     * @param key
+     * @param value
+     * @return
+     * @throws ApiUsageException
+     * @throws SecurityViolation
+     * @see #setConfigValue(String, String)
+     */
+    boolean setConfigValueIfEquals(@NotNull
+    String key, String value, String test) throws ApiUsageException, SecurityViolation;
 
     /**
      * Provides the system {@link ome.system.Preference}. OMERO-internal values

@@ -14,7 +14,12 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * Definition of a server configuration variable ("preference") along with its
  * mutability, visibility, aliases and other important information. These
  * {@link Preference preferences} are defined in ome/config.xml along with the
- * {@link PreferenceContext}
+ * {@link PreferenceContext}, and the default values are defined in the
+ * etc/*.properties files which get stored in the final jars.
+ * 
+ * For any configuration which does not have an explicit mapping, the default
+ * will be as if "new Preference()" is called. See the individual fields below
+ * for more information.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0
@@ -26,18 +31,46 @@ public class Preference implements BeanNameAware {
         hidden, all, admin, user;
     }
 
-    boolean mutable;
+    /**
+     * Whether or not an administrator can change this property remotely. By
+     * default this value is true, since otherwise creating new configuration
+     * values would be impossible. Therefore, it is necessary to explicitly
+     * specify all configuration keys which should be immutable.
+     */
+    private boolean mutable = true;
 
-    boolean db;
-    
-    boolean prefs;
+    /**
+     * Whether or not a configuration value can be found in the database. Some
+     * values inherently make no sense to store in the db, like the db
+     * connection information. All other properties should be storable there,
+     * and so {@link #db} is true by default.
+     */
+    private boolean db = true;
 
-    Visibility visibility;
+    /**
+     * Whether or not a configuration value can be found in the system
+     * preferences. True by default.
+     */
+    private boolean prefs = true;
 
-    String[] aliases;
+    /**
+     * For whom this preference is visible. By default, admin.
+     */
+    private Visibility visibility = Visibility.admin;
 
-    String beanName;
-    
+    /**
+     * For backwards compatibility, the key strings which were use in
+     * OMERO-Beta3 have been aliased to the new key strings. These may
+     * eventually be removed.
+     */
+    private String[] aliases = new String[0];
+
+    /**
+     * To simplify configuration, the Spring bean id/name becomes the key string
+     * for this {@link Preference}.
+     */
+    private String beanName = "unknown";
+
     /**
      * By default, configures this instance for
      * {@link PropertyPlaceholderConfigurer#SYSTEM_PROPERTIES_MODE_OVERRIDE} as
@@ -47,15 +80,19 @@ public class Preference implements BeanNameAware {
      * present, otherwise the value of "omero.prefs.default".
      */
     public Preference() {
-        this("unknown", false, Visibility.admin.toString(), new String[0]);
+
     }
 
-    public Preference(String beanName, boolean mutable, String visibility,
+    public Preference(String beanName, boolean mutable, Visibility visibility,
             String[] aliases) {
         setBeanName(beanName);
         setMutable(mutable);
         setVisibility(visibility);
         setAliases(aliases);
+    }
+
+    public String getName() {
+        return this.beanName;
     }
 
     /**
@@ -72,11 +109,26 @@ public class Preference implements BeanNameAware {
         this.mutable = mutable;
     }
 
+    public Visibility getVisibility() {
+        return this.visibility;
+    }
+
     /**
      * Setter injector
      */
-    public void setVisibility(String visibility) {
-        this.visibility = Preference.Visibility.valueOf(visibility);
+    public void setVisibility(Visibility visibility) {
+        this.visibility = visibility;
+    }
+
+    public boolean hasAlias(String key) {
+        if (aliases != null && key != null) {
+            for (int i = 0; i < aliases.length; i++) {
+                if (key.equals(aliases[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -90,6 +142,10 @@ public class Preference implements BeanNameAware {
             this.aliases = new String[aliases.length];
             System.arraycopy(aliases, 0, this.aliases, 0, aliases.length);
         }
+    }
+
+    public boolean isDb() {
+        return this.db;
     }
 
     /**

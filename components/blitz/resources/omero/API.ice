@@ -178,6 +178,7 @@ module omero {
 	    idempotent string getVersion() throws ServerError;
 	    idempotent string getConfigValue(string key) throws ServerError;
 	    idempotent void setConfigValue(string key, string value) throws ServerError;
+	    idempotent bool setConfigValueIfEquals(string key, string value, string test) throws ServerError; 
 	    idempotent omero::RTime getDatabaseTime() throws ServerError;
 	    idempotent omero::RTime getServerTime() throws ServerError;
 	};

@@ -17,7 +17,10 @@ package ome.logic;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.regex.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
@@ -26,11 +29,14 @@ import ome.annotations.RolesAllowed;
 import ome.api.IConfig;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalConfig;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+import ome.conditions.OptimisticLockException;
 import ome.conditions.SecurityViolation;
 import ome.security.basic.CurrentDetails;
 import ome.system.PreferenceContext;
-import ome.system.Version;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -93,6 +99,11 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     private transient PreferenceContext prefs;
 
     private transient CurrentDetails currentDetails;
+
+    /**
+     * Protects all access to the configuration properties.
+     */
+    private final transient ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * {@link SimpleJdbcTemplate} setter for dependency injection.
@@ -193,43 +204,100 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     @PermitAll
     // see above
     public String getConfigValue(String key) {
-        
+
         if (key == null) {
             return "";
         }
-        
+
+        key = prefs.resolveAlias(key);
+
         if (!prefs.canRead(currentDetails.getCurrentEventContext(), key)) {
             throw new SecurityViolation("Cannot read configuration: " + key);
         }
-        
+
         return getInternalValue(key);
     }
 
     public String getInternalValue(String key) {
 
-        String value = null;
+        key = prefs.resolveAlias(key);
 
-        if (prefs.checkDatabase(key)) {
-            value = jdbc.queryForObject(
-                    "select value from configuration where key = ?",
-                    String.class, key);
+        lock.readLock().lock();
+        try {
+            String value = null;
+            if (prefs.checkDatabase(key)) {
+                value = fromDatabase(key);
+            }
+
+            if (value != null) {
+                return value;
+            } else {
+                return prefs.getProperty(key);
+            }
+        } finally {
+            lock.readLock().unlock();
         }
-
-        if (value != null) {
-            return value;
-        } else {
-            return prefs.getProperty(key);
-        }
-
     }
 
     /**
      * see {@link IConfig#setConfigValue(String, String)}
      */
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     // see above
     public void setConfigValue(String key, String value) {
-        throw new UnsupportedOperationException("NYI");
+
+        key = prefs.resolveAlias(key);
+
+        lock.writeLock().lock();
+        try {
+
+            // If the value comes from the db, then set it there and return
+            if (prefs.checkDatabase(key)) {
+                String current = fromDatabase(key);
+                if (current != null && current.length() > 0) {
+                    int count = jdbc
+                            .update(
+                                    "update configuration set value = ? where name = ?",
+                                    value, key);
+                    if (count != 1) {
+                        throw new OptimisticLockException(
+                                "Configuration tabled during modification of : "
+                                        + key);
+                    }
+                }
+            }
+
+            // Otherwise set it in the preferences.
+            else {
+                prefs.setProperty(key, value);
+            }
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * see {@link IConfig#setConfigValueIfEquals(String, String, String)}
+     */
+    @RolesAllowed("user")
+    // see above
+    public boolean setConfigValueIfEquals(String key, String value, String test)
+            throws ApiUsageException, SecurityViolation {
+
+        key = prefs.resolveAlias(key);
+
+        lock.writeLock().lock();
+        try {
+            String current = getInternalValue(key);
+            if (!key.equals(current)) {
+                return false;
+            }
+            setConfigValue(key, value);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -239,12 +307,16 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     // see above
     public String getVersion() {
         String version = getInternalValue("omero.version");
-        Pattern p = Pattern.compile("");
-        return null;
+        Pattern p = Pattern.compile(VERSION_REGEX);
+        Matcher m = p.matcher(version);
+        if (!m.matches()) {
+            throw new InternalException("Bad version format");
+        }
+        return m.group(1);
     }
 
     @PermitAll
-    //see above
+    // see above
     public String getDatabaseVersion() {
         return jdbc.query(
                 "select currentversion, currentpatch from dbpatch "
@@ -259,4 +331,20 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
 
                 }).get(0);
     }
+
+    // Helpers
+    // =========================================================================
+
+    private String fromDatabase(String key) {
+        String value = null;
+        try {
+            value = jdbc.queryForObject(
+                    "select value from configuration where name = ?",
+                    String.class, key);
+        } catch (EmptyResultDataAccessException erdae) {
+            // ok returning null
+        }
+        return value;
+    }
+
 }

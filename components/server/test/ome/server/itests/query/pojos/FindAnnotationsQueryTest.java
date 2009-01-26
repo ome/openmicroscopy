@@ -15,7 +15,7 @@ import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
@@ -122,7 +122,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void testFindImageAnnotationsReturnsEventTimes() throws Exception {
         Image i = new Image();
         i.setName("ticket:172");
-        TextAnnotation a = new TextAnnotation();
+        CommentAnnotation a = new CommentAnnotation();
         a.setNs("");
         a.setTextValue("ticket:172");
         i.linkAnnotation(a);

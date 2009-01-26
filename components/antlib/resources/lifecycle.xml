@@ -80,6 +80,7 @@
 -->
                 <defineVariables/>
 		<makeDirectories/>
+		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.xml"/>
@@ -248,10 +249,7 @@
 				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>
 			<fileset dir="${classes.dir}">
-				<exclude name="local.properties"/>
-				<exclude name="omero.properties"/>
-				<exclude name="hibernate.properties"/>
-				<exclude name="jndi.properties"/>
+				<exclude name="*.properties"/>
 				<exclude name="log4j.xml"/>
 				<exclude name="**/*.cpp"/>
 				<exclude name="**/*.h"/>
@@ -360,9 +358,6 @@
                     <include name="**/config.*"/>
                     <include name="**/*.config"/>
                     <include name="**/*.xml"/>
-                </fileset>
-                <fileset dir="${resrc.dest}">
-                    <include name="**/*.properties"/>
                 </fileset>
             </jar>
         </sequential>

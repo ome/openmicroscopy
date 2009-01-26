@@ -28,7 +28,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.UriAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
@@ -192,7 +192,7 @@ public class SearchTest extends AbstractTest {
         List annotations = search.results();
         List<String> terms = new ArrayList<String>();
         for (Object obj : annotations) {
-            terms.add(((TextAnnotation)obj).getTextValue());
+            terms.add(((CommentAnnotation)obj).getTextValue());
         }
         // Lower-casing is necessary since that's what's stored in the index.
         assertTrue(terms.contains(base2.toLowerCase()));
@@ -338,6 +338,7 @@ public class SearchTest extends AbstractTest {
     public void testSimpleFullTextSearch() {
 
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(uuid());
         i = iUpdate.saveAndReturnObject(i);
 
@@ -367,6 +368,7 @@ public class SearchTest extends AbstractTest {
     public void testWildcardFullTextSearch() {
 
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(uuid());
         i = iUpdate.saveAndReturnObject(i);
 
@@ -414,6 +416,7 @@ public class SearchTest extends AbstractTest {
         final String[] missing = new String[] { jkl, mno, pqr, _456 };
 
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(abc + " " + def + " " + ghi);
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
@@ -582,7 +585,7 @@ public class SearchTest extends AbstractTest {
         // As of 4.0, text annotation is abstract, and so it's not possible
         // to do this.
         /*
-        TextAnnotation txtAnn = new TextAnnotation();
+        CommentAnnotation txtAnn = new CommentAnnotation();
         txtAnn.setTextValue(uuid);
         search.byAnnotatedWith(txtAnn);
         assertResults(search, 1);
@@ -1119,6 +1122,7 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
@@ -1233,6 +1237,7 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
@@ -1344,6 +1349,7 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
@@ -1455,6 +1461,7 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         String tag = uuid();
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation t = new TagAnnotation();
         t.setTextValue(tag);
@@ -1530,6 +1537,7 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         i = iUpdate.saveAndReturnObject(i);
 
@@ -1910,16 +1918,16 @@ public class SearchTest extends AbstractTest {
     // The general reader may want to stop reading at this point.
 
     @Test
-    public void testTextAnnotationDoesntTryToLoadUpdateEvent() {
+    public void testCommentAnnotationDoesntTryToLoadUpdateEvent() {
         String uuid = uuid();
-        TextAnnotation ta = new CommentAnnotation();
+        CommentAnnotation ta = new CommentAnnotation();
         ta.setTextValue(uuid);
         ta = iUpdate.saveAndReturnObject(ta);
         iUpdate.indexObject(ta);
         loginRoot();
 
         Search search = this.factory.createSearchService();
-        search.onlyType(TextAnnotation.class);
+        search.onlyType(CommentAnnotation.class);
         search.byFullText(uuid);
         assertResults(search, 1);
     }
@@ -2269,6 +2277,7 @@ public class SearchTest extends AbstractTest {
 
         // Add an image as the owner
         Image i = new Image();
+        i.setAcquisitionDate(testTimestamp);
         i.setName("Some text " + uuid + " blah blah");
         i = this.iUpdate.saveAndReturnObject(i);
 

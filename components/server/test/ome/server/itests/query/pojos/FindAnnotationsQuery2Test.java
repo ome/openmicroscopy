@@ -17,7 +17,7 @@ import java.util.Set;
 import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -44,7 +44,7 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
     public void testFindImageAnnotationsReturnsEventTimes() throws Exception {
         Image i = new Image();
         i.setName("ticket:172");
-        TextAnnotation a = new TextAnnotation();
+        CommentAnnotation a = new CommentAnnotation();
         a.setNs("");
         a.setTextValue("ticket:172");
         i.linkAnnotation(a);
@@ -86,7 +86,7 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
     public void testFindImageAnnotationsWithOwnerIds() throws Exception {
         Image i = new Image();
         i.setName("ticket:172");
-        TextAnnotation a = new TextAnnotation();
+        CommentAnnotation a = new CommentAnnotation();
         a.setNs("");
         a.setTextValue("ticket:172");
         i.linkAnnotation(a);

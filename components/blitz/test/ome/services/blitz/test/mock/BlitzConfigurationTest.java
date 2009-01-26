@@ -31,7 +31,7 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
     
     @BeforeClass
     public void setup() throws Exception {
-        ring = new Ring(null);
+        ring = new Ring("uuid", null, null);
     }
     
     @Test

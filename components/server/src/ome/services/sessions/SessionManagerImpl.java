@@ -27,6 +27,7 @@ import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.security.basic.PrincipalHolder;
@@ -46,6 +47,7 @@ import ome.system.ServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -71,9 +73,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
 
     /**
-     * The id of this session manager, used to identify its own actions.
+     * The id of this session manager, used to identify its own actions. This
+     * value may be overwritten by an injector with a value which is used
+     * throughout this server instance.
      */
-    private final String internal_uuid = UUID.randomUUID().toString();
+    private String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
     protected OmeroContext context;
@@ -108,6 +112,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         this.context = (OmeroContext) applicationContext;
+    }
+
+    public void setUuid(String uuid) {
+        this.internal_uuid = uuid;
     }
 
     public void setSessionCache(SessionCache sessionCache) {
@@ -777,6 +785,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return (Session) executor.execute(asroot, new Executor.Work() {
             public Object doWork(TransactionStatus status,
                     org.hibernate.Session s, ServiceFactory sf) {
+                Node node = sf.getQueryService().findByString(Node.class,
+                        "uuid", internal_uuid);
+                if (node == null) {
+                    node = new Node(0L, false); // Using default node.
+                }
+                session.setNode(node);
                 session.setOwner(new Experimenter(userId, false));
                 return sf.getUpdateService().saveAndReturnObject(session);
             }
@@ -853,8 +867,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     Experimenter exp = admin.userProxy(p.getName());
                     return exp.getId();
                 } catch (Exception e) {
-                    throw new RemovedSessionException("Cannot find a user with name "
-                            + p.getName());
+                    throw new RemovedSessionException(
+                            "Cannot find a user with name " + p.getName());
                 }
             }
         }, true);
@@ -933,16 +947,50 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 .executeStateless(new Executor.StatelessWork() {
                     public Object doWork(TransactionStatus status,
                             StatelessSession sSession) {
+                        
+                        
+                        // Create a basic session
                         final Permissions p = Permissions.USER_PRIVATE;
                         final Session s = new Session();
                         define(s, internal_uuid, "Session Manager internal",
                                 System.currentTimeMillis(), Long.MAX_VALUE, 0L,
                                 "Sessions", p);
-                        s.setOwner(new Experimenter(roles.getRootId(), false));
-
+                        
+                        // Set the owner and node specially for an internal sess
+                        Query q = sSession.createQuery("select id from Node n "
+                                + "where n.uuid = :uuid");
+                        q.setParameter("uuid", internal_uuid);
+                        Long nodeId = (Long) q.uniqueResult();
+                        if (nodeId == null) {
+                            nodeId = 0L; // Using default node
+                        }
+                        
                         // Have to copy values over due to unloaded
                         final Session s2 = copy(s);
-                        Long id = (Long) sSession.insert(s2);
+
+                        // SQL defined in data.vm for creating original session
+                        // (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
+                        // select nextval('seq_session'),-35,
+                        // 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
+                        SQLQuery q2 = sSession
+                                .createSQLQuery("insert into session "
+                                        + "(id,permissions,timetoidle,timetolive,started,closed,"
+                                        + "defaultpermissions,defaulteventtype,uuid,owner,node)"
+                                        + "select nextval('seq_session'),-35,:ttl,:tti,:start,null,"
+                                        + ":perms,:type,:uuid,:owner,:node");
+                        q2.setParameter("ttl", s.getTimeToLive());
+                        q2.setParameter("tti", s.getTimeToIdle());
+                        q2.setParameter("start", s.getStarted());
+                        q2.setParameter("perms", s.getDefaultPermissions());
+                        q2.setParameter("type", s.getDefaultEventType());
+                        q2.setParameter("uuid", s.getUuid());
+                        q2.setParameter("node", nodeId);
+                        q2.setParameter("owner", roles.getRootId());
+                        q2.executeUpdate();
+                        
+                        Query q3 = sSession.createQuery("select id from Session where uuid = :uuid");
+                        q3.setParameter("uuid", s.getUuid());
+                        Long id = (Long) q3.uniqueResult();
 
                         s.setId(id);
                         return s;

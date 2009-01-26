@@ -65,7 +65,6 @@ import omero.model.ImageI;
 import omero.model.PlaneSlicingContextI;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
-import omero.model.TextAnnotationI;
 import omero.util.IceMapper;
 
 import org.testng.annotations.Configuration;

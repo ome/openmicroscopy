@@ -14,7 +14,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.formats.importer.util.TinyImportFixture;
 import ome.model.annotations.ImageAnnotationLink;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
@@ -50,7 +50,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
     public void testDeleteWithAnnotation() throws Exception {
         Image i = makeImage(true);
-        TextAnnotation ta = new TextAnnotation();
+        CommentAnnotation ta = new CommentAnnotation();
         ta.setNs("");
         ta.setTextValue("");
         ImageAnnotationLink link = new ImageAnnotationLink();

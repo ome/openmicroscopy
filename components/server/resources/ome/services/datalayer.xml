@@ -30,8 +30,11 @@
     are added, they should also be configured at this level)
   </description>
 
-  <!-- Unique identifier for this Spring context. This is important to
-  distinguish multiple uses of the same database, for example in clustering -->
+  <!-- 
+        Unique identifier for this Spring context. This is important to
+        distinguish multiple uses of the same database, for example in clustering.
+        This value may also be used as the internal session for this server instance
+  -->
   <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
   <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
 

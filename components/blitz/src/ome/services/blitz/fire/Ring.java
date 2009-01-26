@@ -13,14 +13,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
+import ome.api.IConfig;
+import ome.api.local.LocalConfig;
 import ome.model.meta.Node;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
+import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.internal.ClusterNodePrx;
 import omero.internal.ClusterNodePrxHelper;
@@ -57,9 +59,12 @@ public class Ring extends _ClusterNodeDisp {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
-     * in this blitz instance.
+     * in this blitz instance. Most likely used in common with internal server
+     * components. <em>Must</em> specify a valid session id.
      */
-    public final String uuid = UUID.randomUUID().toString();
+    public final String uuid;
+    
+    public final Principal principal;
 
     private final Executor executor;
 
@@ -79,9 +84,11 @@ public class Ring extends _ClusterNodeDisp {
      */
     private/* final */String directProxy;
 
-    public Ring(Executor executor, SessionCache cache) {
+    public Ring(String uuid, Executor executor, SessionCache cache) {
+        this.uuid = uuid;
         this.executor = executor;
         this.cache = cache;
+        this.principal = new Principal(uuid, "system", "Internal");
     }
 
     /**
@@ -225,7 +232,7 @@ public class Ring extends _ClusterNodeDisp {
      * when the first {@link Ring} joins the cluster.
      */
     public String getRedirect() {
-        return (String) executor.execute(null, new Executor.Work() {
+        return (String) executor.execute(principal, new Executor.Work() {
             public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
                 return sf.getConfigService().getConfigValue(REDIRECT);
@@ -283,7 +290,7 @@ public class Ring extends _ClusterNodeDisp {
             else {
                 double IMPOSSIBLE = 314159.0;
                 if (Math.random() > IMPOSSIBLE) {
-                    Set<String> values = getManagerList();
+                    Set<String> values = getManagerList(true);
                     if (values != null) {
                         values.remove(uuid);
                         int size = values.size();
@@ -322,7 +329,7 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     public Set<String> knownManagers() {
-        return getManagerList();
+        return getManagerList(true);
     }
 
     public void assertNodes(Set<String> nodeUuids) {
@@ -333,7 +340,10 @@ public class Ring extends _ClusterNodeDisp {
                 // possibly we haven't finished registration
                 // yet
                 if (!uuid.equals(manager)) {
-                    purgeNode(manager);
+                    // And also don't try to purge the original manager.
+                    if (!"000000000000000000000000000000000000".equals(manager)) {
+                        purgeNode(manager);
+                    }
                 }
             }
         }
@@ -359,14 +369,17 @@ public class Ring extends _ClusterNodeDisp {
     // =========================================================================
 
     @SuppressWarnings("unchecked")
-    private Set<String> getManagerList() {
-        return (Set<String>) executor.execute(null, new Executor.Work() {
+    private Set<String> getManagerList(final boolean onlyActive) {
+        return (Set<String>) executor.execute(principal, new Executor.Work() {
             public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
                 List<Node> nodes = sf.getQueryService().findAll(Node.class,
                         null);
                 Set<String> nodeIds = new HashSet<String>();
                 for (Node node : nodes) {
+                    if (onlyActive && node.getDown() != null) {
+                        continue; // Remove none active managers
+                    }
                     nodeIds.add(node.getUuid());
                 }
                 return nodeIds;
@@ -375,13 +388,14 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private int closeSessionsForManager(String managerUuid) {
-        final String query = "select session from Sesssion session.node.uuid = :uuid";
+        final String query = "select session from Session session where " +
+        		"session.node.uuid = :uuid";
         final Parameters p = new Parameters().addString("uuid", managerUuid);
-        return (Integer) executor.execute(null, new Executor.Work() {
+        return (Integer) executor.execute(principal, new Executor.Work() {
             public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
-                List<ome.model.meta.Session> sessions = sf.getQueryService().findAllByQuery(
-                        query, p);
+                List<ome.model.meta.Session> sessions = sf.getQueryService()
+                        .findAllByQuery(query, p);
                 for (ome.model.meta.Session s : sessions) {
                     // TODO this could possibly be better done by raising a
                     // new message which is received by SessionManagerImpl
@@ -391,7 +405,7 @@ public class Ring extends _ClusterNodeDisp {
                     } catch (Exception e) {
                         log.error("Error calling cache.removeSession", e);
                     }
-                    
+
                 }
                 return sessions.size();
             }
@@ -399,7 +413,7 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private void setManagerDown(final String managerUuid) {
-        executor.execute(null, new Executor.Work() {
+        executor.execute(principal, new Executor.Work() {
             public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
                 Node node = sf.getQueryService().findByString(Node.class,
@@ -415,7 +429,7 @@ public class Ring extends _ClusterNodeDisp {
         node.setConn(proxyString);
         node.setUuid(managerUuid);
         node.setUp(new Timestamp(System.currentTimeMillis()));
-        return (Node) executor.execute(null, new Executor.Work() {
+        return (Node) executor.execute(principal, new Executor.Work() {
             public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
                 return sf.getUpdateService().saveAndReturnObject(node);
@@ -423,36 +437,58 @@ public class Ring extends _ClusterNodeDisp {
         });
     }
 
-    private boolean setRedirect(String managerUuid, boolean setIfPresent) {
-        // REDIRECt
-        /*
-         * if (uuidOrProxy == null || uuidOrProxy.length() == 0) { remove(CONFIG
-         * + "redirect"); } else { put(CONFIG + "redirect", uuidOrProxy); }
-         */
-        throw new RuntimeException("Requires LocalConfig");
+    private boolean setRedirect(final String managerUuid,
+            final boolean setIfPresent) {
+        return (Boolean) executor.execute(principal, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                IConfig config = sf.getConfigService();
+                if (managerUuid == null || managerUuid.length() == 0) {
+                    config.setConfigValue(REDIRECT, null);
+                    return true;
+                } else if (setIfPresent) {
+                    config.setConfigValue(REDIRECT, managerUuid);
+                    return true;
+                } else {
+                    return config.setConfigValueIfEquals(REDIRECT, managerUuid,
+                            null);
+                }
+            }
+        });
     }
 
-    private void removeRedirectIfEquals(String uuid) {
-        throw new RuntimeException("Requires LocalConfig");
+    private void removeRedirectIfEquals(final String redirect) {
+        executor.execute(principal, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                LocalConfig config = (LocalConfig) sf.getConfigService();
+                return config.setConfigValueIfEquals(REDIRECT, null, redirect);
+            }
+        });
     }
 
     private String findProxy(final String redirect) {
-        final String query = "select node from Node where node.uuid = :uuid";
+        final String query = "select node from Node node where node.uuid = :uuid";
         return nodeProxyQuery(redirect, query);
     }
 
     private String proxyForSession(final String sessionUuid) {
-        final String query = "select node from Node where node.sessions.uuid = :uuid";
+        final String query = "select node from Node node " +
+        		"join node.sessions as s where s.uuid = :uuid";
         return nodeProxyQuery(sessionUuid, query);
     }
 
     private String nodeProxyQuery(final String uuid, final String query) {
-        return (String) executor.execute(null, new Executor.Work() {
+        return (String) executor.execute(principal, new Executor.Work() {
             public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
                 Parameters p = new Parameters().addString("uuid", uuid);
                 Node node = sf.getQueryService().findByQuery(query, p);
-                return node.getConn();
+                if (node == null) {
+                    return null;
+                } else {
+                    return node.getConn();
+                }
             }
         }, true);
     }

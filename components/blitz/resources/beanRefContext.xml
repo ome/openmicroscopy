@@ -6,17 +6,6 @@
   Defines the contexts for the OMERO.blitz server. Other beanRefFactory.xmls may define
   other contexts.
   </description>
-
-	<bean id="placeholderConfig"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="ignoreResourceNotFound" value="true"/>
-		<property name="locations">
-		<list>
-			<value>hibernate.properties</value>            
-			<value>omero.properties</value>      
-		</list>
-		</property>
-	</bean>
   
   <bean    id="OMERO.blitz"
     	  class="ome.system.OmeroContext"

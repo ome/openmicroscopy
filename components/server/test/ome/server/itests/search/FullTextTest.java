@@ -20,7 +20,7 @@ import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -161,7 +161,7 @@ public class FullTextTest extends AbstractTest {
 
     public void testTagDescription() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        TextAnnotation description = new TextAnnotation();
+        CommentAnnotation description = new CommentAnnotation();
         description.setTextValue(uuid);
         TagAnnotation tag = new TagAnnotation();
         tag.linkAnnotation(description);

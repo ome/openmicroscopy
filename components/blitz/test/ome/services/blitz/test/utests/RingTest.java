@@ -9,6 +9,8 @@ package ome.services.blitz.test.utests;
 import javax.sql.DataSource;
 
 import ome.services.blitz.fire.Ring;
+import ome.services.sessions.state.SessionCache;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
 import org.jmock.Mock;
@@ -24,10 +26,11 @@ import org.testng.annotations.Test;
 public class RingTest extends MockObjectTestCase {
 
     OmeroContext ctx;
+    Executor ex;
     SimpleJdbcTemplate jdbc;
     Ice.ObjectAdapter oa;
     Ice.Communicator ic;
-    Mock mockIc, mockOa;
+    Mock mockIc, mockOa, mockEx;
 
     @BeforeTest
     public void setupMethod() throws Exception {
@@ -35,20 +38,16 @@ public class RingTest extends MockObjectTestCase {
         ic = (Ice.Communicator) mockIc.proxy();
         mockOa = mock(Ice.ObjectAdapter.class);
         oa = (Ice.ObjectAdapter) mockOa.proxy();
-        ctx = new OmeroContext(new String[] {
-                "classpath:ome/config.xml",
-                "classpath:ome/services/datalayer.xml" });
-        DataSource dataSource = (DataSource) ctx.getBean("dataSource");
-        jdbc = new SimpleJdbcTemplate(dataSource);
-
+        mockEx = mock(Executor.class);
+        ex = (Executor) mockEx.proxy();
     }
 
     @Test
     public void testFirstTakesOver() throws Exception {
-        Ring one = new Ring(jdbc);
+        Ring one = new Ring("one", ex, new SessionCache());
         one.init(oa, "one");
         assertEquals("one", one.getRedirect());
-        Ring two = new Ring(jdbc);
+        Ring two = new Ring("two", ex, new SessionCache());
         two.init(oa, "two");
         assertEquals("one", two.getRedirect());
     }

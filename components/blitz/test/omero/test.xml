@@ -72,6 +72,11 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
+  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
+    <property name="cacheManager"  ref="cacheManager"/>
+    <property name="updateInterval" value="1800000"/><!-- ms -->
+  </bean>
+
   <bean id="principalHolder" class="ome.security.basic.CurrentDetails"/>
 
   <!-- ome.services.sessions.SessionManager with swappable implementation -->
@@ -111,6 +116,7 @@
 
   <!-- Defined here since it is an application listener. -->
   <bean id="ring" class="ome.services.blitz.fire.Ring">
-    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="sessionCache"/>
   </bean>
 </beans>

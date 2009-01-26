@@ -8,6 +8,8 @@
 package ome.system;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,8 +21,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * Central configuration for OMERO properties from (in order):
@@ -37,7 +37,6 @@ import org.springframework.context.ApplicationContextAware;
  * @DEV.TODO Code duplication with prefs.java
  */
 public class PreferenceContext extends PreferencesPlaceholderConfigurer {
-// FIXME    implements ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(PreferenceContext.class);
 
@@ -49,7 +48,7 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
     final private Map<String, Preference> preferences = new ConcurrentHashMap<String, Preference>();
 
-    private OmeroContext ctx;
+    private String path;
 
     /**
      * By default, configures this instance for
@@ -78,6 +77,12 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
     }
 
+    @Override
+    public void setUserTreePath(String userTreePath) {
+        super.setUserTreePath(userTreePath);
+        this.path = userTreePath;
+    }
+
     /**
      * Lookup method for getting access to the {@link #mergeProperties() merged
      * properties} for this instance.
@@ -90,45 +95,54 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
             return null;
         }
     }
- 
-    public void setApplicationContext(ApplicationContext ctx)
-            throws BeansException {
-        this.ctx = (OmeroContext) ctx;
+
+    public void setProperty(String key, String value) {
+        Preferences prefs = Preferences.userRoot().node(this.path);
+        prefs.put(key, value);
     }
-    
+
     @Override
     protected void processProperties(ConfigurableListableBeanFactory arg0,
             Properties arg1) throws BeansException {
         super.processProperties(arg0, arg1);
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-        /*
-        Map<String, Object> ps = this.ctx.getBeansOfType(Preference.class);
-        for (String key : ps.keySet()) {
-            this.preferences.put(key, (Preference) ps.get(key));
+    public void setPreferences(List<Preference> preferences) {
+        for (Preference pref : preferences) {
+            this.preferences.put(pref.getName(), pref);
         }
-        */
-        
+
     }
-    
+
     // Defined Preferences
     // =========================================================================
 
+    public String resolveAlias(String key) {
+        
+        if (preferences.containsKey(key)) {
+            return key;
+        }
+        
+        for (String current : preferences.keySet()) {
+            Preference preference = preferences.get(current);
+            if (preference.hasAlias(key)) {
+                return current;
+            }
+        }
+        
+        return key;
+    }
+    
     public boolean checkDatabase(String key) {
-        return false;
+        Preference preference = getPreferenceOrDefault(key);
+
+        return preference.isDb();
     }
 
     public boolean canRead(EventContext ec, String key) {
-        Preference preference = preferences.get(key);
-        
-        if (preference == null || preference.visibility == null) {
-            return false;
-        }
-        
-        switch (preference.visibility) {
+        Preference preference = getPreferenceOrDefault(key);
+
+        switch (preference.getVisibility()) {
         case all:
             return true;
         case admin:
@@ -137,6 +151,18 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
         default:
             return false;
         }
+    }
+
+    // Helpers
+    // =========================================================================
+
+    private Preference getPreferenceOrDefault(String key) {
+        Preference preference = preferences.get(key);
+
+        if (preference == null) {
+            preference = new Preference();
+        }
+        return preference;
     }
 
 }

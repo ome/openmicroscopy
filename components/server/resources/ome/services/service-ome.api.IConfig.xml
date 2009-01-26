@@ -50,6 +50,7 @@
     </description>
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
     <property name="preferenceContext" ref="preferenceContext"/>
+    <property name="currentDetails" ref="currentDetails"/>
   </bean>
   
   <bean id="managed-ome.api.IConfig" parent="managedService">

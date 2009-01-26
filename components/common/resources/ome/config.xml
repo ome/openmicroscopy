@@ -49,20 +49,15 @@
                 <!-- Note: later properties overwrite earlier ones -->
                 <value>hibernate.properties</value>
                 <value>omero.properties</value>
+                <value>local.properties</value> <!-- Activating mostly for backwards compatibility -->
                 <!-- As of ticket:800 (vers. 4.0) these values are static
                      and are compiled into the finished binaries. All other configuration
                      takes place via the "prefs" class. -->
             </list>
         </property>
-    </bean>
-    <!--
-        Each of the following preferences 
-        By default:
-        db,grid,prefs=true
-        visibility=admin
-        mutable=false
-        aliases=none
-    -->
+        <property name="preferences">
+            <list>
+   <!-- Begin preference list -->
     <bean class="ome.system.Preference" id="omero.version">
        <property name="db" value="false"/>
        <property name="mutable" value="false"/>
@@ -113,5 +108,9 @@
         <property name="mutable" value="true"/>
         <property name="aliases" value="hibernate.dialect"/>
         <property name="visibility" value="hidden"/>
+    </bean>
+    <!-- End preference list -->
+            </list>
+        </property>
     </bean>
 </beans>
