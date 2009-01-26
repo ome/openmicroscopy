@@ -1012,5 +1012,8 @@ class BrowserModel
 	{
 		this.projectedImage = projectedImage;
 	}
+
+	/** Builds a projected image to preview. */
+	void projectionPreview() { parent.renderXYPlane(); }
 	
 }

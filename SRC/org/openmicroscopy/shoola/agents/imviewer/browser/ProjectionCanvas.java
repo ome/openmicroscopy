@@ -29,6 +29,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 
@@ -55,10 +57,33 @@ class ProjectionCanvas
 {
 
 	/** The default text. */
-	private static final String DEFAULT_TEXT = "NO PREVIEW AVAILABLE";
+	private static final String DEFAULT_TEXT = "Click here to preview\n" +
+			" a projection of all the z-sections.";
 	
 	/** Reference to the View. */
     private BrowserUI    	view;
+    
+    /** The mouse listerner. */
+    private MouseAdapter	listener;
+    
+    /** Does a preview of the projected image. */
+    private void projectionPreview()
+    {
+    	model.projectionPreview();
+    	removeMouseListener(listener);
+    }
+    
+    /** Attaches the listener. */
+    private void attachListener()
+    {
+    	if (listener != null) return;
+    	listener = new MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				projectionPreview();
+			}
+		};
+		addMouseListener(listener);
+    }
     
 	/**
      * Creates a new instance.
@@ -84,21 +109,23 @@ class ProjectionCanvas
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         if (img == null) {
-        	 img = model.getDisplayedImage();
-        	 
-        	 if (img != null) {
-        		 int w = img.getWidth()-1;
-        		 int h = img.getHeight()-1;
-        		 g2D.setColor(Color.black);
-        		 g2D.fillRect(0, 0, w, h);
-        		 FontMetrics fm = g2D.getFontMetrics();
-        		 Font f = g2D.getFont();
-        		 g2D.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
-        		 g2D.setColor(Color.white);
-        		 int width = fm.stringWidth(DEFAULT_TEXT);
-        		 
-        		 g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
-        	 }
+
+        	img = model.getDisplayedImage();
+
+        	if (img != null) {
+        		attachListener();
+        		int w = img.getWidth()-1;
+        		int h = img.getHeight()-1;
+        		g2D.setColor(Color.black);
+        		g2D.fillRect(0, 0, w, h);
+        		FontMetrics fm = g2D.getFontMetrics();
+        		Font f = g2D.getFont();
+        		g2D.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
+        		g2D.setColor(Color.white);
+        		int width = fm.stringWidth(DEFAULT_TEXT);
+
+        		g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
+        	}
         	return;
         }
        

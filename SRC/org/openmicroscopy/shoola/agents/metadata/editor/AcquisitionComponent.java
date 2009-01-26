@@ -113,6 +113,7 @@ class AcquisitionComponent
 		setField = true;
 		label.setLabelFor(area);
 		value = getValue();
+		setBorder(AnnotationUI.EDIT_BORDER);
 	}
 	
 	/**
@@ -121,7 +122,14 @@ class AcquisitionComponent
 	 * 
 	 * @param setField The value to set.
 	 */
-	void setSetField(boolean setField) { this.setField = setField; }
+	void setSetField(boolean setField)
+	{ 
+		this.setField = setField;
+		if (!setField) {
+			if (area instanceof JTextComponent)
+				area.setBorder(AnnotationUI.EDIT_BORDER);
+		}
+	}
 	
 	/**
 	 * Returns <code>true</code> if the field has been set, 

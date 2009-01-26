@@ -108,11 +108,11 @@ public class OMEWikiConstants
 	static final String HYPERLINK_TOOLTIP = "Create a Hyperlink";
 	
 	/** The tooltip for an image's control. */
-	static final String IMAGE_TOOLTIP = "Link to an Image i.e. [Image: id 1]";
+	static final String IMAGE_TOOLTIP = "Link to an Image e.g. [Image: id 1]";
 	
 	/** The tooltip for an protocol's control. */
 	static final String PROTOCOL_TOOLTIP = "Link to a Protocol " +
-			"i.e. [Protocol: id 1]";
+			"e.g. [Protocol: id 1]";
 	
 	/** The default text for a link. */
 	static final String DEFAULT_HYPERLINK = "http://";

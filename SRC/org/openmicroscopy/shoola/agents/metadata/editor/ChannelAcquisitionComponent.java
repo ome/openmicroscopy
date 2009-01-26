@@ -28,6 +28,8 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -35,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -49,6 +50,7 @@ import omero.model.ContrastMethod;
 import omero.model.Illumination;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -71,6 +73,7 @@ import pojos.ChannelData;
  */
 class ChannelAcquisitionComponent
 	extends JPanel
+	implements PropertyChangeListener
 {
 	
 	/** Identifies the Laser type. */
@@ -84,6 +87,15 @@ class ChannelAcquisitionComponent
 	
 	/** Identifies the Emitting Diode type. */
 	private static final String EMITTING_DIODE_TYPE = "Emitting Diode";
+	
+	/** Action ID to show or hide the unset general data. */
+	private static final int	GENERAL = 0;
+	
+	/** Action ID to show or hide the unset light data. */
+	private static final int	LIGHT = 1;
+	
+	/** Action ID to show or hide the unset detector data. */
+	private static final int	DETECTOR = 2;
 	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI					parent;
@@ -140,7 +152,7 @@ class ChannelAcquisitionComponent
 	private Map<String, AcquisitionComponent> 	fieldsLight;
 	
 	/** Button to show or hides the unset fields of the light. */
-	private JButton								unsetLight;
+	private JLabelButton						unsetLight;
 	
 	/** Flag indicating the unset fields for the light are displayed. */
 	private boolean								unsetLightShown;
@@ -149,7 +161,7 @@ class ChannelAcquisitionComponent
 	private JPanel								lightPane;
 	
 	/** Button to show or hides the unset fields of the detector. */
-	private JButton								unsetDetector;
+	private JLabelButton						unsetDetector;
 	
 	/** Flag indicating the unset fields for the detector are displayed. */
 	private boolean								unsetDetectorShown;
@@ -158,7 +170,7 @@ class ChannelAcquisitionComponent
 	private JPanel								detectorPane;
 	
 	/** Button to show or hides the unset fields of the detector. */
-	private JButton								unsetGeneral;
+	private JLabelButton						unsetGeneral;
 	
 	/** Flag indicating the unset fields for the general are displayed. */
 	private boolean								unsetGeneralShown;
@@ -221,7 +233,16 @@ class ChannelAcquisitionComponent
 		binningBox = EditorUtil.createComboBox(array);
 		
 		l = model.getChannelEnumerations(Editor.DETECTOR_TYPE);
-		detectorBox = EditorUtil.createComboBox(l);
+		array = new EnumerationObject[l.size()+1];
+		j = l.iterator();
+		i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		
+		detectorBox = EditorUtil.createComboBox(array);
 		l = model.getChannelEnumerations(Editor.LASER_TYPE);
 		laserTypeBox = EditorUtil.createComboBox(l);
 		l = model.getChannelEnumerations(Editor.ARC_TYPE);
@@ -362,11 +383,15 @@ class ChannelAcquisitionComponent
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetLight == null) {
 			unsetLight = parent.formatUnsetFieldsControl();
+			unsetLight.setActionID(LIGHT);
+			unsetLight.addPropertyChangeListener(this);
+			/*
 			unsetLight.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayUnsetLightFields();
 				}
 			});
+			*/
 		}
 
 		boolean set;
@@ -561,11 +586,15 @@ class ChannelAcquisitionComponent
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetDetector == null) {
 			unsetDetector = parent.formatUnsetFieldsControl();
+			unsetDetector.setActionID(DETECTOR);
+			unsetDetector.addPropertyChangeListener(this);
+			/*
 			unsetDetector.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayUnsetDetectorFields();
 				}
 			});
+			*/
 		}
 
 		Iterator i = details.keySet().iterator();
@@ -592,9 +621,9 @@ class ChannelAcquisitionComponent
             			(String) value);
             	if (selected != null) {
             		detectorBox.setSelectedItem(selected);
-            		if (AcquisitionDataUI.UNSET_ENUM.contains(
-            				selected.toString()))
-						set = false;
+            	} else {
+            		set = false;
+            		detectorBox.setSelectedIndex(detectorBox.getItemCount()-1);
             	}
             	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = detectorBox;
@@ -654,11 +683,15 @@ class ChannelAcquisitionComponent
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetGeneral == null) {
 			unsetGeneral = parent.formatUnsetFieldsControl();
+			unsetGeneral.setActionID(GENERAL);
+			unsetGeneral.addPropertyChangeListener(this);
+			/*
 			unsetGeneral.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayUnsetGeneralFields();
 				}
 			});
+			*/
 		}
 
 		Iterator i = details.keySet().iterator();
@@ -892,8 +925,6 @@ class ChannelAcquisitionComponent
 			}
 			data.add(channel);
 		}
-		
-		boolean added = false;
 		ChannelAcquisitionData metadata = model.getChannelAcquisitionData(
     			channel.getIndex());
 		i = fieldsDetector.keySet().iterator();
@@ -929,10 +960,31 @@ class ChannelAcquisitionComponent
 						metadata.setDetectorAmplificationGain((Float) number);
 				}
 			}
-			added = true;
 			data.add(metadata);
 		}
 		return data;
+	}
+
+	/**
+	 * Reacts to property fired by the <code>JLabelButton</code>.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (JLabelButton.SELECTED_PROPERTY.equals(name)) {
+			int id = ((Integer) evt.getNewValue()).intValue();
+			switch (id) {
+				case GENERAL:
+					displayUnsetGeneralFields();
+					break;
+				case LIGHT:
+					displayUnsetLightFields();
+					break;
+				case DETECTOR:
+					displayUnsetDetectorFields();
+			}
+		}
 	}
 
 }

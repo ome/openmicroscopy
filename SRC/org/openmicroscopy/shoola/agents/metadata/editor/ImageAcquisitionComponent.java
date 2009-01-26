@@ -26,15 +26,14 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Font;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,9 +44,9 @@ import javax.swing.JPanel;
 import omero.model.Correction;
 import omero.model.Immersion;
 import omero.model.Medium;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -69,8 +68,18 @@ import pojos.ImageAcquisitionData;
  */
 class ImageAcquisitionComponent 
 	extends JPanel
+	implements PropertyChangeListener
 {
 
+	/** Action ID to show or hide the unset objective data. */
+	private static final int	OBJECTIVE = 0;
+	
+	/** Action ID to show or hide the unset stage data. */
+	private static final int	STAGE = 1;
+	
+	/** Action ID to show or hide the unset detector data. */
+	private static final int	ENVIRONMENT = 2;
+	
 	/** Reference to the Model. */
 	private EditorModel							model;
 	
@@ -102,7 +111,7 @@ class ImageAcquisitionComponent
 	private boolean								init;
 	
 	/** Button to show or hides the unset fields. */
-	private JButton								unsetObjective;
+	private JLabelButton						unsetObjective;
 	
 	/** Flag indicating the unset fields for the objective are displayed. */
 	private boolean								unsetObjectiveShown;
@@ -111,7 +120,7 @@ class ImageAcquisitionComponent
 	private JPanel								objectivePane;
 	
 	/** Button to show or hides the unset fields. */
-	private JButton								unsetEnv;
+	private JLabelButton						unsetEnv;
 	
 	/** Flag indicating the unset fields for the environment are displayed. */
 	private boolean								unsetEnvShown;
@@ -120,7 +129,7 @@ class ImageAcquisitionComponent
 	private JPanel								envPane;
 	
 	/** Button to show or hides the unset fields. */
-	private JButton								unsetStage;
+	private JLabelButton						unsetStage;
 	
 	/** Flag indicating the unset fields for the stage are displayed. */
 	private boolean								unsetStageShown;
@@ -235,11 +244,15 @@ class ImageAcquisitionComponent
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetObjective == null) {
 			unsetObjective = parent.formatUnsetFieldsControl();
+			unsetObjective.setActionID(OBJECTIVE);
+			unsetObjective.addPropertyChangeListener(this);
+			/*
 			unsetObjective.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayUnsetObjectiveFields();
 				}
 			});
+			*/
 		}
 
 		boolean set;
@@ -345,11 +358,15 @@ class ImageAcquisitionComponent
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetStage == null) {
 			unsetStage = parent.formatUnsetFieldsControl();
+			unsetStage.setActionID(STAGE);
+			unsetStage.addPropertyChangeListener(this);
+			/*
 			unsetStage.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayUnsetStageFields();
 				}
 			});
+			*/
 		}
 
 		boolean set;
@@ -407,11 +424,15 @@ class ImageAcquisitionComponent
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetEnv == null) {
 			unsetEnv = parent.formatUnsetFieldsControl();
+			unsetEnv.setActionID(ENVIRONMENT);
+			unsetEnv.addPropertyChangeListener(this);
+			/*
 			unsetEnv.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					displayUnsetEnvFields();
 				}
 			});
+			*/
 		}
 
 		boolean set;
@@ -494,7 +515,6 @@ class ImageAcquisitionComponent
 		this.parent = parent;
 		this.model = model;
 		initComponents();
-		//buildGUI();
 	}
 	
 	/** Sets the metadata. */
@@ -663,6 +683,28 @@ class ImageAcquisitionComponent
 			}
 		}
 		return data;
+	}
+	
+	/**
+	 * Reacts to property fired by the <code>JLabelButton</code>.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (JLabelButton.SELECTED_PROPERTY.equals(name)) {
+			int id = ((Integer) evt.getNewValue()).intValue();
+			switch (id) {
+				case OBJECTIVE:
+					displayUnsetObjectiveFields();
+					break;
+				case STAGE:
+					displayUnsetStageFields();
+					break;
+				case ENVIRONMENT:
+					displayUnsetEnvFields();
+			}
+		}
 	}
 	
 }

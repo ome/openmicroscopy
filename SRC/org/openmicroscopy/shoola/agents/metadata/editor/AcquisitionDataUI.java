@@ -38,7 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
-import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -46,6 +46,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 
@@ -234,14 +235,13 @@ class AcquisitionDataUI
 	 * 
 	 * @return See above.
 	 */
-	JButton formatUnsetFieldsControl()
+	JLabelButton formatUnsetFieldsControl()
 	{
-		JButton button = new JButton(AcquisitionDataUI.SHOW_UNSET);
+		JLabelButton button = new JLabelButton(AcquisitionDataUI.SHOW_UNSET);
 		Font font = button.getFont();
 		int sizeLabel = font.getSize()-2;
-    	UIUtilities.unifiedButtonLookAndFeel(button);
+    	//UIUtilities.unifiedButtonLookAndFeel(button);
     	button.setFont(font.deriveFont(Font.ITALIC, sizeLabel));
-    	button.setText(AcquisitionDataUI.SHOW_UNSET);
     	button.setBackground(UIUtilities.BACKGROUND_COLOR);
     	button.setForeground(UIUtilities.HYPERLINK_COLOR);
     	return button;
@@ -256,7 +256,7 @@ class AcquisitionDataUI
 	 * @param shown		Pass <code>true</code> to show the unset fields,
 	 * 					<code>false</code> to hide them.
 	 */
-	void layoutFields(JPanel pane, JButton button, 
+	void layoutFields(JPanel pane, JComponent button, 
 			Map<String, AcquisitionComponent> fields, boolean shown)
 	{
 		pane.removeAll();
@@ -267,6 +267,7 @@ class AcquisitionDataUI
         AcquisitionComponent comp;
         String key;
 		Iterator i = fields.keySet().iterator();
+		c.gridy = 0;
         while (i.hasNext()) {
             c.gridx = 0;
             key = (String) i.next();
@@ -286,11 +287,11 @@ class AcquisitionDataUI
                  pane.add(comp.getArea(), c);  
             } 
         }
-        ++c.gridy;
+        if (c.gridy != 0) ++c.gridy;
         c.gridx = 0;
-        //c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        //c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
         if (button != null) pane.add(button, c);
 	}
 	
@@ -348,11 +349,8 @@ class AcquisitionDataUI
 	void setChannelAcquisitionData(int index)
 	{
 		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
-		ChannelAcquisitionComponent comp;
-		while (i.hasNext()) {
-			comp = i.next();
-			comp.setChannelAcquisitionData(index);
-		}
+		while (i.hasNext()) 
+			i.next().setChannelAcquisitionData(index);
 	}
 	
 	/** 
