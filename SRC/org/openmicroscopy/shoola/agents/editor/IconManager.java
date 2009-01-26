@@ -299,11 +299,14 @@ public class IconManager
     /** The <code>Split</code> icon, 12 pixels square. */
     public  static int			EXP_9_11_ICON = 77;
     
+    /** The <code>Add-Text-Box</code> icon.*/
+    public  static int			ADD_TEXTBOX_ICON = 78;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 77;
+    private static int          MAX_ID = 78;
    
     
     /** Paths of the icon files. */
@@ -395,6 +398,7 @@ public class IconManager
         relPaths[INFO_12_ICON] = "info_12.png";
         relPaths[SPLIT_12_ICON] = "split_12.png";
         relPaths[EXP_9_11_ICON] = "exp_9_11.png";
+        relPaths[ADD_TEXTBOX_ICON] = "add_textBox16.png";
     }
     
     

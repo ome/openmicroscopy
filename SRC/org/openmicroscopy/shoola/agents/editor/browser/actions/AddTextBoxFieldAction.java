@@ -1,8 +1,8 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction 
+ * org.openmicroscopy.shoola.agents.editor.browser.actions.AddTextBoxFieldAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,18 +35,12 @@ import javax.swing.undo.UndoableEditSupport;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddTextBoxFieldEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
-
 /** 
- * This Action is used to add a field to a JTree. 
- * The setTree(JTree) method must be called before this Action can 
- * be used.
- * This class wraps an instance of the {@link UndoableEdit} subclass 
- * {@link AddFieldEdit}.
- * On {@link ActionListener#actionPerformed(ActionEvent)}, 
- * it creates a new instance of this class and
- * posts it to the undo/redo queue specified in the constructor.  
+ * This adds a new "Text-Box" field/step below the last highlighted step.
+ * This is a Step that contains a single text-box parameter.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -54,33 +48,34 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeE
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class AddFieldAction 
+public class AddTextBoxFieldAction 
 	extends AbstractTreeEditAction 
 {
 	
 	/**
 	 * Creates an instance of this class.
 	 * setTree(JTree tree) needs to be called before this edit can be used.
-	 * This class wraps an instance of AddFieldEdit, to which the 
-	 * actionPerformed() method delegates. 
+	 * This class wraps an instance of {@link AddTextBoxFieldEdit}, which is
+	 * created and posted to the undo/redo queue by the 
+	 * {@link #actionPerformed(ActionEvent)} method. 
 	 * 
 	 * @see	{#link AbstractEditorAction}
 	 * 
 	 * @param undoSupport	The UndoableSupport to post edits to undo/redo queue
 	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public AddFieldAction(UndoableEditSupport undoSupport, Browser model) 
+	public AddTextBoxFieldAction(UndoableEditSupport undoSupport, Browser model) 
 	{
 		super(undoSupport, model);
 		
 		// treeUI is null at this point.
-		undoableTreeEdit = new AddFieldEdit(treeUI);
+		undoableTreeEdit = new AddTextBoxFieldEdit(treeUI);
 		
-		setName("Add Step");
-		setDescription("Add a new step below the currently highlighted step");
-		setIcon(IconManager.ADD_ICON); 
+		setName("Add Comment Step");
+		setDescription("Adds a step for recording a comment");
+		setIcon(IconManager.ADD_TEXTBOX_ICON); 
 		
 		refreshState();
 	}
@@ -93,11 +88,10 @@ public class AddFieldAction
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		UndoableTreeEdit edit = new AddFieldEdit(treeUI);
+		UndoableTreeEdit edit = new AddTextBoxFieldEdit(treeUI);
 		
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
 	}
-
 }

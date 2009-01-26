@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -102,7 +103,7 @@ public class TreeOutlineCellRenderer
 				} else {
 					IFieldContent content = field.getContentAt(0);
 					
-					String paramType = TextParam.TEXT_BOX_PARAM;
+					String paramType = TextBoxParam.TEXT_BOX_PARAM;
 					
 					if (content instanceof IParam) {
 						paramType = ((IParam)content).getAttribute(
@@ -111,7 +112,7 @@ public class TreeOutlineCellRenderer
 					
 					if (TextParam.TEXT_LINE_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.TEXT_LINE_ICON);
-					else if (TextParam.TEXT_BOX_PARAM.equals(paramType)) 
+					else if (TextBoxParam.TEXT_BOX_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.TEXT_BOX_ICON);
 					else if (DateTimeParam.DATE_TIME_PARAM.equals(paramType)) 
 						paramIcon = imF.getIcon(IconManager.CALENDAR_ICON);

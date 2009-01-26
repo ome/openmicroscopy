@@ -84,6 +84,7 @@ public class ToolBar
 		
 		// add(createButton(BrowserControl.EDIT)); Toggle editing. 
 		bar.add(createButton(BrowserControl.ADD_FIELD_ACTION));
+		bar.add(createButton(BrowserControl.ADD_TEXTBOX_FIELD_ACTION));
 		bar.add(createButton(BrowserControl.DELETE_FIELD_ACTION));
 		bar.add(createButton(BrowserControl.INDENT_LEFT_ACTION));
 		bar.add(createButton(BrowserControl.INDENT_RIGHT_ACTION));

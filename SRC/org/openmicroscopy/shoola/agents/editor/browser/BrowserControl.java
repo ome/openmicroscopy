@@ -44,6 +44,7 @@ import javax.swing.undo.UndoableEditSupport;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.AddTextBoxFieldAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
@@ -129,6 +130,9 @@ public class BrowserControl
 	/** Identifies the <code>Paste Fields</code> action. */
 	static final Integer    PASTE_FIELDS_ACTION = new Integer(10);
 	
+	/** Identifies the <code>Add Text-Box Field</code> action. */
+	static final Integer    ADD_TEXTBOX_FIELD_ACTION = new Integer(11);
+	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -181,6 +185,8 @@ public class BrowserControl
        actionsMap.put(COPY_FIELDS_ACTION, new CopyFieldsAction(model));
        actionsMap.put(PASTE_FIELDS_ACTION, new PasteFieldsAction
     		   											(undoSupport, model));
+       actionsMap.put(ADD_TEXTBOX_FIELD_ACTION, new AddTextBoxFieldAction
+														(undoSupport, model));
     }
     
     /**

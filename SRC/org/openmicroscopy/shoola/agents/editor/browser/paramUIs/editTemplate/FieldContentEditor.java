@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -124,7 +125,7 @@ public class FieldContentEditor
 				DefaultMutableTreeNode treeNode, BrowserControl controller) {
 			super(field, tree, treeNode, controller);
 			
-			setBorder(null);
+			setBorder(selectedBorder);
 			
 			// setting font (fires Document Event)... Character moves etc!!!
 			// htmlEditor.setFont(CustomLabel.CUSTOM_FONT);
@@ -159,6 +160,14 @@ public class FieldContentEditor
 		    // replace the old content of the field with new content
 			controller.editFieldContent(fld, content, tree, node);
 		}
+		
+		/**
+		 * Overridden to avoid adding a parameter (possible for the "Add Param"
+		 * button to become enabled when field gains focus!)
+		 * 
+		 * @see	FieldTextArea#actionPerformed(ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {}
 		
 	}
 	

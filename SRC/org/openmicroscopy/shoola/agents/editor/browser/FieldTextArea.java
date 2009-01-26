@@ -139,7 +139,7 @@ public class FieldTextArea
 	
 
 	/** A border to illustrate when this field is selected */
-	private Border 					selectedBorder;
+	protected Border 				selectedBorder;
 	
 	/** A border to illustrate when this field is unselected */
 	private Border 					unselectedBorder;

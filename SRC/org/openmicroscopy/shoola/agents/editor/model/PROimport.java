@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 import org.openmicroscopy.shoola.agents.editor.util.Ontologies;
@@ -219,20 +220,13 @@ public class PROimport {
 		 description = removeHtmlTags(description);
 		 String url = allAttributes.get(DataFieldConstants.URL);
 		 
-		 String colour = allAttributes.get(DataFieldConstants.BACKGROUND_COLOUR);
+		 //String colour = allAttributes.get(DataFieldConstants.BACKGROUND_COLOUR);
 		 
 		 // Create a new field and set it's attributes.
-		 Field field = new Field();
+		 IField field = new Field();
 		 
-		 field.setAttribute(Field.FIELD_NAME, fieldName);
-		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
-		 // if there was a url set, add this as text into content.
-		 // In future, want to add regex parsing to recognise urls in text
-		 if (url != null) {
-			 field.addContent(new TextContent(url + " "));
-		 }
-		 
-		 field.addContent(new TextContent(description));
+		 if (description != null)
+			 field.addContent(new TextContent(description));
 		 
 		 // is this a 'required' field?
 		 boolean fieldRequired = "true".equals(
@@ -308,6 +302,14 @@ public class PROimport {
 			 }
 			 field.addDataRef(dataRef);
 			 
+		 } else if (paramType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
+			 // if field was a Text-Box, create a text-box step, which won't
+			 // allow other paramters to be added etc. 
+			 String value = allAttributes.get(DataFieldConstants.VALUE);
+			 field = new TextBoxStep(value);
+			 // need to add description again. Ignore any 'required' setting
+			 if (description != null)
+				 field.addContent(new TextContent(description)); 
 		 } else {
 			 // all other field types can be converted to a single parameter.
 			 param = getParameter(paramType, allAttributes);
@@ -316,6 +318,14 @@ public class PROimport {
 		 				(AbstractParam.PARAM_REQUIRED, "true");
 				 field.addContent(param);
 			 }
+		 }
+		 
+		 field.setAttribute(Field.FIELD_NAME, fieldName);
+		 //field.setAttribute(Field.BACKGROUND_COLOUR, colour);
+		 // if there was a url set, add this as text into content.
+		 // In future, want to add regex parsing to recognise urls in text
+		 if (url != null) {
+			 field.addContent(new TextContent(url + " "));
 		 }
 		 
 		 return field;
@@ -342,7 +352,7 @@ public class PROimport {
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
-			 param = getFieldParam(TextParam.TEXT_BOX_PARAM);
+			 param = getFieldParam(TextBoxParam.TEXT_BOX_PARAM);
 			 setValueAndDefault(allAttributes, param);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.NUMBER_ENTRY_STEP)) {

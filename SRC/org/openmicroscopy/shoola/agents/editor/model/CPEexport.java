@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -345,13 +346,15 @@ public class CPEexport {
 		if (param instanceof TextParam) {
 			addChildContent(parameter, CPEimport.PARAM_TYPE, "TEXT");
 			setValueAndDefault(parameter, param);
+		} 
+		else
+		if (param instanceof TextBoxParam) {
+			addChildContent(parameter, CPEimport.PARAM_TYPE, "TEXT");
+			setValueAndDefault(parameter, param);
 			// if text should be a text-box, add flag to parameter description
 			// since text-box parameter type is not supported by cpe.xml
-			if (TextParam.TEXT_BOX_PARAM.equals(
-					param.getAttribute(AbstractParam.PARAM_TYPE))){
-				paramDesc = CPEimport.TEXT_BOX_FLAG + 
-										(paramDesc == null ? "" : paramDesc);
-			}
+			paramDesc = CPEimport.TEXT_BOX_FLAG + 
+									(paramDesc == null ? "" : paramDesc);
 		}
 		else 
 		if (param instanceof DateTimeParam) {

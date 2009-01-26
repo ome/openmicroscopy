@@ -52,7 +52,6 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
 
@@ -134,7 +133,7 @@ public class TextAreasView
 					path = new TreePath(node.getPath());
 					userOb = node.getUserObject();
 					if (userOb instanceof IField) {
-						f = (Field)userOb;
+						f = (IField)userOb;
 						tc = new FieldTextArea(f, navTree, node, controller);
 						textAreas.put(path, tc);
 						add(tc);

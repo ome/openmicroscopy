@@ -64,7 +64,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.Note;
-import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.TextBoxStep;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
@@ -251,11 +251,15 @@ public class FieldParamEditor
 	 * Add additional UI components for editing the parameters of this field.
 	 */
 	protected void addParameters() 
-	{
-		attributeFieldsPanel.add(createParamsHeader());
+	{	
+		// Don't display parameters if the field is a TextBoxStep. 
+		if (field instanceof TextBoxStep) {
+			return;
+		}
 		
+		attributeFieldsPanel.add(createParamsHeader());
 		int paramCount = field.getContentCount();
-				
+		
 		for (int i=0; i<paramCount; i++) {
 			IFieldContent content = field.getContentAt(i); 
 			if (content instanceof IParam) {

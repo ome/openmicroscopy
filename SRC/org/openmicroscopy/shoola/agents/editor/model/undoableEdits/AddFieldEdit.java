@@ -54,7 +54,13 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 public class AddFieldEdit 
 	extends UndoableTreeEdit
 {
-
+	/**
+	 * The new Field/Step object to add. 
+	 * This can be specified when this class is created, although it will
+	 * not be used until the {@link #doEdit()} method is called. 
+	 */
+	IField 								field;
+	
 	/**
 	 * The new node.
 	 * This is needed so that when undo() has removed new field, it can 
@@ -85,6 +91,9 @@ public class AddFieldEdit
 	 */
 	public AddFieldEdit(JTree tree) {
 		super(tree);
+		
+		 // Create a new field
+		 field = new Field();
 	}
 
 	/**
@@ -109,24 +118,20 @@ public class AddFieldEdit
 	{	
 		if (! canDo() ) return;
 		
-		 /*
-		  * Create a new field and set name attribute.
-		  */
-		 IField field = new Field();
-		 /*
-		  * Place this in a new Node
-		  */
+		if (field == null) {
+			field = new Field();
+		}
+		
+		 // Place this in a new Node
 		newNode = new FieldNode(field);
 		
 		TreePath[] selectedPaths = tree.getSelectionPaths();
 		if ((selectedPaths != null) && (selectedPaths.length > 0)) {
-			/*
-			 * Get the last selected node...
-			 */
+			// Get the last selected node...
 			DefaultMutableTreeNode lastField = (DefaultMutableTreeNode)
 					selectedPaths[selectedPaths.length-1].getLastPathComponent();
 			
-			/* if this is root, add as last child */
+			// if this is root, add as last child 
 			if (lastField.isRoot()) {
 				parentNode = (DefaultMutableTreeNode)treeModel.getRoot();
 				indexOfNewField = parentNode.getChildCount();
@@ -134,25 +139,19 @@ public class AddFieldEdit
 			
 				int indexOfLastHighlightedField = lastField.getParent().
 					getIndex(lastField);
-				/*
-				 * ...otherwise add new field after the last selected field
-				 */
+				//...otherwise add new field after the last selected field
 				indexOfNewField = indexOfLastHighlightedField +1;
 				parentNode = (DefaultMutableTreeNode)lastField.getParent();
 			}
 		} 
 		else {
-			/*
-			 * If no fields selected, want to add as the last child of root
-			 */
+			// If no fields selected, want to add as the last child of root
 			parentNode = (DefaultMutableTreeNode)treeModel.getRoot();
 			indexOfNewField = parentNode.getChildCount();
 		}
 		
 		treeModel.insertNodeInto(newNode, parentNode, indexOfNewField);
-		/*
-		 * Select the new node.
-		 */
+		// Select the new node.
 		TreePath path = new TreePath(newNode.getPath());
 		tree.setSelectionPath(path);
 		
@@ -170,18 +169,16 @@ public class AddFieldEdit
 	 */
 	public void redo() {
 		treeModel.insertNodeInto(newNode, parentNode, indexOfNewField);
-		/*
-		 * Select the new node.
-		 */
+		// Select the new node.
 		TreePath path = new TreePath(newNode.getPath());
 		tree.setSelectionPath(path);
 	}
 	
 	/**
-	 * Presentation name is "Add Field"
+	 * Presentation name is "Add Step"
 	 */
 	public String getPresentationName() {
-		     return "Add Field";
+		     return "Add Step";
 	}
 	
 	/**

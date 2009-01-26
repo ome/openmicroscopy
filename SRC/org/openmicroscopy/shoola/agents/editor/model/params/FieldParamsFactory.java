@@ -48,7 +48,6 @@ public class FieldParamsFactory {
 	public static final String[] PARAM_TYPES = 
 	{NO_PARAMS, 
 		TextParam.TEXT_LINE_PARAM,
-		TextParam.TEXT_BOX_PARAM, 
 		EnumParam.ENUM_PARAM, 
 		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
@@ -62,7 +61,6 @@ public class FieldParamsFactory {
 	public static final String[] UI_INPUT_TYPES = 	
 	{ "DELETE Parameter", 
 		"Text  (single line)", 
-		"Text Box  (multi-line)", 
 		"Drop-down Menu", 
 		"Check-Box", 
 		"Number", 
@@ -110,8 +108,8 @@ public class FieldParamsFactory {
 		if (paramType.equals(TextParam.TEXT_LINE_PARAM)) {
 			fieldValue = new TextParam(TextParam.TEXT_LINE_PARAM);
 		}
-		else if (paramType.equals(TextParam.TEXT_BOX_PARAM)) {
-			fieldValue = new TextParam(TextParam.TEXT_BOX_PARAM);
+		else if (paramType.equals(TextBoxParam.TEXT_BOX_PARAM)) {
+			fieldValue = new TextBoxParam(TextBoxParam.TEXT_BOX_PARAM);
 		}
 		else if (paramType.equals(NumberParam.NUMBER_PARAM)) {
 			fieldValue = new NumberParam();

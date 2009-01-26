@@ -25,9 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -41,6 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 
 /** 
@@ -102,7 +100,7 @@ public class ParamUIFactory
 			return new DateTimeField(paramObject);
 		} 
 		
-		if (inputType.equals(TextParam.TEXT_BOX_PARAM)) {
+		if (inputType.equals(TextBoxParam.TEXT_BOX_PARAM)) {
 			return new TextBoxEditor(paramObject);
 		}
 		

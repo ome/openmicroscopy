@@ -1,8 +1,8 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.model.params.SingleParam
+ * org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,39 +29,36 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 //Application-internal dependencies
 
 /** 
- * This is a Parameter for storing a single line of text.
- * 
+ * This is a text parameter that is used to store a large/multi-line bit 
+ * of text. E.g. Comments, Conclusions or Abstract for a Protocol. 
+ *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class TextParam 
-	extends AbstractParam {
+public class TextBoxParam 
+	extends AbstractParam{
 
-	public static final String PARAM_VALUE = "value";
-	
-	public static final String DEFAULT_VALUE = "default-value";
-	
 	/**
-	 * A parameter defined as a short text string. 
-	 * Equivalent to the "TextField" of Beta 3.0
+	 * This defines a parameter that is a longer piece of text.
+	 * Equivalent to the "TextBox" of Beta 3.0
 	 */
-	public static final String 		TEXT_LINE_PARAM = "TEXT";
-	
+	public static final String 		TEXT_BOX_PARAM = "TEXTBOX";
+
 	/**
 	 * Creates an instance. 
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public TextParam(String fieldType) 
+	public TextBoxParam(String fieldType) 
 	{
 		super(fieldType);
 	}
-
+	
 	/**
 	 * This field is filled if the value isn't null, and 
 	 * is not an empty string. 
@@ -81,14 +78,9 @@ public class TextParam
 	 */
 	public String toString() {
 		
-		String text = super.toString();
+		String name = getAttribute(PARAM_NAME);
 		
-		String value = getParamValue();
-		if (value != null) {
-			text = value;
-		}
-		
-		return text;
+		return (name == null ? "Text-Box" : name);
 	}
 	
 	/**

@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiConstants;
@@ -329,7 +330,7 @@ public class CPEimport {
 			paramType = TextParam.TEXT_LINE_PARAM;
 			// if the description has been modified to contain a text-box-flag..
 			if ((desc != null) && (desc.startsWith(TEXT_BOX_FLAG))) {
-				paramType = TextParam.TEXT_BOX_PARAM;		// make a text-box
+				paramType = TextBoxParam.TEXT_BOX_PARAM;		// make a text-box
 				desc = desc.substring(TEXT_BOX_FLAG.length()); // remove flag
 				if (desc.length() == 0)	desc = null;
 			} 
@@ -430,18 +431,7 @@ public class CPEimport {
 	private static IField createField(IXMLElement cpeStep) {
 		
 		// Create a new field...
-		Field field = new Field();
-		
-		String description;
-		
-		// ...and set it's attributes (could be null, but shouldn't)
-		description = getChildContent(cpeStep, NAME);
-		field.setAttribute(Field.FIELD_NAME, description);
-		
-		// description may contain references to parameters, using 
-		// paramId in context.
-		// These will be parameters of the current step. 
-		description = getChildContent(cpeStep, DESCRIPTION);
+		IField field = new Field();
 		
 		List<IXMLElement> allParams = new ArrayList<IXMLElement>();
 		
@@ -455,6 +445,22 @@ public class CPEimport {
 			allParams.addAll(params.getChildrenNamed(PARAMETER));
 			field.setTableData(TableModelFactory.getFieldTable(field));
 		}
+		
+		// if there is only one parameter, and it's a text-box, 
+		// this field should be a TextBoxStep. 
+		if ((allParams.size() == 1) && 
+				(getParameter(allParams.get(0)) instanceof TextBoxParam)) {
+			field = new TextBoxStep();
+		}
+		
+		// ...and set it's attributes (could be null, but shouldn't)
+		String name = getChildContent(cpeStep, NAME);
+		field.setAttribute(Field.FIELD_NAME, name);
+		
+		// description may contain references to parameters, using 
+		// paramId in context.
+		// These will be parameters of the current step. 
+		String description = getChildContent(cpeStep, DESCRIPTION);
 		
 		if (allParams.isEmpty()) {
 			// if no parameters, description can simply be added as text content
@@ -511,7 +517,7 @@ public class CPEimport {
 				parameter = getParameter(element);
 				field.addContent(parameter);
 			}
-		}
+		} 
 		
 		// handles reading of step notes. 
 		addStepNotes(field, cpeStep);

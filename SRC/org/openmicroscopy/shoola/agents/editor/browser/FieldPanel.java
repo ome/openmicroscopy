@@ -472,7 +472,7 @@ public class FieldPanel
 					}
 				}
 				if (followedByText) {
-					text = text + "[parameter]";
+					text = text + "[" + content.toString() + "]";
 				}
 			} else {
 				text = text + content.toString();

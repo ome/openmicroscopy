@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 
 /** 
@@ -93,7 +94,7 @@ public class ParamTemplateUIFactory {
 			return new NumberTemplate(paramObject);
 		}
 		
-		if (inputType.equals(TextParam.TEXT_BOX_PARAM)) {
+		if (inputType.equals(TextBoxParam.TEXT_BOX_PARAM)) {
 			return new AttributeEditArea(paramObject,
 					TextParam.DEFAULT_VALUE, "Text-box Default");
 		}

@@ -41,7 +41,6 @@ import javax.swing.tree.TreeNode;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
-import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
@@ -128,7 +127,6 @@ public class AddParamActions
 		iM = IconManager.getInstance();
 		
 		Action[] actions = new Action[] {new AddTextParamAction(),
-				new AddTextBoxParamAction(),
 				new AddNumberParamAction(),
 				new AddBooleanParamAction(),
 				new AddEnumParamAction(),
@@ -200,41 +198,7 @@ public class AddParamActions
 		{
 			controller.addParamToField(field, TextParam.TEXT_LINE_PARAM, 
 					tree, node);
-		}
-		
-	}
-	
-	/**
-	 * Action for adding a TextBox Parameter
-	 * 
-	 * @author will
-	 *
-	 */
-	public class AddTextBoxParamAction 
-		extends AbstractAction 
-	{
-
-		/**
-		 * Creates an instance. 
-		 */
-		public AddTextBoxParamAction() 
-		{
-			putValue(Action.NAME, "Add Text-Box Parameter");
-			putValue(Action.SHORT_DESCRIPTION,
-					"Add a text-box parameter to this field");
-			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.TEXT_BOX_ICON)); 
-		}
-		
-		/** 
-	     * Adds a new Text-Box Parameter
-	     * 
-	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	     */
-		public void actionPerformed(ActionEvent e) 
-		{
-			controller.addParamToField(field, TextParam.TEXT_BOX_PARAM, 
-					tree, node);
-		}
+		}	
 	}
 	
 	/**
