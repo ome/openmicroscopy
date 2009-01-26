@@ -734,13 +734,14 @@ class MonitorServerI(monitors.MonitorServer):
 
         digest = hashlib.sha1()
         try:
-            block = file.read(1024)
-            while block:
-                digest.update(block)
+            try:
                 block = file.read(1024)
-        except Exception, e:
-    		log.error('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))
-        	raise Exception('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))       
+                while block:
+                    digest.update(block)
+                    block = file.read(1024)
+            except Exception, e:
+        		log.error('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))
+            	raise Exception('Failed to SHA1 digest file ' + pathString + ' : ' + str(e))       
         finally:
             file.close()
 
