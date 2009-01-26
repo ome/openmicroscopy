@@ -39,20 +39,22 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
+  <alias name="xaDataSource" alias="dataSource"/>
+
   <bean id="xaDataSource"
         class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
     <property name="uniqueResourceName" ref="uuid"/>
     <property name="xaDataSourceClassName" value="org.postgresql.xa.PGXADataSource"/>
     <property name="xaProperties">
       <props>
-        <prop key="user">${hibernate.connection.username}</prop>
-        <prop key="password">${hibernate.connection.password}</prop>
-        <prop key="databaseName">${database.name}</prop>
-        <prop key="serverName">${database.host}</prop>
+        <prop key="user">${omero.db.user}</prop>
+        <prop key="password">${omero.db.pass}</prop>
+        <prop key="databaseName">${omero.db.name}</prop>
+        <prop key="serverName">${omero.db.host}</prop>
         <prop key="portNumber">5432</prop>
       </props>
     </property>
-    <property name="maxPoolSize"><value>${c3p0.maxPoolSize}</value></property>
+    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
   </bean>
 
   <!-- configured in etc/jta.properties -->
@@ -101,18 +103,7 @@
 
   <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
 
-  <!--
-    DATA SOURCES
-   -->
-
-  <!-- To re-activate data source testing (see test/ome/server/itests/scalability)
-  use the alias with ${dataSource} and define a dataSource property either in
-  a configuration file, or directly in your tests via System.setProperty() *before*
-  creating the Spring application context. -->
-  <!--alias name="${dataSource}" alias="dataSource"/-->
-  <alias name="xaDataSource" alias="dataSource"/>
-  
-  <bean id="loggingDataSource" class="ome.services.util.LoggingDataSource">
+  <bean id="loggingDataSource" class="ome.services.util.LoggingDataSource" lazy-init="true">
     <description>
     Scope: private
     
@@ -121,41 +112,7 @@
     data source will now print to a special category which can be detected by
     log4j appenders and handled appropriately (sending email, etc.)
     </description>
-    <constructor-arg ref="c3p0DataSource"/>
-  </bean>
-  
-  <bean id="c3p0DataSource" lazy-init="true"
-     class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    <description>
-    Scope: private
-    </description>
-    <property name="driverClass" value="${hibernate.connection.driver_class}"/>
-    <property name="jdbcUrl" value="${hibernate.connection.url}"/>
-    <property name="user" value="${hibernate.connection.username}"/>
-    <property name="password" value="${hibernate.connection.password}"/>
-  </bean>
-
-  <!-- Alternative data sources, used for testing -->
-  <bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource">
-      <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
-      <property name="url" value="${hibernate.connection.url}"/>
-      <property name="username" value="${hibernate.connection.username}"/>
-      <property name="password" value="${hibernate.connection.password}"/>
-  </bean>
-
-  <bean id="pgSimpleDataSource" class="org.postgresql.jdbc2.optional.SimpleDataSource">
-      <property name="serverName" value="${database.host}"/>
-      <property name="databaseName" value="${database.name}"/>
-      <property name="user" value="${hibernate.connection.username}"/>
-      <property name="password" value="${hibernate.connection.password}"/>
-  </bean>
-
-  <bean id="springSingleDataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
-      <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
-      <property name="url" value="${hibernate.connection.url}"/>
-      <property name="username" value="${hibernate.connection.username}"/>
-      <property name="password" value="${hibernate.connection.password}"/>
-      <property name="suppressClose" value="true"/>
+    <constructor-arg ref="xaDataSource"/>
   </bean>
 
 </beans>

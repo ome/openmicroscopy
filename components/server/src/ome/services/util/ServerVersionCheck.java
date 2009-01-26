@@ -7,10 +7,6 @@
 
 package ome.services.util;
 
-import java.util.ResourceBundle;
-
-import ome.system.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,14 +21,17 @@ public class ServerVersionCheck {
 
     public final static Log log = LogFactory.getLog(ServerVersionCheck.class);
 
-    ResourceBundle bundle = ResourceBundle.getBundle("omero");
+    private final String version;
+
+    public ServerVersionCheck(String version) {
+        this.version = version;
+    }
 
     /**
      * Prints simple banner with OMERO version.
      */
     public void start() throws Exception {
-        printBanner("OMERO Version: %s (Rev: %s) Ready.", Version.OMERO,
-                Version.getRevision(Version.class));
+        printBanner("OMERO Version: %s Ready.", version);
     }
 
     /**

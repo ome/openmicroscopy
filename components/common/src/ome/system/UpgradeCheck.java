@@ -59,9 +59,9 @@ public class UpgradeCheck implements Runnable {
      * @param version
      *            Current version as specified in the omero.properties file
      *            under the "omero.version" property. This can be accessed via
-     *            <code>
-     *            ResourceBundle.getBundle("omero").getString("omero.version");
-     *            </code>
+     *            <code>IConfig.getVersion() // 4.0.0</code>
+     *            or
+     *            <code>IConfig.getConfigValue("omero.version") // [optional-]4.0.0[-optional]</code>
      * @param agent
      *            Name of the agent which is accessing the registry. This will
      *            be appended to "OMERO." in order to adhere to the registry

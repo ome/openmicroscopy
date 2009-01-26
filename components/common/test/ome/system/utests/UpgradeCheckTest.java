@@ -6,9 +6,8 @@
  */
 package ome.system.utests;
 
-import java.util.ResourceBundle;
-
 import junit.framework.TestCase;
+import ome.system.OmeroContext;
 import ome.system.UpgradeCheck;
 
 import org.testng.annotations.Test;
@@ -19,9 +18,9 @@ import org.testng.annotations.Test;
  */
 public class UpgradeCheckTest extends TestCase {
 
-    ResourceBundle bundle = ResourceBundle.getBundle("omero");
-    String version = bundle.getString("omero.version");
-    String url = bundle.getString("omero.upgrades.url");
+    OmeroContext ctx = new OmeroContext(new String[]{"classpath:ome/config.xml"});
+    String url = ctx.getProperty("omero.upgrades.url");
+    String version = ctx.getProperty("omero.version");
     ome.system.UpgradeCheck check;
 
     @Test

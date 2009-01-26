@@ -7,7 +7,6 @@
 package ome.client.itests;
 
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -18,6 +17,7 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.system.Login;
+import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
 import org.testng.annotations.ExpectedExceptions;
@@ -26,8 +26,8 @@ import org.testng.annotations.Test;
 @Test(groups = { "client", "integration" })
 public class LoginTest extends TestCase {
 
-    static ResourceBundle locals = ResourceBundle.getBundle("local");
-    static String rootpass = locals.getString("omero.rootpass");
+    static OmeroContext ctx = new OmeroContext(new String[]{"classpath:ome/config.xml"});
+    static String rootpass = ctx.getProperty("omero.rootpass");
 
     @Test
     public void test_withPropertiesNull() throws Exception {

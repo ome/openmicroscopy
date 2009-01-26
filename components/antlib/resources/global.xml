@@ -57,7 +57,7 @@
         <property file="${import.dir}/messages.properties" />
 
         <!-- Post-import properties -->
-        <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.dbversion}__${omero.dbpatch}"/>
+        <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>
         <condition property="ice.home" value="${env.ICE_HOME}">
             <isset property="env.ICE_HOME"/>
         </condition>

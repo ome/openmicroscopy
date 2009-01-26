@@ -1,11 +1,11 @@
 #
 # local.properties.example
 # ------------------------
-# system variables which will be used both at
-# build-time and run-time
+# system variables which will be used at build-time
+# Any of these values can be overwritten by copying
+# this file to etc/local.properties and manually
+# editing it.
 #
-omero.repo.local=${omero.home}/lib/repository
-omero.repo.remote=file://${user.home}/.m2/repository
 omero.rootpass=ome
 omero.db.profile=psql
 
@@ -21,6 +21,7 @@ javac.debug=on
 javac.debuglevel=lines,vars,source
 javac.maxmem=300m
 javadoc.maxmem=300m
+ice.home=/usr/share/Ice
 
 ############################################
 # Testing
@@ -37,7 +38,7 @@ emma.enabled=false
 loci.resolver=omero-resolver
 
 ############################################
-# libraries
+# hard-wired (compile-time) values
 ############################################
 
 # Used in server/build.xml and blitz/build.xml 
@@ -50,33 +51,3 @@ omero.hard-wired.interceptors="ome.security.basic.BasicSecurityWiring"
 # which class should be compiled into 
 # ome.services.licenses.LicenseBean
 ome.services.licenses.Store_class="ome.services.licenses.Store"
-
-############################################
-# client connection
-############################################
-omero.user=user
-omero.pass=secret
-
-############################################
-# database connection
-############################################
-hibernate.connection.username=user
-hibernate.connection.password=secret
-
-############################################
-# jndi connection
-############################################
-server.host=localhost
-server.port=1099
-
-############################################
-# maven.xml properties
-# ------------------------------------------
-# when using maven.xml to generate classpath
-# files uncomment out these variables. just
-# be sure to re-comment them when using ant
-# or odd errors will appear.
-############################################
-#omero.repo.local=${user.home}/.m2/repository/
-#omero.repo.remote=file://${omero.home}/lib/repository/
-

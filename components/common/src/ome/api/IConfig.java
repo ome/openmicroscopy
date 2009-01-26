@@ -43,6 +43,12 @@ import ome.conditions.SecurityViolation;
 @RevisionNumber("$Revision$")
 public interface IConfig extends ServiceInterface {
 
+    /**
+     * Defines how the omero.version {@link ome.system.Preference} will be parsed
+     * into the form: Major.minor.patch for {@link #getVersion()}
+     */
+    public final static String VERSION_REGEX = "^.*?[-]?(\\d+[.]\\d+[.]\\d+)[-]?.*?$"; 
+    
     /*
      * Developer notes: Simple almost hello-world call. There should be almost
      * nothing that causes this to throw an exception (except perhaps a Java
@@ -122,13 +128,17 @@ public interface IConfig extends ServiceInterface {
     String value) throws ApiUsageException, SecurityViolation;
 
     /**
-     * Provides the hard-coded server version string from
-     * {@link ome.system.Version}. OMERO-internal values will be in the form
-     * MAJOR.MINOR[.PATCH][-SUFFIX] where a typical value might be "3.0-RC1" or
-     * "3.1.1-Beta2".
+     * Provides the system {@link ome.system.Preference}. OMERO-internal values
+     * will be in the form Major.minor.patch, starting with the value 4.0.0 for
+     * the 4.0 release, Spring 2009.
      * 
      * Customized values should begin with a alphabetic sequence followed by a
-     * hyphen: ACME-0.0.1
+     * hyphen: ACME-0.0.1 and any build information should follow the patch
+     * number also with a hyphen: 4.0.0-RC1. These values will be removed by
+     * {@link #getVersion()}
+     * 
+     * @see #VERSION_REGEX
      */
     String getVersion();
+
 }

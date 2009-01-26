@@ -18,11 +18,6 @@ import junit.framework.TestCase;
 
 @Test
 public class VersionTest extends TestCase {
-
-	public void testGetVersionFromBundle() throws Exception {
-		String versionStr = Version.OMERO;
-		assertNotNull(versionStr);
-	}
 	
 	@Test( groups = {"svnonly","ignore"})
     public void testGetSvnKeyword() throws Exception {

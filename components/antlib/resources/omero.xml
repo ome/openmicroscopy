@@ -23,6 +23,14 @@
 
 -->
 
+	<!-- ticket:800 - configuration is now stored in system preferences
+        loading everything from there that we possibly can -->
+        <mkdir dir="${basedir}/target"/>
+	<java classname="prefs" fork="true" output="${basedir}/target/prefs.properties">
+		<arg value="get"/>
+        </java>
+        <property file="${basedir}/target/prefs.properties"/>
+
         <!-- Reproducing dependencies.xml locally -->
         <target name="deps-configure"> <ivy:resolve file="${basedir}/omero.ivy" type="jar" conf="server"/> </target>
         <target name="deps-buildlist"> <ivy:buildlist> <fileset dir="${basedir}" includes="build.xml"/> </ivy:buildlist> </target>
@@ -32,53 +40,26 @@
           <fileset dir="${basedir}/lib/repository" includes="**/*.jar"/>
         </path>
 
-	<property name="import.dir"       value="${basedir}/components/antlib/resources/"/>
+	<property name="import.dir" value="${basedir}/components/antlib/resources/"/>
 	<property name="ivy.dep.file"  value="${basedir}/omero.ivy"/>
-	<property name="ivy.buildlist.ivyfilepath"  value="${basedir}/omero.ivy"/>
+	<property name="ivy.buildlist.ivyfilepath" value="${basedir}/omero.ivy"/>
 	<import file="${import.dir}/global.xml"/>
-	<import file="${import.dir}/setup.xml"/>
 	<import file="${import.dir}/lifecycle.xml"/>
-	<property file="${basedir}/etc/omero.properties"/>
 
-	<!-- Patterns that will be saved -->
-	<patternset id="etc.files">
-		<include name="local.properties"/>
-		<include name="local.properties.example"/>
-		<include name="omero.properties"/>
-		<include name="hibernate.properties"/>
-		<include name="c3p0.properties"/>
-		<include name="jta.properties"/>
-		<include name="log4j.xml"/>
-	</patternset>
+	<property file="${basedir}/etc/local.properties"/>
+	<property file="${basedir}/etc/local.properties"/>
+	<property file="${basedir}/etc/local.properties"/>
+
+	<property file="${basedir}/etc/local.properties"/>
+	<property file="${basedir}/etc/local.properties.example"/>
+	<property file="${basedir}/etc/omero.properties"/>
+	<property file="${basedir}/etc/hibernate.properties"/>
 
 	<target name="usage"
 		description="Usage information">
 		<concat>
 			<filelist dir="${import.dir}" files="usage-omero.txt"/>
 		</concat>
-	</target>
-
-	<target name="update">
-		<fail>etc/local.properties does not exist. Try calling "setup"<condition>
-		<not><available file="${basedir}/etc/local.properties"/></not></condition></fail>
-
-		<!-- Touching the etc files to force update in the case that 
-		the timezone or similar on a system has changed. Please refer to #779 
-
-		This implies that the date on the files could also be the last time 
-		of "ant update" rather than the last editing. -->
-		<touch>
-			<fileset dir="${basedir}/etc">
-				<patternset refid="etc.files"/>
-			</fileset>
-		</touch>
-		<jar update="true"
-		  destfile="blitz/blitz.jar">
-			<fileset dir="${basedir}/etc">
-				<patternset refid="etc.files"/>
-			</fileset>
-		</jar>
-
 	</target>
 
 </project>

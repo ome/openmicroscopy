@@ -64,8 +64,8 @@
                 <copy file="${sql.dir}/data.sql"   tofile="${target.dir}/data.sql"  overwrite="true"/>
                 <copy file="${sql.dir}/views.sql"   tofile="${target.dir}/views.sql"  overwrite="true"/>
                 <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
-                <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
-                <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
+                <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.db.patch}"/>
+                <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.db.version}"/>
                 <sql_run>
                         <transaction src="${target.dir}/ddl.sql"/>
                         <transaction src="${target.dir}/data.sql"/>
@@ -80,18 +80,17 @@
 -->
                 <defineVariables/>
 		<makeDirectories/>
-		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
-		<copyResource file="${root.dir}/etc/jndi.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.xml"/>
 		<!-- Used (at least) by server.xml and omero.xml -->
+                <property name="omero.db.url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
 		<presetdef name="sql_run">
 			<sql
-				driver="${hibernate.connection.driver_class}"
-				url="${hibernate.connection.url}"
-				userid="${hibernate.connection.username}"
-				password="${hibernate.connection.password}"
+				driver="${omero.db.driver}"
+				url="${omero.db.url}"
+				userid="${omero.db.user}"
+				password="${omero.db.pass}"
 				print="false"
                                 delimiter=";;"
 				classpathref="omero.classpath">
@@ -372,13 +371,9 @@
     <macrodef name="copyResource">
         <attribute name="file"/>
         <sequential>
-            <basename property="props.file.prop" file="@{file}"/>
-            <available file="@{file}" property="${props.file.prop}.exists"/>
-            <fail unless="${props.file.prop}.exists">
-                @{file} ${msg.macro.missing_properties}
-            </fail>
+           <basename property="props.file.prop" file="@{file}"/>
            <copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
-       <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
+           <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
         </sequential>
     </macrodef>
 

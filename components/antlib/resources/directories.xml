@@ -123,9 +123,6 @@
 	<property name="resrc.dest"      value="${generated.dir}/resources"/>
 	<property name="done.dir"        value="${generated.dir}/.done"/>
 
-	<!-- Files relative to basedir: different for each component -->
-	<property name="hibernate.properties" value="${resrc.dest}/hibernate.properties"/>
-
 	<path id="source.path">
 		<fileset dir="${src.dir}">
 			<include name="**/*.java"/>

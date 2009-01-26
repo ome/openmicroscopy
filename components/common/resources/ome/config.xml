@@ -5,7 +5,7 @@
 # 
 # $Id$
 # 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2008, 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,13 +28,13 @@
     on how this works.
     </description>
 
-        <bean id="preferenceContext" class="ome.system.PreferenceContext">
+    <bean id="preferenceContext" class="ome.system.PreferenceContext">
 
-            <description>
+        <description>
             The PreferencesContext class handles much of the configuration and
             lookup necessary for the OmeroContext, including settings defaults
             which on the traditional Spring classes like:
-
+            
             org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer
 
             or
@@ -42,20 +42,76 @@
             org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
 
             would be necessary in this file.
-            </description>
+        </description>
 
-                <property name="locations">
-                    <list>
-                            <!-- Note: later properties overwrite earlier ones -->
-                            <value>c3p0.properties</value>
-                            <value>hibernate.properties</value>
-                            <value>omero.properties</value>
-                            <!-- Once ticket:800 is complete, local.properties
-                            will no longer be used -->
-                            <value>local.properties</value>
-                    </list>
-                </property>
-
-        </bean>
-
+        <property name="locations">
+            <list>
+                <!-- Note: later properties overwrite earlier ones -->
+                <value>hibernate.properties</value>
+                <value>omero.properties</value>
+                <!-- As of ticket:800 (vers. 4.0) these values are static
+                     and are compiled into the finished binaries. All other configuration
+                     takes place via the "prefs" class. -->
+            </list>
+        </property>
+    </bean>
+    <!--
+        Each of the following preferences 
+        By default:
+        db,grid,prefs=true
+        visibility=admin
+        mutable=false
+        aliases=none
+    -->
+    <bean class="ome.system.Preference" id="omero.version">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.data.dir">
+       <property name="mutable" value="true"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.security.filter.bitand">
+        <property name="db" value="false"/>
+        <property name="mutable" value="true"/>
+        <property name="aliases" value="ome.security.filter.bitand"/>
+        <property name="visibility" value="hidden"/>
+    </bean>
+    <!--  DATABASE PROPERTIES -->
+    <bean class="ome.system.Preference" id="omero.db.host">
+       <property name="db" value="false"/>
+       <property name="aliases" value="database.host"/>
+       <property name="visibility" value="hidden"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.name">
+       <property name="db" value="false"/>
+       <property name="aliases" value="database.name"/>
+       <property name="visibility" value="hidden"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.user">
+       <property name="db" value="false"/>
+       <property name="aliases" value="database.user,hibernate.connection.username"/>
+       <property name="visibility" value="hidden"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.pass">
+       <property name="db" value="false"/>
+       <property name="aliases" value="hibernate.connection.password"/>
+       <property name="visibility" value="hidden"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.driver">
+        <property name="db" value="false"/>
+        <property name="aliases" value="hibernate.connection.driver_class"/>
+        <property name="visibility" value="hidden"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.poolsize">
+        <property name="db" value="false"/>
+        <property name="aliases" value="c3p0.maxPoolSize"/>
+        <property name="visibility" value="hidden"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.dialect">
+        <property name="db" value="false"/>
+        <property name="mutable" value="true"/>
+        <property name="aliases" value="hibernate.dialect"/>
+        <property name="visibility" value="hidden"/>
+    </bean>
 </beans>

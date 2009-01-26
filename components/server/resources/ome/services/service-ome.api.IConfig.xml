@@ -49,6 +49,7 @@
     accessing the database time. Safe to use ONLY from within another service!
     </description>
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
+    <property name="preferenceContext" ref="preferenceContext"/>
   </bean>
   
   <bean id="managed-ome.api.IConfig" parent="managedService">

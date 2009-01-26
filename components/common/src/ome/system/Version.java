@@ -10,7 +10,6 @@ package ome.system;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.ResourceBundle;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -30,15 +29,6 @@ import ome.conditions.InternalException;
 @RevisionDate("$Date: 1970-01-01 00:00:01 +0100 (Thu, 01 Jan 1970) $")
 @RevisionNumber("$Revision: 2500 $")
 public abstract class Version {
-
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("omero");
-
-    /**
-     * Current OMERO version. This is the value under which you can retrieve the
-     * code from subversion as well as what will appear in the server console
-     * upon startup.
-     */
-    public final static String OMERO = RESOURCE_BUNDLE.getString("omero.version"); //$NON-NLS-1$
 
     /**
      * Date format used by Subversions "Date" keyword. This can be used as the

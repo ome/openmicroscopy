@@ -14,10 +14,10 @@
 
 package ome.logic;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
-
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.regex.*;
 
 import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
@@ -25,14 +25,23 @@ import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IConfig;
 import ome.api.ServiceInterface;
+import ome.api.local.LocalConfig;
+import ome.conditions.SecurityViolation;
+import ome.security.basic.CurrentDetails;
+import ome.system.PreferenceContext;
 import ome.system.Version;
+
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * implementation of the IConfig service interface.
- *
+ * 
  * Also used as the main developer example for developing (stateless) ome.logic
  * implementations. See source code documentation for more.
- *
+ * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @since 3.0-M3
@@ -60,28 +69,34 @@ import ome.system.Version;
  * it is essential to have this annotation on all write methods.
  */
 @Transactional
-
 /*
  * Stateless. This class implements ServiceInterface but not
  * StatefulServiceInterface making it stateless. This means that the entire
  * server will most likely only contain one of these instances. No mutable
- * fields should be present unless *very* carefully synchronized.
+ * fields should be present unlessvery carefully synchronized.
+ * 
+ * Local configurations are not exposed to clients, and are typically only used
+ * within a server instance.
  */
-public class ConfigImpl extends AbstractLevel2Service implements IConfig {
+public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
 
     /*
      * Stateful differences: -------------------- A stateful service must be
      * marked as Serializable and all fields must be either marked transient, be
      * serializable themselves, or be set to null before serialization. Here
      * we've marked the jdbc field as transient out of habit.
-     *
+     * 
      * @see https://trac.openmicroscopy.org.uk/omero/ticket/173
      */
-    private transient SimpleJdbcTemplate jdbc;
+    private transient SimpleJdbcOperations jdbc;
+
+    private transient PreferenceContext prefs;
+
+    private transient CurrentDetails currentDetails;
 
     /**
      * {@link SimpleJdbcTemplate} setter for dependency injection.
-     *
+     * 
      * @param jdbcTemplate
      * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
@@ -94,10 +109,35 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
      * manipulations. Therefore we've made all bean setters "final" and added a
      * call to "throwIfAlreadySet" which will only allow previously null fields
      * to be set.
+     * 
+     * Also, here we pass in SimpleJdbcOperations rather than ...Template,
+     * because testing the interface is more straight-forward.
      */
-    public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
+    public final void setJdbcTemplate(SimpleJdbcOperations jdbcTemplate) {
         getBeanHelper().throwIfAlreadySet(jdbc, jdbcTemplate);
         this.jdbc = jdbcTemplate;
+    }
+
+    /**
+     * {@link PreferenceContext} setter for dependency injection.
+     * 
+     * @param prefs
+     * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
+     */
+    public final void setPreferenceContext(PreferenceContext prefs) {
+        getBeanHelper().throwIfAlreadySet(this.prefs, prefs);
+        this.prefs = prefs;
+    }
+
+    /**
+     * {@link PreferenceContext} setter for dependency injection.
+     * 
+     * @param prefs
+     * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
+     */
+    public final void setCurrentDetails(CurrentDetails currentDetails) {
+        getBeanHelper().throwIfAlreadySet(this.currentDetails, currentDetails);
+        this.currentDetails = currentDetails;
     }
 
     /*
@@ -114,12 +154,12 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
     // =========================================================================
 
     /*
-     * Source: ome.annotations package 
-     *
-     * Purpose: as opposed to RolesAllowed (below), permits this method to 
-     * be called by anyone, regardless of their group membership. As of the
-     * move to OmeroBlitz, the user will still have to have created a session
-     * to gain access (unlike under JavaEE).
+     * Source: ome.annotations package
+     * 
+     * Purpose: as opposed to RolesAllowed (below), permits this method to be
+     * called by anyone, regardless of their group membership. As of the move to
+     * OmeroBlitz, the user will still have to have created a session to gain
+     * access (unlike under JavaEE).
      */
     /**
      * see {@link IConfig#getServerTime()}
@@ -140,20 +180,47 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
     }
 
     /*
-     * Source: ome.annotations package 
-     *
+     * Source: ome.annotations package
+     * 
      * Purpose: defines the role which must have been obtained during
-     * authentication and authorization in order to access this
-     * method. This works in combination with the BasicMethodSecurity
-     * to fully define security semantics.
+     * authentication and authorization in order to access this method. This
+     * works in combination with the BasicMethodSecurity to fully define
+     * security semantics.
      */
     /**
      * see {@link IConfig#getConfigValue(String)}
      */
-    @RolesAllowed("system")
+    @PermitAll
     // see above
     public String getConfigValue(String key) {
-        return null;
+        
+        if (key == null) {
+            return "";
+        }
+        
+        if (!prefs.canRead(currentDetails.getCurrentEventContext(), key)) {
+            throw new SecurityViolation("Cannot read configuration: " + key);
+        }
+        
+        return getInternalValue(key);
+    }
+
+    public String getInternalValue(String key) {
+
+        String value = null;
+
+        if (prefs.checkDatabase(key)) {
+            value = jdbc.queryForObject(
+                    "select value from configuration where key = ?",
+                    String.class, key);
+        }
+
+        if (value != null) {
+            return value;
+        } else {
+            return prefs.getProperty(key);
+        }
+
     }
 
     /**
@@ -162,7 +229,7 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
     @RolesAllowed("system")
     // see above
     public void setConfigValue(String key, String value) {
-        return;
+        throw new UnsupportedOperationException("NYI");
     }
 
     /**
@@ -171,7 +238,25 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
     @PermitAll
     // see above
     public String getVersion() {
-        return Version.OMERO;
+        String version = getInternalValue("omero.version");
+        Pattern p = Pattern.compile("");
+        return null;
     }
 
+    @PermitAll
+    //see above
+    public String getDatabaseVersion() {
+        return jdbc.query(
+                "select currentversion, currentpatch from dbpatch "
+                        + "order by id desc limit 1",
+                new ParameterizedRowMapper<String>() {
+                    public String mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        String v = arg0.getString("currentversion");
+                        int p = arg0.getInt("currentpatch");
+                        return v + "__" + p;
+                    }
+
+                }).get(0);
+    }
 }
