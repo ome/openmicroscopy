@@ -141,9 +141,6 @@ class AnnotationDataUI
 	/** Flag indicating that tags have been added or removed. */
 	private boolean							tagFlag;
 	
-	/** Flag indicating that urls have been added or removed. */
-	private boolean							urlFlag;
-	
 	/** Flag indicating that documents have been added or removed. */
 	private boolean							docFlag;
 	
@@ -164,6 +161,12 @@ class AnnotationDataUI
 	 * upload files. 
 	 */
 	private JPopupMenu						docSelectionMenu;
+	
+	/** Collection of tags documents objects. */
+	private List<DocComponent>				tagsDocList;
+	
+	/** Collection of tags documents objects. */
+	private List<DocComponent>				filesDocList;
 	
 	/**
 	 * Creates the selection menu.
@@ -190,10 +193,11 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		urlFlag = false;
 		tagFlag = false;
 		docFlag = false;
 		tagNames = new ArrayList<String>();
+		tagsDocList = new ArrayList<DocComponent>();
+		filesDocList = new ArrayList<DocComponent>();
 		existingTags = new HashMap<String, TagAnnotationData>();
 		IconManager icons = IconManager.getInstance();
 		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS));
@@ -235,7 +239,9 @@ class AnnotationDataUI
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
 		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		tagsPane.add(new DocComponent(null, model, false));
+		DocComponent doc = new DocComponent(null, model, false);
+		tagsDocList.add(doc);
+		tagsPane.add(doc);
 		/*
 		urlPane = new JPanel();
 		urlPane.setLayout(new BoxLayout(urlPane, BoxLayout.Y_AXIS));
@@ -244,7 +250,9 @@ class AnnotationDataUI
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		docPane.add(new DocComponent(null, model, false));
+		doc = new DocComponent(null, model, false);
+		filesDocList.add(doc);
+		docPane.add(doc);
 		viewedByPane = new JPanel();
 		viewedByPane.setLayout(new BoxLayout(viewedByPane, BoxLayout.Y_AXIS));
 		viewedByPane.setOpaque(false);
@@ -579,7 +587,6 @@ class AnnotationDataUI
 	 */
 	private void handleFilesEnter(Collection attachments)
 	{
-		Component[] components = docPane.getComponents();
 		List<DocComponent> list = new ArrayList<DocComponent>();
 		DocComponent doc;
 		FileAnnotationData f;
@@ -587,22 +594,23 @@ class AnnotationDataUI
 		Iterator k = attachments.iterator();
 		FileAnnotationData data;
 		Object object;
+		Iterator<DocComponent> i;
 		while (k.hasNext()) {
 			 exist = false;
 			 data = (FileAnnotationData) k.next();
-			 if (components != null && components.length > 0) {
-				 for (int i = 0; i < components.length; i++) {
-					 if (components[i] instanceof DocComponent) {
-						 doc = (DocComponent) components[i];
-						 object = doc.getData();
-						 if (object instanceof FileAnnotationData) {
-							 f = (FileAnnotationData) doc.getData();
-							 if (doc.isAdded()) list.add(doc);
-							 if (f.getId() == data.getId()) exist = true;
-						 } else if (object instanceof File)
-							 list.add(doc);
-					 }
-				 }
+			 if (filesDocList.size() > 0) {
+				 i = filesDocList.iterator();
+				 while (i.hasNext()) {
+					doc = i.next();
+					object = doc.getData();
+					if (object instanceof FileAnnotationData) {
+						f = (FileAnnotationData) doc.getData();
+						if (doc.isAdded()) list.add(doc);
+						if (f.getId() == data.getId()) exist = true;
+					} else if (object instanceof File)
+						list.add(doc);
+					
+				}
 			 }
 			 if (!exist) {
 				 docFlag = true;
@@ -731,17 +739,41 @@ class AnnotationDataUI
 	 * 
 	 * @param list The collection of components to add.
 	 */
-	private void layoutAttachments(List<DocComponent> list)
+	private void layoutAttachments(Collection list)
 	{
+		docPane.removeAll();
+		filesDocList.clear();
+		DocComponent doc;
+		if (list != null && list.size() > 0) {
+			Iterator i = list.iterator();
+			
+			while (i.hasNext()) {
+				doc = new DocComponent(i.next(), model, false);
+				doc.addPropertyChangeListener(controller);
+				filesDocList.add(doc);
+				docPane.add(doc);
+			}
+		}
+		if (filesDocList.size() == 0) {
+			doc = new DocComponent(null, model, false);
+			filesDocList.add(doc);
+			docPane.add(doc);
+		}
+		docPane.revalidate();
+		docPane.repaint();
+		
+		/*
 		Collection l = model.getAttachments();
 		Iterator i;
 		DocComponent doc;
 		docPane.removeAll();
+		filesDocList.clear();
 		if (l != null && l.size() > 0) {
 			i = l.iterator();
 			while (i.hasNext()) {
 				doc = new DocComponent(i.next(), model, false);
 				doc.addPropertyChangeListener(controller);
+				filesDocList.add(doc);
 				docPane.add(doc);
 			}
 		}
@@ -751,9 +783,14 @@ class AnnotationDataUI
 				docPane.add((DocComponent) i.next());
 			}
 		}
-		if (docPane.getComponentCount() == 0)
-			docPane.add(new DocComponent(null, model, false));
+		if (filesDocList.size() == 0) {
+			doc = new DocComponent(null, model, false);
+			filesDocList.add(doc);
+			docPane.add(doc);
+		}
+			
 		docPane.revalidate();
+		*/
 	}
 	
 	/**
@@ -764,17 +801,23 @@ class AnnotationDataUI
 	private void layoutTags(Collection list)
 	{
 		tagsPane.removeAll();
+		tagsDocList.clear();
+		DocComponent doc;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
-			DocComponent doc;
+			
 			while (i.hasNext()) {
 				doc = new DocComponent(i.next(), model, false);
 				doc.addPropertyChangeListener(controller);
+				tagsDocList.add(doc);
 				tagsPane.add(doc);
 			}
 		}
-		if (tagsPane.getComponentCount() == 0)
-			tagsPane.add(new DocComponent(null, model, false));
+		if (tagsDocList.size() == 0) {
+			doc = new DocComponent(null, model, false);
+			tagsDocList.add(doc);
+			tagsPane.add(doc);
+		}
 		tagsPane.revalidate();
 		tagsPane.repaint();
 	}
@@ -786,28 +829,26 @@ class AnnotationDataUI
 	 */
 	private void removeFile(File file)
 	{
-		Component[] components = docPane.getComponents();
 		List<DocComponent> list = new ArrayList<DocComponent>();
 		DocComponent doc;
 		int count = 0;
 		Object data;
-		if (components != null && components.length > 0) {
+		if (filesDocList.size() > 0) {
 			File f;
-			for (int i = 0; i < components.length; i++) {
-				if (components[i] instanceof DocComponent) {
-					doc = (DocComponent) components[i];
-					data = doc.getData();
-					if (data instanceof File) {
-						f = (File) data;
-						if (!f.equals(file)) {
-							count++;
-							list.add(doc);
-						}
-					} else if ((data instanceof FileAnnotationData) 
-							&& doc.isAdded()) {
+			Iterator<DocComponent> i = filesDocList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				data = doc.getData();
+				if (data instanceof File) {
+					f = (File) data;
+					if (!f.equals(file)) {
 						count++;
 						list.add(doc);
 					}
+				} else if ((data instanceof FileAnnotationData) 
+						&& doc.isAdded()) {
+					count++;
+					list.add(doc);
 				}
 			}
 		}
@@ -825,27 +866,25 @@ class AnnotationDataUI
 	 */
 	private void removeFile(FileAnnotationData file)
 	{
-		Component[] components = docPane.getComponents();
 		List<DocComponent> list = new ArrayList<DocComponent>();
 		DocComponent doc;
 		int count = 0;
 		Object data;
-		if (components != null && components.length > 0) {
+		if (filesDocList.size() > 0) {
 			FileAnnotationData f;
-			for (int i = 0; i < components.length; i++) {
-				if (components[i] instanceof DocComponent) {
-					doc = (DocComponent) components[i];
-					data = doc.getData();
-					if (data instanceof File) {
+			Iterator<DocComponent> i = filesDocList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				data = doc.getData();
+				if (data instanceof File) {
+					count++;
+					list.add(doc);
+				} else if ((data instanceof FileAnnotationData) 
+						&& doc.isAdded()) {
+					f = (FileAnnotationData) data;
+					if (f.getId() != file.getId()) {
 						count++;
 						list.add(doc);
-					} else if ((data instanceof FileAnnotationData) 
-							&& doc.isAdded()) {
-						f = (FileAnnotationData) data;
-						if (f.getId() != file.getId()) {
-							count++;
-							list.add(doc);
-						}
 					}
 				}
 			}
@@ -925,7 +964,7 @@ class AnnotationDataUI
 		}
 		*/
 		//Add attachments
-		layoutAttachments(null);
+		layoutAttachments(model.getAttachments());
 		
 		//Viewed by
 		Object refObject = model.getRefObject();
@@ -1032,33 +1071,28 @@ class AnnotationDataUI
 	 */
 	void attachFile(File file)
 	{
-		Component[] components = docPane.getComponents();
-		List<DocComponent> list = new ArrayList<DocComponent>();
+		List<FileAnnotationData> list = getCurrentAttachmentsSelection();
 		DocComponent doc;
 		File f;
 		boolean exist = false;
 		Object data;
-		if (components != null && components.length > 0) {
-			for (int i = 0; i < components.length; i++) {
-				if (components[i] instanceof DocComponent) {
-					doc = (DocComponent) components[i];
-					data = doc.getData();
-					if (data instanceof File) {
-						list.add(doc);
-						f = (File) doc.getData();
-						if (f.equals(file)) exist = true;
-					} else if ((data instanceof FileAnnotationData) 
-							&& doc.isAdded()) {
-						list.add(doc);
-					}
-				}
+		if (filesDocList.size() > 0) {
+			Iterator<DocComponent> i = filesDocList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				data = doc.getData();
+				if (data instanceof File) {
+					f = (File) doc.getData();
+					if (f.equals(file)) exist = true;
+				} 
 			}
 		}
 		if (!exist) {
-			docFlag = true;
-			doc = new DocComponent(file, model, true);
-			doc.addPropertyChangeListener(controller);
-			list.add(doc);
+			data = null;
+			try {
+				docFlag = true;
+				list.add(new FileAnnotationData(file));
+			} catch (Exception e) {} 
 			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 					Boolean.TRUE);
 		}
@@ -1072,9 +1106,27 @@ class AnnotationDataUI
 	 */
 	void removeAttachedFile(Object file)
 	{ 
-		if (file instanceof File) removeFile((File) file);
-		else if (file instanceof FileAnnotationData)
+		if (file == null) return;
+			/*
+		if (file instanceof File) {
+			try {
+				FileAnnotationData data = new FileAnnotationData((File) file);
+				removeFile(data);
+			} catch (Exception e) {}
+		} else if (file instanceof FileAnnotationData)
 			removeFile((FileAnnotationData) file);
+		*/
+		FileAnnotationData fData = (FileAnnotationData) file;
+		List<FileAnnotationData> attachments = getCurrentAttachmentsSelection();
+		Iterator<FileAnnotationData> i = attachments.iterator();
+		FileAnnotationData data;
+		List<FileAnnotationData> toKeep = new ArrayList<FileAnnotationData>();
+		while (i.hasNext()) {
+			data = i.next();
+			if (data.getId() != fData.getId())
+				toKeep.add(data);
+		}
+		handleObjectsSelection(FileAnnotationData.class, toKeep);
 	}
 	
 	/**
@@ -1129,9 +1181,29 @@ class AnnotationDataUI
 					}
 				}
 			}
-			
 		} else if (FileAnnotationData.class.equals(type)) {
-			
+			layoutAttachments(objects);
+			List<Long> ids = new ArrayList<Long>();
+			Iterator i = objects.iterator();
+			FileAnnotationData data;
+			docFlag = false;
+			Collection attachments = model.getAttachments();
+			if (attachments.size() != objects.size()) {
+				docFlag = true;
+			} else {
+				while (i.hasNext()) {
+					data = (FileAnnotationData) i.next();
+					ids.add(data.getId());
+				}
+				i = attachments.iterator();
+				while (i.hasNext()) {
+					data = (FileAnnotationData) i.next();
+					if (!ids.contains(data.getId())) {
+						docFlag = true;
+						break;
+					}
+				}
+			}
 		}
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 				Boolean.TRUE);
@@ -1145,23 +1217,46 @@ class AnnotationDataUI
 	List<TagAnnotationData> getCurrentTagsSelection()
 	{
 		List<TagAnnotationData> selection = new ArrayList<TagAnnotationData>();
-		Component[] comps = tagsPane.getComponents();
-		if (comps == null || comps.length == 0) return selection;
+		if (tagsDocList.size() == 0)  return selection;
 		DocComponent doc;
 		Object object;
 		TagAnnotationData tag;
-		for (int i = 0; i < comps.length; i++) {
-			if (comps[i] instanceof DocComponent) {
-				doc = (DocComponent) comps[i];
-				object = doc.getData();
-				if (object instanceof TagAnnotationData) {
-					tag = (TagAnnotationData) object;
-					if (tag.getId() > 0)
-						selection.add(tag);
-				}
+		Iterator<DocComponent> i = tagsDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (object instanceof TagAnnotationData) {
+				tag = (TagAnnotationData) object;
+				if (tag.getId() > 0)
+					selection.add(tag);
 			}
 		}
 		return selection;
+	}
+	
+	/**
+	 * Returns the list of attachments currently selected by the user.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> getCurrentAttachmentsSelection() 
+	{
+		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
+		if (filesDocList.size() == 0)  return list;
+		DocComponent doc;
+		Object object;
+		FileAnnotationData data;
+		Iterator<DocComponent> i = filesDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (object instanceof FileAnnotationData) {
+				data = (FileAnnotationData) object;
+				if (data.getId() > 0)
+					list.add(data);
+			}
+		}
+		return list;
 	}
 	
 	/**
@@ -1184,25 +1279,22 @@ class AnnotationDataUI
 		if (tagFlag) {
 			List<Long> idsToKeep = new ArrayList<Long>();
 			DocComponent doc;
-			Object d;
 			TagAnnotationData tag;
 			long id;
-			Component[] components = tagsPane.getComponents();
-			if (components != null && components.length > 0) {
-				
-				for (int i = 0; i < components.length; i++) {
-					if (components[i] instanceof DocComponent) {
-						doc = (DocComponent) components[i];
-						d = doc.getData();
-						if (d instanceof TagAnnotationData) {
-							tag = (TagAnnotationData) d;
-							id = tag.getId();
-							if (id > 0) 
-								idsToKeep.add(id);
-						}
-					}
+			
+			Object object;
+			Iterator<DocComponent> i = tagsDocList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof TagAnnotationData) {
+					tag = (TagAnnotationData) object;
+					id = tag.getId();
+					if (id > 0) 
+						idsToKeep.add(id);
 				}
 			}
+			
 			Collection original = model.getTags();
 			Iterator j = original.iterator();
 			while (j.hasNext()) {
@@ -1274,20 +1366,18 @@ class AnnotationDataUI
 			DocComponent doc;
 			Object d;
 			long id;
-			Component[] components = tagsPane.getComponents();
-			if (components != null && components.length > 0) {
-				for (int i = 0; i < components.length; i++) {
-					if (components[i] instanceof DocComponent) {
-						doc = (DocComponent) components[i];
-						d = doc.getData();
-						if (d instanceof TagAnnotationData) {
-							tag = (TagAnnotationData) d;
-							id = tag.getId();
-							if (!ids.contains(id)) l.add(tag);
-						}
-					}
+			Object object;
+			Iterator<DocComponent> i = tagsDocList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof TagAnnotationData) {
+					tag = (TagAnnotationData) object;
+					id = tag.getId();
+					if (!ids.contains(id)) l.add(tag);
 				}
 			}
+			
 			/*
 			String value = tagsPane.getText();
 			String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
@@ -1321,25 +1411,23 @@ class AnnotationDataUI
 			FileAnnotationData data = null;
 			File f;
 			Object d;
-			Component[] components = docPane.getComponents();
-			if (components != null && components.length > 0) {
-				for (int i = 0; i < components.length; i++) {
-					if (components[i] instanceof DocComponent) {
-						doc = (DocComponent) components[i];
-						d = doc.getData();
-						if (d instanceof File) {
-							f = (File) doc.getData();
-							try {
-								data = new FileAnnotationData(f);
-							} catch (Exception e) {
-								notSupported.add(f);
-								data = null;
-							}
-							if (data != null) l.add(data);
-						} else if (d instanceof FileAnnotationData) {
-							if (doc.isAdded())
-								l.add((FileAnnotationData) d);
+			if (filesDocList.size() > 0) {
+				Iterator<DocComponent> i = filesDocList.iterator();
+				while (i.hasNext()) {
+					doc = i.next();
+					d = doc.getData();
+					if (d instanceof File) {
+						f = (File) doc.getData();
+						try {
+							data = new FileAnnotationData(f);
+						} catch (Exception e) {
+							notSupported.add(f);
+							data = null;
 						}
+						if (data != null) l.add(data);
+					} else if (d instanceof FileAnnotationData) {
+						if (doc.isAdded())
+							l.add((FileAnnotationData) d);
 					}
 				}
 			}
@@ -1366,7 +1454,7 @@ class AnnotationDataUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		if (tagFlag || urlFlag || docFlag) return true;
+		if (tagFlag || docFlag) return true;
 		return (selectedValue != initialValue);
 	}
 
@@ -1392,16 +1480,15 @@ class AnnotationDataUI
 		tagsPane.getDocument().addDocumentListener(this);
 		*/
 		tagsPane.removeAll();
-		tagsPane.add(new DocComponent(null, model, false));
-		/*
-		urlPane.removeAll();
-		urlPane.add(new URLComponent(null, model));
-		
-		*/
+		tagsDocList.clear();
+		DocComponent doc = new DocComponent(null, model, false);
+		tagsDocList.add(doc);
+		tagsPane.add(doc);
 		docPane.removeAll();
-		docPane.add(new DocComponent(null, model, false));
+		doc = new DocComponent(null, model, false);
+		filesDocList.add(doc);
+		docPane.add(doc);
 		tagFlag = false;
-		urlFlag = false;
 		docFlag = false;
 	}
 	

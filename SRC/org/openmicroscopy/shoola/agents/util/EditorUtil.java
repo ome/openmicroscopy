@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -46,9 +45,9 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.RFloat;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -1396,20 +1395,20 @@ public class EditorUtil
 		box.setBackground(UIUtilities.BACKGROUND_COLOR);
 		BasicComboBoxUI ui = new BasicComboBoxUI() {
 
-	        /**
-	         * Hides the arrow Button.
-	         */
 	         protected JButton createArrowButton() {
 	        	
 	        	JButton b = super.createArrowButton();
-	          	b.setVisible(false);
+	        	IconManager icons = IconManager.getInstance();
+	        	//b.setIcon(icons.getIcon(IconManager.HYPERLINK));
+	        	//b.setBorder(null);
+	        	b.setBorderPainted(false);
+	          	//b.setVisible(false);
 	            return b;
 	         }
 	         
 	      };
 	      ui.installUI(box);
 		box.setUI(ui);
-
 		Font f = box.getFont();
 		int size = f.getSize()-decrement;
 		box.setBorder(null);

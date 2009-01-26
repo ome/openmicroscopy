@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 
@@ -262,6 +263,16 @@ public class EditorUI
 	List<TagAnnotationData> getCurrentTagsSelection()
 	{
 		return generalPane.getCurrentTagsSelection();
+	}
+	
+	/**
+	 * Returns the list of attachments currently selected by the user.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> getCurrentAttachmentsSelection()
+	{
+		return generalPane.getCurrentAttachmentsSelection();
 	}
 	
 	/**

@@ -191,14 +191,6 @@ public interface Editor
 	 * @param attachments The value to set.
 	 */
 	public void setExistingAttachements(Collection attachments);
-
-	/**
-	 * Sets the collection of existing urls, urls added
-	 * by the currently logged in user.
-	 * 
-	 * @param urls The value to set.
-	 */
-	public void setExistingURLs(Collection urls);
 	
 	/**
 	 * Sets either to single selection or to multi selection.

@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
-import org.openmicroscopy.shoola.agents.metadata.URLsLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -955,28 +954,6 @@ class EditorModel
 		loaders.add(loader);
 	}
 	
-	/** 
-	 * Fires an asynchronous retrieval of existing urls 
-	 * for the currently logged in user. 
-	 */
-	void loadExistingUrls()
-	{
-		EditorLoader l;
-		boolean exist = false;
-		Iterator i = loaders.iterator();
-		while (i.hasNext()) {
-			l = (EditorLoader) i.next();
-			if (l instanceof URLsLoader) {
-				exist = true;
-				break;
-			}
-		}
-		if (exist) return;
-		URLsLoader loader = new URLsLoader(component);
-		loader.load();
-		loaders.add(loader);
-	}
-	
 	/** Cancels any ongoing tags retrieval. */
 	void cancelExistingTagsLoading()
 	{
@@ -1062,28 +1039,6 @@ class EditorModel
 		while (i.hasNext()) {
 			loader = (EditorLoader) i.next();
 			if (loader instanceof AttachmentsLoader) {
-				toRemove = loader;
-				break;
-			}
-		}
-		if (toRemove != null) loaders.remove(toRemove);
-	}
-	
-	/**
-	 * Sets the collection of existing urls.
-	 * 
-	 * @param urls The value to set.
-	 */
-	void setExistingURLs(Collection urls)
-	{
-		if (urls != null)
-			existingURLs = sorter.sort(urls);
-		Iterator i = loaders.iterator();
-		EditorLoader loader;
-		EditorLoader toRemove = null;
-		while (i.hasNext()) {
-			loader = (EditorLoader) i.next();
-			if (loader instanceof URLsLoader) {
 				toRemove = loader;
 				break;
 			}

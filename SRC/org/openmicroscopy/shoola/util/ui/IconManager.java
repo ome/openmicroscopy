@@ -382,11 +382,14 @@ public class IconManager
     /** The <code>Hyperlink</code> icon. */
     public static final int	HYPERLINK = 109;
     
+    /** The <code>Hyperlink</code> icon. */
+    public static final int	UP_DOWN_9_12 = 110;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 109;
+    private static int      MAX_ID = 110;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -504,6 +507,7 @@ public class IconManager
         relPaths[FILE_HTML] = "txt_html16.png";
         relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
         relPaths[HYPERLINK] = "nuvola_browser16.png";
+        relPaths[UP_DOWN_9_12] = "upDown9_12.png";
     }
     
     /** 

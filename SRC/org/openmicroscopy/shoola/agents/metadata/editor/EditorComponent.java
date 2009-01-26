@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -106,12 +108,22 @@ class EditorComponent
 	{
 		IconManager icons = IconManager.getInstance();
 		Registry reg = MetadataViewerAgent.getRegistry();
+		String title = "";
+		String text = "";
+		Icon icon = null;
+		if (TagAnnotationData.class.equals(type)) {
+			title = "Tags Selection";
+			text = "Select the Tags to add or remove, \nor Create new Tags";
+			icon = icons.getIcon(IconManager.TAGS_48);
+		} else if (FileAnnotationData.class.equals(type)) {
+			title = "Attachments Selection";
+			text = "Select the Attachments to add or remove.";
+			icon = icons.getIcon(IconManager.ATTACHMENT_48);
+		}
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
 				addCreation);
-		wizard.setTitle("Tags Selection", "Select the Tags to add or " +
-				"remove, \nor Create new Tags",  
-				icons.getIcon(IconManager.TAGS_48));
+		wizard.setTitle(title, text, icon);
 		wizard.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(wizard);
 	}
@@ -239,7 +251,6 @@ class EditorComponent
 			}
 			showSelectionWizard(TagAnnotationData.class, available, setTags,
 								true);
-			
 		}
 		setStatus(false);
 	}
@@ -320,26 +331,28 @@ class EditorComponent
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
-		
-		
-		
-		
-		
+		Collection setAttachments = view.getCurrentAttachmentsSelection();
+		Iterator<FileAnnotationData> k = setAttachments.iterator();
+		List<Long> ids = new ArrayList<Long>();
+		while (k.hasNext()) {
+			ids.add(k.next().getId());
+		}
+		List available = new ArrayList();
+		if (attachments != null) {
+			Iterator i = attachments.iterator();
+			FileAnnotationData data;
+			while (i.hasNext()) {
+				data = (FileAnnotationData) i.next();
+				if (!ids.contains(data.getId()))
+					available.add(data);
+			}
+		}
+		showSelectionWizard(FileAnnotationData.class, available, setAttachments,
+							true);
 		//view.setExistingAttachements();
 		setStatus(false);
 	}
 	
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#setExistingURLs(Collection)
-	 */
-	public void setExistingURLs(Collection urls)
-	{
-		if (urls == null) return;
-		model.setExistingURLs(urls);
-		view.setExistingURLs();
-	}
-
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setSelectionMode(boolean)

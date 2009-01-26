@@ -1513,6 +1513,7 @@ class OMEROGateway
 			//return service.createDataObject(object, options);
 			return saveAndReturnObject(object, options);
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;

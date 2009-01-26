@@ -88,14 +88,16 @@ class DocComponent
 	/**
 	 * Formats the passed annotation.
 	 * 
-	 * @param data The value to format.
+	 * @param annotation The value to format.
 	 * @return See above.
 	 */
-	private String formatTootTip(AnnotationData data)
+	private String formatTootTip(AnnotationData annotation)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
-		ExperimenterData exp = model.getOwner(data);
+		ExperimenterData exp = null;
+		if (annotation.getId() > 0)
+			exp = model.getOwner(annotation);
 		if (exp != null) {
 			buf.append("<b>");
 			buf.append("Owner: ");
@@ -105,16 +107,20 @@ class DocComponent
 		}
 		
 		if (data instanceof FileAnnotationData) {
-			buf.append("<b>");
-			buf.append("Date Added: ");
-			buf.append("</b>");
-			buf.append(UIUtilities.formatWDMYDate(data.getLastModified()));
-			buf.append("<br>");
-			buf.append("<b>");
+			if (annotation.getId() > 0) {
+				buf.append("<b>");
+				buf.append("Date Added: ");
+				buf.append("</b>");
+				buf.append(UIUtilities.formatWDMYDate(
+						annotation.getLastModified()));
+				buf.append("<br>");
+				buf.append("<b>");
+			}
+			
 			buf.append("Size: ");
 			buf.append("</b>");
 			buf.append(UIUtilities.formatFileSize(
-					((FileAnnotationData) data).getFileSize()));
+					((FileAnnotationData) annotation).getFileSize()));
 			buf.append("<br>");
 		}
 		buf.append("</body></html>");
@@ -179,12 +185,6 @@ class DocComponent
 				if (f.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
-				/*
-				if (added) {
-					initButton();
-					label.setForeground(SELECTED_FOREGROUND);
-				}
-				*/
 			} else if (data instanceof File) {
 				initButton();
 				File f = (File) data;
