@@ -11,58 +11,58 @@
 -->
 <types>
 <!-- Structured Annotations -->
-	<abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true" immutable="true">
+	<abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true">
 		<properties>
 			<optional name="ns" type="string"/>
+			<optional name="description" type="text"/>
 		</properties>
 	</abstract>
 <!-- top-level types -->
-	<type id="ome.model.annotations.ListAnnotation" discriminator="/list/" superclass="ome.model.annotations.Annotation" immutable="true"/>
-	<abstract id="ome.model.annotations.BasicAnnotation" discriminator="/basic/" superclass="ome.model.annotations.Annotation" immutable="true"/><!-- not used in data model -->
-	<abstract id="ome.model.annotations.TypeAnnotation" discriminator="/type/" superclass="ome.model.annotations.Annotation" immutable="true"/><!-- not used in data model -->
+	<type id="ome.model.annotations.ListAnnotation" discriminator="/list/" superclass="ome.model.annotations.Annotation"/>
+	<abstract id="ome.model.annotations.BasicAnnotation" discriminator="/basic/" superclass="ome.model.annotations.Annotation"/><!-- not used in data model -->
+	<abstract id="ome.model.annotations.TypeAnnotation" discriminator="/type/" superclass="ome.model.annotations.Annotation"/><!-- not used in data model -->
 <!-- /basic/text -->
-	<type id="ome.model.annotations.TextAnnotation" discriminator="/basic/text/" superclass="ome.model.annotations.Annotation" immutable="true">
+	<abstract id="ome.model.annotations.TextAnnotation" discriminator="/basic/text/" superclass="ome.model.annotations.Annotation">
 		<properties>
 			<optional name="textValue" type="text" mutable="false"/>
 		</properties>
-	</type>
-<!-- Disabling for annotation rework -->
-<!--type id="ome.model.annotations.CommentAnnotation" discriminator="/basic/text/comment/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/-->
-	<type id="ome.model.annotations.TagAnnotation" discriminator="/basic/text/tag/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
+	</abstract>
+	<type id="ome.model.annotations.CommentAnnotation" discriminator="/basic/text/comment/" superclass="ome.model.annotations.TextAnnotation"/>
+	<type id="ome.model.annotations.TagAnnotation" discriminator="/basic/text/tag/" superclass="ome.model.annotations.TextAnnotation"/>
 <!-- not used in data model - use StringAnnotation -->
-	<type id="ome.model.annotations.XmlAnnotation" discriminator="/basic/text/xml/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
-	<type id="ome.model.annotations.UrlAnnotation" discriminator="/basic/text/url/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/><!-- not used in data model - use StringAnnotation -->
-	<type id="ome.model.annotations.QueryAnnotation" discriminator="/basic/text/query/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/><!-- not used in data model - use StringAnnotation -->
+	<type id="ome.model.annotations.XmlAnnotation" discriminator="/basic/text/xml/" superclass="ome.model.annotations.TextAnnotation"/>
+	<type id="ome.model.annotations.UriAnnotation" discriminator="/basic/text/uri/" superclass="ome.model.annotations.TextAnnotation"/><!-- not used in data model - use StringAnnotation -->
+	<type id="ome.model.annotations.QueryAnnotation" discriminator="/basic/text/query/" superclass="ome.model.annotations.TextAnnotation"/><!-- not used in data model - use StringAnnotation -->
 <!--  /basic/num -->
-	<abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num/" superclass="ome.model.annotations.BasicAnnotation" immutable="true"/>
-	<type id="ome.model.annotations.LongAnnotation" discriminator="/basic/num/long/" superclass="ome.model.annotations.NumericAnnotation" immutable="true">
+	<abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num/" superclass="ome.model.annotations.BasicAnnotation"/>
+	<type id="ome.model.annotations.LongAnnotation" discriminator="/basic/num/long/" superclass="ome.model.annotations.NumericAnnotation">
 		<properties>
 			<optional name="longValue" type="long" mutable="false"/>
 		</properties>
 	</type>
-	<type id="ome.model.annotations.DoubleAnnotation" discriminator="/basic/num/double/" superclass="ome.model.annotations.NumericAnnotation" immutable="true">
+	<type id="ome.model.annotations.DoubleAnnotation" discriminator="/basic/num/double/" superclass="ome.model.annotations.NumericAnnotation">
 		<properties>
 			<optional name="doubleValue" type="double" mutable="false"/>
 		</properties>
 	</type>
 <!-- other basic -->
-	<type id="ome.model.annotations.BooleanAnnotation" discriminator="/basic/bool/" superclass="ome.model.annotations.BasicAnnotation" immutable="true">
+	<type id="ome.model.annotations.BooleanAnnotation" discriminator="/basic/bool/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
 			<optional name="boolValue" type="boolean" mutable="false"/>
 		</properties>
 	</type>
-	<type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation" immutable="true">
+	<type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
 			<optional name="timeValue" type="timestamp" mutable="false"/>
 		</properties>
 	</type>
 <!--  /type -->
-	<type id="ome.model.annotations.ThumbnailAnnotation" discriminator="/type/Thumbnail/" superclass="ome.model.annotations.TypeAnnotation" immutable="true"><!-- not used in data model-->
+	<type id="ome.model.annotations.ThumbnailAnnotation" discriminator="/type/Thumbnail/" superclass="ome.model.annotations.TypeAnnotation"><!-- not used in data model-->
 		<properties>
 			<optional name="thumbnail" type="ome.model.display.Thumbnail" mutable="false"/>
 		</properties>
 	</type>
-	<type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile/" superclass="ome.model.annotations.TypeAnnotation" immutable="true">
+	<type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile/" superclass="ome.model.annotations.TypeAnnotation">
 		<properties>
 			<optional name="file" type="ome.model.core.OriginalFile" mutable="false"/>
 		</properties>

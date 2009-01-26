@@ -30,7 +30,7 @@ package pojos;
 import org.apache.commons.validator.UrlValidator;
 
 //Application-internal dependencies
-import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.UriAnnotation;
 
 /** 
  * Define a URL Annotation. Note that a URL annotation is a specific text
@@ -86,7 +86,7 @@ public class URLAnnotationData
 	 */
 	public URLAnnotationData(String url)
 	{
-		super(UrlAnnotation.class);
+		super(UriAnnotation.class);
 		setURL(url);
 	}
 	
@@ -95,7 +95,7 @@ public class URLAnnotationData
 	 * 
 	 * @param annotation The value to set.
 	 */
-	public URLAnnotationData(UrlAnnotation annotation)
+	public URLAnnotationData(UriAnnotation annotation)
 	{
 		super(annotation);
 	}
@@ -108,7 +108,7 @@ public class URLAnnotationData
 	public void setURL(String url)
 	{
 		validateURL(url);
-		((UrlAnnotation) asAnnotation()).setTextValue(url);
+		((UriAnnotation) asAnnotation()).setTextValue(url);
 	}
 	
 	/**
@@ -124,7 +124,7 @@ public class URLAnnotationData
 	 */
 	public Object getContent()
 	{
-		return ((UrlAnnotation) asAnnotation()).getTextValue();
+		return ((UriAnnotation) asAnnotation()).getTextValue();
 	}
 
 	/**

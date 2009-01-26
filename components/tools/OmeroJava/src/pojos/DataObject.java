@@ -7,6 +7,8 @@
 
 package pojos;
 
+import static omero.rtypes.rlong;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,11 +21,10 @@ import java.util.Set;
 
 import ome.model.IAnnotated;
 import ome.model.IMutable;
-
-import static omero.rtypes.*;
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.Channel;
+import omero.model.CommentAnnotation;
 import omero.model.Dataset;
 import omero.model.Details;
 import omero.model.Event;
@@ -38,8 +39,7 @@ import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
-import omero.model.TextAnnotation;
-import omero.model.UrlAnnotation;
+import omero.model.UriAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
 
@@ -131,12 +131,12 @@ public abstract class DataObject {
             converted = new ProjectData((Project) obj);
         } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
-        } else if (obj instanceof UrlAnnotation) {
-            converted = new URLAnnotationData((UrlAnnotation) obj);
+        } else if (obj instanceof UriAnnotation) {
+            converted = new URLAnnotationData((UriAnnotation) obj);
         } else if (obj instanceof TagAnnotation) {
             converted = new TagAnnotationData((TagAnnotation) obj);
-        } else if (obj instanceof TextAnnotation) {
-            converted = new TextualAnnotationData((TextAnnotation) obj);
+        } else if (obj instanceof CommentAnnotation) {
+            converted = new TextualAnnotationData((CommentAnnotation) obj);
         } else if (obj instanceof LongAnnotation) {
             LongAnnotation ann = (LongAnnotation) obj;
             if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs())) {

@@ -50,6 +50,8 @@
 		<properties>
 			<!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
+			<required name="node" type="string"/>
+			<required name="user" type="ome.model.meta.Experimenter"/>
 			<required name="uuid" type="string"/>
 			<required name="timeToIdle" type="long"/>
 			<required name="timeToLive" type="long"/>
@@ -69,6 +71,16 @@
             -->
 		</properties>
 	</type>
+
+	<type id="ome.model.meta.Node" global="true" annotated="true">
+		<properties>
+			<required name="uuid"  type="string"/>
+			<required name="conn"  type="string"/>
+			<required name="up"    type="timestamp"/>
+			<optional name="down"  type="timestamp"/>
+		</properties>
+	</type>
+
 	<enum id="ome.model.enums.EventType">
 		<!-- Note: EventType is not in model-->
 		<entry name="Import"/>

@@ -7,6 +7,8 @@
 
 package pojos;
 
+import static omero.rtypes.rstring;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,16 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static omero.rtypes.*;
 import omero.RTime;
 import omero.model.Annotation;
+import omero.model.CommentAnnotation;
 import omero.model.DatasetImageLink;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.Pixels;
-import omero.model.TextAnnotation;
 
 /**
  * The data that makes up an <i>OME</i> Image along with links to its Pixels,
@@ -339,9 +340,9 @@ public class ImageData extends DataObject {
                         .copyAnnotationLinks();
                 for (ImageAnnotationLink link : links) {
                     Annotation a = link.getChild();
-                    if (a instanceof TextAnnotation) {
+                    if (a instanceof CommentAnnotation) {
                         annotations.add(new TextualAnnotationData(
-                                (TextAnnotation) a));
+                                (CommentAnnotation) a));
                     } else if (a instanceof LongAnnotation) {
                         annotations.add(new RatingAnnotationData(
                                 (LongAnnotation) a));

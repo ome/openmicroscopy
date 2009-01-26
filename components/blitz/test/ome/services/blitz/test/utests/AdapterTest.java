@@ -29,6 +29,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import ome.model.annotations.AnnotationAnnotationLink;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -56,6 +57,7 @@ import omero.RType;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOLEAVES;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.CommentAnnotationI;
 import omero.model.DatasetI;
 import omero.model.EventI;
 import omero.model.IObject;
@@ -190,10 +192,10 @@ public class AdapterTest extends TestCase {
 
         IceMapper mapper = new IceMapper();
 
-        TextAnnotation pa = new TextAnnotation();
+        CommentAnnotation pa = new CommentAnnotation();
         pa.addAnnotationAnnotationLink(new AnnotationAnnotationLink(1L, false));
 
-        TextAnnotationI pa_remote = (TextAnnotationI) mapper.map(pa);
+        CommentAnnotationI pa_remote = (CommentAnnotationI) mapper.map(pa);
         assertFalse(pa_remote.copyAnnotationLinks().get(0).isLoaded());
 
     }
@@ -203,12 +205,12 @@ public class AdapterTest extends TestCase {
 
         IceMapper mapper = new IceMapper();
 
-        TextAnnotationI pa_remote = new TextAnnotationI();
+        CommentAnnotationI pa_remote = new CommentAnnotationI();
         AnnotationAnnotationLinkI p_remote = new AnnotationAnnotationLinkI();
         p_remote.unload();
         pa_remote.addAnnotationAnnotationLink(p_remote);
 
-        TextAnnotation pa = (TextAnnotation) mapper.reverse(pa_remote);
+        CommentAnnotation pa = (CommentAnnotation) mapper.reverse(pa_remote);
         assertFalse(pa.iterateAnnotationLinks().next().isLoaded());
     }
 

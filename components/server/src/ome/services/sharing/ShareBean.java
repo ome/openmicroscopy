@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.annotations.NotNull;
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IShare;
 import ome.api.ServiceInterface;
@@ -29,8 +28,8 @@ import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.SessionAnnotationLink;
-import ome.model.annotations.TextAnnotation;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
@@ -416,23 +415,23 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public TextAnnotation addComment(long shareId, @NotNull
+    public CommentAnnotation addComment(long shareId, @NotNull
     String comment) {
         Share s = new Share(shareId, false);
-        TextAnnotation commentAnnotation = new TextAnnotation();
+        CommentAnnotation commentAnnotation = new CommentAnnotation();
         commentAnnotation.setTextValue(comment);
         commentAnnotation.setNs(NS_COMMENT);
         SessionAnnotationLink link = new SessionAnnotationLink(s,
                 commentAnnotation);
         link = iUpdate.saveAndReturnObject(link);
-        return (TextAnnotation) link.child();
+        return (CommentAnnotation) link.child();
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public TextAnnotation addReply(long shareId, @NotNull
+    public CommentAnnotation addReply(long shareId, @NotNull
     String comment, @NotNull
-    TextAnnotation replyTo) {
+    CommentAnnotation replyTo) {
         throw new UnsupportedOperationException();
     }
 

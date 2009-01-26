@@ -22,10 +22,9 @@
  */
 package pojos;
 
-import static omero.rtypes.*;
-import omero.model.TagAnnotation;
-import omero.model.TextAnnotation;
-import omero.model.TextAnnotationI;
+import static omero.rtypes.rstring;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 
 /**
  * Basic textual annotation used to add comments to a given object.
@@ -40,7 +39,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /** Creates a new instance. */
     public TextualAnnotationData() {
-        super(TextAnnotationI.class);
+        super(CommentAnnotationI.class);
         setContent(null);
     }
 
@@ -51,7 +50,7 @@ public class TextualAnnotationData extends AnnotationData {
      *            The text to set.
      */
     public TextualAnnotationData(String text) {
-        super(TextAnnotationI.class);
+        super(CommentAnnotationI.class);
         setContent(text);
     }
 
@@ -59,10 +58,10 @@ public class TextualAnnotationData extends AnnotationData {
      * Creates a new instance.
      * 
      * @param annotation
-     *            The {@link TextAnnotation} object corresponding to this
+     *            The {@link CommentAnnotation} object corresponding to this
      *            <code>DataObject</code>. Mustn't be <code>null</code>.
      */
-    public TextualAnnotationData(TextAnnotation annotation) {
+    public TextualAnnotationData(CommentAnnotation annotation) {
         super(annotation);
     }
 
@@ -92,7 +91,7 @@ public class TextualAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        omero.RString s = ((TextAnnotation) asAnnotation()).getTextValue();
+        omero.RString s = ((CommentAnnotation) asAnnotation()).getTextValue();
         return s == null ? null : s.getValue();
     }
 
@@ -126,7 +125,7 @@ public class TextualAnnotationData extends AnnotationData {
             throw new IllegalArgumentException(
                     "Annotation value cannot be null.");
         }
-        ((TextAnnotation) asAnnotation())
+        ((CommentAnnotation) asAnnotation())
                 .setTextValue(rstring(value));
     }
 

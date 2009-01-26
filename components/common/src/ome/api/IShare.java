@@ -16,7 +16,7 @@ import ome.annotations.Validate;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
@@ -256,7 +256,7 @@ public interface IShare extends ServiceInterface {
      * @param share
      * @param comment
      */
-    TextAnnotation addComment(long shareId, @NotNull
+    CommentAnnotation addComment(long shareId, @NotNull
     String comment);
 
     /**
@@ -268,9 +268,9 @@ public interface IShare extends ServiceInterface {
      * @param replyTo
      * @return
      */
-    TextAnnotation addReply(long shareId, @NotNull
+    CommentAnnotation addReply(long shareId, @NotNull
     String comment, @NotNull
-    TextAnnotation replyTo);
+    CommentAnnotation replyTo);
 
     /**
      * Deletes {@link ome.model.annotations.Annotation comment} from the

@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 
 import ome.api.IUpdate;
@@ -23,13 +22,14 @@ import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.DoubleAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.UriAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
@@ -579,10 +579,14 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
         // Finding by superclass
+        // As of 4.0, text annotation is abstract, and so it's not possible
+        // to do this.
+        /*
         TextAnnotation txtAnn = new TextAnnotation();
         txtAnn.setTextValue(uuid);
         search.byAnnotatedWith(txtAnn);
         assertResults(search, 1);
+        */
     }
 
     @Test
@@ -1908,7 +1912,7 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testTextAnnotationDoesntTryToLoadUpdateEvent() {
         String uuid = uuid();
-        TextAnnotation ta = new TextAnnotation();
+        TextAnnotation ta = new CommentAnnotation();
         ta.setTextValue(uuid);
         ta = iUpdate.saveAndReturnObject(ta);
         iUpdate.indexObject(ta);
@@ -2316,18 +2320,18 @@ public class SearchTest extends AbstractTest {
     }
 
     @Test
-    public void testAddingUrlAnnotation() throws Exception {
+    public void testAddingUriAnnotation() throws Exception {
 
         String uuid = uuid();
         String urlString = "http://" + uuid + ".com";
         Image i = new Image(testTimestamp, "name");
-        UrlAnnotation url = new UrlAnnotation();
+        UriAnnotation url = new UriAnnotation();
         url.setTextValue(urlString);
         i.linkAnnotation(url);
 
         loginRoot();
         i = this.iUpdate.saveAndReturnObject(i);
-        url = (UrlAnnotation) i.linkedAnnotationList().get(0);
+        url = (UriAnnotation) i.linkedAnnotationList().get(0);
         this.iUpdate.indexObject(i);
         this.iUpdate.indexObject(url);
 

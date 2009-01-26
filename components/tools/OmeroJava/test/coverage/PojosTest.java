@@ -15,7 +15,7 @@ import omero.api.IPojosPrx;
 import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.ImageI;
-import omero.model.TextAnnotationI;
+import omero.model.CommentAnnotationI;
 
 import org.testng.annotations.Test;
 
@@ -35,12 +35,12 @@ public class PojosTest extends IceTest {
         ImageI i = new ImageI();
         i.setName(rstring("findAnnotationsTest"));
 
-        TextAnnotationI a = new TextAnnotationI();
+        CommentAnnotationI a = new CommentAnnotationI();
         a.setTextValue(rstring("an annotation"));
         i.linkAnnotation(a);
 
         i = (ImageI) ice.getSession().getUpdateService().saveAndReturnObject(i);
-        a = (TextAnnotationI) i.linkedAnnotationList().get(0);
+        a = (CommentAnnotationI) i.linkedAnnotationList().get(0);
 
         Map<Long, List<IObject>> retVal = ice.getSession().getPojosService()
                 .findAnnotations("Image", Arrays.asList(i.getId().getValue()), null,

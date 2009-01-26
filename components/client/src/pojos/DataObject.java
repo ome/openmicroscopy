@@ -27,7 +27,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.UriAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -127,8 +127,8 @@ public abstract class DataObject {
             converted = new ProjectData((Project) obj);
         } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
-        } else if (obj instanceof UrlAnnotation) {
-            converted = new URLAnnotationData((UrlAnnotation) obj);
+        } else if (obj instanceof UriAnnotation) {
+            converted = new URLAnnotationData((UriAnnotation) obj);
         } else if (obj instanceof TagAnnotation) {
         	converted = new TagAnnotationData((TagAnnotation) obj);
         } else if (obj instanceof TextAnnotation) {

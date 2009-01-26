@@ -19,7 +19,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.UriAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -187,7 +187,7 @@ public class FullTextBridge extends BridgeHelper {
                     String textValue = text.getTextValue();
                     textValue = textValue == null ? "" : textValue;
                     add(document, "annotation", textValue, store, index, boost);
-                    if (annotation instanceof UrlAnnotation) {
+                    if (annotation instanceof UriAnnotation) {
                         add(document, "url", textValue, store, index, boost);
                     } else if (annotation instanceof TagAnnotation) {
                         add(document, "tag", textValue, store, index, boost);

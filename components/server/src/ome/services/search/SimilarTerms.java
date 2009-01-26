@@ -13,8 +13,8 @@ import java.util.List;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.core.Image;
 import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
@@ -74,7 +74,7 @@ public class SimilarTerms extends SearchAction {
         try {
             fuzzy = new FuzzyTermEnum(reader, new Term("combined_fields", terms[0]));
             while (fuzzy.next()) {
-                TextAnnotation text = new TextAnnotation();
+                CommentAnnotation text = new CommentAnnotation();
                 text.setNs(terms[0]);
                 text.setTextValue(fuzzy.term().text());
                 rv.add(text);

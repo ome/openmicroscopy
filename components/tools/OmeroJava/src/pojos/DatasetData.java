@@ -7,20 +7,21 @@
 
 package pojos;
 
+import static omero.rtypes.rstring;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static omero.rtypes.*;
 import omero.model.Annotation;
+import omero.model.CommentAnnotation;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.LongAnnotation;
 import omero.model.ProjectDatasetLink;
-import omero.model.TextAnnotation;
 
 /**
  * The data that makes up an <i>OME</i> Dataset along with links to its
@@ -269,9 +270,9 @@ public class DatasetData extends DataObject {
                         .copyAnnotationLinks();
                 for (DatasetAnnotationLink link : links) {
                     Annotation a = link.getChild();
-                    if (a instanceof TextAnnotation) {
+                    if (a instanceof CommentAnnotation) {
                         annotations.add(new TextualAnnotationData(
-                                (TextAnnotation) a));
+                                (CommentAnnotation) a));
                     } else if (a instanceof LongAnnotation) {
                         annotations.add(new RatingAnnotationData(
                                 (LongAnnotation) a));

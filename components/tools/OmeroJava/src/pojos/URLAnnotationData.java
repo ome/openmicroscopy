@@ -22,9 +22,9 @@
  */
 package pojos;
 
-import static omero.rtypes.*;
-import omero.model.UrlAnnotation;
-import omero.model.UrlAnnotationI;
+import static omero.rtypes.rstring;
+import omero.model.UriAnnotation;
+import omero.model.UriAnnotationI;
 
 /**
  * Define a URL Annotation. Note that a URL annotation is a specific text
@@ -75,7 +75,7 @@ public class URLAnnotationData extends AnnotationData {
      *            The value to set.
      */
     public URLAnnotationData(String url) {
-        super(UrlAnnotationI.class);
+        super(UriAnnotationI.class);
         setURL(url);
     }
 
@@ -85,7 +85,7 @@ public class URLAnnotationData extends AnnotationData {
      * @param annotation
      *            The value to set.
      */
-    public URLAnnotationData(UrlAnnotation annotation) {
+    public URLAnnotationData(UriAnnotation annotation) {
         super(annotation);
     }
 
@@ -97,7 +97,7 @@ public class URLAnnotationData extends AnnotationData {
      */
     public void setURL(String url) {
         validateURL(url);
-        ((UrlAnnotation) asAnnotation()).setTextValue(rstring(url));
+        ((UriAnnotation) asAnnotation()).setTextValue(rstring(url));
     }
 
     /**
@@ -116,7 +116,7 @@ public class URLAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        omero.RString s = ((UrlAnnotation) asAnnotation()).getTextValue();
+        omero.RString s = ((UriAnnotation) asAnnotation()).getTextValue();
         return s == null ? null : s.getValue();
     }
 

@@ -22,7 +22,7 @@ import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.ThumbnailAnnotation;
 import ome.model.annotations.TimestampAnnotation;
-import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.UriAnnotation;
 import ome.model.annotations.XmlAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.display.Thumbnail;
@@ -115,8 +115,8 @@ public class AnnotatedWith extends SearchAction {
                     annCls[i] = TagAnnotation.class;
                 } else if (annotation[i] instanceof QueryAnnotation) {
                     annCls[i] = QueryAnnotation.class;
-                } else if (annotation[i] instanceof UrlAnnotation) {
-                    annCls[i] = UrlAnnotation.class;
+                } else if (annotation[i] instanceof UriAnnotation) {
+                    annCls[i] = UriAnnotation.class;
                 } else if (annotation[i] instanceof XmlAnnotation) {
                     annCls[i] = XmlAnnotation.class;
                 } else {

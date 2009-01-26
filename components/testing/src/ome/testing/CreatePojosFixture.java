@@ -16,6 +16,7 @@ import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
@@ -280,7 +281,7 @@ public class CreatePojosFixture {
 
     protected DatasetAnnotationLink datasetann(Experimenter user, Dataset d,
             String name) {
-        TextAnnotation dann = new TextAnnotation();
+        TextAnnotation dann = new TagAnnotation();
         dann.setNs(name);
         dann.getDetails().setOwner(user);
         DatasetAnnotationLink link = new DatasetAnnotationLink();
@@ -291,7 +292,7 @@ public class CreatePojosFixture {
 
     protected ImageAnnotationLink imageann(Experimenter user, Image i,
             String name) {
-        TextAnnotation iann = new TextAnnotation();
+        TextAnnotation iann = new TagAnnotation();
         iann.setNs(name);
         iann.getDetails().setOwner(user);
         ImageAnnotationLink link = new ImageAnnotationLink();

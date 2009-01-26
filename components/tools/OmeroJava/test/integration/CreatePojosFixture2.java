@@ -18,6 +18,8 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
@@ -37,8 +39,7 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
-import omero.model.TextAnnotation;
-import omero.model.TextAnnotationI;
+import omero.model.CommentAnnotationI;
 import omero.sys.EventContext;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
@@ -301,7 +302,7 @@ public class CreatePojosFixture2 {
 
     protected DatasetAnnotationLink datasetann(Experimenter user, Dataset d,
             String name) throws Exception {
-        TextAnnotation dann = new TextAnnotationI();
+        CommentAnnotation dann = new CommentAnnotationI();
         dann.setNs( rstring(name) );
         dann.getDetails().setOwner( user );
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
@@ -312,7 +313,7 @@ public class CreatePojosFixture2 {
 
     protected ImageAnnotationLink imageann(Experimenter user, Image i,
             String name) throws Exception {
-        TextAnnotation iann = new TextAnnotationI();
+        CommentAnnotation iann = new CommentAnnotationI();
         iann.setNs( rstring(name) );
         iann.getDetails().setOwner( user );
         ImageAnnotationLink link = new ImageAnnotationLinkI();

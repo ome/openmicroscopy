@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 import ome.model.IObject;
-import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -95,13 +95,13 @@ public class HibernateTest extends TestCase {
 
     @Test
     public void testFirstAnnotationTests() throws Exception {
-        TextAnnotation ann = new TextAnnotation();
+        CommentAnnotation ann = new CommentAnnotation();
         ann.setNs("ENVPROP");
         ann.setTextValue("value");
 
         createEvent();
         setDetails(ann);
-        ann = (TextAnnotation) s.merge(ann);
+        ann = (CommentAnnotation) s.merge(ann);
         s.flush();
 
         setDetails(root.linkAnnotation(ann));
@@ -116,10 +116,10 @@ public class HibernateTest extends TestCase {
 
     @Test
     public void testAnnotatingAnnotations() throws Exception {
-        TextAnnotation tag = new TextAnnotation();
+        CommentAnnotation tag = new CommentAnnotation();
         tag.setNs("tag");
         tag.setTextValue("value");
-        TextAnnotation group = new TextAnnotation();
+        CommentAnnotation group = new CommentAnnotation();
         group.setNs("taggroup");
         tag.setTextValue("value");
 
@@ -127,7 +127,7 @@ public class HibernateTest extends TestCase {
         setDetails(tag);
         setDetails(group);
         setDetails(tag.linkAnnotation(group));
-        tag = (TextAnnotation) s.merge(tag);
+        tag = (CommentAnnotation) s.merge(tag);
 
     }
 

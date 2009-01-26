@@ -7,6 +7,7 @@
 package ome.server.itests;
 
 import ome.model.ILink;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
@@ -31,7 +32,7 @@ public class CountTest extends AbstractManagedContextTest {
         assertNotNull(i.getAnnotationLinksCountPerOwner());
         assertNull(i.getAnnotationLinksCountPerOwner().get(self));
 
-        TextAnnotation ta = new TextAnnotation();
+        TextAnnotation ta = new CommentAnnotation();
         ta.setNs("");
         ta.setTextValue("counts");
 

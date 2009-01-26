@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -134,7 +135,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         Dataset d = new Dataset("name");
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
         Image i = new Image(testTimestamp, "name");
-        TextAnnotation t = new TextAnnotation();
+        CommentAnnotation t = new CommentAnnotation();
         t.setNs("");
         t.setTextValue("t");
         i.linkAnnotation(t);

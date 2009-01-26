@@ -22,19 +22,20 @@
  */
 package pojos;
 
+import static omero.rtypes.rstring;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static omero.rtypes.*;
+import omero.model.CommentAnnotation;
 import omero.model.DatasetAnnotationLink;
 import omero.model.ImageAnnotationLink;
 import omero.model.ProjectAnnotationLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.TextAnnotation;
 
 /**
  * A tag annotation can either be related to an image or a tag but not to both
@@ -138,13 +139,13 @@ public class TagAnnotationData extends AnnotationData {
      * @param value
      *            The descriptions of the tag.
      */
-    public TagAnnotationData(TagAnnotation tag, List<TextAnnotation> value) {
+    public TagAnnotationData(TagAnnotation tag, List<CommentAnnotation> value) {
         super(tag);
         if (value == null) {
             return;
         }
         descriptions = new ArrayList<TextualAnnotationData>();
-        Iterator<TextAnnotation> i = value.iterator();
+        Iterator<CommentAnnotation> i = value.iterator();
         while (i.hasNext()) {
             descriptions.add(new TextualAnnotationData(i.next()));
         }
