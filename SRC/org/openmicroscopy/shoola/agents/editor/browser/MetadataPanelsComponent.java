@@ -111,6 +111,9 @@ class MetadataPanelsComponent
 			List<MetadataComponent> paramComponents = 
 				transformFieldParams(field);
 			
+			// don't add a field unless it has some parameters to display
+			if (paramComponents.isEmpty()) continue;
+			
 			fieldName = TreeOutlineCellRenderer.getFieldDisplayName(field);
 			
 			nodePanel = new JPanel();
