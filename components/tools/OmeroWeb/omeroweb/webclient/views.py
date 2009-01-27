@@ -1350,7 +1350,7 @@ def manage_container_hierarchy(request, o_type=None, o_id=None, **kwargs):
 # ACTIONS
 
 @isUserConnected
-def manage_metadata(request, o_type=None, o_id=None, **kwargs):
+def manage_metadata(request, o_type, o_id, **kwargs):
     
     conn = None
     try:
@@ -1364,7 +1364,7 @@ def manage_metadata(request, o_type=None, o_id=None, **kwargs):
     manager = BaseContainer(conn, o_type, o_id)
     manager.saveMetadata(matadataType, metadataValue)
     
-    return HttpResponse('done')
+    return HttpResponse()
 
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):

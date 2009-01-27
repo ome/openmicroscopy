@@ -85,14 +85,14 @@ class BaseContainer(BaseController):
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {
             # ObjectiveSettings
-            'correctionCollar':('int', 'ObjectiveSettings'), 'medium':('int', 'ObjectiveSettings'), 
+            'correctionCollar':('float', 'ObjectiveSettings'), 'medium':('int', 'ObjectiveSettings', 'MediumI'), 
             'refractiveIndex':('float', 'ObjectiveSettings'),
-
+            
             # Objective
-            'correction':('int', 'Objective'), 'calibratedMagnification':('float', 'Objective'), 'immersion':('int', 'Objective'), 
+            'correction':('int', 'Objective', 'CorrectionI'), 'calibratedMagnification':('float', 'Objective'), 'immersion':('int', 'Objective', 'ImmersionI'), 
             'iris':['bool', 'Objective'], 'lensNA':('float', 'Objective'), 'manufacturer':('string', 'Objective'), 'model':('string', 'Objective'), 
             'nominalMagnification':('int', 'Objective'), 'serialNumber':('string', 'Objective'), 'workingDistance':('float', 'Objective'),
-
+            
             # Condition
             'airPressure':('int', 'Condition'), 'co2percent':('float', 'Condition'), 'humidity':('float', 'Condition'), 
             'temperature':('float', 'Condition'),
@@ -100,11 +100,12 @@ class BaseContainer(BaseController):
         
         metadataFamily = metadata_rtype.get(matadataType)[1]
         m_rtype = metadata_rtype.get(matadataType)[0]
-        
-        m_name = matadataType[0].upper()+matadataType[1:]
         enum = None
         try:
-            enum = self.conn.getEnumeration(m_name+"I", metadataValue)
+            m_class = metadata_rtype.get(matadataType)[2]
+            m_name = matadataType[0].upper()+matadataType[1:]
+            if m_class is not None:
+                enum = self.conn.getEnumeration(m_class, metadataValue)
         except:
             pass
         
