@@ -11,13 +11,12 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import ome.tools.spring.ReadWriteCache;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-public class TestCache extends ReadWriteCache {
+public class TestCache extends Cache {
 
     static CacheManager ehMgr = new CacheManager();
     static volatile int count = 1;
@@ -37,15 +36,11 @@ public class TestCache extends ReadWriteCache {
 
     public TestCache(String name, int elements, int timeToLive, int timeToIdle,
             RegisteredEventListeners listeners) {
-        super(cache(name, elements, timeToLive, timeToIdle, listeners));
-        ehMgr.addCache(this);
-    }
-
-    static Ehcache cache(String name, int elements, int timeToLive,
-            int timeToIdle, RegisteredEventListeners listeners) {
-        return new Cache(name, elements, MemoryStoreEvictionPolicy.LFU,
+        super(name, elements, MemoryStoreEvictionPolicy.LFU,
                 false /* disk */, null /* path */, true /* eternal */,
                 timeToLive, timeToIdle, false /* disk persistent */,
                 10 /* disk thread interval */, listeners);
+        ehMgr.addCache(this);
     }
+
 }
