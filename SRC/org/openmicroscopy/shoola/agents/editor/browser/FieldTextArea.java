@@ -396,6 +396,7 @@ public class FieldTextArea
 		
 		// if no content, put a place-holder so users can enter text
 		if (field.getContentCount() == 0) {
+			System.out.println("		FieldTextArea getHtml() contentCount == 0");
 			contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
 			HTML.Attribute.ID + 
 			"='0'> </"+ FieldTextArea.TEXT_TAG + ">";
@@ -435,7 +436,6 @@ public class FieldTextArea
 			// add each component. 
 			html = html + contentText;
 		}
-		
 		return html;
 	}
 	
@@ -450,6 +450,7 @@ public class FieldTextArea
     		// get the new name...
     		TextToken nameTag = getNameTag();
     		String fieldName = (nameTag == null ? null : nameTag.getText());
+    		fieldName = fieldName.trim();
     		
     		// convert the current text of this editor into a list of
     		// content, in the same format as the data model...
@@ -695,6 +696,8 @@ public class FieldTextArea
 	public void refreshText() {
 		
 		String content = getHtml();
+		
+		System.out.println("FieldTextArea refreshText(): " + content);
 		
 		String html = "<html><head> <style type='text/css'> \n" +
 			FieldTextArea.NAME_TAG + "#" + FieldTextArea.NAME_ID +
