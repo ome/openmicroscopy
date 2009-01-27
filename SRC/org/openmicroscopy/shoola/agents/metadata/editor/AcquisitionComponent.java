@@ -30,9 +30,12 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
@@ -151,7 +154,15 @@ class AcquisitionComponent
 	 * 
 	 * @return See above.
 	 */
-	JComponent getArea() { return area; }
+	JComponent getArea()
+	{ 
+		if (area instanceof JComboBox) {
+			JPanel p = UIUtilities.buildComponentPanel(area, 0, 0);
+			p.setBackground(area.getBackground());
+			return p;
+		}
+		return area; 
+	}
 	
 	/**
 	 * Returns the value of the {@link #area} component.

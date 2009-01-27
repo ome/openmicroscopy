@@ -246,13 +246,6 @@ class ImageAcquisitionComponent
 			unsetObjective = parent.formatUnsetFieldsControl();
 			unsetObjective.setActionID(OBJECTIVE);
 			unsetObjective.addPropertyChangeListener(this);
-			/*
-			unsetObjective.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					displayUnsetObjectiveFields();
-				}
-			});
-			*/
 		}
 
 		boolean set;
@@ -360,13 +353,6 @@ class ImageAcquisitionComponent
 			unsetStage = parent.formatUnsetFieldsControl();
 			unsetStage.setActionID(STAGE);
 			unsetStage.addPropertyChangeListener(this);
-			/*
-			unsetStage.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					displayUnsetStageFields();
-				}
-			});
-			*/
 		}
 
 		boolean set;
@@ -426,13 +412,6 @@ class ImageAcquisitionComponent
 			unsetEnv = parent.formatUnsetFieldsControl();
 			unsetEnv.setActionID(ENVIRONMENT);
 			unsetEnv.addPropertyChangeListener(this);
-			/*
-			unsetEnv.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					displayUnsetEnvFields();
-				}
-			});
-			*/
 		}
 
 		boolean set;

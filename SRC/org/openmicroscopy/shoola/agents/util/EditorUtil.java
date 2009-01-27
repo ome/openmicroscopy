@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.swing.JButton;
-import javax.swing.plaf.basic.BasicComboBoxUI;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -45,8 +43,8 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.RFloat;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
+import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
@@ -1393,21 +1391,8 @@ public class EditorUtil
 	{
     	OMEComboBox box = new OMEComboBox(values);
 		box.setBackground(UIUtilities.BACKGROUND_COLOR);
-		BasicComboBoxUI ui = new BasicComboBoxUI() {
-
-	         protected JButton createArrowButton() {
-	        	
-	        	JButton b = super.createArrowButton();
-	        	IconManager icons = IconManager.getInstance();
-	        	//b.setIcon(icons.getIcon(IconManager.HYPERLINK));
-	        	//b.setBorder(null);
-	        	b.setBorderPainted(false);
-	          	//b.setVisible(false);
-	            return b;
-	         }
-	         
-	      };
-	      ui.installUI(box);
+		OMEComboBoxUI ui = new OMEComboBoxUI();
+	    ui.installUI(box);
 		box.setUI(ui);
 		Font f = box.getFont();
 		int size = f.getSize()-decrement;
@@ -1460,7 +1445,6 @@ public class EditorUtil
 		taskPane.setCollapsed(true);
 		Font font = taskPane.getFont();
 		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
-		
 		return taskPane;
 	}
 	

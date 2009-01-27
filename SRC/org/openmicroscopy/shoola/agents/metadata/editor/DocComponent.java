@@ -154,7 +154,10 @@ class DocComponent
 		deleteButton = new JButton(icons.getIcon(IconManager.MINUS));
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		deleteButton.setToolTipText("Remove the attachment.");
+		if (data instanceof FileAnnotationData)
+			deleteButton.setToolTipText("Remove the attachment.");
+		else if (data instanceof TagAnnotationData)
+			deleteButton.setToolTipText("Remove the Tag.");
 		deleteButton.addActionListener(new ActionListener() {
 		
 			/**

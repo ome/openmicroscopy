@@ -32,6 +32,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -122,7 +124,6 @@ class PropertiesUI
     private JTextArea			namePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
-    //private OMEWikiComponent	descriptionPane;
     private JTextArea			descriptionPane;
     
     /** The component hosting the {@link #namePane}. */
@@ -172,9 +173,21 @@ class PropertiesUI
        	
        	idLabel = UIUtilities.setTextFont("");
     	namePane = createTextPane();
+    	namePane.addMouseListener(new MouseAdapter() {
+    		public void mousePressed(MouseEvent e) {
+    			if (e.getClickCount() == 2)
+    				editField(namePanel, namePane, true);
+    		}
+		});
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	descriptionPane = createTextPane();//new OMEWikiComponent(false);
+    	descriptionPane.addMouseListener(new MouseAdapter() {
+    		public void mousePressed(MouseEvent e) {
+    			if (e.getClickCount() == 2)
+    				editField(descriptionPanel, descriptionPane, true);
+    		}
+		});
     	descriptionPane.addPropertyChangeListener(controller);
     	//descriptionPane.setDefaultText(DEFAULT_TEXT);
     	descriptionPane.setText(DEFAULT_TEXT);
@@ -272,8 +285,7 @@ class PropertiesUI
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	
-    	label = UIUtilities.setTextFont("Channels", Font.BOLD, 
-    			size);
+    	label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
     	content.add(label, "0, "+index);
     	content.add(channelsArea, "2, "+index);
     	
@@ -294,8 +306,8 @@ class PropertiesUI
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         content.setBorder(null);
-       	if (permissions != null && 
-       			permissions.isGroupRead()) publicBox.setSelected(true);
+       	if (permissions != null && permissions.isGroupRead()) 
+       		publicBox.setSelected(true);
        	content.add(privateBox);
        	content.add(publicBox);
        	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
@@ -383,6 +395,26 @@ class PropertiesUI
     	add(buildContentPanel(EditorUtil.transformPixelsData(data)));
     }
 
+	/**
+	 * Modifies the passed components depending on the value of the
+	 * <code>editable</code> flag.
+	 * 
+	 * @param panel     The panel to handle.
+	 * @param field		The field to handle.
+	 * @param editable	Pass <code>true</code> if <code>editable</code>,
+	 * 					<code>false</code> otherwise.
+	 */
+	private void editField(JPanel panel, JTextArea field, boolean editable)
+	{
+		field.setEditable(editable);
+		if (editable) {
+			panel.setBorder(EDIT_BORDER);
+			field.requestFocus();
+		} else {
+			panel.setBorder(defaultBorder);
+		}
+	}
+	
     /**
      * Creates a new instance.
      * 
@@ -444,10 +476,12 @@ class PropertiesUI
         	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
         }
+        /*
         if (model.getRefObject() instanceof TagAnnotationData) {
         	namePane.getDocument().removeDocumentListener(this);
         	namePane.setEnabled(false);
         }
+        */
         buildGUI();
 	}
 	
@@ -657,14 +691,10 @@ class PropertiesUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case EDIT_NAME:
-				namePanel.setBorder(EDIT_BORDER);
-				namePane.setEditable(true);
-				namePane.requestFocus();
+				editField(namePanel, namePane, true);
 				break;
 			case EDIT_DESC:
-				descriptionPane.requestFocus();
-				descriptionPanel.setBorder(EDIT_BORDER);
-				descriptionPane.setEditable(true);
+				editField(descriptionPanel, descriptionPane, true);
 		}
 	}
 	
@@ -677,8 +707,7 @@ class PropertiesUI
 	{
 		Object src = e.getSource();
 		if (src == namePane) {
-			namePanel.setBorder(defaultBorder);
-			namePane.setEditable(false);
+			editField(namePanel, namePane, false);
 			String text = namePane.getText();
 			if (text == null || text.trim().length() == 0) {
 				namePane.getDocument().removeDocumentListener(this);
@@ -686,8 +715,7 @@ class PropertiesUI
 				namePane.getDocument().addDocumentListener(this);
 			}
 		} else if (src == descriptionPane) {
-			descriptionPanel.setBorder(defaultBorder);
-			descriptionPane.setEditable(false);
+			editField(descriptionPanel, descriptionPane, false);
 			String text = descriptionPane.getText();
 			if (text == null || text.trim().length() == 0) {
 				descriptionPane.getDocument().removeDocumentListener(this);

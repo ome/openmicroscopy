@@ -113,6 +113,7 @@ public class EditorUI
 		generalPane = new GeneralPaneUI(this, model, controller);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
+		tabbedPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		tabbedPane.addTab("General", null, generalPane, "General Information.");
 		tabbedPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
 			"Acquisition Metadata.");
