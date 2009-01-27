@@ -448,8 +448,8 @@ public class FieldTextArea
     		
     		// get the new name...
     		TextToken nameTag = getNameTag();
-    		String fieldName = (nameTag == null ? null : nameTag.getText());
-    		fieldName = fieldName.trim();
+    		String fieldName = 
+    						(nameTag == null ? null : nameTag.getText().trim());
     		
     		// convert the current text of this editor into a list of
     		// content, in the same format as the data model...
