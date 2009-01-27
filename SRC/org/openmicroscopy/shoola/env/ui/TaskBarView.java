@@ -167,6 +167,9 @@ class TaskBarView
     /** Collection of the copy of the window menu. */
     private Set<JMenu>         	windowMenus;
     
+    /** Collection of the copy of the window menu. */
+    private Set<JMenu>         	helpMenus;
+    
     /** Collection of available menu bars. */
     private Set<JMenuBar>		menubars;
     
@@ -434,6 +437,8 @@ class TaskBarView
 			bar.add(copy);
 			if (menu == menus[WINDOW_MENU])
 				windowMenus.add(copy);
+			else if (menu == menus[HELP_MENU])
+				helpMenus.add(copy);
 		}
 		
 		return bar;
@@ -454,6 +459,7 @@ class TaskBarView
 		menus = new JMenu[2];
 		iconManager = im;
         windowMenus = new HashSet<JMenu>();
+        helpMenus = new HashSet<JMenu>();
         menubars = new HashSet<JMenuBar>();
 		buildGUI();
 	}
@@ -492,6 +498,16 @@ class TaskBarView
                 else 
                     menu.add(copyItem(entry));
             }
+        } else if (menuID == HELP_MENU) {
+            Iterator i = helpMenus.iterator();
+            JMenu menu;
+            while (i.hasNext()) {
+                menu = (JMenu) i.next();
+                if (entry instanceof JMenu)
+                    menu.add(copyItemsFromMenu((JMenu) entry));
+                else 
+                    menu.add(copyItem(entry));
+            }
         }
 	}
 
@@ -506,6 +522,24 @@ class TaskBarView
 		
 		if (menuID == WINDOW_MENU && entry instanceof JMenu) {
 			 Iterator i = windowMenus.iterator();
+			 JMenu menu;
+			 Component[] comps;
+			 Component c;
+			 //tmp solution to remove item from the copy of the windows menu.
+			 while (i.hasNext()) {
+	                menu = (JMenu) i.next();
+	                comps = menu.getPopupMenu().getComponents();
+	                for (int j = 0; j < comps.length; j++) {
+	                	c = comps[j];
+						if (c instanceof JMenu) {
+							if (((JMenu) c).getText() == entry.getText()) {
+								menu.remove(c);
+							}
+						} 
+					}
+	            }
+		} else if (menuID == HELP_MENU && entry instanceof JMenu) {
+			 Iterator i = helpMenus.iterator();
 			 JMenu menu;
 			 Component[] comps;
 			 Component c;
@@ -588,6 +622,24 @@ class TaskBarView
         return menu;
     }
 
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#getHelpMenu()
+     */
+    public JMenu getHelpMenu()
+    {
+        JMenu menu = createHelpMenu();
+        Component[] comps = menus[HELP_MENU].getPopupMenu().getComponents();
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i] instanceof JMenu) 
+                menu.add(copyItemsFromMenu((JMenu) comps[i]));
+            else if (comps[i] instanceof JMenuItem) 
+                menu.add(copyItem((JMenuItem) comps[i]));
+        }
+        helpMenus.add(menu);
+        return menu;
+    }
+    
     /**
      * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#getCopyMenuItem(int)

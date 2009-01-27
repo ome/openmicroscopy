@@ -7,6 +7,22 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
 --------------------------------------------------------------------------------
+ Last update: 27/01/2009 (revision 5994)
+ Version: Beta 4rc1
+
+  - Improve tag workflow.
+  - Fix layout and editable issues.
+  _ Bug fixing
+--------------------------------------------------------------------------------
+ Last update: 22/01/2009 (revision 5977)
+ Version: Beta 4rc1
+
+  - Introduction of Acquisition metadata.
+  - Modified annotation workflow
+  - Modified viewer layout
+  - Viewer: Display plane information.
+  - Integration of the Editor.
+--------------------------------------------------------------------------------
  Last update: 19/05/2008 (revision 5417)
  Version: Beta 3rc4
 

@@ -165,12 +165,20 @@ public interface TaskBar
     public JMenuBar getTaskBarMenuBar();
     
     /**
-     * Returns a copy of <code>Windows</code> menu. New items should
+     * Returns a copy of the <code>Windows</code> menu. New items should
      * be added using the method {@link #addToMenu(int, JMenuItem)}
      * 
      * @return See above.
      */
     public JMenu getWindowsMenu();
+    
+    /**
+     * Returns a copy of <code>Help</code> menu. New items should
+     * be added using the method {@link #addToMenu(int, JMenuItem)}
+     * 
+     * @return See above.
+     */
+    public JMenu getHelpMenu();
     
     /**
      * Builds and returns a copy of the menu item specified by the passed index.

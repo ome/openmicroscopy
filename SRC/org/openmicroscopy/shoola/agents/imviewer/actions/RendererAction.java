@@ -59,8 +59,7 @@ public class RendererAction
     private static final String NAME = "Renderer";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Display rendering controls and" +
-    		" metadata.";
+    private static final String DESCRIPTION = "Display rendering controls.";
     
     /**
      * Creates a new instance.
@@ -71,7 +70,6 @@ public class RendererAction
     {
         super(model, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
-        		
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.RENDERER));
@@ -81,6 +79,9 @@ public class RendererAction
      * Brings up on screen the rendering controls tool.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.showRenderer(); }
+    public void actionPerformed(ActionEvent e)
+    { 
+    	model.showView(ImViewer.RENDERER_INDEX); 
+    }
     
 }

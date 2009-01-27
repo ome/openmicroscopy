@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
@@ -302,6 +303,9 @@ class ImViewerControl
 	/** Identifies the <code>Clear history</code> action. */
 	static final Integer     CLEAR_HISTORY = new Integer(66);
 
+	/** Identifies the <code>Metadata</code> action in the menu. */
+	static final Integer     METADATA = new Integer(67);    
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -401,6 +405,7 @@ class ImViewerControl
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
 		actionsMap.put(CLEAR_HISTORY, new ClearHistoryAction(model));
+		actionsMap.put(METADATA, new MetadataAction(model));
 	}
 
 	/** 

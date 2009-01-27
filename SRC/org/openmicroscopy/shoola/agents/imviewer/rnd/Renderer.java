@@ -81,7 +81,6 @@ public interface Renderer
      */
     public final static String  INPUT_INTERVAL_PROPERTY = "inputInterval";
     
-   
     /**
      * Updates the codomain map corresponding to the specified 
      * {@link CodomainMapContext}.
@@ -269,11 +268,20 @@ public interface Renderer
 	 * selecting an image from the history.
 	 */ 
 	public void resetRndSettings();
-
-	/** Updates the UI when switching to a new rendering control. */
-	public void switchRndControl();
 	
+	/**
+	 * Invokes when the state of the viewer has changed.
+	 * 
+	 * @param b Pass <code>true</code> to enable the UI components, 
+	 *          <code>false</code> otherwise.
+	 */
 	public void onStateChange(boolean b);
 	
-
+	/**
+	 * Sets the index of the selected pane.
+	 * 
+	 * @param index The index of the selected pane.
+	 */
+	public void setPaneIndex(int index);
+	
 }

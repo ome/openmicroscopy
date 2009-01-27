@@ -242,4 +242,15 @@ class RendererUI
 		}
 	}
 	
+	/** 
+	 * Sets the index of the pane.
+	 * 
+	 * @param index The index of the selected pane.
+	 */
+	void setPaneIndex(int index)
+	{
+		if (index == ImViewer.RENDERER_INDEX) setSelectedIndex(0);
+		else if (index == ImViewer.METADATA_INDEX) setSelectedIndex(1);
+	}
+	
 }

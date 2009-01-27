@@ -278,8 +278,8 @@ public class IconManager
         relPaths[ACQUISITION] = "nuvola_attach16.png";
         relPaths[PLUS] = "plus.png";
         relPaths[MINUS] = "minus.png";
-        relPaths[EDIT_8] = "nuvola_ksig_8.png";
-        relPaths[EDIT_12] = "nuvola_ksig_12.png";
+        relPaths[EDIT_8] = "nuvola_ksig8.png";
+        relPaths[EDIT_12] = "nuvola_ksig12.png";
 	}
    
 	/** The sole instance. */

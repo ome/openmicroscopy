@@ -91,14 +91,13 @@ public class NullTaskBar
     public JMenu getWindowsMenu() { return null; }
 
     /**
+     * @see TaskBar#getWindowsMenu()
+     */
+    public JMenu getHelpMenu() { return null; }
+    
+    /**
      * @see TaskBar#getCopyMenuItem(int)
      */
 	public JMenuItem getCopyMenuItem(int index) { return null; }
-
-	//TMP
-	public void openURL(String url) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

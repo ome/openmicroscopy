@@ -242,6 +242,9 @@ class ImViewerUI
 	/** Item used to control show or hide the renderer. */
 	private JCheckBoxMenuItem					rndItem;
 	
+	/** Item used to control show or hide the metadata. */
+	private JCheckBoxMenuItem					metadataItem;
+	
 	/** Item used to control show or hide the history. */
 	private JCheckBoxMenuItem					historyItem;
 
@@ -346,8 +349,9 @@ class ImViewerUI
 		menuBar.add(createZoomMenu(pref));
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+		//menuBar.add(tb.getWindowsMenu());
 		menuBar.add(tb.getWindowsMenu());
-		menuBar.add(createHelpMenu());
+		menuBar.add(tb.getHelpMenu());
 		return menuBar;
 	}
 
@@ -556,7 +560,15 @@ class ImViewerUI
 		rndItem.setText(action.getName());
 		if (pref != null) rndItem.setSelected(pref.isRenderer());
 		menu.add(rndItem);
-
+		
+		action = controller.getAction(ImViewerControl.METADATA);
+		metadataItem = new JCheckBoxMenuItem();
+		metadataItem.setSelected(isRendererShown());
+		metadataItem.setAction(action);
+		metadataItem.setText(action.getName());
+		if (pref != null) metadataItem.setSelected(pref.isRenderer());
+		menu.add(metadataItem);
+		
 		action = controller.getAction(ImViewerControl.HISTORY);
 		historyItem = new JCheckBoxMenuItem();
 		historyItem.setSelected(isHistoryShown());
@@ -1729,8 +1741,9 @@ class ImViewerUI
 	 * @param fromPreferences	Pass <code>true</code> to indicate that the 
 	 * 							method is invoked while setting the user 
 	 * 							preferences, <code>false</code> otherwise.
+	 * @param index			    The index of the tabbed to select.
 	 */
-	void showRenderer(boolean fromPreferences)
+	void showRenderer(boolean fromPreferences, int index)
 	{
 		boolean show = !isRendererShown();
 		boolean b = isHistoryShown();
@@ -1741,9 +1754,12 @@ class ImViewerUI
 			if (b) displayMode = HISTORY;
 			else displayMode = NEUTRAL;
 		}
+		metadataItem.setSelected(isRendererShown());
 		rndItem.setSelected(isRendererShown());
 		toolBar.displayRenderer();
 		layoutComponents(fromPreferences);
+		if (show) 
+			model.getRenderer().setPaneIndex(index);
 	}
 	
 	/**

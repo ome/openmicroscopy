@@ -436,21 +436,20 @@ class RendererComponent
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#switchRndControl()
-     */
-	public void switchRndControl()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/** 
-     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#onStateChange(boolean)
      */
 	public void onStateChange(boolean b)
 	{
 		if (view != null) view.onStateChange(b);
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setPaneIndex(int)
+     */
+	public void setPaneIndex(int index)
+	{
+		if (view != null) view.setPaneIndex(index);
 	}
     
 }

@@ -958,7 +958,6 @@ class ImViewerComponent
 			//clean history, reset UI element
 			model.resetHistory();
 			view.switchRndControl();
-			model.getRenderer().switchRndControl();
 		}
 		
 		renderXYPlane();
@@ -1096,30 +1095,6 @@ class ImViewerComponent
 					"LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getMaxZ();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#showRenderer()
-	 */
-	public void showRenderer()
-	{
-		switch (model.getState()) {
-			case NEW:
-			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
-				throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-					"LOADING_RENDERING_CONTROL state.");
-		}
-		//boolean oldValue = view.isHistoryShown();
-		view.showRenderer(false);
-		controller.setPreferences();
-		//view.setDisplayMode(ImViewerUI.RENDERER, false);
-		
-		//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, !oldValue);
-		//JFrame f = model.getRenderer().getUI();
-		//UIUtilities.setLocationRelativeToAndShow(view, f);
 	}
 
 	/** 
@@ -2328,11 +2303,21 @@ class ImViewerComponent
 	 */
 	public void showView(int index)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalArgumentException("This method cannot be invoked" +
-					" in the DISCARDED state.");
-		view.showView(index);
-		setSelectedPane(index);
+		switch (model.getState()) {
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+					"This method can't be invoked in the DISCARDED, NEW or" +
+					"LOADING_RENDERING_CONTROL state.");
+		}
+		if (index == RENDERER_INDEX || index == METADATA_INDEX) {
+			view.showRenderer(false, index);
+			controller.setPreferences();
+		} else {
+			view.showView(index);
+			setSelectedPane(index);
+		}
 	}
 
 	/** 

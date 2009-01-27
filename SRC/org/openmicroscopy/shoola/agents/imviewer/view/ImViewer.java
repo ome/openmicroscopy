@@ -190,6 +190,12 @@ public interface ImViewer
 	
 	/** Identifies the index of the projection viewer panel. */
 	public static final int		PROJECTION_INDEX = 2;
+	
+	/** Identifies the index of the renderer panel. */
+	public static final int		RENDERER_INDEX = 3;
+	
+	/** Identifies the index of the metadata panel. */
+	public static final int		METADATA_INDEX = 4;
 
 	/** Shows or hides the lens. */
 	public void showLens();
@@ -351,13 +357,6 @@ public interface ImViewer
 
 	/** Renders the current XY-plane. */
 	public void renderXYPlane();
-
-	/** 
-	 * Brings up on screen the widget controlling the rendering settings
-	 * If the widget is already visible, nothing happens. If iconified, the 
-	 * widget is de-iconified.
-	 */
-	public void showRenderer();
 
 	/**
 	 * Returned the name of the rendered image.

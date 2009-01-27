@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -94,7 +95,7 @@ class PropertiesUI
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
     
     /** The text for the id. */
-    private static final String ID_TEXT = "ID:";
+    private static final String ID_TEXT = "ID: ";
     
     /** Action ID indicating to edit the name. */
     private static final int	EDIT_NAME = 0;
@@ -169,11 +170,7 @@ class PropertiesUI
        	group.add(privateBox);
        	group.add(publicBox);
        	
-       	idLabel = new JLabel();
-       	idLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	idLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-       	f = idLabel.getFont();
-       	idLabel.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+       	idLabel = UIUtilities.setTextFont("");
     	namePane = createTextPane();
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
@@ -362,7 +359,6 @@ class PropertiesUI
         	(refObject instanceof ProjectData) || 
         	(refObject instanceof TagAnnotationData)) {
         	 p.add(Box.createVerticalStrut(5));
-             //p.add(descriptionPane);
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 			descriptionPane);
         	 p.add(descriptionPanel);
@@ -421,7 +417,22 @@ class PropertiesUI
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
-		idLabel.setText(ID_TEXT+model.getRefObjectID());
+		Object refObject = model.getRefObject();
+		String text = "";
+        if (refObject instanceof ImageData) text = "Image ";
+        else if (refObject instanceof DatasetData) text = "Dataset ";
+        else if (refObject instanceof ProjectData) text = "Project ";
+        else if (refObject instanceof ScreenData) text = "Screen ";
+        else if (refObject instanceof PlateData) text = "Plate ";
+        else if (refObject instanceof FileAnnotationData) text = "File ";
+        else if (refObject instanceof TagAnnotationData) {
+        	TagAnnotationData tag = (TagAnnotationData) refObject;
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+        		text = "Tag Set ";
+        	else text = "Tag ";
+        }
+		text += ID_TEXT+model.getRefObjectID();
+		idLabel.setText(text);
 		originalDescription = model.getRefObjectDescription();
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;

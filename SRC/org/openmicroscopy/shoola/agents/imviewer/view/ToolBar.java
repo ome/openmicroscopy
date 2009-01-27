@@ -125,6 +125,9 @@ class ToolBar
     /** Button used to show or hide the renderer. */
     private JToggleButton			rndButton;
     
+    /** Button used to show or hide the renderer. */
+    private JToggleButton			metadataButton;
+    
     /** Button used to show or hide the history of rendering changes. */
     private JToggleButton			historyButton;
     
@@ -165,6 +168,13 @@ class ToolBar
         rndButton.setSelected(view.isRendererShown());
         rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
         bar.add(rndButton);
+        
+        metadataButton = new JToggleButton();
+        metadataButton.setSelected(view.isRendererShown());
+        metadataButton.setAction(controller.getAction(
+        		ImViewerControl.METADATA));
+        bar.add(metadataButton);
+        
         historyButton = new JToggleButton();
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
@@ -323,7 +333,11 @@ class ToolBar
     }
     
     /** Selects or deselects the {@link #rndButton}. */
-    void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
+    void displayRenderer()
+    { 
+    	rndButton.setSelected(view.isRendererShown());
+    	metadataButton.setSelected(view.isRendererShown());
+    }
 
     /** Selects or deselects the {@link #historyButton}. */
     void displayHistory() { historyButton.setSelected(view.isHistoryShown()); }
