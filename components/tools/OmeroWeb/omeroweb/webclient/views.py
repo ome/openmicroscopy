@@ -1385,6 +1385,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     if o_type == "dataset" or o_type == "project" or o_type == "image":
         manager = BaseContainer(conn, o_type, o_id)
         manager.buildBreadcrumb(action)
+    elif o_type == "comment" or o_type == "url":
+        manager = BaseAnnotation(conn, o_type, o_id)
     else:
         manager = BaseContainer(conn)
         manager.buildBreadcrumb(action)
@@ -1417,6 +1419,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                         'owner': ((manager.image.details.permissions.isUserRead() and 'r' or ''), (manager.image.details.permissions.isUserWrite() and 'w' or '')), \
                         'group': ((manager.image.details.permissions.isGroupRead() and 'r' or ''), (manager.image.details.permissions.isGroupWrite() and 'w' or '')), \
                         'world': ((manager.image.details.permissions.isWorldRead() and 'r' or ''), (manager.image.details.permissions.isWorldWrite() and 'w' or ''))})
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type =="comment" and o_id > 0:
+            template = "omeroweb/annotation_form.html"
+            form = TextAnnotationForm(initial={'content':manager.comment.textValue})
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type =="url" and o_id > 0:
+            template = "omeroweb/annotation_form.html"
+            form = UrlAnnotationForm(initial={'link':manager.url.textValue})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
@@ -1473,6 +1483,24 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 description = request.REQUEST['description']
                 permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                 manager.updateImage(name, description, permissions)
+                return HttpResponseRedirect(url)
+            else:
+                template = "omeroweb/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == 'comment':
+            form = TextAnnotationForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                content = request.REQUEST['content']
+                manager.saveTextAnnotation(content)
+                return HttpResponseRedirect(url)
+            else:
+                template = "omeroweb/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == 'url':
+            form = UrlAnnotationForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                content = request.REQUEST['url']
+                manager.saveUrlAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_form.html"
@@ -1561,7 +1589,6 @@ def manage_image_zoom (request, iid, **kwargs):
 @isUserConnected
 def manage_annotation(request, action, iid, **kwargs):
     menu = "annotation"
-    template = "omeroweb/annotation.html"
     
     conn = None
     try:
@@ -1570,14 +1597,17 @@ def manage_annotation(request, action, iid, **kwargs):
         logger.error(traceback.format_exc())
     
     annotation = BaseAnnotation(conn)
-    annotation.getFileAnnotation(iid)
-
-    rsp = HttpResponse(annotation.originalFile_data)
-    if annotation.originalFile_data is None:
-        raise Http404
+    
     if action == 'download':
-        rsp['ContentType'] = 'application/octet-stream'
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
+        annotation.getFileAnnotation(iid)
+        rsp = HttpResponse(annotation.originalFile_data)
+        if annotation.originalFile_data is None:
+            raise Http404
+        if action == 'download':
+            rsp['ContentType'] = 'application/octet-stream'
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
+    else:
+        raise Http404
     return rsp
 
 @isUserConnected
@@ -2043,7 +2073,7 @@ def myaccount(request, action, **kwargs):
     eContext['context'] = conn.getEventContext()
     eContext['user'] = conn.getUserWrapped()
     eContext['breadcrumb'] = ["My Account",  controller.experimenter.id]
-    eContext['memberOfGroups'] = controller.sortAsc(list(conn.getGroupsMemberOf()), "name")
+    eContext['memberOfGroups'] = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
     
     if action == "save":
         form = MyAccountForm(data=request.REQUEST.copy(), initial={'groups':controller.otherGroups})

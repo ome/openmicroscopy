@@ -32,9 +32,9 @@ class BaseIndex(BaseController):
 
     def loadData(self):
         self.supervisor = self.conn.getCurrentSupervisor()
-        self.leaderOfGroups = self.sortAsc(list(self.conn.getGroupsLeaderOf()), "name")
-        self.colleagues = self.sortAsc(list(self.conn.getColleagues()), "omeName")
-        self.staffs = self.sortAsc(list(self.conn.getStaffs()), "omeName")
+        self.leaderOfGroups = self.sortByAttr(list(self.conn.getGroupsLeaderOf()), "name")
+        self.colleagues = self.sortByAttr(list(self.conn.getColleagues()), "omeName")
+        self.staffs = self.sortByAttr(list(self.conn.getStaffs()), "omeName")
         self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
     
     def loadMostRecent(self):

@@ -40,7 +40,7 @@
             $("a.loadAnnotation").click(function()
             {
                 $("div#annotation").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
-                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ manager.image.id }}/", function() {  
+                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ manager.image.id }}/?url={{ url }}", function() {  
                         $("a.loadAnnotation").remove();                        
                     });
                 return false; 
@@ -66,14 +66,18 @@
     <p>{{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p>
 </div>
 
-{% if manager.image.isOwned %}
 <div class="toolbar">
+{% if manager.image.isOwned %}
     | View <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> | 
     {% if manager.image.isOwned %} Select <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
     Copy <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>
     {% if manager.image.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
-</div>
+{% else %}
+    | View <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> | 
+    Copy <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>
+    {% if manager.image.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% endif %}
+</div>
 
 <div class="separate70"></div>
 
@@ -93,7 +97,7 @@
     <li><a href='#'>General:</a>
         <div>
             <table class="forms">
-                <tr><td><label>Image date </label></td><td>{{ manager.image.getAquaDate }}</td></tr>
+                <tr><td><label>Image date </label></td><td>{{ manager.image.getDate }}</td></tr>
                 <tr><td><label>Dimensions [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
                 <tr><td><label>Pixel size [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} x {{ manager.image.getPixelSizeZ|floatformat:4 }}</td></tr>
                 <tr><td><label>Z-sections/timepoints </label></td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>

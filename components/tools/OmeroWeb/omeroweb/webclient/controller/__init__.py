@@ -34,15 +34,45 @@ class BaseController(object):
         self.conn = conn
         self.eContext['context'] = self.conn.getEventContext()
         self.eContext['user'] = self.conn.getUserWrapped()
-        self.eContext['memberOfGroups'] = self.sortAsc(list(self.conn.getGroupsMemberOf()), "name")
+        self.eContext['memberOfGroups'] = self.sortByAttr(list(self.conn.getGroupsMemberOf()), "name")
         self.eContext['advice'] = Advice.objects.get(pk=1)
     
-    def sortAsc(self, seq, attr, reverse=False):
+    def sortByAttr(self, seq, attr, reverse=False):
         # Use the "Schwartzian transform".
         # Wrapped object only.
-        intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
+        #intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
+        #intermed.sort()
+        #if reverse:
+        #    intermed.reverse()
+        #return map(operator.getitem, intermed, (-1,) * len(intermed))
+        
+        intermed = list()
+        for i in xrange(len(seq)):
+            val = self.getAttribute(seq[i],attr)
+            intermed.append((val, i, seq[i]))
+        
         intermed.sort()
         if reverse:
             intermed.reverse()
-        return map(operator.getitem, intermed, (-1,) * len(intermed))
+        return [ tup[-1] for tup in intermed ]
+    
+    
+    def getAttribute(self, o,a):
+        attr = a.split(".")
+        if len(attr) > 1:
+            for i in xrange(len(attr)):
+                if hasattr(o,attr[i]):
+                    rv = getattr(o,attr[i])
+                    if hasattr(rv,'val'):
+                        return getattr(rv,'val')
+                    else:
+                        attr.remove(attr[i])
+                        return self.getAttribute(rv, ".".join(attr))
+        else:
+            if hasattr(o,attr[0]):
+                rv = getattr(o,attr[0])
+                if hasattr(rv,'val'):
+                    return getattr(rv,'val')
+                else:
+                    return rv
         

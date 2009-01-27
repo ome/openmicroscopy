@@ -35,29 +35,37 @@
 
 {% if form %}
 <div>
-    
-    {% if manager.project %}
-        <form action="{% get_webclient_root_url %}/action/save/project/{{ manager.project.id }}/?url={{url}}" method="post">
-    {% endif %}
-    {% if manager.dataset %}
-        <form action="{% get_webclient_root_url %}/action/save/dataset/{{ manager.dataset.id }}/?url={{url}}" method="post">
-    {% endif %}
-    {% if manager.image %}
-        <form action="{% get_webclient_root_url %}/action/save/image/{{ manager.image.id }}/?url={{url}}" method="post">
-    {% endif %}
+    {% if manager.comment %}
+    <h1>Edit comment:</h1>
+    <form action="{% get_webclient_root_url %}/action/save/comment/{{ manager.comment.id }}/?url={{url}}" method="post">
     <table>
         {% for field in form %}
-            <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
+            <tr>
                 <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
             </tr>
         {% endfor %}
+            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
         </table>
-        <input type="submit" value="Save" />
     </form>
     <script type="text/javascript">
         var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
-        googie_spell.decorateTextarea("id_description", null, "600px");
+        googie_spell.decorateTextarea("id_content", null, "600px");
     </script>
+    {% endif %}
+    
+    {% if manager.url %}
+    <h1>Edit URL:</h1>
+    <form action="{% get_webclient_root_url %}/action/save/url/{{ manager.url.id }}/?url={{url}}" method="post">
+    <table>
+        {% for field in form %}
+            <tr>
+                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+            </tr>
+        {% endfor %}
+            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+        </table>
+    </form>
+    {% endif %}
 </div>
 
 {% endif %}

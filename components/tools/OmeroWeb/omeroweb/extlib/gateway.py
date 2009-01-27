@@ -444,7 +444,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select im from Image as im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
+        sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.owner.id=:eid and "\
                 "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.name"
         for e in q.findAllByQuery(sql,p):
@@ -469,7 +469,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
               "where d.id = :oid and im.details.owner.id=:eid order by im.name"
         for e in q.findAllByQuery(sql, p):
@@ -507,7 +507,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(long(eid))
-        sql = "select im from Image as im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
+        sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.owner.id=:eid and "\
                 "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.name"
         for e in q.findAllByQuery(sql,p):
@@ -532,7 +532,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["eid"] = rlong(long(eid))
         p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
               "where d.id = :oid and im.details.owner.id=:eid order by im.name"
         for e in q.findAllByQuery(sql, p):
@@ -570,7 +570,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["gid"] = rlong(long(gid))
-        sql = "select im from Image as im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
+        sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.permissions!='-262247' and im.details.group.id=:gid and " \
                 "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id ) order by im.name"
         for e in q.findAllByQuery(sql, p):
@@ -595,7 +595,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["gid"] = rlong(long(gid))
         p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
               "where d.id=:oid and im.details.group.id=:gid order by im.name"
         for e in q.findAllByQuery(sql, p):
@@ -607,7 +607,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group left outer join fetch im.datasetLinks dil " \
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group left outer join fetch im.datasetLinks dil " \
               "left outer join fetch dil.parent ds where ds.id=:oid order by im.name"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
@@ -617,7 +617,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
 
@@ -1044,6 +1044,24 @@ class BlitzGateway (threading.Thread):
             "where pr.id in (:ids) order by pr.name"
         for e in query_serv.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
+    
+    def getCommentAnnotation (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["oid"] = rlong(long(oid))
+        sql = "select ta from TextAnnotation ta where ta.id = :oid"
+        ta = query_serv.findByQuery(sql, p)
+        return AnnotationWrapper(self, ta)
+    
+    def getUrlAnnotation (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["oid"] = rlong(long(oid))
+        sql = "select ua from UrlAnnotation ua where ua.id = :oid"
+        ta = query_serv.findByQuery(sql, p)
+        return AnnotationWrapper(self, ta)
     
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()
@@ -2145,20 +2163,6 @@ class ImageWrapper (BlitzObjectWrapper):
         return True
 
     def getDate(self):
-        try:
-            import time
-            query = self._conn.getQueryService()
-            param = omero.sys.Parameters()
-            param.map = {} 
-            param.map["id"] = rlong(long(self._obj.details.creationEvent.id.val))
-            sql = "select e from Event e where id = :id"
-            event = query.findByQuery(sql, param)
-            return time.ctime(event.time.val / 1000)
-        except:
-            logger.debug(traceback.format_exc())
-            return "Today"
-    
-    def getAquaDate(self):
         try:
             import time
             return time.ctime(self._obj.acquisitionDate.val / 1000)

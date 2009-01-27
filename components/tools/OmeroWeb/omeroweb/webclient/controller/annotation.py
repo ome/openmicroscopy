@@ -23,6 +23,8 @@
 #
 
 import omero
+from omero.rtypes import *
+
 from omero_model_TextAnnotationI import TextAnnotationI
 from omero_model_UrlAnnotationI import UrlAnnotationI
 from omero_model_FileAnnotationI import FileAnnotationI
@@ -35,10 +37,27 @@ class BaseAnnotation(BaseController):
     ann_type = None
     originalFile_data = None
 
-    def __init__(self, conn, **kw):
+    def __init__(self, conn, o_type=None, oid=None, **kw):
         BaseController.__init__(self, conn)
-
+        if oid is not None:
+            if o_type == "comment":
+                self.comment = self.conn.getCommentAnnotation(long(oid))
+            elif o_type == "url":
+                self.url = self.conn.getUrlAnnotation(long(oid))
+    
+    def saveTextAnnotation(self, content):
+        ann = self.comment._obj
+        ann.textValue = rstring(str(content))
+        self.conn.updateObject(ann)
+    
+    def saveUrlAnnotation(self, url):
+        ann = self.url._obj
+        ann.textValue = rstring(str(url))
+        self.conn.updateObject(ann)
+    
     def getFileAnnotation(self, iid):
         self.annotation = self.conn.getFileAnnotation(iid)
         self.ann_type = self.annotation.file.format.value.val
         self.originalFile_data = self.conn.getFile(self.annotation.file.id.val)
+    
+    

@@ -7,7 +7,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> - {{ tann.creationEventDate }}</div>
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> - {{ tann.creationEventDate }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -27,6 +27,7 @@
         <div class="clear"></div>
         <br/>
     {% endif %}
+    
     {% endfor %}
 {% endif %}
 
@@ -34,14 +35,14 @@
 <h1>URLs:</h1>
     <div class="body_url">
     <p>{% for urlann in manager.url_annotations %}
-        {{ urlann.textValue|wikify|safe }}; 
+        {{ urlann.textValue|wikify|safe }} {% if urlann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/url/{{ urlann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}; 
     {% endfor %}</p>
     </div>
 {% endif %}
 
 {% if manager.fileannSize %}
 <h1>Files:</h1>
-<ol class="file">
+<ol>
     {% for fileann in manager.file_annotations %}
     <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.file.name.val }}</a> ({{ fileann.file.size.val }} bytes) by {{ fileann.getOwner }} at {{ fileann.creationEventDate }}</li>
     {% endfor %}

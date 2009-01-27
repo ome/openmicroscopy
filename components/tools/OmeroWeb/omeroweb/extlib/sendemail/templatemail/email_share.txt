@@ -1,2 +1,2 @@
-Hi, I would like to share some of my data with you. Please find it on the %s/shared/view/%i/?server=%i. /n Message: %s
+Hi, I would like to share some of my data with you. Please find it on the %s/share/view/%i/?server=%i. /n Message: %s
 -- %s %s
