@@ -156,126 +156,152 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /** A list of lightsource objects */
     private List<Instrument> instrumentList = new ArrayList<Instrument>();
 
-    /** A list of lightsource objects */
-    private Map<String, IObject> lsidMap = new HashMap<String, IObject>();
+    /** A list of all objects we've recieved from the client and their LSIDs. */
+    private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
         
-    private Vector<WellSample> wsVector = new Vector<WellSample>();
-
-    /** 
-     * PlaneInfo ordered cache which compensates for pixels.planeInfo being a
-     * HashMap.
-     */
-    private Map<Pixels, List<PlaneInfo>> planeInfoCache = null;
-    
-    /** Our enumeration provider. */
-    private EnumerationProvider enumProvider;
-
-    private RawFileStore    rawFileStore;
-
-    private Timestamp creationTimestamp;
-
-    private String currentLSID;
-    
-    private Server server;
-    private Login login;
-
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param username the username to use to login to the OMERO server.
-     * @param password the password to use to login to the OMERO server.
-     * @param host the hostname of the OMERO server.
-     * @param port the port the OMERO server is listening on.
-     * @throws MetadataStoreException if the login credentials are
-     *             incorrect or there is another error instantiating required
-     *             services.
-     */
-    public OMEROMetadataStore(String username, String password, String host,
-            String port) throws Exception
-        {
-            // Mask the password information for display in the debug window
-            String maskedPswd = "";
-            if (password == null) password = new String("");
-            if (password.length() > 0) maskedPswd = "<" +password.length() + "chars>";
-            else maskedPswd = "<empty>";
-            log.debug(String.format("Initializing store: %s/%s %s:%s", 
-                    username, maskedPswd, host, port));
-    
-            // Attempt to log in
-            try
-            {
-                server = new Server(host, Integer.parseInt(port));
-                login = new Login(username, password);
-                // Instantiate our service factory
-                sf = new ServiceFactory(server, login);
-    
-                InitializeServices(sf);
-            } catch (Throwable t)
-            {
-                throw new Exception(t);
-            }
-        }
-    
     /**
      * Updates a given model object in our object graph.
-     * @param LSID LSID of model object.
+     * @param lsid LSID of model object.
      * @param sourceObject Model object itself.
      * @param indexes Any indexes that should are used to describe the model
      * object's graph location.
      */
-    public void updateObject(String LSID, IObject sourceObject,
+    public void updateObject(String lsid, IObject sourceObject,
     		                 Map<String, Integer> indexes)
     {
+    	lsidMap.put(new LSID(lsid), sourceObject);
     	if (sourceObject instanceof Image)
     	{
-    		handle(LSID, (Image) sourceObject, indexes);
+    		handle(lsid, (Image) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Pixels)
     	{
-    		handle(LSID, (Pixels) sourceObject, indexes);
+    		handle(lsid, (Pixels) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof LogicalChannel)
     	{
-    		handle(LSID, (LogicalChannel) sourceObject, indexes);
+    		handle(lsid, (LogicalChannel) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof PlaneInfo)
     	{
-    		handle(LSID, (PlaneInfo) sourceObject, indexes);
+    		handle(lsid, (PlaneInfo) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Instrument)
     	{
-    		handle(LSID, (Instrument) sourceObject, indexes);
+    		handle(lsid, (Instrument) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Objective)
     	{
-    		handle(LSID, (Objective) sourceObject, indexes);
+    		handle(lsid, (Objective) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Detector)
     	{
-    		handle(LSID, (Detector) sourceObject, indexes);
+    		handle(lsid, (Detector) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Laser)
     	{
-    		handle(LSID, (LightSource) sourceObject, indexes);
+    		handle(lsid, (LightSource) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Filament)
     	{
-    		handle(LSID, (LightSource) sourceObject, indexes);
+    		handle(lsid, (LightSource) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Arc)
     	{
-    		handle(LSID, (LightSource) sourceObject, indexes);
+    		handle(lsid, (LightSource) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof ImagingEnvironment)
     	{
-    		handle(LSID, (ImagingEnvironment) sourceObject, indexes);
+    		handle(lsid, (ImagingEnvironment) sourceObject, indexes);
     	}
-    	
+    	else if (sourceObject instanceof DetectorSettings)
+    	{
+    		handle(lsid, (DetectorSettings) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof LightSettings)
+    	{
+    		handle(lsid, (LightSettings) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof ObjectiveSettings)
+    	{
+    		handle(lsid, (ObjectiveSettings) sourceObject, indexes);
+    	}
     	else
     	{
     		throw new ApiUsageException(
-    			"Missing handler for object type: " + sourceObject.getClass());
+    			"Missing object handler for object type: "
+    				+ sourceObject.getClass());
+    	}
+    }
+    
+    /**
+     * Updates our object graph references.
+     * @param referenceCache Client side LSID reference cache.
+     */
+    public void updateReferences(Map<String, String> referenceCache)
+    {
+    	for (String target : referenceCache.keySet())
+    	{
+    		IObject targetObject = lsidMap.get(new LSID(target));
+    		String reference = referenceCache.get(target);
+    		IObject referenceObject = lsidMap.get(new LSID(target));
+    		if (targetObject instanceof DetectorSettings)
+    		{
+    			if (referenceObject instanceof Detector)
+    			{
+    				handleReference((DetectorSettings) targetObject,
+    						        (Detector) referenceObject);
+    				return;
+    			}
+    		}
+    		else if (targetObject instanceof Image)
+    		{
+    			if (referenceObject instanceof Instrument)
+    			{
+    				handleReference((Image) targetObject,
+    						        (Instrument) referenceObject);
+    				return;
+    			}
+    		}
+    		else if (targetObject instanceof LightSettings)
+    		{
+    			if (referenceObject instanceof LightSource)
+    			{
+    				handleReference((LightSettings) targetObject,
+    						        (LightSource) referenceObject);
+    				return;
+    			}
+    		}
+    		else if (targetObject instanceof LogicalChannel)
+    		{
+    			if (referenceObject instanceof OTF)
+    			{
+    				handleReference((LogicalChannel) targetObject,
+    						        (OTF) referenceObject);
+    				return;
+    			}
+    		}
+    		else if (targetObject instanceof OTF)
+    		{
+    			if (referenceObject instanceof Objective)
+    			{
+    				handleReference((OTF) targetObject,
+    						        (Objective) referenceObject);
+    				return;
+    			}
+    		}
+    		else if (targetObject instanceof ObjectiveSettings)
+    		{
+    			if (referenceObject instanceof Objective)
+    			{
+    				handleReference((ObjectiveSettings) targetObject,
+    						        (Objective) referenceObject);
+    				return;
+    			}
+    		}
+			throw new ApiUsageException(String.format(
+					"Missing reference handler for %s(%s) --> %s(%s) reference.",
+					reference, referenceObject, target, targetObject));
     	}
     }
     
@@ -406,21 +432,165 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	Image i = imageList.get(indexes.get("imageIndex"));
     	i.setImagingEnvironment(sourceObject);
     }
-
-    /* Makes sure SF is still alive */
-    public void checkSF()
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, DetectorSettings sourceObject,
+    		            Map<String, Integer> indexes)
     {
-        try {
-            // first try to automatically reconnect to the server
-            sf.getAdminService().getEventContext();
-        } 
-        catch (SessionException e)
-        {
-                log.debug(String.format(" Connection failed!"));                
-        }
+    	LogicalChannel lc = getLogicalChannel(indexes.get("imageIndex"),
+    			                              indexes.get("logicalChannelIndex"));
+    	lc.setDetectorSettings(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, LightSettings sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	LogicalChannel lc = getLogicalChannel(indexes.get("imageIndex"),
+    			                              indexes.get("logicalChannelIndex"));
+    	lc.setLightSourceSettings(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, ObjectiveSettings sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Image i = getImage(indexes.get("imageIndex"));
+    	i.setObjectiveSettings(sourceObject);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(DetectorSettings target, Detector reference)
+    {
+    	target.setDetector(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Image target, Instrument reference)
+    {
+    	target.setInstrument(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LightSettings target, LightSource reference)
+    {
+    	target.setLightSource(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LogicalChannel target, OTF reference)
+    {
+    	target.setOtf(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(OTF target, Objective reference)
+    {
+    	target.setObjective(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(ObjectiveSettings target, Objective reference)
+    {
+    	target.setObjective(reference);
+    }
+    
+    /**
+     * Returns an Image model object based on its indexes within the OMERO data
+     * model.
+     * @param imageIndex Image index.
+     * @return See above.
+     */
+    private Image getImage(int imageIndex)
+    {
+    	return imageList.get(imageIndex);
+    }
+    
+    /**
+     * Returns a Pixels model object based on its indexes within the OMERO data
+     * model.
+     * @param imageIndex Image index.
+     * @param pixelsIndex Pixels index.
+     * @return See above.
+     */
+    private Pixels getPixels(int imageIndex, int pixelsIndex)
+    {
+    	return getImage(imageIndex).getPixels(pixelsIndex);
+    }
+    
+    /**
+     * Returns an Instrument model object based on its indexes within the OMERO
+     * data model.
+     * @param instrumentIndex Instrument index.
+     * @return See above.
+     */
+    private Instrument getInstrument(int instrumentIndex)
+    {
+    	return instrumentList.get(instrumentIndex);
+    }
+    
+    /**
+     * Returns a LogicalChannel model object based on its indexes within the
+     * OMERO data model.
+     * @param imageIndex Image index.
+     * @param logicalChannelIndex Logical channel index.
+     * @return See above.
+     */
+    private LogicalChannel getLogicalChannel(int imageIndex,
+    		                                 int logicalChannelIndex)
+    {
+    	Channel c = getPixels(imageIndex, 0).getChannel(logicalChannelIndex); 
+    	return c.getLogicalChannel();
     }
 
-    
     /**
      * Creates a new instance.
      * 
@@ -429,7 +599,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      *             is another error instantiating required services.
      */
     public OMEROMetadataStore(ServiceFactory factory)
-    throws Exception
+    	throws Exception
     {
         if (factory == null)
             throw new Exception(
@@ -459,11 +629,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         iQuery = sf.getQueryService();
         iUpdate = sf.getUpdateService();
         pservice = sf.createRawPixelsStore();
-        rawFileStore = sf.createRawFileStore();
         iInfo = sf.getRepositoryInfoService();
-        enumProvider = new IQueryEnumProvider(iQuery);
     }
-
 
     /*
      * (non-Javadoc)
@@ -482,17 +649,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void createRoot()
     {
-        planeInfoCache = new HashMap<Pixels, List<PlaneInfo>>();
-        
         imageList = new ArrayList<Image>();
         pixelsList = new ArrayList<Pixels>();
         instrumentList = new ArrayList<Instrument>();
         plateList = new ArrayList<Plate>();
         screenList = new ArrayList<Screen>();
-        
-        lsidMap = new HashMap<String, IObject>();
-        currentLSID =  null;
-        
+        lsidMap = new HashMap<LSID, IObject>();
     }
 
     /*
@@ -517,31 +679,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return sf.getAdminService().getEventContext().getCurrentUserId();
     }
 
-    /**
-     * Retrieves a given enumeration from the current enumeration provider.
-     * @param klass Enumeration type.
-     * @param value Enumeration value.
-     * @return See above.
-     */
-    private IEnum getEnumeration(Class<? extends IEnum> klass, String value)
-    {
-    	return enumProvider.getEnumeration(klass, value, false);
-    }
-    
-    /**
-     * This method maps an existing ome lsid to the lsidMap as well
-     * as setting the currentID to the ome lsid.
-     * 
-     * @param id
-     */
-    private void mapLSID(String id)
-    {
-        if (!lsidMap.containsKey(id))
-        {
-            lsidMap.put(id,null); 
-            log.debug(String.format("Mapping ID[%s]", id));
-        }
-    }
     
     /*
      * (non-Javadoc)
@@ -551,11 +688,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     @SuppressWarnings("unchecked")
     public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
-            Double globalMax, Integer pixelsIndex)
+            Double globalMax, Integer imageIndex)
     {
         log.debug(String.format(
-                "Setting Pixels[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
-                pixelsIndex, channelIdx, globalMin, globalMax));
+                "Setting Image[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
+                imageIndex, channelIdx, globalMin, globalMax));
         if (globalMin != null)
         {
             globalMin = new Double(Math.floor(globalMin.doubleValue()));
@@ -567,22 +704,22 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(globalMin);
         statsInfo.setGlobalMax(globalMax);
-        getPixels(pixelsIndex).getChannel(channelIdx).setStatsInfo(statsInfo);
+        getPixels(imageIndex, 0).getChannel(channelIdx).setStatsInfo(statsInfo);
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.IMinMaxStore#setChannelGlobalMinMax(int, double, double, int)
      */
     public void setChannelGlobalMinMax(int channel, double minimum,
-            double maximum, int series)
+            double maximum, int imageIndex)
     {
         log.debug(String.format(
-                "Setting Pixels[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
-                series, channel, minimum, maximum));
+                "Setting Image[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
+                imageIndex, channel, minimum, maximum));
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(minimum);
         statsInfo.setGlobalMax(maximum);
-        getPixels(series).getChannel(channel).setStatsInfo(statsInfo);
+        getPixels(imageIndex, 0).getChannel(channel).setStatsInfo(statsInfo);
     }
     
     /**
@@ -638,7 +775,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void addImageToDataset(Image image, Dataset dataset)
     {
-        checkSF();
         Image unloadedImage = new Image(image.getId(), false);
         Dataset unloadedDataset = new Dataset(dataset.getId(), false);
         DatasetImageLink link = new DatasetImageLink();
@@ -668,7 +804,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public Dataset addDataset(String name, String description, Project project)
     {
-        checkSF();
         Dataset dataset = new Dataset();
         if (name.length() != 0)
             dataset.setName(name);
@@ -678,8 +813,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         dataset.linkProject(p);
         
         Dataset storedDataset = null;
-        
-        IUpdate iUpdate = getIUpdate();
         storedDataset = iUpdate.saveAndReturnObject(dataset);
         return storedDataset;
     }
@@ -699,8 +832,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             project.setDescription(description);
         
         Project storedProject = null;
-
-        IUpdate iUpdate = getIUpdate();
         storedProject = iUpdate.saveAndReturnObject(project);
         return storedProject;
     }
@@ -713,7 +844,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public List<Dataset> getDatasets(Project project)
     {
-        checkSF();
         List<Dataset> l = iQuery.findAllByQuery(
                 "from Dataset d where id in " +
                 "(select link.child.id from ProjectDatasetLink link where " +
@@ -726,14 +856,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public Dataset getDataset(long datasetID)
     {
-        checkSF();
         Dataset dataset = iQuery.get(Dataset.class, datasetID);
         return dataset;
     }
 
     public Project getProject(long projectID)
     {
-        checkSF();
         Project project = iQuery.get(Project.class, projectID);
         return project;
     }
@@ -746,7 +874,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public List<Project> getProjects()
     {
-        checkSF();
         List<Project> l = iQuery.findAllByQuery(
                 "from Project as p left join fetch p.datasetLinks " +
                 "where p.details.owner.id = :id order by name", 
@@ -754,234 +881,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return (List<Project>) l;
     }
 
-    /**
-     * Saves the current <i>root</i> pixelsList to the database.
-     */
-    
-    /*
-    public List<Pixels> saveToDB()
-    {
-        checkSF();
-        IUpdate update = sf.getUpdateService();
-        Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
-        pixelsList = new ArrayList<Pixels>();
-        for (int i = 0; i < imageArray.length; i++)
-        {
-            Image image = update.saveAndReturnObject(imageArray[i]);
-            log.debug("Saving image: " + (i + 1) + " of " + imageArray.length);
-            // FIXME: This assumes only *one* pixels set.
-            pixelsList.add((Pixels) image.iteratePixels().next());
-            imageList.set(i, image);
-            if (plateList.size() > 0 && wsVector.size() > i)
-            {
-                log.debug("Linking wellsample to image");
-                wsVector.get(i).linkImage(image);
-            }
-        }
-        if (plateList.size() > 0)
-        {
-            log.debug("Saving plate");
-            Plate[] plates = plateList.toArray(new Plate[plateList.size()]);
-            update.saveAndReturnArray(plates);
-        }
-        return pixelsList;
-    }
-    */
-    
-    public List<Pixels> saveToDB()
-    {
-        checkSF();
-        IUpdate update = sf.getUpdateService();
-        Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
-        pixelsList = new ArrayList<Pixels>();
-
-        int buffersize = 20;
-
-        for (int i = 0; i < imageArray.length; i=i+buffersize)
-        {
-            int end = i + buffersize;
-            if (end > imageArray.length) end = imageArray.length;
-
-            Image[] subImageArray = new Image[end - i];
-            System.arraycopy(imageArray, i, subImageArray, 0, end - i);
-            IObject[] o = update.saveAndReturnArray(subImageArray);
-            log.debug("Saving images: " + (i + 1) + " to " + end + " of " + imageArray.length);
-
-            for (int j = 0; j < o.length; j++)
-            {
-                Image image = (Image) o[j];
-                pixelsList.add((Pixels) image.iteratePixels().next());
-                imageList.set(i+j, image);
-
-                if (plateList.size() > 0 && wsVector.size() > i+j)
-                {
-                    log.debug("Linking wellsample to image");
-                    wsVector.get(i+j).setImage(image);
-                }
-            }
-        }
-        
-        if (plateList.size() > 0)
-        {
-            log.debug("Saving plate");
-            Plate[] plates = plateList.toArray(new Plate[plateList.size()]);
-            update.saveAndReturnArray(plates);
-        }
-        return pixelsList;
-    }
-        
-    
-
-    public ServiceFactory getSF()
-    {
-        checkSF();
-        return sf;
-    }
-
-    public IUpdate getIUpdate()
-    {
-        checkSF(); 
-        return iUpdate;
-    }
-    
-    /**
-     * Links a set of original files to all Pixels that the metadata store
-     * currently knows about. NOTE: Ensure that you call this <b>after</b>
-     * fully populating the metadata store.
-     * @param files The list of File objects to translate to OriginalFile
-     * objects and link.
-     * @param formatString 
-     */
-    public void setOriginalFiles(File[] files, String formatString)
-    {
-        for (File file: files)
-        {
-            Format f = iQuery.findByString(Format.class, "value", formatString);
-            OriginalFile oFile = new OriginalFile();
-            oFile.setName(file.getName());
-            oFile.setPath(file.getAbsolutePath());
-            oFile.setSize(file.length());
-            oFile.setSha1("pending");
-            oFile.setFormat(f);
-            // TODO: There is no creation or access time in Java, will have to find a solution
-            Timestamp mTime = new Timestamp(file.lastModified());
-            oFile.setAtime(mTime);
-            if (creationTimestamp != null)
-                oFile.setCtime(creationTimestamp);
-            else
-                oFile.setCtime(mTime);
-            oFile.setMtime(mTime);
-
-            for (Pixels pixels : pixelsList)
-            {
-                pixels.linkOriginalFile(oFile);
-            }
-        }
-    }
-
-    public void writeFilesToFileStore(File[] files, long pixelsId)
-    {
-        try
-        {
-            for (File file : files)
-            {
-                MessageDigest md;
-
-                try {
-                    md = MessageDigest.getInstance("SHA-1");
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(
-                    "Required SHA-1 message digest algorithm unavailable.");
-                }
-
-                Parameters p = new Parameters();
-                p.addId(pixelsId);
-                p.addString("path", file.getAbsolutePath());
-                OriginalFile o = iQuery.findByQuery(
-                        "select ofile from OriginalFile as ofile left join " +
-                        "ofile.pixelsFileMaps as pfm left join pfm.child as child " +
-                        "where child.id = :id and ofile.path =:path", p);
-
-                if (o == null) throw 
-                new FileNotFoundException("Unable to look up originalFile");
-
-                rawFileStore.setFileId(o.getId());
-
-                byte[] buf = new byte[262144];            
-                FileInputStream stream = new FileInputStream(file);
-
-                long pos = 0;
-                int rlen;
-                while((rlen = stream.read(buf)) > 0)
-                {
-                    rawFileStore.write(buf, pos, rlen);
-                    pos += rlen;
-                    ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
-                    nioBuffer.limit(rlen);
-                    try {
-                        md.update(nioBuffer);
-                    } catch (Exception e) {
-                        // This better not happen. :)
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                if (md != null)
-                {
-                    o.setSha1(byteArrayToHexString(md.digest()));
-                    iUpdate.saveObject(o);
-                }
-            }
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();   
-        }
-
-    }
-
-    public void populateSHA1(MessageDigest md, Long id)
-    {
-        Pixels p = iQuery.get(Pixels.class, id);
-        p.setSha1(byteArrayToHexString(md.digest()));
-        iUpdate.saveObject(p);
-    }
-    
-    public String getSHA1(Long id)
-    {
-        Pixels p = iQuery.get(Pixels.class, id);
-        return p.getSha1();
-    }
-
-    static String byteArrayToHexString(byte in[]) {
-
-        byte ch = 0x00;
-        int i = 0;
-
-        if (in == null || in.length <= 0) {
-            return null;
-        }
-
-        String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "a", "b", "c", "d", "e", "f" };
-
-        StringBuffer out = new StringBuffer(in.length * 2);
-
-        while (i < in.length) {
-
-            ch = (byte) (in[i] & 0xF0);
-            ch = (byte) (ch >>> 4);
-            ch = (byte) (ch & 0x0F);
-            out.append(pseudo[ch]);
-            ch = (byte) (in[i] & 0x0F);
-            out.append(pseudo[ch]);
-            i++;
-
-        }
-
-        String rslt = new String(out);
-        return rslt;
-    }
     /**
      * Check the MinMax values stored in the DB and sync them with the new values
      * we generate in the channelMinMax reader, then save them to the DB. 
@@ -996,7 +895,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         for (int j=0; j < p.getSizeC(); j++)
         {
             Channel channel = p.getChannel(j);
-            Channel readerChannel = getPixels(i).getChannel(j);
+            Channel readerChannel = getPixels(i, 0).getChannel(j);
             channel.setStatsInfo(readerChannel.getStatsInfo());
         }
         iUpdate.saveObject(p);
@@ -1012,2924 +911,1020 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return iInfo.getFreeSpaceInKilobytes();
     }
 
-    /**
-     * Returns an Image from the internal indexed image list. The indexed image
-     * list is extended as required and the Image object itself is created as 
-     * required.
-     * 
-     * @param imageIndex The image index.
-     * @return See above.
-     */
-    private Image getImage(int imageIndex)
-    {
-        if (imageList.size() < (imageIndex + 1))
-        {
-            for (int i = imageList.size(); i < imageIndex; i++)
-            {
-                // Inserting null here so that we don't place potentially bogus
-                // Images into the list which will eventually be saved into
-                // the database.
-                imageList.add(null);
-            }
-            imageList.add(new Image());
-        }
-
-        // We're going to check to see if the image list has a null value and
-        // update it as required.
-        Image i = imageList.get(imageIndex);
-        if (i == null)
-        {
-            i = new Image();
-            imageList.set(imageIndex, i);
-        }
-        return i;
-    }
-
-    /**
-     * Returns a Pixels from a given Image's indexed pixels list. The indexed
-     * pixels list is extended as required and the Pixels object itself is
-     * created as required. This also invalidates the PlaneInfo ordered cache
-     * if the pixelsIndex is different than the one currently stored. You 
-     * <b>must not</b> attempt to retrieve two different Pixels instances and 
-     * expect to have planeIndexes maintained.
-     * 
-     * @param imageIndex The image index.
-     * @param pixelsIndex The pixels index within <code>imageIndex</code>.
-     * @return See above.
-     */
-    private Pixels getPixels(int imageIndex, int pixelsIndex)
-    {
-        Image image = getImage(imageIndex);
-
-        if (image.sizeOfPixels() < (pixelsIndex + 1))
-        {
-            for (int i = image.sizeOfPixels(); i <= pixelsIndex; i++)
-            {
-                // Since OMERO model objects prevent us from inserting nulls
-                // here we must insert a Pixels object. We also need to ensure
-                // that the OMERO specific "sha1" field is filled.
-                Pixels p = new Pixels();
-                // FIXME: We *really* should deal with this properly... finally.
-                p.setSha1("foo");
-                image.addPixels(p);
-            }
-        }
-
-        Iterator<Pixels> i = image.iteratePixels();
-        int j = 0;
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            if (j == pixelsIndex)
-            {
-                // This ensures that we can lookup the Pixels set at a later
-                // time based upon its "series" in Bio-Formats terms.
-                // FIXME: Note that there is no way to really ensure that
-                // "series" accurately maps to index in the List.
-                if (!pixelsList.contains(p))
-                {
-                    pixelsList.add(p);
-                }
-                return p;
-            }
-            j++;
-        }
-        throw new RuntimeException(
-                "Unable to locate pixels index: " + pixelsIndex);
-    }
-    
-    /**
-     * Returns a LogicalChannel from a given pixels set. This method ensures
-     * that out of order execution is supported.
-     * 
-     * @param imageIndex Image index.
-     * @param pixelsIndex Pixels index.
-     * @param logicalChannelIndex LogicalChannel index.
-     * @return A LogicalChannel, a new instance if required.
-     */
-    private LogicalChannel getLogicalChannel(int imageIndex, int pixelsIndex,
-                                             int logicalChannelIndex)
-    {
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        if (p.sizeOfChannels() <= logicalChannelIndex)
-        {
-            for (int i = p.sizeOfChannels(); i <= logicalChannelIndex; i++)
-            {
-                // Since OMERO model objects prevent us from inserting nulls
-                // here we must insert a Pixels object. We also need to ensure
-                // that the OMERO specific "sha1" field is filled.
-                Channel c = new Channel();
-                c.setLogicalChannel(new LogicalChannel());
-                p.addChannel(c);
-            }
-        }
-        return p.getChannel(logicalChannelIndex).getLogicalChannel();
-    }
-
-    /**
-     * Returns a Pixels from the internal "series" indexed pixels list. FIXME: 
-     * Note that there is no way to really ensure that <code>series</code> 
-     * accurately maps to index in the List.
-     * @param series The Bio-Formats series to lookup.
-     * @return See above.
-     */
-    public Pixels getPixels(int series)
-    {
-        return pixelsList.get(series);
-    }
-
-    /* ---- Metadata set functions based on the Image Root ---- */
-
-    /* ---- Image ---- */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
-     */
-    public void setImageName(String name, int imageIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] name: '%s'", imageIndex, name));
-        Image i = getImage(imageIndex);
-        i.setName(name);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageCreationDate(java.lang.String, int)
-     */
-    public void setImageCreationDate(String creationDate, int imageIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] creation date: '%s'", imageIndex, creationDate));
-
-        if (creationDate != null)
-        {
-            try
-            {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-                java.util.Date date = sdf.parse(creationDate);
-                creationTimestamp = new Timestamp(date.getTime());
-                Image i = getImage(imageIndex);
-                i.setAcquisitionDate(creationTimestamp);
-            }
-            catch (ParseException pe)
-            {
-                creationTimestamp = null;
-            }
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
-     */
-    public void setImageDescription(String description, int imageIndex)
-    {
-        if (description != null) 
-            description = description.trim();
-        log.debug(String.format(
-                "Setting Image[%d] description: '%s'", imageIndex, description));
-        Image i = getImage(imageIndex);
-        i.setDescription(description);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.Integer, int)
-     */
-    public void setImageInstrumentRef(String instrumentRef, int imageIndex)
-    {
-        Image image = getImage(imageIndex);
-        log.debug(String.format(
-                "Setting ImageInstrumentRef[%s] image: '%d'", instrumentRef, imageIndex));
-        image.setInstrument((Instrument) lsidMap.get(instrumentRef));
-    }
-    
-    /* ---- Pixels ---- */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] sizeX: '%d'",
-                imageIndex, pixelsIndex, sizeX));
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setSizeX(sizeX);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeY(Integer sizeY, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] sizeY: '%d'",
-                imageIndex, pixelsIndex, sizeY));
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setSizeY(sizeY);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] sizeZ: '%d'",
-                imageIndex, pixelsIndex, sizeZ));
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setSizeZ(sizeZ);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
-     */
-    @SuppressWarnings("unchecked")
-    public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] sizeC: '%d'",
-                imageIndex, pixelsIndex, sizeC));
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        if (p.getSizeC() != null && sizeC != null && p.getSizeC().equals(sizeC))
-        {
-            log.debug("Not resetting channels.");
-            return;
-        }
-        p.setSizeC(sizeC);
-        
-        /*
-        COMMENTED OUT because of the need to handle metadata associate with
-        channels **before** the number of channels has been set. May still be
-        required, need to see what potential regressions may be.
-        */
-        if (p.sizeOfChannels() != 0)
-        {
-            p.clearChannels();
-        }
-        
-        
-        for (int i = 0; i < sizeC; i++)
-        {
-            LogicalChannel lc =
-                getLogicalChannel(imageIndex, pixelsIndex, i);
-            
-            /*
-            //FIXME: big fat ugly hack to get lightsources attached to *some* channel
-            //Lightsettings still needs to be implemented in bio-formats for this to work correctly
-            //Lightsettings method in bio-formats need to specify lightsourceindex and channelindex
-            Image image = getImage(imageIndex);
-            Instrument instrument = image.getInstrument();
-            if (instrument != null)
-            {
-                LightSource ls = instrument.iterateLightSource().next();
-                if (ls != null)
-                {
-                    LightSettings settings = new LightSettings();
-                    settings.setLightSource(ls);
-                    lc.setLightSourceSettings(settings);
-                }
-            }
-            */
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] sizeT: '%d'",
-                imageIndex, pixelsIndex, sizeT));
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setSizeT(sizeT);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsPixelType(java.lang.String, int, int)
-     */
-    public void setPixelsPixelType(String pixelType, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] pixel type: '%s'",
-                imageIndex, pixelsIndex, pixelType));
-
-        String lcPixelType = pixelType.toLowerCase();
-        
-        // Retrieve enumerations from the server               
-        PixelsType type =
-            (PixelsType) getEnumeration(PixelsType.class, lcPixelType);
-
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setPixelsType(type);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(java.lang.String, int, int)
-     */
-    public void setPixelsDimensionOrder(String dimensionOrder, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] dimension order: '%s'",
-                imageIndex, pixelsIndex, dimensionOrder));
-
-        DimensionOrder order = (DimensionOrder) getEnumeration(DimensionOrder.class, dimensionOrder);
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setDimensionOrder(order);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Float, int, int)
-     */
-    public void setDimensionsPhysicalSizeX(Float physicalSizeX, int imageIndex, int pixelsIndex)
-    {
-        if (physicalSizeX == null || physicalSizeX <= 0.000001)
-        {
-            log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
-            physicalSizeX = 1.0f;
-        } else {
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%d] physical size X: '%f'",
-                    imageIndex, pixelsIndex, physicalSizeX));
-        }
-
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setPhysicalSizeX(physicalSizeX);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeY(java.lang.Float, int, int)
-     */
-    public void setDimensionsPhysicalSizeY(Float physicalSizeY, int imageIndex, int pixelsIndex)
-    {
-        if (physicalSizeY == null || physicalSizeY <= 0.000001)
-        {
-            log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
-            physicalSizeY = 1.0f;
-        } else {
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%d] physical size Y: '%f'",
-                    imageIndex, pixelsIndex, physicalSizeY));
-        }
-
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setPhysicalSizeY(physicalSizeY);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeZ(java.lang.Float, int, int)
-     */
-    public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex, int pixelsIndex)
-    {
-        if (physicalSizeZ == null || physicalSizeZ <= 0.000001)
-        {
-            log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
-            physicalSizeZ = 1.0f;
-        } else {
-            log.debug(String.format(
-                    "Setting Image[%d] Pixels[%d] physical size Z: '%f'",
-                    imageIndex, pixelsIndex, physicalSizeZ));
-        }
-
-        Pixels p = getPixels(imageIndex, pixelsIndex);
-        p.setPhysicalSizeZ(physicalSizeZ);
-    }
-
-    /* ---- Imaging Environment (OMERO Image.ImagingEnvironment) ---- */    
-
-    /**
-     * Get ImagingEnvironment, creating one if it doesn't exist
-     * @param imageIndex
-     * @return ImagingEnvironment
-     */
-    private ImagingEnvironment getImagingEnvironment (int imageIndex)
-    {
-        Image i = getImage(imageIndex);
-        ImagingEnvironment ie = i.getImagingEnvironment();
-        if (ie == null)
-        {
-            ie = new ImagingEnvironment();
-            i.setImagingEnvironment(ie);
-        }
-        return ie;       
-    }
-
-    public void setImagingEnvironmentTemperature(Float temperature, int imageIndex) {
-        ImagingEnvironment ie = getImagingEnvironment(imageIndex);
-        ie.setTemperature(temperature);
-    }
-
-    public void setImagingEnvironmentAirPressure(Float airPressure, int imageIndex) {
-        ImagingEnvironment ie = getImagingEnvironment(imageIndex);
-        ie.setAirPressure(airPressure);
-    }
-
-    public void setImagingEnvironmentHumidity(Float humidity, int imageIndex) {
-        ImagingEnvironment ie = getImagingEnvironment(imageIndex);
-        ie.setHumidity(humidity);
-    }
-
-    public void setImagingEnvironmentCO2Percent(Float percent, int imageIndex) {
-        ImagingEnvironment ie = getImagingEnvironment(imageIndex);
-        ie.setCo2percent(percent);
-    }
-
-    /* ---- PlaneInfo ---- */         
-
-    /**
-     * Returns a PlaneInfo from a given Image's, Pixels' indexed  plane info
-     * list. The indexed plane info list is extended as required and the 
-     * PlaneInfo object itself is created as required.
-     * 
-     * @param imageIndex The image index.
-     * @param pixelsIndex The pixels index within <code>imageIndex</code>.
-     * @param planeIndex The plane info index within <code>pixelsIndex</code>.
-     * @return See above.
-     */
-    public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex, int planeIndex)
-    {
-        Pixels pixels = getPixels(imageIndex, pixelsIndex);
-        if (!planeInfoCache.containsKey(pixels))
-        {
-            planeInfoCache.put(pixels, new ArrayList<PlaneInfo>());
-        }
-
-        List<PlaneInfo> cache = planeInfoCache.get(pixels);
-        if (cache.size() < (planeIndex + 1))
-        {
-            for (int i = cache.size(); i <= planeIndex; i++)
-            {
-                // Since OMERO model objects prevent us from inserting nulls
-                // here we must insert a PlaneInfo object. Also, we need an
-                // ordered list of PlaneInfo objects for later reference so
-                // we're populating the cache here which will be invalidated
-                // upon a call to createRoot().
-                PlaneInfo info = new PlaneInfo();
-                cache.add(info);
-            }
-        }
-
-        // This prevents a cached planeinfo from being used 
-        // unless timestamp or exposure time is full
-        PlaneInfo planeInfo = cache.get(planeIndex);
-        Iterator<PlaneInfo> i = pixels.iteratePlaneInfo();
-        while (i.hasNext())
-        {
-            PlaneInfo linkedPlaneInfo = i.next();
-            if (linkedPlaneInfo == planeInfo)
-            {
-                return planeInfo;
-            }
-        }
-        if (planeInfo.getDeltaT() != null
-            || planeInfo.getExposureTime() != null
-            || planeInfo.getPositionX() != null
-            || planeInfo.getPositionY() != null
-            || planeInfo.getPositionZ() != null)
-        {
-            pixels.addPlaneInfo(planeInfo);
-        }
-        return planeInfo;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
-     */
-    public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] theZ: '%d'",
-                imageIndex, pixelsIndex, planeIndex, theZ));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setTheZ(theZ);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int, int)
-     */
-    public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] theC: '%d'",
-                imageIndex, pixelsIndex, planeIndex, theC));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setTheC(theC);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int, int)
-     */
-    public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] theT: '%d'",
-                imageIndex, pixelsIndex, planeIndex, theT));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setTheT(theT);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTimingDeltaT(java.lang.Float, int, int, int)
-     */
-    public void setPlaneTimingDeltaT(Float deltaT, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] deltaT: '%f'",
-                imageIndex, pixelsIndex, planeIndex, deltaT));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setDeltaT(deltaT);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTimingExposureTime(java.lang.Float, int, int, int)
-     */
-    public void setPlaneTimingExposureTime(Float exposureTime, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] exposure time: '%f'",
-                imageIndex, pixelsIndex, planeIndex, exposureTime));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setExposureTime(exposureTime);
-    }
-
-    /* ---- LogicalChannels ---- */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
-     */
-    public void setLogicalChannelName(String name, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] name: '%s'",
-                imageIndex, logicalChannelIndex, name));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setName(name);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelIlluminationType(java.lang.String, int, int)
-     */
-    public void setLogicalChannelIlluminationType(String illuminationType,
-            int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] illumination type: '%s'",
-                imageIndex, logicalChannelIndex, illuminationType));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        Illumination iType = (Illumination) getEnumeration(AcquisitionMode.class, illuminationType);
-        lc.setIllumination(iType);
-    }
-
-   
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelPinholeSize(Float pinholeSize,
-            int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] pinhole size: '%f'",
-                imageIndex, logicalChannelIndex, pinholeSize));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setPinHoleSize(pinholeSize);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPhotometricInterpretation(java.lang.String, int, int)
-     */
-    public void setLogicalChannelPhotometricInterpretation(
-            String photometricInterpretation, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] photometric interpretation: '%s'",
-                imageIndex, logicalChannelIndex, photometricInterpretation));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        PhotometricInterpretation pi = 
-            (PhotometricInterpretation) getEnumeration(
-                    PhotometricInterpretation.class, photometricInterpretation);
-        lc.setPhotometricInterpretation(pi);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelMode(java.lang.String, int, int)
-     */
-    public void setLogicalChannelMode(String mode, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] channel mode: '%s'",
-                imageIndex, logicalChannelIndex, mode));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        AcquisitionMode m = 
-            (AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
-        lc.setMode(m);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelContrastMethod(java.lang.String, int, int)
-     */
-    public void setLogicalChannelContrastMethod(String contrastMethod,
-            int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] contrast method: '%s'",
-                imageIndex, logicalChannelIndex, contrastMethod));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        ContrastMethod m = (ContrastMethod) 
-        getEnumeration(ContrastMethod.class, contrastMethod);
-        lc.setContrastMethod(m);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelExWave(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelExWave(Integer exWave, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] excitation wavelength: '%d'",
-                imageIndex, logicalChannelIndex, exWave));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setExcitationWave(exWave);
-        if (lc.getPhotometricInterpretation() == null)
-        {
-            log.debug("Setting Photometric iterpretation to monochrome");
-            PhotometricInterpretation pi = (PhotometricInterpretation) 
-            getEnumeration(PhotometricInterpretation.class, "Monochrome");
-            lc.setPhotometricInterpretation(pi);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelEmWave(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] emission wavelength: '%d'",
-                imageIndex, logicalChannelIndex, emWave));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setEmissionWave(emWave);
-        if (lc.getPhotometricInterpretation() == null)
-        {
-            log.debug("Setting Photometric iterpretation to monochrome");
-            PhotometricInterpretation pi = (PhotometricInterpretation) 
-            getEnumeration(PhotometricInterpretation.class, "Monochrome");
-            lc.setPhotometricInterpretation(pi);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelFluor(java.lang.String, int, int)
-     */
-    public void setLogicalChannelFluor(String fluor, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] fluor: '%s'",
-                imageIndex,  logicalChannelIndex, fluor));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setFluor(fluor);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelNdFilter(java.lang.Float, int, int)
-     */
-    @SuppressWarnings("unchecked")
-    public void setLogicalChannelNdFilter(Float ndFilter, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] ndFilter: '%f'",
-                imageIndex, logicalChannelIndex, ndFilter));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setNdFilter(ndFilter);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPockelCellSetting(java.lang.Integer, int, int)
-     */
-    @SuppressWarnings("unchecked")
-    public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
-            int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "pockel cell setting: '%d'",
-                imageIndex, logicalChannelIndex, pockelCellSetting));
-        LogicalChannel lc = 
-            getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        lc.setPockelCellSetting(pockelCellSetting);
-        // FIXME: Should pockel cell be String or Integer?
-    }
-
-    /* --- StageLabel --- */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Float, int, int, int)
-     */
-    public void setStagePositionPositionX(Float positionX, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position X: '%f'",
-                imageIndex, pixelsIndex, planeIndex, positionX));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setPositionX(positionX);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionY(java.lang.Float, int, int, int)
-     */
-    public void setStagePositionPositionY(Float positionY, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Y: '%f'",
-                imageIndex, pixelsIndex, planeIndex, positionY));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setPositionY(positionY);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionZ(java.lang.Float, int, int, int)
-     */
-    public void setStagePositionPositionZ(Float positionZ, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Z: '%f'",
-                imageIndex, pixelsIndex, planeIndex, positionZ));
-        PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        p.setPositionZ(positionZ);
-    }
-
-    /* ---- Stage Label ---- */
-
-    /**
-     * Get ImagingEnvironment, creating one if it doesn't exist
-     * @param imageIndex
-     * @return ImagingEnvironment
-     */
-    private StageLabel getStageLabel (int imageIndex)
-    {
-        Image i = getImage(imageIndex);
-        StageLabel sl = i.getStageLabel();
-        if (sl == null)
-        {
-            sl = new StageLabel();
-            i.setStageLabel(sl);
-        }
-        return sl;       
-    }
-
-    public void setStageLabelName(String name, int imageIndex) {
-        log.debug(String.format(
-                "Setting setStageName[%s] Image[%d]", name, imageIndex));
-        if (name == null)
-        {
-            log.debug(String.format("Stage label cannot be null, setting to 'ome'."));
-            name = "ome";
-        }
-        StageLabel sl = getStageLabel(imageIndex);
-        sl.setName(name);
-    }
-
-    public void setStageLabelX(Float x, int imageIndex) {
-        log.debug(String.format(
-                "Setting setStageLabelX[%f] Image[%d]", x, imageIndex));
-        if (x == null)
-        {
-            log.debug(String.format("Stage label X cannot be null, setting to 0.0f."));
-            x = 0.0f;
-        }
-        StageLabel sl = getStageLabel(imageIndex);
-        sl.setPositionX(x);
-    }
-
-    public void setStageLabelY(Float y, int imageIndex) {
-        log.debug(String.format(
-                "Setting setStageLabelY[%f] Image[%d]", y, imageIndex));
-        if (y == null)
-        {
-            log.debug(String.format("Stage label Y cannot be null, setting to 0.0f."));
-            y = 0.0f;
-        }
-        StageLabel sl = getStageLabel(imageIndex);
-        sl.setPositionY(y); 
-    }
-
-    public void setStageLabelZ(Float z, int imageIndex) {
-        log.debug(String.format(
-                "Setting setStageLabelZ[%f] Image[%d]", z, imageIndex));
-        if (z == null)
-        {
-            log.debug(String.format("Stage label Z cannot be null, setting to 0.0f."));
-            z = 0.0f;
-        }
-        StageLabel sl = getStageLabel(imageIndex);
-        sl.setPositionZ(z);   
-    }
-
-    /* ---- Detector Settings ---- */
-
-    private void setDetectorSettingsID(String id, int imageIndex, int logicalChannelIndex)
-    {
-        currentLSID = "ome.formats.importer.detectorsettings." + imageIndex + "." + logicalChannelIndex;
-        mapLSID(currentLSID);    
-    }
-    
-    private DetectorSettings getDetectorSettings(int imageIndex, int logicalChannelIndex)
-    {
-    	setDetectorSettingsID(null, imageIndex, logicalChannelIndex);
-
-    	LogicalChannel lc = getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-    	DetectorSettings ds = lc.getDetectorSettings();
-    	if (ds == null)
-    	{
-    		ds = new DetectorSettings();
-    		lc.setDetectorSettings(ds);
-    		lsidMap.put(currentLSID, ds);
-    	}
-    	else
-    	{
-    		ds = lc.getDetectorSettings();
-    	}
-    	return ds;
-    }
-    
-    public void setDetectorSettingsBinning(String binning, int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "Detector Settings Binning: '%s'",
-                imageIndex, logicalChannelIndex, binning));
-        
-        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
-        if (ds != null)
-            ds.setBinning((Binning) getEnumeration(Binning.class, binning));
-    }
-
-    public void setDetectorSettingsReadOutRate(Float readOutRate, int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "Detector Settings readOutRate: '%f'",
-                imageIndex, logicalChannelIndex, readOutRate));
-        
-        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
-        if (ds != null)
-            ds.setReadOutRate(readOutRate);
-    }
-
-    public void setDetectorSettingsVoltage(Float voltage, int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "Detector Settings voltage: '%f'",
-                imageIndex, logicalChannelIndex, voltage));
-        
-        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
-        if (ds != null)
-            ds.setVoltage(voltage);
-    }
-    
-    
-    public void setDetectorSettingsDetector(String detector, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "Detector Settings Detector: '%s'",
-                imageIndex, logicalChannelIndex, detector));
-        
-        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
-        if (ds != null)
-            ds.setDetector((Detector) lsidMap.get(detector));
-    }
-
-    public void setDetectorSettingsGain(Float gain, int imageIndex,
-            int logicalChannelIndex) {  
-    	
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "Detector Settings Gain: '%f'",
-                imageIndex, logicalChannelIndex, gain));
-        
-        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
-        if (ds != null)
-            ds.setGain(gain);
-    }
-
-    public void setDetectorSettingsOffset(Float offset, int imageIndex,
-            int logicalChannelIndex) {
-    	
-        log.debug(String.format(
-                "Setting Image[%d] LogicalChannel[%d] " +
-                "Detector Settings Offset: '%f'",
-                imageIndex, logicalChannelIndex, offset));
-        
-        DetectorSettings ds = getDetectorSettings(imageIndex, logicalChannelIndex); 
-        if (ds != null)
-            ds.setOffsetValue(offset);
-    }
-
-    /* ---- Instrument-based Methods ---- */
-
-
-    public void setInstrumentID(String id, int instrumentIndex)
-    {
-        log.debug(String.format(
-                "setInstrumentID[%s] instrumentIndex[%d]",
-                id, instrumentIndex));
-        currentLSID = "ome.formats.importer.instrument." + instrumentIndex;
-        if (id != null)
-        {        
-        	lsidMap.put(id, getInstrument(instrumentIndex));
-        	log.debug(String.format("Mapping Instrument ID[%s]", id));
-        }
-        mapLSID(currentLSID); 
-    }
-    
-    /**
-     * Returns an Instrument from the internal indexed instrument list. The indexed 
-     * instrument list is extended as required and the Instrument object itself is 
-     * created as required.
-     * 
-     * @param instrumentIndex The instrument index.
-     * @return See above.
-     */
-    private Instrument getInstrument(int instrumentIndex)
-    {
-        if (instrumentList.size() < (instrumentIndex + 1))
-        {
-            for (int i = instrumentList.size(); i < instrumentIndex; i++)
-            {
-                // Inserting null here so that we don't place potentially bogus
-                // Instrument into the list which will eventually be saved into
-                // the database.
-                instrumentList.add(null);
-            }
-            Instrument i = new Instrument();
-            instrumentList.add(i);
-        }
-        return instrumentList.get(instrumentIndex);
-    }
-
-    /* ---- Light Source Settings ---- */
-
-    private void setLightSourceSettingsID(String id, int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "setLightSourceSettingsID[%s] imageIndex[%d] logicalChannelIndex[%d]",
-                id, imageIndex, logicalChannelIndex));
-        currentLSID = "ome.formats.importer.lightsourcesettings." + imageIndex + "." + logicalChannelIndex;
-        if (id != null)
-        {        
-        	lsidMap.put(id, getLightSourceSettings(imageIndex, logicalChannelIndex));
-        	log.debug(String.format("Mapping LightSourceSettings ID[%s]", id));
-        }
-        mapLSID(currentLSID); 
-    }
-    
-    private LightSettings getLightSourceSettings(int imageIndex, int logicalChannelIndex)
-    {
-        setLightSourceSettingsID(null, imageIndex, logicalChannelIndex);
-
-        //FIXME This still needs to properly indicate pixels since there could 
-        // be more then one pixels per image this is a fault in the model that 
-        // needs fixing.
-        LogicalChannel lc = getLogicalChannel(imageIndex, 0, logicalChannelIndex);
-        LightSettings ls = lc.getLightSourceSettings();
-        if (ls == null)
-        {
-            ls = new LightSettings();
-            lc.setLightSourceSettings(ls);
-            lsidMap.put(currentLSID, ls);
-        }
-        return ls;
-    }
-    
-    public void setLightSourceSettingsLightSource(String lightSource,
-            int imageIndex, int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "setLightSourceSettingsLightSource[%s] imageIndex[%d] logicalChannelIndex[%d]",
-                lightSource, imageIndex, logicalChannelIndex));
-        
-        LightSettings ls = getLightSourceSettings(imageIndex, logicalChannelIndex); 
-        if (ls != null)
-            ls.setLightSource((LightSource) lsidMap.get(lightSource));
-    }
-
-    public void setLightSourceSettingsAttenuation(Float attenuation,
-            int imageIndex, int logicalChannelIndex) {
-        log.debug(String.format(
-                "setLightSourceSettingsAttenuation[%f] imageIndex[%d] logicalChannelIndex[%d]",
-                attenuation, imageIndex, logicalChannelIndex));
-        
-        LightSettings ls = getLightSourceSettings(imageIndex, logicalChannelIndex); 
-        if (ls != null)
-            ls.setAttenuation(attenuation);  
-    }
-
-    public void setLightSourceSettingsWavelength(Integer wavelength,
-            int imageIndex, int logicalChannelIndex) {
-        log.debug(String.format(
-                "setLightSourceSettingsWavelength[%d] imageIndex[%d] logicalChannelIndex[%d]",
-                wavelength, imageIndex, logicalChannelIndex));
-        
-        LightSettings ls = getLightSourceSettings(imageIndex, logicalChannelIndex); 
-        if (ls != null)
-            ls.setWavelength(wavelength);
-    }
-
-    /* ---- Light Source ---- */
-
-    public void setLightSourceID(String id, int instrumentIndex, int lightSourceIndex)
-    {
-        log.debug(String.format(
-                "setLightSourceID[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                id, instrumentIndex, lightSourceIndex));
-        currentLSID = "ome.formats.importer.lightsource." + instrumentIndex + "." + lightSourceIndex;
-        if (id != null)
-        {        
-        	lsidMap.put(id, getLightSource(instrumentIndex, lightSourceIndex));
-        	log.debug(String.format("Mapping LightSource ID[%s]", id));
-        }
-        mapLSID(currentLSID); 
-    }
- 
-    /* Based on the currentLSID we have stored, see if the lightsource is set, if not, set it */
-    private LightSource getLightSource(int instrumentIndex, int lightSourceIndex)
-    {
-        setLightSourceID(null, instrumentIndex, lightSourceIndex);
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        
-        if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
-        {
-            MetaLightSource mls = new MetaLightSource();
-            log.debug(String.format("New metalightsource object created with currentLSID: [%s]", currentLSID));
-            lsidMap.put(currentLSID, mls);
-            instrument.addLightSource(mls);
-        }
-        
-        Iterator<LightSource> iter = instrument.iterateLightSource();
-        int i = 0;
-        while (iter.hasNext())
-        {
-            LightSource ls = iter.next();
-            if (i == lightSourceIndex)
-            {
-                return ls;
-            }
-            i++;
-        }
-        // This should never happen.
-        throw new RuntimeException(
-        		"Internal error, no light source linked with index: " + 
-        		lightSourceIndex);
-    }
-    
-    public void setLightSourceManufacturer(String manufacturer, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLightSourceManufacturer[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                manufacturer, instrumentIndex, lightSourceIndex));
-
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
-        if (ls != null)
-            ls.setManufacturer(manufacturer);
-    }
-
-    public void setLightSourceModel(String model, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLightSourceModel[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                model, instrumentIndex, lightSourceIndex));
-        
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
-        if (ls != null)
-            ls.setModel(model);
-    }
-
-    public void setLightSourceSerialNumber(String serialNumber, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLightSourceSerialNumber[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                serialNumber, instrumentIndex, lightSourceIndex));
-        
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
-        if (ls != null)
-            ls.setSerialNumber(serialNumber);
-    }
-
-    public void setLightSourcePower(Float power, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        log.debug(String.format(
-                "setLightSourcePower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
-                power, instrumentIndex, lightSourceIndex));
-        
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);            
-        if (ls != null)
-            ls.setPower(power);
-    }
-
-    /* ---- Laser ---- */ 
-
-    private Laser getLaser(int instrumentIndex, int lightSourceIndex)
-    {
-        setLightSourceID(null, instrumentIndex, lightSourceIndex);
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-    	
-        if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
-        {
-        	// We've been called before any generic fields from the abstract
-        	// class (MetaLightSource) so we add a new concrete object to the
-        	// Instrument with the correct type.
-            Laser laser = new Laser();
-            laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
-            laser.setType((LaserType) getEnumeration(LaserType.class, "Unknown"));
-            lsidMap.put(currentLSID, laser);
-            instrument.addLightSource(laser);
-        }
-        else 
-        {
-            if (lsidMap.get(currentLSID) instanceof MetaLightSource)
-            {
-            	// The object in the LSID map is an abstract instance which
-            	// we now need to "upcast" to the correct contrete object.
-                Laser laser = new Laser();
-                laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, "Unknown"));
-                laser.setType((LaserType) getEnumeration(LaserType.class, "Unknown"));
-                
-                MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
-                mls.copyData(laser);
-                
-                // As there may be multiple instances of the abstract instance
-                // linked to multiple LSID keys we have to update each one.
-                for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
-                {
-                    String key = entry.getKey();
-                    IObject value = entry.getValue();
-                    if (value == mls)
-                    {
-                        log.debug(String.format(
-                                "associating key [%s] with a new laser",
-                                key));
-                        lsidMap.put(key, laser);
-                    }
-                }
-                
-                // Instrument has a link to this abstract instance so we need
-                // to replace it.
-                instrument.removeLightSource(mls);
-                instrument.addLightSource(laser);
-                
-                // One or all of the Images linked to the Instrument may have
-                // LightSourceSettings that have a link to this abstract
-                // instance so we need to update them.
-                for (Image image : imageList)
-                {
-                	if (image.getInstrument() == instrument)
-                	{
-                		Iterator<Channel> iter = 
-                			image.getPrimaryPixels().iterateChannels();
-                		while (iter.hasNext())
-                		{
-                			Channel c = iter.next();
-                			LogicalChannel lc = c.getLogicalChannel();
-                			LightSettings ls = lc.getLightSourceSettings();
-                			if (ls.getLightSource() == mls)
-                			{
-                				ls.setLightSource(laser);
-                			}
-                		}
-                	}
-                }
-            }
-        }  
-        
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);
-        if (ls instanceof Laser)
-        {
-            return (Laser) ls; 
-        }  
-        return null;  
-    }
-    
-    public void setLaserFrequencyMultiplication(
-            Integer frequencyMultiplication, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserFrequencyMultiplication[%d] instrumentIndex[%d] lightSourceIndex[%d]",
-                frequencyMultiplication, instrumentIndex, lightSourceIndex));
-
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex);  
-        if (frequencyMultiplication != null && laser != null)
-        {
-            laser.setFrequencyMultiplication(frequencyMultiplication);
-        } else if (laser != null) {
-            laser.setFrequencyMultiplication(null);        
-        }
-    }
-
-    public void setLaserLaserMedium(String laserMedium, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserLaserMedium[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                laserMedium, instrumentIndex, lightSourceIndex));
-
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
-        if (laser != null)
-            laser.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, laserMedium));   
-    }
-
-    public void setLaserPower(Float power, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserPower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
-                power, instrumentIndex, lightSourceIndex));
-        
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
-        if (laser != null)
-            laser.setPower(power);
-    }
-
-    public void setLaserPulse(String pulse, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserPulse[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                pulse, instrumentIndex, lightSourceIndex));  
-
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
-        if (laser != null)
-            laser.setPulse((Pulse) getEnumeration(Pulse.class, pulse));   
-    }
-
-    public void setLaserTuneable(Boolean tuneable, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserTuneable[%b] instrumentIndex[%d] lightSourceIndex[%d]",
-                tuneable, instrumentIndex, lightSourceIndex));   
-
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
-        if (laser != null)
-            laser.setTuneable(tuneable);   
-    }
-
-    public void setLaserType(String type, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                type, instrumentIndex, lightSourceIndex));
-
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex);            
-        if (laser != null)
-            laser.setType((LaserType) getEnumeration(LaserType.class, type)); 
-    }
-
-    public void setLaserWavelength(Integer wavelength, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setLaserWavelength[%d] instrumentIndex[%d] lightSourceIndex[%d]",
-                wavelength, instrumentIndex, lightSourceIndex));
-
-        Laser laser = getLaser(instrumentIndex, lightSourceIndex); 
-        if (laser != null)
-            laser.setWavelength(wavelength);    
-    }
-
-    /* ---- Arc ---- */
-
-    private Arc getArc(int instrumentIndex, int lightSourceIndex)
-    {
-        setLightSourceID(null, instrumentIndex, lightSourceIndex);
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        
-        if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
-        {
-            Arc arc = new Arc();
-            arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown")); 
-            lsidMap.put(currentLSID, arc);
-            instrument.addLightSource(arc);
-        }
-        else 
-        {
-            if (lsidMap.get(currentLSID) instanceof MetaLightSource)
-            {
-            	// The object in the LSID map is an abstract instance which
-            	// we now need to "upcast" to the correct contrete object.
-                Arc arc = new Arc();
-                arc.setType((ArcType) getEnumeration(ArcType.class, "Unknown"));
-                
-                MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
-                mls.copyData(arc);
-                
-                // As there may be multiple instances of the abstract instance
-                // linked to multiple LSID keys we have to update each one.
-                for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
-                {
-                    String key = entry.getKey();
-                    IObject value = entry.getValue();
-                    if (value == mls)
-                    {
-                        log.debug(String.format(
-                                "associating key [%s] with a new arc",
-                                key));
-                        lsidMap.put(key, arc);
-                    }
-                }
-                
-                // Instrument has a link to this abstract instance so we need
-                // to replace it.
-                instrument.removeLightSource(mls);
-                instrument.addLightSource(arc);
-                
-                // One or all of the Images linked to the Instrument may have
-                // LightSourceSettings that have a link to this abstract
-                // instance so we need to update them.
-                for (Image image : imageList)
-                {
-                	if (image.getInstrument() == instrument)
-                	{
-                		Iterator<Channel> iter = 
-                			image.getPrimaryPixels().iterateChannels();
-                		while (iter.hasNext())
-                		{
-                			Channel c = iter.next();
-                			LogicalChannel lc = c.getLogicalChannel();
-                			LightSettings ls = lc.getLightSourceSettings();
-                			if (ls.getLightSource() == mls)
-                			{
-                				ls.setLightSource(arc);
-                			}
-                		}
-                	}
-                }
-            }
-        }
-        
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);
-        if (ls instanceof Arc)
-        {
-            return (Arc) ls;
-        }  
-        return null;
-    }
-    
-    public void setArcPower(Float power, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setArcPower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
-                power, instrumentIndex, lightSourceIndex));
-
-        Arc arc = getArc(instrumentIndex, lightSourceIndex); 
-        if (arc != null)
-            arc.setPower(power);
-    }
-
-    public void setArcType(String type, int instrumentIndex, int lightSourceIndex) 
-    {
-        log.debug(String.format(
-                "setArcType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                type, instrumentIndex, lightSourceIndex));
-
-        Arc arc = getArc(instrumentIndex, lightSourceIndex);    
-        if (arc != null)
-            arc.setType((ArcType) getEnumeration(ArcType.class, type));
-    }
-
-
-    /* ---- Filament ---- */
-    
-    private Filament getFilament(int instrumentIndex, int lightSourceIndex)
-    {
-    	setLightSourceID(null, instrumentIndex, lightSourceIndex);
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-    	
-        if ((instrument.sizeOfLightSource() - 1) < lightSourceIndex)
-        {
-            Filament filament = new Filament();
-            filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown")); 
-            lsidMap.put(currentLSID, filament);
-            instrument.addLightSource(filament);
-        }
-        else 
-        {
-            if (lsidMap.get(currentLSID) instanceof MetaLightSource)
-            {
-            	// The object in the LSID map is an abstract instance which
-            	// we now need to "upcast" to the correct contrete object.
-            	Filament filament = new Filament();
-            	filament.setType((FilamentType) getEnumeration(FilamentType.class, "Unknown"));
-
-            	MetaLightSource mls = (MetaLightSource) lsidMap.get(currentLSID);
-            	mls.copyData(filament);
-
-            	// As there may be multiple instances of the abstract instance
-            	// linked to multiple LSID keys we have to update each one.
-            	for (Map.Entry<String, IObject> entry : lsidMap.entrySet())
-            	{
-            		String key = entry.getKey();
-            		IObject value = entry.getValue();
-            		if (value == mls)
-            		{
-            			log.debug(String.format(
-            					"associating key [%s] with a new filament",
-            					key));
-
-            			lsidMap.put(key, filament);
-            		}
-            	}
-
-            	// Instrument has a link to this abstract instance so we need
-            	// to replace it.
-            	instrument.removeLightSource(mls);
-            	instrument.addLightSource(filament);
-
-            	// One or all of the Images linked to the Instrument may have
-            	// LightSourceSettings that have a link to this abstract
-            	// instance so we need to update them.
-            	for (Image image : imageList)
-            	{
-            		if (image.getInstrument() == instrument)
-            		{
-            			Iterator<Channel> iter = 
-            				image.getPrimaryPixels().iterateChannels();
-            			while (iter.hasNext())
-            			{
-            				Channel c = iter.next();
-            				LogicalChannel lc = c.getLogicalChannel();
-            				LightSettings ls = lc.getLightSourceSettings();
-            				if (ls.getLightSource() == mls)
-            				{
-            					ls.setLightSource(filament);
-            				}
-            			}
-            		}
-            	}
-            }
-        }
-        
-        LightSource ls = getLightSource(instrumentIndex, lightSourceIndex);
-        if (ls instanceof Filament)
-        {
-            return (Filament) ls;
-        }  
-        return null;
-    }
-    
-    public void setFilamentPower(Float power, int instrumentIndex,
-            int lightSourceIndex) {
-        log.debug(String.format(
-                "setFilamentPower[%f] instrumentIndex[%d] lightSourceIndex[%d]",
-                power, instrumentIndex, lightSourceIndex));
-        
-        Filament filament = getFilament(instrumentIndex, lightSourceIndex); 
-        if (filament != null)
-            filament.setPower(power);
-    }
-
-    public void setFilamentType(String type, int instrumentIndex,
-            int lightSourceIndex) {
-        log.debug(String.format(
-                "setFilamentType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                type, instrumentIndex, lightSourceIndex));
-        
-        Filament filament = getFilament(instrumentIndex, lightSourceIndex); 
-        if (filament != null)
-            filament.setType((FilamentType) getEnumeration(FilamentType.class, type)); 
-    }
-    
-    /* ---- Detector ---- */
-
-    public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
-    {
-        currentLSID = "ome.formats.importer.detector." + instrumentIndex + "." + detectorIndex;
-        if (id != null)
-        {
-            lsidMap.put(id, getDetector(instrumentIndex, detectorIndex));
-            log.debug(String.format(
-                    "setDetectorID[%s] instrumentIndex[%d] detectorIndex[%d]",
-                    id, instrumentIndex, detectorIndex));
-        }
-        mapLSID(currentLSID);   
-    }
-
-    private Detector getDetector(int instrumentIndex, int detectorIndex)
-    {
-    	setDetectorID(null, instrumentIndex, detectorIndex);
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        
-        if ((instrument.sizeOfDetector() - 1) < detectorIndex)
-        {
-            Detector detector = new Detector();
-            detector.setType((DetectorType) getEnumeration(DetectorType.class, "Unknown")); 
-            lsidMap.put(currentLSID, detector);
-            instrument.addDetector(detector);
-        } 
-
-        
-        //FIXME: This is a horrible hack until 
-        Detector detector = (Detector) lsidMap.get(currentLSID);
-        
-        /*
-        for (Image i : imageList)
-        {
-        	Iterator <Pixels> pi = i.iteratePixels();
-         	while (pi.hasNext())
-        	{
-        		Pixels p = pi.next();
-        		Iterator <Channel> ci = p.iterateChannels();
-        		while (ci.hasNext())
-        		{
-        			Channel c = ci.next();
-        			LogicalChannel lc = c.getLogicalChannel();
-        			DetectorSettings ds = new DetectorSettings();
-        			ds.setDetector(detector);
-        			lc.setDetectorSettings(ds);
-        		}
-        	}
-        }
-        */
-        
-        return detector;
-    }
-    
-    public void setDetectorGain(Float gain, int instrumentIndex,
-            int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorGain[%f] instrumentIndex[%d] detectorIndex[%d]",
-                gain, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setGain(gain);
-    }
-
-    public void setDetectorManufacturer(String manufacturer,
-            int instrumentIndex, int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorManufacturer[%s] instrumentIndex[%d] detectorIndex[%d]",
-                manufacturer, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setManufacturer(manufacturer);
-    }
-
-    public void setDetectorModel(String model, int instrumentIndex,
-            int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorModel[%s] instrumentIndex[%d] detectorIndex[%d]",
-                model, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setModel(model);
-    }
-
-    public void setDetectorOffset(Float offset, int instrumentIndex,
-            int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorOffset[%f] instrumentIndex[%d] detectorIndex[%d]",
-                offset, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setOffsetValue(offset);
-    }
-
-    public void setDetectorSerialNumber(String serialNumber,
-            int instrumentIndex, int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorSerialNumber[%s] instrumentIndex[%d] detectorIndex[%d]",
-                serialNumber, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setSerialNumber(serialNumber);
-    }
-
-    public void setDetectorType(String type, int instrumentIndex,
-            int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorType[%s] instrumentIndex[%d] lightSourceIndex[%d]",
-                type, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setType((DetectorType) getEnumeration(DetectorType.class, type)); 
-    }
-
-    public void setDetectorVoltage(Float voltage, int instrumentIndex,
-            int detectorIndex) {
-        log.debug(String.format(
-                "setDetectorVoltage[%f] instrumentIndex[%d] detectorIndex[%d]",
-                voltage, instrumentIndex, detectorIndex));
-        
-        Detector detector = getDetector(instrumentIndex, detectorIndex); 
-        if (detector != null)
-            detector.setVoltage(voltage);  
-    }
-
-    /* ---- Objective ---- */
-
-    public void setObjectiveID(String id, int instrumentIndex,
-            int objectiveIndex)
-    {
-        log.debug(String.format(
-                "setObjectiveID[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                id, instrumentIndex, objectiveIndex));    	
-        currentLSID = "ome.formats.importer.objective." + instrumentIndex + "." + objectiveIndex;
-        if (id != null)
-        {
-            lsidMap.put(id, getObjective(instrumentIndex, objectiveIndex));
-        }
-        mapLSID(currentLSID);  
-
-    }
-
-    private Objective getObjective(int instrumentIndex, int objectiveIndex)
-    {
-        setObjectiveID(null, instrumentIndex, objectiveIndex);
-        
-        Instrument instrument = getInstrument(instrumentIndex);
-        
-        if ((instrument.sizeOfObjective() - 1) < objectiveIndex)
-        {
-            Objective objective = new Objective();
-            objective.setImmersion((Immersion) getEnumeration(Immersion.class, "Unknown"));
-            objective.setCorrection((Correction) getEnumeration(Correction.class, "Unknown"));
-            lsidMap.put(currentLSID, objective);
-            instrument.addObjective(objective);
-        } 
-        return (Objective) lsidMap.get(currentLSID);
-    }
-    
-    public void setObjectiveIris(Boolean iris, int instrumentIndex,
-            int objectiveIndex)
-    {
-        log.debug(String.format(
-                "setObjectiveIris[%b] instrumentIndex[%d] objectiveIndex[%d]",
-                iris, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null && iris != null) // fix for older ome formats
-            objective.setIris(iris.booleanValue());
-    }
-    
-    public void setObjectiveCalibratedMagnification(
-            Float calibratedMagnification, int instrumentIndex, int objectiveIndex) 
-    {
-        log.debug(String.format(
-                "setObjectiveCalibratedMagnification[%f] instrumentIndex[%d] objectiveIndex[%d]",
-                calibratedMagnification, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null && calibratedMagnification != null) // fix for older ome formats
-            objective.setCalibratedMagnification(calibratedMagnification.floatValue());
-    }
-
-    public void setObjectiveImmersion(String immersion, int instrumentIndex,
-            int objectiveIndex) {
-        log.debug(String.format(
-                "setObjectiveImmersion[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                immersion, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setImmersion((Immersion) getEnumeration(Immersion.class, immersion)); 
-    }
-
-    public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
-            int objectiveIndex) {
-        log.debug(String.format(
-                "setObjectiveLensNA[%f] instrumentIndex[%d] objectiveIndex[%d]",
-                lensNA, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setLensNA(lensNA); 
-    }
-
-    public void setObjectiveManufacturer(String manufacturer,
-            int instrumentIndex, int objectiveIndex) {
-        log.debug(String.format(
-                "setObjectiveManufacturer[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                manufacturer, instrumentIndex, objectiveIndex));
-
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setManufacturer(manufacturer); 
-    }
-
-    public void setObjectiveModel(String model, int instrumentIndex,
-            int objectiveIndex) {
-        log.debug(String.format(
-                "setObjectiveModel[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                model, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setModel(model); 
-    }
-
-    public void setObjectiveNominalMagnification(Integer nominalMagnification,
-            int instrumentIndex, int objectiveIndex) 
-    {
-        log.debug(String.format(
-                "setObjectiveNominalMagnification[%d] instrumentIndex[%d] objectiveIndex[%d]",
-                nominalMagnification, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setNominalMagnification(nominalMagnification);
-    }
-
-    public void setObjectiveSerialNumber(String serialNumber,
-            int instrumentIndex, int objectiveIndex) 
-    {
-        log.debug(String.format(
-                "setObjectiveSerialNumber[%s] instrumentIndex[%d] objectiveIndex[%d]",
-                serialNumber, instrumentIndex, objectiveIndex));
-
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setSerialNumber(serialNumber);
-    }
-
-    public void setObjectiveCorrection(String correction, int instrumentIndex,
-            int objectiveIndex) 
-    {
-        log.debug(String.format(
-                "setObjectiveCorrection[%s] instrumentIndex[%d] detectorIndex[%d]",
-                correction, instrumentIndex, objectiveIndex));
-               
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setCorrection((Correction) getEnumeration(Correction.class, correction));
-    }
-    
-    public void setObjectiveWorkingDistance(Float workingDistance,
-            int instrumentIndex, int objectiveIndex) {
-        log.debug(String.format(
-                "setObjectiveWorkingDistance[%f] instrumentIndex[%d] objectiveIndex[%d]",
-                workingDistance, instrumentIndex, objectiveIndex));
-        
-        Objective objective = getObjective(instrumentIndex, objectiveIndex); 
-        if (objective != null)
-            objective.setWorkingDistance(workingDistance);
-    }
-
-    /* ---- Objective Settings ---- */
-    
-    public void setObjectiveSettingsID(String id, int imageIndex)
-    {
-        log.debug(String.format(
-                "setObjectiveSettingsID[%s] imageIndex[%d]",
-                id, imageIndex));
-        currentLSID = "ome.formats.importer.objectiveSettings." + imageIndex;
-        if (id != null)
-        {
-            lsidMap.put(id, getObjectiveSettings(imageIndex));
-        }
-        mapLSID(currentLSID);  
-    }
-
-    private ObjectiveSettings getObjectiveSettings(int imageIndex)
-    {
-        setObjectiveSettingsID(null, imageIndex);
-        
-        Image image = getImage(imageIndex);
-        ObjectiveSettings os = image.getObjectiveSettings();
-        if (os == null)
-        {
-            os = new ObjectiveSettings();
-            image.setObjectiveSettings(os);
-            lsidMap.put(currentLSID, os);
-        }
-        return os;
-    }
-
-    public void setObjectiveSettingsCorrectionCollar(Float correctionCollar,
-            int imageIndex)
-    {
-        log.debug(String.format(
-                "setting imageIndex[%d] correctionCollar[%f]",
-                imageIndex, correctionCollar));
-        
-        ObjectiveSettings os = getObjectiveSettings(imageIndex); 
-        if (os != null)
-            os.setCorrectionCollar(correctionCollar);
-    }
-
-    public void setObjectiveSettingsMedium(String medium, int imageIndex)
-    {
-        log.debug(String.format(
-                "setting imageIndex[%d] medium[%s]",
-                imageIndex, medium));
-        
-        ObjectiveSettings os = getObjectiveSettings(imageIndex); 
-        if (os != null)
-            os.setMedium((Medium) getEnumeration(Medium.class, medium));
-    }
-
-    public void setObjectiveSettingsObjective(String objective, int imageIndex)
-    {
-        log.debug(String.format(
-                "setting imageIndex[%d] objective[%s]",
-                imageIndex, objective));
-        
-        ObjectiveSettings os = getObjectiveSettings(imageIndex); 
-        if (os != null)
-            os.setObjective((Objective) lsidMap.get(objective));
-    }
-
-    public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
-            int imageIndex)
-    {
-        log.debug(String.format(
-                "setting imageIndex[%d] refractiveIndex[%f]",
-                imageIndex, refractiveIndex));
-        
-        ObjectiveSettings os = getObjectiveSettings(imageIndex); 
-        if (os != null)
-            os.setRefractiveIndex(refractiveIndex);
-    }
-    
-    
-    /* ---- OTF ---- */
-
-    public void setOTFID(String id, int instrumentIndex, int otfIndex)
-    {
-        // Add this lsid to the lsidMap and set currentID = id.
-        mapLSID(id);
-        
-        log.debug(String.format(
-                "Mapping OTFID[%s] InstrumentIndex[%d] otfIndex[%d]",
-                id, instrumentIndex, otfIndex));
-    }
-    
-    private OTF getOTF(Instrument instrument, int otfIndex)
-    {
-        //if ((instrument.sizeOfDetector() - 1) < otfIndex)
-        //{
-        //    OTF otf = new OTF();
-        //    lsidMap.put(currentLSID, otf);
-        //} 
-    	// return (OTF) lsidMap.get(currentLSID);
-    	return null;
-    }
-    
-    public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
-            int instrumentIndex, int otfIndex) {
-        log.debug(String.format(
-                "TODO: setOTFOpticalAxisAveraged[%b] instrumentIndex[%d] otfIndex[%d] ",
-                opticalAxisAveraged, instrumentIndex, otfIndex));    
-    }
-
-    public void setOTFPath(String path, int instrumentIndex, int otfIndex) {
-        log.debug(String.format(
-                "TODO: setOTFOpticalAxisAveraged[%s] instrumentIndex[%d] otfIndex[%d] ",
-                path, instrumentIndex, otfIndex));    
-    }
-
-    public void setOTFPixelType(String pixelType, int instrumentIndex,
-            int otfIndex) {
-        log.debug(String.format(
-                "TODO: setOTFPixelType[%s] instrumentIndex[%d] otfIndex[%d] ",
-                pixelType, instrumentIndex, otfIndex));        
-    }
-
-    public void setOTFSizeX(Integer sizeX, int instrumentIndex, int otfIndex) {
-        log.debug(String.format(
-                "TODO: setOTFSizeX[%d] instrumentIndex[%d] otfIndex[%d] ",
-                sizeX, instrumentIndex, otfIndex));     
-    }
-
-    public void setOTFSizeY(Integer sizeY, int instrumentIndex, int otfIndex) {
-        log.debug(String.format(
-                "TODO: setOTFSizeY[%d] instrumentIndex[%d] otfIndex[%d] ",
-                sizeY, instrumentIndex, otfIndex));    
-    }
-
-    
-    /* ------ Screen ------ */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenID(java.lang.String, int)
-     */
-    public void setScreenID(String id, int screenIndex)
-    {
-        // Add this lsid to the lsidMap and set currentID = id.
-        mapLSID(id);
-        
-        log.debug(String.format(
-                "Mapping ScreenID[%s] screenIndex[%d]",
-                id, screenIndex));
-    }
-    
-    /**
-     * Wraps same functionality as addScreen (for uniformity with existing methods)
-     * @param name
-     * @param description
-     * @return returns the new screen created
-     */
-    private Screen getScreen(int screenIndex)
-    {
-        return addScreen(screenIndex);
-    }
- 
-    /**
-     * Checks if a screen already exists on the screenList, creating it if it doesn't
-     * @param name
-     * @param description
-     * @return returns the new screen created
-     */
-    private Screen addScreen(int screenIndex)
-    {
-        if (screenList.size() < (screenIndex + 1))
-        {
-            for (int i = screenList.size(); i < screenIndex; i++)
-            {
-                // Inserting null here so that we don't place potentially bogus
-                // Screens into the list which will eventually be saved into
-                // the database.
-                screenList.add(null);
-            }
-            screenList.add(new Screen());
-        }
-
-        // We're going to check to see if the screen list has a null value and
-        // update it as required.
-        Screen s = screenList.get(screenIndex);
-        if (s == null)
-        {
-            s = new Screen();
-            screenList.set(screenIndex, s);
-        }
-        return s;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenName(java.lang.String, int)
-     */
-    public void setScreenName(String name, int screenIndex)
-    {
-        log.debug(String.format(
-                "setScreenName[%s] screenIndex[%d]",
-                name, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
- 
-        if (name != null)
-            s.setName(name);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenProtocolDescription(java.lang.String, int)
-     */
-    public void setScreenProtocolDescription(String protocolDescription,
-            int screenIndex)
-    {
-        log.debug(String.format(
-                "setScreenProtocolDescription[%s] screenIndex[%d]",
-                protocolDescription, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
- 
-        if (protocolDescription != null)
-            s.setProtocolDescription(protocolDescription);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenProtocolIdentifier(java.lang.String, int)
-     */
-    public void setScreenProtocolIdentifier(String protocolIdentifier,
-            int screenIndex)
-    {
-        log.debug(String.format(
-                "setScreenProtocolIdentifier[%s] screenIndex[%d]",
-                protocolIdentifier, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
- 
-        if (protocolIdentifier != null)
-            s.setProtocolIdentifier(protocolIdentifier);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenReagentSetDescription(java.lang.String, int)
-     */
-    public void setScreenReagentSetDescription(String reagentSetDescription,
-            int screenIndex)
-    {
-        log.debug(String.format(
-                "setScreenReagentSetDescription[%s] screenIndex[%d]",
-                reagentSetDescription, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
- 
-        if (reagentSetDescription != null)
-            s.setReagentSetDescription(reagentSetDescription);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenType(java.lang.String, int)
-     */
-    public void setScreenType(String type, int screenIndex)
-    {
-        log.debug(String.format(
-                "setScreenType[%s] screenIndex[%d]",
-                type, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
- 
-        if (type != null)
-            s.setType(type);
-    }
-
-    /* ------ ScreenAcquisition ----- */
-    
-    public void setScreenAcquisitionID(String id, int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        // Add this lsid to the lsidMap and set currentID = id.
-        mapLSID(id);
-        
-        log.debug(String.format(
-                "Mapping setScreenAcquisitionID[%s] screenIndex[%d]",
-                id, screenIndex));
-    }
-    
-    
-    private ScreenAcquisition getScreenAcquisition(Screen screen, int screenAcquisitionIndex)
-    {
-        
-        if ((screen.sizeOfScreenAcquisition() - 1) < screenAcquisitionIndex)
-        {
-            ScreenAcquisition sa = new ScreenAcquisition();
-            lsidMap.put(currentLSID, sa);
-        } 
-
-        return (ScreenAcquisition) lsidMap.get(currentLSID);
-    }
-    
-    public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        log.debug(String.format(
-                "setScreenAcquisitionEndTime[%s] screenIndex[%d]",
-                endTime, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
-        ScreenAcquisition sa = getScreenAcquisition(s, screenAcquisitionIndex);
-
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
-        Timestamp ts;
-        try
-        {
-            ts = new Timestamp(parser.parse(endTime).getTime());
-            sa.setEndTime(ts);
-        }
-        catch (ParseException e)
-        {
-            log.debug(String.format(" setEndTime() failed!")); 
-        }
-    }
-
-    public void setScreenAcquisitionStartTime(String startTime,
-            int screenIndex, int screenAcquisitionIndex)
-    {
-        log.debug(String.format(
-                "setScreenAcquisitionStartTime[%s] screenIndex[%d]",
-                startTime, screenIndex));
-        
-        Screen s = getScreen(screenIndex);
-        ScreenAcquisition sa = getScreenAcquisition(s, screenAcquisitionIndex);
-
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
-        Timestamp ts;
-        try
-        {
-            ts = new Timestamp(parser.parse(startTime).getTime());
-            sa.setStartTime(ts);
-        }
-        catch (ParseException e)
-        {
-            log.debug(String.format(" setStartTime() failed!")); 
-        }
-    }
-    
-    /* ------ Plate ------ */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
-     */
-    public void setPlateID(String id, int plateIndex)
-    {
-        currentLSID = "ome.formats.importer.plate." + plateIndex;
-        mapLSID(currentLSID);
-    }
-
-    /**
-     * Wraps same functionality as addPlate (for uniformity with existing methods)
-     * @param name
-     * @param description
-     * @return returns the new plate created
-     */
-    private Plate getPlate(int plateIndex)
-    {
-        return addPlate(plateIndex);
-    }
- 
-    /**
-     * Checks if a plate already exists on the plateList, creating it if it doesn't
-     * @param name
-     * @param description
-     * @return returns the new plate created
-     */
-    private Plate addPlate(int plateIndex)
-    {
-        setPlateID(null, plateIndex);
-        
-        if (plateList.size() < (plateIndex + 1))
-        {
-            for (int i = plateList.size(); i < plateIndex; i++)
-            {
-                // Inserting null here so that we don't place potentially bogus
-                // Plates into the list which will eventually be saved into
-                // the database.
-                plateList.add(null);
-            }
-            plateList.add(new Plate());
-        }
-
-        // We're going to check to see if the plate list has a null value and
-        // update it as required.
-        Plate p = plateList.get(plateIndex);
-        if (p == null)
-        {
-            p = new Plate();
-            plateList.set(plateIndex, p);
-        }
-        return p;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateDescription(java.lang.String, int)
-     */
-    public void setPlateDescription(String description, int plateIndex)
-    {
-        log.debug(String.format(
-                "setPlateDescription[%s] plateIndex[%d]",
-                description, plateIndex));
-        
-        Plate p = getPlate(plateIndex);
- 
-        if (description != null)
-            p.setDescription(description);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateExternalIdentifier(java.lang.String, int)
-     */
-    public void setPlateExternalIdentifier(String externalIdentifier,
-            int plateIndex)
-    {
-        log.debug(String.format(
-                "setPlateExternalIdentifier[%s] plateIndex[%d]",
-                externalIdentifier, plateIndex));
-        
-        Plate p = getPlate(plateIndex);
- 
-        if (externalIdentifier != null)
-            p.setExternalIdentifier(externalIdentifier);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateName(java.lang.String, int)
-     */
-    public void setPlateName(String name, int plateIndex)
-    {
-        log.debug(String.format(
-                "setPlateName[%s] plateIndex[%d]",
-                name, plateIndex));
-        
-        Plate p = getPlate(plateIndex);
- 
-        if (name != null)
-            p.setName(name);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateStatus(java.lang.String, int)
-     */
-    public void setPlateStatus(String status, int plateIndex)
-    {
-        log.debug(String.format(
-                "setPlateStatus[%s] plateIndex[%d]",
-                status, plateIndex));
-        
-        Plate p = getPlate(plateIndex);
- 
-        if (status != null)
-            p.setStatus(status);
-    }
-
-    /* ------ Well ------ */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellID(java.lang.String, int, int)
-     */
-    public void setWellID(String id, int plateIndex, int wellIndex)
-    {
-        currentLSID = "ome.formats.importer.well." + plateIndex + "." + wellIndex;
-        mapLSID(id);
-    }
-    
-    private Well getWell(int plateIndex, int wellIndex)
-    {
-        Plate plate = getPlate(plateIndex);
-        setWellID(null, plateIndex, wellIndex);
-
-        Well w = null;
-        
-        if ((plate.sizeOfWells() - 1) < wellIndex)
-        {
-            w = new Well();
-            lsidMap.put(currentLSID, w);
-            plate.addWell(w);
-        } else 
-        {
-            w = (Well) lsidMap.get(currentLSID);
-        }
-        
-        return w;
-    }
-    
-    public void setWellColumn(Integer column, int plateIndex, int wellIndex)
-    {
-        log.debug(String.format(
-                "setWellColumn[%d] plateIndex[%d] wellIndex[%d]",
-                column, plateIndex, wellIndex));
-        
-        Well w = getWell(plateIndex, wellIndex);
-
-        if (column != null)
-            w.setColumn(column);
-    }
-
-    public void setWellExternalDescription(String externalDescription, int plateIndex, 
-            int wellIndex)
-    {
-        log.debug(String.format(
-                "setWellExternalDescription[%d] plateIndex[%d] wellIndex[%d]",
-                externalDescription, plateIndex, wellIndex));
-        
-        Well w = getWell(plateIndex, wellIndex);
-
-        if (externalDescription != null)
-            w.setExternalDescription(externalDescription);
-    }
-
-    public void setWellExternalIdentifier(String externalIdentifier, int plateIndex, 
-            int wellIndex)
-    {
-        log.debug(String.format(
-                "setWellExternalIdentifier[%d] plateIndex[%d] wellIndex[%d]",
-                externalIdentifier, plateIndex, wellIndex));
-        
-        Well w = getWell(plateIndex, wellIndex);
-
-        if (externalIdentifier != null)
-            w.setExternalIdentifier(externalIdentifier);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellRow(java.lang.Integer, int, int)
-     */
-    public void setWellRow(Integer row, int plateIndex, int wellIndex)
-    {
-        log.debug(String.format(
-                "setWellRow[%d] plateIndex[%d] wellIndex[%d]",
-                row, plateIndex, wellIndex));
-        
-        Well w = getWell(plateIndex, wellIndex);
-
-        if (row != null)
-            w.setRow(row);
-    }
-
-
-    public void setWellType(String type, int plateIndex, int wellIndex)
-    {
-        log.debug(String.format(
-                "setWellType[%s] plateIndex[%d] wellIndex[%d]",
-                type, plateIndex, wellIndex));
-        
-        Well w = getWell(plateIndex, wellIndex);
- 
-        if (type != null)
-            w.setType(type);
-    }
-    
-    /* Well Sample */
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleID(java.lang.String, int, int, int)
-     */
-    public void setWellSampleID(String id, int plateIndex, int wellIndex, int wellSampleIndex)
-    {
-        currentLSID = "ome.formats.importer.wellSample." + plateIndex + "." + wellIndex + "." + wellSampleIndex;
-        mapLSID(id);
-    }
-
-    private WellSample getWellSample(int plateIndex, int wellIndex, int wellSampleIndex)
-    {
-        Well well = getWell(plateIndex, wellIndex);
-        setWellSampleID(null, plateIndex, wellIndex, wellSampleIndex);
-       
-        WellSample ws = null;
-                
-        if ((well.sizeOfWellSamples() -1) < wellSampleIndex)
-        {
-            ws = new WellSample();
-            //ws.setWell(well);
-            well.addWellSample(ws);
-            lsidMap.put(currentLSID, ws);
-        } else 
-        {
-            ws = (WellSample) lsidMap.get(currentLSID);
-        }
-        
-        return ws;
-    }
-    
-    public void setWellSampleIndex(Integer index, int plateIndex, int wellIndex,
-            int wellSampleIndex)
-    {
-        log.debug(String.format(
-                "setWellSampleIndex[%d] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
-                index, plateIndex, wellIndex, wellSampleIndex));
-        
-        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        
-        //Image i = getImage(index);
-        //ws.linkImage(i);
-        
-        if (wsVector.size() <= index)
-        {
-            wsVector.setSize(index +1);
-        }
-        
-        wsVector.set(index, ws);
-    }
-
-    public void setWellSamplePosX(Float posX, int plateIndex, int wellIndex, int wellSampleIndex)
-    {
-        log.debug(String.format(
-                "setWellSamplePosX[%f] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
-                posX, plateIndex, wellIndex, wellSampleIndex));
-        
-        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
- 
-        if (posX != null)
-            ws.setPosX(posX);
-    }
-
-    public void setWellSamplePosY(Float posY, int plateIndex, int wellIndex, int wellSampleIndex)
-    {
-        log.debug(String.format(
-                "setWellSamplePosY[%f] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
-                posY, plateIndex, wellIndex, wellSampleIndex));
-        
-        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
- 
-        if (posY != null)
-            ws.setPosX(posY);
-    }
-
-    public void setWellSampleTimepoint(Integer timepoint, int plateIndex, int wellIndex,
-            int wellSampleIndex)
-    {
-        log.debug(String.format(
-                "setWellSampleTimepoint[%d] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
-                timepoint, plateIndex, wellIndex, wellSampleIndex));
-        
-        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
- 
-        if (timepoint != null)
-            ws.setTimepoint(timepoint);
-    }
-    
-    
-    
-    /* ---- Restricted "Admin Only" methods ---- */
-
-    public void setExperimenterDataDirectory(String dataDirectory,
-            int experimenterIndex) {
-        log.debug(String.format(
-                "Admin only function: Ignoring dataDirectory[%s] experimenterIndex[%d] ",
-                dataDirectory, experimenterIndex)); 
-    }
-
-    public void setExperimenterEmail(String email, int experimenterIndex) {
-        log.debug(String.format(
-                "Admin only function: Ignoring email[%s] experimenterIndex[%d] ",
-                email, experimenterIndex)); 
-    }
-
-    public void setExperimenterFirstName(String firstName, int experimenterIndex) {
-        log.debug(String.format(
-                "Admin only function: Ignoring firstName[%s] experimenterIndex[%d] ",
-                firstName, experimenterIndex)); 
-    }
-
-    public void setExperimenterInstitution(String institution,
-            int experimenterIndex) {
-        log.debug(String.format(
-                "Admin only function: Ignoring institution[%s] experimenterIndex[%d] ",
-                institution, experimenterIndex));
-    }
-
-    public void setExperimenterLastName(String lastName, int experimenterIndex) {
-        log.debug(String.format(
-                "Admin only function: Ignoring lastName[%s] experimenterIndex[%d] ",
-                lastName, experimenterIndex)); 
-    }
-
-
-    /* ---- Methods that are skipped because OMERO sets its own values for these ---- */
-
-    public void setDetectorNodeID(String nodeID, int instrumentIndex,
-            int detectorIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setDisplayOptionsNodeID(String nodeID, int imageIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setExperimenterNodeID(String nodeID, int experimenterIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setImageNodeID(String nodeID, int imageIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setInstrumentNodeID(String nodeID, int instrumentIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setLightSourceNodeID(String nodeID, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setLogicalChannelNodeID(String nodeID, int imageIndex,
-            int logicalChannelIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setOTFNodeID(String nodeID, int instrumentIndex, int otfIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setObjectiveNodeID(String nodeID, int instrumentIndex,
-            int objectiveIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setPixelsNodeID(String nodeID, int imageIndex, int pixelsIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setROINodeID(String nodeID, int imageIndex, int roiIndex)
-    {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setDisplayOptionsID(String id, int imageIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setDisplayOptionsID[%s] imageIndex[%d] will be set by OMERO",
-                id, imageIndex));
-    }
-
-    public void setExperimenterID(String id, int experimenterIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setExperimenterID[%s] experimenterIndex[%d] will be set by OMERO",
-                id, experimenterIndex));
-    }
-
-    public void setImageID(String id, int imageIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setImageID[%s] imageIndex[%d] will be set by OMERO",
-                id, imageIndex));
-    }
-
-    public void setLogicalChannelID(String id, int imageIndex,
-            int logicalChannelIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setLogicalChannelID[%s] imageIndex[%d] logicalChannelIndex[%d] will be set by OMERO",
-                id, imageIndex, logicalChannelIndex));
-    }
-
-    public void setPixelsID(String id, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setPixelsID[%s] imageIndex[%d] pixelsIndex[%d] will be set by OMERO",
-                id, imageIndex, pixelsIndex));
-    }
-
-    public void setROIID(String id, int imageIndex, int roiIndex)
-    {
-        log.debug(String.format(
-                "SKIPPED: setROIID[%s] imageIndex[%d] rioIndex[%d] will be set by OMERO",
-                id, imageIndex, roiIndex));
-    }        
-
-    public void setROIT0(Integer t0, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIT0[%s] imageIndex[%d] rioIndex[%d] ",
-                t0, imageIndex, roiIndex)); 
-    }
-
-    public void setROIT1(Integer t1, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIT1[%s] imageIndex[%d] rioIndex[%d] ",
-                t1, imageIndex, roiIndex));
-    }
-
-    public void setROIX0(Integer x0, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIX0[%s] imageIndex[%d] rioIndex[%d] ",
-                x0, imageIndex, roiIndex));  
-    }
-
-    public void setROIX1(Integer x1, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIX1[%s] imageIndex[%d] rioIndex[%d] ",
-                x1, imageIndex, roiIndex));        
-    }
-
-    public void setROIY0(Integer y0, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIY0[%s] imageIndex[%d] rioIndex[%d] ",
-                y0, imageIndex, roiIndex));   
-    }
-
-    public void setROIY1(Integer y1, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIY1[%s] imageIndex[%d] rioIndex[%d] ",
-                y1, imageIndex, roiIndex));  
-    }
-
-    public void setROIZ0(Integer z0, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIZ0[%s] imageIndex[%d] rioIndex[%d] ",
-                z0, imageIndex, roiIndex));  
-    }
-
-    public void setROIZ1(Integer z1, int imageIndex, int roiIndex) {
-        log.debug(String.format(
-                "FIXME: Ignoring setROIZ1[%s] imageIndex[%d] rioIndex[%d] ",
-                z1, imageIndex, roiIndex)); 
-    }
-
-    public void setDisplayOptionsProjectionZStart(Integer start, int imageIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setDisplayOptionsProjectionZStart[%d] imageIndex[%d] ",
-                start, imageIndex));
-    }
-
-    public void setDisplayOptionsProjectionZStop(Integer stop, int imageIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setDisplayOptionsProjectionZStop[%d] imageIndex[%d] ",
-                stop, imageIndex));
-    }
-
-    public void setDisplayOptionsTimeTStart(Integer start, int imageIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setDisplayOptionsTimeTStart[%s] imageIndex[%d] ",
-                start, imageIndex));
-    }
-
-    public void setDisplayOptionsTimeTStop(Integer stop, int imageIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setDisplayOptionsTimeTStop[%s] imageIndex[%d] ",
-                stop, imageIndex));
-    }
-
-    public void setDisplayOptionsZoom(Float zoom, int imageIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setDisplayOptionsZoom[%f] imageIndex[%d] ",
-                zoom, imageIndex));
-    }
-
-    public void setChannelComponentIndex(Integer index, int imageIndex,
-            int logicalChannelIndex, int channelComponentIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setChannelComponentIndex[%d] imageIndex[%d] " +
-                "logicalChannelIndex [%d] channelComponentIndex[%d]",
-                index, imageIndex, logicalChannelIndex, channelComponentIndex));
-    }
-
-    /* ---- Methods that are not represented in the OMERO model (and probably never will be) ---- */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean, int, int)
-     */
-    public void setPixelsBigEndian(Boolean bigEndian, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setPixelsBigEndian[%s] Image[%d] Pixels[%d] not represented in OMERO",
-                bigEndian, imageIndex, pixelsIndex));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSamplesPerPixel(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelSamplesPerPixel(Integer samplesPerPixel,
-            int imageIndex, int logicalChannelIndex)
-    {
-        Image image = getImage(imageIndex);
-        Iterator<Pixels> i = image.iteratePixels();
-        while (i.hasNext())
-        {
-            Pixels p = i.next();
-            log.debug(String.format(
-                    "IGNORED: setLogicalChannelSamplesPerPixel[%d] Image[%d] Pixels[%s] LogicalChannel[%d] not represented in OMERO",
-                    samplesPerPixel, imageIndex, p, logicalChannelIndex));
-        }
-    }
-
-    public void setTiffDataFileName(String fileName, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setTiffDataFileName[%s] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                fileName, imageIndex, pixelsIndex));
-    }
-
-    public void setTiffDataFirstC(Integer firstC, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setTiffDataFirstC[%d] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                firstC, imageIndex, pixelsIndex));
-    }
-
-    public void setTiffDataFirstT(Integer firstT, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setTiffDataFirstT[%d] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                firstT, imageIndex, pixelsIndex));
-    }
-
-    public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setTiffDataFirstZ[%d] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                firstZ, imageIndex, pixelsIndex));
-    }
-
-    public void setTiffDataIFD(Integer ifd, int imageIndex, int pixelsIndex,
-            int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setTiffDataIFD[%d] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                ifd, imageIndex, pixelsIndex));
-    }
-
-    public void setTiffDataNumPlanes(Integer numPlanes, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setTiffDataNumPlanes[%d] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                numPlanes, imageIndex, pixelsIndex));
-    }
-
-    public void setTiffDataUUID(String uuid, int imageIndex, int pixelsIndex,
-            int tiffDataIndex)
-    {
-        log.debug(String.format(
-                "IGNORED: setROIID[%s] imageIndex[%d] pixelsIndex[%d] not represented in OMERO",
-                uuid, imageIndex, pixelsIndex));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefID(java.lang.String, int, int)
-     */
-    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
-    {
-        log.debug(String.format(
-                "IGNORING: setPlateRefID[%s] screenIndex[%d] plateRefIndex[%d]",
-                id, screenIndex, plateRefIndex));
-    }
-    
-    
-    /* ---- Methods that are missing from the data model and need to be added ---- */
-
-    /* ---- PixelsDimenions ---- */
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsTimeIncrement(java.lang.Float, int, int)
-     */
-    public void setDimensionsTimeIncrement(Float timeIncrement, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] time increment: '%f'",
-                imageIndex, pixelsIndex, timeIncrement));
-        log.debug("NOTE: This field is unsupported/unused.");        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsWaveIncrement(java.lang.Integer, int, int)
-     */
-    public void setDimensionsWaveIncrement(Integer waveIncrement, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] wave increment: '%d'",
-                imageIndex, pixelsIndex, waveIncrement));
-        log.debug("NOTE: This field is unsupported/unused.");
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsWaveStart(java.lang.Integer, int, int)
-     */
-    public void setDimensionsWaveStart(Integer waveStart, int imageIndex, int pixelsIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Pixels[%d] wave start: '%d'",
-                imageIndex, pixelsIndex, waveStart));
-        log.debug("NOTE: This field is unsupported/unused.");
-    }
-
-    public void setChannelComponentColorDomain(String colorDomain,
-            int imageIndex, int logicalChannelIndex, int channelComponentIndex)
-    {
-        log.debug(String.format(
-                "FIXME: Ignoring setChannelComponentColorDomain[%s] imageIndex[%d] " +
-                "logicalChannelIndex [%d] channelComponentIndex[%d]",
-                colorDomain, imageIndex, logicalChannelIndex, channelComponentIndex));
-    }
-  
-    /* ------ Reagent ------ */
-
-    public void setReagentDescription(String description, int screenIndex,
-            int reagentIndex)
-    {
-        log.debug(String.format(
-        "ignoring setReagentDescription"));
-    }
-
-    public void setReagentID(String id, int screenIndex, int reagentIndex)
-    {
-        log.debug(String.format(
-        "ignoring setReagentID"));
-    }
-
-    public void setReagentName(String name, int screenIndex, int reagentIndex)
-    {
-        log.debug(String.format(
-        "ignoring setReagentName"));
-    }
-
-    public void setReagentReagentIdentifier(String reagentIdentifier,
-            int screenIndex, int reagentIndex)
-    {
-        log.debug(String.format(
-        "ignoring setReagentReagentIdentifier"));
-    }
-
-    
-    /* ------ new just before beta 3 release from curtis - not handled today ----- */
-
-    public void setUUID(String uuid)
-    {
-        log.debug(String.format(
-        "ignoring setUUID"));
-    }
-    // Bio-formats also needs a way to link OTF to Logical Channel
-
-    public void setExperimentDescription(String description, int experimentIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setExperimentID(String id, int experimentIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setExperimentType(String type, int experimentIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setExperimenterMembershipGroup(String group,
-            int experimenterIndex, int groupRefIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setImageDefaultPixels(String defaultPixels, int imageIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setLogicalChannelOTF(String otf, int imageIndex,
-            int logicalChannelIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    public void setOTFObjective(String objective, int instrumentIndex,
-            int otfIndex)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-/*
-    public void setLogicalChannelPinholeSize(Float arg0, int arg1, int arg2)
-    {
-        // TODO Auto-generated method stub
-        //
-        throw new RuntimeException("Not implemented yet.");
-    }
-*/
-    public void setEnumerationProvider(EnumerationProvider enumProvider)
-    {
-        this.enumProvider = enumProvider;
-    }
-    
-    public EnumerationProvider getEnumerationProvider()
-    {
-        return enumProvider;
-        
-    }
+	@Override
+	public void setArcType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setChannelComponentColorDomain(String arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setChannelComponentIndex(Integer arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorGain(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorManufacturer(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorModel(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorOffset(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSerialNumber(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSettingsBinning(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSettingsDetector(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSettingsGain(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSettingsOffset(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSettingsReadOutRate(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorSettingsVoltage(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDetectorVoltage(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDimensionsPhysicalSizeX(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDimensionsPhysicalSizeY(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDimensionsPhysicalSizeZ(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDimensionsTimeIncrement(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDimensionsWaveIncrement(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDimensionsWaveStart(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayOptionsID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayOptionsProjectionZStart(Integer arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayOptionsProjectionZStop(Integer arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayOptionsTimeTStart(Integer arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayOptionsTimeTStop(Integer arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayOptionsZoom(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimentDescription(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimentID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimentType(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimenterEmail(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimenterFirstName(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimenterID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimenterInstitution(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimenterLastName(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setExperimenterMembershipGroup(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setFilamentType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImageCreationDate(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImageDefaultPixels(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImageDescription(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImageID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImageInstrumentRef(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImageName(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImagingEnvironmentAirPressure(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImagingEnvironmentCO2Percent(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImagingEnvironmentHumidity(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setImagingEnvironmentTemperature(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setInstrumentID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLaserFrequencyMultiplication(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLaserLaserMedium(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLaserPulse(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLaserTuneable(Boolean arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLaserType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLaserWavelength(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceManufacturer(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceModel(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourcePower(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceSerialNumber(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceSettingsAttenuation(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceSettingsLightSource(String arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLightSourceSettingsWavelength(Integer arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelContrastMethod(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelEmWave(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelExWave(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelFluor(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelIlluminationType(String arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelMode(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelName(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelNdFilter(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelOTF(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelPhotometricInterpretation(String arg0,
+			int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelPinholeSize(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelPockelCellSetting(Integer arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogicalChannelSamplesPerPixel(Integer arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOTFID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOTFObjective(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOTFOpticalAxisAveraged(Boolean arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOTFPixelType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOTFSizeX(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOTFSizeY(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveCalibratedMagnification(Float arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveCorrection(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveImmersion(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveIris(Boolean arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveLensNA(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveManufacturer(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveModel(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveNominalMagnification(Integer arg0, int arg1,
+			int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveSerialNumber(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveSettingsCorrectionCollar(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveSettingsMedium(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveSettingsObjective(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveSettingsRefractiveIndex(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setObjectiveWorkingDistance(Float arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsBigEndian(Boolean arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsDimensionOrder(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsPixelType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsSizeC(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsSizeT(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsSizeX(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsSizeY(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelsSizeZ(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlaneTheC(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlaneTheT(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlaneTheZ(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlaneTimingDeltaT(Float arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlaneTimingExposureTime(Float arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlateDescription(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlateExternalIdentifier(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlateID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlateName(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlateRefID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPlateStatus(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIT0(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIT1(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIX0(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIX1(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIY0(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIY1(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIZ0(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setROIZ1(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setReagentDescription(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setReagentID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setReagentName(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setReagentReagentIdentifier(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenAcquisitionEndTime(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenAcquisitionID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenAcquisitionStartTime(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenName(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenProtocolDescription(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenProtocolIdentifier(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenReagentSetDescription(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScreenType(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStageLabelName(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStageLabelX(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStageLabelY(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStageLabelZ(Float arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStagePositionPositionX(Float arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStagePositionPositionY(Float arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStagePositionPositionZ(Float arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataFileName(String arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataFirstC(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataFirstT(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataFirstZ(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataIFD(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataNumPlanes(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTiffDataUUID(String arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setUUID(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellColumn(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellExternalDescription(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellExternalIdentifier(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellID(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellRow(Integer arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellSampleID(String arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellSampleIndex(Integer arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellSamplePosX(Float arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellSamplePosY(Float arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellSampleTimepoint(Integer arg0, int arg1, int arg2,
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWellType(String arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
 }

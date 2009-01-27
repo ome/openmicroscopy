@@ -1,7 +1,5 @@
 package ome.formats;
 
-import omero.model.IObject;
-
 
 /**
  * This class represents an LSID as used by the OME-XML data model.
@@ -12,7 +10,7 @@ import omero.model.IObject;
 public class LSID
 {
 	/** Concrete Java class which qualifies the type of object. */
-	private Class<? extends IObject> klass;
+	private Class klass;
 	
 	/** Indexes within the OME-XML data model. */
 	private int[] indexes;
@@ -26,7 +24,7 @@ public class LSID
 	 * this LSID represents.
 	 * @param indexes Indexes for this LSID within the OME-XML data model.
 	 */
-	public LSID(Class<? extends IObject> klass, int... indexes)
+	public LSID(Class klass, int... indexes)
 	{
 		this.klass = klass;
 		this.indexes = indexes;
@@ -51,7 +49,7 @@ public class LSID
 	 * LSID represents.
 	 * @return See above.
 	 */
-	public Class<? extends IObject> getJavaClass()
+	public Class getJavaClass()
 	{
 		return klass;
 	}
@@ -77,7 +75,7 @@ public class LSID
 		if (obj instanceof LSID)
 		{
 			LSID comparator = (LSID) obj;
-			Class<? extends IObject> comparatorClass = comparator.getJavaClass();
+			Class comparatorClass = comparator.getJavaClass();
 			if (comparatorClass != null && comparatorClass.equals(klass))
 			{
 				int[] comparatorIndexes = comparator.getIndexes();
