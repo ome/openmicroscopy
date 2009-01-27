@@ -36,6 +36,7 @@ import javax.swing.JMenuItem;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
@@ -112,21 +113,36 @@ class EditorUI
 	 */
 	private JMenuBar createMenuBar()
 	{
+		/*
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createMenu());
 		TaskBar tb = EditorAgent.getRegistry().getTaskBar();
 		menuBar.add(tb.getWindowsMenu());
 		
-		/*
+		
 		// want to add help menu here:
 		JMenuBar bar = tb.getTaskBarMenuBar();
         int barCount = bar.getMenuCount();
         
 		for (int i = 0; i < barCount; i++) 
 			menuBar.add(bar.getMenu(i));
-		 */
+		 
 
 		return menuBar;
+		*/
+		TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+        JMenu menu = createMenu();
+        JMenuBar bar = tb.getTaskBarMenuBar();
+        JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
+        
+		for (int i = 0; i < existingMenus.length; i++) 
+			existingMenus[i] = bar.getMenu(i);
+
+		bar.removeAll();
+		bar.add(menu);
+		for (int i = 0; i < existingMenus.length; i++) 
+			bar.add(existingMenus[i]);
+        return bar;	
 	}
 	
 	
