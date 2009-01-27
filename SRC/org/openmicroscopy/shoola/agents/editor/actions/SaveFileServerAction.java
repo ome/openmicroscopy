@@ -51,11 +51,11 @@ public class SaveFileServerAction
 {
 	
 	/** The description of the action. */
-	private static final String 	NAME = "Save File To Server";
+	private static final String 	NAME = "Save As (to server)...";
 	
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = 
-		"Save the current file as a new file on the OMERO.server";
+		"Save As a new file on the OMERO.server";
 	
 	/** 
 	 * Implement this method to disable the Save Action if no file is open,
@@ -82,7 +82,7 @@ public class SaveFileServerAction
 		setEnabled(true);
 		setName(NAME);
 		setDescription(DESCRIPTION);
-		setIcon(IconManager.SAVE_SERVER_ICON);
+		setIcon(IconManager.SAVE_AS_ICON);
 		
 		// refresh enabled status
 		onStateChange();

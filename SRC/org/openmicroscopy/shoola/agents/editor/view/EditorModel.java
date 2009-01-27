@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.io.File;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
@@ -60,6 +63,7 @@ import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
  * @since 3.0-Beta3
  */
 class EditorModel
+	implements ChangeListener
 {
 
 	/** Holds one of the state flags defined by {@link Editor}. */
@@ -174,6 +178,7 @@ class EditorModel
 		this.component = component; 
 		
 		browser = BrowserFactory.createBrowser();
+		browser.addChangeListener(this); 
 	}
 	
 	/**
@@ -348,5 +353,17 @@ class EditorModel
 	boolean hasDataToSave() 
 	{
 	 return (browser != null  &&  browser.getState() == Browser.TREE_EDITED);
+	}
+
+	/**
+	 * Implemented as specified by the {@link ChangeListener} interface
+	 * 
+	 * This class listens for changes to the {@link Browser} and passes them
+	 * on to the Editor. 
+	 */
+	public void stateChanged(ChangeEvent e) {
+		if (component instanceof EditorComponent) {
+			((EditorComponent)component).stateChanged();
+		}
 	}
 }

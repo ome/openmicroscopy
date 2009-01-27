@@ -51,11 +51,11 @@ public class SaveFileLocallyAction
 {
 	
 	/** The description of the action. */
-	private static final String 	NAME = "Save File As...";
+	private static final String 	NAME = "Save As (locally)...";
 	
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = 
-		"Save as Local File on your computer";
+		"Save As a new local file on your computer";
 	
 	/** Implement this method to disable the Save Action if no file is open. */
 	protected void onStateChange() {

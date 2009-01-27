@@ -31,7 +31,6 @@ import java.io.File;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
-import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -74,7 +73,7 @@ class EditorComponent
 	
 	/**
 	 * Creates a new instance.
-	 * The {@link #initialize() initialize} method should be called straigh 
+	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
 	 * 
 	 * @param model The Model sub-component. Mustn't be <code>null</code>.
@@ -127,6 +126,12 @@ class EditorComponent
 				view.deIconify();
 		}
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#hasDataToSave()
+	 */
+	public boolean hasDataToSave() {  return model.hasDataToSave(); }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
@@ -346,5 +351,12 @@ class EditorComponent
 		model.setState(READY);
 		fireStateChange();
 	}
+	
+	/**
+	 * This method allows the {@link EditorModel} to call 
+	 * {@link #fireStateChange()} so that it can pass on any state changes
+	 * from the browser
+	 */
+	void stateChanged() { fireStateChange(); }
 	
 }

@@ -88,6 +88,13 @@ public interface Editor
 	public int getState();
 
 	/**
+	 * Returns true if the file has been edited (and not yet saved)
+	 * 
+	 * @return		see above. 
+	 */
+	public boolean hasDataToSave();
+	
+	/**
 	 * Callback used by data loaders to provide the viewer with feedback about
 	 * the data retrieval.
 	 * 

@@ -56,10 +56,15 @@ public class SaveFileAction
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = "Save the current file.";
 
-	/** Implement this method to disable the Save Action if no file is open. */
+	/** Implement this method to disable the Save Action if no file is open
+	 * or there is no data to save. */
 	protected void onStateChange() {
 		int state = model.getState();
 		setEnabled(state == Editor.READY);
+		
+		if (! model.hasDataToSave()) {
+			setEnabled(false);
+		}
 	}
 	
 	/** 

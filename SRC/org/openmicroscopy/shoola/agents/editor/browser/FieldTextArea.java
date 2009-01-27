@@ -396,7 +396,6 @@ public class FieldTextArea
 		
 		// if no content, put a place-holder so users can enter text
 		if (field.getContentCount() == 0) {
-			System.out.println("		FieldTextArea getHtml() contentCount == 0");
 			contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
 			HTML.Attribute.ID + 
 			"='0'> </"+ FieldTextArea.TEXT_TAG + ">";
@@ -696,9 +695,7 @@ public class FieldTextArea
 	public void refreshText() {
 		
 		String content = getHtml();
-		
-		System.out.println("FieldTextArea refreshText(): " + content);
-		
+
 		String html = "<html><head> <style type='text/css'> \n" +
 			FieldTextArea.NAME_TAG + "#" + FieldTextArea.NAME_ID +
 			" {font-weight: 500; font-family: arial} \n" +

@@ -53,6 +53,12 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 class EditorToolBar 
 	extends JPanel
 {
+	/** The Actions that are displayed in the File toolbar */
+	static Integer[] 				FILE_ACTIONS = {
+						EditorControl.OPEN_LOCAL_FILE, 
+						EditorControl.OPEN_WWW_FILE,
+						EditorControl.SAVE_FILE,
+						EditorControl.NEW_BLANK_FILE };
 
 	/** Reference to the Control. */
 	private EditorControl controller;
@@ -64,8 +70,8 @@ class EditorToolBar
 		bar.setRollover(true);
 		bar.setBorder(null);
 		
-		for (int i=0; i<EditorUI.FILE_ACTIONS.length; i++) {
-			addAction(EditorUI.FILE_ACTIONS[i], bar);
+		for (int i=0; i<FILE_ACTIONS.length; i++) {
+			addAction(FILE_ACTIONS[i], bar);
 		}
 		return bar;
 	}
