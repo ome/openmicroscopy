@@ -255,10 +255,23 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	{
     		handle(LSID, (Detector) sourceObject, indexes);
     	}
+    	else if (sourceObject instanceof Laser)
+    	{
+    		handle(LSID, (LightSource) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Filament)
+    	{
+    		handle(LSID, (LightSource) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Arc)
+    	{
+    		handle(LSID, (LightSource) sourceObject, indexes);
+    	}
     	else if (sourceObject instanceof ImagingEnvironment)
     	{
     		handle(LSID, (ImagingEnvironment) sourceObject, indexes);
     	}
+    	
     	else
     	{
     		throw new ApiUsageException(
@@ -364,6 +377,20 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
     	Instrument i = getInstrument(indexes.get("instrumentIndex"));
     	i.addDetector(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, LightSource sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
+    	i.addLightSource(sourceObject);
     }
     
     /**
