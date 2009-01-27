@@ -243,6 +243,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	{
     		handle(LSID, (PlaneInfo) sourceObject, indexes);
     	}
+    	else if (sourceObject instanceof Instrument)
+    	{
+    		handle(LSID, (Instrument) sourceObject, indexes);
+    	}
     	else if (sourceObject instanceof Objective)
     	{
     		handle(LSID, (Objective) sourceObject, indexes);
@@ -317,6 +321,19 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	int pixelsIndex = indexes.get("pixelsIndex");
     	Pixels p = imageList.get(imageIndex).getPixels(pixelsIndex);
     	p.addPlaneInfo(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Instrument sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	instrumentList.add(sourceObject);
     }
     
     /**
