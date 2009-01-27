@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.events.editor;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.FileAnnotationData;
 
 /** 
  * Request to edit the specified <code>file</code>.
@@ -47,73 +48,47 @@ public class EditFileEvent
 	extends RequestEvent
 {
 
-	/** The name of the file to edit. */
-	private String  fileName;
+	/** The annotation to edit. */
+	private FileAnnotationData fileAnnotation;
 	
-	/** The id of the file to edit. */
-	private long	fileID;
-	
-	/** The size of the file to edit. */
-	private long 	fileSize;
-	
-	/** 
-	 * Flag indicating that we only have the id of the file is the 
-	 * Id of the annotation.
-	 */
-	private boolean	annotationData;
+	/** The id of the annotation to edit. */
+	private long			   fileAnnotationID;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param fileName	The name of the file to edit.
-	 * @param fileID	The id of the file to edit.
-	 * @param fileSize	The size of the file to edit.
+	 * @param fileAnnotation	The annotation hosting the information about
+	 * 							the file to edit.
 	 */
-	public EditFileEvent(String fileName, long fileID, long fileSize)
+	public EditFileEvent(FileAnnotationData fileAnnotation)
 	{
-		this.fileName = fileName;
-		this.fileID = fileID;
-		this.fileSize = fileSize;
+		if (fileAnnotation == null)
+			throw new IllegalArgumentException("No file annotation.");
+		this.fileAnnotation = fileAnnotation;
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param fileID The id of the file to edit.
+	 * @param fileAnnotationID	The id of the annotation to edit.
 	 */
-	public EditFileEvent(long fileID)
+	public EditFileEvent(long fileAnnotationID)
 	{
-		this.fileID = fileID;
-		annotationData = true;
+		this.fileAnnotationID = fileAnnotationID;
 	}
 	
 	/**
-	 * Returns <code>true</code> if the event for the annotation,
-	 * <code>false</code> otherwise.
+	 * Returns the annotation hosting the information about the file to edit.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isAnnotationData() { return annotationData; }
-	
+	public FileAnnotationData getFileAnnotation() { return fileAnnotation; }
+
 	/**
-	 * Returns the id of the file to edit.
+	 * Returns the id of the file annotation to edit.
 	 * 
 	 * @return See above.
 	 */
-	public long getFileID() { return fileID; }
-	
-	/**
-	 * Returns the name of the file to edit.
-	 * 
-	 * @return See above.
-	 */
-	public String getFileName() { return fileName; }
-	
-	/**
-	 * Returns the size of the file to edit.
-	 * 
-	 * @return See above.
-	 */
-	public long getFileSize() { return fileSize; }
+	public long getFileAnnotationID() { return fileAnnotationID; }
 	
 } 

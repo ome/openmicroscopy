@@ -60,8 +60,8 @@ public class FileSaver
     /** Utility file where the raw data are loaded. */
     private File				file;
     
-    /** The id of the file previously saved. */
-    private long 				originalID;
+    /** The fileAnnotation data. */
+    private FileAnnotationData	fileAnnotationData;
     
     /**
      * Creates a new instance.
@@ -72,25 +72,27 @@ public class FileSaver
      */
 	public FileSaver(Editor viewer, File file)
 	{
-		this(viewer, file, -1);
+		this(viewer, file, null);
 	}
 	
 	/**
      * Creates a new instance.
      * 
-     * @param viewer		The Editor this data loader is for.
-     *                 	 	Mustn't be <code>null</code>.
+     * @param viewer	The Editor this data loader is for.
+     *                 	 Mustn't be <code>null</code>.
      * @param file			The file to save back to the server.
-     * @param originalID	The id of thet file if previously saved, or
+     * @param data	The id of thet file if previously saved, or
      * 						<code>-1</code> if not previously saved.
      */
-	public FileSaver(Editor viewer, File file, long originalID)
+	public FileSaver(Editor viewer, File file, FileAnnotationData data)
 	{
 		super(viewer);
 		if (file == null)
 			throw new IllegalArgumentException("No file to save.");
+		if (data == null) 
+			data = new FileAnnotationData(file);
 		this.file = file;
-		this.originalID = originalID;
+		this.fileAnnotationData = data;
 	}
 	
 	/**
@@ -99,8 +101,7 @@ public class FileSaver
 	 */
 	public void load()
 	{
-		FileAnnotationData data = new FileAnnotationData(file);
-		handle = mhView.saveFile(data, originalID, this);
+		handle = mhView.saveFile(fileAnnotationData, file, this);
 	}
 
 	/**

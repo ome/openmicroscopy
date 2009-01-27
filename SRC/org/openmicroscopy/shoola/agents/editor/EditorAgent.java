@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 
 /** 
  * The Editor agent. 
@@ -132,16 +133,17 @@ public class EditorAgent
 	private void handleFileEdition(EditFileEvent event)
 	{
 		if (event == null) return;
-		Editor editor;
-		if (event.isAnnotationData()) {
-			editor = EditorFactory.getEditor(event.getFileID());
+		Editor editor = null;
+		FileAnnotationData data = event.getFileAnnotation();
+		if (data == null) {
+			if (event.getFileAnnotationID() > 0)
+				editor = EditorFactory.getEditor(event.getFileAnnotationID());
 		} else {
-			String name = event.getFileName();
+			String name = data.getFileName();
 			if (name == null) return;
 			EditorFileFilter filter = new EditorFileFilter();
 			if (!filter.accept(name)) return;
-			editor = EditorFactory.getEditor(name, 
-					event.getFileID(), event.getFileSize());
+			editor = EditorFactory.getEditor(data);
 		}
 		if (editor != null)
 			editor.activate();		// starts file downloading

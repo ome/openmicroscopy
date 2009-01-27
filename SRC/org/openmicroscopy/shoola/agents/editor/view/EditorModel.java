@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 
+import pojos.FileAnnotationData;
+
 /** 
  * The Model component in the <code>Editor</code> MVC triad.
  * It delegates the treeModel to the Browser.
@@ -67,31 +69,34 @@ class EditorModel
 {
 
 	/** Holds one of the state flags defined by {@link Editor}. */
-	private int				state;
+	private int					state;
 	
 	/** The name of the file to edit. */
-	private String  		fileName;
+	private String  			fileName;
+	
+	/** The annotation object hosting information about the file. */
+	private FileAnnotationData 	fileAnnotation;
 	
 	/** The id of the file to edit. Will not be set if editing local file */
-	private long 			fileID;
+	private long 				fileID;
 	
 	/** The size of the file to edit. */
-	private long 			fileSize;
+	//private long 				fileSize;
 	
 	/** The file retrieved either from the DB or local machine. */
-	private File			fileToEdit;
+	private File				fileToEdit;
 
 	/**	The browser component */
-	private Browser 		browser;
+	private Browser 			browser;
 	
 	/** 
 	 * Will either be a data loader or <code>null</code> depending on the 
 	 * current state. 
 	 */
-	private EditorLoader	currentLoader;
+	private EditorLoader		currentLoader;
 	
 	/** Reference to the component that embeds this model. */
-	private Editor			component;
+	private Editor				component;
 	
 	/**
 	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
@@ -106,25 +111,23 @@ class EditorModel
 		CPEexport xmlExport = new CPEexport();
 		boolean saved = xmlExport.export(browser.getTreeModel(), file);
 		
-		if (saved) {
-			browser.setEdited(false);
-		}
+		if (saved) browser.setEdited(false);
 		return saved;
 	}
 	
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * 
-	 * @param fileName  The name of the file to edit.
-	 * @param fileID	The id of the file to edit.
-	 * @param fileSize 	The size of the file to edit.
+	 * @param fileAnnotationData  The annotation hosting the file to edit.
 	 */
-	EditorModel(String fileName, long fileID, long fileSize)
+	EditorModel(FileAnnotationData fileAnnotationData)
 	{
 		state = Editor.NEW;
-		this.fileID = fileID;
-		this.fileName = fileName;
-		this.fileSize = fileSize;
+		if (fileAnnotationData == null)
+			throw new IllegalArgumentException("No file annotation specified.");
+		this.fileAnnotation = fileAnnotationData;
+		this.fileID = fileAnnotationData.getFileID();
+		this.fileName = fileAnnotationData.getFileName();
 	}
 	
 	/** 
@@ -136,7 +139,6 @@ class EditorModel
 	{
 		state = Editor.NEW;
 		this.fileID = fileID;
-		fileSize = 0;
 	}
 	
 	/**
@@ -150,7 +152,6 @@ class EditorModel
 	EditorModel(File file) 
 	{
 		if (file == null) throw new NullPointerException("No file.");
-		
 		state = Editor.NEW;
 		this.fileName = file.getName();
 	}
@@ -176,7 +177,6 @@ class EditorModel
 	void initialize(Editor component)
 	{ 
 		this.component = component; 
-		
 		browser = BrowserFactory.createBrowser();
 		browser.addChangeListener(this); 
 	}
@@ -229,7 +229,9 @@ class EditorModel
 	 */
 	void fireFileLoading()
 	{
-		currentLoader = new FileLoader(component, fileName, fileID, fileSize);
+		long size = 0;
+		if (fileAnnotation != null) size = fileAnnotation.getFileSize();
+		currentLoader = new FileLoader(component, fileName, fileID, size);
 		currentLoader.load();
 		state = Editor.LOADING;
 	}
@@ -313,7 +315,9 @@ class EditorModel
 	void fireFileSaving(File file)
 	{
 		saveFile(file);
-		currentLoader = new FileSaver(component, file, fileID);
+		FileAnnotationData data = null;
+		if (fileAnnotation != null) data = fileAnnotation;
+		currentLoader = new FileSaver(component, file, data);
 		currentLoader.load();
 		state = Editor.SAVING;
 	}

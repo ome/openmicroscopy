@@ -136,8 +136,7 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
 			Registry reg = MetadataViewerAgent.getRegistry();		
-			reg.getEventBus().post(new EditFileEvent(f.getFileName(), 
-					f.getFileID(), f.getFileSize()));
+			reg.getEventBus().post(new EditFileEvent(f));
 		}
 	}
 	

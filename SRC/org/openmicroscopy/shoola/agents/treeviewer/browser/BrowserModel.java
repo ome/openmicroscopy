@@ -678,9 +678,7 @@ class BrowserModel
 	{
 		if (node == null) return;
 		FileAnnotationData data = (FileAnnotationData) node.getUserObject();
-    	String name = data.getFileName();
-		long size = data.getFileSize();
-		EditFileEvent evt = new EditFileEvent(name, data.getFileID(), size);
+		EditFileEvent evt = new EditFileEvent(data);
 		TreeViewerAgent.getRegistry().getEventBus().post(evt);
 	}
 	

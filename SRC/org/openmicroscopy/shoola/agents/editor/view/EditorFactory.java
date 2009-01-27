@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
+import pojos.FileAnnotationData;
+
 /** 
  * Factory to create {@link Editor} component.
  * This class keeps track of the {@link Editor} instance that has been 
@@ -72,14 +74,13 @@ public class EditorFactory
 	/**
 	 * Returns the {@link Editor}.
 	 * 
-	 * @param fileName  The name of the file to edit.
-	 * @param fileID    The id of the file to edit.
-	 * @param fileSize  The size of the file to edit.
+	 * @param fileAnnotation  The annotation hosting the information about
+	 * 						  the file to edit.
 	 * @return See above.
 	 */
-	public static Editor getEditor(String fileName, long fileID, long fileSize)
+	public static Editor getEditor(FileAnnotationData fileAnnotation)
 	{
-		EditorModel model = new EditorModel(fileName, fileID, fileSize);
+		EditorModel model = new EditorModel(fileAnnotation);
 		return singleton.getEditor(model);
 	}
 	
