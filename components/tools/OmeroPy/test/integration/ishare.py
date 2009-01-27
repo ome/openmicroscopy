@@ -225,5 +225,96 @@ class TestISShare(lib.ITest):
         client_share1.sf.closeOnDestroy()
         client_share2.sf.closeOnDestroy()
         
+    
+    def test1157(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.root.sf.getShareService()
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+        
+        ### create two users in one group
+        #group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        defaultGroup = admin.getGroup(gid)
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
+        
+        #new user2
+        new_exp2 = ExperimenterI()
+        new_exp2.omeName = rstring("user2_%s" % uuid)
+        new_exp2.firstName = rstring("New2")
+        new_exp2.lastName = rstring("Test2")
+        new_exp2.email = rstring("newtest2@emaildomain.com")
+        
+        eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), defaultGroup, listOfGroups)
+        
+        ## get users
+        user1 = admin.getExperimenter(eid)
+        user2 = admin.getExperimenter(eid2)
+        
+        ## login as user1 
+        client_share1 = omero.client()
+        client_share1.createSession(user1.omeName.val,"ome")
+        share1 = client_share1.sf.getShareService()
+        update1 = client_share1.sf.getUpdateService()
+        
+        # create image
+        img = ImageI()
+        img.setName(rstring('test1154-img-%s' % (uuid)))
+        
+        # permission 'rw----':
+        img.details.permissions.setUserRead(True)
+        img.details.permissions.setUserWrite(True)
+        img.details.permissions.setGroupRead(False)
+        img.details.permissions.setGroupWrite(False)
+        img.details.permissions.setWorldRead(False)
+        img.details.permissions.setWorldWrite(False)
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+        
+        # create share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [user2]
+        guests = []
+        enabled = rtime()
+        sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        self.assert_(len(share1.getContents(sid)) == 1)
+        # add comment by the owner
+        share.addComment(sid, 'test comment by the owner %s' % (uuid))
+        
+        ## login as user2
+        client_share2 = omero.client()
+        client_share2.createSession(user2.omeName.val,"ome")
+        share2 = client_share2.sf.getShareService()
+        query2 = client_share2.sf.getQueryService()
+        
+        sh = share2.getShare(sid)
+        # add comment by the member
+        share2.addComment(sid, 'test comment by the member %s' % (uuid))
+        
+        #get comments
+        # by user1
+        self.assert_(len(share.getComments(sid)) == 2)
+        # by user2
+        self.assert_(len(share2.getComments(sid)) == 2)
+        
+        client_share1.sf.closeOnDestroy()
+        client_share2.sf.closeOnDestroy()
+    
 if __name__ == '__main__':
     unittest.main()
