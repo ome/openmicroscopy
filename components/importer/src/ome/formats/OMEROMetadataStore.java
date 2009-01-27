@@ -888,1018 +888,851 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         return iInfo.getFreeSpaceInKilobytes();
     }
 
-	@Override
 	public void setArcType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setChannelComponentColorDomain(String arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setChannelComponentIndex(Integer arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorGain(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorManufacturer(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorModel(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorOffset(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSerialNumber(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSettingsBinning(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSettingsDetector(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSettingsGain(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSettingsOffset(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSettingsReadOutRate(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorSettingsVoltage(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDetectorVoltage(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDimensionsPhysicalSizeX(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDimensionsPhysicalSizeY(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDimensionsPhysicalSizeZ(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDimensionsTimeIncrement(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDimensionsWaveIncrement(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDimensionsWaveStart(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDisplayOptionsID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDisplayOptionsProjectionZStart(Integer arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDisplayOptionsProjectionZStop(Integer arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDisplayOptionsTimeTStart(Integer arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDisplayOptionsTimeTStop(Integer arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setDisplayOptionsZoom(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimentDescription(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimentID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimentType(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimenterEmail(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimenterFirstName(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimenterID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimenterInstitution(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimenterLastName(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setExperimenterMembershipGroup(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setFilamentType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImageCreationDate(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImageDefaultPixels(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImageDescription(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImageID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImageInstrumentRef(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImageName(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImagingEnvironmentAirPressure(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImagingEnvironmentCO2Percent(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImagingEnvironmentHumidity(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setImagingEnvironmentTemperature(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setInstrumentID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLaserFrequencyMultiplication(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLaserLaserMedium(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLaserPulse(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLaserTuneable(Boolean arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLaserType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLaserWavelength(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceManufacturer(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceModel(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourcePower(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceSerialNumber(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceSettingsAttenuation(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceSettingsLightSource(String arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLightSourceSettingsWavelength(Integer arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelContrastMethod(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelEmWave(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelExWave(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelFluor(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelIlluminationType(String arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelMode(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelName(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelNdFilter(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelOTF(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelPhotometricInterpretation(String arg0,
 			int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelPinholeSize(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelPockelCellSetting(Integer arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setLogicalChannelSamplesPerPixel(Integer arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setOTFID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setOTFObjective(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setOTFOpticalAxisAveraged(Boolean arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setOTFPixelType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setOTFSizeX(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setOTFSizeY(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveCalibratedMagnification(Float arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveCorrection(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveImmersion(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveIris(Boolean arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveLensNA(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveManufacturer(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveModel(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveNominalMagnification(Integer arg0, int arg1,
 			int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveSerialNumber(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveSettingsCorrectionCollar(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveSettingsMedium(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveSettingsObjective(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveSettingsRefractiveIndex(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setObjectiveWorkingDistance(Float arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsBigEndian(Boolean arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsDimensionOrder(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsPixelType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsSizeC(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsSizeT(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsSizeX(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsSizeY(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPixelsSizeZ(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlaneTheC(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlaneTheT(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlaneTheZ(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlaneTimingDeltaT(Float arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlaneTimingExposureTime(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlateDescription(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlateExternalIdentifier(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlateID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlateName(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlateRefID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setPlateStatus(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIT0(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIT1(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIX0(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIX1(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIY0(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIY1(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIZ0(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setROIZ1(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setReagentDescription(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setReagentID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setReagentName(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setReagentReagentIdentifier(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenAcquisitionEndTime(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenAcquisitionID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenAcquisitionStartTime(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenName(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenProtocolDescription(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenProtocolIdentifier(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenReagentSetDescription(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setScreenType(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStageLabelName(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStageLabelX(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStageLabelY(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStageLabelZ(Float arg0, int arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStagePositionPositionX(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStagePositionPositionY(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setStagePositionPositionZ(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataFileName(String arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataFirstC(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataFirstT(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataFirstZ(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataIFD(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataNumPlanes(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setTiffDataUUID(String arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setUUID(String arg0) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellColumn(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellExternalDescription(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellExternalIdentifier(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellID(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellRow(Integer arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellSampleID(String arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellSampleIndex(Integer arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellSamplePosX(Float arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellSamplePosY(Float arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellSampleTimepoint(Integer arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void setWellType(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		
