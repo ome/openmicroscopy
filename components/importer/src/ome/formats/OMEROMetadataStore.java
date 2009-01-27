@@ -299,9 +299,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private void handle(String LSID, LogicalChannel sourceObject,
     		            Map<String, Integer> indexes)
     {
-    	int imageIndex = indexes.get("imageIndex");
-    	int pixelsIndex = indexes.get("pixelsIndex");
-    	Pixels p = imageList.get(imageIndex).getPixels(pixelsIndex);
+    	Pixels p = getPixels(indexes.get("imageIndex"), 0);
     	Channel c = new Channel();
     	c.setLogicalChannel(sourceObject);
     	p.addChannel(c);
