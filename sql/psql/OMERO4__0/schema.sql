@@ -1136,6 +1136,7 @@
         conn varchar(255) not null,
         permissions int8 not null,
         down timestamp,
+        scale int4,
         up timestamp not null,
         uuid varchar(255) not null,
         version int4,
@@ -1515,6 +1516,7 @@
 
     create table renderingdef (
         id int8 not null,
+        compression double precision,
         defaultT int4 not null,
         defaultZ int4 not null,
         permissions int8 not null,

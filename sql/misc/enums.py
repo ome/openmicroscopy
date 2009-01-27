@@ -1,12 +1,35 @@
 #!/usr/bin/env python
 
-ENUMS = """immersion arctype renderingmodel
-           acquisitionmode binning family medium pixelstype
-           format lasertype pulse jobstatus coating detectortype
-           illumination aberrationcorrection photometricinterpretation
-           eventtype lasermedium microscopetype irisdiaphragm dimensionorder
-           frequencymultiplication experimenttype contrastmethod filamenttype
-           filtertype""".split()
+# Calculated via:
+# grep enum components/model/resources/mappings/* | grep "id=" | perl -pe 's/^.*?\".*[.](.*?)\".*?$/$1/' | sort >> sql/misc/enums.py
+ENUMS = """
+AcquisitionMode
+ArcType
+Binning
+ContrastMethod
+Correction
+DetectorType
+DimensionOrder
+EventType
+EventType
+ExperimentType
+Family
+FilamentType
+FilterType
+Format
+Illumination
+Immersion
+JobStatus
+LaserMedium
+LaserType
+Medium
+MicrobeamManipulationType
+MicroscopeType
+PhotometricInterpretation
+PixelsType
+Pulse
+RenderingModel
+""".split()
 ENUMS.sort()
 
 import difflib

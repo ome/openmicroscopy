@@ -36,6 +36,7 @@
 				<rule id="CHANNEL_BINDING_CARD" type="cardinality" description="c"/>
 			</onemany>
 			<optional name="name" type="string"/>
+			<optional name="compression" type="float"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
 			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
 		</properties>

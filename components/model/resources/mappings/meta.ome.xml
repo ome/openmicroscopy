@@ -79,6 +79,7 @@
 			<required name="conn"  type="string"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>
+			<optional name="scale" type="int"/>
 		</properties>
 	</type>
 
