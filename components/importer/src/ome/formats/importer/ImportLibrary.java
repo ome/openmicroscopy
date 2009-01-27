@@ -377,11 +377,6 @@ public class ImportLibrary implements IObservable
         String formatString = reader.getImageReader().getReader().getClass().toString();
         formatString = formatString.replace("class loci.formats.in.", "");
         formatString = formatString.replace("Reader", "");
-        //System.err.println(formatString);
-        if (archive == true)
-        {
-            store.setOriginalFiles(files, formatString);
-        }
         
         reader.getUsedFiles();
         
@@ -418,16 +413,6 @@ public class ImportLibrary implements IObservable
             });
             
             notifyObservers(Actions.DATA_STORED, args);  
-           
-            if (archive == true)
-            {
-                //qTable.setProgressArchiving(index);
-                for (int i = 0; i < fileNameList.length; i++) 
-                {
-                    files[i] = new File(fileNameList[i]);
-                    store.writeFilesToFileStore(files, pixId);   
-                }
-            }
         }
         
         notifyObservers(Actions.IMPORT_DONE, args);
@@ -519,7 +504,6 @@ public class ImportLibrary implements IObservable
         }
         if (dumpPixels)
             wChannel.close();
-        reader.populateSHA1(pixId, md);
         reader.populateMinMax(pixId, series);
     }
     

@@ -43,13 +43,6 @@
 	<classpathentry kind="lib" path="target/libs/ice-db.jar"/>
 	<classpathentry kind="lib" path="target/libs/importer.jar"/>
 	<classpathentry kind="lib" path="target/libs/jamon.jar"/>
-	<classpathentry kind="lib" path="target/libs/jbossall-client.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-annotations-ejb3.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-ejb3.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-ejb3x.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-jaxrpc.jar"/>
-	<classpathentry kind="lib" path="target/libs/jbosssx.jar"/>
 	<classpathentry kind="lib" path="target/libs/jdtcore.jar"/>
 	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>

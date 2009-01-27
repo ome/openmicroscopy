@@ -162,7 +162,7 @@ public class OMEROWrapper extends MinMaxCalculator
             OMEROMetadataStore store = 
                 (OMEROMetadataStore) reader.getMetadataStore();
             int series = reader.getSeries();
-            Pixels p = store.getPixels(series);
+            Pixels p = store.getPixels(series, 0);
             Channel c = (Channel) p.getChannel(p.getSizeC() - 1);
             if (c.getStatsInfo() == null)
             {
@@ -187,15 +187,6 @@ public class OMEROWrapper extends MinMaxCalculator
          if (isMinMaxSet() == false)
              super.updateMinMax(b, ndx);
    }
-     
-     public void populateSHA1(Long id, MessageDigest md)
-     {
-         if (md != null)
-         {
-             OMEROMetadataStore store = (OMEROMetadataStore) reader.getMetadataStore();
-             store.populateSHA1(md, id);  
-         }
-     }
      
      public void populateMinMax(Long id, Integer i) throws FormatException, IOException
      {

@@ -23,29 +23,16 @@
 
 package ome.formats;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
-import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
@@ -59,7 +46,6 @@ import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
-import ome.model.acquisition.StageLabel;
 import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.PixelsAnnotationLink;
 import ome.model.containers.Dataset;
@@ -68,43 +54,15 @@ import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
-import ome.model.enums.AcquisitionMode;
-import ome.model.enums.ArcType;
-import ome.model.enums.Binning;
-import ome.model.enums.Correction;
-import ome.model.enums.ContrastMethod;
-import ome.model.enums.DetectorType;
-import ome.model.enums.DimensionOrder;
-import ome.model.enums.FilamentType;
-import ome.model.enums.Format;
-import ome.model.enums.Illumination;
-import ome.model.enums.Immersion;
-import ome.model.enums.LaserMedium;
-import ome.model.enums.LaserType;
-import ome.model.enums.Medium;
-import ome.model.enums.PhotometricInterpretation;
-import ome.model.enums.PixelsType;
-import ome.model.enums.Pulse;
-import ome.model.meta.Experimenter;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
-import ome.model.screen.ScreenAcquisition;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
-import ome.system.Login;
-import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.api.IRepositoryInfo;
 import ome.conditions.ApiUsageException;
-import ome.conditions.SessionException;
-import ome.formats.enums.EnumerationProvider;
-import ome.formats.enums.IQueryEnumProvider;
-import ome.formats.importer.MetaLightSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -561,8 +519,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param pixelsIndex Pixels index.
      * @return See above.
      */
-    private Pixels getPixels(int imageIndex, int pixelsIndex)
+    public Pixels getPixels(int imageIndex, int pixelsIndex)
     {
+    	// TODO: Public because of external dependencies that need to go.
     	return getImage(imageIndex).getPixels(pixelsIndex);
     }
     
@@ -657,6 +616,24 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         lsidMap = new HashMap<LSID, IObject>();
     }
 
+    /**
+     * Saves the current object graph to the database.
+     * 
+     * @return List of the Pixels objects with their attached object graphs
+     * that have been saved.
+     */
+    public List<Pixels> saveToDB()
+    {
+    	Image[] imageArray = new Image[imageList.size()];
+   		imageArray = (Image[]) iUpdate.saveAndReturnArray(imageArray);
+   		List<Pixels> pixelsList = new ArrayList<Pixels>(imageArray.length);
+   		for (Image image : imageArray)
+   		{
+   			pixelsList.add(image.getDefaultPixels());
+   		}
+   		return pixelsList;
+    }
+    
     /*
      * (non-Javadoc)
      * 

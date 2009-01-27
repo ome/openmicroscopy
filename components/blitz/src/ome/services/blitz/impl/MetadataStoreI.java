@@ -120,7 +120,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        return store.getPixels(series);
+                        return store.getPixels(series, 0);
                     }
                 }));
     }
@@ -135,7 +135,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
@@ -209,8 +208,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setArcPower(toJavaType(power), instrumentIndex,
-                                lightSourceIndex);
                         return null;
                     }
                 }));
@@ -377,8 +374,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setDetectorNodeID(toJavaType(nodeID), instrumentIndex,
-                                detectorIndex);
                         return null;
                     }
                 }));
@@ -650,8 +645,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setDisplayOptionsNodeID(toJavaType(nodeID), imageIndex);
                         return null;
                     }
                 }));
@@ -756,9 +749,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setExperimenterDataDirectory(toJavaType(dataDirectory),
-                                experimenterIndex);
                         return null;
                     }
                 }));
@@ -864,9 +854,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setExperimenterNodeID(toJavaType(nodeID),
-                                experimenterIndex);
                         return null;
                     }
                 }));
@@ -882,9 +869,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setFilamentPower(toJavaType(power), instrumentIndex,
-                                lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1003,8 +987,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setImageNodeID(toJavaType(nodeID), imageIndex);
                         return null;
                     }
                 }));
@@ -1109,8 +1091,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setInstrumentNodeID(toJavaType(nodeID), instrumentIndex);
                         return null;
                     }
                 }));
@@ -1165,9 +1145,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setLaserPower(toJavaType(power), instrumentIndex,
-                                lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1602,9 +1579,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setLogicalChannelNodeID(toJavaType(nodeID), imageIndex,
-                                logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1714,9 +1688,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setOTFNodeID(toJavaType(nodeID), instrumentIndex,
-                                otfIndex);
                         return null;
                     }
                 }));
@@ -1750,8 +1721,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setOTFPath(toJavaType(path), instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1969,9 +1938,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setObjectiveNodeID(toJavaType(nodeID), instrumentIndex,
-                                objectiveIndex);
                         return null;
                     }
                 }));
@@ -2097,9 +2063,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setPixelsNodeID(toJavaType(nodeID), imageIndex,
-                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2430,8 +2393,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        store.setROINodeID(toJavaType(nodeID), imageIndex, roiIndex);
                         return null;
                     }
                 }));
@@ -3607,9 +3568,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        return store.getSF().getAdminService()
-                                .getEventContext();
+                    	return null;
                     }
                 }));
     }
