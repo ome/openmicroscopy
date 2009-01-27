@@ -480,6 +480,55 @@ public class SessionCacheTest extends TestCase {
             }
         }
     }
+    
+    /**
+     * For {@link #testGetSessionDoesUpdateTheTimestamp()} we changed from
+     * cache.putQuiet(new Element) to cache.put(new Element) but we want to make
+     * REAL sure that timeouts are still in effect.
+     */
+    @Test
+    public void testSessionsTimeoutDispiteTheNewElementPutCall() throws Exception {
+        initCache(1);
+        StaleCacheListener stale = new StaleCacheListener() {
+            public void prepareReload() {
+                // noop
+            }
+            public SessionContext reload(SessionContext context) {
+                return context;
+            }
+            
+        };
+        cache.setStaleCacheListener(stale);
+        
+        called[0] = false;
+        final Session s1 = sess(); // One to keep alive
+        final Session s2 = sess(); // One to let die
+        s1.setTimeToIdle(5*1000L);
+        s2.setTimeToIdle(5*1000L);
+        cache.putSession(s1.getUuid(), sc(s1));
+        cache.putSession(s2.getUuid(), sc(s2));
+        for (int i = 0; i < 10; i++) {
+            Thread.sleep(1*1000L);
+            try {
+                cache.getSessionContext(s1.getUuid());
+            } catch (RemovedSessionException rse) {
+                fail("Removed session on loop "+ i);
+            } catch (SessionTimeoutException ste) {
+                fail("Session timeout on loop " + i);
+            }
+        }
+        
+        // Make sure that clean up happened.
+        cache.updateEvent(new UserGroupUpdateEvent(this));
+        try {
+            cache.getSessionContext(s2.getUuid());
+            fail("Should fail for "+s2.getUuid());
+        } catch (RemovedSessionException rse) {
+            // ok.
+        } catch (SessionTimeoutException ste) {
+            // ok.
+        }
+    }
 
     // Helpers
     // ====================

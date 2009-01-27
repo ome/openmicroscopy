@@ -429,9 +429,16 @@ public class SessionCache implements ApplicationContextAware {
                                 internalRemove(id, "Replacement null");
                             } else {
                                 // Adding and upping access information.
-                                Element fresh = new Element(id, replacement);
-                                sessions.put(fresh);
-                                fresh = sessions.get(id);
+                                long version = elt.getVersion() + 1;
+                                long creation = elt.getCreationTime();
+                                long access = elt.getLastAccessTime();
+                                long nextToLast = elt.getNextToLastAccessTime();
+                                long update = System.currentTimeMillis();
+                                long hits = elt.getHitCount();
+                                Element fresh = new Element(id, replacement,
+                                        version, creation, access, nextToLast,
+                                        update, hits);
+                                sessions.putQuiet(fresh);
                             }
                         }
                         success = true;
