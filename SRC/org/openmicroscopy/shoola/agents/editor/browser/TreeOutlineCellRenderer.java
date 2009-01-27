@@ -154,7 +154,7 @@ public class TreeOutlineCellRenderer
 		if (field.getContentCount() < 1) {
 			// if no name set
 			if ((text == null) || (text.trim().length() == 0)) {
-				text = "Field Name";
+				text = field.toString();
 			}
 		} else {
 			IFieldContent content = field.getContentAt(0);

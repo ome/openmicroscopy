@@ -155,7 +155,7 @@ public class FieldParamEditor
 		
 		// Name: Label and text box
 		AttributeEditLine nameEditor = new AttributeEditNoLabel
-			(field, Field.FIELD_NAME, "Step Name");
+			(field, Field.FIELD_NAME, "Step Name [edit]");
 		nameEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		
@@ -230,15 +230,16 @@ public class FieldParamEditor
 		attributeFieldsPanel.add(nameContainer);
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		
-		// Parameters: Label and "Add" button
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
-		//JLabel paramLabel = new CustomLabel("Parameters:");
 		
-		// For each parameter of this field, add the components for
-		// editing their default or template values. 
-		addParameters();
-		// add data refs
-		addDataRefs();
+		// Don't display parameters/dataRefs if the field is a TextBoxStep. 
+		// (shouldn't be any anyway). 
+		if (! (field instanceof TextBoxStep)) {
+	
+			addParameters();
+			// add data refs
+			addDataRefs();
+		}
 		
 		this.setLayout(new BorderLayout());
 		add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -252,10 +253,6 @@ public class FieldParamEditor
 	 */
 	protected void addParameters() 
 	{	
-		// Don't display parameters if the field is a TextBoxStep. 
-		if (field instanceof TextBoxStep) {
-			return;
-		}
 		
 		attributeFieldsPanel.add(createParamsHeader());
 		int paramCount = field.getContentCount();

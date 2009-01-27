@@ -224,7 +224,7 @@ public class Field
 	public String toString() {
 		String name = getAttribute(FIELD_NAME);
 		
-		return (name == null ? "Field Name" : name);
+		return (name == null ? "Step Name" : name);
 	}
 
 	/**

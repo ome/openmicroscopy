@@ -137,6 +137,12 @@ public class AttributeEditNoLabel
 	 */
 	public void focusGained(FocusEvent e) {
 		textField.setBorder(selectedBorder);
+		
+		// if the text has not been edited, select all the text
+		if (labelText != null && labelText.equals(textField.getText())) {
+			textField.setSelectionStart(0);
+			textField.setSelectionEnd(labelText.length());
+		}
 	}
 
 	/**

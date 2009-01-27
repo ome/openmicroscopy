@@ -113,6 +113,15 @@ class MetadataUI
 		model = treeModel;
 		imageAcquisition.setTreeModel(treeModel);
 		
+		refreshTitle();
+	}
+	
+	/**
+	 * Refreshes the title of the {@link #imagePane} from the model. 
+	 * Should be called when the model changes. 
+	 */
+	void refreshTitle()
+	{
 		String rootName = model.getRoot().toString();
 		imagePane.setTitle(rootName);
 	}

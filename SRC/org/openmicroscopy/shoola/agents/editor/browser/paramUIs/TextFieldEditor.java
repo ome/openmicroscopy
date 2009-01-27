@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -51,6 +54,7 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
  */
 public class TextFieldEditor 
 	extends AbstractParamEditor 
+	implements ActionListener
 {
 	
 	/**
@@ -74,6 +78,7 @@ public class TextFieldEditor
 		
 		textField = new CustomTextField();	
 		AttributeEditListeners.addListeners(textField, this, attributeName);
+		textField.addActionListener(this);
 		
 		textField.setText(value);
 		add(textField);
@@ -113,5 +118,9 @@ public class TextFieldEditor
 	 * @see ITreeEditComp#getEditDisplayName()
 	 */
 	public String getEditDisplayName() { return "Edit Text"; }
+
+	public void actionPerformed(ActionEvent e) {
+		attributeEdited(attributeName, textField.getText());
+	}
 
 }

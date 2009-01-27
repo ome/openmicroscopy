@@ -250,6 +250,8 @@ class MetadataPanelsComponent
 	 */
 	private void rebuildUI() 
 	{
+		parent.refreshTitle();
+		
 		removeAll();
 		initComponents();
 		
