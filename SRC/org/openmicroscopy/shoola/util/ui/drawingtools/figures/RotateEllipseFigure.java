@@ -108,8 +108,9 @@ public class RotateEllipseFigure
 	 */
 	public void setAttribute(AttributeKey key, Object newValue)
 	{
-		if (key == TRANSFORM) invalidate();
-        super.setAttribute(key, newValue);
+		if (key == TRANSFORM)
+			invalidate();
+		super.setAttribute(key, newValue);
 	} 
 
 	/**
@@ -154,11 +155,6 @@ public class RotateEllipseFigure
 	
 	public boolean containsMapped(double oX, double oY)
 	{
-		Ellipse2D ellipseNoRotation = getTransformedEllipse();
-		Ellipse2D ellipseNoRotationZeroCentred = 
-			new Ellipse2D.Double(0-ellipseNoRotation.getWidth()/2,
-					0-ellipseNoRotation.getHeight()/2,
-					ellipseNoRotation.getWidth(), ellipseNoRotation.getHeight());
 		AffineTransform t = AttributeKeys.TRANSFORM.get(this);
 		double x = oX-ellipse.getCenterX();
 		double y = oY-ellipse.getCenterY();
@@ -182,7 +178,6 @@ public class RotateEllipseFigure
 		newT.setToRotation(theta);
 		Point2D rotatedPoint = new Point2D.Double();
 		newT.transform(new Point2D.Double(x, y), rotatedPoint);
-//		if(ellipseNoRotationZeroCentred.contains(rotatedPoint))
 		if(containsEllipseAlgorithm(rotatedPoint.getX(), rotatedPoint.getY(),
 				0,0, ellipse.getWidth(), ellipse.getHeight()))
 			return true;
@@ -502,42 +497,6 @@ public class RotateEllipseFigure
 			t.preConcatenate(tx);
 			AttributeKeys.TRANSFORM.basicSet(this, t);
 		}
-		/*if (AttributeKeys.TRANSFORM.get(this)!=null ||
-				(tx.getType()&(AffineTransform.TYPE_TRANSLATION)) != tx.getType())
-			{
-				if (AttributeKeys.TRANSFORM.get(this)==null)
-				{
-					AttributeKeys.TRANSFORM.basicSetClone(this, tx);
-				}
-				else
-				{
-					AffineTransform t=AttributeKeys.TRANSFORM.getClone(this);
-					t.preConcatenate(tx);
-					AttributeKeys.TRANSFORM.basicSet(this, t);
-				}
-			}
-			else
-			{
-				Point2D.Double anchor=getStartPoint();
-				Point2D.Double lead=getEndPoint();
-				setBounds((Point2D.Double) tx.transform(anchor, anchor),
-					(Point2D.Double) tx.transform(lead, lead));
-				if (SVGAttributeKeys.FILL_GRADIENT.get(this)!=null
-					&&!SVGAttributeKeys.FILL_GRADIENT.get(this).isRelativeToFigureBounds())
-				{
-					Gradient g=SVGAttributeKeys.FILL_GRADIENT.getClone(this);
-					g.transform(tx);
-					SVGAttributeKeys.FILL_GRADIENT.basicSet(this, g);
-				}
-				if (SVGAttributeKeys.STROKE_GRADIENT.get(this)!=null
-						&&!SVGAttributeKeys.STROKE_GRADIENT.get(this).isRelativeToFigureBounds())
-				{
-					Gradient g=SVGAttributeKeys.STROKE_GRADIENT.getClone(this);
-					g.transform(tx);
-					SVGAttributeKeys.STROKE_GRADIENT.basicSet(this, g);
-				}
-			}
-			invalidate();*/
 	}
 	
 	
@@ -649,7 +608,7 @@ public class RotateEllipseFigure
 	}
 
 	/*
-	 * Connecting to the figure. Since this figure does not allow connecitons
+	 * Connecting to the figure. Since this figure does not allow connections
 	 * it will always return NULL.
 	 */
 	
