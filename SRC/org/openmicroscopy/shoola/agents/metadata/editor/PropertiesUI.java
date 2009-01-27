@@ -194,13 +194,13 @@ class PropertiesUI
     	channelsArea = UIUtilities.createComponent(null);
     	
     	IconManager icons = IconManager.getInstance();
-		editName = new JButton(icons.getIcon(IconManager.EDIT_8));
+		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
 		UIUtilities.unifiedButtonLookAndFeel(editName);
 		editName.setBackground(UIUtilities.BACKGROUND_COLOR);
 		editName.setToolTipText("Edit the name.");
 		editName.addActionListener(this);
 		editName.setActionCommand(""+EDIT_NAME);
-		editDescription = new JButton(icons.getIcon(IconManager.EDIT_8));
+		editDescription = new JButton(icons.getIcon(IconManager.EDIT_12));
 		UIUtilities.unifiedButtonLookAndFeel(editDescription);
 		editDescription.setBackground(UIUtilities.BACKGROUND_COLOR);
 		editDescription.setToolTipText("Edit the description.");

@@ -660,15 +660,15 @@ public interface OmeroMetadataService
 	/**
 	 * Saves the file back to the server.
 	 * 
-	 * @param file				The file to save.
-	 * @param originalFileID	The id of the file is previously saved.
+	 * @param fileAnnotation 	The annotation hosting the previous info.
+     * @param file				The file to save.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object archivedFile(FileAnnotationData file, long originalFileID)
+	public Object archivedFile(FileAnnotationData fileAnnotation, File file)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

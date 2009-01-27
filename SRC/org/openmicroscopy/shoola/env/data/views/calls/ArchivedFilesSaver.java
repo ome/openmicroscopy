@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -59,18 +61,18 @@ public class ArchivedFilesSaver
     /**
      * Creates a {@link BatchCall} to retrieve the archived files.
      * 
+     * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
-     * @param originalFileID 	The id of the file if previously save.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final FileAnnotationData file, 
-    								final long originalFileID)
+    private BatchCall makeBatchCall(final FileAnnotationData fileAnnotation, 
+    								final File file)
     {
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.archivedFile(file, originalFileID);
+                result = os.archivedFile(fileAnnotation, file);
             }
         };
     }
@@ -90,12 +92,12 @@ public class ArchivedFilesSaver
     /**
      * Creates a new instance.
      * 
+     * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
-     * @param originalFileID 	The id of the file if previously save.
      */
-    public ArchivedFilesSaver(FileAnnotationData file, long originalFileID)
+    public ArchivedFilesSaver(FileAnnotationData fileAnnotation, File file)
     {
-    	loadCall = makeBatchCall(file, originalFileID);
+    	loadCall = makeBatchCall(fileAnnotation, file);
     }
 
 }

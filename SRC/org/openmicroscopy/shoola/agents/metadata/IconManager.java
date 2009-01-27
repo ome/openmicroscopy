@@ -211,14 +211,17 @@ public class IconManager
     /** The <code>Minus</code> icon. */
     public static int           MINUS = 52;
     
-    /** The <code>Minus</code> icon. */
+    /** The <code>Edit 8</code> icon. */
     public static int           EDIT_8 = 53;
+    
+    /** The <code>Edit 12</code> icon. */
+    public static int           EDIT_12 = 54;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 53;
+	private static int          MAX_ID = 54;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -276,6 +279,7 @@ public class IconManager
         relPaths[PLUS] = "plus.png";
         relPaths[MINUS] = "minus.png";
         relPaths[EDIT_8] = "nuvola_ksig_8.png";
+        relPaths[EDIT_12] = "nuvola_ksig_12.png";
 	}
    
 	/** The sole instance. */

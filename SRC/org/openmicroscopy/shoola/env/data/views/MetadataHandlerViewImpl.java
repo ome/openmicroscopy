@@ -366,15 +366,15 @@ class MetadataHandlerViewImpl
 	/**
 	 * Saves the file back to the server.
 	 * 
-	 * @param file				The file to save back to the server.
-	 * @param originalFileID	The id of the file if previously saved.
+	 * @param fileAnnotation	The file to save back to the server.
+	 * @param file	The file to save back to the server.
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle saveFile(FileAnnotationData file, long originalFileID, 
+	public CallHandle saveFile(FileAnnotationData fileAnnotation, File file, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ArchivedFilesSaver(file, originalFileID);
+		BatchCallTree cmd = new ArchivedFilesSaver(fileAnnotation, file);
 		return cmd.exec(observer);
 	}
 	

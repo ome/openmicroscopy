@@ -1965,27 +1965,30 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#archivedFile(Object)
+	 * @see OmeroMetadataService#archivedFile(FileAnnotationData, File)
 	 */
-	public Object archivedFile(FileAnnotationData file, long originalFileID) 
+	public Object archivedFile(FileAnnotationData fileAnnotation, File file) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (file == null) 
 			throw new IllegalArgumentException("No file to save.");
 		//Upload the file back to the server
-		OriginalFile of = gateway.uploadFile(file.getAttachedFile(), 
-				file.getServerFileFormat(), originalFileID);
+		long id = fileAnnotation.getId();
+		OriginalFile of = gateway.uploadFile(file, 
+				fileAnnotation.getServerFileFormat(), 
+				fileAnnotation.getFileID());
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
-		if (originalFileID < 0) {
+		if (id < 0) {
 			fa = new FileAnnotationI();
 			fa.setFile(of);
 			gateway.createObject(fa, (new PojoOptionsI()).map());
-		} 
-		fa = (FileAnnotation) 
-			gateway.findIObject(FileAnnotation.class.getName(), file.getId());
-		fa.setFile(of);
-		gateway.updateObject(fa, (new PojoOptionsI()).map());
+		} else {
+			fa = (FileAnnotation) 
+			gateway.findIObject(FileAnnotation.class.getName(), id);
+			fa.setFile(of);
+			gateway.updateObject(fa, (new PojoOptionsI()).map());
+		}
 		return true;
 	}
 	
