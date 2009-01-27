@@ -57,7 +57,6 @@
 <!-- A WellSample is effectively a WellImageLink -->
 	<type id="ome.model.screen.WellSample" annotated="true">
 		<properties>
-			<optional name="index" type="int"/>
 			<optional name="posX" type="float"/>
 			<optional name="posY" type="float"/>
 			<optional name="timepoint" type="int"/>

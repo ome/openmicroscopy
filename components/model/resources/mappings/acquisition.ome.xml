@@ -31,9 +31,7 @@
 			<optional name="stageLabel" type="ome.model.acquisition.StageLabel"/>
 			<optional name="experiment" type="ome.model.experiment.Experiment"/>
 			<!-- Note: experiment is called ExperimentRef (ID only ref) in model-->
-			<optional name="defaultPixels" type="ome.model.core.Pixels"/>
-			<!-- Note: defaultPixels is required in model-->
-			<optional name="acquiredPixels" type="ome.model.core.Pixels"/>
+			<!-- Note: acquiredPixels is missing, and OMERO uses the pixels[0] as defaultPixels -->
 			<onemany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="image"/>
 			<!-- Containers -->
@@ -137,7 +135,9 @@
 		<properties>
 			<!-- Note: Experimenter is not needed as all DB objects have a owner and group from model-->
 			<required name="type" type="ome.model.enums.MicrobeamManipulationType"/>
+			<!-- Disabling for the moment since roi's are not used
 			<onemany name="roi" type="ome.model.display.Roi" inverse="microbeamManipulation"/>
+			-->
 			<!-- Note: roi is called ROIRef (ID only Ref) in model-->
 			<zeromany name="lightSourceSettings" type="ome.model.acquisition.LightSettings" inverse="microbeamManipulation"/>
 			<!-- Note: lightSourceSettings is called LightSourceRef (ID and values) in model-->
@@ -571,9 +571,9 @@
 		<entry name="text/rtf"/>
 		<entry name="text/x-python"/>
 		<entry name="application/pdf"/>
-		<entry name="application/ms-excel"/>
-		<entry name="application/ms-powerpoint"/>
-		<entry name="application/ms-word"/>
+		<entry name="application/vnd.ms-excel"/>
+		<entry name="application/vnd.ms-powerpoint"/>
+		<entry name="application/msword"/>
 		<entry name="application/octet-stream"/>
 		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
 	</enum>

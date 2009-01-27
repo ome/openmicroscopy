@@ -161,11 +161,6 @@ BEGIN;
   CREATE OR REPLACE VIEW count_Project_annotationLinks_by_owner (Project_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM ProjectAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
-  DROP TABLE count_RoiLink_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_RoiLink_annotationLinks_by_owner (RoiLink_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM RoiLinkAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
   DROP TABLE count_ScreenAcquisition_wellSampleLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_ScreenAcquisition_wellSampleLinks_by_owner (ScreenAcquisition_id, owner_id, count) AS select parent, owner_id, count(*)

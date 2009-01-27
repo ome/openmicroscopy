@@ -50,7 +50,7 @@
 		<properties>
 			<!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
-            <manyone name="node" type="ome.model.meta.Node"/>                 
+			<manyone name="node" type="ome.model.meta.Node"/>
 			<required name="uuid" type="string"/>
 			<required name="owner" type="ome.model.meta.Experimenter"/>
 			<required name="timeToIdle" type="long"/>
@@ -79,7 +79,6 @@
 			<required name="conn"  type="string"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>
-			<optional name="scale" type="int"/>
 		</properties>
 	</type>
 

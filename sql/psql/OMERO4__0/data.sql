@@ -315,11 +315,11 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/pdf';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_format'),-35,0,0,0,'application/ms-excel';
+    select nextval('seq_format'),-35,0,0,0,'application/vnd.ms-excel';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_format'),-35,0,0,0,'application/ms-powerpoint';
+    select nextval('seq_format'),-35,0,0,0,'application/vnd.ms-powerpoint';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_format'),-35,0,0,0,'application/ms-word';
+    select nextval('seq_format'),-35,0,0,0,'application/msword';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/octet-stream';
 insert into pulse (id,permissions,owner_id,group_id,creation_id,value)

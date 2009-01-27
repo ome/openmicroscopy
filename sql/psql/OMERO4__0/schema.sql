@@ -151,22 +151,6 @@
         unique (renderingDef, renderingDef_index)
     );;
 
-    create table colorfix (
-        id int8 not null,
-        alpha int4 not null,
-        blue int4 not null,
-        permissions int8 not null,
-        green int4 not null,
-        red int4 not null,
-        version int4,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        primary key (id)
-    );;
-
     create table contrastmethod (
         id int8 not null,
         permissions int8 not null,
@@ -364,13 +348,6 @@
         count int8 not null,
         owner_id int8,
         primary key (reagent_id, owner_id)
-    );;
-
-    create table count_RoiLink_annotationLinks_by_owner (
-        roilink_id int8 not null,
-        count int8 not null,
-        owner_id int8,
-        primary key (roilink_id, owner_id)
     );;
 
     create table count_ScreenAcquisition_annotationLinks_by_owner (
@@ -827,8 +804,6 @@
         permissions int8 not null,
         name varchar(255) not null,
         version int4,
-        acquiredPixels int8,
-        defaultPixels int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -1136,7 +1111,6 @@
         conn varchar(255) not null,
         permissions int8 not null,
         down timestamp,
-        scale int4,
         up timestamp not null,
         uuid varchar(255) not null,
         version int4,
@@ -1550,50 +1524,6 @@
         primary key (codomainmapcontext_id)
     );;
 
-    create table roi (
-        discriminator varchar(31) not null,
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        microbeamManipulation int8,
-        primary key (id)
-    );;
-
-    create table roilink (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        child int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
-        primary key (id),
-        unique (parent, child)
-    );;
-
-    create table roilinkannotationlink (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        child int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
-        primary key (id),
-        unique (parent, child)
-    );;
-
     create table screen (
         id int8 not null,
         description text,
@@ -1851,7 +1781,6 @@
     create table wellsample (
         id int8 not null,
         permissions int8 not null,
-        index int4,
         posX double precision,
         posY double precision,
         timepoint int4,
@@ -2161,31 +2090,6 @@
         foreign key (external_id) 
         references externalinfo;;
 
-    alter table colorfix 
-        add constraint FKcolorfix_update_id_event 
-        foreign key (update_id) 
-        references event;;
-
-    alter table colorfix 
-        add constraint FKcolorfix_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;;
-
-    alter table colorfix 
-        add constraint FKcolorfix_creation_id_event 
-        foreign key (creation_id) 
-        references event;;
-
-    alter table colorfix 
-        add constraint FKcolorfix_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;;
-
-    alter table colorfix 
-        add constraint FKcolorfix_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;;
-
     alter table contrastmethod 
         add constraint FKcontrastmethod_owner_id_experimenter 
         foreign key (owner_id) 
@@ -2350,11 +2254,6 @@
         add constraint FK_count_to_Reagent_wellLinks 
         foreign key (reagent_id) 
         references reagent;;
-
-    alter table count_RoiLink_annotationLinks_by_owner 
-        add constraint FK_count_to_RoiLink_annotationLinks 
-        foreign key (roilink_id) 
-        references roilink;;
 
     alter table count_ScreenAcquisition_annotationLinks_by_owner 
         add constraint FK_count_to_ScreenAcquisition_annotationLinks 
@@ -3117,11 +3016,6 @@
         references event;;
 
     alter table image 
-        add constraint FKimage_acquiredPixels_pixels 
-        foreign key (acquiredPixels) 
-        references pixels;;
-
-    alter table image 
         add constraint FKimage_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter;;
@@ -3130,11 +3024,6 @@
         add constraint FKimage_creation_id_event 
         foreign key (creation_id) 
         references event;;
-
-    alter table image 
-        add constraint FKimage_defaultPixels_pixels 
-        foreign key (defaultPixels) 
-        references pixels;;
 
     alter table image 
         add constraint FKimage_stageLabel_stagelabel 
@@ -4501,106 +4390,6 @@
         foreign key (codomainmapcontext_id) 
         references codomainmapcontext;;
 
-    alter table roi 
-        add constraint FKroi_microbeamManipulation_microbeammanipulation 
-        foreign key (microbeamManipulation) 
-        references microbeammanipulation;;
-
-    alter table roi 
-        add constraint FKroi_update_id_event 
-        foreign key (update_id) 
-        references event;;
-
-    alter table roi 
-        add constraint FKroi_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;;
-
-    alter table roi 
-        add constraint FKroi_creation_id_event 
-        foreign key (creation_id) 
-        references event;;
-
-    alter table roi 
-        add constraint FKroi_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;;
-
-    alter table roi 
-        add constraint FKroi_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;;
-
-    alter table roilink 
-        add constraint FKroilink_child_roi 
-        foreign key (child) 
-        references roi;;
-
-    alter table roilink 
-        add constraint FKroilink_update_id_event 
-        foreign key (update_id) 
-        references event;;
-
-    alter table roilink 
-        add constraint FKroilink_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;;
-
-    alter table roilink 
-        add constraint FKroilink_creation_id_event 
-        foreign key (creation_id) 
-        references event;;
-
-    alter table roilink 
-        add constraint FKroilink_parent_roi 
-        foreign key (parent) 
-        references roi;;
-
-    alter table roilink 
-        add constraint FKroilink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;;
-
-    alter table roilink 
-        add constraint FKroilink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_update_id_event 
-        foreign key (update_id) 
-        references event;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_creation_id_event 
-        foreign key (creation_id) 
-        references event;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_parent_roilink 
-        foreign key (parent) 
-        references roilink;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;;
-
-    alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;;
-
     alter table screen 
         add constraint FKscreen_update_id_event 
         foreign key (update_id) 
@@ -5149,8 +4938,6 @@
 
     create sequence seq_codomainmapcontext;;
 
-    create sequence seq_colorfix;;
-
     create sequence seq_contrastmethod;;
 
     create sequence seq_correction;;
@@ -5296,12 +5083,6 @@
     create sequence seq_renderingdef;;
 
     create sequence seq_renderingmodel;;
-
-    create sequence seq_roi;;
-
-    create sequence seq_roilink;;
-
-    create sequence seq_roilinkannotationlink;;
 
     create sequence seq_screen;;
 
