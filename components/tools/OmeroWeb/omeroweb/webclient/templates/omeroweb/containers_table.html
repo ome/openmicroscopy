@@ -351,7 +351,7 @@
     {% if form_file %}
     <div class="file">
         <h1>Upload a file</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="file" />
+        <form enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
         <table>
         {% for field in form_file %}
             <tr>

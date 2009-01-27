@@ -41,14 +41,11 @@
 
 {% if manager.fileannSize %}
 <h1>Files:</h1>
-<table>
-    <tr><th>Type</th><th>Name</th><th>Size</th><th>Owner</th><th>Date</th><th>Action</th></tr>
+<ol class="file">
     {% for fileann in manager.file_annotations %}
-    <tr>
-        <td>{{ fileann.getOriginalFile.format.value.val }}</td><td>{{ fileann.getOriginalFile.name }}</td><td>{{ fileann.getOriginalFile.size}} bytes</td><td>{{ fileann.getOwner }}</td><td>{{ fileann.creationEventDate }}</td><td><a href="{% get_webclient_root_url %}/annotation/download/{{fileann.getOriginalFile.id}}/" target="_blank"><img src="{% get_webclient_static_url %}/images/down16.png" alt="download" title="download"/></a><a href="{% get_webclient_root_url %}/annotation/view/{{fileann.getOriginalFile.id}}/" target="_blank"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="open" title="open"/</a></td>
-    </tr>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.file.name.val }}</a> ({{ fileann.file.size.val }} bytes) by {{ fileann.getOwner }} at {{ fileann.creationEventDate }}</li>
     {% endfor %}
-</table>
+</ol>
 {% endif %}
 
 

@@ -71,7 +71,7 @@
     | View <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> | 
     {% if manager.image.isOwned %} Select <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
     Copy <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>
-    {% if manager.image.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% else %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} |
+    {% if manager.image.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 </div>
 {% endif %}
 
@@ -129,11 +129,19 @@
     </li>
     <li><a href='#'>Position:</a>
         <div>
-            <p>{{ manager.image.position }}</p>
+            {% if form_position %}
+            <table class="forms">
+                {% for field in form_position %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
         </div>
     </li>
 </ul>
-
+<br/><p>*N/A - this value is not available.</p>
 </div>
 <div class="clear"></div>
 
@@ -179,7 +187,7 @@
     {% if form_file %}
     <div class="file">
         <h1>Upload a file</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="file" />
+        <form enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
         <table>
         {% for field in form_file %}
             <tr>

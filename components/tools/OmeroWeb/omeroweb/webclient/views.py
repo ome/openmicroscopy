@@ -68,7 +68,7 @@ from omeroweb.webadmin.controller.experimenter import BaseExperimenter
 
 from models import ShareForm, ShareCommentForm, ContainerForm, TextAnnotationForm, TagAnnotationForm, \
                     UrlAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, \
-                    HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm
+                    HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataPositionForm
 from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm
 
 from omeroweb.webadmin.models import Gateway, LoginForm
@@ -77,6 +77,7 @@ from extlib.gateway import BlitzGateway
 logger = logging.getLogger('views-web')
 
 connectors = {}
+share_connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
@@ -137,12 +138,12 @@ def getConnection (request):
 
     if conn is None:
         # could not get connection for key
-        # retrives the connection from existing session
+        # try retrives the connection from existing session
         try:
             if request.session['sessionUuid']: pass
             if request.session['groupId']: pass
         except KeyError:
-            # retrives the connection from login parameters
+            # create the connection from login parameters
             try:
                 if request.session['host']: pass
                 if request.session['port']: pass
@@ -151,7 +152,7 @@ def getConnection (request):
             except KeyError:
                 pass
             else:
-                # login parameters found, create the connection
+                # login parameters found, create new connection
                 try:
                     conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
                     conn.connect()
@@ -170,8 +171,8 @@ def getConnection (request):
             try:
                 conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
                 conn.connect()
-                request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-                request.session['groupId'] = conn.getEventContext().groupId
+                #request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+                #request.session['groupId'] = conn.getEventContext().groupId
             except:
                 logger.error(traceback.format_exc())
                 raise sys.exc_info()[1]
@@ -182,52 +183,34 @@ def getConnection (request):
                 logger.info("Total connectors: %i." % (len(connectors)))
     else:
         # gets connection
-        try:
+        try: 
             request.session['sessionUuid'] = conn.getEventContext().sessionUuid
         except:
-            # connection is no longer available, retrieves connection login parameters
+            # connection is no longer available, try again
             connectors[conn_key] = None
             logger.debug("Connection '%s' is no longer available" % (conn_key))
-            try:
-                if request.session['host']: pass
-                if request.session['port']: pass
-                if request.session['username']: pass
-                if request.session['password']: pass
-            except KeyError:
-                pass
-            else:
-                try:
-                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
-                    conn.connect()
-                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-                    request.session['groupId'] = conn.getEventContext().groupId
-                except:
-                    logger.error(traceback.format_exc())
-                    raise sys.exc_info()[1]
-                else:
-                    # stores connection on connectors
-                    connectors[conn_key] = conn
-                    logger.debug("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-                    logger.info("Total connectors: %i." % (len(connectors)))
+            return getConnection(request)
         else:
             logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
     return conn
 
 @timeit
 def getShareConnection (request):
+    
     session_key = None
     server = None
 
     # gets Http session or create new one
     session_key = request.session.session_key
 
+    # gets host base
     try:
         server = request.session['server']
     except KeyError:
         return None
 
     # clean up connections
-    for k,v in connectors.items():
+    for k,v in share_connectors.items():
         if v is None:
             try:
                 v.seppuku()
@@ -235,98 +218,56 @@ def getShareConnection (request):
                 logger.debug("Connection was already killed.")
                 logger.debug(traceback.format_exc())
             del connectors[k]
-    
-    if len(connectors) > 75:
-        for k,v in connectors.items()[50:]:
+
+    if len(share_connectors) > 75:
+        for k,v in share_connectors.items()[50:]:
             v.seppuku()
-            del connectors[k]
-    
+            del share_connectors[k]
+
     # builds connection key for current session
     conn_key = None
     if (server and session_key) is not None:
-        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server) +" share"
+        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
     else:
         return None
 
     request.session.modified = True
-    
+
     # gets connection for key if available
-    conn = connectors.get(conn_key)
+    conn = share_connectors.get(conn_key)
 
     if conn is None:
-        # could not get connection for key
-        # retrives the connection from existing session
         try:
-            if request.session['shareSessionId']: pass
-        except KeyError:
-            # retrives the connection from login parameters
-            try:
-                if request.session['host']: pass
-                if request.session['port']: pass
-                if request.session['username']: pass
-                if request.session['password']: pass
-            except KeyError:
-                pass
-            else:
-                # login parameters found, create the connection
-                try:
-                    conn = BlitzGateway(request.session['host'], request.session['port'], "root", "ome")
-                    conn.connect()
-                    request.session['shareSessionId'] = conn.getEventContext().sessionUuid
-                except:
-                    logger.error(traceback.format_exc())
-                    raise sys.exc_info()[1]
-                else:
-                    # stores connection on connectors
-                    connectors[conn_key] = conn
-                    logger.debug("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['shareSessionId'])))
+            if request.session['host']: pass
+            if request.session['port']: pass
+            if request.session['username']: pass
+            if request.session['password']: pass
+        except:
+            logger.error(traceback.format_exc())
+            raise sys.exc_info()[1]
         else:
-            # retrieves connection from sessionUuid, join to existing session
+            # login parameters found, create the connection
             try:
-                conn = BlitzGateway(request.session['host'], request.session['port'], "root", "ome", request.session['shareSessionId'])
-                conn.connect()
-                request.session['shareSessionId'] = conn.getEventContext().sessionUuid
+                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
+                conn.connectAsShare()
             except:
                 logger.error(traceback.format_exc())
                 raise sys.exc_info()[1]
             else:
                 # stores connection on connectors
-                connectors[conn_key] = conn
-                logger.debug("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['shareSessionId'])))
+                share_connectors[conn_key] = conn
+                logger.debug("Have connection uuid: '%s'" % (str(request.session['shareSessionId'])))
     else:
-        # gets connection
         try:
-            request.session['shareSessionId'] = conn.getEventContext().sessionUuid
+            conn.getEventContext().sessionUuid
         except:
             # connection is no longer available, retrieves connection login parameters
             connectors[conn_key] = None
             logger.debug("Connection '%s' is no longer available" % (conn_key))
-            try:
-                if request.session['host']: pass
-                if request.session['port']: pass
-                if request.session['username']: pass
-                if request.session['password']: pass
-            except KeyError:
-                pass
-            else:
-                try:
-                    conn = BlitzGateway(request.session['host'], request.session['port'], "root", "ome", request.session['shareSessionId'])
-                    conn.connect()
-                    request.session['shareSessionId'] = conn.getEventContext().sessionUuid
-                    request.session['groupId'] = conn.getEventContext().groupId
-                    connectors[conn_key] = conn
-                    logger.debug("Retreived connection, will travel:%s, uuid: %s" % (str(conn_key), str(request.session['shareSessionId'])))
-                except:
-                    logger.error(traceback.format_exc())
-                    raise sys.exc_info()[1]
-                else:
-                    # stores connection on connectors
-                    connectors[conn_key] = conn
-                    logger.debug("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-                    logger.info("Total connectors: %i." % (len(connectors)))
-    
+            return getShareConnection(request)
         else:
-            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['shareSessionId'])))
+            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+    
     return conn
 
 ################################################################################
@@ -692,9 +633,11 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     
     form_environment = None
     form_objective = None
+    form_position = None
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+        form_position = MetadataPositionForm(initial={'image': manager.image })
 
     template = None
     if o3_type and o3_id:
@@ -812,15 +755,30 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_comment = TextAnnotationForm()
             form_file = UploadFileForm()
         elif action == "file":
-            form_file = UploadFileForm(request.REQUEST, request.FILES)
-            if form_file.is_valid():
-                f = request.FILES['custom_file']
-                #for chunk in f.chunks():
-                    #print chunk
-                form_file = UploadFileForm()
+            if request.method == 'POST':
+                form_file = UploadFileForm(request.POST, request.FILES)
+                if form_file.is_valid():
+                    f = request.FILES['annotation_file']
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.saveDatasetFileAnnotation(f)
+                        elif o2_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.saveProjectFileAnnotation(f)
+                        elif o1_type == 'dataset':
+                            manager.saveDatasetFileAnnotation(f)
+                        elif o1_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    form_file = UploadFileForm()
             form_tag = TagAnnotationForm()
             form_comment = TextAnnotationForm()
             form_url = UrlAnnotationForm(initial={'link':'http://'})
+    
     
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
@@ -839,7 +797,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective, 'form_position':form_position}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -883,6 +841,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     filter_user_id = None
     form_users = None
     users = set(conn.getColleaguesAndStaffs())
+    
     try:
         if request.REQUEST['experimenter'] != "": 
             form_users = MyUserForm(initial={'users': users}, data=request.REQUEST.copy())
@@ -909,9 +868,11 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     
     form_environment = None
     form_objective = None
+    form_position = None
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+        form_position = MetadataPositionForm(initial={'image': manager.image })
     
     form_comment = None
     form_tag = None
@@ -996,15 +957,30 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
             form_comment = TextAnnotationForm()
             form_file = UploadFileForm()
         elif action == "file":
-            form_file = UploadFileForm(request.REQUEST, request.FILES)
-            if form_file.is_valid():
-                f = request.FILES['custom_file']
-                #for chunk in f.chunks():
-                    #print chunk
-                form_file = UploadFileForm()
+            if request.method == 'POST':
+                form_file = UploadFileForm(request.POST, request.FILES)
+                if form_file.is_valid():
+                    f = request.FILES['annotation_file']
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.saveDatasetFileAnnotation(f)
+                        elif o2_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.saveProjectFileAnnotation(f)
+                        elif o1_type == 'dataset':
+                            manager.saveDatasetFileAnnotation(f)
+                        elif o1_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    form_file = UploadFileForm()
             form_tag = TagAnnotationForm()
             form_comment = TextAnnotationForm()
             form_url = UrlAnnotationForm(initial={'link':'http://'})
+    
     
     template = None
     if o3_type and o3_id:
@@ -1066,7 +1042,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_position':form_position}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1137,9 +1113,11 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     
     form_environment = None
     form_objective = None
+    form_position = None
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+        form_position = MetadataPositionForm(initial={'image': manager.image })
     
     form_comment = None
     form_tag = None
@@ -1201,12 +1179,26 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
             form_comment = TextAnnotationForm()
             form_file = UploadFileForm()
         elif action == "file":
-            form_file = UploadFileForm(request.REQUEST, request.FILES)
-            if form_file.is_valid():
-                f = request.FILES['custom_file']
-                #for chunk in f.chunks():
-                    #print chunk
-                form_file = UploadFileForm()
+            if request.method == 'POST':
+                form_file = UploadFileForm(request.POST, request.FILES)
+                if form_file.is_valid():
+                    f = request.FILES['annotation_file']
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.saveDatasetFileAnnotation(f)
+                        elif o2_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.saveProjectFileAnnotation(f)
+                        elif o1_type == 'dataset':
+                            manager.saveDatasetFileAnnotation(f)
+                        elif o1_type == 'image':
+                            manager.saveImageFileAnnotation(f)
+                    form_file = UploadFileForm()
             form_tag = TagAnnotationForm()
             form_comment = TextAnnotationForm()
             form_url = UrlAnnotationForm(initial={'link':'http://'})
@@ -1270,7 +1262,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_url':form_url, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_position':form_position}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1301,12 +1293,7 @@ def manage_annotations(request, o_type, o_id, **kwargs):
         template = "omeroweb/image_annotations.html"
         manager.imageAnnotationList()
     
-    form_comment = TextAnnotationForm()
-    form_tag = TagAnnotationForm()
-    form_url = UrlAnnotationForm(initial={'link':'http://'})
-    form_file = UploadFileForm()
-    
-    context = {'url':url, 'manager':manager, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file}
+    context = {'url':url, 'manager':manager}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1370,12 +1357,12 @@ def manage_metadata(request, o_type=None, o_id=None, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
-    metadataFamily = request.REQUEST['metadataFamily']
+    
     matadataType = request.REQUEST['matadataType']
     metadataValue = request.REQUEST['metadataValue']
     
     manager = BaseContainer(conn, o_type, o_id)
-    manager.saveMetadata(metadataFamily, matadataType, metadataValue)
+    manager.saveMetadata(matadataType, metadataValue)
     
     return HttpResponse('done')
 
@@ -1529,110 +1516,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
     elif action == 'delete':
         pass
-    elif action == "comment":
-        form_comment = TextAnnotationForm(data=request.REQUEST.copy())
-        if form_comment.is_valid():
-            content = request.REQUEST['content']
-            if o_type == "dataset":
-                manager.saveDatasetTextAnnotation(content)
-                return HttpResponseRedirect(url)
-            elif o_type == "project":
-                manager.saveProjectTextAnnotation(content)
-                return HttpResponseRedirect(url)
-            elif o_type == "image":
-                content = request.REQUEST['content']
-                manager.saveImageTextAnnotation(content)
-                return HttpResponseRedirect(url)
-        else:
-            if o_type == "dataset" or o_type == "project":
-                template = "omeroweb/containers_%s.html" % (request.session['nav']["view"])
-                form_tag = TagAnnotationForm()
-                form_url = UrlAnnotationForm(initial={'link':'http://'})
-                form_file = UploadFileForm()
-                context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file': form_file, 'form_active_group':form_active_group}
-            elif o_type == "image":
-                template = "omeroweb/image_details.html"
-                form_tag = TagAnnotationForm()
-                form_url = UrlAnnotationForm(initial={'link':'http://'})
-                form_file = UploadFileForm()
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-    elif action == "url":
-        form_url = UrlAnnotationForm(data=request.REQUEST.copy())
-        if form_url.is_valid():
-            content = request.REQUEST['link']
-            if o_type == "dataset":
-                manager.saveDatasetUrlAnnotation(content)
-                return HttpResponseRedirect(url)
-            elif o_type == "project":
-                manager.saveProjectUrlAnnotation(content)
-                return HttpResponseRedirect(url)
-            elif o_type == "image":
-                manager.saveImageUrlAnnotation(content)
-                return HttpResponseRedirect(url)
-        else:
-            if o_type == "dataset" or o_type == "project":
-                template = "omeroweb/containers_%s.html" % (request.session['nav']["view"])
-                form_comment = TextAnnotationForm()
-                form_tag = TagAnnotationForm()
-                form_file = UploadFileForm()
-                context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-            elif o_type == "image":
-                template = "omeroweb/image_details.html"
-                form_comment = TextAnnotationForm()
-                form_tag = TagAnnotationForm()
-                form_file = UploadFileForm()
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-    elif action == "tag":
-        form_tag = TagAnnotationForm(data=request.REQUEST.copy())
-        if form_tag.is_valid():
-            tag = request.REQUEST['tag']
-            if o_type == "dataset":
-                manager.saveDatasetTagAnnotation(tag)
-                return HttpResponseRedirect(url)
-            elif o_type == "project":
-                manager.saveProjectTagAnnotation(tag)
-                return HttpResponseRedirect(url)
-            elif o_type == "image":
-                manager.saveImageTagAnnotation(tag)
-                return HttpResponseRedirect(url)
-        else:
-            if o_type == "dataset" or o_type == "project":
-                template = "omeroweb/containers_%s.html" % (request.session['nav']["view"])
-                form_comment = TextAnnotationForm()
-                form_tag = TagAnnotationForm()
-                form_file = UploadFileForm()
-                context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-            elif o_type == "image":
-                template = "omeroweb/image_details.html"
-                form_comment = TextAnnotationForm()
-                form_tag = TagAnnotationForm()
-                form_file = UploadFileForm()
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-    elif action == "file":
-        form_file = UploadFileForm(request.REQUEST, request.FILES)
-        if form_file.is_valid():
-            f = request.FILES['custom_file']
-            #for chunk in f.chunks():
-                #print chunk
-            if o_type == "dataset":
-                return HttpResponseRedirect(url)
-            elif o_type == "project":
-                return HttpResponseRedirect(url)
-            elif o_type == "image":
-                return HttpResponseRedirect(url)
-        else:
-            if o_type == "dataset" or o_type == "project":
-                template = "omeroweb/containers_%s.html" % (request.session['nav']["view"])
-                form_comment = TextAnnotationForm()
-                form_url = UrlAnnotationForm(initial={'link':'http://'})
-                context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-            elif o_type == "image":
-                template = "omeroweb/image_details.html"
-                form_comment = TextAnnotationForm()
-                form_tag = TagAnnotationForm()
-                form_url = UrlAnnotationForm(initial={'link':'http://'})
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_tag':form_tag, 'form_url':form_url, 'form_file':form_file, 'form_active_group':form_active_group}
-
+    
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
@@ -1693,9 +1577,7 @@ def manage_annotation(request, action, iid, **kwargs):
         raise Http404
     if action == 'download':
         rsp['ContentType'] = 'application/octet-stream'
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.getOriginalFile().name)
-    elif action == 'view':
-        rsp['ContentType'] = str(annotation.annotation.getOriginalFile().format.value.val)
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
     return rsp
 
 @isUserConnected
@@ -1829,14 +1711,14 @@ def load_share_content(request, share_id, **kwargs):
     template = "omeroweb/share_content.html"
     
     conn = None
-    #conn_share = None
+    conn_share = None
     try:
         conn = kwargs["conn"]
-        #conn_share = getShareConnection(request)
+        conn_share = getShareConnection(request)
     except:
         logger.error(traceback.format_exc())
     
-    share = BaseShare( request.session['nav']['menu'], conn, None, share_id)
+    share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
     share.loadShareContent(share_id)
         
     context = {'share':share, 'eContext':share.eContext}
@@ -2208,16 +2090,6 @@ def myaccount(request, action, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def myphoto(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    photo = conn.getExperimenterPhoto()
-    return HttpResponse(photo, mimetype='image/jpeg')
-
-@isUserConnected
 def help(request, menu, **kwargs):
     request.session['nav']['menu'] = 'help'
     template = "omeroweb/help.html"
@@ -2301,6 +2173,7 @@ def history_details(request, menu, year, month, day, **kwargs):
 
 ####################################################################################
 # User Photo
+
 @isUserConnected
 def load_photo(request, oid=None, **kwargs):
     conn = None
@@ -2309,6 +2182,16 @@ def load_photo(request, oid=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     photo = conn.getExperimenterPhoto(oid)
+    return HttpResponse(photo, mimetype='image/jpeg')
+
+@isUserConnected
+def myphoto(request, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
 
 ####################################################################################

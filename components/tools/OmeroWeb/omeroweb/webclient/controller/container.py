@@ -28,6 +28,8 @@ import omero
 from omero.rtypes import *
 from omero_model_TextAnnotationI import TextAnnotationI
 from omero_model_UrlAnnotationI import UrlAnnotationI
+from omero_model_FileAnnotationI import FileAnnotationI
+from omero_model_OriginalFileI import OriginalFileI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_DatasetAnnotationLinkI import DatasetAnnotationLinkI
 from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
@@ -80,7 +82,25 @@ class BaseContainer(BaseController):
         elif o1_type == "orphaned":
             self.orphaned = True
     
-    def saveMetadata(self, metadataFamily, matadataType, metadataValue):
+    def saveMetadata(self, matadataType, metadataValue):
+        metadata_rtype = {
+            # ObjectiveSettings
+            'correctionCollar':('int', 'ObjectiveSettings'), 'medium':('int', 'ObjectiveSettings'), 
+            'refractiveIndex':('float', 'ObjectiveSettings'),
+
+            # Objective
+            'correction':('int', 'Objective'), 'calibratedMagnification':('float', 'Objective'), 'immersion':('int', 'Objective'), 
+            'iris':['bool', 'Objective'], 'lensNA':('float', 'Objective'), 'manufacturer':('string', 'Objective'), 'model':('string', 'Objective'), 
+            'nominalMagnification':('int', 'Objective'), 'serialNumber':('string', 'Objective'), 'workingDistance':('float', 'Objective'),
+
+            # Condition
+            'airPressure':('int', 'Condition'), 'co2percent':('float', 'Condition'), 'humidity':('float', 'Condition'), 
+            'temperature':('float', 'Condition'),
+        }
+        
+        metadataFamily = metadata_rtype.get(matadataType)[1]
+        m_rtype = metadata_rtype.get(matadataType)[0]
+        
         m_name = matadataType[0].upper()+matadataType[1:]
         enum = None
         try:
@@ -90,7 +110,7 @@ class BaseContainer(BaseController):
         
         #self.image._obj.getObjectiveSettings().getObjective().__dict__.has_key("_"+matadataType):
         meta = getattr(self.image, "get"+metadataFamily)()
-        if meta._obj.__dict__.has_key("_"+matadataType):
+        if meta is not None and meta._obj.__dict__.has_key("_"+matadataType):
             if enum is not None:
                 setattr(meta._obj, matadataType, enum)
                 self.conn.updateObject(meta._obj)
@@ -100,22 +120,21 @@ class BaseContainer(BaseController):
                     self.conn.updateObject(meta._obj)
                 else:
                     try:
-                        setattr(meta._obj, matadataType, rint(int(metadataValue)))
+                        if m_rtype == 'int':
+                            setattr(meta._obj, matadataType, rint(int(metadataValue)))
+                        elif m_rtype == 'float':
+                            setattr(meta._obj, matadataType, rfloat(float(metadataValue)))
+                        elif m_rtype == 'rstring':
+                            setattr(meta._obj, matadataType, rstring(str(metadataValue)))
+                        elif m_rtype == 'rbool':
+                            setattr(meta._obj, matadataType, rbool(bool(metadataValue.lower())))
+                        else:
+                            raise "Cannot save the metadata"
                         self.conn.updateObject(meta._obj)
                     except:
-                        try:
-                            setattr(meta._obj, matadataType, rfloat(float(metadataValue)))
-                            self.conn.updateObject(meta._obj)
-                        except:
-                            try:
-                                setattr(meta._obj, matadataType, rstring(str(metadataValue)))
-                                self.conn.updateObject(meta._obj)
-                            except:
-                                try:
-                                    setattr(meta._obj, matadataType, rbool(bool(metadataValue.lower())))
-                                    self.conn.updateObject(meta._obj)
-                                except:
-                                    raise "Cannot save the metadata"
+                        raise
+        else:
+            pass
     
     def buildBreadcrumb(self, menu):
         if menu == 'new' or menu == 'addnew':
@@ -139,7 +158,7 @@ class BaseContainer(BaseController):
                         self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/image/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, self.image.id, self.image.breadcrumbName()))
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            "%s" % (self.dataset.breadcrumbName())]
+                            '<a href="/%s/%s/dataset/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.dataset.id, self.dataset.breadcrumbName())]
                 if self.image is not None:
                     self.eContext['breadcrumb'].append('<a href="/%s/%s/dataset/%i/image/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.dataset.id, self.image.id, self.image.breadcrumbName()))
             elif self.image is not None:
@@ -561,6 +580,7 @@ class BaseContainer(BaseController):
         self.text_annotations = list()
         self.long_annotations = {'rate': 0.00 , 'votes': 0}
         self.url_annotations = list()
+        self.file_annotations = list()
         for ann in self.image.listAnnotations():
             if ann._obj.__class__.__name__ == 'TextAnnotationI':
                 self.text_annotations.append(ann)
@@ -569,9 +589,12 @@ class BaseContainer(BaseController):
                 self.long_annotations['rate'] += int(ann.longValue)
             elif ann._obj.__class__.__name__ == 'UrlAnnotationI':
                 self.url_annotations.append(ann)
+            elif ann._obj.__class__.__name__ == 'FileAnnotationI':
+                self.file_annotations.append(ann)
 
         self.txannSize = len(self.text_annotations)
         self.urlannSize = len(self.url_annotations)
+        self.fileannSize = len(self.file_annotations)
 
         if self.long_annotations['votes'] > 0:
             self.long_annotations['rate'] /= self.long_annotations['votes']
@@ -603,6 +626,7 @@ class BaseContainer(BaseController):
         self.text_annotations = list()
         self.long_annotations = {'rate': 0.00 , 'votes': 0}
         self.url_annotations = list()
+        self.file_annotations = list()
         for ann in self.project.listAnnotations():
             if ann._obj.__class__.__name__ == 'TextAnnotationI':
                 self.text_annotations.append(ann)
@@ -611,9 +635,12 @@ class BaseContainer(BaseController):
                 self.long_annotations['rate'] += int(ann.longValue)
             elif ann._obj.__class__.__name__ == 'UrlAnnotationI':
                 self.url_annotations.append(ann)
+            elif ann._obj.__class__.__name__ == 'FileAnnotationI':
+                self.file_annotations.append(ann)
 
         self.txannSize = len(self.text_annotations)
         self.urlannSize = len(self.url_annotations)
+        self.fileannSize = len(self.file_annotations)
 
         if self.long_annotations['votes'] > 0:
             self.long_annotations['rate'] /= self.long_annotations['votes']
@@ -682,6 +709,30 @@ class BaseContainer(BaseController):
         l_ann.setChild(ann)
         self.conn.updateObject(l_ann)
     
+    def saveImageFileAnnotation(self, newFile):
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = self.conn.getFileFormt(f[1].upper())
+        else:
+            format = self.conn.getFileFormt(newFile.content_type)
+        
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(newFile.name)));
+        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setSize(rlong(long(newFile.size)));
+        oFile.setSha1(rstring("pending"));
+        oFile.setFormat(format);
+        
+        of = self.conn.createObject(oFile);
+        self.conn.saveFile(newFile, of.id)
+        
+        fa = FileAnnotationI()
+        fa.setFile(of._obj)
+        l_ia = ImageAnnotationLinkI()
+        l_ia.setParent(self.image._obj)
+        l_ia.setChild(fa)
+        self.conn.updateObject(l_ia)
+    
     def saveProjectTextAnnotation(self, content):
         ann = TextAnnotationI()
         ann.textValue = rstring(str(content))
@@ -697,7 +748,31 @@ class BaseContainer(BaseController):
         l_ann.setParent(self.project._obj)
         l_ann.setChild(ann)
         self.conn.updateObject(l_ann)
-
+    
+    def saveProjectFileAnnotation(self, newFile):
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = self.conn.getFileFormt(f[1].upper())
+        else:
+            format = self.conn.getFileFormt(newFile.content_type)
+        
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(newFile.name)));
+        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setSize(rlong(long(newFile.size)));
+        oFile.setSha1(rstring("pending"));
+        oFile.setFormat(format);
+        
+        of = self.conn.createObject(oFile);
+        self.conn.saveFile(newFile, of.id)
+        
+        fa = FileAnnotationI()
+        fa.setFile(of._obj)
+        l_ia = ProjectAnnotationLinkI()
+        l_ia.setParent(self.project._obj)
+        l_ia.setChild(fa)
+        self.conn.updateObject(l_ia)
+    
     def saveDatasetTextAnnotation(self, content):
         ann = TextAnnotationI()
         ann.textValue = rstring(str(content))
@@ -713,7 +788,32 @@ class BaseContainer(BaseController):
         l_ann.setParent(self.dataset._obj)
         l_ann.setChild(ann)
         self.conn.updateObject(l_ann)
-
+    
+    def saveDatasetFileAnnotation(self, newFile):
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = self.conn.getFileFormt(f[1].upper())
+        else:
+            format = self.conn.getFileFormt(newFile.content_type)
+        
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(newFile.name)));
+        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setSize(rlong(long(newFile.size)));
+        oFile.setSha1(rstring("pending"));
+        oFile.setFormat(format);
+        
+        of = self.conn.createObject(oFile);
+        self.conn.saveFile(newFile, of.id)
+        
+        fa = FileAnnotationI()
+        fa.setFile(of._obj)
+        l_ia = DatasetAnnotationLinkI()
+        l_ia.setParent(self.dataset._obj)
+        l_ia.setChild(fa)
+        self.conn.updateObject(l_ia)
+    
+    
     def move(self, parent, source, destination):
         #print parent, source, destination
         if source[0] == "pr":

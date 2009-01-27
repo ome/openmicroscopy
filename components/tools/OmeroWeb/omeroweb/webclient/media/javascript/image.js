@@ -1,4 +1,4 @@
-function saveMetadata (metadata_family, image_id, metadata_type, metadata_value) {
+function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
     } else {
@@ -6,7 +6,7 @@ function saveMetadata (metadata_family, image_id, metadata_type, metadata_value)
         $.ajax({
             type: "POST",
             url: "/webclient/metadata/image/"+image_id+"/", //this.href,
-            data: "metadataFamily="+metadata_family+"&matadataType="+metadata_type+"&metadataValue="+metadata_value,
+            data: "matadataType="+metadata_type+"&metadataValue="+metadata_value,
             contentType:'html',
             cache:false,
             success: function(responce){

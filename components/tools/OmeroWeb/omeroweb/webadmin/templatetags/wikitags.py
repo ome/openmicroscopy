@@ -37,13 +37,13 @@ def wikify(value):
         value = wikifier.sub(r'<a href="\1">\1</a>', value)
 
         imagier = re.compile(r'\[image:( [0-9]+ )\]', re.VERBOSE)
-        value = imagier.sub(r'<a href="/%s/userdata/image/\1/"><img src="/%s/render_thumbnail/32/\1/" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
+        value = imagier.sub(r'<a href="/%s/image/\1/"><img src="/%s/render_thumbnail/32/\1/" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
 
         datasetier = re.compile(r'\[dataset:( [0-9]+ )\]', re.VERBOSE)
-        value = datasetier.sub(r'<a href="/%s/userdata/dataset/\1/"><img src="/%s/static/images/folder_image32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
+        value = datasetier.sub(r'<a href="/%s/dataset/\1/"><img src="/%s/static/images/folder_image32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
 
         projectier = re.compile(r'\[project:( [0-9]+ )\]', re.VERBOSE)
-        value = projectier.sub(r'<a href="/%s/userdata/project/\1/"><img src="/%s/static/images/folder32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
+        value = projectier.sub(r'<a href="/%s/project/\1/"><img src="/%s/static/images/folder32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
 
         # happy :) :-) 
         emot1 = re.compile(r'\:[\-]?\)', re.VERBOSE)

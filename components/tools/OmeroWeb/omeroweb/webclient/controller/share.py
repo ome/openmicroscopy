@@ -57,14 +57,18 @@ class BaseShare(BaseController):
 
     def __init__(self, menu, conn, conn_share=None, share_id=None, action=None, **kw):
         BaseController.__init__(self, conn)
-        self.conn_share = conn_share
-        if share_id: 
-            self.share = self.conn.getShare(share_id)
-            self.eContext['breadcrumb'] = [ menu.title(), "Share", action ]
-        elif action:
-            self.eContext['breadcrumb'] = ["Basket", action ]
+        if conn_share is None:
+            if share_id: 
+                self.share = self.conn.getShare(share_id)
+                self.eContext['breadcrumb'] = [ menu.title(), "Share", action ]
+            elif action:
+                self.eContext['breadcrumb'] = ["Basket", action ]
+            else:
+                self.eContext['breadcrumb'] = [ menu.title() ]
         else:
-            self.eContext['breadcrumb'] = [ menu.title() ]
+            self.conn_share = conn_share
+            self.share = self.conn.getShare(share_id)
+            self.share_share = self.conn_share.getActivateShare(share_id)
 
     def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiretion, members, enable):
         # only for python 2.5
@@ -114,13 +118,14 @@ class BaseShare(BaseController):
         self.allInShare = list(self.conn.getAllUsers(share_id))
 
     def loadShareContent(self, share_id):
-        content = self.conn.getContents(share_id)
+        content = self.conn_share.getContents(share_id)
         
         imInShare = list()
         dsInShare = list()
         prInShare = list()
 
         for ex in content:
+            print type(ex._obj), ex.id
             if isinstance(ex._obj, omero.model.ImageI):
                 imInShare.append(ex.id)
             elif isinstance(ex._obj, omero.model.DatasetI):
@@ -129,19 +134,19 @@ class BaseShare(BaseController):
                 prInShare.append(ex.id)
 
         if len(imInShare) > 0: 
-            self.imageInShare = list(self.conn.getSpecifiedImages(imInShare))
+            self.imageInShare = list(self.conn_share.getSpecifiedImages(imInShare))
             self.imgSize = len(self.imageInShare)
         if len(dsInShare) > 0: 
-            self.datasetInShare = list(self.conn.getSpecifiedDatasetsWithLeaves(dsInShare))
+            self.datasetInShare = list(self.conn_share.getSpecifiedDatasetsWithLeaves(dsInShare))
             self.dsSize = len(self.datasetInShare)
         if len(prInShare) > 0: 
-            self.projectInShare = list(self.conn.getSpecifiedProjectsWithLeaves(prInShare))
+            self.projectInShare = list(self.conn_share.getSpecifiedProjectsWithLeaves(prInShare))
             self.prSize = len(self.projectInShare)
         
         self.sizeOfShare = self.imgSize+self.dsSize+self.prSize
         
     def getShareActive(self, share_id):
-        content = self.conn_share.getContents(share_id)
+        content = self.conn.getContents(share_id)
         self.membersInShare = list(self.conn.getAllMembers(share_id))
         #self.guestsInShare = ";".join(self.conn.getAllGuests(share_id))
         self.allInShare = self.conn.getAllUsers(share_id)

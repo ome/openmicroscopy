@@ -173,6 +173,50 @@ class BlitzGateway (threading.Thread):
             logger.info("'%s' (id:%i) is connected to %s sessionUuid: %s" % (self._eventContext.userName, self._eventContext.userId, self.c.getRouter(self.c.ic), self._eventContext.sessionUuid))
             return True
     
+    def connectAsShare (self):
+        logger.debug("Connecting...")
+        if not self.c:
+            self._connected = False
+            return False
+        try:
+            if self._sessionUuid is not None:
+                try:
+                    self.c.joinSession(self._sessionUuid)
+                except:
+                    self._sessionUuid = None
+            if self._sessionUuid is None:
+                if self._connected:
+                    self._connected = False
+                    try:
+                        self.c.closeSession()
+                        self.c = omero.client(host=self._props['host'], port=self._props['port'])
+                    except omero.Glacier2.SessionNotExistException:
+                        pass
+                self.c.createSession(self._props[omero.constants.USERNAME], self._props[omero.constants.PASSWORD])
+            
+            self._last_error = None
+            self._proxies = {}
+            self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
+            self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
+            self._proxies['pojos'] = ProxyObjectWrapper(self, 'getPojosService')
+            self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
+            self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
+            self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
+            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
+            #self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
+            self._eventContext = self._proxies['admin'].getEventContext()
+            self.removeUserGroups()
+            self._sessionUuid = self._eventContext.sessionUuid
+            self._user = self._proxies['admin'].getExperimenter(self._eventContext.userId)
+            self._connected = True
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            self._last_error = x
+            raise x
+        else:
+            logger.info("'%s' (id:%i) is connected to %s sessionUuid: %s" % (self._eventContext.userName, self._eventContext.userId, self.c.getRouter(self.c.ic), self._eventContext.sessionUuid))
+            return True
+    
     def connectAsGuest (self):
         logger.debug("Connecting as Guest...")
         if not self.c:
@@ -840,6 +884,12 @@ class BlitzGateway (threading.Thread):
         sh = sh_serv.getShare(long(oid))
         return ShareWrapper(self, sh)
     
+    def getActivateShare (self, oid):
+        sh_serv = self.getShareService()
+        sh = sh_serv.getShare(long(oid))
+        sh_serv.activate(long(oid))
+        return ShareWrapper(self, sh)
+    
     def getProject (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -997,8 +1047,14 @@ class BlitzGateway (threading.Thread):
     
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()
-        ann = query_serv.find("FileAnnotation", long(oid))
-        return AnnotationWrapper(self, ann)
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["oid"] = rlong(long(oid))
+        sql = "select f from FileAnnotation f join fetch f.file where f.id = :oid"
+        of = query_serv.findByQuery(sql, p)
+        if not of.file.format.loaded:
+            of.file.format = query_serv.find("Format", of.file.format.id.val)
+        return AnnotationWrapper(self, of)
     
     def getFile(self, f_id):
         store = self.createRawFileStore()
@@ -1041,6 +1097,7 @@ class BlitzGateway (threading.Thread):
         store.setFileId(oFile_id);
         pos = 0
         rlen = 0
+        
         for chunk in binary.chunks():
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
@@ -1664,7 +1721,14 @@ class BlitzObjectWrapper (object):
         pojos = self._conn.getPojosService()
         self.annotations = pojos.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
         #self.annotationsLoaded = True
+        from omero_model_FileAnnotationI import FileAnnotationI
         for ann in self.annotations:
+            if isinstance(ann, FileAnnotationI):
+                p = omero.sys.Parameters()
+                p.map = {} 
+                p.map["oid"] = ann.file.id
+                sql = "select p from OriginalFile as p left outer join fetch p.format where p.id = :oid"
+                ann.file = self._conn.getQueryService().findByQuery(sql, p)
             yield AnnotationWrapper(self._conn, ann)
     
     def countAnnotations (self):
@@ -1679,12 +1743,6 @@ class BlitzObjectWrapper (object):
             else:
                 return None
     
-    def isEditable(self):
-        if self._obj.details.permissions.getUserWrite():
-            return True
-        else:
-            return self._obj.details.permissions.getGroupWrite()
-    
     def isOwned(self):
         if self._obj.details.owner.id.val == self._conn.getEventContext().userId:
             return True
@@ -1692,10 +1750,7 @@ class BlitzObjectWrapper (object):
             return False
     
     def isEditable(self):
-        if self._obj.details.owner.id.val == self._conn.getEventContext().userId:
-            return True
-        else:
-            return False
+        return (self._conn.getEventContext().userId == self._obj.details.owner.id.val and self._obj.details.permissions.isUserWrite())
     
     def getOwner(self):
         try:
@@ -1935,16 +1990,7 @@ class ScriptWrapper (BlitzObjectWrapper):
     pass
 
 class AnnotationWrapper (BlitzObjectWrapper):
-
-    def getOriginalFile(self):
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["id"] = rlong(long(self._obj.id.val))
-        sql = "select p from OriginalFile as p left outer join fetch p.format where p.id = :id"
-        of = self._conn.getQueryService().findByQuery(sql, p)
-        if of is not None:
-            of = OriginalFileWrapper(self, of)
-        return of
+    pass
 
 class OriginalFileWrapper (BlitzObjectWrapper):
     pass
@@ -2056,6 +2102,9 @@ class ImageObjectiveWrapper (BlitzObjectWrapper):
 class ImageInstrumentWrapper (BlitzObjectWrapper):
     pass
 
+class ImagePositionWrapper (BlitzObjectWrapper):
+    pass
+
 class ImageWrapper (BlitzObjectWrapper):
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
@@ -2118,16 +2167,40 @@ class ImageWrapper (BlitzObjectWrapper):
             return "unknown"
     
     def getCondition(self):
-        return ImageConditionWrapper(self._conn, self._obj.condition)
+        if self._obj.condition is None:
+            return None
+        else:
+            return ImageConditionWrapper(self._conn, self._obj.condition)
     
     def getObjectiveSettings(self):
-        return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
+        if self._obj.objectiveSettings is None:
+            return None
+        else:
+            return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
     
     def getObjective(self):
-        return ImageObjectiveWrapper(self._conn, self._obj.objectiveSettings.objective)
+        if self._obj.objectiveSettings is None:
+            return None
+        elif self._obj.objectiveSettings.objective is None:
+            return None
+        else:
+            return ImageObjectiveWrapper(self._conn, self._obj.objectiveSettings.objective)
         
     def getInstrument(self):
-        return ImageInstrumentWrapper(self._conn, self._obj.objectiveSettings.objective.instrument)
+        if self._obj.objectiveSettings is None:
+            return None
+        elif self._obj.objectiveSettings.objective is None:
+            return None
+        elif self._obj.objectiveSettings.objective.instrument is None:
+            return None
+        else:
+            return ImageInstrumentWrapper(self._conn, self._obj.objectiveSettings.objective.instrument)
+    
+    def getPosition(self):
+        if self._obj.position is None:
+            return None
+        else:
+            return ImagePositionWrapper(self._conn, self._obj.position)
     
     def getThumbnail (self, size=(120,120)):
         try:
@@ -2359,7 +2432,7 @@ class ShareWrapper (BlitzObjectWrapper):
         
     def getExpiretionDate(self):
         return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000).strftime("%Y-%m-%d")
-
+    
 class ShareContentWrapper (BlitzObjectWrapper):
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
