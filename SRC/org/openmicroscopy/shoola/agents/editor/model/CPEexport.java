@@ -72,19 +72,29 @@ public class CPEexport {
 	public static final String  	XML_HEADER = 
 							"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	
-	public static final String 		CPE_DTD = "<!DOCTYPE protocol-archive " +
-		"PUBLIC \"-//Common Protocol Exchange Format//DTD upe 1.0//EN\" " +
-		"\"http://genome.tugraz.at/iLAP/upe/upe.dtd\">";
+	private String 		cpeDtd;
 
 	/**
 	 * Reference to a style-sheet, so that when the XML is viewed in a 
 	 * browser (NOT FireFox!) the XML is transformed with remote stylesheet. 
 	 */
-	public static final String 		CPE_STYLESHEET ="<?xml-stylesheet " +
-	"href=\"http://users.openmicroscopy.org.uk/~will/schemas/cpeEditor2html.xsl\""
-	+ " type=\"text/xsl\"?>";
+	private String 		cpeStyles;
 	
 	private int 					paramID = 0;
+	
+	public CPEexport() {
+		String dtd = (String)EditorAgent.getRegistry().lookup("/xml/cpe.dtd");
+		String xsl = (String)EditorAgent.getRegistry().lookup("/xml/editor.xsl");
+		
+		cpeDtd = "<!DOCTYPE protocol-archive " +
+			"PUBLIC \"-//Common Protocol Exchange Format//DTD upe 1.0//EN\" " +
+			"\"" + dtd + "\">";
+		
+		cpeStyles ="<?xml-stylesheet href=\"" + xsl + "\""
+				+ " type=\"text/xsl\"?>";
+		
+		System.out.println("CPEexport() " + cpeStyles);
+	}
 
 	/**
 	 * A recursive method that traverses the treeModel, building an 
@@ -548,8 +558,8 @@ public class CPEexport {
 			// output the XML file with suitable headers...
 			output = new FileWriter(file);
 			output.write(XML_HEADER + "\n");
-			output.write(CPE_STYLESHEET + "\n");
-			output.write(CPE_DTD + "\n");
+			output.write(cpeStyles + "\n");
+			output.write(cpeDtd + "\n");
 			XMLWriter xmlwriter = new XMLWriter(output);
 			xmlwriter.write(protocolArchive, true);
 		} catch (IOException e) {

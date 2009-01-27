@@ -21,5 +21,11 @@
          <style>bold</style>
        </structuredEntry>
      </fonts>
+     
+     <!-- This entry is the location of the cpe.dtd for validation of cpe.xml
+     files. This location is written into the header of saved cpe.xml files -->
+     <entry name="/xml/cpe.dtd">http://genome.tugraz.at/iLAP/cpe/cpe.dtd</entry>
+     <entry name="/xml/editor.xsl">http://users.openmicroscopy.org.uk/~will/schemas/cpeEditor2html.xsl</entry>
+     
 </resources>
 </agent>
