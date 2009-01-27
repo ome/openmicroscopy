@@ -124,9 +124,9 @@ class BaseContainer(BaseController):
                             setattr(meta._obj, matadataType, rint(int(metadataValue)))
                         elif m_rtype == 'float':
                             setattr(meta._obj, matadataType, rfloat(float(metadataValue)))
-                        elif m_rtype == 'rstring':
+                        elif m_rtype == 'string':
                             setattr(meta._obj, matadataType, rstring(str(metadataValue)))
-                        elif m_rtype == 'rbool':
+                        elif m_rtype == 'bool':
                             setattr(meta._obj, matadataType, rbool(bool(metadataValue.lower())))
                         else:
                             raise "Cannot save the metadata"
