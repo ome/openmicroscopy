@@ -483,7 +483,7 @@ public class client {
             Ice.Identity id = __ic.stringToIdentity("ClientCallback/"+__uuid);
             Ice.ObjectPrx raw = __oa.createProxy(id);
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
-            __sf.subscribe("/public/HeartBeat", raw);
+            // __sf.subscribe("/public/HeartBeat", raw);
             return this.__sf;
 
         }
