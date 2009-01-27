@@ -231,18 +231,26 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	{
     		handle(LSID, (Image) sourceObject, indexes);
     	}
-    	if (sourceObject instanceof Pixels)
+    	else if (sourceObject instanceof Pixels)
     	{
     		handle(LSID, (Pixels) sourceObject, indexes);
     	}
-    	if (sourceObject instanceof LogicalChannel)
+    	else if (sourceObject instanceof LogicalChannel)
     	{
     		handle(LSID, (LogicalChannel) sourceObject, indexes);
     	}
-    	if (sourceObject instanceof PlaneInfo)
+    	else if (sourceObject instanceof PlaneInfo)
     	{
     		handle(LSID, (PlaneInfo) sourceObject, indexes);
-    	}    	
+    	}
+    	else if (sourceObject instanceof Objective)
+    	{
+    		handle(LSID, (Objective) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Detector)
+    	{
+    		handle(LSID, (Detector) sourceObject, indexes);
+    	}
     	else
     	{
     		throw new ApiUsageException(
@@ -309,6 +317,34 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	int pixelsIndex = indexes.get("pixelsIndex");
     	Pixels p = imageList.get(imageIndex).getPixels(pixelsIndex);
     	p.addPlaneInfo(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Objective sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = getInstrument(indexes.get("instrumentIndex"));
+    	i.addObjective(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Detector sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = getInstrument(indexes.get("instrumentIndex"));
+    	i.addDetector(sourceObject);
     }
 
     /* Makes sure SF is still alive */
