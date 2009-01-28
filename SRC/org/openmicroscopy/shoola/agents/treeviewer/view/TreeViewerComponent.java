@@ -1373,7 +1373,7 @@ class TreeViewerComponent
 		DataBrowser db;
 		if (parentObject instanceof TagAnnotationData) {
 			db = DataBrowserFactory.getTagsBrowser(
-					(TagAnnotationData) parentObject, leaves);
+					(TagAnnotationData) parentObject, leaves, false);
 		} else 
 			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
 					parentObject, leaves);
@@ -1385,9 +1385,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#browseHierarchyRoots(Object, Set)
+	 * @see TreeViewer#browseHierarchyRoots(Object, Collection)
 	 */
-	public void browseHierarchyRoots(Object parent, Set roots)
+	public void browseHierarchyRoots(Object parent, Collection roots)
 	{
 		if (roots == null) return;
 		Iterator i = roots.iterator();
@@ -1395,7 +1395,7 @@ class TreeViewerComponent
 		DataBrowser db = null;
 		if (roots.size() != 1) return;
 		DataObject node;
-		TagAnnotationData tag, tagImage;
+		TagAnnotationData tag;
 		ProjectData project;
 		Iterator j;
 		TreeImageDisplay child, value;
@@ -1419,6 +1419,9 @@ class TreeViewerComponent
 				}
 			}
 		}
+		DataObject object;
+		Set datasets;
+		Iterator l;
 		while (i.hasNext()) {
 			node = (DataObject) i.next();
 			if (node instanceof ProjectData) {
@@ -1448,29 +1451,52 @@ class TreeViewerComponent
 				db = DataBrowserFactory.getDataBrowser(project, set);
 			} else if (node instanceof TagAnnotationData) {
 				tag = (TagAnnotationData) node;
-				set = tag.getTags();
+				set = tag.getDataObjects();//tag.getTags();
 				j = set.iterator();
+				
 				while (j.hasNext()) {
-					tagImage = (TagAnnotationData) j.next();
-					value = m.get(tagImage.getId());
+					object = (DataObject) j.next();
+					value = m.get(object.getId());
+					
 					if (value != null) {
-						dataObjects = tagImage.getDataObjects();
-						if (dataObjects != null) {
-							value.removeAllChildrenDisplay();
-							k = dataObjects.iterator();
-							while (k.hasNext()) {
-								value.addChildDisplay(
-								 TreeViewerTranslator.transformDataObject(
-										 (DataObject) k.next(), userID, groupID)
-										);
+						if (object instanceof DatasetData) {
+							dataObjects = ((DatasetData) object).getImages();
+							if (dataObjects != null) {
+								value.removeAllChildrenDisplay();
+								k = dataObjects.iterator();
+								while (k.hasNext()) {
+									value.addChildDisplay(
+									 TreeViewerTranslator.transformDataObject(
+										(ImageData) k.next(), userID, groupID)
+											);
+								}
+							}
+							value.setChildrenLoaded(true);
+						} else if (object instanceof ProjectData) {
+							datasets = ((ProjectData) object).getDatasets();
+							l = datasets.iterator();
+							while (l.hasNext()) {
+								d = (DatasetData) j.next();
+								dataObjects = d.getImages();
+								if (dataObjects != null) {
+									value.removeAllChildrenDisplay();
+									k = dataObjects.iterator();
+									while (k.hasNext()) {
+										value.addChildDisplay(
+										 TreeViewerTranslator.transformDataObject(
+												 (ImageData) k.next(), 
+												 userID, groupID)
+												);
+									}
+								}
+								value.setChildrenLoaded(true);
 							}
 						}
-						value.setChildrenLoaded(true);
 					}
 				}
 				model.setState(READY);
 				fireStateChange();
-				db = DataBrowserFactory.getDataBrowser(tag, set);
+				db = DataBrowserFactory.getTagsBrowser(tag, set, true);
 			}
 			if (db != null) {
 				db.addPropertyChangeListener(controller);
@@ -1744,6 +1770,8 @@ class TreeViewerComponent
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();
 		view.addComponent(dataBrowser.getUI());
+		model.setState(READY);
+		fireStateChange();
 	}
 
 	/**
@@ -1776,10 +1804,8 @@ class TreeViewerComponent
 			model.browseProject(node);
 		} else if (uo instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) uo;
-			Set tags = tag.getTags();
-			if (tags != null && tags.size() > 0) {
-				model.browseTagset(node);
-			}
+			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+				model.browseTag(node);
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {

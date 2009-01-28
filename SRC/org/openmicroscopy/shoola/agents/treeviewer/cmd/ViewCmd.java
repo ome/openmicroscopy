@@ -32,7 +32,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import pojos.DataObject;
 
 /** 
 * Views the selected image or browses the selected container.
@@ -51,9 +50,6 @@ public class ViewCmd
 
 	/** Reference to the model. */
 	private TreeViewer model;
-
-	/** The <code>DataObject</code> to browse or view depending on the type. */
-	private DataObject  hierarchyObject;
 
 	/**
 	 * Returns the images' id contained in the passed node.
@@ -94,156 +90,12 @@ public class ViewCmd
 		this.model = model;
 	}
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model             Reference to the model.
-	 *                          Mustn't be <code>null</code>.
-	 * @param hierarchyObject   The object to browse or view.
-	 *                          Mustn't be <code>null</code>.
-	 *                          
-	 */
-	public ViewCmd(TreeViewer model, DataObject hierarchyObject)
-	{
-		if (model == null) throw new IllegalArgumentException("No model.");
-		this.model = model;
-		if (hierarchyObject == null) 
-			throw new IllegalArgumentException("No hierarchyObject.");
-		this.hierarchyObject = hierarchyObject;
-	}
-
 	/** Implemented as specified by {@link ActionCmd}. */
 	public void execute()
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		browser.browse(browser.getLastSelectedDisplay());
-		/*
-		Object ho = null;
-		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		Rectangle bounds = model.getUI().getBounds();
-		ExperimenterData exp = model.getSelectedExperimenter();
-		if (hierarchyObject != null) ho = hierarchyObject;
-		else {
-			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-			int length = nodes.length;
-			if (browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
-				if (length == 1) {
-					TreeImageDisplay display = browser.getLastSelectedDisplay();
-					if (display == null) return;
-					if (display instanceof TreeImageTimeSet) {
-						if (display.containsImages()) {
-							bus.post(new Browse(
-									getImageNodeIDs(display, browser), 
-									Browse.IMAGES, exp, bounds));   
-						} else {
-							TreeImageTimeSet time = (TreeImageTimeSet) display;
-							exp = browser.getNodeOwner(time);
-							TimeRefObject ref = new TimeRefObject(exp.getId(), 
-									time.getStartTime(), time.getEndTime());
-
-							bus.post(new Browse(ref, exp, bounds));   
-						}
-						return;
-					} 
-					ho = display.getUserObject(); 
-
-				} else { //more than one node.
-					TreeImageDisplay n = nodes[0];
-				if (n instanceof TreeImageTimeSet) {
-					Set ids = new HashSet();
-					for (int i = 0; i < nodes.length; i++) {
-						ids.add(getImageNodeIDs(nodes[i], browser));
-					}
-					bus.post(new Browse(ids, Browse.IMAGES, exp, bounds));   
-					return;
-				} else if (n.getUserObject() instanceof ImageData) {
-					Set<Long> ids = new HashSet<Long>(nodes.length);
-					ImageData data;
-					for (int i = 0; i < nodes.length; i++) {
-						data = (ImageData) nodes[i].getUserObject();
-						ids.add(new Long(data.getId()));
-					}
-					bus.post(new Browse(ids, Browse.IMAGES, exp, bounds));   
-					return;
-				}
-				}
-
-			}
-			if (length > 1) {
-				TreeImageDisplay n = nodes[0];
-				if (n.getUserObject() instanceof ImageData) {
-					Set<Long> ids = new HashSet<Long>(nodes.length);
-					ImageData data;
-					for (int i = 0; i < nodes.length; i++) {
-						data = (ImageData) nodes[i].getUserObject();
-						ids.add(new Long(data.getId()));
-					}
-					bus.post(new Browse(ids, Browse.IMAGES, exp, bounds));   
-					return;
-				} else if (n.getUserObject() instanceof DatasetData) {
-					Set<Long> ids = new HashSet<Long>(nodes.length);
-					DatasetData data;
-					for (int i = 0; i < nodes.length; i++) {
-						data = (DatasetData) nodes[i].getUserObject();
-						ids.add(new Long(data.getId()));
-					}
-					bus.post(new Browse(ids, Browse.DATASETS, exp, bounds));   
-					return;
-				} else if (n.getUserObject() instanceof CategoryData) {
-					Set<Long> ids = new HashSet<Long>(nodes.length);
-					CategoryData data;
-					for (int i = 0; i < nodes.length; i++) {
-						data = (CategoryData) nodes[i].getUserObject();
-						ids.add(new Long(data.getId()));
-					}
-					bus.post(new Browse(ids, Browse.CATEGORIES, exp, bounds));   
-					return;
-				} else if (n.getUserObject() instanceof ProjectData) {
-					Set<Long> ids = new HashSet<Long>(nodes.length);
-					ProjectData data;
-					for (int i = 0; i < nodes.length; i++) {
-						data = (ProjectData) nodes[i].getUserObject();
-						ids.add(new Long(data.getId()));
-					}
-					bus.post(new Browse(ids, Browse.PROJECTS, exp, bounds));   
-					return;
-				} else if (n.getUserObject() instanceof CategoryGroupData) {
-					Set<Long> ids = new HashSet<Long>(nodes.length);
-					CategoryGroupData data;
-					for (int i = 0; i < nodes.length; i++) {
-						data = (CategoryGroupData) nodes[i].getUserObject();
-						ids.add(new Long(data.getId()));
-					}
-					bus.post(new Browse(ids, Browse.CATEGORY_GROUPS, exp, 
-							bounds));   
-					return;
-				}
-			} else { // only one node
-				TreeImageDisplay display = browser.getLastSelectedDisplay();
-			if (display == null) return;
-			ho = display.getUserObject(); 
-			}
-		}
-
-		if (ho instanceof ImageData) {
-			ImageData data = (ImageData) ho;
-			bus.post(new ViewImage(data, bounds));
-		} else if (ho instanceof DatasetData)
-			bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
-					exp, bounds)); 
-		else if (ho instanceof ProjectData) {
-			browser.browse((ProjectData) ho);
-		}
-			//bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
-			//		exp, bounds)); 
-		else if (ho instanceof CategoryData)
-			bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
-					exp, bounds)); 
-		else if (ho instanceof CategoryGroupData)
-			bus.post(new Browse(((CategoryGroupData) ho).getId(),
-					Browse.CATEGORY_GROUP, exp, bounds)); 
-					*/
 	}
   
 }

@@ -1731,7 +1731,7 @@ class OmeroMetadataServiceImpl
 	{
 		//Collection of tags linked to tags.
 		if (id >= 0)
-			return gateway.loadTagSetsAndDataObjects(id, dataObject);
+			return gateway.loadTagSetsAndDataObjects(id);
 	
 		Collection c = gateway.loagTagSets(userID);
 		List<Long> ids = new ArrayList<Long>();
@@ -1772,7 +1772,7 @@ class OmeroMetadataServiceImpl
 										long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (dataObject) return gateway.loadTagAndDataObjects(id, dataObject);
+		if (dataObject) return gateway.loadTagAndDataObjects(id, false);
 		Collection l = loadAnnotations(TagAnnotationData.class, null, id, 
 				userID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
@@ -1788,6 +1788,19 @@ class OmeroMetadataServiceImpl
 		}
 		return annotations;
 	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadTagsHierarchy(Long, long)
+	 */
+	public Collection loadTagsHierarchy(Long id, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		if (id < 0) return annotations;
+		return gateway.loadTagAndDataObjects(id, true);
+	}
+	
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

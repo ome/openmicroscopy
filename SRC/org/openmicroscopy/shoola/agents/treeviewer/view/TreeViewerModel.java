@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
-import org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TagHierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -374,70 +374,6 @@ class TreeViewerModel
 			currentLoader = null;
 		}
 		state = TreeViewer.READY;
-	}
-
-	/**
-	 * Starts the asynchronous removal of the data 
-	 * and sets the state to {@link TreeViewer#SAVE}.
-	 * 
-	 * @param node The node hosting the <code>DataObject</code> to remove.
-	 */
-	void fireDataObjectsDeletion(TreeImageDisplay node)
-	{
-		/*
-		state = TreeViewer.SAVE;
-		TreeImageDisplay parent = node.getParentDisplay();
-		DataObject object = (DataObject) node.getUserObject();
-		Object po = parent.getUserObject();
-		DataObject data = null;
-		if (!(object instanceof ProjectData))//root.
-			data = ((DataObject) po);
-		Set l = new HashSet(1);
-		l.add(object);
-		currentLoader = new DataObjectRemover(component, l, data);
-		currentLoader.load();
-		*/
-	}
-
-	/**
-	 * Starts the asynchronous removal of the data and sets the state to 
-	 * {@link TreeViewer#SAVE}.
-	 * This method should be invoked to remove a collection of nodes of the
-	 * same type.
-	 * 
-	 * @param nodes The nodes to remove.
-	 */
-	void fireDataObjectsDeletion(List nodes)
-	{
-		/*
-		state = TreeViewer.SAVE;
-		DataObject object;
-		Iterator i = nodes.iterator();
-		TreeImageDisplay n;
-		//Map<DataObject, Set> map = null;
-		Set<DataObject> toRemove = null;  
-		while (i.hasNext()) {
-			n = (TreeImageDisplay) i.next();
-			//parent = n.getParentDisplay();
-			if (n.getUserObject() instanceof DataObject) {
-				object = (DataObject) n.getUserObject();
-				if ((object instanceof ProjectData) || 
-						(object instanceof DatasetData)) {
-					if (toRemove == null) toRemove = new HashSet<DataObject>();
-					toRemove.add(object);
-				} else {
-				}
-			}
-		}
-
-		if (toRemove != null) {
-			currentLoader = new DataObjectRemover(component, toRemove, null);
-			currentLoader.load();
-		} else { 
-			//currentLoader = new DataObjectRemover(component, map);
-			//currentLoader.load();
-		}
-		*/
 	}
 
 	/**
@@ -809,10 +745,10 @@ class TreeViewerModel
 	 * 
 	 * @param node The node to browse
 	 */
-	void browseTagset(TreeImageDisplay node)
+	void browseTag(TreeImageDisplay node)
 	{
 		state = TreeViewer.LOADING_DATA;
-		currentLoader = new TagSetsLoader(component, node);
+		currentLoader = new TagHierarchyLoader(component, node);
 		currentLoader.load();
 	}
 

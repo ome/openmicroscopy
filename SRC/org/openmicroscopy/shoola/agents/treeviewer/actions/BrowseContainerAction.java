@@ -46,6 +46,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -67,8 +68,34 @@ public class BrowseContainerAction
     /** Name of the action when the <code>DataObject</code> isn't an Image. */
     private static final String NAME = "Browse";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Browse the selected nodes";
+    /** Default description of the action. */
+    private static final String DESCRIPTION_DEFAULT = "Browse.";
+    
+    /** 
+     * Description of the action if the <code>DataObject</code> is 
+     * a Project. 
+     */
+    private static final String DESCRIPTION_PROJECT = "Browse the selected " +
+    		"Project.";
+    
+    /** 
+     * Description of the action if the <code>DataObject</code> is 
+     * a Tag. 
+     */
+    private static final String DESCRIPTION_TAG = "Browse the selected " +
+    		"Tag.";
+    
+    /** 
+     * Description of the action if the node is <code>TreeImageTimeSet</code>. 
+     */
+    private static final String DESCRIPTION_TIME = "Browse the selected " +
+    		"period.";
+    
+    /** 
+     * Description of the action if the <code>DataObject</code> is a Plate. 
+     */
+    private static final String DESCRIPTION_PLATE = "Browse the selected " +
+    		"Plate.";
     
     /** Convenience reference to the icon manager. */
     private static IconManager	icons;
@@ -84,24 +111,32 @@ public class BrowseContainerAction
         if (selectedDisplay == null) {
             setEnabled(false);
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
             return;
         }
         if (selectedDisplay.getParentDisplay() == null) { //root
             name = NAME;
             setEnabled(false);
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
             return;
         }
         Object ho = selectedDisplay.getUserObject();
         Browser browser = model.getSelectedBrowser();
         if (selectedDisplay instanceof TreeImageTimeSet) {
         	name = NAME;
-            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_TIME));
             if (browser.getSelectedDisplays().length > 1) {
             	setEnabled(false);
             } else {
             	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
             	long number = timeNode.getNumberItems();
+            	setEnabled(number > 0);
+            	/*
             	if (number == 0) setEnabled(false);
             	else {
             		List l = timeNode.getChildrenDisplay();
@@ -109,15 +144,18 @@ public class BrowseContainerAction
             			setEnabled((l.get(0) instanceof TreeImageTimeSet));
             		else setEnabled(false);
             	}
+            	*/
             }
+            
             return;
         }
         if (ho == null || !(ho instanceof DataObject) ||
         	ho instanceof ExperimenterData || ho instanceof ImageData ||
-        	ho instanceof FileAnnotationData || ho instanceof DatasetData ||
-        	ho instanceof TagAnnotationData) 
+        	ho instanceof FileAnnotationData || ho instanceof DatasetData) {
+        	putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         	setEnabled(false);
-        else {
+        } else {
             if (browser != null) {
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);
@@ -126,20 +164,39 @@ public class BrowseContainerAction
                     name = NAME;
                     putValue(Action.SMALL_ICON, 
                     			icons.getIcon(IconManager.BROWSER)); 
+                    putValue(Action.SHORT_DESCRIPTION, 
+                            UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
                     return;
                 }
             }
             name = NAME;
         	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
-            
+        	
+        	
+        	String description = DESCRIPTION_DEFAULT;
+        	
             if (selectedDisplay instanceof TreeImageSet) {
-            	setEnabled(
-            			((TreeImageSet) selectedDisplay).getNumberItems() > 0);
-            } else {
-            	setEnabled(true);
+            	long n = ((TreeImageSet) selectedDisplay).getNumberItems();
+            	
+            	if (ho instanceof ScreenData) setEnabled(false);
+                else if (ho instanceof PlateData) {
+                	setEnabled(true);
+                	description = DESCRIPTION_PLATE;
+                } else if (ho instanceof ProjectData) {
+                	description = DESCRIPTION_PROJECT;
+                	setEnabled(n > 0);
+                } else if (ho instanceof TagAnnotationData) {
+            		String ns = ((TagAnnotationData) ho).getNameSpace();
+            		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+            			setEnabled(false);
+            		else {
+            			description = DESCRIPTION_TAG;
+            			setEnabled(n > 0);
+            		}
+            	}
             }
-            if (ho instanceof ScreenData) setEnabled(false);
-            else if (ho instanceof PlateData) setEnabled(true);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(description));
         }
     }
     
@@ -154,7 +211,7 @@ public class BrowseContainerAction
         name = NAME;
         icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+                UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
     }
     

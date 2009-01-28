@@ -580,6 +580,20 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
+	 * Loads the data objects related to the passed tag.
+	 * 
+	 * @param id		The id of the tag.
+     * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadTagsHierarchy(Long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Loads the data objects related to the tags contained within the specified
 	 * tag set.
 	 * 

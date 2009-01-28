@@ -282,28 +282,6 @@ class BrowserModel
      * @return See above.
      */
     int getBrowserType() { return browserType; }
-    
-    /**
-     * Starts the asynchronous retrieval of the leaves contained in the 
-     * currently selected <code>TreeImageDisplay</code> objects needed
-     * by this model and sets the state to {@link Browser#LOADING_LEAVES}. 
-     */
-    void fireLeavesLoading()
-    {
-    	/*
-    	TreeImageDisplay n = getLastSelectedDisplay();
-        if (n instanceof TreeImageNode) return;
-        
-        Object ho = n.getUserObject();
-        int type = -1;
-        if (ho instanceof DatasetData) type = HierarchyLoader.DATASET;
-        else if (ho instanceof CategoryData) type = HierarchyLoader.CATEGORY;
-        if (type == -1) return;
-        state = Browser.LOADING_LEAVES;
-        currentLoader = new HierarchyLoader(component, type, (TreeImageSet) n);
-        currentLoader.load();
-        */
-    }
 
     /**
      * Starts the asynchronous retrieval of the leaves contained in the 
@@ -320,28 +298,27 @@ class BrowserModel
     	if (node instanceof TreeImageTimeSet) {
     		currentLoader = new ExperimenterImageLoader(component, 
 					(TreeImageSet) expNode, (TreeImageTimeSet) node);
+    		 currentLoader.load();
     	} else {
     		Object ho = node.getUserObject();
-            int type = -1;
-            int level = -1;
             if (ho instanceof PlateData) {
             	//currentLoader = new PlateWellsLoader(getParentModel(), 
     			//		(TreeImageSet) node, ((PlateData) ho).getId());
             } else {
-            	if (ho instanceof DatasetData) 
-                	type = ExperimenterDataLoader.DATASET;
-                else if (ho instanceof TagAnnotationData) {
-                	type = ExperimenterDataLoader.TAGS;
-                	level = ExperimenterDataLoader.TAG_LEVEL;
-                }	
-                currentLoader = new ExperimenterDataLoader(component, type, 
-                					(TreeImageSet) expNode, 
-                					(TreeImageSet) node);
-                if (level != -1)
-                	((ExperimenterDataLoader) currentLoader).setTagLevel(level);	
+            	if (ho instanceof DatasetData)  {
+            		currentLoader = new ExperimenterDataLoader(component, 
+            				ExperimenterDataLoader.DATASET, 
+            				(TreeImageSet) expNode, (TreeImageSet) node);
+            		 currentLoader.load();
+            	} else if (ho instanceof TagAnnotationData) {
+            		currentLoader = new ExperimenterDataLoader(component, 
+            				ExperimenterDataLoader.TAGS, 
+            				(TreeImageSet) expNode, (TreeImageSet) node);
+            		currentLoader.load();
+                }
             }
     	}
-        currentLoader.load();
+       
     }
 
     /**

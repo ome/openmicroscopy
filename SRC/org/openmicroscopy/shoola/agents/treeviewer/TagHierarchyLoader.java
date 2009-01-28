@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader 
+ * org.openmicroscopy.shoola.agents.treeviewer.TagHierarchyLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,7 +23,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
-import java.util.Set;
+import java.util.Collection;
 
 //Third-party libraries
 
@@ -34,8 +34,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads the tags/images linked to the tag hosted by the passed 
- * node. This class calls the <code>loadTagSets</code> method in the
+ * Loads all the object related to the specified tag. If a 
+ * <code>Project</code> contains dataset and images. 
+ * The P/D/I hierarchy is loaded.
+ * This class calls the <code>loadTagSets</code> method in the
  * <code>HierarchyBrowsingView</code>. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -48,7 +50,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class TagSetsLoader 
+public class TagHierarchyLoader 
 	extends DataTreeViewerLoader
 {
 
@@ -66,7 +68,7 @@ public class TagSetsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      */
-    public TagSetsLoader(TreeViewer viewer, TreeImageDisplay node)
+    public TagHierarchyLoader(TreeViewer viewer, TreeImageDisplay node)
 	{
 		super(viewer);
 		if (node == null)
@@ -81,7 +83,7 @@ public class TagSetsLoader
     public void load()
     {
     	long userID = TreeViewerAgent.getUserDetails().getId();
-    	handle = dmView.loadTagSets(node.getUserObjectId(), true, userID, this);
+    	handle = dmView.loadTagHierarchy(node.getUserObjectId(), userID, this);
     }
 
     /**
@@ -97,7 +99,7 @@ public class TagSetsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.browseHierarchyRoots(node, (Set) result);
+        viewer.browseHierarchyRoots(node, (Collection) result);
     }
     
 }

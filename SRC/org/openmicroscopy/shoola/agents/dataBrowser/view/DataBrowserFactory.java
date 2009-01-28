@@ -131,14 +131,17 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
-	 * @param parent	The parent's node.
-	 * @param nodes		The collection to set.
+	 * @param parent	 The parent's node.
+	 * @param nodes		 The collection to set.
+	 * @param withImages Pass <code>true</code> to indicate that the images
+	 * 					 are loaded, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static final DataBrowser getTagsBrowser(TagAnnotationData parent, 
-												Set<DataObject> nodes)
+												Set<DataObject> nodes, 
+												boolean withImages)
 	{
-		return singleton.createTagsDataBrowser(parent, nodes);
+		return singleton.createTagsDataBrowser(parent, nodes, withImages);
 	}
 	
 	/**
@@ -152,19 +155,6 @@ public class DataBrowserFactory
 													Set<DatasetData> nodes)
 	{
 		return singleton.createDatasetsDataBrowser(parent, nodes);
-	}
-	
-	/**
-	 * Creates a new {@link DataBrowser} for the passed collection of images.
-	 * 
-	 * @param parent	The parent's node.
-	 * @param nodes		The collection to set.
-	 * @return See above.
-	 */
-	public static final DataBrowser getDataBrowser(TagAnnotationData parent, 
-												Set<TagAnnotationData> nodes)
-	{
-		return singleton.createTagSetsDataBrowser(parent, nodes);
 	}
 	
 	/**
@@ -378,12 +368,14 @@ public class DataBrowserFactory
 	 * 
 	 * @param parent 		The parent's node.
 	 * @param dataObjects	The collection to set.
+	 * @param withImages    Pass <code>true</code> to indicate that the images
+	 * 					    are loaded, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private DataBrowser createTagsDataBrowser(DataObject parent, 
-											Set<DataObject> dataObjects)
+			Set<DataObject> dataObjects, boolean withImages)
 	{
-		DataBrowserModel model = new TagsModel(parent, dataObjects);
+		DataBrowserModel model = new TagsModel(parent, dataObjects, withImages);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

@@ -805,13 +805,25 @@ class AnnotationDataUI
 		DocComponent doc;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
-			
+			int width = 0;
+			JPanel p = initRow();
 			while (i.hasNext()) {
 				doc = new DocComponent(i.next(), model, false);
 				doc.addPropertyChangeListener(controller);
 				tagsDocList.add(doc);
-				tagsPane.add(doc);
+			    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
+			    	tagsPane.add(p);
+			    	p = initRow();
+					width = 0;
+			    } else {
+			    	width += doc.getPreferredSize().width;
+			    }
+				p.add(doc);
+				
+				//tagsPane.add(doc);
 			}
+			if (p.getComponentCount() > 0)
+				tagsPane.add(p);
 		}
 		if (tagsDocList.size() == 0) {
 			doc = new DocComponent(null, model, false);
@@ -1165,7 +1177,7 @@ class AnnotationDataUI
 			TagAnnotationData tag;
 			tagFlag = false;
 			Collection tags = model.getTags();
-			if (tags.size() != objects.size()) {
+			if (tags == null || tags.size() != objects.size()) {
 				tagFlag = true;
 			} else {
 				while (i.hasNext()) {
@@ -1188,7 +1200,7 @@ class AnnotationDataUI
 			FileAnnotationData data;
 			docFlag = false;
 			Collection attachments = model.getAttachments();
-			if (attachments.size() != objects.size()) {
+			if (attachments == null || attachments.size() != objects.size()) {
 				docFlag = true;
 			} else {
 				while (i.hasNext()) {

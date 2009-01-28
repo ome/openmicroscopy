@@ -47,7 +47,7 @@ import pojos.TagAnnotationData;
  * if the {@link #containerType} is {@link #PROJECT}.
  * Loads a Dataset/(Image) hierarchy rooted by a given Dataset
  * if the {@link #containerType} is {@link #DATASET}.
- * Note that Images are retrieved if the {@link #images} flag is set to
+ * Note that Images are retrieved if the {@link #withImages} flag is set to
  * <code>true</code>.
  * This class calls the <code>loadContainerHierarchy</code> method in the
  * <code>DataManagerView</code>.
@@ -67,10 +67,7 @@ public class ExperimenterDataLoader
 {
 
 	/** Indicates to load the tags linked to images. */
-	public static final int TAG_LEVEL = 0;
-	
-	/** Indicates to load the tags linked to tags. */
-	public static final int TAG_SET_LEVEL = 1;
+	public static final int TAG_LEVEL = 10;
 	
 	/** Indicates that the root node is of type <code>Project</code>. */
     public static final int PROJECT = 0;
@@ -92,7 +89,7 @@ public class ExperimenterDataLoader
      * Value set to <code>true</code> to retrieve the images,
      * <code>false</code> otherwise.
      */
-    private boolean     		images;
+    private boolean     		withImages;
     
     /** The type of the root node. */
     private Class       		rootNodeType;
@@ -105,9 +102,6 @@ public class ExperimenterDataLoader
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
-    
-    /** Indicates to load the tags linked tags or tags linked to images. */
-    private int					tagLevel;
     
     /**
      * Returns the class corresponding to the specified type.
@@ -164,19 +158,8 @@ public class ExperimenterDataLoader
         rootNodeType = getClassType(containerType);
         if (rootNodeType == null)
             throw new IllegalArgumentException("Type not supported");
-        if (parent != null)  images = true;
-        tagLevel = -1;
+        if (parent != null)  withImages = true;
     } 
-    
-    /**
-     * Sets the passed level.
-     * 
-     * @param tagLevel The value to set.
-     */
-    public void setTagLevel(int tagLevel)
-    {
-    	this.tagLevel = tagLevel;
-    }
     
     /**
      * Retrieves the data.
@@ -188,27 +171,19 @@ public class ExperimenterDataLoader
     	if (TagAnnotationData.class.equals(rootNodeType)) {
     		long id = -1;
     		if (parent != null) id = parent.getUserObjectId();
-    		switch (tagLevel) {
-				case TAG_SET_LEVEL:
-				default:
-					handle = dmView.loadTagSets(id, images, exp.getId(), this);
-					break;
-	
-				case TAG_LEVEL:
-					handle = dmView.loadTags(id, images, exp.getId(), this);
-			} 
+    		handle = dmView.loadTags(id, withImages, exp.getId(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(rootNodeType, null, 
     				exp.getId(), this);
     	} else {
     		if (parent == null) {
         		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
-        											images, exp.getId(), this);	
+        				withImages, exp.getId(), this);	
         	} else {
         		List<Long> ids = new ArrayList<Long>(1);
         		ids.add(new Long(parent.getUserObjectId()));
         		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
-        										images, exp.getId(), this);
+        				withImages, exp.getId(), this);
         	}
     	}
     }

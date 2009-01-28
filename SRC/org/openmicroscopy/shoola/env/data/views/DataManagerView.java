@@ -276,6 +276,17 @@ public interface DataManagerView
 							AgentEventListener observer);
 	
 	/**
+	 * Loads the tag and  the objects (including images) related to it.
+	 * 
+	 * @param id        	The id of the tag or <code>-1</code>.
+	 * @param userID		The user id.
+	 * @param observer 		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadTagHierarchy(Long id, long userID, 
+							AgentEventListener observer);
+	
+	/**
 	 * Loads the tags containing tags and creates a pseudo hierarchy.
 	 * 
 	 * @param id        	The id of the tag or <code>-1</code>.

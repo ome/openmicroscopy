@@ -67,10 +67,12 @@ public class TagsModel 	extends DataBrowserModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent	The parent of the datasets.
-	 * @param tagSets 	The collection to datasets the model is for.
+	 * @param parent	 The parent of the datasets.
+	 * @param tagSets 	 The collection to datasets the model is for.
+	 * @param withImages Pass <code>true</code> to indicate that the images
+	 * 					 are loaded, <code>false</code> otherwise.
 	 */
-	TagsModel(Object parent, Set<DataObject> dataObjects)
+	TagsModel(Object parent, Set<DataObject> dataObjects, boolean withImages)
 	{
 		super();
 		if (dataObjects  == null) 
@@ -78,11 +80,16 @@ public class TagsModel 	extends DataBrowserModel
 		this.dataObjects = dataObjects;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(dataObjects, 
-							userID, 0);
+		Set visTrees;
+		if (withImages) 
+			visTrees = DataBrowserTranslator.transformHierarchy(dataObjects, 
+					userID, 0);
+		else 
+			visTrees = DataBrowserTranslator.transformImages(dataObjects, 
+					userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
-        Iterator<DataObject> i = dataObjects.iterator();
+        
         DataObject child;
         Set<DatasetData> datasets;
         Iterator<DatasetData> j;
@@ -90,6 +97,43 @@ public class TagsModel 	extends DataBrowserModel
         Iterator<ImageData> k;
         ImageData img;
         List<Long> ids = new ArrayList<Long>();
+        Iterator i = visTrees.iterator();
+        ImageDisplay node;
+        Object object;
+        while (i.hasNext()) {
+        	node = (ImageDisplay) i.next();
+        	object = node.getHierarchyObject();
+        	if (object instanceof ImageData)
+        		ids.add(((ImageData) object).getId());
+        	else if (object instanceof DatasetData) {
+				images = ((DatasetData) object).getImages();
+				if (images != null) {
+					k = images.iterator();
+					while (k.hasNext()) {
+						img = k.next();
+						if (!ids.contains(img.getId()))
+							ids.add(img.getId());
+					}
+				}
+			} else if (object instanceof ProjectData) {
+				datasets = ((ProjectData) object).getDatasets();
+				j = datasets.iterator();
+				if (datasets != null) {
+					while (j.hasNext()) {
+						images = (j.next()).getImages();
+						if (images != null) {
+							k = images.iterator();
+							while (k.hasNext()) {
+								img = k.next();
+								if (!ids.contains(img.getId()))
+									ids.add(img.getId());
+							}
+						}
+					}
+				}
+			}
+		}
+        /*
 		while (i.hasNext()) {
 			child = i.next();
 			if (child instanceof ImageData) {
@@ -116,6 +160,7 @@ public class TagsModel 	extends DataBrowserModel
 				}
 			}
 		}
+		*/
 		numberOfImages = ids.size();
 	}
 	

@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScreenPlatesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.TagsHierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -275,6 +276,17 @@ class DataManagerViewImpl
 	{
 		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG, id, dataObject, 
 				                          userID);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadTagHierarchy(Long, long, AgentEventListener)
+	 */
+	public CallHandle loadTagHierarchy(Long id, long userID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new TagsHierarchyLoader(id, userID);
 		return cmd.exec(observer);
 	}
 	

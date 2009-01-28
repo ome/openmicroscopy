@@ -3346,9 +3346,9 @@ class OMEROGateway
 	 * if the passed value is <code>true</code>.
 	 * 
 	 * @param tagID 		The id of the tag.
-	 * @param dataObject    Pass <code>true</code> to load the 
-	 * 						<code>DataObject</code> related 
-     * 						to the tags, <code>false</code> otherwise.
+	 * @param withLeaves    Pass <code>true</code> to load the images
+	 * 						related to the object linked to the tag, 
+	 * 						<code>false</code> otherwise.
      * @param userID		The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -3356,7 +3356,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List loadTagAndDataObjects(long tagID, boolean dataObject)
+	List loadTagAndDataObjects(long tagID, boolean withLeaves)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3376,8 +3376,7 @@ class OMEROGateway
 			TagAnnotationData tag = 
 						(TagAnnotationData) PojoMapper.asDataObject(object);
 			//Condition
-			if (dataObject) 
-	            tag.setDataObjects(loadRelatedObjects(tagID));
+			tag.setDataObjects(loadRelatedObjects(tagID, withLeaves));
 			List r = new ArrayList();
 			r.add(tag);
 			return r;
@@ -3387,7 +3386,7 @@ class OMEROGateway
 		return null;
 	}
 	
-	private Set<DataObject> loadRelatedObjects(long tagID)
+	private Set<DataObject> loadRelatedObjects(long tagID, boolean withLeaves)
 		throws Exception
 	{
 		IQueryPrx service = getQueryService();
@@ -3414,10 +3413,27 @@ class OMEROGateway
 				+ "d.annotationLinksCountPerOwner d_a_c ");
 		sb.append("left outer join fetch d.annotationLinks ail ");
 		sb.append("where ail.child.id = :tagID");
-		l = PojoMapper.asDataObjects(
-				service.findAllByQuery(sb.toString(), p));
-		if (l != null && l.size() > 0)
-			objects.addAll(l);
+		List list = service.findAllByQuery(sb.toString(), p);
+		
+		if (list != null && list.size() > 0) {
+			if (withLeaves) {
+				List<Long> ids = new ArrayList<Long>();
+				Iterator k = list.iterator();
+				IObject o;
+				while (k.hasNext()) {
+					o = (IObject) k.next();
+					ids.add(o.getId().getValue());
+				}
+				PojoOptions po = new PojoOptions();
+				po.leaves();
+				l = loadContainerHierarchy(DatasetData.class, ids, po.map());
+				if (l != null && l.size() > 0)
+					objects.addAll(l);
+			} else {
+				objects.addAll(PojoMapper.asDataObjects(list));
+			}
+		}
+			
 		//Retrieve the projects.
 		sb = new StringBuilder();
 		sb.append("select p from Project as p ");
@@ -3425,7 +3441,7 @@ class OMEROGateway
 				+ "p.annotationLinksCountPerOwner p_a_c ");
 		sb.append("left outer join fetch p.annotationLinks ail ");
 		sb.append("where ail.child.id = :tagID");
-		List list = service.findAllByQuery(sb.toString(), p);
+		list = service.findAllByQuery(sb.toString(), p);
 		if (list != null && list.size() > 0) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator k = list.iterator();
@@ -3435,7 +3451,8 @@ class OMEROGateway
 				ids.add(o.getId().getValue());
 			}
 			PojoOptions po = new PojoOptions();
-			po.leaves();
+			po.noLeaves();
+			if (withLeaves) po.leaves();
 			l = loadContainerHierarchy(ProjectData.class, ids, po.map());
 			if (l != null && l.size() > 0)
 				objects.addAll(l);
@@ -3491,17 +3508,14 @@ class OMEROGateway
 	 * if the passed value is <code>true</code>.
 	 * 
 	 * @param id 		The id of the tag set.
-	 * @param dataObject    Pass <code>true</code> to load the 
-	 * 						<code>DataObject</code> related 
-     * 						to the tags, <code>false</code> otherwise.
-     * @param userID		The id of the user.
+     * @param userID	The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection loadTagSetsAndDataObjects(long id, boolean dataObject)
+	Collection loadTagSetsAndDataObjects(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3541,9 +3555,12 @@ class OMEROGateway
 					child = (TagAnnotationData) 
 							PojoMapper.asDataObject(link.getChild());
 					children.add(child);
+					/*
 					if (dataObject) { //load images 
-			            child.setDataObjects(loadRelatedObjects(child.getId()));
+			            child.setDataObjects(
+			            		loadRelatedObjects(child.getId(), false));
 					}
+					*/
 				}
 				tag.setTags(children);
 			}

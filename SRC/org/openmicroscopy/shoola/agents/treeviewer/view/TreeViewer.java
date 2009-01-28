@@ -628,7 +628,7 @@ public interface TreeViewer
 	 * @param parent The parent of the node.
 	 * @param nodes  The value to set.
 	 */
-    public void browseHierarchyRoots(Object parent, Set nodes);
+    public void browseHierarchyRoots(Object parent, Collection nodes);
     
     /** 
      * Adds a dataset without project.

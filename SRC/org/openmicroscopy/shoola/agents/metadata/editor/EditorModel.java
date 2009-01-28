@@ -502,9 +502,9 @@ class EditorModel
 	Collection getTags()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
+		if (data == null) return new ArrayList();
 		Collection tags = data.getTags();
-		if (tags == null || tags.size() == 0) return tags;
+		if (tags == null || tags.size() == 0) return new ArrayList();
 		return sorter.sort(tags);
 	}
 	
@@ -528,8 +528,10 @@ class EditorModel
 	Collection getAttachments()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
-		return data.getAttachments(); 
+		if (data == null) return new ArrayList();
+		Collection attachements = data.getAttachments(); 
+		if (attachements == null) return new ArrayList();
+		return attachements; 
 	}
 
 	/**
