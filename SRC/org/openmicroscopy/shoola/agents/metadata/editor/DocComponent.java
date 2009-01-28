@@ -26,18 +26,24 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 
 
 //Third-party libraries
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
@@ -46,15 +52,17 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.InputDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
- * Component displaying the annotation.
+ * Component displaying the annotation, either <code>FileAnnotationData</code>
+ * or <code>TagAnnotationData</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,22 +76,35 @@ import pojos.TagAnnotationData;
  */
 class DocComponent 
 	extends JPanel
+	implements ActionListener
 {
 
+	/** Action id to delete the annotation. */
+	private static final int DELETE = 0;
+	
+	/** Action id to edit the annotation. */
+	private static final int EDIT = 1;
+	
 	/** The annotation hosted by this component. */
 	private Object		data;
 	
 	/** Reference to the model. */
 	private EditorModel	model;
 	
-	/** Button to delete the attachment. */
+	/** Button to delete the annotation. */
 	private JButton		deleteButton;
+	
+	/** Button to edit the annotation. */
+	private JButton		editButton;
 	
 	/** Component displaying the file name. */
 	private JLabel		label;
 	
-	/** Flag indicating if the element has been added. */
-	private boolean		added;
+	/** The location of the mouse click. */
+	private Point		popupPoint;
+	
+	/** The original description of the tag. */
+	private String		originalText;
 	
 	/**
 	 * Formats the passed annotation.
@@ -122,6 +143,34 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(
 					((FileAnnotationData) annotation).getFileSize()));
 			buf.append("<br>");
+		} else if (data instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) data;
+			if (tag.getId() > 0) {
+				List descriptions = tag.getTagDescriptions();
+				if (descriptions != null && descriptions.size() > 0) {
+					Iterator i = descriptions.iterator();
+					TextualAnnotationData desc;
+					List l;
+					Iterator j;
+					while (i.hasNext()) {
+						desc = (TextualAnnotationData) i.next();
+						if (desc != null) {
+							buf.append("<b>Described by: ");
+							buf.append(EditorUtil.formatExperimenter(
+									desc.getOwner()));
+							buf.append("</b><br>");
+							l = UIUtilities.wrapStyleWord(desc.getText());
+							if (l != null) {
+								j = l.iterator();
+								while (j.hasNext()) {
+									buf.append((String) j.next());
+									buf.append("<br>");
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		buf.append("</body></html>");
 		return buf.toString();
@@ -140,13 +189,6 @@ class DocComponent
 		}
 	}
 	
-	/** Fires a property to delete the attachment. */
-	private void delete()
-	{
-		firePropertyChange(AnnotationUI.REMOVE_ANNOTATION_PROPERTY,
-				null, this);
-	}
-	
 	/** Initializes the {@link #deleteButton}. */
 	private void initButton()
 	{
@@ -156,17 +198,32 @@ class DocComponent
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		if (data instanceof FileAnnotationData)
 			deleteButton.setToolTipText("Remove the attachment.");
-		else if (data instanceof TagAnnotationData)
+		else if (data instanceof TagAnnotationData) {
 			deleteButton.setToolTipText("Remove the Tag.");
-		deleteButton.addActionListener(new ActionListener() {
+			editButton = new JButton(icons.getIcon(IconManager.EDIT_8));
+			UIUtilities.unifiedButtonLookAndFeel(editButton);
+			editButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+			editButton.setToolTipText("Add or Edit the description.");
+			
+			editButton.setActionCommand(""+EDIT);
+			editButton.addActionListener(this);
+			editButton.addMouseListener(new MouseAdapter() {
+				
+				/** 
+				 * Sets the location of the mouse click.
+				 * @see MouseAdapter#mousePressed(MouseEvent)
+				 */
+				public void mousePressed(MouseEvent e)
+				{
+					popupPoint = e.getPoint();
+				}
+			
+			});
+		}
+			
+		deleteButton.addActionListener(this);
+		deleteButton.setActionCommand(""+DELETE);
 		
-			/**
-			 * Fires a property change to delete the attachment.
-			 * @see ActionListener#actionPerformed(ActionEvent)
-			 */
-			public void actionPerformed(ActionEvent e) { delete(); }
-		
-		});
 	}
 	
 	/** Initializes the components composing the display. */
@@ -194,6 +251,7 @@ class DocComponent
 				label.setForeground(Color.BLUE);
 			} else if (data instanceof TagAnnotationData) {
 				TagAnnotationData tag = (TagAnnotationData) data;
+				label.setToolTipText(formatTootTip(tag));
 				label.setText(tag.getTagValue());
 				initButton();
 				if (tag.getId() < 0)
@@ -222,16 +280,38 @@ class DocComponent
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(label);
-		if (deleteButton != null) {
-			JToolBar bar = new JToolBar();
-			bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-			bar.setFloatable(false);
-			bar.setRollover(true);
-			bar.setBorder(null);
-			bar.setOpaque(true);
-			bar.add(deleteButton);
-			add(bar);
-		}
+		JToolBar bar = new JToolBar();
+		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+		bar.setFloatable(false);
+		bar.setRollover(true);
+		bar.setBorder(null);
+		bar.setOpaque(true);
+		if (editButton != null) bar.add(editButton);
+		if (deleteButton != null) bar.add(deleteButton);
+		if (bar.getComponentCount() > 0) add(bar);
+	}
+	
+	/** Adds or edits the description of the tag. */
+	private void editDescription()
+	{
+		TagAnnotationData tag = (TagAnnotationData) data;
+		String text = model.getTagDescription(tag);
+		originalText = text;
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		String title = "Add or Edit description";
+		IconManager icons = IconManager.getInstance();
+		Icon icon = icons.getIcon(IconManager.EDIT_48);
+		SwingUtilities.convertPointToScreen(popupPoint, this);
+		InputDialog d = new InputDialog(f, title, text, icon);
+		int option = d.showMsgBox(popupPoint);
+		if (option == InputDialog.SAVE) {
+			String txt = d.getText();
+			if (txt != null && txt.length() > 0) {
+				tag.setTagDescription(txt);
+				firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
+			}
+		} else if (option == InputDialog.CANCEL) 
+			originalText = null;
 	}
 	
 	/**
@@ -239,16 +319,14 @@ class DocComponent
 	 * 
 	 * @param data	The document annotation. 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
-	 * @param added Pass <code>true</code> to indicate that the document is 
-	 * 				added, <code>false</code> otherwise.
 	 */
-	DocComponent(Object data, EditorModel model, boolean added)
+	DocComponent(Object data, EditorModel model)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No Model.");
+		originalText = null;
 		this.model = model;
 		this.data = data;
-		this.added = added;
 		initComponents();
 		buildGUI();
 	}
@@ -259,14 +337,41 @@ class DocComponent
 	 * @return See above.
 	 */
 	Object getData() { return data; }
-	
+
 	/**
-	 * Returns <code>true</code> if the component has been added, 
-	 * <code>false</code> otherwise.
+	 * Returns <code>true</code> if the description of the tag has been 
+	 * modified, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isAdded() { return added; }
+	boolean hasBeenModified()
+	{
+		if (originalText == null) return false;
+		if (data instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) data;
+			TextualAnnotationData txt = tag.getTagDescription();
+			if (txt != null) return !(originalText.equals(txt.getText()));	
+			return false;
+		}
+		return false;
+	}
+	
+	/** 
+	 * Deletes or edits the annotation.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case DELETE:
+				firePropertyChange(AnnotationUI.REMOVE_ANNOTATION_PROPERTY,
+						null, this);
+				break;
+			case EDIT:
+				editDescription();
+		}
+	}
 	
 	
 }

@@ -327,18 +327,7 @@ public class EditorUI
 	
 	/** Clears the password fields. */
 	void passwordChanged() { userUI.passwordChanged(); }
-
-	/** Displays the wizard with the collection of files already uploaded. */
-	void setExistingAttachements()
-	{ 
-		generalPane.setExistingAttachments();
-		revalidate();
-		repaint();
-	}
-
-	/** Displays the wizard with the collection of URLs already uploaded. */
-	void setExistingURLs() { }//linksUI.showSelectionWizard(); }
-	 
+ 
 	/**
 	 * Sets the disk space information.
 	 * 

@@ -62,6 +62,9 @@ abstract class AnnotationUI
 	/** Bound property indicating to remove the annotation from the view. */
 	static final String	REMOVE_ANNOTATION_PROPERTY = "removeAnnotation";
 	
+	/** Bound property indicating to remove the annotation from the view. */
+	static final String	EDIT_TAG_PROPERTY = "editTag";
+	
 	/** The symbol inserted before the number of annotations. */
 	static final String	LEFT = "[";
 	

@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
-import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
@@ -254,6 +253,11 @@ class EditorControl
 				else if (data instanceof TagAnnotationData)
 					view.removeTag((TagAnnotationData) data);
 			} 
+		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
+			Object object = evt.getNewValue();
+			if (object instanceof DocComponent) {
+				view.setDataToSave(view.hasDataToSave());
+			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();
 			long id;

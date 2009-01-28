@@ -250,8 +250,8 @@ class ToolBar
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	compressionBox = EditorUtil.createComboBox(compression, 0);
-    	compressionBox.setBackground(getBackground());
+    	compressionBox = EditorUtil.createComboBox(compression, 0, 
+    			getBackground());
         createControlsBar();
         createProjectionBar();
     }

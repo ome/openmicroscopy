@@ -337,9 +337,7 @@ class EditorModel
 		else if (refObject instanceof PlateData)
 			return ((PlateData) refObject).getDescription();
 		else if (refObject instanceof TagAnnotationData) {
-			List l = getTextualAnnotationsByDate();
-			if (l == null || l.size() == 0) return "";
-			return ((TextualAnnotationData) l.get(l.size()-1)).getText();
+			return getTagDescription((TagAnnotationData) refObject);
 		}
 		return "";
 	}
@@ -1411,6 +1409,29 @@ class EditorModel
 			sortEnumerations(values);
 			imageEnumerations.put(key, values);
 		}
+	}
+	
+	/**
+	 * Returns the description of the passed tag.
+	 * 
+	 * @param tag The tag to handle.
+	 * @return See above.
+	 */
+	String getTagDescription(TagAnnotationData tag)
+	{
+		if (tag == null) return "";
+		List l = tag.getTagDescriptions();
+		if (l != null && l.size() > 0) {
+			long userID = MetadataViewerAgent.getUserDetails().getId();
+			Iterator i = l.iterator();
+			TextualAnnotationData desc;
+			while (i.hasNext()) {
+				desc = (TextualAnnotationData) i.next();
+				if (desc != null && desc.getOwner().getId() == userID) 
+					return desc.getText();
+			}
+		}
+		return "";
 	}
 	
 }

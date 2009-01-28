@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.AnnotationEditor 
+ * org.openmicroscopy.shoola.util.ui.InputDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,16 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.util;
+package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -40,26 +41,20 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import sun.swing.DefaultLookup;
-
 
 /** 
- * Edits the passed annotation.
+ * Basic dialog displaying a text area.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,13 +64,13 @@ import sun.swing.DefaultLookup;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class AnnotationEditor 
+public class InputDialog 
 	extends JDialog
 	implements ActionListener, DocumentListener
 {
-
+	
 	/** Bound property indicating the tag has been edited. */
 	public static final String	EDIT_PROPERTY = "edit";
 	
@@ -83,10 +78,13 @@ public class AnnotationEditor
 	public static final String	CLOSE_PROPERTY = "close";
 	
 	/** Action command id to cancel the edition. */
-	private static final int	CANCEL = 0;
+	public static final int	CANCEL = 0;
 	
 	/** Action command id to save the edition. */
-	private static final int	SAVE = 1;
+	public static final int	SAVE = 1;
+	
+	/** The default size of the dialog. */
+	private static final Dimension DEFAULT_SIZE = new Dimension(300, 150);
 	
 	/** Button to cancel the edition. */
 	private JButton			cancel;
@@ -100,9 +98,16 @@ public class AnnotationEditor
 	/** The text entered in the {@link #area} when initialized. */
 	private String			originalText;
 	
+	/** The icon displayed on the left-hand side. */
+	private Icon			icon;
+	
+	/** The option returned when the dialog is shown. */
+	private int 			option;
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		option = -1;
 		cancel = new JButton("Cancel");
 		cancel.setToolTipText("Cancel edition.");
 		cancel.addActionListener(this);
@@ -167,19 +172,8 @@ public class AnnotationEditor
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		/*
-		Container c = getContentPane();
-        c.setLayout(new BorderLayout(0, 0));
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        p.add(area, BorderLayout.CENTER);
-        p.add(buildBar(), BorderLayout.SOUTH);
-        add(p, BorderLayout.CENTER);
-        */
 		JPanel top = new JPanel();
 		top.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-		Icon icon = IconManager.getInstance().getIcon(IconManager.CREATE_48);
 		top.setLayout(new BorderLayout());
 		JPanel body = new JPanel(new GridBagLayout());
 		Container realBody = new JPanel(new BorderLayout());
@@ -193,19 +187,31 @@ public class AnnotationEditor
 		cons.fill = GridBagConstraints.HORIZONTAL;
 	    cons.weightx = 1;
 	    body.add(area, cons);
-
-
 		top.add(realBody, BorderLayout.CENTER);
-		JLabel iconLabel = new JLabel(icon);
-		iconLabel.setVerticalAlignment(SwingConstants.CENTER);
+		
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(iconLabel);
-		p.add(Box.createHorizontalStrut(10));
+		if (icon != null) {
+			JLabel iconLabel = new JLabel(icon);
+			iconLabel.setVerticalAlignment(SwingConstants.CENTER);
+			p.add(iconLabel);
+			p.add(Box.createHorizontalStrut(10));
+		}
 		top.add(p, BorderLayout.BEFORE_LINE_BEGINS);
 		top.add(buildBar(), BorderLayout.SOUTH);
 		
 		getContentPane().add(top);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner 		The owner of the dialog.
+	 * @param title			The title of the frame.
+	 */
+	public InputDialog(JFrame owner, String title)
+	{
+		this(owner, title, null, null);
 	}
 	
 	/**
@@ -213,20 +219,89 @@ public class AnnotationEditor
 	 * 
 	 * @param owner 		The owner of the dialog.
 	 * @param title			The title of the frame.
-	 * @param originalText	The text to edit. Mustn't be <code>null</code>.
+	 * @param originalText	The text to edit. 
 	 */
-	public AnnotationEditor(JFrame owner, String title, String originalText)
+	public InputDialog(JFrame owner, String title, String originalText)
+	{
+		this(owner, title, originalText, null);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner 		The owner of the dialog.
+	 * @param title			The title of the frame.
+	 * @param originalText	The text to edit. 
+	 * @param icon			The icon to display on the left-hand side.
+	 */
+	public InputDialog(JFrame owner, String title, String originalText, Icon
+			icon)
 	{
 		super(owner);
+		this.icon = icon;
 		if (originalText == null) originalText = "";
 		this.originalText = originalText;
-		setTitle("Edit: "+title);
+		setTitle(title);
 		setModal(true);
 		initComponents();
 		buildGUI();
-		setSize(250, 150);
+		setSize(DEFAULT_SIZE);
 	}
+	
+	/**
+	 * Returns the option.
+	 * 
+	 * @return See above.
+	 */
+	public int getOption() { return option; }
 
+	/** 
+	 * Returns the text.
+	 * 
+	 * @return See above.
+	 */
+	public String getText() { return area.getText(); }
+	
+	/**
+	 * Sets the text.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setText(String text) { area.setText(text); }
+	
+	/**
+     * Shows the message box at the passed location and returns the option 
+     * selected by the user. 
+     * 
+     * @param location The location of the <code>Dialog</code>.
+     * @return The option selected by the user. 
+     */
+    public int showMsgBox(Point location)
+    {
+    	if (location == null) location = getParent().getLocation();
+    	setLocation(location);
+    	setVisible(true);
+    	return option;	
+    }
+    
+    /**
+     * Shows the message box and returns the option selected by the user. 
+     * 
+     * @return The option selected by the user. 
+     */
+    public int showMsgBox() { return showMsgBox(getParent().getLocation()); }
+   
+    /**
+     * Shows the message box and returns the option selected by the user. 
+     * 
+     * @return The option selected by the user. 
+     */
+    public int centerMsgBox()
+    {
+    	UIUtilities.centerAndShow(this);
+    	return option;	
+    }
+    
 	/**
 	 * Saves or cancels.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -234,6 +309,7 @@ public class AnnotationEditor
 	public void actionPerformed(ActionEvent e)
 	{
 		int index = Integer.parseInt(e.getActionCommand());
+		option = index;
 		switch (index) {
 			case CANCEL:
 				cancel();

@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
+
 import javax.swing.JButton;
 import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -50,6 +52,9 @@ public class OMEComboBoxUI
 	extends BasicComboBoxUI
 {
 
+	/** The background color of the arrow button. */
+	private Color backgroundColor;
+	
 	/**
      * Creates an button which will be used as the control to show or hide
      * the popup portion of the combo box.
@@ -57,13 +62,24 @@ public class OMEComboBoxUI
      * @return a button which represents the popup control
      */
     protected JButton createArrowButton() {
+    	if (backgroundColor == null)
+    		backgroundColor = UIManager.getColor("ComboBox.buttonBackground");
         JButton button = new OMEBasicArrowButton(BasicArrowButton.SOUTH,
-				    UIManager.getColor("ComboBox.buttonBackground"),
-				    UIManager.getColor("ComboBox.buttonShadow"),
-				    UIManager.getColor("ComboBox.buttonDarkShadow"),
-				    UIManager.getColor("ComboBox.buttonHighlight"));
+        		backgroundColor, UIManager.getColor("ComboBox.buttonShadow"),
+        		UIManager.getColor("ComboBox.buttonDarkShadow"),
+        		UIManager.getColor("ComboBox.buttonHighlight"));
         button.setName("ComboBox.arrowButton");
         return button;
+    }
+    
+    /**
+     * Sets the background color of the button.
+     * 
+     * @param backgroundColor The color to set.
+     */
+    public void setBackgroundColor(Color backgroundColor)
+    {
+    	this.backgroundColor = backgroundColor;
     }
     
 }

@@ -110,9 +110,9 @@ public class OMEBasicArrowButton
 		size = size/2;
 		int middle = h/4;
 		if (direction == SOUTH) {
-			paintTriangle(g, (w-size)/2, middle+(h-size)/2-2, size, direction, 
+			paintTriangle(g, (w-size)/2, middle+(h-size)/2-1, size, direction, 
 							isEnabled);
-			paintTriangle(g, (w-size)/2, (h-size)/2-2, size, NORTH, 
+			paintTriangle(g, (w-size)/2, (h-size)/2-1, size, NORTH, 
 					isEnabled);
 		}
 	}

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
@@ -42,11 +41,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -66,10 +63,8 @@ import layout.TableLayout;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
@@ -239,7 +234,7 @@ class AnnotationDataUI
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
 		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		DocComponent doc = new DocComponent(null, model, false);
+		DocComponent doc = new DocComponent(null, model);
 		tagsDocList.add(doc);
 		tagsPane.add(doc);
 		/*
@@ -250,7 +245,7 @@ class AnnotationDataUI
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		doc = new DocComponent(null, model, false);
+		doc = new DocComponent(null, model);
 		filesDocList.add(doc);
 		docPane.add(doc);
 		viewedByPane = new JPanel();
@@ -580,50 +575,6 @@ class AnnotationDataUI
 		*/
 	}
 	
-	/**
-	 * Adds the collection of files to the list.
-	 * 
-	 * @param attachments The collection to handle.
-	 */
-	private void handleFilesEnter(Collection attachments)
-	{
-		List<DocComponent> list = new ArrayList<DocComponent>();
-		DocComponent doc;
-		FileAnnotationData f;
-		boolean exist;
-		Iterator k = attachments.iterator();
-		FileAnnotationData data;
-		Object object;
-		Iterator<DocComponent> i;
-		while (k.hasNext()) {
-			 exist = false;
-			 data = (FileAnnotationData) k.next();
-			 if (filesDocList.size() > 0) {
-				 i = filesDocList.iterator();
-				 while (i.hasNext()) {
-					doc = i.next();
-					object = doc.getData();
-					if (object instanceof FileAnnotationData) {
-						f = (FileAnnotationData) doc.getData();
-						if (doc.isAdded()) list.add(doc);
-						if (f.getId() == data.getId()) exist = true;
-					} else if (object instanceof File)
-						list.add(doc);
-					
-				}
-			 }
-			 if (!exist) {
-				 docFlag = true;
-				 doc = new DocComponent(data, model, true);
-				 doc.addPropertyChangeListener(controller);
-				 list.add(doc);
-				 firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-						 Boolean.TRUE);
-			 }
-		}
-		layoutAttachments(list);
-	}
-	
 	/** Handles the text removal. */
 	private void handleTextRemoval()
 	{
@@ -748,14 +699,14 @@ class AnnotationDataUI
 			Iterator i = list.iterator();
 			
 			while (i.hasNext()) {
-				doc = new DocComponent(i.next(), model, false);
+				doc = new DocComponent(i.next(), model);
 				doc.addPropertyChangeListener(controller);
 				filesDocList.add(doc);
 				docPane.add(doc);
 			}
 		}
 		if (filesDocList.size() == 0) {
-			doc = new DocComponent(null, model, false);
+			doc = new DocComponent(null, model);
 			filesDocList.add(doc);
 			docPane.add(doc);
 		}
@@ -808,7 +759,7 @@ class AnnotationDataUI
 			int width = 0;
 			JPanel p = initRow();
 			while (i.hasNext()) {
-				doc = new DocComponent(i.next(), model, false);
+				doc = new DocComponent(i.next(), model);
 				doc.addPropertyChangeListener(controller);
 				tagsDocList.add(doc);
 			    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
@@ -826,85 +777,12 @@ class AnnotationDataUI
 				tagsPane.add(p);
 		}
 		if (tagsDocList.size() == 0) {
-			doc = new DocComponent(null, model, false);
+			doc = new DocComponent(null, model);
 			tagsDocList.add(doc);
 			tagsPane.add(doc);
 		}
 		tagsPane.revalidate();
 		tagsPane.repaint();
-	}
-	
-	/**
-	 * Removes the file from the list.
-	 * 
-	 * @param file The file to remove.
-	 */
-	private void removeFile(File file)
-	{
-		List<DocComponent> list = new ArrayList<DocComponent>();
-		DocComponent doc;
-		int count = 0;
-		Object data;
-		if (filesDocList.size() > 0) {
-			File f;
-			Iterator<DocComponent> i = filesDocList.iterator();
-			while (i.hasNext()) {
-				doc = i.next();
-				data = doc.getData();
-				if (data instanceof File) {
-					f = (File) data;
-					if (!f.equals(file)) {
-						count++;
-						list.add(doc);
-					}
-				} else if ((data instanceof FileAnnotationData) 
-						&& doc.isAdded()) {
-					count++;
-					list.add(doc);
-				}
-			}
-		}
-		docFlag = (count != 0);
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
-		layoutAttachments(list);
-	}
-	
-
-	/**
-	 * Removes the file from the list.
-	 * 
-	 * @param file The file to remove.
-	 */
-	private void removeFile(FileAnnotationData file)
-	{
-		List<DocComponent> list = new ArrayList<DocComponent>();
-		DocComponent doc;
-		int count = 0;
-		Object data;
-		if (filesDocList.size() > 0) {
-			FileAnnotationData f;
-			Iterator<DocComponent> i = filesDocList.iterator();
-			while (i.hasNext()) {
-				doc = i.next();
-				data = doc.getData();
-				if (data instanceof File) {
-					count++;
-					list.add(doc);
-				} else if ((data instanceof FileAnnotationData) 
-						&& doc.isAdded()) {
-					f = (FileAnnotationData) data;
-					if (f.getId() != file.getId()) {
-						count++;
-						list.add(doc);
-					}
-				}
-			}
-		}
-		docFlag = (count != 0);
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
-		layoutAttachments(list);
 	}
 	
 	/**
@@ -1015,65 +893,6 @@ class AnnotationDataUI
 		}
 		autoComplete = false;
 		*/
-	}	
-	
-	/** 
-	 * Displays the existing in the <code>SelectionWizard</code>
-	 * or in the UI component used for code completion.
-	 */
-	void setExistingAttachments()
-	{
-		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		Collection l = model.getExistingAttachments();
-		if (l == null) return;
-		List<Object> r = new ArrayList<Object>();
-		Collection attachments = model.getAttachments();
-		Iterator i;
-		Set<Long> ids = new HashSet<Long>();
-		AnnotationData data;
-		if (attachments != null) {
-			i = attachments.iterator();
-			while (i.hasNext()) {
-				data = (AnnotationData) i.next();
-				//if (!removedFiles.contains(data)) 
-					ids.add(data.getId());
-			}
-		}
-		
-		if (l.size() > 0) {
-			i = l.iterator();
-			while (i.hasNext()) {
-				data = (AnnotationData) i.next();
-				if (!ids.contains(data.getId()))
-					r.add(data);
-			}
-		}
-		
-		Registry reg = MetadataViewerAgent.getRegistry();
-		if (r.size() == 0) {
-			UserNotifier un = reg.getUserNotifier();
-			un.notifyInfo("Existing Files", "No files found.");
-			return;
-		}
-		SelectionWizard wizard = new SelectionWizard(
-										reg.getTaskBar().getFrame(), r, FileAnnotationData.class);
-		IconManager icons = IconManager.getInstance();
-		wizard.setTitle("Upload Files Selection" , "Select files already " +
-				"updloaded to the server", 
-				icons.getIcon(IconManager.ATTACHMENT_48));
-		wizard.addPropertyChangeListener(new PropertyChangeListener() {
-		
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
-					Collection l = (Collection) evt.getNewValue();
-					if (l == null || l.size() == 0) return;
-			    	handleFilesEnter(l);
-				}
-			}
-		
-		});
-		UIUtilities.centerAndShow(wizard);
 	}	
 	
 	/**
@@ -1389,32 +1208,6 @@ class AnnotationDataUI
 					if (!ids.contains(id)) l.add(tag);
 				}
 			}
-			
-			/*
-			String value = tagsPane.getText();
-			String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
-			String v;
-			List<String> values = new ArrayList<String>();
-			for (int i = 0; i < names.length; i++) {
-				v = names[i];
-				v = v.trim();
-				if (v.length() > 0) {
-					if (!v.equals(DEFAULT_TEXT)) {
-						if (!tagNames.contains(names[i])) {
-							if (existingTags.containsKey(v)) 
-								l.add(existingTags.get(v));
-							else values.add(v);
-						}
-					}
-				}
-			}
-			if (values.size() > 0) {
-				Iterator<String> i = values.iterator();
-				while (i.hasNext()) {
-					l.add(new TagAnnotationData(i.next()));
-				}
-			}
-			*/
 		}
 		
 		if (docFlag) {
@@ -1438,8 +1231,7 @@ class AnnotationDataUI
 						}
 						if (data != null) l.add(data);
 					} else if (d instanceof FileAnnotationData) {
-						if (doc.isAdded())
-							l.add((FileAnnotationData) d);
+						l.add((FileAnnotationData) d);
 					}
 				}
 			}
@@ -1467,6 +1259,10 @@ class AnnotationDataUI
 	protected boolean hasDataToSave()
 	{
 		if (tagFlag || docFlag) return true;
+		Iterator<DocComponent> i = tagsDocList.iterator();
+		while (i.hasNext()) {
+			if (i.next().hasBeenModified()) return true;
+		}
 		return (selectedValue != initialValue);
 	}
 
@@ -1493,11 +1289,11 @@ class AnnotationDataUI
 		*/
 		tagsPane.removeAll();
 		tagsDocList.clear();
-		DocComponent doc = new DocComponent(null, model, false);
+		DocComponent doc = new DocComponent(null, model);
 		tagsDocList.add(doc);
 		tagsPane.add(doc);
 		docPane.removeAll();
-		doc = new DocComponent(null, model, false);
+		doc = new DocComponent(null, model);
 		filesDocList.add(doc);
 		docPane.add(doc);
 		tagFlag = false;

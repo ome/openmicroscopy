@@ -315,14 +315,6 @@ class GeneralPaneUI
 	 */
 	boolean isAutoComplete() { return annotationUI.isAutoComplete(); }
 	
-	/** Sets the existing attachments. */
-	void setExistingAttachments()
-	{
-		annotationUI.setExistingAttachments();
-		revalidate();
-    	repaint();
-	}
-	
 	/** Shows the image's info. */
     void setChannelData()
     { 

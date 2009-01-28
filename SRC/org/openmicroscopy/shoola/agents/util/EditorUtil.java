@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -1383,15 +1384,19 @@ public class EditorUtil
     /**
 	 * Initialises a <code>JComboBox</code>.
 	 * 
-	 * @param values 	The values to display.
-	 * @param decrement The value by which the font size is reduced.
+	 * @param values 		 The values to display.
+	 * @param decrement 	 The value by which the font size is reduced.
+	 * @param backgoundColor The backgoundColor of the combo box.
 	 * @return See above.
 	 */
-    public static OMEComboBox createComboBox(Object[] values, int decrement)
+    public static OMEComboBox createComboBox(Object[] values, int decrement, 
+    		Color backgoundColor)
 	{
     	OMEComboBox box = new OMEComboBox(values);
-		box.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	if (backgoundColor != null)
+    		box.setBackground(backgoundColor);
 		OMEComboBoxUI ui = new OMEComboBoxUI();
+		ui.setBackgroundColor(box.getBackground());
 	    ui.installUI(box);
 		box.setUI(ui);
 		Font f = box.getFont();
@@ -1399,6 +1404,18 @@ public class EditorUtil
 		box.setBorder(null);
 		box.setFont(f.deriveFont(Font.ITALIC, size));
 		return box;
+	}
+    
+    /**
+	 * Initialises a <code>JComboBox</code>.
+	 * 
+	 * @param values 	The values to display.
+	 * @param decrement The value by which the font size is reduced.
+	 * @return See above.
+	 */
+    public static OMEComboBox createComboBox(Object[] values, int decrement)
+	{
+    	return createComboBox(values, decrement, UIUtilities.BACKGROUND_COLOR);
 	}
     
     /**
