@@ -25,10 +25,13 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 //Third-party libraries
 
@@ -70,16 +73,6 @@ class EditorUI
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
 	
-	/** The Actions that are displayed in the File menu and in the 
-	 * File toolbar */
-	static Integer[] 				FILE_ACTIONS = {
-						EditorControl.OPEN_LOCAL_FILE, 
-						EditorControl.OPEN_WWW_FILE,
-						EditorControl.SAVE_FILE,
-						EditorControl.SAVE_FILE_LOCALLY,
-						EditorControl.SAVE_FILE_SERVER,
-						EditorControl.NEW_BLANK_FILE };
-	
 	/** 
 	 * Creates the file menu.
 	 * 
@@ -89,47 +82,36 @@ class EditorUI
 	{
 		JMenu menu = new JMenu("File");
 		
-		for (int i=0; i<FILE_ACTIONS.length; i++) {
-			addMenuItem(FILE_ACTIONS[i], menu);
-		}
-		
-		addMenuItem(EditorControl.CLOSE_EDITOR, menu);
+		addMenuItem(EditorControl.OPEN_LOCAL_FILE, menu, KeyEvent.VK_O);
+		addMenuItem(EditorControl.OPEN_WWW_FILE, menu, 0);
+		addMenuItem(EditorControl.SAVE_FILE, menu, KeyEvent.VK_S);
+		addMenuItem(EditorControl.SAVE_FILE_LOCALLY, menu, 0);
+		addMenuItem(EditorControl.SAVE_FILE_SERVER, menu, 0);
+		addMenuItem(EditorControl.NEW_BLANK_FILE, menu, KeyEvent.VK_N);
+		addMenuItem(EditorControl.CLOSE_EDITOR, menu, KeyEvent.VK_W);
 		
 		return menu;
 	}
 	
-	private void addMenuItem(int actionId, JMenu menu)
+	private void addMenuItem(int actionId, JMenu menu, int key)
 	{
 		EditorAction a = controller.getAction(actionId);
 		JMenuItem item = new JMenuItem(a);
+		if (key != 0)		
+			setMenuItemAccelerator(item, key);
 		menu.add(item);
 	}
 	
 	/** 
-	 * Creates the menu bar.
+	 * Creates the menu bar, Adding the 'Window' and 'Help' menus to the 
+	 * menu returned by {@link #createMenu()}.
 	 * 
 	 * @param pref The user preferences.
 	 * @return The menu bar. 
 	 */
 	private JMenuBar createMenuBar()
 	{
-		/*
-		JMenuBar menuBar = new JMenuBar(); 
-		menuBar.add(createMenu());
-		TaskBar tb = EditorAgent.getRegistry().getTaskBar();
-		menuBar.add(tb.getWindowsMenu());
 		
-		
-		// want to add help menu here:
-		JMenuBar bar = tb.getTaskBarMenuBar();
-        int barCount = bar.getMenuCount();
-        
-		for (int i = 0; i < barCount; i++) 
-			menuBar.add(bar.getMenu(i));
-		 
-
-		return menuBar;
-		*/
 		TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
         JMenu menu = createMenu();
         JMenuBar bar = tb.getTaskBarMenuBar();
@@ -154,6 +136,22 @@ class EditorUI
 		c.add(toolBar, BorderLayout.NORTH);
 		
 		c.add(statusBar, BorderLayout.SOUTH);
+	}
+	
+	/**
+	 * Convenience method for setting the short-cut keys for menu items. 
+	 * 
+	 * @param menuItem
+	 * @param character
+	 */
+	private static void setMenuItemAccelerator(JMenuItem menuItem, int key) {
+		if (System.getProperty("os.name").contains("Mac OS")) {
+			menuItem.setAccelerator(
+					KeyStroke.getKeyStroke(key, ActionEvent.META_MASK));
+		} else {
+			menuItem.setAccelerator(
+					KeyStroke.getKeyStroke(key, KeyEvent.CTRL_DOWN_MASK));
+		}
 	}
 	
 	/**

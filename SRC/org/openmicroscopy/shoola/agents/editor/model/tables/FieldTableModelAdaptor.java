@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 
 /** 
  * A table model adaptor that enables multiple values for the parameters of
@@ -144,7 +145,13 @@ public class FieldTableModelAdaptor
 		if (col > params.size())
 			return "";
 		
-		String name = params.get(col).getAttribute(AbstractParam.PARAM_NAME);
+		IParam p = params.get(col);
+		String name = p.getAttribute(AbstractParam.PARAM_NAME);
+		
+		// add units if they exist (Number parameter or enumeration parameter)
+		String units = p.getAttribute(NumberParam.PARAM_UNITS);
+		if (units != null)
+			name = (name == null ? "" : name + " ") + "(" + units + ")";
 		
 		// if no name for this parameter, return it's type. 
 		if (name == null) {
