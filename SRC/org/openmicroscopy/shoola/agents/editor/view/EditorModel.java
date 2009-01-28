@@ -65,7 +65,6 @@ import pojos.FileAnnotationData;
  * @since 3.0-Beta3
  */
 class EditorModel
-	implements ChangeListener
 {
 
 	/** Holds one of the state flags defined by {@link Editor}. */
@@ -125,9 +124,7 @@ class EditorModel
 		state = Editor.NEW;
 		if (fileAnnotationData == null)
 			throw new IllegalArgumentException("No file annotation specified.");
-		this.fileAnnotation = fileAnnotationData;
-		this.fileID = fileAnnotationData.getFileID();
-		this.fileName = fileAnnotationData.getFileName();
+		setFileAnnotationData(fileAnnotationData);
 	}
 	
 	/** 
@@ -178,7 +175,6 @@ class EditorModel
 	{ 
 		this.component = component; 
 		browser = BrowserFactory.createBrowser();
-		browser.addChangeListener(this); 
 	}
 	
 	/**
@@ -360,14 +356,15 @@ class EditorModel
 	}
 
 	/**
-	 * Implemented as specified by the {@link ChangeListener} interface
+	 * Sets the file annotation data.
 	 * 
-	 * This class listens for changes to the {@link Browser} and passes them
-	 * on to the Editor. 
+	 * @param data The value to set.
 	 */
-	public void stateChanged(ChangeEvent e) {
-		if (component instanceof EditorComponent) {
-			((EditorComponent)component).stateChanged();
-		}
+	void setFileAnnotationData(FileAnnotationData data)
+	{
+		this.fileAnnotation = data;
+		this.fileID = data.getFileID();
+		this.fileName = data.getFileName();
 	}
+
 }

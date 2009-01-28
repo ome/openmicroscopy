@@ -25,12 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 
-import javax.swing.JOptionPane;
-
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
@@ -75,13 +72,10 @@ public class SaveFileAction
 	public SaveFileAction(Editor model)
 	{
 		super(model);
-		setEnabled(true);
+		setEnabled(false);
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_ICON);
-		
-		// refresh enabled status
-		onStateChange();
 	}
 
 	/**

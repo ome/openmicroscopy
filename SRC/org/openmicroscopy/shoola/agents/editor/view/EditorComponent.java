@@ -35,6 +35,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+import pojos.FileAnnotationData;
+
 /** 
  * Implements the {@link Editor} interface to provide the functionality
  * required of the editor component.
@@ -238,9 +240,11 @@ class EditorComponent
 	 */
 	public Browser getBrowser() 
 	{
-		if (model.getState() == DISCARDED)
+		if (model.getState() == DISCARDED) return null;
+			/*
 			throw new IllegalStateException("This method should not be " +
 			"invoked in the DISCARDED state.");
+			*/
 		return model.getBrowser();
 	}
 
@@ -339,24 +343,30 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#onFileSave(boolean)
+	 * @see Editor#onFileSave(FileAnnotationData)
 	 */
-	public void onFileSave(boolean result)
+	public void onFileSave(FileAnnotationData data)
 	{
 		UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 		String message = 
 			"An error occured while saving the file to the server.";
-		if (result) message = "The File has been saved to the server.";
+		if (data != null) {
+			message = "The File has been saved to the server.";
+			model.setFileAnnotationData(data);
+		}
 		un.notifyInfo("File Saved", message);
 		model.setState(READY);
+		view.setTitle(model.getFileName());
 		fireStateChange();
 	}
 	
-	/**
-	 * This method allows the {@link EditorModel} to call 
-	 * {@link #fireStateChange()} so that it can pass on any state changes
-	 * from the browser
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onFileSave(FileAnnotationData)
 	 */
-	void stateChanged() { fireStateChange(); }
+	public void onBrowserChange()
+	{ 
+		fireStateChange(); 
+	}
 	
 }

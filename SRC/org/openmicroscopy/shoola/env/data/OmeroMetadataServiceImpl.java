@@ -1992,17 +1992,26 @@ class OmeroMetadataServiceImpl
 				fileAnnotation.getFileID());
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
+		Map m = (new PojoOptionsI()).map();
 		if (id < 0) {
 			fa = new FileAnnotationI();
 			fa.setFile(of);
-			gateway.createObject(fa, (new PojoOptionsI()).map());
+			IObject object = gateway.createObject(fa, m);
+			id = object.getId().getValue();
 		} else {
 			fa = (FileAnnotation) 
-			gateway.findIObject(FileAnnotation.class.getName(), id);
+				gateway.findIObject(FileAnnotation.class.getName(), id);
 			fa.setFile(of);
-			gateway.updateObject(fa, (new PojoOptionsI()).map());
+			gateway.updateObject(fa, m);
 		}
-		return true;
+		fa = (FileAnnotation) 
+			gateway.findIObject(FileAnnotation.class.getName(), id);
+		FileAnnotationData data = 
+			(FileAnnotationData) PojoMapper.asDataObject(fa);
+		if (of != null) 
+			data.setContent(of);
+		
+		return data;
 	}
 	
 }

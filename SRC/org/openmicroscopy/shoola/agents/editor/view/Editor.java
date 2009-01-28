@@ -32,6 +32,8 @@ import java.io.File;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.FileAnnotationData;
+
 /** 
  * 
  *
@@ -172,9 +174,12 @@ public interface Editor
 	public void saveFileServer(String fileName);
 	
 	/**
+	 * Invokes when the file has been saved to the server.
 	 * 
-	 * @param result
+	 * @param data The annotation.
 	 */
-	public void onFileSave(boolean result);
+	public void onFileSave(FileAnnotationData data);
+	
+	public void onBrowserChange();
 	
 }

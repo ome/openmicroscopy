@@ -117,7 +117,7 @@ public class FileSaver
 	public void handleResult(Object result)
 	{
 		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-		viewer.onFileSave((Boolean) result);
+		viewer.onFileSave((FileAnnotationData) result);
 		file.delete();
 	}
 	
