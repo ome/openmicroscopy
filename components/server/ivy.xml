@@ -36,6 +36,7 @@
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="eclipse" name="jdtcore" rev="3.1.0"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}"/>
+    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="Java50-3.1"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
     <dependency org="org/acegisecurity" name="acegi-security" rev="1.0.0-RC1"/>
     <dependency org="quartz" name="quartz" rev="1.5.2"/>
