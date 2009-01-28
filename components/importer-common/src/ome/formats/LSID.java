@@ -1,5 +1,9 @@
 package ome.formats;
 
+import java.text.Collator;
+import java.text.RuleBasedCollator;
+import java.util.Locale;
+
 
 /**
  * This class represents an LSID as used by the OME-XML data model.
@@ -17,6 +21,13 @@ public class LSID
 	
 	/** The LSID as a string. */
 	private String asString;
+	
+	/** 
+	 * The collator that we use to alphabetically sort by class name
+	 * within a given level of the OME-XML hierarchy.
+	 */
+	private final RuleBasedCollator stringComparator = 
+		(RuleBasedCollator) Collator.getInstance(Locale.ENGLISH);
 	
 	/**
 	 * Default constructor.
@@ -76,7 +87,11 @@ public class LSID
 		{
 			LSID comparator = (LSID) obj;
 			Class comparatorClass = comparator.getJavaClass();
-			if (comparatorClass != null && comparatorClass.equals(klass))
+			if (comparatorClass == null)
+			{
+				return stringComparator.compare(asString, obj) == 0;
+			}
+			if (comparatorClass.equals(klass))
 			{
 				int[] comparatorIndexes = comparator.getIndexes();
 				for (int i = 0; i < indexes.length; i++)
