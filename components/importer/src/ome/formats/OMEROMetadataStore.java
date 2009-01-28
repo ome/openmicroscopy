@@ -629,7 +629,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
    		List<Pixels> pixelsList = new ArrayList<Pixels>(imageArray.length);
    		for (Image image : imageArray)
    		{
-   			pixelsList.add(image.getDefaultPixels());
+   			pixelsList.add(image.getPrimaryPixels());
    		}
    		return pixelsList;
     }
