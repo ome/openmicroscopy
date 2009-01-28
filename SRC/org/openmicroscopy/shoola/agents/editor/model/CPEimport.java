@@ -633,7 +633,7 @@ public class CPEimport {
 		rootField.setAttribute(Field.FIELD_NAME, protName);
 		protName = getChildContent(protocolInfo, DESCRIPTION);
 		if (protName != null)
-			rootField.addContent(new TextContent(protName.trim())); //trim for UI
+			rootField.addContent(new TextContent(protName));
 		
 		// revision. Optional 
 		protName = getChildContent(protocolInfo, REVISION);

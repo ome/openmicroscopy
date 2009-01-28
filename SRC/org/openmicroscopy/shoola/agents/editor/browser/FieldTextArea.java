@@ -386,7 +386,7 @@ public class FieldTextArea
 		if (name != null && name.length() > 0) {
 			html = "<"+ FieldTextArea.NAME_TAG  +" " + HTML.Attribute.ID +
 			"='"+ FieldTextArea.NAME_ID +"'>" 
-			+ name + "</"+ FieldTextArea.NAME_TAG +"><br>";
+			+ name.trim() + "</"+ FieldTextArea.NAME_TAG +"><br>";
 		} else {
 		}
 		
