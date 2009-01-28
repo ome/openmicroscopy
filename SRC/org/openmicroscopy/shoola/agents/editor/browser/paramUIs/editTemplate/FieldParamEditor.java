@@ -40,7 +40,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.Scrollable;
 import javax.swing.border.Border;
@@ -158,6 +157,7 @@ public class FieldParamEditor
 			(field, Field.FIELD_NAME, "Step Name [edit]");
 		nameEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		nameEditor.setFontSize(14);
 		
 		// holds the name-editor and any additional buttons
 		Box nameContainer = Box.createHorizontalBox();
@@ -253,16 +253,19 @@ public class FieldParamEditor
 	 */
 	protected void addParameters() 
 	{	
-		
 		attributeFieldsPanel.add(createParamsHeader());
 		int paramCount = field.getContentCount();
+		
+		Box paramsContainer = Box.createVerticalBox();
+		paramsContainer.setBorder(new EmptyBorder(0,10,0,0)); // left indent
+		attributeFieldsPanel.add(paramsContainer);
 		
 		for (int i=0; i<paramCount; i++) {
 			IFieldContent content = field.getContentAt(i); 
 			if (content instanceof IParam) {
 				IParam param = (IParam)content;
 				
-				addParam(param);
+				addParam(param, paramsContainer);
 			}
 		}
 	}
@@ -272,12 +275,14 @@ public class FieldParamEditor
 	 */
 	protected void addDataRefs() 
 	{
+		int dataRefCount = field.getDataRefCount();
+		if (dataRefCount == 0)	return;	// don't add header if no data-refs
+		
 		JPanel dataRefHeader = new JPanel(new BorderLayout());
 		dataRefHeader.setBackground(null);
-		dataRefHeader.add(new CustomLabel("Data Links:"), BorderLayout.WEST);
+		dataRefHeader.add(new CustomLabel("Data Links:", 12), BorderLayout.WEST);
+		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		attributeFieldsPanel.add(dataRefHeader);
-		
-		int dataRefCount = field.getDataRefCount();
 			
 		DataRefEditor drEditor;
 		DataReference dataRef;
@@ -298,15 +303,15 @@ public class FieldParamEditor
 	 * 
 	 * @param param 	The parameter to add. 
 	 */
-	private void addParam(IParam param) 
+	private void addParam(IParam param, JComponent container) 
 	{
 		ParamEditor pe = new ParamEditor(param, this);
 		
 		pe.addPropertyChangeListener(ParamEditor.PARAM_TYPE, this);
-		attributeFieldsPanel.add(Box.createVerticalStrut(10));
-		attributeFieldsPanel.add(new JSeparator());
-		attributeFieldsPanel.add(Box.createVerticalStrut(10));
-		attributeFieldsPanel.add(pe);
+		container.add(Box.createVerticalStrut(20));
+		//attributeFieldsPanel.add(new JSeparator());
+		//container.add(Box.createVerticalStrut(10));
+		container.add(pe);
 	}
 
 	/**
@@ -331,7 +336,7 @@ public class FieldParamEditor
 		addParamsHeader.add(addParamsButton, BorderLayout.EAST);
 		
 		addParamsHeader.add(
-				new CustomLabel("Parameters:"), BorderLayout.WEST);
+				new CustomLabel("Parameters:", 12), BorderLayout.WEST);
 		
 		return addParamsHeader;
 	}

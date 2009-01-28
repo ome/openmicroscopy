@@ -159,6 +159,7 @@ public class ParamEditor
 		
 		JPanel nameAndTypeContainer = new JPanel(new BorderLayout());
 		nameAndTypeContainer.setBackground(null);
+		nameAndTypeContainer.setOpaque(false);
 		nameAndTypeContainer.add(nameEditor, BorderLayout.CENTER);
 		nameAndTypeContainer.add(paramTypeChooser, BorderLayout.EAST);
 		nameAndTypeContainer.add(miniToolBar, BorderLayout.WEST);
@@ -223,5 +224,4 @@ public class ParamEditor
 	{
 		return parameter;
 	}
-
 }

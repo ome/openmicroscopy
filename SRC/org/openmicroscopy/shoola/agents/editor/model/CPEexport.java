@@ -92,8 +92,6 @@ public class CPEexport {
 		
 		cpeStyles ="<?xml-stylesheet href=\"" + xsl + "\""
 				+ " type=\"text/xsl\"?>";
-		
-		System.out.println("CPEexport() " + cpeStyles);
 	}
 
 	/**

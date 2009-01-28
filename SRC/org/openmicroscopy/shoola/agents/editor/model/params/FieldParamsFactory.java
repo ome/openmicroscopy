@@ -60,7 +60,7 @@ public class FieldParamsFactory {
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
 	{ "DELETE Parameter", 
-		"Text  (single line)", 
+		"Text", 
 		"Drop-down Menu", 
 		"Check-Box", 
 		"Number", 

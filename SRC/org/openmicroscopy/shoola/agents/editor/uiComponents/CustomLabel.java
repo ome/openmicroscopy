@@ -59,11 +59,14 @@ public class CustomLabel
 	 */
 	public static final Font CUSTOM_FONT = new Font("SansSerif", Font.PLAIN, 11);
 	
+	private int fontSize;
+	
 	/**
 	 * Simply delegates to JLabel superclass.
 	 */
 	public CustomLabel() {
 		super();
+		setFont();
 	}
 	
 	/**
@@ -71,6 +74,7 @@ public class CustomLabel
 	 */
 	public CustomLabel(Icon image) {
 		super(image);
+		setFont();
 	}
 	
 	/**
@@ -78,14 +82,26 @@ public class CustomLabel
 	 */
 	public CustomLabel(String text) {
 		super(text);
+		setFont();
 	}
 	
 	/**
-	 * override this method as it is called by JLabel constructors.
+	 * Simply delegates to JLabel superclass.
 	 */
-	public void updateUI() {
+	public CustomLabel(String text, int fontSize) {
+		super(text);
+		this.fontSize = fontSize;
+		setFont();
+	}
+	
+	private void setFont()
+	{
+		if (fontSize == 0)
+		setFont(CUSTOM_FONT);
 		
-		this.setFont(CUSTOM_FONT);
-		super.updateUI();
+		else {
+			Font newFont = new Font("SansSerif", Font.PLAIN, fontSize);
+			setFont(newFont);
+		}
 	}
 }

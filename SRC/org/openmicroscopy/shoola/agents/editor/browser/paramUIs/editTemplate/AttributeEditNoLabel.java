@@ -60,9 +60,6 @@ public class AttributeEditNoLabel
 	extends AttributeEditLine 
 	implements FocusListener {
 	
-	/** The text field used in this UI */
-	private JTextComponent 			textField;
-	
 	/**
 	 * The text to display if no text is set. 
 	 */

@@ -26,11 +26,13 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -74,6 +76,9 @@ public class AttributeEditLine
 	 */
 	private String 				labelText;
 	
+	/** The text field used in this UI */
+	protected JTextComponent 		textField;
+	
 	/**
 	 * Builds the UI. 
 	 */
@@ -84,14 +89,15 @@ public class AttributeEditLine
 		add(new CustomLabel (labelText + ": "), BorderLayout.NORTH);
 		
 		// Add a text field
-		JComponent textField = new TextFieldEditor(getParameter(), 
+		TextFieldEditor textEditor = new TextFieldEditor(getParameter(), 
 				attributeName);
 		// listen for changes to the Value property, indicating that the 
 		// field has been edited.
-		textField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
+		textEditor.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);
+		textField = textEditor.getTextField();	// allows setting fonts etc.
 		
-		add(textField, BorderLayout.CENTER);
+		add(textEditor, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -131,6 +137,20 @@ public class AttributeEditLine
 	 */
 	public String getEditDisplayName() {
 		return "Edit " + labelText;
+	}
+	
+	/**
+	 * Sets the size of the font in the text-field (not the label)
+	 * 
+	 * @param size		The new font size. 
+	 */
+	public void setFontSize(int size)
+	{
+		if (textField != null) {
+			Font oldFont = textField.getFont();
+			Font newFont =  oldFont.deriveFont((float)size);
+			textField.setFont(newFont);
+		}
 	}
 
 }
