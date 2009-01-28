@@ -87,7 +87,7 @@ public class LSID
 		{
 			LSID comparator = (LSID) obj;
 			Class comparatorClass = comparator.getJavaClass();
-			if (comparatorClass == null)
+			if (comparatorClass == null || klass == null)
 			{
 				return stringComparator.compare(asString, obj.toString()) == 0;
 			}
