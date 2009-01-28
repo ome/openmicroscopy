@@ -275,6 +275,9 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         try
         {
+            containerCache = 
+                new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
+            referenceCache = new HashMap<String, String>();
             delegate.createRoot();
         } catch (ServerError e)
         {
@@ -2270,6 +2273,14 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 			{
 				return 1;
 			}
+			
+			if (klass.equals(DetectorSettings.class) 
+			    || klass.equals(LightSettings.class)
+			    || klass.equals(LogicalChannel.class))
+			{
+			    return 3;
+			}
+			
 			return indexes;
 		}
     }
