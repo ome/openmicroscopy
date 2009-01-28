@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -54,26 +55,31 @@ public class ContainerCounterLoader
 	extends DataBrowserLoader
 {
 
-    /** The collection of container's ID we want to analyse. */
-    private Set			rootIDs;
+    /** The collection of <code>DataObject</code>s we want to analyse. */
+    private Set					rootIDs;
+    
+    /** The collection of corresponding nodes. */
+    private Set<TreeImageSet> 	nodes;
     
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle  		handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	Reference to the Model. Mustn't be <code>null</code>.
-     * @param rootIDs 	Collection of container's IDs which contain 
-     *                  <code>Image</code>s i.e. <code>Dataset</code> 
-     *                  or <code>Dataset</code>.
+     * @param viewer  Reference to the Model. Mustn't be <code>null</code>.
+     * @param rootIDs The collection of <code>DataObject</code>s 
+     *                we want to analyse.
+     * @param nodes   The collection of corresponding nodes.            
      */
-    public ContainerCounterLoader(Browser viewer, Set rootIDs)
+    public ContainerCounterLoader(Browser viewer, Set rootIDs, 
+    		Set<TreeImageSet> nodes)
     {
         super(viewer);
         if (rootIDs == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.rootIDs = rootIDs;
+        this.nodes = nodes;
     }
 
     /**
@@ -131,7 +137,7 @@ public class ContainerCounterLoader
             containerID = (Long) i.next();
             value = (Long) map.get(containerID);
             viewer.setContainerCountValue(containerID.longValue(),
-                    						value.longValue());
+                    						value.longValue(), nodes);
         }
     }
     

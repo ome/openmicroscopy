@@ -3649,7 +3649,6 @@ class OMEROGateway
 			}
 			return m;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot count the collection.");
 		}
 		return new HashMap();

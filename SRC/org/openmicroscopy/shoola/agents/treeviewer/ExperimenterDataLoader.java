@@ -69,6 +69,9 @@ public class ExperimenterDataLoader
 	/** Indicates to load the tags linked to images. */
 	public static final int TAG_LEVEL = 10;
 	
+	/** Indicates to load the tags linked to images. */
+	public static final int TAG_SET_LEVEL = 11;
+	
 	/** Indicates that the root node is of type <code>Project</code>. */
     public static final int PROJECT = 0;
     
@@ -102,6 +105,12 @@ public class ExperimenterDataLoader
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
+    
+    /** 
+     * One of the following constants: {@link #TAG_SET_LEVEL} or 
+     * {@link #TAG_LEVEL}.
+     */
+    private int					level;
     
     /**
      * Returns the class corresponding to the specified type.
@@ -159,7 +168,15 @@ public class ExperimenterDataLoader
         if (rootNodeType == null)
             throw new IllegalArgumentException("Type not supported");
         if (parent != null)  withImages = true;
+        level = -1;
     } 
+    
+    /**
+     * Sets the passed level.
+     * 
+     * @param level The value to set.
+     */
+    public void setTagLevel(int level) { this.level = level; }
     
     /**
      * Retrieves the data.
@@ -171,7 +188,17 @@ public class ExperimenterDataLoader
     	if (TagAnnotationData.class.equals(rootNodeType)) {
     		long id = -1;
     		if (parent != null) id = parent.getUserObjectId();
-    		handle = dmView.loadTags(id, withImages, exp.getId(), this);
+    		switch (level) {
+				case TAG_LEVEL:
+					handle = dmView.loadTags(id, withImages, exp.getId(), this);
+					break;
+				case TAG_SET_LEVEL:
+					default:
+					handle = dmView.loadTagSets(id, withImages, exp.getId(), 
+							this);
+					break;
+			}
+    		
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(rootNodeType, null, 
     				exp.getId(), this);

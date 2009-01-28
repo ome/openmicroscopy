@@ -88,10 +88,7 @@ public class ContainerCounterLoader
      * Adds a {@link BatchCall} to the tree for each value to retrieve.
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree()
-    {
-    	add(loadCall);
-    }
+    protected void buildTree() { add(loadCall); }
     
     /**
      * Returns the lastly retrieved thumbnail.

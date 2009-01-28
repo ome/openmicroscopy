@@ -314,6 +314,8 @@ class BrowserModel
             		currentLoader = new ExperimenterDataLoader(component, 
             				ExperimenterDataLoader.TAGS, 
             				(TreeImageSet) expNode, (TreeImageSet) node);
+            		((ExperimenterDataLoader) currentLoader).setTagLevel(
+            				ExperimenterDataLoader.TAG_LEVEL);
             		currentLoader.load();
                 }
             }
@@ -327,16 +329,17 @@ class BrowserModel
      * <code>Dataset</code> and sets the state to 
      * {@link Browser#COUNTING_ITEMS}.
      * 
-     * @param containers The collection of node id.
+     * @param containers The collection of <code>DataObject</code>s.
+     * @param nodes      The corresponding nodes.
      */
-    void fireContainerCountLoading(Set containers)
+    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes)
     {
         if (containers == null || containers.size() == 0) {
             state = Browser.READY;
             return;
         }
         //state = Browser.COUNTING_ITEMS;
-        numberLoader = new ContainerCounterLoader(component, containers);
+        numberLoader = new ContainerCounterLoader(component, containers, nodes);
         numberLoader.load();
     }
     
@@ -376,13 +379,14 @@ class BrowserModel
      * @param tree The component hosting the node.
      * @param containerID The ID of the container.
      * @param value	The number of items.
+     * @param nodes The collection of nodes.
      * @return See above.
      */
-    boolean setContainerCountValue(JTree tree, long containerID, long value)
+    boolean setContainerCountValue(JTree tree, long containerID, long value,
+    		Set<TreeImageSet> nodes)
     {
         if (containersManager == null)
-            containersManager = new ContainersManager(tree, 
-                    			component.getContainersWithImagesNodes());
+            containersManager = new ContainersManager(tree, nodes);
         containersManager.setNumberItems(containerID, value);
         if (containersManager.isDone()) {
             //state = Browser.READY;

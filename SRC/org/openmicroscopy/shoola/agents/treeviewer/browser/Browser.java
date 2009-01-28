@@ -352,18 +352,12 @@ public interface Browser
     /**
      * Sets the number of items contained in the specified container.
      * 
-     * @param containerID 	The id of the container.
-     * @param value			The number of items contained in the container.
+     * @param containerID The id of the container.
+     * @param value		  The number of items contained in the container.
+     * @param nodes       The collection of nodes.
      */
-    public void setContainerCountValue(long containerID, long value);
-    
-    /**
-     * Returns a collection of containers which contain <code>Image</code>s
-     * e.g. a <code>Dataset</code>.
-     * 
-     * @return See above.
-     */
-    public Set getContainersWithImagesNodes();
+    public void setContainerCountValue(long containerID, long value, 
+    		Set<TreeImageSet> nodes);
 
     /**
      * Sets the nodes found corresponding to a pattern.

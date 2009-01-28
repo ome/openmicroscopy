@@ -57,11 +57,19 @@ public class ContainerFinder
     private Set<TreeImageSet> containerNodes;
     
     /** Set of corresponding <code>DataObject</code>s */
-    private Set<DataObject> containers;
+    private Set<DataObject>   containers;
     
-    /** Creates a new instance. */
-    public ContainerFinder()
+    /** The type of node to track.*/
+    private Class             rootType;
+    
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param rootType The type of nodes to track.
+     */
+    public ContainerFinder(Class rootType)
     {
+    	this.rootType = rootType;
         containerNodes = new HashSet<TreeImageSet>();
         containers = new HashSet<DataObject>();
     }
@@ -71,14 +79,14 @@ public class ContainerFinder
      * 
      * @return See above.
      */
-    public Set getContainerNodes() { return containerNodes; }
+    public Set<TreeImageSet> getContainerNodes() { return containerNodes; }
     
     /**
      * Returns the collection of found <code>DataObject</code>s.
      * 
      * @return See above.
      */
-    public Set getContainers() { return containers; }
+    public Set<DataObject> getContainers() { return containers; }
 
     /** 
      * Required by the {@link TreeImageDisplayVisitor} I/F but no-op 
@@ -94,14 +102,23 @@ public class ContainerFinder
     public void visit(TreeImageSet node)
     {
         Object userObject = node.getUserObject();
-        if (userObject instanceof DatasetData) {
-            containerNodes.add(node); 
-            containers.add((DataObject) userObject);
-        } else if (userObject instanceof TagAnnotationData) {
-        	if (!node.isChildrenLoaded()) {
-        		containerNodes.add(node); 
+        if (userObject != null && userObject.getClass().equals(rootType)) {
+        	if (userObject instanceof DatasetData) {
+                containerNodes.add(node); 
                 containers.add((DataObject) userObject);
-        	}
+            } else if (userObject instanceof TagAnnotationData) {
+            	TagAnnotationData tag = (TagAnnotationData) userObject;
+            	if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag)) {
+            		containerNodes.add(node); 
+                    containers.add((DataObject) userObject);
+            	}
+            	/*
+            	if (!node.isChildrenLoaded()) {
+            		containerNodes.add(node); 
+                    containers.add((DataObject) userObject);
+            	}
+            	*/
+            }
         }
     }
 

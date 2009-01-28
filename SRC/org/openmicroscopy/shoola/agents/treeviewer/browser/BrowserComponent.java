@@ -164,17 +164,23 @@ class BrowserComponent
 
 	/** 
 	 * Retrieves the nodes to count the value for.
-	 * 
-	 * @param items The collection to handle.
+	 *
+	 * @param rootType The type of node to track.
 	 */
-	private void countItems(Set items)
+	private void countItems(Class rootType)
 	{
-		if (items == null) {
-			ContainerFinder finder = new ContainerFinder();
-			accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-			items = finder.getContainers();
-		} 
-		model.fireContainerCountLoading(items);
+		if (rootType == null) {
+			int type = model.getBrowserType();
+			if (type == PROJECT_EXPLORER) 
+				rootType = DatasetData.class;
+			else if (type == TAGS_EXPLORER)
+				rootType = TagAnnotationData.class;
+		}
+		ContainerFinder finder = new ContainerFinder(rootType);
+		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		Set<DataObject> items = finder.getContainers();
+		Set<TreeImageSet> nodes = finder.getContainerNodes();
+		model.fireContainerCountLoading(items, nodes);
 	}
 	
 	/**
@@ -366,6 +372,9 @@ class BrowserComponent
         view.setLeavesViews(visLeaves, parent);
         
         model.setState(READY);
+        if (parent != null && 
+        		parent.getUserObject() instanceof TagAnnotationData)
+        	countItems(DatasetData.class);
         model.getParentModel().setLeaves(parent, leaves);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
@@ -556,48 +565,18 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setContainerCountValue(int, long)
+     * @see Browser#setContainerCountValue(int, long, Set)
      */
-    public void setContainerCountValue(long containerID, long value)
+    public void setContainerCountValue(long containerID, long value, 
+    		Set<TreeImageSet> nodes)
     {
         //int state = model.getState();
         boolean b = model.setContainerCountValue(view.getTreeDisplay(), 
-									containerID, value);
-        if (b) {
+									containerID, value, nodes);
+        if (b) 
         	view.getTreeDisplay().repaint();
-        }
-        /*
-        switch (state) {
-	        case COUNTING_ITEMS:
-	            model.setContainerCountValue(view.getTreeDisplay(), 
-	                    					containerID, value);
-	            if (model.getState() == READY) fireStateChange();
-	            break;
-	        case READY:
-	            model.setContainerCountValue(view.getTreeDisplay(), 
-    										containerID, value);
-	            view.getTreeDisplay().repaint();
-	            break;
-	        default:
-	            throw new IllegalStateException(
-	                    "This method can only be invoked in the " +
-	                    "COUNTING_ITEMS or READY state.");
-        }
-        */
+        
         model.getParentModel().setStatus(false, "", true);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getContainersWithImagesNodes()
-     */
-    public Set getContainersWithImagesNodes()
-    {
-        //Note: avoid caching b/c we don't know yet what we are going
-        //to do with updates
-        ContainerFinder finder = new ContainerFinder();
-        accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-        return finder.getContainerNodes();
     }
     
     /**
