@@ -24,11 +24,14 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
 /** 
@@ -45,6 +48,7 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
  */
 public class SaveFileAction 
 	extends EditorAction
+	implements PropertyChangeListener
 {
 
 	/** The description of the action. */
@@ -53,15 +57,17 @@ public class SaveFileAction
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = "Save the current file.";
 
-	/** Implement this method to disable the Save Action if no file is open
-	 * or there is no data to save. */
-	protected void onStateChange() {
+	/** 
+	 * Implement this method to disable the Save Action if no file is open
+	 * or there is no data to save.  
+	 * @see EditorAction#onStateChange()
+	 */
+	protected void onStateChange()
+	{
 		int state = model.getState();
 		setEnabled(state == Editor.READY);
 		
-		if (! model.hasDataToSave()) {
-			setEnabled(false);
-		}
+		if (!model.hasDataToSave()) setEnabled(false);
 	}
 	
 	/** 
@@ -76,6 +82,7 @@ public class SaveFileAction
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_ICON);
+		model.registerBrowserListenert(this);
 	}
 
 	/**
@@ -84,15 +91,22 @@ public class SaveFileAction
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		// saves current file locally OR to server
-		boolean saved = model.saveCurrentFile();
-		
 		// if not saved (e.g. file is new) ask where to save...
-		if (! saved) {
-			
+		if (!model.saveCurrentFile()) {
 			ActionCmd save = new SaveNewCmd(model);
 			save.execute();
 		}
+	}
+
+	/**
+	 * Reacts to property fired by the <code>Browser</code>.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (Browser.BROWSER_EDIT_PROPERTY.equals(name)) 
+			onStateChange();
 	}
 	
 }

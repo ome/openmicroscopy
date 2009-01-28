@@ -48,6 +48,13 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 public interface Browser
 	extends ObservableComponent
 {
+	
+	/** 
+	 * Bound property indicating that the edit mode of the browser has
+	 * changed.
+	 */
+	public static final String BROWSER_EDIT_PROPERTY = "browserEdit";
+	
 	/**
 	 * A Flag to denote the <i>Display</i> state.
 	 * Specifies that the UI should be for tree display only,
@@ -106,12 +113,5 @@ public interface Browser
 	 * @return One of the state flags defined by this interface.
 	 */
 	public int getState();
-	
-	/**
-	 * Copies the selected fields and posts them to an Event on the bus, for
-	 * other Editor instances to use. 
-	 * 
-	 * @param		fieldData		The object to copy. 
-	 */
-	public void copySelectedFields(Object fieldData);
+
 }

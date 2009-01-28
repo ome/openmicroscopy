@@ -77,15 +77,11 @@ public class BrowserComponent
     {
     	this.model = model;
     	controller = new BrowserControl(this);
-    	
         view = new BrowserUI();
     }
     
     /** 
-	 * Links up the MVC triad. 
-	 * Called by BrowserFactory.
-	 * 
-	 * @param exp The logged in experimenter.
+	 * Links up the MVC triad. Called by BrowserFactory.
 	 */
 	void initialize()
 	{
@@ -117,10 +113,7 @@ public class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getUI()
      */
-	public JComponent getUI() 
-	{ 
-		return view;
-	}
+	public JComponent getUI() { return view; }
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
@@ -130,6 +123,7 @@ public class BrowserComponent
 	{
 		model.setEdited(edited);
 		fireStateChange();
+		firePropertyChange(BROWSER_EDIT_PROPERTY, -1, model.getState());
 	}
 
 	/** 
@@ -137,14 +131,5 @@ public class BrowserComponent
 	 * @see Browser#getState()
 	 */
 	public int getState() { return model.getState(); }
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#copySelectedFields()
-	 */
-	public void copySelectedFields(Object fieldData) {
-		
-		 Registry reg = EditorAgent.getRegistry();
-		 reg.getEventBus().post(new CopyEvent(fieldData));
-	}
+	
 }

@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 //Third-party libraries
@@ -236,20 +237,6 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#getBrowser()
-	 */
-	public Browser getBrowser() 
-	{
-		if (model.getState() == DISCARDED) return null;
-			/*
-			throw new IllegalStateException("This method should not be " +
-			"invoked in the DISCARDED state.");
-			*/
-		return model.getBrowser();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#openLocalFile(File file)
 	 */
 	public void openLocalFile(File file) {
@@ -362,11 +349,12 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#onFileSave(FileAnnotationData)
+	 * @see Editor#registerBrowserListenert(PropertyChangeListener)
 	 */
-	public void onBrowserChange()
-	{ 
-		fireStateChange(); 
+	public void registerBrowserListenert(PropertyChangeListener listener)
+	{
+		if (listener != null)
+			model.getBrowser().addPropertyChangeListener(listener);
 	}
 	
 }

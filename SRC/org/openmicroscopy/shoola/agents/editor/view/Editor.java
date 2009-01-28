@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 
 //Java imports
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 //Third-party libraries
@@ -124,11 +125,11 @@ public interface Editor
 	public String getEditorTitle();
 	
 	/**
-	 * Returns the browser component
+	 * Registers the listener.
 	 * 
-	 * @return	See above.
+	 * @param listener The listener to register.
 	 */
-	public Browser getBrowser();
+	public void registerBrowserListenert(PropertyChangeListener listener);
 	
 	/**
 	 * Opens a file that exists on the local machine.
@@ -179,7 +180,5 @@ public interface Editor
 	 * @param data The annotation.
 	 */
 	public void onFileSave(FileAnnotationData data);
-	
-	public void onBrowserChange();
 	
 }

@@ -182,8 +182,6 @@ class EditorControl
 		view.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { model.discard(); }
 		});
-		if (model.getBrowser() != null)
-			model.getBrowser().addChangeListener(this);
 	}
 	
 	/**
@@ -230,11 +228,6 @@ class EditorControl
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		Object src = e.getSource();
-		if (src == model.getBrowser()) {
-			model.onBrowserChange();
-			return;
-		}
 		int state = model.getState();
 		switch (state) {
 			case Editor.LOADING:

@@ -36,9 +36,12 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * This Action allows users to copy the currently selected fields to 
@@ -136,9 +139,10 @@ public class CopyFieldsAction
 	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		
-		if (treeUI == null)		return;
+		if (treeUI == null) return;
 		
 		TreePath[] paths = treeUI.getSelectionPaths();
 		Object[] nodes = new Object[paths.length];
@@ -153,7 +157,8 @@ public class CopyFieldsAction
 		}
 		
 		// pass this list to the model. Event will be posted with this object
-		model.copySelectedFields(nodes);
+		Registry reg = EditorAgent.getRegistry();
+		reg.getEventBus().post(new CopyEvent(nodes));
 	}
 	
 	/**
