@@ -49,7 +49,13 @@ public class ModelObjectHandlerFactory
     	handlers.put(ObjectiveHandler.HANDLER_FOR,
     			     new ObjectiveHandler(enumProvider));
     	handlers.put(DetectorHandler.HANDLER_FOR,
-			     new DetectorHandler(enumProvider));    	
+			     new DetectorHandler(enumProvider));
+    	handlers.put(ArcHandler.HANDLER_FOR,
+			     new ArcHandler(enumProvider));
+    	handlers.put(FilamentHandler.HANDLER_FOR,
+			     new FilamentHandler(enumProvider));
+    	handlers.put(LaserHandler.HANDLER_FOR,
+			     new LaserHandler(enumProvider));
     }
     
     /** Our fall through no-op enumeration handler. */
