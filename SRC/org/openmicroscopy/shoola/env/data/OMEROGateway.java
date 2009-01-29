@@ -94,6 +94,7 @@ import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
 import omero.model.Experimenter;
@@ -110,11 +111,15 @@ import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
+import omero.model.PixelsI;
 import omero.model.PixelsType;
 import omero.model.Plate;
+import omero.model.PlateI;
 import omero.model.Project;
+import omero.model.ProjectI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
+import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
@@ -394,6 +399,22 @@ class OMEROGateway
 		else if (klass.equals(Screen.class.getName())) table = 
 			"ScreenAnnotationLink";
 		else if (klass.equals(Plate.class.getName())) 
+			table = "PlateAnnotationLink";
+		else if (klass.equals(ScreenData.class.getName())) 
+			table = "ScreenAnnotationLink";
+		else if (klass.equals(PlateData.class.getName())) 
+			table = "PlateAnnotationLink";
+		else if (klass.equals(DatasetI.class.getName())) 
+			table = "DatasetAnnotationLink";
+		else if (klass.equals(ProjectI.class.getName())) 
+			table = "ProjectAnnotationLink";
+		else if (klass.equals(ImageI.class.getName())) 
+			table = "ImageAnnotationLink";
+		else if (klass.equals(PixelsI.class.getName()))
+			table = "PixelAnnotationLink";
+		else if (klass.equals(ScreenI.class.getName())) 
+			table = "ScreenAnnotationLink";
+		else if (klass.equals(PlateI.class.getName())) 
 			table = "PlateAnnotationLink";
 		else if (klass.equals(ScreenData.class.getName())) 
 			table = "ScreenAnnotationLink";
@@ -2493,10 +2514,11 @@ class OMEROGateway
 		RawFileStorePrx store = getRawFileService();
 		OriginalFile save = null;
 		try {
+			OriginalFile oFile;
 			if (originalFileID <= 0) {
 				Format f = (Format) getQueryService().findByString(
 						Format.class.getName(), "value", format);
-				OriginalFile oFile = new OriginalFileI();
+				oFile = new OriginalFileI();
 				oFile.setName(omero.rtypes.rstring(file.getName()));
 				oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
@@ -2506,9 +2528,22 @@ class OMEROGateway
 				save = (OriginalFile) saveAndReturnObject(oFile, null);
 				//service.saveAndReturnObject(oFile);
 				store.setFileId(save.getId().getValue());
-			} else store.setFileId(originalFileID);
+			} else {
+				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
+						originalFileID);
+				
+				OriginalFile newFile = new OriginalFileI();
+				newFile.setName(omero.rtypes.rstring(file.getName()));
+				newFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
+				newFile.setSize(omero.rtypes.rlong(file.length()));
+				newFile.setSha1(omero.rtypes.rstring("pending"));
+				newFile.setFormat(oFile.getFormat());
+				save = (OriginalFile) saveAndReturnObject(newFile, null);
+				store.setFileId(save.getId().getValue());
+			}
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot set the file's id.");
 		}
 		

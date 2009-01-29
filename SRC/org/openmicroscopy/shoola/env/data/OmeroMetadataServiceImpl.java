@@ -464,6 +464,7 @@ class OmeroMetadataServiceImpl
 						ho.getId().getValue());
 				if (link == null) 
 					link = ModelMapper.linkAnnotation(an, (Annotation) ho);
+				else exist = true;
 			} else {
 				link = gateway.findAnnotationLink(ho.getClass(), 
 						ho.getId().getValue(), tag.getId());
@@ -481,7 +482,7 @@ class OmeroMetadataServiceImpl
 		} else {
 			link = ModelMapper.linkAnnotation(ho, an);
 		}
-		if (link != null) 
+		if (link != null && !exist) 
 			gateway.createObject(link, (new PojoOptionsI()).map());
 	}
 	/**
@@ -504,21 +505,27 @@ class OmeroMetadataServiceImpl
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			TextualAnnotationData description = tag.getTagDescription();
 			//if (description != null) {
-				id = tag.getId();
-				if (id >= 0) {
-					
-					gateway.removeTagDescription(id, getUserDetails().getId());
-				}	
-				ioType = gateway.convertPojos(TagAnnotationData.class).getName();
-				ho = gateway.findIObject(ioType, id);
-				ModelMapper.unloadCollections(ho);
-				link = ModelMapper.createAnnotationAndLink(ho, description);
-				if (link != null) 
-					gateway.createObject(link, (new PojoOptionsI()).map());
+			id = tag.getId();
+			if (id >= 0) {
+				gateway.removeTagDescription(id, getUserDetails().getId());
+			}	
+			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
+			ho = gateway.findIObject(ioType, id);
+			ModelMapper.unloadCollections(ho);
+			link = ModelMapper.createAnnotationAndLink(ho, description);
+			if (link != null) 
+				gateway.createObject(link, (new PojoOptionsI()).map());
 			//}
 		}
 	}
 	
+	/**
+	 * Converts the element of the second collection into their corresponding
+	 * <code>DataObject</code>s.
+	 * 
+	 * @param all The list hosting the converted object.
+	 * @param l   The collection of elements to convert.
+	 */
 	private void convert(List<DataObject> all, Collection l)
 	{
 		Iterator i;
@@ -1987,9 +1994,9 @@ class OmeroMetadataServiceImpl
 			throw new IllegalArgumentException("No file to save.");
 		//Upload the file back to the server
 		long id = fileAnnotation.getId();
+		long originalID = fileAnnotation.getFileID();
 		OriginalFile of = gateway.uploadFile(file, 
-				fileAnnotation.getServerFileFormat(), 
-				fileAnnotation.getFileID());
+				fileAnnotation.getServerFileFormat(), originalID);
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
 		Map m = (new PojoOptionsI()).map();
@@ -2003,11 +2010,14 @@ class OmeroMetadataServiceImpl
 				gateway.findIObject(FileAnnotation.class.getName(), id);
 			fa.setFile(of);
 			gateway.updateObject(fa, m);
+			//gateway.deleteObject(gateway.findIObject(
+			//		OriginalFile.class.getName(), originalID));
 		}
 		fa = (FileAnnotation) 
 			gateway.findIObject(FileAnnotation.class.getName(), id);
 		FileAnnotationData data = 
 			(FileAnnotationData) PojoMapper.asDataObject(fa);
+		//of = gateway.getOriginalFile(data.getFileID());
 		if (of != null) 
 			data.setContent(of);
 		

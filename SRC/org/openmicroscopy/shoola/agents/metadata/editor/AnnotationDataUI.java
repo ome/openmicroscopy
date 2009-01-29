@@ -1186,65 +1186,58 @@ class AnnotationDataUI
 	protected List<AnnotationData> getAnnotationToSave()
 	{
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		DocComponent doc;
+		Iterator<DocComponent> i;
+		Object object;
+		AnnotationData annotation;
+		Iterator j;
+		List<Long> ids;
+		Collection original;
+		long id;
 		if (tagFlag) {
-			Collection original = model.getTags();
-			TagAnnotationData tag;
-			Iterator j = original.iterator();
-			List<Long> ids = new ArrayList<Long>();
+			original = model.getTags();
+			j = original.iterator();
+			ids = new ArrayList<Long>();
 			while (j.hasNext()) {
-				ids.add(((TagAnnotationData) j.next()).getId());
+				ids.add(((AnnotationData) j.next()).getId());
 			}
-			DocComponent doc;
-			Object d;
-			long id;
-			Object object;
-			Iterator<DocComponent> i = tagsDocList.iterator();
+			
+			i = tagsDocList.iterator();
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
 				if (object instanceof TagAnnotationData) {
-					tag = (TagAnnotationData) object;
-					id = tag.getId();
-					if (!ids.contains(id)) l.add(tag);
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
+					if (!ids.contains(id)) l.add(annotation);
 				}
 			}
 		}
-		
-		if (docFlag) {
-			DocComponent doc;
-			List<File> notSupported = new ArrayList<File>();
-			FileAnnotationData data = null;
-			File f;
-			Object d;
-			if (filesDocList.size() > 0) {
-				Iterator<DocComponent> i = filesDocList.iterator();
-				while (i.hasNext()) {
-					doc = i.next();
-					d = doc.getData();
-					if (d instanceof File) {
-						f = (File) doc.getData();
-						try {
-							data = new FileAnnotationData(f);
-						} catch (Exception e) {
-							notSupported.add(f);
-							data = null;
-						}
-						if (data != null) l.add(data);
-					} else if (d instanceof FileAnnotationData) {
-						l.add((FileAnnotationData) d);
-					}
-				}
+		i = tagsDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.hasBeenModified()) {
+				annotation = (AnnotationData) object;
+				if (!l.contains(annotation)) l.add(annotation);
 			}
-			if (notSupported.size() > 0) {
-				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
-				Iterator<File> k = notSupported.iterator();
-				String s = "";
-				while (k.hasNext()) {
-					s += (k.next()).getName();
-					s += " ";
+		}
+		if (docFlag) {
+			original = model.getAttachments();
+			j = original.iterator();
+			ids = new ArrayList<Long>();
+			while (j.hasNext()) {
+				ids.add(((AnnotationData) j.next()).getId());
+			}
+			i = filesDocList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof FileAnnotationData) {
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
+					if (!ids.contains(id)) l.add(annotation);
 				}
-				un.notifyInfo("Attach", 
-						"The following files cannot be attached: \n"+s);
 			}
 		}
 		if (selectedValue != initialValue)
