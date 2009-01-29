@@ -68,8 +68,9 @@ public class SaveServerCmd
 	public void execute() {
 		
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
-		InputDialog dialog = new InputDialog(f, "Save to server: Enter file name", 
-				"new-file.cpe.xml");
+		InputDialog dialog = new InputDialog(f, 
+				"Save to server: Enter file name", "");
+		dialog.setText(model.getEditorTitle());	// default file name
 		
 		int option = dialog.centerMsgBox();
 		if (option == InputDialog.SAVE) {
