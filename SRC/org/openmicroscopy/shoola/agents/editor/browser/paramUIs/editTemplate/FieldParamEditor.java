@@ -232,14 +232,12 @@ public class FieldParamEditor
 		
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		
-		// Don't display parameters/dataRefs if the field is a TextBoxStep. 
-		// (shouldn't be any anyway). 
-		if (! (field instanceof TextBoxStep)) {
-	
-			addParameters();
-			// add data refs
-			addDataRefs();
-		}
+		
+		// add parameters
+		addParameters();
+		// add data refs
+		addDataRefs();
+		
 		
 		this.setLayout(new BorderLayout());
 		add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -253,6 +251,10 @@ public class FieldParamEditor
 	 */
 	protected void addParameters() 
 	{	
+		// Don't display parameters if the field is a TextBoxStep. 
+		// (shouldn't be any anyway). 
+		if (field instanceof TextBoxStep)	return;
+		
 		attributeFieldsPanel.add(createParamsHeader());
 		int paramCount = field.getContentCount();
 		
@@ -275,6 +277,10 @@ public class FieldParamEditor
 	 */
 	protected void addDataRefs() 
 	{
+		// Don't display data-refs if the field is a TextBoxStep. 
+		// (shouldn't be any anyway). 
+		if (field instanceof TextBoxStep)	return;
+		
 		int dataRefCount = field.getDataRefCount();
 		if (dataRefCount == 0)	return;	// don't add header if no data-refs
 		
