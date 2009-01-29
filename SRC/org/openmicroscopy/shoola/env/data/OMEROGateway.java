@@ -66,6 +66,7 @@ import omero.AuthenticationException;
 import omero.DataAccessException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
+import omero.RLong;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -2530,9 +2531,10 @@ class OMEROGateway
 				store.setFileId(save.getId().getValue());
 			} else {
 				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
-						originalFileID);
+					originalFileID);
 				
 				OriginalFile newFile = new OriginalFileI();
+				newFile.setId(omero.rtypes.rlong(originalFileID));
 				newFile.setName(omero.rtypes.rstring(file.getName()));
 				newFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
 				newFile.setSize(omero.rtypes.rlong(file.length()));
