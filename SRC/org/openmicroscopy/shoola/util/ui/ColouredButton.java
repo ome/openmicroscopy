@@ -27,8 +27,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.geom.Point2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultButtonModel;
@@ -36,12 +34,6 @@ import javax.swing.JButton;
 
 
 //Third-party libraries
-import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.painter.CompoundPainter;
-import org.jdesktop.swingx.painter.GlossPainter;
-import org.jdesktop.swingx.painter.MattePainter;
-import org.jdesktop.swingx.painter.Painter;
-import org.jdesktop.swingx.painter.RectanglePainter;
 
 //Application-internal dependencies
 
