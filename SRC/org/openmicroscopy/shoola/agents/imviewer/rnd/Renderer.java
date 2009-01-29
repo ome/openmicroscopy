@@ -134,14 +134,12 @@ public interface Renderer
     void setBitResolution(int v);
     
     /**
-     * Sets the selected channel.
+     * Sets the selected channel. This method is invoked when 
+     * the channel has been selected from the viewer.
      * 
-     * @param c 			The new selected channel.
-     * @param checkIfActive	Pass <code>true</code> to control if the selected
-     * 						channel is active or not, <code>false</code>
-     * 						otherwise.
+     * @param index The index of the selected channel.
      */
-    void setSelectedChannel(int c, boolean checkIfActive);
+    void setSelectedChannel(int index);
     
     /**
      * Sets the family and updates the image.
@@ -183,11 +181,11 @@ public interface Renderer
     //CodomainMapContext getCodomainMapContext(Class mapType);
 
     /**
-     * Set the colour of the channel button in the renderer.
+     * Sets the colour of the channel button in the renderer.
      * 
-     * @param changedChannel
+     * @param index The index of the channel
      */
-    void setChannelButtonColor(int changedChannel);
+    void setChannelColor(int index);
     
     /**
      * Fired if the colour model has been changed from RGB -> Greyscale or 
@@ -283,5 +281,13 @@ public interface Renderer
 	 * @param index The index of the selected pane.
 	 */
 	public void setPaneIndex(int index);
+
+	/**
+	 * Indicates that a channel has been selected using the channel button.
+	 * 
+	 * @param index	
+	 * @param booleanValue
+	 */
+	void setChannelSelection(int index, boolean booleanValue);
 	
 }

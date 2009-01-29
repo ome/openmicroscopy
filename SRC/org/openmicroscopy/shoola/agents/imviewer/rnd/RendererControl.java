@@ -30,6 +30,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JTabbedPane;
@@ -45,6 +46,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -226,39 +228,50 @@ class RendererControl
             CodomainMapContext ctx = (CodomainMapContext)  evt.getNewValue();
             model.updateCodomainMap(ctx);
         */
-        if (name.equals(ControlPane.FAMILY_PROPERTY)) {
+        if (ControlPane.FAMILY_PROPERTY.equals(name)) {
             String oldValue = (String) evt.getOldValue();
             String newValue = (String) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
             model.setFamily(newValue);
             view.onCurveChange();
-        } else if (name.equals(ControlPane.GAMMA_PROPERTY)) {
+        } else if (ControlPane.GAMMA_PROPERTY.equals(name)) {
             Double oldValue = (Double) evt.getOldValue();
             Double newValue = (Double) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
             model.setCurveCoefficient(newValue.doubleValue());
             view.onCurveChange();
-        } else if (name.equals(ControlPane.BIT_RESOLUTION_PROPERTY)) {
+        } else if (ControlPane.BIT_RESOLUTION_PROPERTY.equals(name)) {
             Integer oldValue = (Integer) evt.getOldValue();
             Integer newValue = (Integer) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
             model.setBitResolution(newValue.intValue());
-        } else if (name.equals(ChannelToggleButton.CHANNEL_PICKED_PROPERTY)) {
+        } else if (ChannelToggleButton.CHANNEL_PICKED_PROPERTY.equals(name)) {
+            //int v = ((Integer) evt.getNewValue()).intValue();
+            //model.setSelectedChannel(v, false);
+        } else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
+            Map map = (Map) evt.getNewValue();
+			if (map == null) return;
+			if (map.size() != 1) return;
+			Iterator i = map.keySet().iterator();
+			Integer index;
+			while (i.hasNext()) {
+				index = (Integer) i.next();
+				model.setChannelSelection(index.intValue(), 
+						((Boolean) map.get(index)).booleanValue());
+			}
+        } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {
+        	view.showColorPicker(((Integer) evt.getNewValue()).intValue());
+        } else if (ImViewer.CHANNEL_ACTIVE_PROPERTY.equals(name)) {
             int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v, false);
-        } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
-            int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v, true);
-        } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
+            model.setSelectedChannel(v);
+        } else if (Renderer.INPUT_INTERVAL_PROPERTY.equals(name)) {
             view.setInputInterval();
-        } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGED_PROPERTY)) {
+        } else if (ImViewer.CHANNEL_COLOR_CHANGED_PROPERTY.equals(name)) {
+        	
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
-        	Map m = (Map) evt.getNewValue();
-        	if (m == null || m.size() != 1) return;
-        	Iterator i = m.keySet().iterator();
-        	while (i.hasNext()) 
-				model.setChannelButtonColor((Integer) i.next());
-        } else if (name.equals(ImViewer.COLOR_MODEL_CHANGED_PROPERTY)) {
+        	int index = (Integer) evt.getNewValue();
+        	model.setChannelColor(index);
+        } else if (ImViewer.COLOR_MODEL_CHANGED_PROPERTY.equals(name)) {
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
         	model.setColorModelChanged();
         } 

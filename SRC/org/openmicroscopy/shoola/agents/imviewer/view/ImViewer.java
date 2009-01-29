@@ -74,6 +74,12 @@ public interface ImViewer
 	extends ObservableComponent
 {
 
+    /** 
+     * The maximum number of channels before displaying the channels 
+     * buttons in a scrollpane.
+     */
+    public static final int		MAX_CHANNELS = 10;
+    
 	/** Identifies the <code>Maximum intensity</code> projection. */
 	public static final int 	MAX_INTENSITY = OmeroImageService.MAX_INTENSITY;
 	
@@ -309,11 +315,11 @@ public interface ImViewer
 	 * Selects or deselects the specified channel.
 	 * The selection process depends on the currently selected color model.
 	 * 
-	 * @param index The OME index of the channel.
-	 * @param b     Pass <code>true</code> to select the channel,
-	 *              <code>false</code> otherwise.
+	 * @param index    The index of the channel.
+	 * @param selected Pass <code>true</code> to select the channel,
+	 *                 <code>false</code> otherwise.
 	 */
-	public void setChannelSelection(int index, boolean b);
+	public void setChannelSelection(int index, boolean selected);
 
 	/** 
 	 * Activates/desactivates the specified channel
@@ -954,5 +960,12 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public List<ChannelData> getSortedChannelData();
+	
+	/**
+	 * Brings up the color picker.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	public void showColorPicker(int index);
 	
 }

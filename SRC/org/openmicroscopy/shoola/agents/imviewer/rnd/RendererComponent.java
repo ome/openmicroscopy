@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -72,22 +74,7 @@ class RendererComponent
     
     /** The View sub-component. */
     private RendererUI      view;
-    
-    /**
-     * Sets the index of the selected channel.
-     * 
-     * @param oldChannel	The index of the previously selected channel.
-     * @param c				The index of the newly selected channel.
-     */
-    private void setSelectedChannel(int oldChannel, int c)
-    {
-    	if (oldChannel == c) return;
-    	model.setSelectedChannel(c);
-        view.setSelectedChannel(c);
-        firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
-                    	new Integer(oldChannel), new Integer(c));
-    }
-    
+  
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -113,6 +100,8 @@ class RendererComponent
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model, metadataView);
+        //Set the selected channel
+		setSelectedChannel(-1);
     }
     
     /** 
@@ -201,14 +190,52 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setSelectedChannel(int, boolean)
+     * @see Renderer#setChannelSelection(int, boolean)
      */
-    public void setSelectedChannel(int c, boolean checkIfActive)
+	public void setChannelSelection(int index, boolean selected)
+	{
+		if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
+		List<Integer> active = model.getActiveChannels();
+		int oldIndex = model.getSelectedChannel();
+		if (active.contains(index)) {
+			if (oldIndex != index)
+				setSelectedChannel(index);
+			else {
+				Map<Integer, Boolean> m = new HashMap<Integer, Boolean>(1);
+				m.put(index, selected);
+				firePropertyChange(SELECTED_CHANNEL_PROPERTY, null, m);
+			}
+		} else {
+			Map<Integer, Boolean> m = new HashMap<Integer, Boolean>(1);
+			m.put(index, selected);
+			firePropertyChange(SELECTED_CHANNEL_PROPERTY, null, m);
+		}
+	}
+	
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setSelectedChannel(int)
+     */
+    public void setSelectedChannel(int c)
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        int selectedChannel  = model.getSelectedChannel();
-        //if (selectedChannel == c) return;
+        List<Integer> active = model.getActiveChannels();
+        if (!active.contains(c) && active.size() > 0) {
+    		int setIndex = model.createSelectedChannel();
+    		if (setIndex >= 0) c = setIndex;
+    	}
+    		
+        model.setSelectedChannel(c);
+        view.setSelectedChannel();
+       // firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
+         //   	new Integer(oldChannel), new Integer(c));
+        
+        
+        
+        /*
+        int selectedChannel = model.getSelectedChannel();
         if (!checkIfActive) { 
         	setSelectedChannel(selectedChannel, c);
         } else {
@@ -231,23 +258,21 @@ class RendererComponent
         		}
         	}
         }
-       
+        */
     }
 
     /**
-     * @see org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer
-     * #setChannelButtonColor(int)
-     * 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setChannelColor(int)
      */
-    public void setChannelButtonColor(int changedChannel)
+    public void setChannelColor(int index)
     {
-    	view.setChannelButtonColor(changedChannel);  
+    	view.setChannelColor(index);  
     }
     
     /**
-     *
-     * @see org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer#
-     * setColorModelChanged()
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setColorModelChanged()
      */
     public void setColorModelChanged()
     {

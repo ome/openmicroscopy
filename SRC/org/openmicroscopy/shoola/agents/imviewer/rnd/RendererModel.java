@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -135,7 +136,31 @@ class RendererModel
 		this.parentModel = parentModel;
 		this.rndControl = rndControl;
 		visible = false;
-		//state = Renderer.READY;
+	}
+	
+	/**
+	 * Returns the index of a channel or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	int createSelectedChannel()
+	{
+		//Set the selected channel
+		List<Integer> active = getActiveChannels();
+		List<ChannelData> list = getChannelData();
+		Iterator<ChannelData> i = list.iterator();
+		ChannelData channel;
+		int index;
+		int setIndex = -1;
+		while (i.hasNext()) {
+			channel = i.next();
+			index = channel.getIndex();
+			if (active.contains(index) && setIndex < 0) {
+				setIndex = index;
+				break;
+			}
+		}
+		return setIndex;
 	}
 	
 	/**
@@ -218,7 +243,7 @@ class RendererModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setCodomainInterval(int s, int e)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		rndControl.setCodomainInterval(s, e);
 	}
@@ -548,9 +573,9 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	List getActiveChannels()
+	List<Integer> getActiveChannels()
 	{
-		ArrayList<Integer> active = new ArrayList<Integer>();
+		List<Integer> active = new ArrayList<Integer>();
 		for (int i = 0; i < getMaxC(); i++) {
 			if (rndControl.isActive(i)) active.add(new Integer(i));
 		}
@@ -576,5 +601,12 @@ class RendererModel
 
 	/** Loads the metadata. */
 	void loadMetadata() { parentModel.loadMetadata(); }
+	
+	/**
+	 * Brings up the color picker.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void showColorPicker(int index) { parentModel.showColorPicker(index); }
 	
 }

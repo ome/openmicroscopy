@@ -161,26 +161,22 @@ class RendererUI
 		pane.removeCodomainMap(mapType);
 	}
 
-	/**
-	 * Sets the specified channel as current.
-	 * 
-	 * @param c The channel's index.
-	 */
-	void setSelectedChannel(int c)
+	/** Sets the specified channel as current. */
+	void setSelectedChannel()
 	{
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		pane.setSelectedChannel(c);
+		pane.setSelectedChannel();
 	}
 
 	/** 
-	 * Sets the color of the specified channel
+	 * Sets the color of the specified channel.
 	 * 
-	 * @param c The channel's index.
+	 * @param index The channel's index.
 	 */
-	void setChannelButtonColor(int c)
+	void setChannelColor(int index)
 	{
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		pane.setChannelButtonColor(c);
+		pane.setChannelColor(index);
 	}
 
 	/** Sets the pixels intensity interval. */
@@ -252,5 +248,12 @@ class RendererUI
 		if (index == ImViewer.RENDERER_INDEX) setSelectedIndex(0);
 		else if (index == ImViewer.METADATA_INDEX) setSelectedIndex(1);
 	}
+
+	/**
+	 * Brings up the color picker.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void showColorPicker(int index) { model.showColorPicker(index); }
 	
 }

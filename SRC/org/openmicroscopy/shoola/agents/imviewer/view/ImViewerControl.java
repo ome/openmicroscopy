@@ -761,16 +761,27 @@ class ImViewerControl
 		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
 		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
+			/*
 			if (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
 				int c = ((Integer) pce.getNewValue()).intValue();
 				for (int i = 0; i < model.getMaxC(); i++)
 					model.setChannelActive(i, i == c);
 				model.displayChannelMovie();
 			}
+			*/
+			Map map = (Map) pce.getNewValue();
+			if (map == null) return;
+			if (map.size() != 1) return;
+			Iterator i = map.keySet().iterator();
+			Integer index;
+			while (i.hasNext()) {
+				index = (Integer) i.next();
+				model.setChannelSelection(index.intValue(), 
+						((Boolean) map.get(index)).booleanValue());
+			}
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
 				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
-			colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
-			showColorPicker(colorPickerIndex);
+			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 
 			Color c = (Color) pce.getNewValue();
 			if (colorPickerIndex != -1) {

@@ -85,7 +85,7 @@ import pojos.ChannelData;
 class ControlPane
     extends JPanel
     implements ActionListener, ChangeListener, MouseWheelListener, 
-    			PropertyChangeListener
+    PropertyChangeListener
 {
 
     /** The description of a z-sections selection slider. */
@@ -120,12 +120,6 @@ class ControlPane
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
-    
-    /** 
-     * The maximum number of channels before displaying the channels 
-     * buttons in a scrollpane.
-     */
-    private static final int		MAX_CHANNELS = 10;
     
     /** Reference to the Control. */
     private ImViewerControl 		controller;
@@ -621,7 +615,7 @@ class ControlPane
         int k = 1;
         controls.add(buildToolBar(), "0, "+k+", c, c");
         k++;
-        if (channelButtons.size() > MAX_CHANNELS) 
+        if (channelButtons.size() > ImViewer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), "0, "+k);
         else controls.add(p, "0, "+k);
         k++;
@@ -770,7 +764,7 @@ class ControlPane
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildGridBar(), "0, 1, c, c");
-        if (channelButtonsGrid.size() > MAX_CHANNELS) 
+        if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(buttons), "0, 2");
         else controls.add(buttons, "0, 2");
         controls.add(gridRatioSlider, "0, 3, c, c");
@@ -813,7 +807,7 @@ class ControlPane
         int k = 1;
         controls.add(buildProjectionBar(), "0, "+k+", c, c");
         k++;
-        if (channelButtonsProjection.size() > MAX_CHANNELS) 
+        if (channelButtonsProjection.size() > ImViewer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(buttons), "0, "+k+", c, c");
         else controls.add(buttons, "0, "+k+", c, c");
         k++;

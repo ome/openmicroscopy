@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 
@@ -55,10 +57,10 @@ class RGBControl
 	 * RGB Model, this holds the current value of the R, G, B and alpha 
 	 * channels.
 	 */
-	private RGBModel	model;
+	private RGBModel				model;
 	
 	/** List of objects listening for changes to the model. */
-	private ArrayList	listeners;
+	private List<ChangeListener>	listeners;
 	
 	/**
 	 * Creates a reference to the model m, and instantiates 
@@ -70,7 +72,7 @@ class RGBControl
 	{
         if (m == null) throw new NullPointerException("No model.");
 		model = m;
-		listeners = new ArrayList();
+		listeners = new ArrayList<ChangeListener>();
 	}
 	
 	/**
@@ -212,6 +214,14 @@ class RGBControl
 	Color getColour() { return model.getColour(); }
 	
 	/**
+	 * Returns <code>true</code> if the color set is the original color,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOriginalColour() { return model.isOriginalColor(getColour()); }
+	
+	/**
 	 * Gets red component from Model.
 	 * 
 	 * @return red component as float.
@@ -276,7 +286,7 @@ class RGBControl
         ChangeListener e;
 		for (int i = 0 ; i < listeners.size(); i++)
 		{
-			e = (ChangeListener) listeners.get(i);
+			e = listeners.get(i);
 			e.stateChanged(new ColourChangedEvent(this));
 		}
 		firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null, 

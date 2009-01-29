@@ -310,9 +310,7 @@ class RGBModel
 	float [] RGBtoHSV()
 	{
 		float hsv[] = new float[3];
-		
 		float min, max, delta;
-
 		float h, s, v;
 		
 		min = findMin(red, green, blue);
@@ -446,7 +444,6 @@ class RGBModel
     	rgb[0] = r;
     	rgb[1] = g;
     	rgb[2] = b;
-    	
     	return rgb;	
 	}
 
@@ -468,6 +465,22 @@ class RGBModel
 		green = originalGreen;
 		blue = originalBlue;
 		alpha = originalAlpha;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed color is the orginal color,
+	 * <code>false</code>.
+	 * 
+	 * @param color The color to test.
+	 * @return See above.
+	 */
+	boolean isOriginalColor(Color color)
+	{
+		if (color == null) return false;
+		Color c = getOriginalColor();
+		return (c.getRed() == color.getRed() && c.getGreen() == color.getGreen() 
+				&& c.getBlue() == color.getBlue() &&
+                c.getAlpha() == color.getAlpha());
 	}
 	
 }

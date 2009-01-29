@@ -893,7 +893,7 @@ class ImViewerUI
 				addition = rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				
-				width = restoreSize.width+(int) (2.5*d.width);
+				width = restoreSize.width+(3*d.width);
 				width += addition;
 				break;
 			case HISTORY:
@@ -933,7 +933,7 @@ class ImViewerUI
 				addition = rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				
-				width = restoreSize.width+(int) (2.5*d.width);
+				width = restoreSize.width+(3*d.width);
 				width += addition;
 				d = historyUI.getPreferredSize();
 				addition = historySplit.getDividerSize()+

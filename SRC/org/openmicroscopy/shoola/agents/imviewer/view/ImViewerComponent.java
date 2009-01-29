@@ -622,27 +622,28 @@ class ImViewerComponent
 		}
 		try {
 			Iterator i;
-			List channels = model.getActiveChannels();
+			List<Integer> active = model.getActiveChannels();
 			int index;
 			switch (key) {
 				case ColorModelAction.GREY_SCALE_MODEL:
 					historyActiveChannels = model.getActiveChannels();
 					model.setColorModel(GREY_SCALE_MODEL);
-					
-					if (channels != null && channels.size() > 1) {
-						i = channels.iterator();
+					if (active != null && active.size() > 1) {
+						i = active.iterator();
 						int j = 0;
+						List<ChannelData> channels = model.getChannelData();
+						ChannelData channel = channels.get(0);
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
-							setChannelActive(index, j == 0);
+							setChannelActive(index, j == channel.getIndex());
 							j++;
 						}
-					} else if (channels == null || channels.size() == 0) {
-						//no channel so one will be active.
+					} else if (active == null || active.size() == 0) {
+						//no channel so no active channel
 						setChannelActive(0, true);
 					}
-					if (channels != null) {
-						i = channels.iterator();
+					if (active != null) {
+						i = active.iterator();
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
 							view.setChannelActive(index, ImViewerUI.GRID_ONLY);
@@ -660,11 +661,11 @@ class ImViewerComponent
 						}
 	
 					} else {
-						if (channels == null || channels.size() == 0) {
+						if (active == null || active.size() == 0) {
 							//no channel so one will be active.
 							setChannelActive(0, true);
 						} else {
-							i = channels.iterator();
+							i = active.iterator();
 							while (i.hasNext()) {
 								index = ((Integer) i.next()).intValue();
 								setChannelActive(index, true);
@@ -852,10 +853,7 @@ class ImViewerComponent
 					"Cannot set the color of channel "+index, e);
 		}
 
-		Map<Integer, Color> colors = new HashMap<Integer, Color>(1);
-		colors.put(index, c);
-		//view.setChannelColor(index, c);
-		firePropertyChange(CHANNEL_COLOR_CHANGED_PROPERTY, null, colors);
+		firePropertyChange(CHANNEL_COLOR_CHANGED_PROPERTY, -1, index);
 		postActiveChannelSelection(ChannelSelection.COLOR_SELECTION);
 		//if (model.isChannelActive(index)) renderXYPlane();
 	}
@@ -1672,7 +1670,7 @@ class ImViewerComponent
 		if (location == null) throw new IllegalArgumentException("No point.");
 		switch (menuID) {
 			case COLOR_PICKER_MENU:
-				if (model.getMaxC() == 1) controller.showColorPicker(0);
+				if (model.getMaxC() == 1) showColorPicker(0);
 				else view.showMenu(menuID, source, location);
 				break;
 			default:
@@ -2626,6 +2624,16 @@ class ImViewerComponent
 	public List<ChannelData> getSortedChannelData()
 	{
 		return model.getChannelData();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#showColorPicker(int)
+	 */
+	public void showColorPicker(int index)
+	{
+		if (model.getState() == DISCARDED) return;
+		controller.showColorPicker(index);
 	}
 	
 }

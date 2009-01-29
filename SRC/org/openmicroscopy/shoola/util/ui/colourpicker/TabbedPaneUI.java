@@ -214,29 +214,23 @@ class TabbedPaneUI
         userActionPanel.setLayout(new FlowLayout());
         
         acceptButton = new JButton("Accept");
-        acceptButton.setToolTipText("Accept Current Colour");
-        //UIUtilities.unifiedButtonLookAndFeel(acceptButton);
-        //acceptButton.setBorderPainted(true);
-        //acceptButton.setFocusPainted(true);
+        acceptButton.setToolTipText("Accept the selected colour.");
         AbstractAction action = new AbstractAction("Accept Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.accept(); }
         };
-        parent.getRootPane().setDefaultButton(acceptButton);
+        
         acceptButton.addActionListener(action);
         
         revertButton = new JButton("Revert");
-        revertButton.setToolTipText("Revert to Original Colour");
-        //UIUtilities.unifiedButtonLookAndFeel(revertButton);
-        //revertButton.setBorderPainted(true);
+        revertButton.setToolTipText("Revert to the original colour.");
         action = new AbstractAction("Revert Button Action") 
         {
             public void actionPerformed(ActionEvent evt)  { revertAction(); }
         };
         revertButton.addActionListener(action);
-        
         cancelButton = new JButton("Cancel");
-        cancelButton.setToolTipText("Cancel Selection and Close Colour Picker");
+        cancelButton.setToolTipText("Close the Colour Picker.");
         //UIUtilities.unifiedButtonLookAndFeel(cancelButton);
         //cancelButton.setBorderPainted(true);
         action = new AbstractAction("Cancel Button Action") 
@@ -248,10 +242,12 @@ class TabbedPaneUI
         userActionPanel.add(acceptButton);
         userActionPanel.add(revertButton);
         userActionPanel.add(cancelButton);
+        setButtonsEnabled(false);
+        parent.getRootPane().setDefaultButton(cancelButton);
     }
 
     /**
-     * Creates PaintPotUI, RGB slider panel and HSVWheel panel + Colour
+     * Creates PaintPotUI, RGB slider panel and HSVWheel panel and Colour
      * Swatch panel.
      */
     private void createPanels()
@@ -356,6 +352,18 @@ class TabbedPaneUI
 		control.addListener(this);
 	}
 	
+	/**
+	 * Sets the enabled flag of the {@link #acceptButton} and 
+	 * {@link #acceptButton}.
+	 * 
+	 * @param enabled The value to set.
+	 */
+	void setButtonsEnabled(boolean enabled)
+	{
+		acceptButton.setEnabled(enabled);
+		revertButton.setEnabled(enabled);
+	}
+	
 	/** 
 	 * User has clicked revert button. Revert current colour to the original 
 	 * colour choice passed to Colourpicker.
@@ -366,7 +374,7 @@ class TabbedPaneUI
 	 * Listens to ChangeEvent. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
-	public void stateChanged(ChangeEvent arg0) 
+	public void stateChanged(ChangeEvent evt) 
 	{
 		if (RGBSliderPane != null)
 			if (RGBSliderPane.isVisible()) RGBSliderPane.refresh();
@@ -374,6 +382,7 @@ class TabbedPaneUI
 			if (colourWheelPane.isVisible()) colourWheelPane.refresh();
 		if (swatchPane != null)
 			if (swatchPane.isVisible()) swatchPane.refresh();
+		setButtonsEnabled(!control.isOriginalColour());
 	}
 
 }

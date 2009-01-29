@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,6 +38,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -46,6 +49,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -135,7 +139,7 @@ class DomainPane
      * A collection of ColourButtons which represent the channel selected 
      * in the mapping process. 
      */
-    private List<ChannelToggleButton>	channelList;
+    private List<ChannelButton>			channelList;
     
     /** A panel containing the channel buttons. */
     private JPanel						channelButtonPanel;
@@ -230,7 +234,7 @@ class DomainPane
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
-        channelList = new ArrayList<ChannelToggleButton>();
+        channelList = new ArrayList<ChannelButton>();
         channelButtonPanel = createChannelButtons();
     }
     
@@ -258,36 +262,46 @@ class DomainPane
         List<ChannelData> data = model.getChannelData();
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         ChannelData d;
-        ChannelToggleButton item;
+        //ChannelToggleButton item;
+        ChannelButton item;
         p.add(Box.createRigidArea(VBOX));
-        Dimension dMax = ChannelToggleButton.DEFAULT_MAX_SIZE;
+        Dimension dMax = ChannelButton.DEFAULT_MIN_SIZE;
         Dimension dim;
         Iterator<ChannelData> i = data.iterator();
         int j;
+        List<Integer> active = model.getActiveChannels();
         while (i.hasNext()) {
 			d = i.next();
 			j = d.getIndex();
-			item = new ChannelToggleButton(""+d.getChannelLabeling(), 
+			item = new ChannelButton(""+d.getChannelLabeling(), 
 					model.getChannelColor(j), j);
 			dim = item.getPreferredSize();
 			if (dim.width > dMax.width) 
 				dMax = new Dimension(dim.width, dMax.height);
 			item.setBackground(UIUtilities.BACKGROUND_COLOR);
 			channelList.add(item);
-			item.setSelected(model.getSelectedChannel() == j);
+			item.setSelected(active.contains(j));
 			item.setGrayedOut(gs);
 			item.addPropertyChangeListener(controller);
 			p.add(item);
 			p.add(Box.createRigidArea(VBOX));
 		}
  
-        Iterator<ChannelToggleButton> k = channelList.iterator();
-        while (k.hasNext()) {
-			k.next().setPreferredSize(dMax);
-		}
+        Iterator<ChannelButton> index = channelList.iterator();
+        while (index.hasNext()) 
+			index.next().setPreferredSize(dMax);
+
+        JPanel controls = new JPanel();
+        double size[][] = {{TableLayout.PREFERRED}, 
+        				{TableLayout.PREFERRED}};
+        controls.setLayout(new TableLayout(size));
+        int k = 0;
+        if (channelList.size() > ImViewer.MAX_CHANNELS) 
+        	controls.add(new JScrollPane(p), "0, "+k);
+        else controls.add(p, "0, "+k);
         
         
-        JPanel content = UIUtilities.buildComponentPanel(p);  
+        JPanel content = UIUtilities.buildComponentPanel(controls);  
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         return content;  
     }
@@ -497,10 +511,10 @@ class DomainPane
     protected void resetDefaultRndSettings()
     {
         setInputInterval();
-        setSelectedChannel(model.getSelectedChannel());
+        setSelectedChannel();
         setCodomainInterval();
         resetBitResolution();
-        ChannelToggleButton btn;
+        ChannelButton btn;
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         for (int i = 0; i < channelList.size(); i++) {
             btn = channelList.get(i);
@@ -521,7 +535,7 @@ class DomainPane
 		if (bitDepthSlider != null) bitDepthSlider.setEnabled(b);
 		if (noiseReduction != null) noiseReduction.setEnabled(b);
 		if (channelList != null) {
-			Iterator<ChannelToggleButton> i = channelList.iterator();
+			Iterator<ChannelButton> i = channelList.iterator();
 			while (i.hasNext()) 
 				(i.next()).setEnabled(b);
 		}
@@ -553,10 +567,8 @@ class DomainPane
     /**
      * Modifies the rendering controls depending on the currently selected
      * channel.
-     * 
-     * @param c The selected channel.
      */
-    void setSelectedChannel(int c)
+    void setSelectedChannel()
     {
         graphicsPane.setSelectedChannel();
         String f = model.getFamily();
@@ -575,8 +587,24 @@ class DomainPane
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
         noiseReduction.setText(NoiseReductionAction.NAME);
-        for (int i = 0; i < channelList.size(); i++) 
-        	channelList.get(i).setSelected(i==c);
+        
+        Iterator<ChannelButton> i = channelList.iterator();
+        ChannelButton btn;
+        List<Integer> active = model.getActiveChannels();
+        int index;
+        int c = model.getSelectedChannel();
+        while (i.hasNext()) {
+			btn = i.next();
+			index = btn.getChannelIndex();
+			btn.setSelected(active.contains(index));
+			if (index == c) {
+				//TODO
+				btn.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+			}
+		}
+        //Sets the channel border.
+       // for (int i = 0; i < channelList.size(); i++) 
+        //	channelList.get(i).setSelected(i==c);
     }
     
     /** Sets the pixels intensity interval. */
@@ -586,30 +614,33 @@ class DomainPane
     void setCodomainInterval() { graphicsPane.setCodomainInterval(); }
     
     /**
-     * Set the colour of the channel button c.
+     * Sets the colour of the passed channel.
      *  
-     * @param c The channel whose colour changed.
+     * @param index The index of the channel.
      */
-    void setChannelButtonColor(int c)
+    void setChannelColor(int index)
     {
-        ChannelToggleButton btn = channelList.get(c);
-        btn.setColor(model.getChannelColor(c));
-        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
-        if (gs)  btn.setGrayedOut(gs);
+    	Iterator<ChannelButton> i = channelList.iterator();
+    	ChannelButton btn;
+    	boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+    	while (i.hasNext()) {
+			btn = i.next();
+			if (index == btn.getChannelIndex()) {
+				 btn.setColor(model.getChannelColor(index));
+				 if (gs) btn.setGrayedOut(gs);
+			}
+		}
     }
     
-    /**
-     * Fired if the colour model has been changed, toggles between RGB and 
-     * Greyscale. 
-     */
+    /** Toggles between color model and Greyscale. */
     void setColorModelChanged() 
     {
-        ChannelToggleButton btn;
+        ChannelButton btn;
         String colorModel = model.getColorModel();
         for (int i = 0 ; i < channelList.size() ; i++) {
             btn = channelList.get(i);
             btn.setColor(model.getChannelColor(i));
-            btn.setGrayedOut(colorModel.equals (ImViewer.GREY_SCALE_MODEL));
+            btn.setGrayedOut(colorModel.equals(ImViewer.GREY_SCALE_MODEL));
         }
     }
     
@@ -665,6 +696,5 @@ class DomainPane
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
-
 
 }

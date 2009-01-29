@@ -107,6 +107,7 @@ public class ColourPicker
     void accept()
     {
         Color c = model.getColour();
+        if (model.isOriginalColor(model.getColour())) return;
         Color original = model.getOriginalColor();
         if ((original.getRed() == c.getRed()) && 
                 (original.getGreen() == c.getGreen()) &&
@@ -133,7 +134,6 @@ public class ColourPicker
         RGBControl control = new RGBControl(model);
         
         TabbedPaneUI tabbedPane = new TabbedPaneUI(this, control);
-        
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 80;
