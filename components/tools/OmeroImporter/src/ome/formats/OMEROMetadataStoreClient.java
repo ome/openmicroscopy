@@ -1852,12 +1852,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 
     public List<Pixels> saveToDB()
     {
-    	Collection<IObjectContainer> containers = containerCache.values();
-    	IObjectContainer[] containerArray = 
-    		containers.toArray(new IObjectContainer[containers.size()]);
     	Map<String, String> referenceStringCache = 
     	    new HashMap<String, String>();
-
     	try
         {
             for (LSID target : referenceCache.keySet())
@@ -1894,6 +1890,10 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
                 }
                 referenceStringCache.put(container.LSID, reference.toString());
             }
+            
+        	Collection<IObjectContainer> containers = containerCache.values();
+        	IObjectContainer[] containerArray = 
+        		containers.toArray(new IObjectContainer[containers.size()]);
             
             for (LSID key : containerCache.keySet())
             {
