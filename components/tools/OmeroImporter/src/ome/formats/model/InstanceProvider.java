@@ -40,6 +40,7 @@ public interface InstanceProvider
      * Retrieves an instance.
      * @param klass Instance's base class from <code>omero.model</code>.
      * @return Concrete instance of <code>klass</code>.
+     * @throws ModelException If there is an error retrieving the instance.
      */
 	<T extends IObject> T getInstance(Class<T> klass) throws ModelException;
 }
