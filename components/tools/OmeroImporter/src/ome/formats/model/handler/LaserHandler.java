@@ -26,7 +26,6 @@ package ome.formats.model.handler;
 import ome.formats.enums.EnumerationProvider;
 import omero.model.IObject;
 import omero.model.Laser;
-import omero.model.LaserI;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 
@@ -41,7 +40,7 @@ class LaserHandler implements ModelObjectHandler
 	private EnumerationProvider enumProvider;
 	
 	/** The class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = LaserI.class;
+	static final Class<? extends IObject> HANDLER_FOR = Laser.class;
 	
 	/**
 	 * Default constructor.

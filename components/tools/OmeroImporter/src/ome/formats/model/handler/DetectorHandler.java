@@ -24,10 +24,9 @@
 package ome.formats.model.handler;
 
 import ome.formats.enums.EnumerationProvider;
-import omero.model.DetectorI;
+import omero.model.Detector;
 import omero.model.DetectorType;
 import omero.model.IObject;
-import omero.model.Detector;
 
 /**
  * A model object handler that handles objects of type Detector. 
@@ -40,7 +39,7 @@ class DetectorHandler implements ModelObjectHandler
 	private EnumerationProvider enumProvider;
 	
 	/** The class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = DetectorI.class;
+	static final Class<? extends IObject> HANDLER_FOR = Detector.class;
 	
 	/**
 	 * Default constructor.

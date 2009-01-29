@@ -26,7 +26,6 @@ package ome.formats.model.handler;
 import ome.formats.enums.EnumerationProvider;
 import omero.model.IObject;
 import omero.model.Arc;
-import omero.model.ArcI;
 import omero.model.ArcType;
 
 /**
@@ -40,7 +39,7 @@ class ArcHandler implements ModelObjectHandler
 	private EnumerationProvider enumProvider;
 	
 	/** The class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = ArcI.class;
+	static final Class<? extends IObject> HANDLER_FOR = Arc.class;
 	
 	/**
 	 * Default constructor.

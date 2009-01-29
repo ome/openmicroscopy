@@ -26,7 +26,6 @@ package ome.formats.model.handler;
 import ome.formats.enums.EnumerationProvider;
 import omero.model.IObject;
 import omero.model.Filament;
-import omero.model.FilamentI;
 import omero.model.FilamentType;
 
 /**
@@ -40,7 +39,7 @@ class FilamentHandler implements ModelObjectHandler
 	private EnumerationProvider enumProvider;
 	
 	/** The class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = FilamentI.class;
+	static final Class<? extends IObject> HANDLER_FOR = Filament.class;
 	
 	/**
 	 * Default constructor.

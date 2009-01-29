@@ -28,7 +28,6 @@ import omero.model.Correction;
 import omero.model.IObject;
 import omero.model.Immersion;
 import omero.model.Objective;
-import omero.model.ObjectiveI;
 
 /**
  * A model object handler that handles objects of type Objective. 
@@ -41,7 +40,7 @@ class ObjectiveHandler implements ModelObjectHandler
 	private EnumerationProvider enumProvider;
 	
 	/** The class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = ObjectiveI.class;
+	static final Class<? extends IObject> HANDLER_FOR = Objective.class;
 	
 	/**
 	 * Default constructor.
