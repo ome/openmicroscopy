@@ -24,17 +24,11 @@ import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
-import omero.RObject;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.api.*;
 import omero.metadatastore.IObjectContainer;
-import omero.model.BooleanAnnotation;
-import omero.model.Dataset;
-import omero.model.Image;
-import omero.model.Instrument;
-import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Project;
 import omero.util.IceMapper;
@@ -3435,7 +3429,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                                return null;
+                    	store.updateReferences(references);
+                    	return null;
                     }
                 }));
     }
