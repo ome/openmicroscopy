@@ -114,7 +114,7 @@ class MetadataPanelsComponent
 			// don't add a field unless it has some parameters to display
 			if (paramComponents.isEmpty()) continue;
 			
-			fieldName = TreeOutlineCellRenderer.getFieldDisplayName(field);
+			fieldName = TreeOutlineCellRenderer.getFieldDisplayName(field, node);
 			
 			nodePanel = new JPanel();
 			nodePanel.setBorder(BorderFactory.createTitledBorder(fieldName));

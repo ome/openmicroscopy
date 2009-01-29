@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.Note;
 import org.openmicroscopy.shoola.agents.editor.model.TextBoxStep;
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
@@ -152,9 +153,10 @@ public class FieldParamEditor
 	 */
 	private void buildPanel() {
 		
+		String defaultName = TreeModelMethods.getNodeName(treeNode);
 		// Name: Label and text box
 		AttributeEditLine nameEditor = new AttributeEditNoLabel
-			(field, Field.FIELD_NAME, "Step Name [edit]");
+			(field, Field.FIELD_NAME, defaultName);
 		nameEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		nameEditor.setFontSize(14);

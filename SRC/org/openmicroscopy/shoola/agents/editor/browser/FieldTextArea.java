@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
@@ -81,7 +82,7 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
 /** 
- * This Text Area is represents a "Field" (or a node) of the data model tree,
+ * This Text Area is represents a Field/Step (or a node) of the data model tree,
  * when it is displayed in the "Text Document" view (rather than a JTree view).
  * The text is displayed using a {@link HtmlContentEditor}, but the editing
  * is managed by this class. 
@@ -383,11 +384,10 @@ public class FieldTextArea
 		
 		// html for the field name
 		String name = getFieldName();
-		if (name != null && name.length() > 0) {
+		if (name != null) {
 			html = "<"+ FieldTextArea.NAME_TAG  +" " + HTML.Attribute.ID +
-			"='"+ FieldTextArea.NAME_ID +"'>" 
-			+ name.trim() + "</"+ FieldTextArea.NAME_TAG +"><br>";
-		} else {
+				"='"+ FieldTextArea.NAME_ID +"'>" 
+				+ name.trim() + "</"+ FieldTextArea.NAME_TAG +"><br>";
 		}
 		
 		String contentText;
@@ -445,11 +445,12 @@ public class FieldTextArea
     protected void saveContent() 
     {
     	if (htmlEditor.hasDataToSave()) {
-    		
+    		String fieldName = null;
     		// get the new name...
     		TextToken nameTag = getNameTag();
-    		String fieldName = 
-    						(nameTag == null ? null : nameTag.getText().trim());
+    		if (nameTag != null) {
+    			getEditedName(nameTag.getText());
+    		}
     		
     		// convert the current text of this editor into a list of
     		// content, in the same format as the data model...
@@ -573,7 +574,7 @@ public class FieldTextArea
 		List<IFieldContent> newContent = getNewContent(param);
 		
 		// get the new name, just in case it changed...
-		String fieldName = (nameTag == null ? null : nameTag.getText());
+		String fieldName = getEditedName(nameTag.getText());
 		
 		// replace the old content of the field with new content
 		controller.editFieldContent(field, fieldName, 
@@ -581,6 +582,24 @@ public class FieldTextArea
 		
 		// reset this flag
 		htmlEditor.dataSaved();
+	}
+	
+	/**
+	 * Handy method for getting the edited name of the field/step.
+	 * If the current name is the same as the default text (eg Step 1) then
+	 * this method will return null, since the name has not been edited and
+	 * should not be saved. 
+	 * 
+	 * @param currentText
+	 * @return
+	 */
+	private String getEditedName(String currentText)
+	{
+		if (currentText == null)	return null;
+		if (currentText.equals(TreeModelMethods.getNodeName(treeNode)))
+				return null;
+		
+		return currentText.trim();
 	}
 
 	/**
@@ -683,7 +702,11 @@ public class FieldTextArea
 	 */
 	protected String getFieldName()
 	{
-		return field.getAttribute(Field.FIELD_NAME);
+		String name = field.getAttribute(Field.FIELD_NAME);
+		if ((name == null) || (name.length() == 0)) {
+			name = TreeModelMethods.getNodeName(treeNode);
+		} 
+		return name;
 	}
 	
 	/**

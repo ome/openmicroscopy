@@ -332,8 +332,9 @@ public class TreeModelMethods {
 			lastNodeSibling = lastNode.getNextSibling();
 		}
 		
-		// now you can indent nodes left
-		for (DefaultMutableTreeNode node: nodes) {
+		// now you can indent nodes left (top node last - added below parent)
+		for (int n=nodes.size()-1; n>-1; n--) {
+			DefaultMutableTreeNode node = nodes.get(n);
 			indentNodeLeft(node);
 		}
 		treeModel.nodeStructureChanged(grandParentNode);
@@ -399,5 +400,25 @@ public class TreeModelMethods {
 		}
 		
 		return null;
+	}
+	
+	public static String getNodeName(DefaultMutableTreeNode node)
+	{
+	
+		if (node.isRoot()) {
+			return "Protocol Title";
+		}
+		
+		String steps = "Step ";
+		int index;
+		TreeNode[] pathNodes = node.getPath();
+		DefaultMutableTreeNode pathNode;
+		for (int i=0; i< pathNodes.length-1; i++) {
+			pathNode = (DefaultMutableTreeNode)pathNodes[i];
+			index = pathNode.getIndex(pathNodes[i+1]) + 1; 
+			steps = steps + (i>0 ? "." : "") + index;
+		}
+		
+		return steps;
 	}
 }

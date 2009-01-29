@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
@@ -95,7 +96,7 @@ public class TreeOutlineCellRenderer
 				IField field = (IField)object;
 				toolTipText = field.getToolTipText();
 				
-				String text = getFieldDisplayName(field);
+				String text = getFieldDisplayName(field, node);
 				
 				if (field.getContentCount() < 1) {
 					paramIcon = imF.getIcon(IconManager.TEXT_LINE_ICON);
@@ -147,22 +148,13 @@ public class TreeOutlineCellRenderer
 	 * @param field			The field. 
 	 * @return				A display String
 	 */
-	public static String getFieldDisplayName(IField field)
+	public static String getFieldDisplayName(IField field, 
+			DefaultMutableTreeNode node)
 	{
 		String text = field.getAttribute(Field.FIELD_NAME);
 		
-		if (field.getContentCount() < 1) {
-			// if no name set
-			if ((text == null) || (text.trim().length() == 0)) {
-				text = field.toString();
-			}
-		} else {
-			IFieldContent content = field.getContentAt(0);
-			
-			// if no name set, use content for name
-			if ((text == null) || (text.trim().length() == 0)) {
-				text = content.toString();
-			}
+		if (text == null) {
+			text = TreeModelMethods.getNodeName(node);
 		}
 		
 		if (text.length() > MAX_CHARS) { 
