@@ -363,6 +363,11 @@ class EditorModel
 	void setFileAnnotationData(FileAnnotationData data)
 	{
 		this.fileAnnotation = data;
+		if (data == null) {
+			fileID = 0;
+			fileName = null;
+			return;
+		}
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
 	}

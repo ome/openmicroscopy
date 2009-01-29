@@ -324,6 +324,7 @@ class EditorComponent
 	 */
 	public void saveFileServer(String fileName) 
 	{
+		model.setFileAnnotationData(null);
 		model.fireFileSaving(new File(fileName));
 		fireStateChange();
 	}
