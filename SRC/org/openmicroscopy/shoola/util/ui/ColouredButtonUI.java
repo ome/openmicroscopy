@@ -603,8 +603,7 @@ extends BasicButtonUI
         if(ptr == null) return;
         
         Graphics2D g2d = (Graphics2D) g.create();
-    	try 
-    	{
+   
             if(!isPaintBorderInsets()) 
             {
                 ptr.paint(g2d, this, getWidth(), getHeight());
@@ -617,11 +616,7 @@ extends BasicButtonUI
                        getWidth() - ins.left - ins.right,
                         getHeight() - ins.top - ins.bottom);
             }
-        } 
-        finally 
-        {
-            g2d.dispose();
-        }
+         
     }
     
     /** 
