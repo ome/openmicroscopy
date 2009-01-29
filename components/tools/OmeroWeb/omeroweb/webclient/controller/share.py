@@ -125,7 +125,6 @@ class BaseShare(BaseController):
         prInShare = list()
 
         for ex in content:
-            print type(ex._obj), ex.id
             if isinstance(ex._obj, omero.model.ImageI):
                 imInShare.append(ex.id)
             elif isinstance(ex._obj, omero.model.DatasetI):

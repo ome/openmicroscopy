@@ -10,6 +10,7 @@
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
@@ -17,7 +18,7 @@
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
 {% endblock %}
 
 {% block center %}
@@ -54,7 +55,7 @@
         {% endif %}
         {% for field in form %}
             <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
             </tr>
         {% endfor %}
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>

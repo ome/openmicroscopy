@@ -1,7 +1,7 @@
 {% extends "omeroweb/base_share.html" %}
 {% load markup %}
 {% load custom_tags %}
-
+{% load wikitags %}
 
 {% block link %}
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/share.css" type="text/css" media="screen"/>
@@ -27,6 +27,10 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
     <script>
       $(document).ready(function(){
+          
+          $("div#share_content").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+          $("div#share_content").load("{% get_webclient_root_url %}/share_content/{{ share.share.id }}/");
+          
           $('#id_expiretion').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
       });
     </script>
@@ -42,74 +46,15 @@
     <h1>Edit share with {{ share.sizeOfShare }} items:</h1>
 {% endifequal %}
 
-{% ifnotequal share.sizeOfShare 0 %}
-    <div id="cart">
-    <h1>Containers</h1>
-    {% if share.prSize %}
-    {% for c in share.projectInShare %}
-    <div class="clear"></div>
-    <div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" "/><a href=""><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
-        {% if c.copyDatasetLinks %}
-        {% for d in c.listChildren %}
-        <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" "/>
-            {% if d.copyImageLinks %}
-            {% for e in d.listChildren %}
-            <div class="imageInDataset"><ul id="products">
-                <li class="product"><em>{{ e.name }}</em>
-                    <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ c.name }}"/></a>
-                </li>
-            </ul></div>
-            {% endfor %}
-            {% endif %}
-        </div>
-        {% endfor %}
-        {% endif %}
-    </div>
-    {% endfor %}
-    {% endif %}
-    
-    {% if share.dsSize %}
-    <div class="clear"></div>
-    {% for d in share.datasetInShare %}
-    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" /><a href=""><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
-        {% if d.copyImageLinks %}
-        {% for e in d.listChildren %}
-        <div class="imageInDataset"><ul id="products">
-            <li class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ c.name }}"/></a>
-            </li>
-        </ul></div>
-        {% endfor %}
-        {% endif %}
-    </div>
-    {% endfor %}
-    {% endif %}
-    </div>
-    
-    {% if share.imgSize %}
-    <div class="clear"></div>
-    <h1>Orphaned images</h1>
-    <div class="image"><ul id="products">
-        <li class="clear"> </li>
-        {% for e in share.imageInShare %}
-            <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ e.name }}"/></a>
-                <a href=""><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
-            </li>
-        {% endfor %}
-    </ul></div>
-    {% endif %}
-    
-    </div>
-    <div class="clear"></div>
-{% endifnotequal %}
+<div id="share_content"></div>
+<div class="clear"> </div>
 
     <div>
         <form action="{% get_webclient_root_url %}/share/save/{{ share.share.id }}/" method="post">
             <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td>
                 </tr>
             {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
@@ -121,4 +66,37 @@
         </script>
     </div>
 
+    <div>
+        <h1>Manage comments:</h1>
+        {% if share.cmSize %}
+            {% for cm in share.comments %}
+                {% if cm.isOwned %}
+                    <div id="comment_wrapper_rev">
+                    <div id="comment_rev">
+                        <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
+                        <div class="footer"></div>
+                    </div>
+                    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
+                    </div>
+                    <div class="clear"></div>
+                    <br/>
+                {% else %}
+                    <div id="comment_wrapper">
+                    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
+                    <div id="comment">
+                        <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
+                        <div class="footer"></div>
+                    </div>
+                    </div>
+                    <div class="clear"></div>
+                    <br/>
+                {% endif %}
+
+            {% endfor %}
+            <div class="comment_bottom"> </div>
+
+        {% endif %}
+    </div>
 {% endblock %}

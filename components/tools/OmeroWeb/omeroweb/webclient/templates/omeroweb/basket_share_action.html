@@ -32,6 +32,7 @@
     <script>
       $(document).ready(function(){
           $('#id_expiretion').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+          
       });
     </script>
 
@@ -115,7 +116,7 @@
             <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td>
                 </tr>
             {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>

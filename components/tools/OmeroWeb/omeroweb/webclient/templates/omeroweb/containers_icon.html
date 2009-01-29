@@ -81,6 +81,7 @@
                     });
                 return false; 
             });
+            
         });
     </script>
 {% endblock %}
@@ -280,8 +281,7 @@
 {% endif %}
 
 <div class="clear"> </div>
-<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_yellow32.png" title="Orphaned images" alt="Orphaned images"/> - Orphaned images; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image;
-</div>
+
 <div class="separate70"></div>
 {% if manager.project or manager.dataset %}
 

@@ -18,7 +18,6 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.accordion.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
     
@@ -84,12 +83,6 @@
                         {% endif %}
                     {% endif %}    
                     return false; 
-                });
-                
-                $("#help1").accordion( { 
-                    autoHeight: false,
-                    active: false,
-                    alwaysOpen: false, 
                 });
         })
     </script>
@@ -308,19 +301,6 @@
     {% endif %}
 
 {% endif %}
-
-<ul id="help1" class="ui-accordion-metadata" >
-    <li><a href='#'>How to recognize items in this table?</a>
-        <div>
-            <ul>
-                <li><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_yellow32.png" title="Orphaned images" alt="Orphaned images"/> - Orphaned images</li>
-                <li><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project</li>
-                <li><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset</li>
-                <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image</li>
-            </ul>
-        </div>
-    </li>
-</ul>
 
 <div class="separate70"></div>
 

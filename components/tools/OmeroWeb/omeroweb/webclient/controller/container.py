@@ -657,8 +657,7 @@ class BaseContainer(BaseController):
 
         if self.long_annotations['votes'] > 0:
             self.long_annotations['rate'] /= self.long_annotations['votes']
-    
-    
+
     def updateDataset(self, name, description, permissions):
         container = self.dataset._obj
         container.name = rstring(str(name))

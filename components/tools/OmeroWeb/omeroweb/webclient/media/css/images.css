@@ -119,6 +119,13 @@ div#view, div#header_name {
     margin: -8px 0 20px 0;
 }
 
+.ui-accordion-help {
+    list-style-type:none;
+    margin:0;
+    padding:0;
+    width: 220px;
+}
+
 .ui-accordion-metadata {
     list-style-type:none;
     margin:0;
@@ -137,11 +144,11 @@ div#view, div#header_name {
     text-decoration:none;
 }
 a.ui-accordion-header  {
-    color: #ff0000;
+    color: #009981;
     text-decoration: none;
 }
 a.ui-accordion-header:hover,a.ui-accordion-header:link,a.ui-accordion-header:visited {
-    color: #ff0000;
+    color: #009981;
     text-decoration: none;
 }
 

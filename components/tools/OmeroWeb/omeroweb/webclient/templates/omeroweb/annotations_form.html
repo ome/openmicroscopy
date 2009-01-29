@@ -8,7 +8,7 @@
         <table>
             {% for field in form_comment %}
                 <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
             {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
@@ -19,6 +19,7 @@
             googie_spell.decorateTextarea("id_content", null, "600px");
         </script>
     </div>
+    
     {% endif %}
 
     {% if form_url %}

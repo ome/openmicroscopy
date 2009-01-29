@@ -256,7 +256,7 @@ def getShareConnection (request):
             else:
                 # stores connection on connectors
                 share_connectors[conn_key] = conn
-                logger.debug("Have connection uuid: '%s'" % (str(request.session['shareSessionId'])))
+                logger.debug("Have connection uuid: '%s'" % (str(conn._sessionUuid)))
     else:
         try:
             conn.getEventContext().sessionUuid
@@ -266,7 +266,7 @@ def getShareConnection (request):
             logger.debug("Connection '%s' is no longer available" % (conn_key))
             return getShareConnection(request)
         else:
-            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
     
     return conn
 
@@ -1650,8 +1650,10 @@ def manage_share(request, action, oid=None, **kwargs):
     request.session['nav']['whos'] = 'share'
     
     conn = None
+    url = None
     try:
         conn = kwargs["conn"]
+        url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
     
@@ -1687,17 +1689,14 @@ def manage_share(request, action, oid=None, **kwargs):
     elif action == 'edit':
         template = "omeroweb/share_form.html"
         share.getShare(oid)
-        share.loadShareContent(oid)
         share.getComments(oid)
         
         form = ShareForm(initial={'message': share.share.message, 'expiretion': share.share.getExpiretionDate, \
                                     'shareMembers': share.membersInShare, 'enable': share.share.active, \
                                     'experimenters': experimenters}) #'guests': share.guestsInShare,
-        context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
+        context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'save':
-        template = "omeroweb/share_form.html"
         experimenters = list(conn.getExperimenters())
-        
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message']
@@ -1708,8 +1707,8 @@ def manage_share(request, action, oid=None, **kwargs):
             share.updateShare(message, expiretion, members, enable)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
+            template = "omeroweb/share_form.html"
             share.getShare(oid)
-            share.loadShareContent(oid)
             share.getComments(oid)
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'delete':

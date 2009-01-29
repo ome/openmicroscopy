@@ -21,6 +21,11 @@ from omeroweb.webadmin.models import Gateway
 import re
 
 ##################################################################
+# Static values
+
+help_wiki = "<small><p>If you'd like to include an OMERO image or container in the above field, simply get the id of the item from the URL and type:<br/><b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></p><p>In addition, for URL please type <b>http://www.openmicroscopy.org.uk/</b></p></small>"
+
+##################################################################
 # Model
 
 class CategoryAdvice(models.Model):
@@ -71,7 +76,7 @@ class ShareForm(forms.Form):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
         self.fields.keyOrder = ['message', 'expiretion', 'enable', 'members']#, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70})) 
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}), help_text=help_wiki) 
     expiretion = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}))
     enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False)
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
@@ -86,7 +91,7 @@ class ShareForm(forms.Form):
 
 class ShareCommentForm(forms.Form):
 
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}))
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), help_text=help_wiki)
     
 class ContainerForm(forms.Form):
     
@@ -96,7 +101,7 @@ class ContainerForm(forms.Form):
     )
 
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':61}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), required=False)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), required=False, help_text=help_wiki)
     owner = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
     group = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
     world = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
