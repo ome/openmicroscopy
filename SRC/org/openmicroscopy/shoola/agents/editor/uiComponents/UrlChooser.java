@@ -86,6 +86,11 @@ public class UrlChooser
 	protected JFrame 				frame;
 	
 	/**
+	 * The button that starts the download and import. 
+	 */
+	private JButton					importButton;
+	
+	/**
 	 * The URL of the web-page that contains links to downloadable files.  
 	 * Clicking on the links in this page will place the link URL in the urlField. 
 	 */
@@ -208,7 +213,8 @@ public class UrlChooser
 		urlField = new JTextField("http://");
 		
 		// Buttons
-		JButton importButton = new JButton("Import");
+		importButton = new JButton("Import");
+		importButton.setEnabled(false); 	// until link is clicked
 		importButton.addActionListener(this);
 		importButton.setSelected(true);
 		
@@ -260,6 +266,7 @@ public class UrlChooser
 				String url = event.getURL().toString();
 				if (url != null) {
 					urlField.setText(url);
+					importButton.setEnabled(true);
 				}
 			}
 		}
