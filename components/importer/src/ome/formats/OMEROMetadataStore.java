@@ -625,10 +625,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     public List<Pixels> saveToDB()
     {
     	Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
-   		imageArray = (Image[]) iUpdate.saveAndReturnArray(imageArray);
-   		List<Pixels> pixelsList = new ArrayList<Pixels>(imageArray.length);
-   		for (Image image : imageArray)
+   		IObject[] objectArray = iUpdate.saveAndReturnArray(imageArray);
+   		List<Pixels> pixelsList = new ArrayList<Pixels>(objectArray.length);
+   		for (IObject object : objectArray)
    		{
+   			Image image = (Image) object;
    			pixelsList.add(image.getPrimaryPixels());
    		}
    		return pixelsList;

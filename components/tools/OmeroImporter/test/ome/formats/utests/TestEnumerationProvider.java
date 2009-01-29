@@ -12,8 +12,8 @@ import omero.model.IObject;
 public class TestEnumerationProvider implements EnumerationProvider
 {
 
-    public IObject getEnumeration(Class<? extends IObject> klass, String value,
-            boolean loaded)
+    public <T extends IObject> T getEnumeration(Class<T> klass, String value,
+                                                boolean loaded)
     {
         
         try {
@@ -23,7 +23,7 @@ public class TestEnumerationProvider implements EnumerationProvider
             Method setValue = concreteClass.getMethod(
                     "setValue", new Class[] { RString.class });
             setValue.invoke(enumeration, rstring("Unknown"));
-            return enumeration;
+            return (T) enumeration;
         }
         catch (Exception e)
         {
@@ -31,10 +31,8 @@ public class TestEnumerationProvider implements EnumerationProvider
         }
     }
 
-    public HashMap<String, IObject> getEnumerations(Class<? extends IObject> klass)
+    public <T extends IObject> HashMap<String, T> getEnumerations(Class<T> klass)
     {
-        // TODO Auto-generated method stub
-        //return null;
         throw new RuntimeException("Not implemented yet.");
     }
 

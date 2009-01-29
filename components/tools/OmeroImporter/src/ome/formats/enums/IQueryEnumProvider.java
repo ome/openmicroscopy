@@ -115,8 +115,8 @@ public class IQueryEnumProvider implements EnumerationProvider
     /* (non-Javadoc)
      * @see ome.formats.enums.EnumerationProvider#getEnumeration(java.lang.Class, java.lang.String, boolean)
      */
-    public IObject getEnumeration(Class<? extends IObject> klass, String value,
-    		                    boolean loaded)
+    public <T extends IObject> T getEnumeration(Class<T> klass, String value,
+    		                                    boolean loaded)
     {
         if (klass == null)
             throw new NullPointerException("Expecting not-null klass.");
@@ -133,7 +133,7 @@ public class IQueryEnumProvider implements EnumerationProvider
             return null;
         }
 
-        HashMap<String, IObject> enumerations = getEnumerations(klass);
+        HashMap<String, T> enumerations = getEnumerations(klass);
         EnumerationHandler handler = enumHandlerFactory.getHandler(klass);
         IObject otherEnumeration = enumerations.get("Other");
         // Step 1, check if we've got an exact match for our enumeration value.
@@ -141,26 +141,26 @@ public class IQueryEnumProvider implements EnumerationProvider
         {
         	if (!loaded)
         	{
-        		return copyEnumeration(enumerations.get(value));
+        		return (T) copyEnumeration(enumerations.get(value));
         	}
         	return enumerations.get(value);
         }
         // Step 2, check if our enumeration handler can find a match.
-        IObject enumeration = handler.findEnumeration(enumerations, value);
+        IObject enumeration = handler.findEnumeration((HashMap<String, IObject>) enumerations, value);
         if (enumeration != null)
         {
         	if (!loaded)
         	{
-        		return copyEnumeration(enumeration);
+        		return (T) copyEnumeration(enumeration);
         	}
-        	return enumeration;
+        	return (T) enumeration;
         }
         // Step 3, fall through to an "Other" enumeration if we have one.
         if (otherEnumeration != null)
         {
             log.warn("Enumeration '" + value + "' does not exist in '" 
             		 + klass + "' setting to 'Other'");
-            return otherEnumeration;
+            return (T) otherEnumeration;
         }
         // Step 4, fail hard we have no enumeration to return.
         throw new EnumerationException("Problem finding enumeration:" + value,
@@ -170,7 +170,7 @@ public class IQueryEnumProvider implements EnumerationProvider
 	/* (non-Javadoc)
 	 * @see ome.formats.enums.EnumerationProvider#getEnumerations(java.lang.Class)
 	 */
-	public HashMap<String, IObject> getEnumerations(Class<? extends IObject> klass)
+	public <T extends IObject> HashMap<String, T> getEnumerations(Class<T> klass)
 	{
         if (!enumCache.containsKey(klass))
         {
@@ -196,6 +196,6 @@ public class IQueryEnumProvider implements EnumerationProvider
             }
             enumCache.put(klass, enumerations);
         }
-        return enumCache.get(klass);
+        return (HashMap<String, T>) enumCache.get(klass);
 	}
 }

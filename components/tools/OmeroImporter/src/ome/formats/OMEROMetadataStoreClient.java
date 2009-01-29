@@ -30,6 +30,8 @@ import static omero.rtypes.*;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.MetaLightSource;
+import ome.formats.model.BlitzInstanceProvider;
+import ome.formats.model.InstanceProvider;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -134,6 +136,9 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     
     /** Our enumeration provider. */
     private EnumerationProvider enumProvider;
+    
+    /** Our OMERO model object provider. */
+    private InstanceProvider instanceProvider;
 
     private Long currentPixId;
 
@@ -148,6 +153,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
          iRepoInfo = serviceFactory.getRepositoryInfoService();
          iPojos = serviceFactory.getPojosService();
          enumProvider = new IQueryEnumProvider(iQuery);
+         instanceProvider = new BlitzInstanceProvider(enumProvider);
 
          delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));        
     }
@@ -462,29 +468,12 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     /**
      * Performs the task of actual source object instantiation using
      * reflection.
-     * @param klass Class to instantial a source object for.
+     * @param klass Class to instantiate a source object for.
      * @return An OMERO Blitz model object.
      */
     private <T extends IObject> T getSourceObjectInstance(Class<T> klass)
     {
-        try
-        {
-            if (klass.equals(LightSource.class))
-            {
-                return (T) new MetaLightSource();
-            }
-            klass = (Class<T>) Class.forName(klass.getName() + "I");
-            
-            Constructor<? extends IObject> constructor = 
-                klass.getDeclaredConstructor();
-            return (T) constructor.newInstance();
-        }
-        catch (Exception e)
-        {
-            String m = "Unable to instantiate object: " + klass;
-            log.error(m, e);
-            throw new RuntimeException(m);
-        }
+    	return instanceProvider.getInstance(klass);
     }
         
     /**
@@ -2176,15 +2165,40 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         o.setRefractiveIndex(toRType(refractiveIndex));
     }
     
+    /**
+     * Sets the active enumeration provider.
+     * @param enumProvider Enumeration provider to use.
+     */
     public void setEnumerationProvider(EnumerationProvider enumProvider)
     {
         this.enumProvider = enumProvider;
     }
     
+    /**
+     * Retriives the active enumeration provider.
+     * @return See above.
+     */
     public EnumerationProvider getEnumerationProvider()
     {
         return enumProvider;
-        
+    }
+    
+    /**
+     * Sets the active instance provider.
+     * @param enumProvider Enumeration provider to use.
+     */
+    public void setInstanceProvider(InstanceProvider instanceProvider)
+    {
+        this.instanceProvider = instanceProvider;
+    }
+    
+    /**
+     * Retrieves the active enumeration provider.
+     * @return See above.
+     */
+    public InstanceProvider getInstanceProvider()
+    {
+        return instanceProvider;
     }
     
     /**

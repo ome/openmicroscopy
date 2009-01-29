@@ -21,40 +21,25 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.enums;
-
-import java.util.HashMap;
+package ome.formats.model;
 
 import omero.model.IObject;
 
 /**
- * An enumeration provider, whose job is to make OMERO enumerations available 
+ * An instance provider, whose job is to make OMERO Blitz classes available 
  * to a consumer based on a set of criteria. Fundamentally, concrete
  * implementations are designed to isolate consumers from the semantics of
- * OMERO services such as IQuery and IObject and to provide a consistent, server
- * agnostic API to unit test code.
+ * OMERO Blitz model object instantiation.
  *  
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public interface EnumerationProvider
+public interface InstanceProvider
 {
     /**
-     * Retrieves an enumeration.
-     * @param klass Enumeration's base class from <code>ome.model.enums</code>.
-     * @param value Enumeration's string value.
-     * @param loaded <code>true</code> if the enumeration returned should be
-     * loaded, otherwise <code>false</code>.
-     * @return Enumeration object.
+     * Retrieves an instance.
+     * @param klass Instance's base class from <code>omero.model</code>.
+     * @return Concrete instance of <code>klass</code>.
      */
-	<T extends IObject> T getEnumeration(Class<T> klass, String value,
-    		               boolean loaded);
-    
-    /**
-     * Retrieves all enumerations of a specific type.
-     * @param klass Enumeration's base class from <code>ome.model.enums</code>.
-     * @param value Enumeration's string value.
-     * @return Enumeration object.
-     */
-	<T extends IObject> HashMap<String, T> getEnumerations(Class<T> klass);
+	<T extends IObject> T getInstance(Class<T> klass) throws ModelException;
 }
