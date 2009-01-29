@@ -595,7 +595,7 @@ class BaseContainer(BaseController):
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
         self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time", True)
+        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
         
         self.txannSize = len(self.text_annotations)
         self.urlannSize = len(self.url_annotations)
@@ -622,7 +622,7 @@ class BaseContainer(BaseController):
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
         self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time", True)
+        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
         
         self.txannSize = len(self.text_annotations)
         self.urlannSize = len(self.url_annotations)
@@ -649,7 +649,7 @@ class BaseContainer(BaseController):
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
         self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time", True)
+        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
         
         self.txannSize = len(self.text_annotations)
         self.urlannSize = len(self.url_annotations)
@@ -725,7 +725,6 @@ class BaseContainer(BaseController):
     def saveImageFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
-            print f[1].upper()
             format = self.conn.getFileFormt(f[1].upper())
         else:
             format = self.conn.getFileFormt(newFile.content_type)

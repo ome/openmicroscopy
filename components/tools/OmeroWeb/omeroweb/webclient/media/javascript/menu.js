@@ -2,7 +2,7 @@ jQuery(function($) {
   
   /* Navigation */
   if ($('#navigation')) {
-    var nav_resting_width = "-80px";
+    var nav_resting_width = "-90px";
     var nav_hover_width = "0px";
     var body_class_name = document.body.id
     var delay = 400;

@@ -39,13 +39,14 @@ body.share {
     width:630px;
 }
 #comment_wrapper .photo {
-    margin-top: 60px;
     float: left;
+    margin-top: -20px;
 }
 #comment {
     background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
     width:590px;
     float: right;
+    margin-left:50px;
 }
 #comment .head {
     font-size: 11px;

@@ -1,6 +1,6 @@
 #navigation {
     background:transparent url(/webclient/static/images/menu/menu.jpg) no-repeat scroll right top;
-    height:80px;
+    height:90px;
     left:0;
     list-style-image:none;
     list-style-position:outside;
@@ -13,13 +13,13 @@
 #navigation li {
     float: right;
 	width: 59px;
-	height: 80px;
+	height: 90px;
 }
 #navigation li a {
 	display: block; 
-	margin-top: -80px; 
+	margin-top: -90px; 
     padding-left:59px;
-	height: 80px; 
+	height: 90px; 
 	width: 59p; 
 	overflow: hidden; 
 	background: #000; 

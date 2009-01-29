@@ -136,6 +136,15 @@ div#view, div#header_name {
     position:relative;
     text-decoration:none;
 }
+a.ui-accordion-header  {
+    color: #ff0000;
+    text-decoration: none;
+}
+a.ui-accordion-header:hover,a.ui-accordion-header:link,a.ui-accordion-header:visited {
+    color: #ff0000;
+    text-decoration: none;
+}
+
 input.disable {
     border: 0;
     background-color: #fff;

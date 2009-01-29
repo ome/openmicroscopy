@@ -42,6 +42,8 @@ import omero
 import omero_api_IScript_ice
 from omero.rtypes import *
 
+from omero_model_FileAnnotationI import FileAnnotationI
+
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
@@ -1739,7 +1741,6 @@ class BlitzObjectWrapper (object):
         pojos = self._conn.getPojosService()
         self.annotations = pojos.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
         #self.annotationsLoaded = True
-        from omero_model_FileAnnotationI import FileAnnotationI
         for ann in self.annotations:
             if isinstance(ann, FileAnnotationI):
                 p = omero.sys.Parameters()
@@ -2008,7 +2009,12 @@ class ScriptWrapper (BlitzObjectWrapper):
     pass
 
 class AnnotationWrapper (BlitzObjectWrapper):
-    pass
+    
+    def getFileSize(self):
+        if isinstance(self._obj, FileAnnotationI):
+            return self._obj.file.size.val
+        else:
+            return None
 
 class OriginalFileWrapper (BlitzObjectWrapper):
     pass

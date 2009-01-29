@@ -1284,13 +1284,13 @@ def manage_annotations(request, o_type, o_id, **kwargs):
     
     manager = BaseContainer(conn, o_type, o_id)
     if o_type == 'project':
-        template = "omeroweb/container_annotations.html"
+        template = "omeroweb/annotations.html"
         manager.projectAnnotationList()
     elif o_type == "dataset":
-        template = "omeroweb/container_annotations.html"
+        template = "omeroweb/annotations.html"
         manager.datasetAnnotationList()
     elif o_type == "image":
-        template = "omeroweb/image_annotations.html"
+        template = "omeroweb/annotations.html"
         manager.imageAnnotationList()
     
     context = {'url':url, 'manager':manager}

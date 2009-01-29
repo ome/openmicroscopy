@@ -18,6 +18,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.accordion.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
     
@@ -83,6 +84,12 @@
                         {% endif %}
                     {% endif %}    
                     return false; 
+                });
+                
+                $("#help1").accordion( { 
+                    autoHeight: false,
+                    active: false,
+                    alwaysOpen: false, 
                 });
         })
     </script>
@@ -302,69 +309,29 @@
 
 {% endif %}
 
+<ul id="help1" class="ui-accordion-metadata" >
+    <li><a href='#'>How to recognize items in this table?</a>
+        <div>
+            <ul>
+                <li><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_yellow32.png" title="Orphaned images" alt="Orphaned images"/> - Orphaned images</li>
+                <li><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project</li>
+                <li><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset</li>
+                <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image</li>
+            </ul>
+        </div>
+    </li>
+</ul>
+
 <div class="separate70"></div>
 
 {% if manager.project or manager.dataset %}
 
-{% if manager.dataset.countAnnotations %}<div id="annotation"><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.dataset.countAnnotations }}]</a></div>
+{% if manager.dataset.countAnnotations %}<div id="annotation"><h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.dataset.countAnnotations }}]</a></div>
 {% else %}
-    {% if manager.project.countAnnotations %}<div id="annotation"><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.project.countAnnotations }}]</a></div>{% endif %}
+    {% if manager.project.countAnnotations %}<div id="annotation"><h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.project.countAnnotations }}]</a></div>{% endif %}
 {% endif %}
 
-<div id="annotation_form">
-    {% if form_comment %}
-    <div class="comment">
-        <h1>Add new comment:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="comment" />
-        <table>
-            {% for field in form_comment %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-        <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
-            googie_spell.decorateTextarea("id_content", null, "600px");
-        </script>
-    </div>
-    {% endif %}
-
-    {% if form_url %}
-    <div class="url">
-        <h1>Add new url:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="url" />
-        <table>
-            {% for field in form_url %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-    </div>
-    {% endif %}
-
-    {% if form_file %}
-    <div class="file">
-        <h1>Upload a file</h1>
-        <form enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
-        <table>
-        {% for field in form_file %}
-            <tr>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-            </tr>
-        {% endfor %}
-        </table>
-        <input type="submit" value="Upload" />
-        </form>
-    </div>
-    {% endif %}
-</div>
-
+{% include "omeroweb/annotations_form.html" %}
 <div class="clear"> </div>
 
 <div>

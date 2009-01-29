@@ -30,3 +30,10 @@
 #login form table td select {
     min-width: 200px;
 }
+#login-footer {
+    clear: both;
+    font-size: 11px;
+    text-align: center;
+    margin-top: 10px;
+    height: 100px;
+}
