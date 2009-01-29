@@ -121,7 +121,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     
     private Map<LSID, IObjectContainer> containerCache = 
     	new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
-    private Map<String, String> referenceCache = new HashMap<String, String>();
+    private Map<LSID, LSID> referenceCache = new HashMap<LSID, LSID>();
     
     private List<Pixels> pixelsList;
     
@@ -283,7 +283,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         {
             containerCache = 
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
-            referenceCache = new HashMap<String, String>();
+            referenceCache = new HashMap<LSID, LSID>();
             delegate.createRoot();
         } catch (ServerError e)
         {
@@ -522,10 +522,10 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         int count = 0;
         if (target == null)
         {
-            for (String lsid : referenceCache.keySet())
+            for (LSID lsid : referenceCache.keySet())
             {
-                String containerClass = lsid.split(":")[0];
-                if (containerClass.equals(source.getName()))
+                Class containerClass = lsid.getJavaClass();
+                if (containerClass.equals(source))
                 {
                     count++;
                 }
@@ -535,10 +535,10 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         
         if (source == null)
         {
-            for (String lsid : referenceCache.values())
+            for (LSID lsid : referenceCache.values())
             {
-                String containerClass = lsid.split(":")[0];
-                if (containerClass.equals(target.getName()))
+                Class containerClass = lsid.getJavaClass();
+                if (containerClass.equals(target))
                 {
                     count++;
                 }
@@ -546,12 +546,12 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
             return count;
         }
         
-        for (String lsid : referenceCache.keySet())
+        for (LSID lsid : referenceCache.keySet())
         {
-            String containerClass = lsid.split(":")[0];
+            Class containerClass = lsid.getJavaClass();
             if (containerClass.equals(source.getName()))
             {
-                String targetClass = referenceCache.get(lsid).split(":")[0];
+                Class targetClass = referenceCache.get(lsid).getJavaClass();
                 if (targetClass.equals(target.getName()))
                 {
                     count++;
@@ -659,7 +659,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
             int logicalChannelIndex)
     {
         LSID key = new LSID(DetectorSettings.class, imageIndex, logicalChannelIndex);
-        referenceCache.put(key.toString(), detector);
+        referenceCache.put(key, new LSID(detector));
     }
 
     private DetectorSettings getDetectorSettings(int imageIndex,
@@ -870,7 +870,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
         LSID key = new LSID(Image.class, imageIndex);
-        referenceCache.put(key.toString(), instrumentRef);
+        referenceCache.put(key, new LSID(instrumentRef));
     }
 
     public void setImageName(String name, int imageIndex)
@@ -1039,7 +1039,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
             int imageIndex, int logicalChannelIndex)
     {
         LSID key = new LSID(LightSettings.class, imageIndex, logicalChannelIndex);
-        referenceCache.put(key.toString(), lightSource);
+        referenceCache.put(key, new LSID(lightSource));
     }
 
     public void setLightSourceSettingsWavelength(Integer wavelength,
@@ -1855,10 +1855,61 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     	Collection<IObjectContainer> containers = containerCache.values();
     	IObjectContainer[] containerArray = 
     		containers.toArray(new IObjectContainer[containers.size()]);
-        try
+    	Map<String, String> referenceStringCache = 
+    	    new HashMap<String, String>();
+
+    	try
         {
+            for (LSID target : referenceCache.keySet())
+            {
+                LSID reference = referenceCache.get(target);
+                IObjectContainer container = containerCache.get(target);
+                if (container == null)
+                {
+                    Class targetClass = target.getJavaClass();
+                    LinkedHashMap<String, Integer> indexes = 
+                        new LinkedHashMap<String, Integer>();
+                    int[] indexArray = target.getIndexes();
+                    if (targetClass.equals(DetectorSettings.class))
+                    {
+                        indexes.put("imageIndex", indexArray[0]);
+                        indexes.put("logicalChannelIndex", indexArray[1]);
+                    }
+                    else if (targetClass.equals(LightSettings.class))
+                    {
+                        indexes.put("imageIndex", indexArray[0]);
+                        indexes.put("logicalChannelIndex", indexArray[1]);
+                    }
+                    else if (targetClass.equals(ObjectiveSettings.class))
+                    {
+                        indexes.put("imageIndex", indexArray[0]);
+                    }
+                    else
+                    {
+                        throw new RuntimeException(String.format(
+                                "Unable to synchronize reference %s --> %s",
+                                reference, target));
+                    }
+                    container = getIObjectContainer(targetClass, indexes);
+                }
+                referenceStringCache.put(container.LSID, reference.toString());
+            }
+            
+            for (LSID key : containerCache.keySet())
+            {
+                System.err.println(key + " == " + containerCache.get(key).sourceObject
+                        + "," + containerCache.get(key).LSID);
+            }
+            
+            System.err.println("\nStarting references....");
+
+            for (String key : referenceStringCache.keySet())
+            {
+                System.err.println(key + " == " + referenceStringCache.get(key));
+            }
+            
         	delegate.updateObjects(containerArray);
-        	delegate.updateReferences(referenceCache);
+        	delegate.updateReferences(referenceStringCache);
         	pixelsList = delegate.saveToDB();
         	return pixelsList;
         }
@@ -1872,6 +1923,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {   
         try
         {
+
+            
             Image unloadedImage = new ImageI(image.getId(), false);
             Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
             DatasetImageLink l = new DatasetImageLinkI();
@@ -2113,21 +2166,21 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setImageDefaultPixels(String defaultPixels, int imageIndex)
     {
         LSID key = new LSID(Image.class, imageIndex);
-        referenceCache.put(key.toString(), defaultPixels);
+        referenceCache.put(key, new LSID(defaultPixels));
     }
 
     public void setLogicalChannelOTF(String otf, int imageIndex,
             int logicalChannelIndex)
     {
         LSID key = new LSID(LogicalChannel.class, imageIndex, logicalChannelIndex);
-        referenceCache.put(key.toString(), otf);
+        referenceCache.put(key, new LSID(otf));
     }
 
     public void setOTFObjective(String objective, int instrumentIndex,
             int otfIndex)
     {
         LSID key = new LSID(OTF.class, instrumentIndex, otfIndex);
-        referenceCache.put(key.toString(), objective);
+        referenceCache.put(key, new LSID(objective));
     }
 
     /* ---- Objective Settings ---- */
@@ -2155,7 +2208,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     public void setObjectiveSettingsObjective(String objective, int imageIndex)
     {
         LSID key = new LSID(ObjectiveSettings.class, imageIndex);
-        referenceCache.put(key.toString(), objective);
+        referenceCache.put(key, new LSID(objective));
     }
 
     public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
@@ -2234,10 +2287,12 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 			// Handle the null class (unparsable internal reference) case.
 			if (xClass == null)
 			{
-				if (yClass == null)
+			    int stringDifference = 
+			        stringComparator.compare(x.toString(), y.toString());
+				if (yClass == null || stringDifference == 0)
 				{
 					// Handle different supplied LSIDs by string difference.
-					return stringComparator.compare(x.toString(), y.toString());
+				    return stringDifference;
 				}
 				return 1;
 			}
@@ -2289,8 +2344,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 			}
 			
 			if (klass.equals(DetectorSettings.class) 
-			    || klass.equals(LightSettings.class)
-			    || klass.equals(LogicalChannel.class))
+			    || klass.equals(LightSettings.class))
 			{
 			    return 3;
 			}
