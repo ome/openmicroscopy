@@ -22,6 +22,9 @@ public class LSID
 	/** The LSID as a string. */
 	private String asString;
 	
+	/** Our hash code. */
+	private int hashCode;
+	
 	/** 
 	 * The collator that we use to alphabetically sort by class name
 	 * within a given level of the OME-XML hierarchy.
@@ -44,6 +47,7 @@ public class LSID
         {
             asString = asString + ":" + index;
         }
+        hashCode = asString.hashCode();
 	}
 	
 	/**
@@ -53,6 +57,7 @@ public class LSID
 	public LSID(String asString)
 	{
 		this.asString = asString;
+		hashCode = asString.hashCode();
 	}
 	
 	/**
@@ -78,6 +83,12 @@ public class LSID
 	public String toString()
 	{
 		return asString;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return hashCode;
 	}
 	
 	@Override

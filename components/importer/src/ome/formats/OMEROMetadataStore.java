@@ -114,7 +114,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /** A list of lightsource objects */
     private List<Instrument> instrumentList = new ArrayList<Instrument>();
 
-    /** A list of all objects we've recieved from the client and their LSIDs. */
+    /** A list of all objects we've received from the client and their LSIDs. */
     private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
         
     /**
@@ -202,7 +202,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	{
     		IObject targetObject = lsidMap.get(new LSID(target));
     		String reference = referenceCache.get(target);
-    		IObject referenceObject = lsidMap.get(new LSID(target));
+    		IObject referenceObject = lsidMap.get(new LSID(reference));
     		if (targetObject instanceof DetectorSettings)
     		{
     			if (referenceObject instanceof Detector)
