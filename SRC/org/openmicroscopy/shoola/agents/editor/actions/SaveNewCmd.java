@@ -22,10 +22,12 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 
 //Java imports
 
@@ -72,23 +74,20 @@ public class SaveNewCmd
 		// if server available, ask where to save
 		if (EditorAgent.isServerAvailable()) {
 			//Custom button text
-			Object[] options = {"Save to Server",
-			                    "Save locally",
-			                    "Cancel"};
-			int n = JOptionPane.showOptionDialog(null,
-			    "Would you like to save this file locally, or save it to " +
-			    "the OMERO.server?",
-			    "Save As...",
-			    JOptionPane.YES_NO_CANCEL_OPTION,
-			    JOptionPane.QUESTION_MESSAGE,
-			    null,
-			    options,
-			    options[2]);
 			
-			if (n == 0) {
+			JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+			MessageBox msg = new MessageBox(f, "Save As...", 
+					"Would you like to save this file locally, or save it to " +
+				    "the OMERO.server?");
+			msg.setYesText("Save to Server");
+			msg.setNoText("Save locally");
+			msg.addCancelButton();
+			
+			int option = msg.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
 				save = new SaveServerCmd(model);
 				save.execute();
-			} else if (n == 1) {
+			} else if (option == MessageBox.NO_OPTION) {
 				save = new SaveLocallyCmd(model);
 				save.execute();
 			}

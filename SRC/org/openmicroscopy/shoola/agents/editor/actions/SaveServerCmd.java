@@ -26,13 +26,16 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 
 import java.io.File;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
+import org.openmicroscopy.shoola.util.ui.InputDialog;
 
 /** 
  * Saves the current file as an XML file to the OMERO.server. 
@@ -64,16 +67,23 @@ public class SaveServerCmd
 	 */
 	public void execute() {
 		
-		String fileName = JOptionPane.showInputDialog(null, 
-				"Please enter a name for saving the file to the server:", 
-				"Save to server", JOptionPane.QUESTION_MESSAGE);
-		if (fileName != null) 
-		{
-			EditorFileFilter editor = new EditorFileFilter();
-			if (! editor.accept(new File(fileName))) {
-				fileName = fileName + "." + editor.getExtension();
+		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		InputDialog dialog = new InputDialog(f, "Save to server: Enter file name", 
+				"new-file.cpe.xml");
+		
+		int option = dialog.centerMsgBox();
+		if (option == InputDialog.SAVE) {
+			String fileName = dialog.getText();
+			if ((fileName == null) || (fileName.length() == 0)) {
+				// try again!
+				execute();
+			} else {
+				EditorFileFilter editor = new EditorFileFilter();
+				if (! editor.accept(new File(fileName))) {
+					fileName = fileName + "." + editor.getExtension();
+				}
+				model.saveFileServer(fileName);
 			}
-			model.saveFileServer(fileName);
 		}
 	}
 

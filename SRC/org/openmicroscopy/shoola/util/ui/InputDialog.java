@@ -223,7 +223,8 @@ public class InputDialog
 	 */
 	public InputDialog(JFrame owner, String title, String originalText)
 	{
-		this(owner, title, originalText, null);
+		this(owner, title, originalText, IconManager.getInstance().getIcon
+				(IconManager.QUESTION_ICON_48));
 	}
 	
 	/**
