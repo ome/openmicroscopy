@@ -249,16 +249,7 @@ extends BasicButtonUI
      */
     private void drawSelectedButtonFace(Graphics2D g)
     {
-//        GradientPaint gp;
     	invokePainter(g, selectedButtonFacePainter);
-    
-//        gp = new GradientPaint((int) buttonRect.getX(),
-//                 (int) buttonRect.getY(), gradientEndRGB,
-//                 (int) buttonRect.getWidth(),
-//                 (int) buttonRect.getHeight(), gradientEndRGB, false);
-//    
-//        g.setPaint(gp);
-//        g.fill(buttonRect);
     }
         
     /**
@@ -584,11 +575,19 @@ extends BasicButtonUI
         paintSquareButton(g);
     }
     
+    /** 
+     * will the button paint borders.
+     * @return see above.
+     */
     public boolean isPaintBorderInsets()
     {
     	return paintBorderInsets;
     }
 
+    /**
+     * if true the button will paint borders.
+     * @param pb
+     */
     public void setPaintBorderInsets(boolean pb)
     {
     	paintBorderInsets = pb;
