@@ -32,6 +32,7 @@ import java.sql.Timestamp;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
@@ -69,11 +70,11 @@ public class HistoryItem
 	/** The view index. */
 	private int					index;
 	
-	/** The lower value of the z-sections range. */
-	private int					startRange;
+	/** The projection ref.*/
+	private ProjectionParam		ref;
 	
-	/** The upper bound of the z-sections range. */
-	private int					endRange;
+	/** The time point used for the projection preview. */
+	private int					defaultT;
 	
 	/** The original highlight color associated to the node. */
 	private Color				originalColor;
@@ -110,37 +111,40 @@ public class HistoryItem
         canvas.setBounds(0, 0, w, h);
         getInternalDesktop().setSize(w, h);
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
-        startRange = -1;
-        endRange = -1;
+        ref = null;
 	}
 	
 	/**
-	 * Sets the z-sections range. 
+	 * Sets the projection ref.
 	 * 
-	 * @param startRange 	The lower bound.
-	 * @param endRange		The upper bound.
+	 * @param ref The object hosting the projection parameters.
 	 */
-	public void setRange(int startRange, int endRange)
+	public void setProjectionRef(ProjectionParam ref)
 	{
-		if (startRange > endRange) return;
-		this.startRange = startRange;
-		this.endRange = endRange;
+		this.ref = ref;
 	}
 	
 	/**
-	 * Returns the lower bound of the range.
+	 * Sets the timepoint used for the projection preview.
 	 * 
-	 * @return See above.
+	 * @param defaultT The value to set.
 	 */
-	public int getStartRange() { return startRange; }
-	 
-	/**
-	 * Returns the upper bound of the range.
-	 * 
-	 * @return See above.
-	 */
-	public int getEndRange() { return endRange; }
+	public void setDefaultT(int defaultT) { this.defaultT = defaultT; }
 	
+	/** 
+	 * Returns the timepoint used for the projection preview.
+	 * 
+	 * @return See above.
+	 */
+	public int getDefaultT() { return defaultT; }
+	
+	/**
+	 * Returns the object hosting the projection parameters.
+	 * 
+	 * @return See above.
+	 */
+	public ProjectionParam getProjectionRef() { return ref; }
+	 
 	/**
 	 * Returns the view index.
 	 * 

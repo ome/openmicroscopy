@@ -44,6 +44,8 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -71,7 +73,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ToolBar
     extends JPanel
-    implements ActionListener
+    implements ActionListener, ChangeListener
 {
 
 	/** Flag to indicate that the image is not compressed. */
@@ -241,8 +243,8 @@ class ToolBar
 			names[index] = projections.get(j);
 			index++;
 		}
-        projectionTypesBox = EditorUtil.createComboBox(names, 0);
-        projectionTypesBox.setBackground(getBackground());
+        projectionTypesBox = EditorUtil.createComboBox(names, 0, 
+        		getBackground());
         projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
         projectionTypesBox.addActionListener(this);
     }
@@ -307,7 +309,7 @@ class ToolBar
     			controller.getAction(ImViewerControl.COMPRESSION));
 		projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, 
 				view.getMaxZ()+1, 1));
-
+		projectionFrequency.addChangeListener(this);
 		JPanel bar = new JPanel();
 		bar.setBorder(null);
 		bar.add(projectionTypesBox);
@@ -429,6 +431,15 @@ class ToolBar
 			controller.setProjectionRange(true);
 	}
 
-	
+	/**
+	 * Reacts to selection in spinner.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		Object src = e.getSource();
+		if (src == projectionFrequency)
+			controller.setProjectionRange(true);
+	}
 
 }

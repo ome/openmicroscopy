@@ -251,11 +251,11 @@ class ImViewerModel
     /** Copy of the last rendering settings of the projection preview.  */
     private RndProxyDef					lastProjDef;
     
-    /** The lower bound of the z-sections range or <code>-1</code>. */
-    private int							lastProjStart;
+    /** The projection's preview parameters. */
+    private ProjectionParam				lastProjRef;
     
-    /** The upper bound of the z-sections range or <code>-1</code>. */
-    private int							lastProjEnd;
+    /** The last projection timepoint. */
+    private int							lastProjTime;
     
     /** The collection of containers hosting the image. */
     private Collection 					containers;
@@ -346,8 +346,8 @@ class ImViewerModel
 		metadataLoaded = false;
 		currentPixelsID = -1;
 		selectedUserID = -1;
-		lastProjStart = -1;
-		lastProjEnd = -1;
+		lastProjTime = -1;
+		lastProjRef = null;
 	}
 	
 	/**
@@ -1242,22 +1242,6 @@ class ImViewerModel
 	RndProxyDef getLastProjDef() { return lastProjDef; }
 	
 	/**
-	 * Returns the lower bound of the z-sections range of the projected
-	 * preview, or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	int getLastProjStart() { return lastProjStart; }
-	
-	/**
-	 * Returns the upper bound of the z-sections range of the projected
-	 * preview, or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	int getLastProjEnd() { return lastProjEnd; }
-	
-	/**
 	 * Removes the item from the list.
 	 * 
 	 * @param node The node to remove.
@@ -1276,8 +1260,7 @@ class ImViewerModel
 		historyItems.add(node);
 		lastMainDef = node.getRndSettings();
 		lastProjDef = null;
-		lastProjStart = -1;
-		lastProjEnd = -1;
+		lastProjTime = -1;
 	}
 
 	/**
@@ -1526,22 +1509,6 @@ class ImViewerModel
 
     /** Resets the history when switching to a new rendering control.*/
 	void resetHistory() { historyItems = null; }
-
-	/**
-	 * Starts an asynchronous call to render a preview of the projected image.
-	 * 
-	 * @param ref Object with the projection's parameters.
-	 */
-	void fireRenderProjected(ProjectionRef ref)
-	{
-		ProjectionParam param = new ProjectionParam(getPixelsID(), 
-				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
-				ref.getType());
-		param.setChannels(ref.getChannels());
-		ProjectionSaver loader = new ProjectionSaver(component, param, 
-				                  ProjectionSaver.PREVIEW);
-		loader.load();
-	}
 	
 	/**
 	 * Starts an asynchronous call to render a preview of the projected image.
@@ -1557,27 +1524,9 @@ class ImViewerModel
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				startZ, endZ, stepping, type);
 		param.setChannels(getActiveChannels());
+		lastProjRef = param;
 		ProjectionSaver loader = new ProjectionSaver(component, param, 
 				                  ProjectionSaver.PREVIEW);
-		loader.load();
-	}
-	
-	/**
-	 * Starts an asynchronous call to project image.
-	 * 
-	 * @param ref Object with the projection's parameters.
-	 */
-	void fireProjectImage(ProjectionRef ref)
-	{
-		List<Integer> channels = ref.getChannels();
-		ProjectionParam param = new ProjectionParam(getPixelsID(), 
-				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
-				ref.getType(), ref.getStartT(), ref.getEndT(), 
-				channels, ref.getImageName());
-		param.setDescription(ref.getImageDescription());
-		param.setDatasets(ref.getDatasets());
-		ProjectionSaver loader = new ProjectionSaver(component,  param, 
-							ProjectionSaver.PROJECTION);
 		loader.load();
 	}
 	
@@ -1792,18 +1741,6 @@ class ImViewerModel
 	Collection getContainers() { return containers; }
 	
 	/**
-	 * Sets the range of the last projection.
-	 * 
-	 * @param lastProjStart The lower bound.
-	 * @param lastProjEnd	The upper bound.
-	 */
-	void setLastProjRange(int lastProjStart, int lastProjEnd)
-	{
-		this.lastProjStart = lastProjStart;
-		this.lastProjEnd = lastProjEnd;
-	}
-	
-	/**
 	 * Returns the pixels data.
 	 * 
 	 * @return See above.
@@ -1813,5 +1750,33 @@ class ImViewerModel
 		if (image == null) return null;
 		return image.getDefaultPixels();
 	}
+	
+	/**
+	 * Returns the last projection ref.
+	 * 
+	 * @return See above.
+	 */
+	ProjectionParam getLastProjRef() { return lastProjRef; }
+	
+	/**
+	 * Sets the last projection ref.
+	 * 
+	 * @param ref The value to set.
+	 */
+	void setLastProjectionRef(ProjectionParam ref) { lastProjRef = ref; }
+	
+	/**
+	 * Returns the timepoint used for the projection's preview.
+	 * 
+	 * @return See above.
+	 */
+	int getLastProjectionTime() { return lastProjTime; }
+	
+	/**
+	 * Sets the timepoint used for a projection's preview.
+	 * 
+	 * @param time The value to set.
+	 */
+	void setLastProjectionTime(int time) { lastProjTime = time; }
 	
 }

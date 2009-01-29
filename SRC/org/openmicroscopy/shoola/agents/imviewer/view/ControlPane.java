@@ -61,10 +61,10 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-
 import pojos.ChannelData;
 
 /** 
@@ -1030,10 +1030,9 @@ class ControlPane
         colorModelButtonProjection.setToolTipText(tip);
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
-        int rStart = model.getLastProjStart();
-        int rEnd = model.getLastProjEnd();
-        if (rStart >=0 && rEnd >= 0)
-        	projectionRange.setInterval(rStart, rEnd);
+        ProjectionParam ref = model.getLastProjRef();
+        if (ref != null)
+        	projectionRange.setInterval(ref.getStartZ(), ref.getEndZ());
     }
     
     /** Resets the UI when the user switches to a new rendering control. */

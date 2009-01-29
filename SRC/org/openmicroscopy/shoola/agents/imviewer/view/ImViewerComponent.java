@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -166,14 +167,14 @@ class ImViewerComponent
 
 	/** Creates an history item. 
 	 * 
-	 * @param s The start value of the range.
-	 * @param e	The end value of the range.
+	 * @param ref The projection ref or <code>null</code>.
 	 */
-	private void createHistoryItem(int s, int e)
+	private void createHistoryItem(ProjectionParam ref)
 	{
 		HistoryItem node = model.createHistoryItem();
 		if (node == null) return;
-		node.setRange(s, e);
+		node.setProjectionRef(ref);
+		node.setDefaultT(model.getDefaultT());
 		node.addPropertyChangeListener(controller);
 		//add Listener to node.
 		if (nodeListener == null) {
@@ -182,9 +183,12 @@ class ImViewerComponent
 				public void mousePressed(MouseEvent evt) {
 					HistoryItem item = findParentDisplay(evt.getSource());
 					try {
-						if (item.getIndex() == PROJECTION_INDEX)
-							model.setLastProjRange(item.getStartRange(), 
-									item.getEndRange());
+						if (item.getIndex() == PROJECTION_INDEX) {
+							model.setLastProjectionRef(
+									item.getProjectionRef());
+							model.setLastProjectionTime(item.getDefaultT());
+						}
+							
 						view.setCursor(Cursor.getPredefinedCursor(
 								Cursor.WAIT_CURSOR));
 						RndProxyDef def = item.getRndSettings();
@@ -399,6 +403,24 @@ class ImViewerComponent
 				view.getProjectionEndZ(), view.getProjectionStepping(), 
 				view.getProjectionType());
 		fireStateChange();
+	}
+	
+	/** 
+	 * Returns <code>true</code> if it is the same projection parameters,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isSameProjectionParam()
+	{
+		ProjectionParam ref = model.getLastProjRef();
+		if (ref == null) return true;
+		if (ref.getStartZ() != view.getProjectionStartZ()) return false;
+		if (ref.getEndZ() != view.getProjectionEndZ()) return false;
+		if (ref.getAlgorithm() != view.getProjectionType()) return false;
+		if (ref.getStepping() != view.getProjectionStepping()) return false;
+		//if (ref.)
+		return true;
 	}
 	
 	/**
@@ -748,8 +770,7 @@ class ImViewerComponent
 		}
 			
 		if (view.isLensVisible()) view.setLensPlaneImage();
-		createHistoryItem(0, 1);
-		
+		createHistoryItem(null);
 		List history = model.getHistory();
 		if (history != null && history.size() == 1) {
 			/*
@@ -961,7 +982,7 @@ class ImViewerComponent
 		renderXYPlane();
 		fireStateChange();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#renderXYPlane()
@@ -983,10 +1004,7 @@ class ImViewerComponent
 			def = model.getLastProjDef();
 			boolean b = false;
 			if (def != null) b = model.isSameSettings(def);
-			if (b && 
-				(model.getLastProjStart() == view.getProjectionStartZ()) &&
-				(model.getLastProjEnd() == view.getProjectionEndZ()))
-				stop = true;
+			if (b && isSameProjectionParam()) stop = true;
 		} else {
 			def = model.getLastMainDef();
 			if (def != null) stop = model.isSameSettings(def);
@@ -2385,10 +2403,7 @@ class ImViewerComponent
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();	
 		if (view.isLensVisible()) view.setLensPlaneImage();
-		int s = view.getProjectionStartZ();
-		int e = view.getProjectionEndZ();
-		createHistoryItem(s, e);
-		model.setLastProjRange(s, e);
+		createHistoryItem(model.getLastProjRef());
 		fireStateChange();
 	}
 
