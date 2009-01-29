@@ -194,7 +194,8 @@ public class FieldTextArea
 		htmlEditor.addFocusListener(this);
 		htmlEditor.addMouseListener(new ParamMouseListener());
 		
-		Border emptyBorder = new EmptyBorder(7,7,7,7);
+		int indent = treeNode.getLevel() * 15;	// indent according to hierarchy
+		Border emptyBorder = new EmptyBorder(7,indent,7,7);
 		Border lb = BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY);
 		selectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		lb = BorderFactory.createLineBorder(Color.white);

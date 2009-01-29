@@ -404,19 +404,8 @@ public class FieldPanel
 	 */
 	private void setNameText() 
 	{
-		String text = field.getAttribute(Field.FIELD_NAME);
-		
-		if ( text == null && field.getContentCount() > 0) {
-			// if no name set, use content for name
-			text = field.getContentAt(0).toString();
-		}
-		
-		if (text != null && text.length() > MAX_CHARS) { 
-			text = text.substring(0, MAX_CHARS-1) + "..";
-		}
-		
-		nameLabel.setText(text);
-		
+		String t = TreeOutlineCellRenderer.getFieldDisplayName(field, treeNode);
+		nameLabel.setText(t);
 	}
 
 	/**
