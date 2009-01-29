@@ -26,7 +26,8 @@ package ome.formats.model;
 import omero.model.IObject;
 
 /**
- * Exception thrown when there is an object instantiation error.
+ * Exception thrown when there is an object instantiation error or error
+ * processing the model.
  * 
  * @author Chris Allan <callan at blackcat dot ca>
  */
@@ -50,13 +51,22 @@ public class ModelException extends RuntimeException
         this.failureClass = klass;
     }
 
+    /**
+     * Returns the class that was used during a failed instantiation.
+     * @return See above.
+     */
     public Class<? extends IObject> getFailureClass()
     {
         return failureClass;
     }
 
+    @Override
     public String toString()
     {
+    	if (failureClass == null)
+    	{
+    		return getMessage();
+    	}
         return getMessage() + " for " + failureClass;
     }
 }

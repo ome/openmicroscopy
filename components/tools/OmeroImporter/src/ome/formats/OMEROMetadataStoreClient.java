@@ -31,7 +31,9 @@ import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.MetaLightSource;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.formats.model.ChannelProcessor;
 import ome.formats.model.InstanceProvider;
+import ome.formats.model.ReferenceProcessor;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -320,6 +322,15 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     }
     
     /**
+     * Returns the current reference cache.
+     * @return See above.
+     */
+    public Map<LSID, LSID> getReferenceCache()
+    {
+    	return referenceCache;
+    }
+    
+    /**
      * Retrieves an OMERO Blitz source object for a given Java class and
      * indexes. 
      * @param klass Source object class.
@@ -391,8 +402,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
      * @param indexes Indexes into the OME-XML data model.
      * @return See above.
      */
-    private IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
-    		                                     LinkedHashMap<String, Integer> indexes)
+    public IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
+    		                                    LinkedHashMap<String, Integer> indexes)
     {
     	// Transform an integer collection into an integer array without using
     	// wrapper objects.
@@ -1852,48 +1863,18 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 
     public List<Pixels> saveToDB()
     {
-    	Map<String, String> referenceStringCache = 
-    	    new HashMap<String, String>();
     	try
-        {
-            for (LSID target : referenceCache.keySet())
-            {
-                LSID reference = referenceCache.get(target);
-                IObjectContainer container = containerCache.get(target);
-                if (container == null)
-                {
-                    Class targetClass = target.getJavaClass();
-                    LinkedHashMap<String, Integer> indexes = 
-                        new LinkedHashMap<String, Integer>();
-                    int[] indexArray = target.getIndexes();
-                    if (targetClass.equals(DetectorSettings.class))
-                    {
-                        indexes.put("imageIndex", indexArray[0]);
-                        indexes.put("logicalChannelIndex", indexArray[1]);
-                    }
-                    else if (targetClass.equals(LightSettings.class))
-                    {
-                        indexes.put("imageIndex", indexArray[0]);
-                        indexes.put("logicalChannelIndex", indexArray[1]);
-                    }
-                    else if (targetClass.equals(ObjectiveSettings.class))
-                    {
-                        indexes.put("imageIndex", indexArray[0]);
-                    }
-                    else
-                    {
-                        throw new RuntimeException(String.format(
-                                "Unable to synchronize reference %s --> %s",
-                                reference, target));
-                    }
-                    container = getIObjectContainer(targetClass, indexes);
-                }
-                referenceStringCache.put(container.LSID, reference.toString());
-            }
-            
+    	{
+        	ReferenceProcessor referenceProcessor = new ReferenceProcessor();
+        	ChannelProcessor channelProcessor = new ChannelProcessor();
+        	referenceProcessor.process(this);
+        	channelProcessor.process(this);
+        	
         	Collection<IObjectContainer> containers = containerCache.values();
         	IObjectContainer[] containerArray = 
         		containers.toArray(new IObjectContainer[containers.size()]);
+        	Map<String, String> referenceStringCache = 
+        		referenceProcessor.getReferenceStringCache();
             
             for (LSID key : containerCache.keySet())
             {
