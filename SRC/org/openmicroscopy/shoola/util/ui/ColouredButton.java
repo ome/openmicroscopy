@@ -78,7 +78,7 @@ extends JButton
 	 * @param color     The background color of the button. Corresponds to the
 	 *                  color associated to the channel.
 	 */
-	public ColouredButton(String text, Color color, int width)
+	public ColouredButton(String text, Color color)
 	{
 		if (color == null) 
 			throw new IllegalArgumentException("No color.");
@@ -113,7 +113,7 @@ extends JButton
 	 * 
 	 * @param color The color to set.
 	 */
-	public void setColor(Color color, int g) 
+	public void setColor(Color color) 
 	{ 
 		if (color == null) return;
 		this.color = color;
