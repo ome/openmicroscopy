@@ -97,6 +97,8 @@ public class SaveLocallyCmd
 		File startDir = UIUtilities.getDefaultFolder();
 		if (startDir != null)
 			chooser.setCurrentDirectory(startDir);
+		// set default name according to the file title 
+		chooser.setSelectedFile(model.getEditorTitle());
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);

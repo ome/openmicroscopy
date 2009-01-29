@@ -131,9 +131,16 @@ public class UrlChooser
 		Registry reg = EditorAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
 		try {
-			String newFileName = "downloadedFile" + fileNameIncrementer++;
+			int lastSlash = url.lastIndexOf("/");
+			if (lastSlash < 0) return false;	// can't be valid url
+			String newFileName = url.substring(lastSlash);
+			if (new File(newFileName).exists()) {	// just in case! 
+				newFileName = newFileName + fileNameIncrementer++;
+			}
 			File downloadedFile = FileDownload.downloadFile(url, newFileName);
 			model.openLocalFile(downloadedFile);
+			// set to edited, so that Save button is activated. 
+			model.setEdited(true);
 			downloadedFile.delete();
 			
 			return true;

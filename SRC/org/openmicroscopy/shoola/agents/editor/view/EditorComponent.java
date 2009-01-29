@@ -356,5 +356,13 @@ class EditorComponent
 		if (listener != null)
 			model.getBrowser().addPropertyChangeListener(listener);
 	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setEdited(boolean)
+	 */
+	public void setEdited(boolean editable) {
+		model.getBrowser().setEdited(editable);
+	}
 	
 }

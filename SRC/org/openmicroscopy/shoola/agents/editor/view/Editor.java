@@ -30,7 +30,6 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.FileAnnotationData;
@@ -181,4 +180,11 @@ public interface Editor
 	 */
 	public void onFileSave(FileAnnotationData data);
 	
+	/**
+     * Sets the Edited state of the Browser. 
+     * Delegates to this method on the Browser
+     * 
+     * @param editable		Set to true if the file has been edited. 
+     */
+    public void setEdited(boolean editable);
 }
