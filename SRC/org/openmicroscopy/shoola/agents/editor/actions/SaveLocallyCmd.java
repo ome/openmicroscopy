@@ -98,7 +98,9 @@ public class SaveLocallyCmd
 		if (startDir != null)
 			chooser.setCurrentDirectory(startDir);
 		// set default name according to the file title 
-		chooser.setSelectedFile(model.getEditorTitle());
+		String fileTitle = model.getEditorTitle();
+		File newFile = new File(fileTitle);		
+		chooser.setSelectedFile(newFile);	// this method doesn't truncate name
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
