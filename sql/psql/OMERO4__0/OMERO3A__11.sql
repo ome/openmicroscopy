@@ -6,7 +6,8 @@
 --
 -- OMERO-Beta4.0 release.
 --
-
+-- Note: not executing constraint drops since these columns/tables will be removed anyway
+--
 BEGIN;
 
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
@@ -100,6 +101,9 @@ DROP SEQUENCE seq_nucleusposition;
 DROP SEQUENCE seq_nucleussolidity;
 DROP SEQUENCE seq_pixelsdimensions;
 DROP SEQUENCE seq_roi;
+DROP SEQUENCE seq_roilink;
+DROP SEQUENCE seq_roilinkannotationlink;
+
 --
 -- New sequences
 --
@@ -173,18 +177,17 @@ CREATE TABLE node (
 	external_id bigint
 );
 
-
 --
 -- Fixing enumerations for later use by the table modifications
 --
 -- AcquisitionMode : ==================
 INSERT INTO acquisitionmode (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_acquisitionmode'),-35,0,0,0,'Other';
 INSERT INTO acquisitionmode (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_acquisitionmode'),-35,0,0,0,'Unknown';
-UPDATE acquisitionmode SET VALUE = 'WideField' where VALUE = 'Wide-field';
+UPDATE acquisitionmode SET value = 'WideField' WHERE value = 'Wide-field';
 
 -- ArcType : ==================
 INSERT INTO arctype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_arctype'),-35,0,0,0,'Unknown';
-UPDATE arctype SET VALUE = 'HgXe' where VALUE = 'Hg-Xe';
+UPDATE arctype SET value = 'HgXe' where VALUE = 'Hg-Xe';
 
 -- ContractMethod : ==================
 INSERT INTO contrastmethod (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_contrastmethod'),-35,0,0,0,'Unknown';
@@ -193,7 +196,7 @@ INSERT INTO contrastmethod (id,permissions,owner_id,group_id,creation_id,value) 
 -- Correction : ================== (ADDED)
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Achro';
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Achromat';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Api';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Apo';
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fl';
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fluar';
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fluor';
@@ -207,10 +210,11 @@ INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELE
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Unknown';
 INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'VioletCorrected';
 
--- DetectorType : ================== 
-UPDATE detectortype SET VALUE = 'Correlation-Spectroscopy' where VALUE = 'CorrelationSpectroscopy';
-UPDATE detectortype SET VALUE = 'Intensified-CCD' where VALUE = 'IntensifiedCCD';
-UPDATE detectortype SET VALUE = 'Life-time-Imaging' where VALUE = 'LifetimeImaging';
+-- DetectorType : ==================
+UPDATE detectortype SET value = 'AnalogVideo' WHERE value = 'Analog-Video';
+UPDATE detectortype SET value = 'CorrelationSpectroscopy' WHERE value = 'Correlation-Spectroscopy';
+UPDATE detectortype SET value = 'IntensifiedCCD' WHERE value = 'Intensified-CCD';
+UPDATE detectortype SET value = 'LifetimeImaging' WHERE value = 'Life-time-Imaging';
 INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'APD';
 INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'CMOS';
 INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'EM-CCD';
@@ -223,15 +227,15 @@ UPDATE experiment SET type  = (SELECT id FROM experimenttype WHERE value = 'Phot
     WHERE type in (select id FROM experimenttype WHERE value in ('Uncaging', 'FRAP', 'Optical-Trapping', 'Photoablation', 'Photoactivation'));
 DELETE FROM experimenttype WHERE value in ('Uncaging', 'FRAP', 'Optical-Trapping', 'Photoablation', 'Photoactivation');
 
-UPDATE experimenttype SET VALUE = '4-D+' where VALUE = 'FourDPlus';
-UPDATE experimenttype SET VALUE = 'Immunocytopchemistry'where VALUE = 'Immunocytochemistry';
-UPDATE experimenttype SET VALUE = 'Immunofluroescence' where VALUE = 'Immunofluorescence';
-UPDATE experimenttype SET VALUE = 'Ion-Imaging' where VALUE = 'IonImaging';
-UPDATE experimenttype SET VALUE = 'Fluorescence-Lifetime' where VALUE = 'FluorescenceLifetime';
-UPDATE experimenttype SET VALUE = 'Electropyhsiology' where VALUE = 'Electrophysiology';
-UPDATE experimenttype SET VALUE = 'PGI/Documentation' where VALUE = 'PGIDocumentation';
-UPDATE experimenttype SET VALUE = 'Spectral-Imaging' where VALUE = 'SpectralImaging';
-UPDATE experimenttype SET VALUE = 'Time-lapse' where VALUE = 'TimeLapse';
+UPDATE experimenttype SET value = 'FourDPlus' WHERE value = '4-D+';
+UPDATE experimenttype SET value = 'Immunocytochemistry' WHERE value = 'Immunocytopchemistry';
+UPDATE experimenttype SET value = 'Immunofluorescence' WHERE value = 'Immunofluroescence';
+UPDATE experimenttype SET value = 'IonImaging' WHERE value = 'Ion-Imaging';
+UPDATE experimenttype SET value = 'FluorescenceLifetime' WHERE value = 'Fluorescence-Lifetime';
+UPDATE experimenttype SET value = 'Electrophysiology' WHERE value = 'Electropyhsiology';
+UPDATE experimenttype SET value = 'PGIDocumentation' WHERE value = 'PGI/Documentation';
+UPDATE experimenttype SET value = 'SpectralImaging' WHERE value = 'Spectral-Imaging';
+UPDATE experimenttype SET value = 'TimeLapse' WHERE value = 'Time-lapse';
 INSERT INTO experimenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_experimenttype'),-35,0,0,0,'Unknown';
 
 -- FilamentType : ================== 
@@ -257,10 +261,9 @@ INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SE
 INSERT INTO immersion (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_immersion'),-35,0,0,0,'Unknown';
 
 -- LaserMedium : ================== 
-UPDATE lasermedium SET VALUE = 'Coumaring-C30' where VALUE = 'CoumarinC30';
-UPDATE lasermedium SET VALUE = 'Coumaring-C30' where VALUE = 'CoumarinC30';
-UPDATE lasermedium SET VALUE = 'e-' where VALUE = 'EMinus';
-UPDATE lasermedium SET VALUE = 'Rhodamine-5G' where VALUE = 'Rhodamine6G';
+UPDATE lasermedium SET value = 'CoumarinC30' WHERE VALUE = 'Coumaring-C30';
+UPDATE lasermedium SET value = 'EMinus' WHERE VALUE = 'e-';
+UPDATE lasermedium SET value = 'Rhodamine6G' WHERE VALUE = 'Rhodamine-5G';
 INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'Alexandrite';
 INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'ErGlass';
 INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'ErYAG';
@@ -295,8 +298,8 @@ INSERT INTO microscopetype (id,permissions,owner_id,group_id,creation_id,value) 
 INSERT INTO microscopetype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microscopetype'),-35,0,0,0,'Unknown';
 
 -- Pulse : ================== 
-UPDATE pulse SET VALUE = 'Mode-Locked' where VALUE = 'ModeLocked';
-UPDATE pulse SET VALUE = 'Q-Switched' where VALUE = 'QSwitched';
+UPDATE pulse SET value = 'ModeLocked' WHERE VALUE = 'Mode-Locked';
+UPDATE pulse SET value = 'QSwitched' WHERE VALUE = 'Q-Switched';
 INSERT INTO pulse (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_pulse'),-35,0,0,0,'Other';
 INSERT INTO pulse (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_pulse'),-35,0,0,0,'Unknown';
 
@@ -500,8 +503,6 @@ ALTER TABLE filterset
 
 ALTER TABLE image
 	ADD COLUMN acquisitiondate timestamp without time zone,
-	ADD COLUMN acquiredpixels bigint,
-	ADD COLUMN defaultpixels bigint,
 	ADD COLUMN experiment bigint,
 	ADD COLUMN imagingenvironment bigint,
 	ADD COLUMN instrument bigint,
@@ -517,7 +518,7 @@ ALTER TABLE image
 	DROP COLUMN position,
 	DROP COLUMN setup,
         ALTER COLUMN acquisitiondate SET NOT NULL;
-	    
+
 
 -- Same insert as is done in data.sql
 INSERT INTO node (id,permissions,uuid,conn,up,down) SELECT 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
@@ -540,7 +541,7 @@ ALTER TABLE transmittancerange
 	ALTER COLUMN transmittance DROP NOT NULL;
 
 --
--- Constraints
+-- Add constraints
 --
 ALTER TABLE correction ADD CONSTRAINT correction_pkey PRIMARY KEY (id);
 ALTER TABLE nodeannotationlink ADD CONSTRAINT nodeannotationlink_pkey PRIMARY KEY (id);
@@ -549,8 +550,6 @@ ALTER TABLE microbeammanipulation ADD CONSTRAINT microbeammanipulation_pkey PRIM
 ALTER TABLE microbeammanipulationtype ADD CONSTRAINT microbeammanipulationtype_pkey PRIMARY KEY (id);
 ALTER TABLE node ADD CONSTRAINT node_pkey PRIMARY KEY (id);
 ALTER TABLE annotation ADD CONSTRAINT fkannotation_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
--- ALTER TABLE channel DROP CONSTRAINT fkchannel_colorcomponent_color; -- Already removed
--- ALTER TABLE channelbinding DROP CONSTRAINT fkchannelbinding_color_color; -- Already removed
 ALTER TABLE correction ADD CONSTRAINT correction_external_id_key UNIQUE (external_id);
 ALTER TABLE correction ADD CONSTRAINT correction_value_key UNIQUE (value);
 ALTER TABLE correction ADD CONSTRAINT fkcorrection_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
@@ -567,34 +566,19 @@ ALTER TABLE nodeannotationlink ADD CONSTRAINT fknodeannotationlink_owner_id_expe
 ALTER TABLE nodeannotationlink ADD CONSTRAINT fknodeannotationlink_parent_node FOREIGN KEY (parent) REFERENCES node(id);
 ALTER TABLE nodeannotationlink ADD CONSTRAINT fknodeannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
 ALTER TABLE dichroic ADD CONSTRAINT fkdichroic_instrument_instrument FOREIGN KEY (instrument) REFERENCES instrument(id);
-ALTER TABLE experimentergroup DROP CONSTRAINT experimentergroup_name_key;
--- ALTER TABLE filter DROP CONSTRAINT fkfilter_customizedfilterset_customizedfilterset; -- Already removed
--- ALTER TABLE filter DROP CONSTRAINT fkfilter_filterset_filterset; -- Already removed
 ALTER TABLE filter ADD CONSTRAINT fkfilter_transmittancerange_transmittancerange FOREIGN KEY (transmittancerange) REFERENCES transmittancerange(id);
 ALTER TABLE filter ADD CONSTRAINT fkfilter_type_filtertype FOREIGN KEY ("type") REFERENCES filtertype(id);
--- ALTER TABLE filterset DROP CONSTRAINT fkfilterset_transmittancerange_transmittancerange; -- Already removed
 ALTER TABLE filterset ADD CONSTRAINT fkfilterset_dichroic_dichroic FOREIGN KEY (dichroic) REFERENCES dichroic(id);
 ALTER TABLE filterset ADD CONSTRAINT fkfilterset_emfilter_filter FOREIGN KEY (emfilter) REFERENCES filter(id);
 ALTER TABLE filterset ADD CONSTRAINT fkfilterset_exfilter_filter FOREIGN KEY (exfilter) REFERENCES filter(id);
 ALTER TABLE filterset ADD CONSTRAINT fkfilterset_instrument_instrument FOREIGN KEY (instrument) REFERENCES instrument(id);
--- Already removed.
---ALTER TABLE image DROP CONSTRAINT fkimage_condition_imagingenvironment;
---ALTER TABLE image DROP CONSTRAINT fkimage_context_experiment;
---ALTER TABLE image DROP CONSTRAINT fkimage_position_stagelabel;
---ALTER TABLE image DROP CONSTRAINT fkimage_setup_instrument;
-ALTER TABLE image ADD CONSTRAINT fkimage_acquiredpixels_pixels FOREIGN KEY (acquiredpixels) REFERENCES pixels(id);
-ALTER TABLE image ADD CONSTRAINT fkimage_defaultpixels_pixels FOREIGN KEY (defaultpixels) REFERENCES pixels(id);
 ALTER TABLE image ADD CONSTRAINT fkimage_experiment_experiment FOREIGN KEY (experiment) REFERENCES experiment(id);
 ALTER TABLE image ADD CONSTRAINT fkimage_imagingenvironment_imagingenvironment FOREIGN KEY (imagingenvironment) REFERENCES imagingenvironment(id);
 ALTER TABLE image ADD CONSTRAINT fkimage_instrument_instrument FOREIGN KEY (instrument) REFERENCES instrument(id);
 ALTER TABLE image ADD CONSTRAINT fkimage_stagelabel_stagelabel FOREIGN KEY (stagelabel) REFERENCES stagelabel(id);
---ALTER TABLE laser DROP CONSTRAINT fklaser_frequencymultiplication_frequencymultiplication; -- Already removed
-ALTER TABLE laser DROP CONSTRAINT fklaser_pump_laser;
 ALTER TABLE laser ADD CONSTRAINT fklaser_pump_lightsource FOREIGN KEY (pump) REFERENCES lightsource(id);
 ALTER TABLE lightemittingdiode ADD CONSTRAINT fklightemittingdiode_lightsource_id_lightsource FOREIGN KEY (lightsource_id) REFERENCES lightsource(id);
 ALTER TABLE lightsettings ADD CONSTRAINT fklightsettings_microbeammanipulation_microbeammanipulation FOREIGN KEY (microbeammanipulation) REFERENCES microbeammanipulation(id);
---ALTER TABLE logicalchannel DROP CONSTRAINT fklogicalchannel_auxlightsource_lightsettings; -- Already removed
---ALTER TABLE logicalchannel DROP CONSTRAINT fklogicalchannel_lightsource_lightsettings; -- Already removed
 ALTER TABLE logicalchannel ADD CONSTRAINT fklogicalchannel_filterset_filterset FOREIGN KEY (filterset) REFERENCES filterset(id);
 ALTER TABLE logicalchannel ADD CONSTRAINT fklogicalchannel_lightsourcesettings_lightsettings FOREIGN KEY (lightsourcesettings) REFERENCES lightsettings(id);
 ALTER TABLE logicalchannel ADD CONSTRAINT fklogicalchannel_secondaryemissionfilter_filter FOREIGN KEY (secondaryemissionfilter) REFERENCES filter(id);
@@ -615,25 +599,21 @@ ALTER TABLE microbeammanipulationtype ADD CONSTRAINT fkmicrobeammanipulationtype
 ALTER TABLE microbeammanipulationtype ADD CONSTRAINT fkmicrobeammanipulationtype_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
 ALTER TABLE node ADD CONSTRAINT node_external_id_key UNIQUE (external_id);
 ALTER TABLE node ADD CONSTRAINT fknode_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
--- ALTER TABLE objective DROP CONSTRAINT fkobjective_coating_coating; -- Already removed
 ALTER TABLE objective ADD CONSTRAINT fkobjective_correction_correction FOREIGN KEY (correction) REFERENCES correction(id);
--- ALTER TABLE otf DROP CONSTRAINT fkotf_pixeltype_pixelstype; -- Already removed
 ALTER TABLE otf ADD CONSTRAINT fkotf_filterset_filterset FOREIGN KEY (filterset) REFERENCES filterset(id);
 ALTER TABLE otf ADD CONSTRAINT fkotf_instrument_instrument FOREIGN KEY (instrument) REFERENCES instrument(id);
 ALTER TABLE otf ADD CONSTRAINT fkotf_objective_objective FOREIGN KEY (objective) REFERENCES objective(id);
 ALTER TABLE otf ADD CONSTRAINT fkotf_pixelstype_pixelstype FOREIGN KEY (pixelstype) REFERENCES pixelstype(id);
--- Already removed
--- ALTER TABLE pixels DROP CONSTRAINT fkpixels_pixelsdimensions_pixelsdimensions;
--- ALTER TABLE roi DROP CONSTRAINT fkroi_pixels_pixels;
--- ALTER TABLE roi ADD CONSTRAINT fkroi_microbeammanipulation_microbeammanipulation FOREIGN KEY (microbeammanipulation) REFERENCES microbeammanipulation(id);
+ALTER TABLE roi ADD CONSTRAINT fkroi_microbeammanipulation_microbeammanipulation FOREIGN KEY (microbeammanipulation) REFERENCES microbeammanipulation(id);
 ALTER TABLE session ADD CONSTRAINT fksession_node_node FOREIGN KEY (node) REFERENCES node(id);
 ALTER TABLE session ADD CONSTRAINT fksession_owner_experimenter FOREIGN KEY ("owner") REFERENCES experimenter(id);
 
 
 
+
 --
 -- Finally, dropping tables
---    
+--
 
 DROP TABLE categorygroupcategorylink CASCADE;
 DROP TABLE categoryimagelink CASCADE;
@@ -642,6 +622,7 @@ DROP TABLE categorygroup CASCADE;
 
 DROP TABLE roi CASCADE;
 DROP TABLE roilink CASCADE;
+DROP TABLE roilinkannotationlink CASCADE;
 
 DROP TABLE aberrationcorrection;
 DROP TABLE cellarea;

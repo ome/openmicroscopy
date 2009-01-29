@@ -11,9 +11,10 @@
 -->
 <types>
 <!-- MANAGEMENT -->
-	<type id="ome.model.meta.ExperimenterGroup" named="true" described="true" annotated="true">
+	<type id="ome.model.meta.ExperimenterGroup" described="true" annotated="true">
 		<!-- Note: relates to Group in model-->
 		<properties>
+			<required name="name" type="string" unique="true"/><!-- unique required so not 'named' -->
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 		</properties>
 	</type>
@@ -62,23 +63,17 @@
 			<required name="defaultEventType" type="string"/>
 			<optional name="userAgent" type="string"/>
 			<onemany name="events" type="ome.model.meta.Event" inverse="session"/>
-<!--
-            // with stateless session, catch exception.
-            // agents per session? inuse?     // automatically join session if running by same user?
-            // probably not. one session per user.
-             * validation (or similar) must be in place to prevent vandalism of sess tbl.
-             * meta package (rename admin?)
-            -->
 		</properties>
 	</type>
 
 	<type id="ome.model.meta.Node" global="true" annotated="true">
 		<properties>
-		    <onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
+		    <onemany name="sessions"   type="ome.model.meta.Session" inverse="node"/>
 			<required name="uuid"  type="string"/>
 			<required name="conn"  type="string"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>
+			<optional name="scale" type="int"/>
 		</properties>
 	</type>
 
