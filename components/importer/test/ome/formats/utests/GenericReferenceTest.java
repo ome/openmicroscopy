@@ -10,7 +10,7 @@ import ome.model.core.Image;
 import ome.system.ServiceFactory;
 import junit.framework.TestCase;
 
-public class ContainerCacheOrderTest extends TestCase
+public class GenericReferenceTest extends TestCase
 {
 	private OMEROMetadataStore store;
 	

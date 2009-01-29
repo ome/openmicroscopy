@@ -209,7 +209,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     			{
     				handleReference((DetectorSettings) targetObject,
     						        (Detector) referenceObject);
-    				return;
+    				continue;
     			}
     		}
     		else if (targetObject instanceof Image)
@@ -218,7 +218,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     			{
     				handleReference((Image) targetObject,
     						        (Instrument) referenceObject);
-    				return;
+    				continue;
     			}
     		}
     		else if (targetObject instanceof LightSettings)
@@ -227,7 +227,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     			{
     				handleReference((LightSettings) targetObject,
     						        (LightSource) referenceObject);
-    				return;
+    				continue;
     			}
     		}
     		else if (targetObject instanceof LogicalChannel)
@@ -236,7 +236,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     			{
     				handleReference((LogicalChannel) targetObject,
     						        (OTF) referenceObject);
-    				return;
+    				continue;
     			}
     		}
     		else if (targetObject instanceof OTF)
@@ -245,7 +245,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     			{
     				handleReference((OTF) targetObject,
     						        (Objective) referenceObject);
-    				return;
+    				continue;
     			}
     		}
     		else if (targetObject instanceof ObjectiveSettings)
@@ -254,7 +254,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     			{
     				handleReference((ObjectiveSettings) targetObject,
     						        (Objective) referenceObject);
-    				return;
+    				continue;
     			}
     		}
 			throw new ApiUsageException(String.format(
@@ -499,6 +499,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private void handleReference(ObjectiveSettings target, Objective reference)
     {
     	target.setObjective(reference);
+    }
+    
+    /**
+     * Retrieves an object from the internal object graph by LSID.
+     * @param lsid LSID of the object.
+     * @return See above. <code>null</code> if the object is not in the
+     * internal LSID map.
+     */
+    public IObject getObjectByLSID(LSID lsid)
+    {
+    	return lsidMap.get(lsid);
     }
     
     /**
