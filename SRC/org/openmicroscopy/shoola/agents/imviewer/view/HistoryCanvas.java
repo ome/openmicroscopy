@@ -70,6 +70,8 @@ class HistoryCanvas
 								IconManager.HISTORY_CLEAR_12));
 		clearButton.addActionListener(
 				controller.getAction(ImViewerControl.CLEAR_HISTORY));
+		clearButton.setToolTipText("Clear the History excepted the initial " +
+				"view.");
 		clearButton.setContentAreaFilled(false);
 		clearButton.setBorder(BorderFactory.createEmptyBorder()); 
 		clearButton.setMargin(new Insets(0, 0, 0, 0));

@@ -59,7 +59,7 @@ class HistoryUI
 {
 
 	/** The title of the component. */
-	static final String			TITLE = "History";
+	static final String	TITLE = "History";
 	
 	/** Reference to the Model. */
 	private ImViewerModel 	model;

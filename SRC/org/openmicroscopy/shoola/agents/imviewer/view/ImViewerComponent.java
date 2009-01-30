@@ -171,8 +171,11 @@ class ImViewerComponent
 	 */
 	private void createHistoryItem(ProjectionParam ref)
 	{
+		String title = null;
+		if (model.getHistory() == null) title = "Initial View";
 		HistoryItem node = model.createHistoryItem();
 		if (node == null) return;
+		if (title != null) node.setTitle(title);
 		node.setProjectionRef(ref);
 		node.setDefaultT(model.getDefaultT());
 		node.addPropertyChangeListener(controller);

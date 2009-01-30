@@ -245,6 +245,7 @@ class ToolBar
 		}
         projectionTypesBox = EditorUtil.createComboBox(names, 0, 
         		getBackground());
+        projectionTypesBox.setBackground(getBackground());
         projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
         projectionTypesBox.addActionListener(this);
     }
@@ -254,6 +255,7 @@ class ToolBar
     {
     	compressionBox = EditorUtil.createComboBox(compression, 0, 
     			getBackground());
+    	compressionBox.setBackground(getBackground());
         createControlsBar();
         createProjectionBar();
     }
