@@ -140,7 +140,8 @@ public class LineConnectionTextFigure
 		String text = getText();
 		if (text != null || isEditable()) {
 			TextLayout layout = getTextLayout();
-			text = text.trim();
+			if(text!=null)
+				text = text.trim();
 			Rectangle2D.Double r = getBounds();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));

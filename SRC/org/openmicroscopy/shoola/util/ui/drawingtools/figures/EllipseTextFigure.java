@@ -240,7 +240,9 @@ public class EllipseTextFigure
 		String text = getText();
 		if (text != null || isEditable()) 
 		{	
-			text = text.trim();
+			if(text!=null)
+				text = text.trim();
+		
 			TextLayout layout = getTextLayout();
 			
 

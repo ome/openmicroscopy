@@ -518,7 +518,7 @@ public class OutputStrategy
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
 			points1.add(new Point2D.Double(node.x[1], node.y[1]));
 			points2.add(new Point2D.Double(node.x[2], node.y[2]));
-			maskList.add(new Integer(node.getMask()));
+			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		
 		String pointsValues=
@@ -559,7 +559,7 @@ public class OutputStrategy
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
 			points1.add(new Point2D.Double(node.x[1], node.y[1]));
 			points2.add(new Point2D.Double(node.x[2], node.y[2]));
-			maskList.add(new Integer(node.getMask()));
+			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		
 		String pointsValues=

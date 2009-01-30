@@ -207,7 +207,8 @@ public class RectangleTextFigure
 		String text = getText();
 		if (text != null || isEditable()) 
 		{	
-			text = text.trim();
+			if(text!=null)
+				text = text.trim();
 			TextLayout layout = getTextLayout();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));

@@ -176,10 +176,12 @@ public class DrawingFloatingTextField
     public void endOverlay()
     {
         view.getComponent().requestFocus();
-        if (editWidget == null);
-        editWidget.setVisible(false);
-        view.getComponent().remove(editWidget);
-        Rectangle r = editWidget.getBounds();
-        view.getComponent().repaint(r.x, r.y, r.width, r.height);
+        if (editWidget != null)
+        {
+        	editWidget.setVisible(false);
+        	view.getComponent().remove(editWidget);
+        	Rectangle r = editWidget.getBounds();
+        	view.getComponent().repaint(r.x, r.y, r.width, r.height);
+        }
     }
 }
