@@ -34,6 +34,8 @@ import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
@@ -67,9 +69,8 @@ import omero.model.ScreenPlateLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
-import omero.model.TextAnnotationI;
-import omero.model.UrlAnnotation;
-import omero.model.UrlAnnotationI;
+import omero.model.UriAnnotation;
+import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
@@ -380,8 +381,8 @@ public class ModelMapper
     {
     	Annotation annotation = null;
     	if (data instanceof TextualAnnotationData) {
-    		annotation = new TextAnnotationI();
-    		((TextAnnotation) annotation).setTextValue(omero.rtypes.rstring(
+    		annotation = new CommentAnnotationI();
+    		((CommentAnnotation) annotation).setTextValue(omero.rtypes.rstring(
     										data.getContentAsString()));
     	} else if (data instanceof RatingAnnotationData) {
     		int rate = ((RatingAnnotationData) data).getRating();
@@ -392,9 +393,9 @@ public class ModelMapper
     		((LongAnnotation) annotation).setLongValue(omero.rtypes.rlong(
     										(Long) data.getContent()));
     	} else if (data instanceof URLAnnotationData) {
-    		annotation = new UrlAnnotationI();
+    		annotation = new UriAnnotationI();
     		try {
-    			((UrlAnnotation) annotation).setTextValue(
+    			((UriAnnotation) annotation).setTextValue(
     					omero.rtypes.rstring(data.getContentAsString()));
 			} catch (Exception e) { //Need to propagate that.
 				return null;

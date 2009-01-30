@@ -38,6 +38,7 @@ import java.util.Set;
 //Application-internal dependencies
 import omero.RString;
 import omero.model.BooleanAnnotation;
+import omero.model.CommentAnnotation;
 import omero.model.Dataset;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
@@ -52,7 +53,7 @@ import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TextAnnotation;
 import omero.model.TimestampAnnotation;
-import omero.model.UrlAnnotation;
+import omero.model.UriAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
 import pojos.ArchivedAnnotationData;
@@ -126,12 +127,12 @@ public class PojoMapper
             return new DatasetData((Dataset) object);
         else if (object instanceof Image) 
         	return new ImageData((Image) object);
-        else if (object instanceof UrlAnnotation)
-        	return new URLAnnotationData((UrlAnnotation) object);
+        else if (object instanceof UriAnnotation)
+        	return new URLAnnotationData((UriAnnotation) object);
         else if (object instanceof TagAnnotation)
         	return new TagAnnotationData((TagAnnotation) object);
-        else if (object instanceof TextAnnotation) 
-        	return new TextualAnnotationData((TextAnnotation) object);
+        else if (object instanceof CommentAnnotation) 
+        	return new TextualAnnotationData((CommentAnnotation) object);
         else if (object instanceof LongAnnotation) {
         	LongAnnotation ann = (LongAnnotation) object;
         	RString ns = ann.getNs();

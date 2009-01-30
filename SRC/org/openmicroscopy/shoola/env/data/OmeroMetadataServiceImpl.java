@@ -166,9 +166,9 @@ class OmeroMetadataServiceImpl
 		//stage Label
 		List<IObject> toCreate = new ArrayList<IObject>();
 		List<IObject> toUpdate = new ArrayList<IObject>();
-		if (data.isPositionDirty()) {
+		if (data.isStageLabelDirty()) {
 			StageLabel label;
-			id = data.getPositionId();
+			id = data.getStageLabelId();
 			if (id < 0) { //create a new one.
 				label = new StageLabelI();
 				toCreate.add(label);
@@ -189,8 +189,8 @@ class OmeroMetadataServiceImpl
 				label.setPositionZ(omero.rtypes.rfloat((Float) o));
 		}
 		//Environment
-		if (data.isConditionDirty()) {
-			id = data.getConditionId();
+		if (data.isImagingEnvironmentDirty()) {
+			id = data.getImagingEnvironmentId();
 			ImagingEnvironment condition;
 			if (id < 0) {
 				condition = new ImagingEnvironmentI();
@@ -245,9 +245,9 @@ class OmeroMetadataServiceImpl
 			while (i.hasNext()) {
 				object = i.next();
 				if (object instanceof StageLabel)
-					image.setPosition((StageLabel) object);
+					image.setStageLabel((StageLabel) object);
 				else if (object instanceof ImagingEnvironment)
-					image.setCondition((ImagingEnvironment) object);
+					image.setImagingEnvironment((ImagingEnvironment) object);
 				else if (object instanceof ObjectiveSettings) {
 					objectiveSettingsID = object.getId().getValue();
 					image.setObjectiveSettings((ObjectiveSettings) object);

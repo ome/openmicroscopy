@@ -95,6 +95,8 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
@@ -125,12 +127,10 @@ import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.TextAnnotation;
-import omero.model.TextAnnotationI;
 import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
-import omero.model.UrlAnnotation;
-import omero.model.UrlAnnotationI;
+import omero.model.UriAnnotation;
+import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.EventContext;
@@ -1042,11 +1042,11 @@ class OMEROGateway
 		else if (nodeType.equals(TagAnnotationData.class)) 
 			return TagAnnotation.class;
 		else if (nodeType.equals(TextualAnnotationData.class)) 
-			return TextAnnotation.class;
+			return CommentAnnotation.class;
 		else if (nodeType.equals(FileAnnotationData.class))
 			return FileAnnotation.class;
 		else if (nodeType.equals(URLAnnotationData.class))
-			return UrlAnnotation.class;
+			return UriAnnotation.class;
 		else if (nodeType.equals(ScreenData.class)) 
 			return Screen.class;
 		else if (nodeType.equals(PlateData.class)) 
@@ -1074,15 +1074,15 @@ class OMEROGateway
 		else if (nodeType.equals(BooleanAnnotation.class) ||
 				nodeType.equals(BooleanAnnotationData.class))
 			return BooleanAnnotationI.class.getName();
-		else if (nodeType.equals(UrlAnnotation.class) ||
+		else if (nodeType.equals(UriAnnotation.class) ||
 				nodeType.equals(URLAnnotationData.class))
-			return UrlAnnotationI.class.getName();
+			return UriAnnotationI.class.getName();
 		else if (nodeType.equals(FileAnnotation.class) ||
 				nodeType.equals(FileAnnotationData.class))
 			return FileAnnotationI.class.getName();
-		else if (nodeType.equals(TextAnnotation.class) ||
+		else if (nodeType.equals(CommentAnnotation.class) ||
 				nodeType.equals(TextualAnnotationData.class))
-			return TextAnnotationI.class.getName();
+			return CommentAnnotationI.class.getName();
 		else if (nodeType.equals(TimestampAnnotation.class) ||
 				nodeType.equals(TimeAnnotationData.class))
 			return TimestampAnnotationI.class.getName();
@@ -3791,7 +3791,7 @@ class OMEROGateway
 					link = (AnnotationAnnotationLink) i.next();
 					child = link.getChild();
 					if (!((child instanceof TagAnnotation) || 
-						(child instanceof UrlAnnotation)))  {
+						(child instanceof UriAnnotation)))  {
 						deleteObject(link);
 						deleteObject(child);
 					}

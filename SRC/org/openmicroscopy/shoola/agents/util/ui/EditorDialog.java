@@ -97,7 +97,7 @@ public class EditorDialog
 	public static final String		CREATE_NO_PARENT_PROPERTY = "createNoParent";
 	
 	/** Bound property indicating to create an object. */
-	public static final String		CLOSE_PROPERTY = "close";
+	public static final String		CLOSE_EDITOR_DIALOG_PROPERTY = "closeEditorDialog";
 	
     /** The default size of the dialog. */
     private static final Dimension 	WIN_DIM = new Dimension(600, 300);
@@ -311,7 +311,7 @@ public class EditorDialog
     /** Closes and disposes. */
     private void close()
     {
-    	firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    	firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.FALSE, Boolean.TRUE);
         setVisible(false);
         dispose();
     }

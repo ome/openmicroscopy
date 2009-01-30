@@ -424,10 +424,7 @@ class DocComponent
 			label.setToolTipText(formatTootTip(tag));
 			label.setText(tag.getTagValue());
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
-		} else if (EditorDialog.CLOSE_PROPERTY.equals(name)) {
-			//originalDescription = null;
-			//originalName = null;
-		}
+		} 
 	}
 	
 	
