@@ -24,7 +24,7 @@
 <!-- /basic/text -->
 	<abstract id="ome.model.annotations.TextAnnotation" discriminator="/basic/text/" superclass="ome.model.annotations.Annotation">
 		<properties>
-			<optional name="textValue" type="text" mutable="false"/>
+			<optional name="textValue" type="text"/>
 		</properties>
 	</abstract>
 	<type id="ome.model.annotations.CommentAnnotation" discriminator="/basic/text/comment/" superclass="ome.model.annotations.TextAnnotation"/>
@@ -37,34 +37,34 @@
 	<abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num/" superclass="ome.model.annotations.BasicAnnotation"/>
 	<type id="ome.model.annotations.LongAnnotation" discriminator="/basic/num/long/" superclass="ome.model.annotations.NumericAnnotation">
 		<properties>
-			<optional name="longValue" type="long" mutable="false"/>
+			<optional name="longValue" type="long"/>
 		</properties>
 	</type>
 	<type id="ome.model.annotations.DoubleAnnotation" discriminator="/basic/num/double/" superclass="ome.model.annotations.NumericAnnotation">
 		<properties>
-			<optional name="doubleValue" type="double" mutable="false"/>
+			<optional name="doubleValue" type="double"/>
 		</properties>
 	</type>
 <!-- other basic -->
 	<type id="ome.model.annotations.BooleanAnnotation" discriminator="/basic/bool/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
-			<optional name="boolValue" type="boolean" mutable="false"/>
+			<optional name="boolValue" type="boolean"/>
 		</properties>
 	</type>
 	<type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
-			<optional name="timeValue" type="timestamp" mutable="false"/>
+			<optional name="timeValue" type="timestamp"/>
 		</properties>
 	</type>
 <!--  /type -->
 	<type id="ome.model.annotations.ThumbnailAnnotation" discriminator="/type/Thumbnail/" superclass="ome.model.annotations.TypeAnnotation"><!-- not used in data model-->
 		<properties>
-			<optional name="thumbnail" type="ome.model.display.Thumbnail" mutable="false"/>
+			<optional name="thumbnail" type="ome.model.display.Thumbnail"/>
 		</properties>
 	</type>
 	<type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile/" superclass="ome.model.annotations.TypeAnnotation">
 		<properties>
-			<optional name="file" type="ome.model.core.OriginalFile" mutable="false"/>
+			<optional name="file" type="ome.model.core.OriginalFile"/>
 		</properties>
 	</type>
 </types>
