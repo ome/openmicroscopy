@@ -52,17 +52,17 @@ public class TestEllipseArea
     
     public void testEllipse()
     {
-        EllipseArea area = new EllipseArea(0, 0, Integer.MIN_VALUE, 
-                                    Integer.MAX_VALUE);
+        EllipseArea area = new EllipseArea(0, 0, 5000, 
+                                    5000);
         Rectangle r = area.getBounds();
         assertEquals("Should set x to argument passed to constructor.", 
                     0, r.x, 0);
         assertEquals("Should set y to argument passed to constructor.", 
                     0, r.y, 0);
         assertEquals("Should set w to argument passed to constructor.", 
-                    Integer.MIN_VALUE, r.width, 0);
+                    5000, r.width, 0);
         assertEquals("Should set h to argument passed to constructor.", 
-                    Integer.MAX_VALUE, r.height, 0);
+                    5000, r.height, 0);
     }
     
     public void testSetBounds()
