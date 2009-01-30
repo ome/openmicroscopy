@@ -1,7 +1,6 @@
 package ome.formats;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.text.Collator;
@@ -179,18 +178,51 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     	initialize();
     }
     
-    public OMEROMetadataStoreClient(String username, String password, String server,
-            String port) throws CannotCreateSessionException, PermissionDeniedException, ServerError
+    /**
+     * Default constructor taking string parameters to feed to the OMERO Blitz
+     * client object.
+     * @param username User's omename.
+     * @param password User's password.
+     * @param server Server hostname.
+     * @param port Server port.
+     * @throws CannotCreateSessionException If there is a session error when
+     * creating the OMERO Blitz client object.
+     * @throws PermissionDeniedException If there is a problem logging the user
+     * in.
+     * @throws ServerError If there is a critical error communicating with the
+     * server.
+     */
+    public OMEROMetadataStoreClient(String username, String password,
+                                    String server, int port)
+        throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-        client c = new client(server);
+        client c = new client(server, port);
         serviceFactory = c.createSession(username, password);
         initialize();
     }
+    
+    /**
+     * Constructor which joins an existing session.
+     * @param server Server hostname.
+     * @param port Server port.
+     * @param sessionKey Bind session key.
+     */
+    public OMEROMetadataStoreClient(String server, int port, String sessionKey)
+        throws CannotCreateSessionException, PermissionDeniedException, ServerError
+    {
+        client c = new client(server, port);
+        serviceFactory = c.joinSession(sessionKey);
+        initialize();
+    }
 
+    /**
+     * Pings all registered OMERO Blitz proxies. 
+     */
     public void ping()
     {
         serviceFactory.keepAllAlive(new ServiceInterfacePrx[] 
-                {iQuery, iAdmin, rawFileStore, rawPixelStore, iRepoInfo, iPojos, iUpdate, delegate});
+                {iQuery, iAdmin, rawFileStore, rawPixelStore, iRepoInfo,
+                 iPojos, iUpdate, delegate});
         log.debug("KeepAlive ping");
     }
     
@@ -2046,7 +2078,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         try
         {
-            delegate.setChannelGlobalMinMax(channel, toRType(minimum), toRType(maximum), toRType(series));
+            delegate.setChannelGlobalMinMax(channel, minimum, maximum, series);
         }
         catch (ServerError e)
         {

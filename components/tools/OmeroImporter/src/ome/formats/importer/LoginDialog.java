@@ -106,7 +106,7 @@ public class LoginDialog extends JDialog
     public String           password;
 
     public String           currentServer;
-    public String           port;
+    public int              port = 4063;
 
     public boolean          cancelled = true;
 
@@ -146,9 +146,7 @@ public class LoginDialog extends JDialog
         
         serverList = getServerList();
         
-        port = userPrefs.get("port", port);
-        if (port != null) port = port.trim();
-        else port = "1099";
+        port = userPrefs.getInt("port", port);
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =

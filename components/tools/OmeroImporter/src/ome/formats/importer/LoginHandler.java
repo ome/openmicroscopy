@@ -66,7 +66,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
     private String             password;
 
-    private String             port;
+    private int                port;
 
     private String             server;
 
@@ -195,13 +195,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                     
                     userPrefs.put("username", username);
                     userPrefs.put("server", server);
-                    userPrefs.put("port", port);
+                    userPrefs.putInt("port", port);
                     
                 } else {
                         username = lc.getUserName();
                         password = lc.getPassword();
                         server = lc.getHostName();
-                        port = "1099";
+                        port = 4063;
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",

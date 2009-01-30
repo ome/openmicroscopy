@@ -43,7 +43,7 @@ module omero {
 		void updateObjects(omero::metadatastore::IObjectContainerArray objects) throws ServerError;
 		void updateReferences(omero::api::StringStringMap references) throws ServerError;
 		ImageList getRoot() throws ServerError;
-		void setChannelGlobalMinMax(int channelIdx, RDouble globalMin, RDouble globalMax, RInt pixelsIndex) throws ServerError;
+		void setChannelGlobalMinMax(int channelIdx, double globalMin, double globalMax, int pixelsIndex) throws ServerError;
 		void setThePixelsId(RLong id) throws ServerError;
 		DatasetList getDatasets(omero::model::Project project) throws ServerError;
 		ProjectList getProjects() throws ServerError;

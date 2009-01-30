@@ -28,7 +28,7 @@ public class CommandLineImporter
     private static Log log = LogFactory.getLog(CommandLineImporter.class);
 
     /** Default OMERO port */
-    private static final String PORT = "1099";
+    private static final int PORT = 4063;
     
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
@@ -46,10 +46,21 @@ public class CommandLineImporter
      * Main entry class for the application.
      */
     public CommandLineImporter(String username, String password,
-                               String host, String port)
+                               String host, int port)
         throws Exception
     {
         store = new OMEROMetadataStoreClient(username, password, host, port);
+        reader = new OMEROWrapper();
+        library = new ImportLibrary(store, reader);
+    }
+    
+    /**
+     * Secondary, session key based constructor.
+     */
+    public CommandLineImporter(String sessionKey, String host, int port)
+        throws Exception
+    {
+        store = new OMEROMetadataStoreClient(host, port, sessionKey);
         reader = new OMEROWrapper();
         library = new ImportLibrary(store, reader);
     }
@@ -98,6 +109,7 @@ public class CommandLineImporter
                 "  -s\tOMERO server hostname\n" +
                 "  -u\tOMERO experimenter name (username)\n" +
                 "  -w\tOMERO experimenter password\n" +
+                "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
                 "  -d\tOMERO dataset Id to import image into\n" +
                 "\n" +
                 "Optional arguments:\n" +
@@ -124,12 +136,13 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:y:n:p:h");
+        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:k:y:n:p:h");
         int a;
         String username = null;
         String password = null;
+        String sessionKey = null;
         String hostname = null;
-        String port = PORT;
+        int port = PORT;
         Long datasetId = null;
         String name = null;
         while ((a = g.getopt()) != -1)
@@ -151,9 +164,14 @@ public class CommandLineImporter
                     password = g.getOptarg();
                     break;
                 }
+                case 'k':
+                {
+                    sessionKey = g.getOptarg();
+                    break;
+                }
                 case 'p':
                 {
-                    port = g.getOptarg();
+                    port = Integer.parseInt(g.getOptarg());
                     break;
                 }
                 case 'd':
@@ -177,9 +195,9 @@ public class CommandLineImporter
             }
         }
         
-        // Ensure that we have all of our required arguments
-        if (username == null || password == null || hostname == null 
-            || datasetId == null)
+        // Ensure that we have all of our required login arguments
+        if (((username == null || password == null) && sessionKey == null)
+            || hostname == null || datasetId == null)
         {
             usage();
         }
@@ -197,8 +215,15 @@ public class CommandLineImporter
             {
                 name = path;
             }
-            CommandLineImporter c = new CommandLineImporter(username, password,
-                    hostname, port);
+            CommandLineImporter c;
+            if (sessionKey != null)
+            {
+                c = new CommandLineImporter(sessionKey, hostname, port);
+            }
+            else
+            {
+                c = new CommandLineImporter(username, password, hostname, port);
+            }
             c.library.addObserver(new LoggingImportMonitor());
             c.importImage(path, datasetId, name);
             System.exit(0);  // Exit with specified return code

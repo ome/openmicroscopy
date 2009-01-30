@@ -266,8 +266,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     public void setChannelGlobalMinMax_async(
             final AMD_MetadataStore_setChannelGlobalMinMax __cb,
-            final int channelIdx, final RDouble globalMin,
-            final RDouble globalMax, final RInt pixelsIndex,
+            final int channelIdx, final double globalMin,
+            final double globalMax, final int pixelsIndex,
             final Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
@@ -276,8 +276,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
-                        store.setChannelGlobalMinMax(channelIdx, toJavaType(globalMin),
-                                toJavaType(globalMax), toJavaType(pixelsIndex));
+                        store.setChannelGlobalMinMax(channelIdx, globalMin,
+                                globalMax, pixelsIndex);
                         return null;
                     }
                 }));

@@ -35,7 +35,7 @@ public class PopulateMetrics
         wrapper = new OMEROWrapper();
         
         // Login
-        store = new OMEROMetadataStoreClient("root", "ome", "mage.openmicroscopy.org.uk", "1099");
+        store = new OMEROMetadataStoreClient("root", "ome", "mage.openmicroscopy.org.uk", 4063);
         importLibrary = new ImportLibrary(store, wrapper);
         
         // Create a time stamp and use it for the project name
