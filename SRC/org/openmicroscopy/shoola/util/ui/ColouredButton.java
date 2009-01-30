@@ -78,13 +78,13 @@ extends JButton
 	 * @param color     The background color of the button. Corresponds to the
 	 *                  color associated to the channel.
 	 */
-	public ColouredButton(String text, Color color, boolean activeChannel)
+	public ColouredButton(String text, Color color)
 	{
 		if (color == null) 
 			throw new IllegalArgumentException("No color.");
 		setModel(new DefaultButtonModel());
 		init(text, null);
-		colourButtonUI = new ColouredButtonUI(this, color, activeChannel);
+		colourButtonUI = new ColouredButtonUI(this, color);
 		setUI(colourButtonUI);
 		setRolloverEnabled(false);
 		setBorder(BorderFactory.createBevelBorder(3));
