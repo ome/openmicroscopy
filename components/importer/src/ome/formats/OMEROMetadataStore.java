@@ -855,7 +855,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         for (int j=0; j < p.getSizeC(); j++)
         {
             Channel channel = p.getChannel(j);
-            Channel readerChannel = getPixels(i, 0).getChannel(j);
+            Channel readerChannel = pixelsList.get(i).getChannel(j);
             channel.setStatsInfo(readerChannel.getStatsInfo());
         }
         iUpdate.saveObject(p);
