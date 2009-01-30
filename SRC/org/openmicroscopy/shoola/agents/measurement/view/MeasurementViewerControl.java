@@ -96,46 +96,46 @@ class MeasurementViewerControl
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
-    static final Integer     SAVE = new Integer(0);
+    static final Integer     SAVE = Integer.valueOf(0);
     
     /** Identifies the <code>LOAD</code> action in the menu. */
-    static final Integer     LOAD = new Integer(1);
+    static final Integer     LOAD =  Integer.valueOf(1);
     
     /** Identifies the <code>SAVE Results</code> action in the menu. */
-    static final Integer     SAVE_RESULTS = new Integer(2);
+    static final Integer     SAVE_RESULTS =  Integer.valueOf(2);
     
     /** Identifies the <code>Refresh Results</code> action in the menu. */
-    static final Integer     REFRESH_RESULTS = new Integer(3);
+    static final Integer     REFRESH_RESULTS =  Integer.valueOf(3);
     
     /** Identifies the <code>Results Wizard</code> action in the menu. */
-    static final Integer     RESULTS_WIZARD = new Integer(4);
+    static final Integer     RESULTS_WIZARD =  Integer.valueOf(4);
 
     /** Identifies the <code>ROI Assistant</code> action in the menu. */
-    static final Integer     ROI_ASSISTANT = new Integer(5);
+    static final Integer     ROI_ASSISTANT =  Integer.valueOf(5);
 
     /** 
      * Identifies the <code>showMeasurementinMicrons</code> action in 
      * the menu.
      */
-    static final Integer     IN_MICRONS = new Integer(6);
+    static final Integer     IN_MICRONS =  Integer.valueOf(6);
     
     /** 
      * Identifies the <code>showMeasurementinMicrons</code> action in 
      * the menu.
      */
-    static final Integer     IN_PIXELS = new Integer(7);
+    static final Integer     IN_PIXELS =  Integer.valueOf(7);
     
     /** 
      * Identifies the <code>createSingleFigures</code> action in 
      * the menu.
      */
-    static final Integer     CREATESINGLEFIGURE = new Integer(8);
+    static final Integer     CREATESINGLEFIGURE =  Integer.valueOf(8);
     
     /** 
      * Identifies the <code>showMeasurementinMicrons</code> action in 
      * the menu.
      */
-    static final Integer     CREATEMULTIPLEFIGURE = new Integer(9);
+    static final Integer     CREATEMULTIPLEFIGURE =  Integer.valueOf(9);
     
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 

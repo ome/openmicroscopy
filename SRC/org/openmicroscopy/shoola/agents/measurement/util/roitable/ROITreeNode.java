@@ -225,7 +225,7 @@ public class ROITreeNode
 	 */
 	public void setValueAt(Object value, int column)
 	{
-		Object userObject=getUserObject();
+		/*Object userObject=getUserObject();
 		if (userObject instanceof ROI)
 		{
 			ROI roi=(ROI) userObject;
@@ -236,7 +236,7 @@ public class ROITreeNode
 			ROIShape roiShape=(ROIShape) userObject;
 			ROIFigure figure = roiShape.getFigure();
 			
-		}
+		}*/
 	}
 	
 }

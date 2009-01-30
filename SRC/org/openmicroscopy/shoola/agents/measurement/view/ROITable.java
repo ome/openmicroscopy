@@ -410,7 +410,6 @@ public class ROITable
 	public void expandROIRow(ROI roi)
 	{
 		ROINode selectedNode = findParent(roi);
-		int selectedNodeIndex = root.getIndex(selectedNode);
 		this.expandROIRow(selectedNode);
 	//	this.scrollCellToVisible(selectedNodeIndex, 0);
 	}

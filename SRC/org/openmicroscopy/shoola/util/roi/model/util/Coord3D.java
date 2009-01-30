@@ -130,12 +130,6 @@ public class Coord3D
 	}
 	
 	/**
-	 * Clones the object.
-	 * @see java.lang.Object#clone()
-	 */
-	public Coord3D clone() { return new Coord3D(this.t, this.z); }
-
-	/**
 	 * Returns the string of the coord.
 	 * @see java.lang.Object#toString()
 	 */

@@ -78,13 +78,13 @@ extends JButton
 	 * @param color     The background color of the button. Corresponds to the
 	 *                  color associated to the channel.
 	 */
-	public ColouredButton(String text, Color color)
+	public ColouredButton(String text, Color color, boolean activeChannel)
 	{
 		if (color == null) 
 			throw new IllegalArgumentException("No color.");
 		setModel(new DefaultButtonModel());
 		init(text, null);
-		colourButtonUI = new ColouredButtonUI(this, color);
+		colourButtonUI = new ColouredButtonUI(this, color, activeChannel);
 		setUI(colourButtonUI);
 		setRolloverEnabled(false);
 		setBorder(BorderFactory.createBevelBorder(3));
@@ -93,6 +93,33 @@ extends JButton
 		setButtonColour(color);
 	}
 
+	/**
+	 * Changes to size need to be reflected in changes in painters. 
+	 */
+	public void setSize(Dimension d)
+	{
+		super.setSize(d);
+		setColor(color);
+	}
+	
+	/**
+	 * Changes to size need to be reflected in changes in painters. 
+	 */
+	public void setSize(int x, int y)
+	{
+		super.setSize(x,y);
+		setColor(color);
+	}
+	
+	/**
+	 * Changes to size need to be reflected in changes in painters. 
+	 */
+	public void setPreferredSize(Dimension preferredSize)
+	{
+		super.setPreferredSize(preferredSize);
+		setColor(color);
+	}
+	
 	/**
 	 * Sets the button to be greyed out.
 	 *  

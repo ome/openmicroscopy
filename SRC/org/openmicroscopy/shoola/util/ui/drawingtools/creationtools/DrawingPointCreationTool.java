@@ -151,7 +151,7 @@ public class DrawingPointCreationTool
          final Drawing addedDrawing = getDrawing();
          getDrawing().fireUndoableEditHappened(new AbstractUndoableEdit() {
             public String getPresentationName() {
-                return getPresentationName();
+                return super.getPresentationName();
             }
             public void undo() throws CannotUndoException {
                 super.undo();

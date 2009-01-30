@@ -701,7 +701,7 @@ class ControlPane
     		d = i.next();
     		k = d.getIndex();
     		button = new ChannelButton(""+d.getChannelLabeling(), 
-    				model.getChannelColor(k), k, model.isChannelActive(k));
+    				model.getChannelColor(k), k, model.isChannelActive(k), false);
     		if (gs) button.setGrayedOut(gs);
     		channelButtons.add(button);
     		dim = button.getPreferredSize();

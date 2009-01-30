@@ -199,9 +199,8 @@ public 	class FigureTableModel
 			if(value instanceof String)
 				figure.setAttribute(keys.get(row), new Double((String)value));
 		}
-		else if (figure.getAttribute(key) instanceof Boolean) figure
-			.setAttribute(keys.get(row), value);
-		else figure.setAttribute(keys.get(row), value);
+		else  
+			figure.setAttribute(keys.get(row), value);
 		values.set(row, value);
 		fireTableCellUpdated(row, col);
 	}

@@ -160,7 +160,7 @@ public class ROICoordMap
 		while(roiIterator.hasNext())
 		{
 			ROIShape shape = roiMap.get(roiIterator.next());
-			if(!coordMap.containsKey(shape.getCoord3D()));
+			if(!coordMap.containsKey(shape.getCoord3D()))
 				createShapeList(shape.getCoord3D());
 			ShapeList shapeList = coordMap.get(shape.getCoord3D());
 			shapeList.add(roi.getID(), shape);

@@ -188,9 +188,10 @@ public class ChannelButton
      *                  the channel is rendered), <code>false</code> otherwise
      *                  (i.e. the channel is not rendered.)
      */
-    public ChannelButton(String text, Color color, int index, boolean selected)
+    public ChannelButton(String text, Color color, int index, boolean selected, 
+    		boolean activeChannel)
     {
-        super(text, color);
+        super(text, color, activeChannel);
         setText(parseText(text));
         //Need to parse the String.
         this.index = index;
@@ -218,7 +219,7 @@ public class ChannelButton
      */
     public ChannelButton(String text, Color color, int index)
     {
-        this(text, color, index, false);
+        this(text, color, index, false, false);
     }
     
     /** Fires a property change to bring up on screen the color picker. */

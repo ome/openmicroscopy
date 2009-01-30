@@ -68,7 +68,11 @@ class ColouredButtonUI
 extends BasicButtonUI
 {
 
-	
+	private static final int MATTE = 0;
+	private static final int SPEC = 1;
+	private static final int ACTIVE = 2;
+	private boolean activeChannel;
+
 	/** The stroke of the graphics context. */
 	private static final Stroke	STROKE = new BasicStroke(1.0f);
 	
@@ -122,7 +126,9 @@ extends BasicButtonUI
     
     /** The grey-mask face painter. */
     private Painter 		selectedGreyMaskPainter;
-    
+
+    /** The grey-mask face painter. */
+    private Painter 		activeChannelPainter;
     
     /**
      * Buttons can be greyed out, representing that the current model is
@@ -251,7 +257,17 @@ extends BasicButtonUI
     {
     	invokePainter(g, selectedButtonFacePainter);
     }
-        
+    
+    /**
+     * The button has been marked as having the active channel. 
+     *  
+     * @param g Graphics2D render context.
+     */
+    private void drawActiveChannel(Graphics2D g)
+    {
+    	invokePainter(g, activeChannelPainter);
+    }
+    
     /**
      * Draws a bevelled border for an unselected Button, the top and left 
      * bevels will be lighter than the bottom and Right.
@@ -455,7 +471,9 @@ extends BasicButtonUI
                 drawGreyBorder(g);
             }
         }
-        // Draw text in centre of button.
+        if(activeChannel)
+        	drawActiveChannel(g);
+       // Draw text in centre of button.
         drawText(g);
     }
     
@@ -465,11 +483,12 @@ extends BasicButtonUI
      * @param b Reference to parent Button. Mustn't be <code>null</code>.
      * @param c Colour of the button. Mustn't be <code>null</code>.
      */
-    ColouredButtonUI(ColouredButton b, Color c)
+    ColouredButtonUI(ColouredButton b, Color c, boolean activeChannel)
     {
         if (b == null) throw new IllegalArgumentException("No button.");
         if (c == null) throw new IllegalArgumentException("No color.");
         button = b;
+        this.activeChannel = activeChannel;
         greyedOut = false;
         fontIndex = Font.PLAIN;
         setColor(c);
@@ -488,6 +507,13 @@ extends BasicButtonUI
     void setGrayedOut(boolean greyedOut) { this.greyedOut = greyedOut; }
     
     /**
+     * Buttons can be active out, representing that the current button is active
+     * 
+     * @param active Pass <code>true</code> to add the active highlight to the button,
+     */
+    void setActive(boolean active) { this.activeChannel = active; }
+ 
+    /**
      * Sets the colour of the button. 
      * 
      * @param c Color to set. Mustn't be <code>null</code>.
@@ -505,11 +531,13 @@ extends BasicButtonUI
      */
     private void createPainters()
     {
-    	buttonFacePainter = getPainter(colour, true);
-    	selectedButtonFacePainter = getPainter(colour, false);
-    	greyMaskPainter = getPainter(Color.gray, true);
-    	selectedGreyMaskPainter = getPainter(Color.gray, false);
+    	buttonFacePainter = getPainter(colour, SPEC);
+    	selectedButtonFacePainter = getPainter(colour, MATTE);
+    	greyMaskPainter = getPainter(Color.gray, SPEC);
+    	selectedGreyMaskPainter = getPainter(Color.gray, MATTE);
+    	activeChannelPainter = getPainter(colour, ACTIVE);
     }
+    
     
     /**
      * Create the painters for the colour, and add specular highlight if the
@@ -518,13 +546,17 @@ extends BasicButtonUI
      * @param spec see above.
      * @return see above.
      */
-    private Painter<JXButton> getPainter(Color colour, boolean spec) 
+    private Painter<JXButton> getPainter(Color colour, int op) 
 	{
+    	System.err.println(getWidth());
 		int startX = (int)(getWidth()*0.2);
+		int startActiveX = (int)(getWidth()*0.7);
 		int startY = 6;
 		int colourStartX = (int)(getWidth()*0.3);
+		int colourStartActiveX = (int)(getWidth()*0.8);
 		int colourStartY = (int)(18);
-		int radius = (int)(getWidth()*0.9);
+		int radius = (int)Math.max(18, getWidth()*0.9);
+		int radiusActive = (int)(getWidth()*0.3);
 		int matteEndX = 10;
 		int matteEndY = 18;
 		
@@ -548,14 +580,25 @@ extends BasicButtonUI
 	                new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f),
 	                    new Color(1.0f, 1.0f, 1.0f, 0.0f) } );
 	    MattePainter specularHighlight = new MattePainter(rp);
-	    if(spec)
+		org.apache.batik.ext.awt.RadialGradientPaint rActiveChannel =
+			new org.apache.batik.ext.awt.RadialGradientPaint(new 
+				Point2D.Double(startActiveX,startY), radiusActive, 
+				new Point2D.Double(colourStartActiveX, colourStartY),
+	                new float[] { 0.0f, 0.5f },
+	                new Color[] { new Color(1.0f, 1.0f, 0.0f, 0.4f),
+	                    new Color(1.0f, 1.0f, 0.0f, 0.0f) } );
+	    MattePainter activeChannelGradient = new MattePainter(rActiveChannel);
+	    if(op==SPEC)
 	    	return new CompoundPainter<JXButton>( gradientWhite, 
 					gradientBrighterDarker, specularHighlight);
-	    else
+	    if(op==MATTE)
 	    	return new CompoundPainter<JXButton>( gradientWhite, 
 	    			gradientBrighterDarker);
+	    if(op==ACTIVE)
+	    	return new CompoundPainter<JXButton>( activeChannelGradient);
+	    	
+	    return null;
 	}
-    
     /**
      * Sets the index of the derived font used to paint the text.
      * 

@@ -122,10 +122,7 @@ class MeasurementViewerModel
 	
     /** The image's magnification factor. */
     private double					magnification;
-    
-    /** The name of the file name where the ROIs are saved. */
-    private String					roiFileName;
-    
+        
     /** Collection of pairs (channel's index, channel's color). */
     private Map						activeChannels;
     
@@ -176,7 +173,6 @@ class MeasurementViewerModel
 		state = MeasurementViewer.NEW;
 		drawingComponent = new DrawingComponent();
 		roiComponent = new ROIComponent();
-		roiFileName = imageID+".xml";
 		fileSaved = null;
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
