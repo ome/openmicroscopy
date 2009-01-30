@@ -144,7 +144,8 @@ public class FieldParamEditor
 		Border compoundBorder = BorderFactory.createCompoundBorder
 			(lineBorder, emptyBorder);
 		attributeFieldsPanel.setBorder(compoundBorder);
-		attributeFieldsPanel.setBackground(null);
+		attributeFieldsPanel.setBackground(
+				org.openmicroscopy.shoola.util.ui.UIUtilities.BACKGROUND_COLOR);
 		
 	}
 	
