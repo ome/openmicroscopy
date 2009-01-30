@@ -62,7 +62,7 @@ public class FileDownload {
 	 * @throws IOException
 	 */
 	public static File downloadFile (String fileUrl, String newFileName) 
-	throws IOException{
+	throws IOException, IllegalArgumentException {
 		
 		File outputFile = new File(newFileName);
 		
@@ -86,6 +86,8 @@ public class FileDownload {
 		} catch (MalformedURLException e) {
 			throw e;
 		} catch (IOException e) {
+			throw e;
+		}catch (IllegalArgumentException e) {
 			throw e;
 		}
 		

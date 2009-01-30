@@ -27,5 +27,7 @@
      <entry name="/xml/cpe.dtd">http://genome.tugraz.at/iLAP/cpe/cpe.dtd</entry>
      <entry name="/xml/editor.xsl">http://users.openmicroscopy.org.uk/~will/schemas/cpeEditor2html.xsl</entry>
      
+     <!-- The 'home page' of online demo files -->
+     <entry name="/demo/index">http://cvs.openmicroscopy.org.uk/snapshots/omero/editor/demoFiles/beta4/index.html</entry>
 </resources>
 </agent>

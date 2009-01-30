@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -94,8 +96,7 @@ public class UrlChooser
 	 * The URL of the web-page that contains links to downloadable files.  
 	 * Clicking on the links in this page will place the link URL in the urlField. 
 	 */
-	public static final String DEMO_FILES_URL = "http://cvs.openmicroscopy." +
-			"org.uk/snapshots/omero/editor/demoFiles/beta4/index.html";
+	private String 					demoFilesUrl;
 
 	private static int 				fileNameIncrementer = 1;
 	/**
@@ -130,6 +131,7 @@ public class UrlChooser
 		
 		Registry reg = EditorAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
+		
 		try {
 			int lastSlash = url.lastIndexOf("/");
 			if (lastSlash < 0) return false;	// can't be valid url
@@ -154,6 +156,10 @@ public class UrlChooser
 					"URL may be incorrect, or internet connection failed.",
 					"Could not open file");
 			return false;
+		} catch (IllegalArgumentException ex) {
+			un.notifyInfo("Invalid URL", 
+			"Invalid URL, please try again");
+			return false;
 		}
 	}
 
@@ -166,6 +172,8 @@ public class UrlChooser
 	public UrlChooser(Editor model) {
 		
 		this.model = model;
+		
+		demoFilesUrl = (String)EditorAgent.getRegistry().lookup("/demo/index");
 		
 		buildAndDisplayUI();
 	}
@@ -192,7 +200,7 @@ public class UrlChooser
 		// Editor Pane to display the web-page
 		JEditorPane webPage = new JEditorPane();
 		try {
-			webPage.setPage(DEMO_FILES_URL);
+			webPage.setPage(demoFilesUrl);
 		} catch (IOException e1) {
 			// Warn the user that they may not be online.
 			Registry registry = EditorAgent.getRegistry();

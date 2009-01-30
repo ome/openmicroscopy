@@ -146,7 +146,6 @@ public class FieldParamEditor
 		attributeFieldsPanel.setBorder(compoundBorder);
 		attributeFieldsPanel.setBackground(
 				org.openmicroscopy.shoola.util.ui.UIUtilities.BACKGROUND_COLOR);
-		
 	}
 	
 	/**
