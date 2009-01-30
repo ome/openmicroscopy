@@ -120,8 +120,7 @@ public class InputDialog
 		//area = new MultilineLabel(originalText);
 		area = new JTextArea(originalText);
 		area.setCaretPosition(originalText.length());
-		area.setBorder(
-					BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		area.getDocument().addDocumentListener(this);
 		getRootPane().setDefaultButton(save);
 	}
@@ -223,8 +222,7 @@ public class InputDialog
 	 */
 	public InputDialog(JFrame owner, String title, String originalText)
 	{
-		this(owner, title, originalText, IconManager.getInstance().getIcon
-				(IconManager.QUESTION_ICON_48));
+		this(owner, title, originalText, null);
 	}
 	
 	/**
@@ -239,6 +237,9 @@ public class InputDialog
 			icon)
 	{
 		super(owner);
+		if (icon == null)
+			icon= IconManager.getInstance().getIcon(
+					IconManager.QUESTION_ICON_48);
 		this.icon = icon;
 		if (originalText == null) originalText = "";
 		this.originalText = originalText;

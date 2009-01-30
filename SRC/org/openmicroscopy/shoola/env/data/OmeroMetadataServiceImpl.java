@@ -40,6 +40,7 @@ import java.util.Set;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
+import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -407,7 +408,7 @@ class OmeroMetadataServiceImpl
 				if (ann instanceof TagAnnotationData) {
 //					update description
 					tag = (TagAnnotationData) ann;
-					updateAnnotationData(tag);
+					ann = (TagAnnotationData) updateAnnotationData(tag);
 				}
 				annotations.add(ann);
 			}
@@ -493,12 +494,12 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service.
 	 */
-	private void updateAnnotationData(DataObject ann)
+	private DataObject updateAnnotationData(DataObject ann)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		long id;
 		String ioType;
-		IObject ho;
+		TagAnnotation ho;
 		IObject link = null;
 		
 		if (ann instanceof TagAnnotationData) {
@@ -510,13 +511,21 @@ class OmeroMetadataServiceImpl
 				gateway.removeTagDescription(id, getUserDetails().getId());
 			}	
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
-			ho = gateway.findIObject(ioType, id);
+			ho = (TagAnnotation) gateway.findIObject(ioType, id);
+			
 			ModelMapper.unloadCollections(ho);
 			link = ModelMapper.createAnnotationAndLink(ho, description);
 			if (link != null) 
 				gateway.createObject(link, (new PojoOptionsI()).map());
-			//}
+			RString string = ho.getTextValue();
+			if (!tag.getTagValue().equals(string.getValue())) {
+				ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
+				IObject object = 
+					gateway.updateObject(ho, (new PojoOptionsI()).map());
+				return PojoMapper.asDataObject(object);
+			}
 		}
+		return ann;
 	}
 	
 	/**
@@ -1161,7 +1170,7 @@ class OmeroMetadataServiceImpl
 			}
 			if (annotations.size() > 0) {
 				i = annotations.iterator();
-				while (i.hasNext())
+				while (i.hasNext()) 
 					linkAnnotation(object, (AnnotationData) i.next());
 			}
 			if (toRemove != null) {

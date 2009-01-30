@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.EditorDialog
+ * org.openmicroscopy.shoola.agents.util.ui.EditorDialog
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.treeviewer.view;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 
@@ -53,10 +53,10 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+//import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+//import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -79,22 +79,34 @@ import pojos.TagAnnotationData;
  * </small>
  * @since OME2.2
  */
-class EditorDialog
+public class EditorDialog
     extends JDialog
     implements ActionListener, DocumentListener
 {
 	
-	/** Bound property indicating to create an object. */
-	static final String				CREATE_PROPERTY = "create";
+	/** Indicates that the dialog is to create object. */
+	public static final int			CREATE_TYPE = 0;
+	
+	/** Indicates that the dialog is to edit the object.*/
+	public static final int			EDIT_TYPE = 1;
 	
 	/** Bound property indicating to create an object. */
-	static final String				CREATE_NO_PARENT_PROPERTY = "createNoParent";
+	public static final String		CREATE_PROPERTY = "create";
+	
+	/** Bound property indicating to create an object. */
+	public static final String		CREATE_NO_PARENT_PROPERTY = "createNoParent";
+	
+	/** Bound property indicating to create an object. */
+	public static final String		CLOSE_PROPERTY = "close";
 	
     /** The default size of the dialog. */
     private static final Dimension 	WIN_DIM = new Dimension(600, 300);
    
     /** The default title of the window. */
     private static final String		TITLE = "Create";
+    
+    /** The default title of the window. */
+    private static final String		TITLE_EDIT = "Edit";
 
     /** Action command ID to close the dialog. */
     private static final int		CANCEL = 0;
@@ -126,11 +138,20 @@ class EditorDialog
     /** The type of object to create. */
     private String				typeName;
     
+    /** The original text when editing. */
+    private String				originalText;
+    
+    /** The original text when editing. */
+    private String				originalDescription;
+    
     /** 
      * Sets to <code>true</code> if the object will have a parent,
      * <code>false</code> otherwise. 
      */ 
     private boolean				withParent;
+    
+    /** The type of dialog, either create or edit. */
+    private int					type;
     
     /**
      * Builds and lays out the panel displaying the permissions of the edited
@@ -157,17 +178,27 @@ class EditorDialog
         privateBox.setEnabled(false);
         
         nameArea = new JTextField();
-        //UIUtilities.setTextAreaDefault(nameArea);
-        nameArea.getDocument().addDocumentListener(this);
         descriptionArea = new MultilineLabel();
         descriptionArea.setEditable(true);
-        //UIUtilities.setTextAreaDefault(descriptionArea);
+        originalText = "";
+        originalDescription = "";
+        if (type == EDIT_TYPE) {
+        	originalText = getDataName();
+        	originalDescription = getDataDescription();
+        	nameArea.setText(originalText);
+        	descriptionArea.setText(originalDescription);
+        	descriptionArea.getDocument().addDocumentListener(this);
+        }
+        nameArea.getDocument().addDocumentListener(this);
+        
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Close the dialog.");
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
-        saveButton = new JButton("Create");
-        saveButton.setToolTipText("Create a new item.");
+        saveButton = new JButton("Save");
+        if (type == EDIT_TYPE)
+        	saveButton.setToolTipText("Edit the object.");
+        else saveButton.setToolTipText("Create a new object.");
         saveButton.addActionListener(this);
         saveButton.setActionCommand(""+SAVE);
         saveButton.setEnabled(false);
@@ -251,8 +282,12 @@ class EditorDialog
         		icon = im.getIcon(IconManager.TAG_SET_48);
         	}
         }
-        tp = new TitlePanel("Create "+typeName, "Create a new "+typeName+".", 
-    			icon);
+        if (type == CREATE_TYPE)
+        	tp = new TitlePanel("Create "+typeName, 
+        			"Create a new "+typeName+".", icon);
+        else if (type == EDIT_TYPE)
+        	tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".", 
+        			icon);
         return tp;
     }
     
@@ -276,29 +311,19 @@ class EditorDialog
     /** Closes and disposes. */
     private void close()
     {
+    	firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
         setVisible(false);
         dispose();
     }
-    
-    /** Notifies the user that the name was not valid. */
-    private void notifyUser()
-    {
-    	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-    	un.notifyInfo("Create "+typeName, 
-    			"The name of the "+typeName+" must be a string with at least " +
-    			" 1 character and not more than 256 characters.");
-    	return;
-    }
-    
     
     /** Creates a new item. */
     private void save()
     {
     	String name = nameArea.getText();
-    	if (name == null) notifyUser();
+    	if (name == null) return;
     	name = name.trim();
     	int n = name.length();
-    	if (n == 0 || n > 256) notifyUser();
+    	if (n == 0 || n > 256) return;
     	if (data instanceof ProjectData) {
     		ProjectData p  = (ProjectData) data;
 			p.setName(name);
@@ -317,7 +342,8 @@ class EditorDialog
     	} else if (data instanceof TagAnnotationData) {
     		TagAnnotationData d = (TagAnnotationData) data;
     		d.setContent(name);
-			d.setTagDescription(descriptionArea.getText().trim());
+    		String text = descriptionArea.getText().trim();
+    		if (text.length() > 0) d.setTagDescription(text);
 			data = d;
     	}
     	if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
@@ -341,14 +367,93 @@ class EditorDialog
     	throw new IllegalArgumentException("Object not supported.");
     }
     
+    /**
+     * Returns the name of the data object.
+     * 
+     * @return See above.
+     */
+    private String getDataName()
+    {
+    	if (data instanceof ProjectData) 
+    		return ((ProjectData) data).getName();
+    	if (data instanceof DatasetData) 
+    		return ((DatasetData) data).getName();
+    	if (data instanceof ScreenData) 
+    		return ((ScreenData) data).getName();
+    	if (data instanceof TagAnnotationData) 
+    		return ((TagAnnotationData) data).getTagValue();
+    	return "";
+    }
+    
+    /**
+     * Returns the description of the data object.
+     * 
+     * @return See above.
+     */
+    private String getDataDescription()
+    {
+    	if (data instanceof ProjectData) 
+    		return ((ProjectData) data).getDescription();
+    	if (data instanceof DatasetData) 
+    		return ((DatasetData) data).getDescription();
+    	if (data instanceof ScreenData) 
+    		return ((ScreenData) data).getDescription();
+    	if (data instanceof TagAnnotationData) return "";
+    	return "";
+    }
+    
     /** Sets the enabled flag of the {@link #saveButton}. */
     private void enableSave()
     {
     	String name = nameArea.getText();
-    	if (name == null) saveButton.setEnabled(false);
-    	name = name.trim();
-    	int l = name.length();
-    	saveButton.setEnabled(l > 0 && l < 256);
+    	String desc = descriptionArea.getText();
+    	if (type == CREATE_TYPE) {
+    		if (name == null) saveButton.setEnabled(false);
+        	name = name.trim();
+        	int l = name.length();
+        	saveButton.setEnabled(l > 0 && l < 256);
+    	} else {
+    		if (!originalText.equals(name)) {
+    			name = name.trim();
+            	int l = name.length();
+            	saveButton.setEnabled(l > 0 && l < 256);
+    		} else {
+    			desc = desc.trim();
+    			saveButton.setEnabled(!originalDescription.equals(desc));
+    		}
+    	}
+    }
+    
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner			The owner of the frame.
+     * @param data 			The type of object to create.
+     * @param withParent 	Sets to <code>true</code> if the object will 
+     * 						have a parent, <code>false</code> otherwise.
+     * @param type			The type of the dialog. 
+     */
+    public EditorDialog(JFrame owner, DataObject data, boolean withParent, 
+    		int  type)
+    {
+        super(owner);
+        switch (type) {
+        	case EDIT_TYPE:
+        	this.type = type;
+        	setTitle(TITLE_EDIT);
+			break;
+	        case CREATE_TYPE:
+			default:
+				this.type = CREATE_TYPE;
+			setTitle(TITLE);
+		}
+        checkData(data);
+        this.data = data;
+        this.withParent = withParent;
+        initComponents();
+        buildGUI();
+        setSize(WIN_DIM);
     }
     
     /**
@@ -359,16 +464,23 @@ class EditorDialog
      * @param withParent 	Sets to <code>true</code> if the object will 
      * 						have a parent, <code>false</code> otherwise. 
      */
-    EditorDialog(JFrame owner, DataObject data, boolean withParent)
+    public EditorDialog(JFrame owner, DataObject data, boolean withParent)
     {
-        super(owner);
-        setTitle(TITLE);
-        checkData(data);
-        this.data = data;
-        this.withParent = withParent;
-        initComponents();
-        buildGUI();
-        setSize(WIN_DIM);
+        this(owner, data, withParent, CREATE_TYPE);
+    }
+    
+    /**
+     * Sets the description of the dialog.
+     * 
+     * @param description The description of the dialog.
+     */
+    public void setOriginalDescription(String description)
+    {
+    	if (description == null) return;
+    	originalDescription = description;
+    	descriptionArea.getDocument().removeDocumentListener(this);
+    	descriptionArea.setText(description);
+    	descriptionArea.getDocument().addDocumentListener(this);
     }
     
     /**

@@ -385,11 +385,26 @@ public class IconManager
     /** The <code>Hyperlink</code> icon. */
     public static final int	UP_DOWN_9_12 = 110;
     
+    /** A 48x48 version of the <code>Project</code> icon. */
+    public static final int PROJECT_48 = 111;
+    
+    /** A 48x48 version of the <code>Dataset</code> icon. */
+    public static final int DATASET_48 = 112;
+    
+    /** A 48x48 version of the <code>Tag Set</code> icon. */
+    public static final int TAG_SET_48 = 113;
+    
+    /** A 48x48 version of the <code>Screen</code> icon. */
+    public static final int SCREEN_48 = 114;
+    
+    /** A 48x48 version of the <code>Create</code> icon. */
+    public static final int CREATE_48 = 115;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 110;
+    private static int      MAX_ID = 115;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -508,6 +523,11 @@ public class IconManager
         relPaths[FILE_EDITOR] = "omeroEditorLink16.png";
         relPaths[HYPERLINK] = "nuvola_browser16.png";
         relPaths[UP_DOWN_9_12] = "upDown9_12.png";
+        relPaths[TAG_SET_48] = "nuvola_knotes_red48.png";
+        relPaths[PROJECT_48] = "nuvola_folder_blue_open48.png";
+        relPaths[DATASET_48] = "nuvola_folder_image48.png";
+        relPaths[SCREEN_48] = "nuvola_knotes48.png";
+        relPaths[CREATE_48] = "nuvola_filenew48.png"; 
     }
     
     /** 

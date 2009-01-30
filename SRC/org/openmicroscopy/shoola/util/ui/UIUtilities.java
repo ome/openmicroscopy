@@ -34,6 +34,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -257,10 +258,29 @@ public class UIUtilities
 	 */
 	public static void centerOnScreen(Component window)
 	{
+		if (window == null) return;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle ed = window.getBounds();
 		window.setLocation((screenSize.width-ed.width)/2, 
 							(screenSize.height-ed.height)/2);
+	}
+	
+	/**
+	 * Shows the specified window on the screen, It will appear at the specified
+	 * location. If the location is <code>null</code>, it will appear in the 
+	 * middle of the screen. 
+	 * 
+	 * @param window	The component to show.
+	 * @param location	The location of the specified component if 
+	 * 					<code>null</code> it will appear in the middle of the 
+	 * 					screen.
+	 */
+	public static void showOnScreen(Component window, Point location) 
+	{
+		if (window == null) return;
+		if (location == null) centerOnScreen(window);
+		window.setLocation(location);
+		window.setVisible(true);
 	}
 	
 	/**
@@ -285,6 +305,7 @@ public class UIUtilities
 	 */
 	public static void centerAndShow(Component parent, Component child)
 	{
+		if (parent == null || child == null) return;
 		Rectangle bounds = parent.getBounds();
 		Rectangle ed = child.getBounds();
 		child.setLocation(bounds.x+(bounds.width-ed.width)/2, 
@@ -317,6 +338,7 @@ public class UIUtilities
     public static void setLocationRelativeTo(Component parent, 
                                                 Component child)
     {
+    	if (parent == null || child == null) return;
         int x = parent.getX()+parent.getWidth();
         int y = parent.getY();
         int childWidth = child.getWidth();
@@ -331,7 +353,8 @@ public class UIUtilities
     
     /**
      * Sets the location of the specified child relative to the location
-     * of the specified parent and then makes it visible, and size to fill window.
+     * of the specified parent and then makes it visible, and size to fill 
+     * the window.
      * This method is mainly useful for windows, frames and dialogs. 
      * 
      * @param parent    The visible parent.
@@ -356,7 +379,9 @@ public class UIUtilities
     public static void setLocationRelativeToAndSizeToWindow(
     		Rectangle parentBounds, Component child, Dimension max)
     {
-
+    	if (child == null) return;
+    	if (parentBounds == null) parentBounds = new Rectangle(0, 0, 5, 5);
+    	if (max == null) max = new Dimension(5, 5);
         int x = (int) (parentBounds.getX()+ parentBounds.getWidth());
         int y = (int) parentBounds.getY();
         int childWidth = child.getWidth();
@@ -368,14 +393,14 @@ public class UIUtilities
             else x = (int) (screenSize.getWidth()-childWidth);
         } 
         child.setLocation(x, y);
-        int newHeight = (int)screenSize.getHeight()-y-10;
-        int newWidth = (int)screenSize.getWidth()-x-10;
+        int newHeight = (int) screenSize.getHeight()-y-10;
+        int newWidth = (int) screenSize.getWidth()-x-10;
         
         if (newWidth > childWidth) childWidth = newWidth;
         if (newHeight > childHeight) childHeight = newHeight;
         
-        if (childWidth>max.getWidth()) childWidth = (int) max.getWidth();
-        if (childHeight>max.getHeight()) childHeight = (int) max.getHeight();
+        if (childWidth > max.getWidth()) childWidth = (int) max.getWidth();
+        if (childHeight > max.getHeight()) childHeight = (int) max.getHeight();
         
         child.setSize(childWidth, childHeight);
         child.setVisible(true);
@@ -392,6 +417,9 @@ public class UIUtilities
     public static void setLocationRelativeTo(Rectangle parentBounds, 
                                                 Component child)
     {
+    	if (child == null) return;
+    	if (parentBounds == null) parentBounds = new Rectangle(0, 0, 5, 5);
+
         int x = parentBounds.x+parentBounds.width;
         int y = parentBounds.y;
         int childWidth = child.getWidth();
@@ -476,6 +504,7 @@ public class UIUtilities
 	 */
 	public static String formatToolTipText(String toolTipText) 
 	{
+		if (toolTipText == null) toolTipText = "";
 		StringBuffer buf = new StringBuffer(90+toolTipText.length());
 		//buf.
 		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
@@ -484,7 +513,6 @@ public class UIUtilities
 		buf.append(toolTipText);
 		buf.append("</font></body></html>");
 		return toolTipText;
-		//return buf.toString();
 	} 
 	
 	/** 
@@ -499,6 +527,7 @@ public class UIUtilities
 	 */
 	public static String formatToolTipText(List<String> toolTipText) 
 	{
+		if (toolTipText == null) toolTipText = new ArrayList<String>();
 		StringBuffer buf = new StringBuffer();
 		//buf.
 		//buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
@@ -567,8 +596,10 @@ public class UIUtilities
 	public static JSeparator toolBarSeparator(JButton button, Icon icon)
 	{
 		JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+		if (button == null) return separator;
 		Insets i = button.getInsets();
-		int h = icon.getIconHeight();
+		int h = 0;
+		if (icon != null) h = icon.getIconHeight();
 		Dimension d = new Dimension(SEPARATOR_WIDTH, i.top+h+i.bottom);
 		separator.setPreferredSize(d);
 		separator.setSize(d);
@@ -597,6 +628,7 @@ public class UIUtilities
      */
     public static JLabel setTextFont(String s, int fontStyle)
     {
+    	if (s == null) s = "";
         JLabel label = new JLabel(s);
         Font font = label.getFont();
         Font newFont = font.deriveFont(fontStyle);
@@ -615,6 +647,7 @@ public class UIUtilities
      */
     public static JLabel setTextFont(String s, int fontStyle, int fontSize)
     {
+    	if (s == null) s = "";
         JLabel label = new JLabel(s);
         Font font = label.getFont();
         label.setFont(font.deriveFont(fontStyle, fontSize));
@@ -647,8 +680,7 @@ public class UIUtilities
     {
     	return buildComponentPanel(component, 5, 5, isOpaque);
     }
-    
-    
+
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
      * with a left flowlayout.
@@ -687,6 +719,9 @@ public class UIUtilities
     									int hgap, int vgap, boolean isOpaque)
     {
         JPanel p = new JPanel();
+        if (component == null) return p;
+        if (hgap < 0) hgap = 0;
+        if (vgap < 0) vgap = 0;
         p.setLayout(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
         p.add(component);
         p.setOpaque(isOpaque);
@@ -724,6 +759,9 @@ public class UIUtilities
     							int hgap, int vgap, boolean isOpaque)
     {
         JPanel p = new JPanel();
+        if (component == null) return p;
+        if (hgap < 0) hgap = 0;
+        if (vgap < 0) vgap = 0;
         p.setLayout(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
         p.add(component);
         p.setOpaque(isOpaque);
@@ -755,6 +793,7 @@ public class UIUtilities
     public static JPanel buildComponentPanelCenter(JComponent component)
     {
         JPanel p = new JPanel();
+        if (component == null) return p;
         p.setLayout(new FlowLayout(FlowLayout.CENTER));
         p.add(component);
         return p;
@@ -770,7 +809,8 @@ public class UIUtilities
         //b.setMargin(new Insets(0, 2, 0, 3));
         //b.setBorderPainted(false);
         //b.setFocusPainted(false);
-        b.setBorder(new EmptyBorder(2, 2, 2, 2));
+    	if (b != null)
+    		b.setBorder(new EmptyBorder(2, 2, 2, 2));
     }
 
     /**
@@ -781,6 +821,7 @@ public class UIUtilities
      */
     public static void opacityCheck(AbstractButton b)
     {
+    	if (b == null) return;
     	//String laf = UIManager.getSystemLookAndFeelClassName();
     	String osName = System.getProperty("os.name");
     	b.setContentAreaFilled(!(osName.startsWith("Mac OS")));
@@ -794,6 +835,7 @@ public class UIUtilities
      */
     public static void setTextAreaDefault(JComponent area)
     {
+    	if (area == null) return;
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         //area.setForeground(STEELBLUE);
         area.setBackground(BACKGROUND);
@@ -839,13 +881,13 @@ public class UIUtilities
      */
     public static JEditorPane buildTextEditorPane(String text)
     {
+    	if (text == null) text = "";
         JEditorPane textPane = new JEditorPane();
         textPane.setContentType("text/html");
         textPane.setText(text);
         textPane.setOpaque(false);
         textPane.setEditable(false);
         textPane.setFocusable(false);
-        
         return textPane;
     }
     
@@ -858,6 +900,7 @@ public class UIUtilities
      */
     public static JTextPane buildTextPane(String text, Color foreground)
     {
+    	if (text == null) text = "";
     	StyleContext context = new StyleContext();
         StyledDocument document = new DefaultStyledDocument(context);
 
@@ -873,7 +916,6 @@ public class UIUtilities
         textPane.setOpaque(false);
         textPane.setEditable(false);
         textPane.setFocusable(false);
-        
         return textPane;
     }
     
@@ -884,6 +926,7 @@ public class UIUtilities
      */
     public static void enterPressesWhenFocused(JButton button)
     {
+    	if (button == null) return;
     	button.registerKeyboardAction(
     			button.getActionForKeyStroke(
     					KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)), 
@@ -1096,8 +1139,7 @@ public class UIUtilities
     		return String.format("%.2f",value);
 		} catch (Exception e) { return ""; }
     }
-    
-    
+
     /**
      * Returns the partial name of the image's name
      * 
@@ -1124,6 +1166,7 @@ public class UIUtilities
 	 */
 	public static JPanel buildCollapsePanel(String title)
 	{
+		if (title == null) title = "";
 		JPanel p = new JPanel();
 		p.setBorder(new TitledLineBorder(title));
 		return p;
@@ -1137,6 +1180,8 @@ public class UIUtilities
 	 */
 	public static void setBoldTitledBorder(String title, JComponent p)
 	{
+		if (title == null) title = "";
+		if (p == null) return;
 		TitledBorder border = new TitledBorder(title);
 		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
 		p.setBorder(border);
@@ -1150,6 +1195,7 @@ public class UIUtilities
 	 */
 	public static String formatURL(String url)
 	{
+		if (url == null) url = "";
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
 		buf.append("<a href=\"");
@@ -1276,6 +1322,8 @@ public class UIUtilities
 								boolean collapse)
 	{
 		JXTaskPane pane = new JXTaskPane();
+		if (comp == null) return pane;
+		if (title == null) title = "";
 		pane.add(comp, null, 0);
 		pane.setTitle(title);
 		pane.setCollapsed(collapse);
@@ -1338,9 +1386,7 @@ public class UIUtilities
 			else if (Double.class.equals(type)) 
 				return Double.parseDouble(value);
 		} catch (Exception e) {}
-			
 		return null;
-		
 	}
 	
 }

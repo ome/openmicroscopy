@@ -31,13 +31,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
-
-
-//Third-party libraries
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -45,14 +43,17 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
+//Third-party libraries
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.ui.InputDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
@@ -76,7 +77,7 @@ import pojos.TextualAnnotationData;
  */
 class DocComponent 
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Action id to delete the annotation. */
@@ -104,7 +105,10 @@ class DocComponent
 	private Point		popupPoint;
 	
 	/** The original description of the tag. */
-	private String		originalText;
+	private String		originalDescription;
+	
+	/** The original description of the tag. */
+	private String		originalName;
 	
 	/**
 	 * Formats the passed annotation.
@@ -145,21 +149,29 @@ class DocComponent
 			buf.append("<br>");
 		} else if (data instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) data;
+			exp = MetadataViewerAgent.getUserDetails();
+			TextualAnnotationData txt = tag.getTagDescription();
+			String description = null;
+			if (txt != null) description = txt.getText();
+			List l;
+			Iterator j;
 			if (tag.getId() > 0) {
 				List descriptions = tag.getTagDescriptions();
 				if (descriptions != null && descriptions.size() > 0) {
 					Iterator i = descriptions.iterator();
 					TextualAnnotationData desc;
-					List l;
-					Iterator j;
+					ExperimenterData owner;
 					while (i.hasNext()) {
 						desc = (TextualAnnotationData) i.next();
 						if (desc != null) {
+							owner = desc.getOwner();
 							buf.append("<b>Described by: ");
-							buf.append(EditorUtil.formatExperimenter(
-									desc.getOwner()));
+							buf.append(EditorUtil.formatExperimenter(owner));
 							buf.append("</b><br>");
-							l = UIUtilities.wrapStyleWord(desc.getText());
+							if (owner.getId() == exp.getId() && 
+									description != null)
+								l = UIUtilities.wrapStyleWord(description);
+							else l = UIUtilities.wrapStyleWord(desc.getText());
 							if (l != null) {
 								j = l.iterator();
 								while (j.hasNext()) {
@@ -170,6 +182,19 @@ class DocComponent
 						}
 					}
 				}
+			} else { //new tag
+				buf.append("<b>Described by: ");
+				buf.append(EditorUtil.formatExperimenter(exp));
+				buf.append("</b><br>");
+				l = UIUtilities.wrapStyleWord(description);
+				if (l != null) {
+					j = l.iterator();
+					while (j.hasNext()) {
+						buf.append((String) j.next());
+						buf.append("<br>");
+					}
+				}
+				
 			}
 		}
 		buf.append("</body></html>");
@@ -296,7 +321,17 @@ class DocComponent
 	{
 		TagAnnotationData tag = (TagAnnotationData) data;
 		String text = model.getTagDescription(tag);
-		originalText = text;
+		originalDescription = text;
+		originalName = tag.getTagValue();
+		SwingUtilities.convertPointToScreen(popupPoint, this);
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		EditorDialog d = new EditorDialog(f, tag, false, 
+				EditorDialog.EDIT_TYPE);
+		d.addPropertyChangeListener(this);
+		d.setOriginalDescription(originalDescription);
+		d.setSize(300, 250);
+		UIUtilities.showOnScreen(d, popupPoint);
+		/*
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		String title = "Add or Edit description";
 		IconManager icons = IconManager.getInstance();
@@ -312,6 +347,7 @@ class DocComponent
 			}
 		} else if (option == InputDialog.CANCEL) 
 			originalText = null;
+			*/
 	}
 	
 	/**
@@ -324,7 +360,7 @@ class DocComponent
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No Model.");
-		originalText = null;
+		originalDescription = null;
 		this.model = model;
 		this.data = data;
 		initComponents();
@@ -346,11 +382,13 @@ class DocComponent
 	 */
 	boolean hasBeenModified()
 	{
-		if (originalText == null) return false;
+		if (originalName == null) return false;
 		if (data instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) data;
+			if (!originalName.equals(tag.getTagValue())) return true;
 			TextualAnnotationData txt = tag.getTagDescription();
-			if (txt != null) return !(originalText.equals(txt.getText()));	
+			if (txt != null) 
+				return !(originalDescription.equals(txt.getText()));	
 			return false;
 		}
 		return false;
@@ -370,6 +408,25 @@ class DocComponent
 				break;
 			case EDIT:
 				editDescription();
+		}
+	}
+
+	/**
+	 * Listens to property fired by the Editor dialog.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
+			//reset text and tooltip
+			TagAnnotationData tag = (TagAnnotationData) data;
+			label.setToolTipText(formatTootTip(tag));
+			label.setText(tag.getTagValue());
+			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
+		} else if (EditorDialog.CLOSE_PROPERTY.equals(name)) {
+			//originalDescription = null;
+			//originalName = null;
 		}
 	}
 	

@@ -223,8 +223,12 @@ class RendererComponent
             return;
         List<Integer> active = model.getActiveChannels();
         if (!active.contains(c) && active.size() > 0) {
-    		int setIndex = model.createSelectedChannel();
-    		if (setIndex >= 0) c = setIndex;
+        	int oldSelected = model.getSelectedChannel();
+        	if (active.contains(oldSelected)) c = oldSelected;
+        	else {
+        		int setIndex = model.createSelectedChannel();
+        		if (setIndex >= 0) c = setIndex;
+        	}
     	}
     		
         model.setSelectedChannel(c);
