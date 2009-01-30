@@ -63,6 +63,7 @@ public class ClearHistoryAction
     	switch (model.getState()) {
     		case ImViewer.READY:
     			setEnabled(true);
+    			break;
     		case ImViewer.PROJECTING:
     		case ImViewer.PROJECTION_PREVIEW:
     			setEnabled(false);

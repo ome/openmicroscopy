@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -207,9 +208,12 @@ public class ImgSaver
             
             close();
         } catch (Exception e) {
+        	Logger logger = ImViewerAgent.getRegistry().getLogger();
         	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-        	ImViewerAgent.getRegistry().getLogger().error(this, e.getMessage());
-            f.delete();
+        	String message = e.getMessage();
+            if (!f.delete())
+            	message += "\nCannot delete the file.";
+            logger.error(this, message);
             un.notifyError("Save image failure", "Unable to save the image", e);
         }
     }

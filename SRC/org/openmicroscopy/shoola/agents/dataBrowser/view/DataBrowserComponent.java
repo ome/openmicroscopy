@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JComponent;
@@ -748,7 +747,7 @@ class DataBrowserComponent
 	 */
 	public void viewField(int selectedIndex)
 	{
-		if (!(model instanceof WellsModel));
+		if (!(model instanceof WellsModel)) return;
 		((WellsModel) model).viewField(selectedIndex);
 		view.repaint();
 		model.loadData(false, null); 

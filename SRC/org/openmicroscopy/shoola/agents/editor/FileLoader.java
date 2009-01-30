@@ -133,7 +133,9 @@ public class FileLoader
 			viewer.setFileToEdit(file);
 			// don't need to keep a copy. Delete the local copy after 
 			// opening in viewer. 
-			file.delete();
+			String message = "Cannot delete the file.";
+			if (file.delete()) message = "File deleted.";
+			registry.getLogger().info(this, message);
 		}
 	}
     

@@ -429,8 +429,8 @@ class BrowserComponent
         		throw new IllegalArgumentException("Menu not supported:" +
         											" "+index);
 		}
-        firePropertyChange(POPUP_MENU_PROPERTY, new Integer(-1), 
-        					new Integer(index));
+        firePropertyChange(POPUP_MENU_PROPERTY, Integer.valueOf(-1), 
+        		Integer.valueOf(index));
     }
 
     /**
@@ -895,9 +895,12 @@ class BrowserComponent
                     "This method can only be invoked in the LOADING_DATA "+
                     "state.");
         if (nodes == null) throw new NullPointerException("No nodes.");
-        Object uo = expNode.getUserObject();
-        if (expNode == null || !(uo instanceof ExperimenterData))
+      
+        if (expNode == null)
         	throw new IllegalArgumentException("Experimenter node not valid.");
+        Object uo = expNode.getUserObject();
+        if (!(uo instanceof ExperimenterData))
+    	throw new IllegalArgumentException("Experimenter node not valid.");
         ExperimenterData exp = (ExperimenterData) uo;
         //depending on the type of browser, present data 
         Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
@@ -943,6 +946,7 @@ class BrowserComponent
 	        case LOADING_DATA:
 	        case LOADING_LEAVES:
 	        	model.cancel();
+	        	break;
 	        case DISCARDED:
 	        	//ignore
         	return;
@@ -974,6 +978,7 @@ class BrowserComponent
 	        case LOADING_DATA:
 	        case LOADING_LEAVES:
 	        	model.cancel();
+	        	break;
 	        case DISCARDED:
 	        	//ignore
 	    	return;
@@ -1005,6 +1010,7 @@ class BrowserComponent
 	        case LOADING_DATA:
 	        case LOADING_LEAVES:
 	        	model.cancel();
+	        	break;
 	        case DISCARDED:
 	        	//ignore
 	        	return;

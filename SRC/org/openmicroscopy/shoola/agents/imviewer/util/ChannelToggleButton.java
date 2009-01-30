@@ -66,8 +66,8 @@ public class ChannelToggleButton
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e)
             { 
-                firePropertyChange(CHANNEL_PICKED_PROPERTY,new Integer(-1),
-                       new Integer(index));
+                firePropertyChange(CHANNEL_PICKED_PROPERTY, Integer.valueOf(-1),
+                		Integer.valueOf(index));
             }
         });
 	}

@@ -287,7 +287,7 @@ class ImViewerModel
 		if (t < 0 || sizeT <= t) 
 			throw new IllegalArgumentException(
 					"t out of range [0, "+sizeT+"): "+t+".");
-		return new Integer(sizeZ*sizeC*t+sizeZ*c+z);
+		return Integer.valueOf(sizeZ*sizeC*t+sizeZ*c+z);
     }
     
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */

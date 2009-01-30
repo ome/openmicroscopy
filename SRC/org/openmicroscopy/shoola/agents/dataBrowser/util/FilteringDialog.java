@@ -285,6 +285,7 @@ public class FilteringDialog
             	switch (e.getKeyCode()) {
             		case KeyEvent.VK_ENTER:
             			handleEnter();
+            			break;
 					case KeyEvent.VK_UP:
 						if (tagsDialog != null && tagsDialog.isVisible())
 							tagsDialog.setSelectedIndex(false);

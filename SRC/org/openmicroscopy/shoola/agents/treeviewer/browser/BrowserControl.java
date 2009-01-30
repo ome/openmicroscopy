@@ -70,19 +70,19 @@ class BrowserControl
 {
 
     /** Identifies the <code>Collapse</code> action. */
-	static final Integer    COLLAPSE = new Integer(0);
+	static final Integer    COLLAPSE = Integer.valueOf(0);
 
 	/** Identifies the <code>Close</code> action. */
-	static final Integer    CLOSE = new Integer(1);
+	static final Integer    CLOSE = Integer.valueOf(1);
 
 	/** Identifies the <code>Sort</code> action. */
-	static final Integer    SORT = new Integer(2);
+	static final Integer    SORT = Integer.valueOf(2);
 
 	/** Identifies the <code>Sort by Date</code> action. */
-	static final Integer    SORT_DATE = new Integer(3);
+	static final Integer    SORT_DATE = Integer.valueOf(3);
     
     /** Identifies the <code>Partial Name</code> action.*/
-    static final Integer    PARTIAL_NAME = new Integer(4);
+    static final Integer    PARTIAL_NAME = Integer.valueOf(4);
    
     /** 
      * Reference to the {@link Browser} component, which, in this context,
@@ -268,8 +268,10 @@ class BrowserControl
     						toRemove.add(path);
     					else if (ns != null && nsNode == null)
     						toRemove.add(path);
-    					else if (ns.equals(nsNode))
-    						l.add(node);
+    					else if (ns != null && nsNode != null) {
+    						if (ns.equals(nsNode))
+        						l.add(node);
+    					}
     				} else l.add(node);
     			}
     				

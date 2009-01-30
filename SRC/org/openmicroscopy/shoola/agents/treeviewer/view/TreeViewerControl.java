@@ -116,129 +116,129 @@ class TreeViewerControl
 {
 
 	/** Identifies the <code>Browse action</code> in the Edit menu. */
-	static final Integer	BROWSE = new Integer(1);
+	static final Integer	BROWSE = Integer.valueOf(1);
 
 	/** Identifies the <code>Create object action</code> in the File menu. */
-	static final Integer	CREATE_OBJECT = new Integer(3);
+	static final Integer	CREATE_OBJECT = Integer.valueOf(3);
 
 	/** Identifies the <code>Copy object action</code> in the Edit menu. */
-	static final Integer	COPY_OBJECT = new Integer(4);
+	static final Integer	COPY_OBJECT = Integer.valueOf(4);
 
 	/** Identifies the <code>Paste object action</code> in the Edit menu. */
-	static final Integer	PASTE_OBJECT = new Integer(5);
+	static final Integer	PASTE_OBJECT = Integer.valueOf(5);
 
 	/** Identifies the <code>Delete object action</code> in the Edit menu. */
-	static final Integer	DELETE_OBJECT = new Integer(6);
+	static final Integer	DELETE_OBJECT = Integer.valueOf(6);
 
 	/** 
 	 * Identifies the <code>Hierarchy Explorer</code> action in the View menu. 
 	 */
-	static final Integer	HIERARCHY_EXPLORER = new Integer(7);
+	static final Integer	HIERARCHY_EXPLORER = Integer.valueOf(7);
 
 	/** Identifies the <code>Images Explorer</code> action in the View menu. */
-	static final Integer	IMAGES_EXPLORER = new Integer(9);
+	static final Integer	IMAGES_EXPLORER = Integer.valueOf(9);
 
 	/** Identifies the <code>Find action </code>in the Edit menu. */
-	static final Integer	FIND = new Integer(10);
+	static final Integer	FIND = Integer.valueOf(10);
 
 	/** Identifies the <code>Exit action</code> in the File menu. */
-	static final Integer    EXIT = new Integer(14);
+	static final Integer    EXIT = Integer.valueOf(14);
 
 	/** Identifies the <code>Clear action</code> in the Edit menu. */
-	static final Integer    CLEAR = new Integer(15);
+	static final Integer    CLEAR = Integer.valueOf(15);
 
 	/** Identifies the <code>Add action</code> in the Edit menu. */
-	static final Integer    ADD_OBJECT = new Integer(16);
+	static final Integer    ADD_OBJECT = Integer.valueOf(16);
 
 	/** Identifies the <code>Create project</code> in the File menu. */
-	static final Integer    CREATE_TOP_PROJECT = new Integer(17);
+	static final Integer    CREATE_TOP_PROJECT = Integer.valueOf(17);
 
 	/** 
 	 * Identifies the <code>Refresh tree action</code> in the 
 	 * File menu.
 	 */
-	static final Integer    REFRESH_TREE = new Integer(18);
+	static final Integer    REFRESH_TREE = Integer.valueOf(18);
 
 	/** 
 	 * Identifies the <code>Manager</code> in the 
 	 * File menu.
 	 */
-	static final Integer    MANAGER = new Integer(19);
+	static final Integer    MANAGER = Integer.valueOf(19);
 
 	/** 
 	 * Identifies the <code>Cut action</code> in the 
 	 * Edit menu.
 	 */
-	static final Integer    CUT_OBJECT = new Integer(21);
+	static final Integer    CUT_OBJECT = Integer.valueOf(21);
 
 	/** 
 	 * Identifies the <code>Activation action</code> in the 
 	 * Edit menu.
 	 */
-	static final Integer    ACTIVATION = new Integer(22);
+	static final Integer    ACTIVATION = Integer.valueOf(22);
 
 	/** 
 	 * Identifies the <code>Switch user action</code> in the 
 	 * File menu.
 	 */
-	static final Integer    SWITCH_USER = new Integer(23);
+	static final Integer    SWITCH_USER = Integer.valueOf(23);
 
 	/** Identifies the <code>Roll over action</code>. */
-	static final Integer    ROLL_OVER = new Integer(26);
+	static final Integer    ROLL_OVER = Integer.valueOf(26);
 
 	/** Identifies the <code>Remove from display action</code>. */
-	static final Integer    REMOVE_FROM_DISPLAY = new Integer(27);
+	static final Integer    REMOVE_FROM_DISPLAY = Integer.valueOf(27);
 
 	/** Identifies the <code>Refresh experimenter action</code>. */
-	static final Integer    REFRESH_EXPERIMENTER = new Integer(29);
+	static final Integer    REFRESH_EXPERIMENTER = Integer.valueOf(29);
 
 	/** Identifies the <code>Paste rendering settings action</code>. */
-	static final Integer    PASTE_RND_SETTINGS = new Integer(31);
+	static final Integer    PASTE_RND_SETTINGS = Integer.valueOf(31);
 
 	/** Identifies the <code>Copy rendering settings action</code>. */
-	static final Integer    COPY_RND_SETTINGS = new Integer(32);
+	static final Integer    COPY_RND_SETTINGS = Integer.valueOf(32);
 	
 	/** Identifies the <code>Reset rendering settings action</code>. */
-	static final Integer    RESET_RND_SETTINGS = new Integer(33);
+	static final Integer    RESET_RND_SETTINGS = Integer.valueOf(33);
 	
 	/** Identifies the <code>Search action</code>. */
-	static final Integer    SEARCH = new Integer(34);
+	static final Integer    SEARCH = Integer.valueOf(34);
 	
 	/** Identifies the <code>Tags action</code>. */
-	static final Integer    TAGS_EXPLORER = new Integer(35);
+	static final Integer    TAGS_EXPLORER = Integer.valueOf(35);
 	
 	/** Identifies the <code>Set rnd settings</code>. */
-	static final Integer    SET_RND_SETTINGS = new Integer(36);
+	static final Integer    SET_RND_SETTINGS = Integer.valueOf(36);
 	
 	/** Identifies the <code>Create dataset</code> in the File menu. */
-	static final Integer    CREATE_TOP_DATASET = new Integer(37);
+	static final Integer    CREATE_TOP_DATASET = Integer.valueOf(37);
 	
 	/** Identifies the <code>Create tag</code> in the File menu. */
-	static final Integer    CREATE_TOP_TAG = new Integer(38);
+	static final Integer    CREATE_TOP_TAG = Integer.valueOf(38);
 	
 	/** Identifies the <code>Screens Explorer</code> action in the View menu. */
-	static final Integer	SCREENS_EXPLORER = new Integer(39);
+	static final Integer	SCREENS_EXPLORER = Integer.valueOf(39);
 	
 	/** Identifies the <code>Create project</code> in the File menu. */
-	static final Integer    CREATE_TOP_SCREEN = new Integer(40);
+	static final Integer    CREATE_TOP_SCREEN = Integer.valueOf(40);
 	
 	/** Identifies the <code>View action</code> in the Edit menu. */
-	static final Integer	VIEW = new Integer(41);
+	static final Integer	VIEW = Integer.valueOf(41);
 	
 	/** Identifies the <code>Create project</code> in the File menu. */
-	static final Integer    NEW_OBJECT = new Integer(42);
+	static final Integer    NEW_OBJECT = Integer.valueOf(42);
 	
 	/** Identifies the <code>Launch Editor</code> in the menu. */
-	static final Integer    EDITOR = new Integer(43);
+	static final Integer    EDITOR = Integer.valueOf(43);
 	
 	/** Identifies the <code>Files Explorer</code> action in the View menu. */
-	static final Integer	FILES_EXPLORER = new Integer(44);
+	static final Integer	FILES_EXPLORER = Integer.valueOf(44);
 	
 	/** Identifies the <code>Create tag set</code> in the File menu. */
-	static final Integer    CREATE_TOP_TAG_SET = new Integer(45);
+	static final Integer    CREATE_TOP_TAG_SET = Integer.valueOf(45);
 	
 	/** Identifies the <code>Create tag sets or tags</code> in the menu. */
-	static final Integer    NEW_TAG_OBJECT = new Integer(46);
+	static final Integer    NEW_TAG_OBJECT = Integer.valueOf(46);
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.

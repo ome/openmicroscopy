@@ -128,14 +128,14 @@ public class ContainerCounterLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        Map map = (Map) result;
+        Map<Long, Long> map = (Map) result;
         if (map == null) return;
-        Iterator i = map.keySet().iterator();
+        Iterator<Long> i = map.keySet().iterator();
         Long containerID;
         Long value;
         while (i.hasNext()) {
-            containerID = (Long) i.next();
-            value = (Long) map.get(containerID);
+            containerID = i.next();
+            value = map.get(containerID);
             viewer.setContainerCountValue(containerID.longValue(),
                     						value.longValue(), nodes);
         }

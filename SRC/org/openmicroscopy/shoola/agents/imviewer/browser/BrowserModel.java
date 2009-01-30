@@ -929,11 +929,11 @@ class BrowserModel
 		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
-		int n = originalGridImages.size();
-		if (originalGridImages == null || n == 0) {
+		if (originalGridImages == null) {
 			createGridImages(); 
 			return;
 		}
+		int n = originalGridImages.size();
 		gridImages.clear();
 		int maxC = parent.getMaxC();
 		//List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);

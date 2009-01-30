@@ -409,9 +409,11 @@ public class EditorDialog
     	String desc = descriptionArea.getText();
     	if (type == CREATE_TYPE) {
     		if (name == null) saveButton.setEnabled(false);
-        	name = name.trim();
-        	int l = name.length();
-        	saveButton.setEnabled(l > 0 && l < 256);
+    		else {
+    			name = name.trim();
+            	int l = name.length();
+            	saveButton.setEnabled(l > 0 && l < 256);
+    		}
     	} else {
     		if (!originalText.equals(name)) {
     			name = name.trim();

@@ -398,9 +398,11 @@ public class ProjSavingDialog
     {
     	String name = nameField.getText();
     	if (name == null) projectButton.setEnabled(false);
-    	name = name.trim();
-    	int l = name.length();
-    	projectButton.setEnabled(l > 0 && l < 256);
+    	else {
+    		name = name.trim();
+        	int l = name.length();
+        	projectButton.setEnabled(l > 0 && l < 256);
+    	}
     }
     
     /** Projects the image. */

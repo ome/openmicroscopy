@@ -122,189 +122,189 @@ class ImViewerControl
 {
 
 	/** Identifies the <code>Close</code> action in the menu. */
-	static final Integer     CLOSE = new Integer(0);
+	static final Integer     CLOSE = Integer.valueOf(0);
 
 	/** Identifies the <code>Renderer</code> action in the menu. */
-	static final Integer     RENDERER = new Integer(1);     
+	static final Integer     RENDERER = Integer.valueOf(1);     
 
 	/** Identifies the <code>Movie</code> action in the menu. */
-	static final Integer     MOVIE = new Integer(2);
+	static final Integer     MOVIE = Integer.valueOf(2);
 
 	/** Identifies the <code>Save</code> action in the menu. */
-	static final Integer     SAVE = new Integer(3);
+	static final Integer     SAVE = Integer.valueOf(3);
 
 	/** Identifies the <code>Zooming 25%</code> action in the menu. */
-	static final Integer     ZOOM_25 = new Integer(4);
+	static final Integer     ZOOM_25 = Integer.valueOf(4);
 
 	/** Identifies the <code>Zooming 50%</code> action in the menu. */
-	static final Integer     ZOOM_50 = new Integer(5);
+	static final Integer     ZOOM_50 = Integer.valueOf(5);
 
 	/** Identifies the <code>Zooming 75%</code> action in the menu. */
-	static final Integer     ZOOM_75 = new Integer(6);
+	static final Integer     ZOOM_75 = Integer.valueOf(6);
 
 	/** Identifies the <code>Zooming 100%</code> action in the menu. */
-	static final Integer     ZOOM_100 = new Integer(7);
+	static final Integer     ZOOM_100 = Integer.valueOf(7);
 
 	/** Identifies the <code>Zooming 125%</code> action in the menu. */
-	static final Integer     ZOOM_125 = new Integer(8);
+	static final Integer     ZOOM_125 = Integer.valueOf(8);
 
 	/** Identifies the <code>Zooming 150%</code> action in the menu. */
-	static final Integer     ZOOM_150 = new Integer(9);
+	static final Integer     ZOOM_150 = Integer.valueOf(9);
 
 	/** Identifies the <code>Zooming 175%</code> action in the menu. */
-	static final Integer     ZOOM_175 = new Integer(10);
+	static final Integer     ZOOM_175 = Integer.valueOf(10);
 
 	/** Identifies the <code>Zooming 200%</code> action in the menu. */
-	static final Integer     ZOOM_200 = new Integer(11);
+	static final Integer     ZOOM_200 = Integer.valueOf(11);
 
 	/** Identifies the <code>Zooming 225%</code> action in the menu. */
-	static final Integer     ZOOM_225 = new Integer(12);
+	static final Integer     ZOOM_225 = Integer.valueOf(12);
 
 	/** Identifies the <code>Zooming 250%</code> action in the menu. */
-	static final Integer     ZOOM_250 = new Integer(13);
+	static final Integer     ZOOM_250 = Integer.valueOf(13);
 
 	/** Identifies the <code>Zooming 275%</code> action in the menu. */
-	static final Integer     ZOOM_275 = new Integer(14);
+	static final Integer     ZOOM_275 = Integer.valueOf(14);
 
 	/** Identifies the <code>Zooming 300%</code> action in the menu. */
-	static final Integer     ZOOM_300 = new Integer(15);
+	static final Integer     ZOOM_300 = Integer.valueOf(15);
 
 	/** Identifies the <code>Zooming Fit to Window</code> action in the menu. */
-	static final Integer     ZOOM_FIT_TO_WINDOW = new Integer(16);
+	static final Integer     ZOOM_FIT_TO_WINDOW = Integer.valueOf(16);
 
 	/** Identifies the <code>Lens</code> action in the menu. */
-	static final Integer     LENS = new Integer(17);
+	static final Integer     LENS = Integer.valueOf(17);
 
 	/** Identifies the <code>Grey Scale</code> action in the menu. */
-	static final Integer     GREY_SCALE_MODEL = new Integer(18);
+	static final Integer     GREY_SCALE_MODEL = Integer.valueOf(18);
 
 	/** Identifies the <code>RGB</code> action in the menu. */
-	static final Integer     RGB_MODEL = new Integer(19);
+	static final Integer     RGB_MODEL = Integer.valueOf(19);
 
 	/** Identifies the <code>HSB</code> action in the menu. */
-	static final Integer     HSB_MODEL = new Integer(20);
+	static final Integer     HSB_MODEL = Integer.valueOf(20);
 	
 	/** 
 	 * Identifies the <code>Channel movie</code> action in the 
 	 * menu. 
 	 */
-	static final Integer     CHANNEL_MOVIE = new Integer(26);
+	static final Integer     CHANNEL_MOVIE = Integer.valueOf(26);
 
 	/** Identifies the <code>UnitBar</code> action in the menu. */
-	static final Integer     UNIT_BAR = new Integer(27);
+	static final Integer     UNIT_BAR = Integer.valueOf(27);
 
 	/** Identifies the <code>Size one of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_ONE = new Integer(28);
+	static final Integer     UNIT_BAR_ONE = Integer.valueOf(28);
 
 	/** Identifies the <code>Size two of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_TWO = new Integer(29);
+	static final Integer     UNIT_BAR_TWO = Integer.valueOf(29);
 
 	/** Identifies the <code>Size five of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_FIVE = new Integer(30);
+	static final Integer     UNIT_BAR_FIVE = Integer.valueOf(30);
 
 	/** Identifies the <code>Size ten of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_TEN = new Integer(31);
+	static final Integer     UNIT_BAR_TEN = Integer.valueOf(31);
 
 	/** Identifies the <code>Size twenty of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_TWENTY = new Integer(32);
+	static final Integer     UNIT_BAR_TWENTY = Integer.valueOf(32);
 
 	/** Identifies the <code>Size fifty of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_FIFTY = new Integer(33);
+	static final Integer     UNIT_BAR_FIFTY = Integer.valueOf(33);
 
 	/** Identifies the <code>Size hundred of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_HUNDRED = new Integer(34);
+	static final Integer     UNIT_BAR_HUNDRED = Integer.valueOf(34);
 
 	/** Identifies the <code>customized size of the unit bar</code> action. */
-	static final Integer     UNIT_BAR_CUSTOM = new Integer(35);
+	static final Integer     UNIT_BAR_CUSTOM = Integer.valueOf(35);
 
 	/** Identifies the <code>color Picker</code> action. */
-	static final Integer     COLOR_PICKER = new Integer(36);
+	static final Integer     COLOR_PICKER = Integer.valueOf(36);
 
 	/** Identifies the <code>text visible</code> action in the menu. */
-	static final Integer     TEXT_VISIBLE = new Integer(38);
+	static final Integer     TEXT_VISIBLE = Integer.valueOf(38);
 
 	/** Identifies the <code>Measurement tool</code> action in the menu. */
-	static final Integer     MEASUREMENT_TOOL = new Integer(39);
+	static final Integer     MEASUREMENT_TOOL = Integer.valueOf(39);
 
 	/** Identifies the <code>Play movie across T</code> action. */
-	static final Integer     PLAY_MOVIE_T = new Integer(44);
+	static final Integer     PLAY_MOVIE_T = Integer.valueOf(44);
 
 	/** Identifies the <code>Play movie across Z</code> action. */
-	static final Integer     PLAY_MOVIE_Z = new Integer(45);
+	static final Integer     PLAY_MOVIE_Z = Integer.valueOf(45);
 
 	/** Identifies the <code>Preferences</code> action. */
-	static final Integer     PREFERENCES = new Integer(47);
+	static final Integer     PREFERENCES = Integer.valueOf(47);
 	
 	/** Identifies the <code>User</code> action. */
-	static final Integer     USER = new Integer(48);
+	static final Integer     USER = Integer.valueOf(48);
 
 	/** 
 	 * Identifies the <code>Zooming 25%</code> action of the grid image
 	 * in the menu.
 	 */
-	static final Integer     ZOOM_GRID_25 = new Integer(49);
+	static final Integer     ZOOM_GRID_25 = Integer.valueOf(49);
 	
 	/** 
 	 * Identifies the <code>Zooming 50%</code> action of the grid image
 	 * in the menu.
 	 */
-	static final Integer     ZOOM_GRID_50 = new Integer(50);
+	static final Integer     ZOOM_GRID_50 = Integer.valueOf(50);
 	
 	/** 
 	 * Identifies the <code>Zooming 75%</code> action of the grid image
 	 * in the menu.
 	 */
-	static final Integer     ZOOM_GRID_75 = new Integer(51);
+	static final Integer     ZOOM_GRID_75 = Integer.valueOf(51);
 	
 	/** 
 	 * Identifies the <code>Zooming 100%</code> action of the grid image
 	 * in the menu.
 	 */
-	static final Integer     ZOOM_GRID_100 = new Integer(52);
+	static final Integer     ZOOM_GRID_100 = Integer.valueOf(52);
 
 	/** Identifies the <code>View tab</code> action. */
-	static final Integer     TAB_VIEW = new Integer(54);
+	static final Integer     TAB_VIEW = Integer.valueOf(54);
 	
 	/** Identifies the <code>Projection tab</code> action. */
-	static final Integer     TAB_PROJECTION = new Integer(55);
+	static final Integer     TAB_PROJECTION = Integer.valueOf(55);
 	
 	/** Identifies the <code>Grid tab</code> action. */
-	static final Integer     TAB_GRID = new Integer(56);
+	static final Integer     TAB_GRID = Integer.valueOf(56);
 	
 	/** Identifies the <code>History</code> action. */
-	static final Integer     HISTORY = new Integer(57);
+	static final Integer     HISTORY = Integer.valueOf(57);
 	
 	/** Identifies the <code>Paste rendering settings</code> action. */
-	static final Integer     PASTE_RND_SETTINGS = new Integer(58);
+	static final Integer     PASTE_RND_SETTINGS = Integer.valueOf(58);
 	
 	/** Identifies the <code>Copy rendering settings</code> action. */
-	static final Integer     COPY_RND_SETTINGS = new Integer(59);
+	static final Integer     COPY_RND_SETTINGS = Integer.valueOf(59);
 	
 	/** Identifies the <code>Save rendering settings</code> action. */
-	static final Integer     SAVE_RND_SETTINGS = new Integer(60);
+	static final Integer     SAVE_RND_SETTINGS = Integer.valueOf(60);
 	
 	/** Identifies the <code>Reset rendering settings</code> action. */
-	static final Integer     RESET_RND_SETTINGS = new Integer(61);
+	static final Integer     RESET_RND_SETTINGS = Integer.valueOf(61);
 	
 	/** 
 	 * Identifies the <code>Set the original rendering settings</code> action. 
 	 */
-	static final Integer     SET_ORIGINAL_RND_SETTINGS = new Integer(62);
+	static final Integer     SET_ORIGINAL_RND_SETTINGS = Integer.valueOf(62);
 	
 	/** Identifies the <code>Projection preview</code> action. */
-	static final Integer     PROJECTION_PREVIEW = new Integer(63);
+	static final Integer     PROJECTION_PREVIEW = Integer.valueOf(63);
 	
 	/** Identifies the <code>Projection project</code> action. */
-	static final Integer     PROJECTION_PROJECT = new Integer(64);
+	static final Integer     PROJECTION_PROJECT = Integer.valueOf(64);
 	
 	/** Identifies the <code>Compression</code> action. */
-	static final Integer     COMPRESSION = new Integer(65);
+	static final Integer     COMPRESSION = Integer.valueOf(65);
 	
 	/** Identifies the <code>Clear history</code> action. */
-	static final Integer     CLEAR_HISTORY = new Integer(66);
+	static final Integer     CLEAR_HISTORY = Integer.valueOf(66);
 
 	/** Identifies the <code>Metadata</code> action in the menu. */
-	static final Integer     METADATA = new Integer(67);    
+	static final Integer     METADATA = Integer.valueOf(67);    
 	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -668,10 +668,11 @@ class ImViewerControl
 		ViewerAction a = null;
 		if (m.equals(ImViewer.RGB_MODEL)) {
 			a = getAction(ImViewerControl.GREY_SCALE_MODEL);
+			a.actionPerformed(e);
 		} else if (m.equals(ImViewer.GREY_SCALE_MODEL)) {
 			a = getAction(ImViewerControl.RGB_MODEL);
-		}    
-		a.actionPerformed(e);
+			a.actionPerformed(e);
+		} 
 	}
 
 	/**
@@ -746,15 +747,14 @@ class ImViewerControl
 		} else if (ImViewer.T_SELECTED_PROPERTY.equals(pName)) {
 			view.setTimepoint(((Integer) pce.getNewValue()).intValue());
 		} else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(pName)) {
-			Map map = (Map) pce.getNewValue();
+			Map<Integer, Boolean> map = (Map) pce.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
 			Iterator i = map.keySet().iterator();
 			Integer index;
 			while (i.hasNext()) {
 				index = (Integer) i.next();
-				model.setChannelSelection(index.intValue(), 
-						((Boolean) map.get(index)).booleanValue());
+				model.setChannelSelection(index.intValue(), map.get(index));
 			}
 		} else if (LoadingWindow.CLOSED_PROPERTY.equals(pName)) {
 			model.discard();
@@ -769,15 +769,14 @@ class ImViewerControl
 				model.displayChannelMovie();
 			}
 			*/
-			Map map = (Map) pce.getNewValue();
+			Map<Integer, Boolean> map = (Map) pce.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
-			Iterator i = map.keySet().iterator();
+			Iterator<Integer> i = map.keySet().iterator();
 			Integer index;
 			while (i.hasNext()) {
-				index = (Integer) i.next();
-				model.setChannelSelection(index.intValue(), 
-						((Boolean) map.get(index)).booleanValue());
+				index = i.next();
+				model.setChannelSelection(index.intValue(), map.get(index));
 			}
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
 				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {

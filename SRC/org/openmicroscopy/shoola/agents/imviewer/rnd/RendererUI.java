@@ -60,10 +60,10 @@ class RendererUI
 {
   
 	/** Identifies the {@link DomainPane}. */
-	static final Integer        	DOMAIN = new Integer(0);
+	static final Integer        	DOMAIN = Integer.valueOf(0);
 
 	/** Identifies the {@link CodomainPane}. */
-	static final Integer        	CODOMAIN = new Integer(1);
+	static final Integer        	CODOMAIN = Integer.valueOf(1);
 	
 	/** Reference to the control. */
 	private RendererControl     			controller;

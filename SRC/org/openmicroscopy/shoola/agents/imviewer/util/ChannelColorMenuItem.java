@@ -82,7 +82,8 @@ public class ChannelColorMenuItem
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		firePropertyChange(CHANNEL_COLOR_PROPERTY, null, new Integer(index));
+		firePropertyChange(CHANNEL_COLOR_PROPERTY, null, 
+				Integer.valueOf(index));
 	}
 	
 }

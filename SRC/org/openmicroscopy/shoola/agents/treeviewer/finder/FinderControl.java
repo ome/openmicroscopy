@@ -54,22 +54,22 @@ class FinderControl
 {
 
     /** Identifies the <code>Close</code> action in the Actions menu. */
-    static final Integer     CLOSE = new Integer(0);
+    static final Integer     CLOSE = Integer.valueOf(0);
     
     /** Identifies the <code>Find</code> action in the Actions menu. */
-    static final Integer     FIND = new Integer(1);
+    static final Integer     FIND = Integer.valueOf(1);
     
     /** Identifies the <code>Find Next</code> action in the Actions menu. */
-    static final Integer     FIND_NEXT = new Integer(2);
+    static final Integer     FIND_NEXT = Integer.valueOf(2);
     
     /** Identifies the <code>Find Previous</code> action in the Actions menu. */
-    static final Integer     FIND_PREVIOUS = new Integer(3);
+    static final Integer     FIND_PREVIOUS = Integer.valueOf(3);
     
     /** Identifies the <code>Highlight</code> action in the Actions menu. */
-    static final Integer     HIGHLIGHT = new Integer(4);
+    static final Integer     HIGHLIGHT = Integer.valueOf(4);
     
     /** Identifies the <code>Filter</code> action in the Actions menu. */
-    static final Integer     FILTER_MENU = new Integer(5);
+    static final Integer     FILTER_MENU = Integer.valueOf(5);
     
     /** Reference to the {@link Finder}, viewed as the Model. */
     private Finder						model;

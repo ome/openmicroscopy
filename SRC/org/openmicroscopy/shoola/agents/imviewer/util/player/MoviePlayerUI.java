@@ -548,7 +548,7 @@ class MoviePlayerUI
 	 */
 	void setTimerDelay(int v)
 	{
-		fps.setValue(new Integer(v)); 
+		fps.setValue(Integer.valueOf(v)); 
 		editor.setText(""+v);
 	}
 

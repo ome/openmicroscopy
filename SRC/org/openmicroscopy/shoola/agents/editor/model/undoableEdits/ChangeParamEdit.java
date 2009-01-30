@@ -173,7 +173,7 @@ public class ChangeParamEdit
 		if (field.getContentCount() > paramIndex) {
 			oldParam = field.getContentAt(paramIndex);
 		} else {
-			new RuntimeException("ChangeParam edit index out of bounds");
+			throw new RuntimeException("ChangeParam edit index out of bounds");
 		}
 		
 		doEdit();

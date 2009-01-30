@@ -85,7 +85,7 @@ public class LeavesVisitor
         Object uo = node.getUserObject();
         if (uo instanceof ImageData) {
             nodes.add(node);
-            objects.add(new Long(((ImageData) uo).getId()));
+            objects.add(Long.valueOf(((ImageData) uo).getId()));
         }
     }
     
@@ -98,7 +98,7 @@ public class LeavesVisitor
         Object uo = node.getUserObject();
         if (uo instanceof ImageData) {
             nodes.add(node);
-            objects.add(new Long(((ImageData) uo).getId()));
+            objects.add(Long.valueOf(((ImageData) uo).getId()));
         }
     }
     

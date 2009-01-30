@@ -151,7 +151,7 @@ class ImgSaverPreviewer
         getRootPane().setDefaultButton(saveButton);
         canvas = new ImgSaverPreviewerCanvas(this);
         layeredPane = new JLayeredPane();
-        layeredPane.add(canvas, new Integer(0));
+        layeredPane.add(canvas, Integer.valueOf(0));
     }
     
     /**

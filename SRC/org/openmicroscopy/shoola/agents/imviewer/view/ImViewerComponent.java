@@ -700,8 +700,8 @@ class ImViewerComponent
 					"supported");
 			}
 			//need
-			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, new Integer(1), 
-					new Integer(-1));
+			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, Integer.valueOf(1), 
+					Integer.valueOf(-1));
 			view.setColorModel(key);
 			renderXYPlane();
 		} catch (Exception ex) {
@@ -730,11 +730,11 @@ class ImViewerComponent
 		try {
 			if (defaultZ != z) {
 				firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
-						new Integer(defaultZ), new Integer(z));
+						Integer.valueOf(defaultZ), Integer.valueOf(z));
 			}
 			if (defaultT != t) {
 				firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
-						new Integer(defaultT), new Integer(t));
+						Integer.valueOf(defaultT), Integer.valueOf(t));
 			}
 			newPlane = true;
 			model.setSelectedXYPlane(z, t);
@@ -930,7 +930,8 @@ class ImViewerComponent
 						model.setChannelActive(i, c);  
 						if (c) 
 							firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
-									new Integer(index-1), new Integer(index));
+									Integer.valueOf(index-1), 
+									Integer.valueOf(index));
 					}
 					uiIndex = ImViewerUI.VIEW_ONLY;
 					//view.setChannelsSelection();
@@ -939,7 +940,7 @@ class ImViewerComponent
 				uiIndex = ImViewerUI.ALL_VIEW;
 				model.setChannelActive(index, b);
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
-						new Integer(index-1), new Integer(index));
+						Integer.valueOf(index-1), Integer.valueOf(index));
 				//view.setChannelsSelection();
 			}
 			view.setChannelsSelection(uiIndex);
@@ -1038,7 +1039,7 @@ class ImViewerComponent
 			model.setChannelActive(index, b);
 			if (b)
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
-						new Integer(index-1), new Integer(index));
+						Integer.valueOf(index-1), Integer.valueOf(index));
 		} catch (Exception ex) {
 			reload(ex);
 		}

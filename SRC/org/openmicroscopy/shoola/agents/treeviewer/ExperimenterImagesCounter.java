@@ -127,12 +127,12 @@ public class ExperimenterImagesCounter
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        Map map = (Map) fe.getPartialResult();
+        Map<Integer, Object> map = (Map) fe.getPartialResult();
         if (map == null || map.size() != 1) return;
-        Iterator i = map.keySet().iterator();
+        Iterator<Integer> i = map.keySet().iterator();
         Integer index;
         while (i.hasNext()) {
-        	index = (Integer) i.next();
+        	index = i.next();
         	viewer.setExperimenterCount(expNode, index, map.get(index));
 		}
     }

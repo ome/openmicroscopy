@@ -267,8 +267,8 @@ public class Finder
             pc.getSelectedBrowser().setFoundInBrowser(set);
             found = true;
             model.addToHistory(findText);
-            firePropertyChange(RETRIEVED_PROPERTY, new Integer(-1), 
-                    			new Integer(set.size()));
+            firePropertyChange(RETRIEVED_PROPERTY, Integer.valueOf(-1), 
+            		Integer.valueOf(set.size()));
         } catch (PatternSyntaxException pse) {
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Find", "The phrase contains non valid characters.");

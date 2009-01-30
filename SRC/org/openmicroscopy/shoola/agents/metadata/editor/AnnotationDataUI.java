@@ -1374,18 +1374,18 @@ class AnnotationDataUI
 	 */
 	public void focusLost(FocusEvent e)
 	{
+		/*
 		Object src = e.getSource();
 		String text;
 		if (src == tagsPane) {
-			/*
 			text = tagsPane.getText();
 			if (text == null || text.length() == 0) {
 				tagsPane.getDocument().removeDocumentListener(this);
 				tagsPane.setText(DEFAULT_TEXT);
 				tagsPane.getDocument().addDocumentListener(this);
 			}
-			*/
 		}
+		*/
 	}
 	
 	/**

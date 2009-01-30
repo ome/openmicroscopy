@@ -460,7 +460,6 @@ public class DataBrowserTranslator
         Set results = new HashSet();
         Iterator i = dataObjects.iterator();
         DataObject ho;
-        ImageSet unclassified = null;
         ImageDisplay child;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
@@ -490,7 +489,6 @@ public class DataBrowserTranslator
             	if (child != null) results.add(child);
             }
         }
-        if (unclassified != null) results.add(unclassified);
         return results;
     }
     

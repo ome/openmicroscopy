@@ -124,7 +124,8 @@ public class RenderingSettingsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        Map map = (Map) result;
+        Map<ExperimenterData, RndProxyDef> map = 
+        	(Map<ExperimenterData, RndProxyDef>) result;
         if (single) { 
         	Iterator i = map.keySet().iterator();
         	long userID = ImViewerAgent.getUserDetails().getId();
@@ -132,7 +133,7 @@ public class RenderingSettingsLoader
         	while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
 				if (userID == exp.getId())
-					viewer.setSettingsToPaste((RndProxyDef) map.get(exp));
+					viewer.setSettingsToPaste(map.get(exp));
 			}
         } else {
         	viewer.setRenderingSettings(map);

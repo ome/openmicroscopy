@@ -208,7 +208,7 @@ public class ExperimenterDataLoader
         				withImages, exp.getId(), this);	
         	} else {
         		List<Long> ids = new ArrayList<Long>(1);
-        		ids.add(new Long(parent.getUserObjectId()));
+        		ids.add(Long.valueOf(parent.getUserObjectId()));
         		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
         				withImages, exp.getId(), this);
         	}

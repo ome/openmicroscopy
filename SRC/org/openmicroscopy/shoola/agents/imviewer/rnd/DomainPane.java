@@ -217,7 +217,8 @@ class DomainPane
 				int v = convertUIBitResolution(bitDepthSlider.getValue());
 	            bitDepthLabel.setText(""+v);
 	            firePropertyChange(BIT_RESOLUTION_PROPERTY, 
-	            		new Integer(model.getBitResolution()), new Integer(v));
+	            		Integer.valueOf(model.getBitResolution()), 
+	            		Integer.valueOf(v));
 			}
 		
 		});

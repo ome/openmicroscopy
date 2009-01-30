@@ -70,7 +70,7 @@ class GridUI
         canvas = new GridCanvas(model);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
-        layeredPane.add(canvas, new Integer(0));
+        layeredPane.add(canvas, Integer.valueOf(0));
     }
     
 	/** Builds and lays out the GUI. */
@@ -116,7 +116,7 @@ class GridUI
      */
     void addComponentToLayer(JComponent c)
     {
-        layeredPane.add(c, new Integer(1));
+        layeredPane.add(c, Integer.valueOf(1));
     }
     
     /**

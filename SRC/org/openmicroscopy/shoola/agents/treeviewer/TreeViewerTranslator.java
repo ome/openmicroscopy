@@ -97,8 +97,8 @@ public class TreeViewerTranslator
             Timestamp time = EditorUtil.getAcquisitionTime((ImageData) uo);
             if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;
             else title = UIUtilities.formatTime(time); 
-            //toolTip = UIUtilities.formatToolTipText(title);
-            //node.setToolTip(toolTip); 
+            toolTip = UIUtilities.formatToolTipText(title);
+            node.setToolTip(toolTip); 
         } else if (uo instanceof WellData) {
         	toolTip = UIUtilities.formatToolTipText(
         		((WellData) node.getUserObject()).getExternalDescription());
@@ -460,7 +460,6 @@ public class TreeViewerTranslator
         		new HashSet<TreeImageDisplay>(dataObjects.size());
         Iterator i = dataObjects.iterator();
         DataObject ho;
-        TreeImageSet orphan = null;
         TreeImageDisplay child;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
@@ -503,7 +502,6 @@ public class TreeViewerTranslator
                 }
             }   
         }
-        if (orphan != null) orphan.setExpanded(false);
         return results;
     }
     
@@ -529,7 +527,7 @@ public class TreeViewerTranslator
         DataObject ho;
         TreeImageDisplay display;
         List expanded = null;
-        TreeImageSet orphan = null;
+        //TreeImageSet orphan = null;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (EditorUtil.isReadable(ho, userID, groupID)) {
@@ -541,8 +539,7 @@ public class TreeViewerTranslator
                                                 (Set) nodes.get(ho), 
                                                 userID, groupID);
                     if (expanded != null)
-	                    display.setExpanded(
-	                    		expanded.contains(new Long(ho.getId())));
+	                    display.setExpanded(expanded.contains(ho.getId()));
                     results.add(display);
                 } else if (ho instanceof DatasetData) {
                 	if (expandedTopNodes != null)
@@ -555,8 +552,7 @@ public class TreeViewerTranslator
                 		element = (DatasetData) k.next();
                 		display = transformDataset(element, userID, groupID);
                 		if (expanded != null) {
-                			display.setExpanded(
-                					expanded.contains(new Long(ho.getId())));
+                			display.setExpanded(expanded.contains(ho.getId()));
                 		}
                 			
                 		//orphan.addChildDisplay(display);
@@ -573,8 +569,7 @@ public class TreeViewerTranslator
                 		element = (TagAnnotationData) k.next();
                 		display = transformTag(element, userID, groupID);
                 		if (expanded != null)
-                			display.setExpanded(
-                					expanded.contains(new Long(ho.getId())));
+                			display.setExpanded(expanded.contains(ho.getId()));
                 		//orphan.addChildDisplay(display);
                 		results.add(display); 
                 	}
@@ -586,19 +581,17 @@ public class TreeViewerTranslator
                             ((ScreenData) ho).getPlates(), userID, groupID);
                     if (expanded != null)
 	                    display.setExpanded(
-	                    		expanded.contains(new Long(ho.getId())));
+	                    		expanded.contains(ho.getId()));
 
                     results.add(display);
                 } else if (ho instanceof PlateData) {
                 	display = transformPlate((PlateData) ho, userID, groupID);
                 	if (expanded != null)
-                		display.setExpanded(
-                				expanded.contains(new Long(ho.getId())));
+                		display.setExpanded(expanded.contains(ho.getId()));
                 	results.add(display);
                 }
             }
         }
-        if (orphan != null) orphan.setExpanded(false);
         return results;
     }
     

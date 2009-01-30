@@ -116,7 +116,7 @@ public class RegExVisitor
         if (userObject instanceof DatasetData)
             annotations = ((DatasetData) userObject).getAnnotations();
         else if (userObject instanceof ImageData)
-            annotations = ((DatasetData) userObject).getAnnotations();
+            annotations = ((ImageData) userObject).getAnnotations();
         if (annotations == null || annotations.size() == 0) return null;
         AnnotationData data = (AnnotationData) (annotations.toArray()[0]);
         if (data == null) return null;

@@ -140,7 +140,7 @@ public class ContainersManager
     public void setNumberItems(long containerID, long value)
     {
         if (value < 0) throw new IllegalArgumentException("Value not valid.");
-        Long id = new Long(containerID);
+        Long id = Long.valueOf(containerID);
         Set p = (Set) providers.get(id);
         if (p != null) {
             Iterator i = p.iterator();

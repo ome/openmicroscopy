@@ -212,7 +212,7 @@ class MetadataViewerModel
 		MetadataLoader loader = loaders.get(refNode);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(loader);
+			loaders.remove(refNode);
 		}
 	}
 
@@ -225,7 +225,7 @@ class MetadataViewerModel
 	void notifyLoadingEnd(TreeBrowserDisplay refNode)
 	{
 		MetadataLoader loader = loaders.get(refNode);
-		if (loader != null) loaders.remove(loader);
+		if (loader != null) loaders.remove(refNode);
 	}
 	
 	/**

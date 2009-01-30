@@ -71,30 +71,30 @@ class RendererControl
 {
 
     /** Identifies the action to select the bit resolution. */
-    static final Integer    BIT_RESOLUTION = new Integer(2);
+    static final Integer    BIT_RESOLUTION = Integer.valueOf(0);
     
     /** Identifies the action to select the family. */
-    static final Integer    FAMILY = new Integer(3);
+    static final Integer    FAMILY = Integer.valueOf(1);
     
     /** Identifies the action to select the coefficient. */
-    static final Integer    COEFFICIENT = new Integer(4);
+    static final Integer    COEFFICIENT = Integer.valueOf(2);
     
     /** Identifies the action to select the noise reduction algorithm. */
-    static final Integer    NOISE_REDUCTION = new Integer(5);
+    static final Integer    NOISE_REDUCTION = Integer.valueOf(3);
     
     /** Identifies the action to select the reverse intensity transformation. */
-    static final Integer    REVERSE_INTENSITY = new Integer(6);
+    static final Integer    REVERSE_INTENSITY = Integer.valueOf(4);
     
     /** Identifies the action to select the plane slicing transformation. */
-    static final Integer    PLANE_SLICING = new Integer(7);
+    static final Integer    PLANE_SLICING = Integer.valueOf(5);
     
     /**
      * Identifies the action to select the contrast stretching transformation.
      */
-    static final Integer    CONTRAST_STRETCHING = new Integer(8);
+    static final Integer    CONTRAST_STRETCHING = Integer.valueOf(6);
     
     /** Identifies the action to bring up the histogram widget. */
-    static final Integer    HISTOGRAM = new Integer(9);
+    static final Integer    HISTOGRAM = Integer.valueOf(7);
     
     /**
      * Reference to the {@link Renderer} component, which, in this context,
@@ -249,15 +249,15 @@ class RendererControl
             //int v = ((Integer) evt.getNewValue()).intValue();
             //model.setSelectedChannel(v, false);
         } else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
-            Map map = (Map) evt.getNewValue();
+            Map<Integer, Boolean> map = 
+            	(Map<Integer, Boolean>) evt.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
 			Iterator i = map.keySet().iterator();
 			Integer index;
 			while (i.hasNext()) {
 				index = (Integer) i.next();
-				model.setChannelSelection(index.intValue(), 
-						((Boolean) map.get(index)).booleanValue());
+				model.setChannelSelection(index.intValue(), map.get(index));
 			}
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {
         	view.showColorPicker(((Integer) evt.getNewValue()).intValue());

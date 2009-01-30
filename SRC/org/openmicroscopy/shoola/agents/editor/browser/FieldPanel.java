@@ -570,7 +570,7 @@ public class FieldPanel
 		
 		this.field = field;
 		this.tree = tree;
-		this.treeNode = (FieldNode)treeNode;
+		this.treeNode = (FieldNode) treeNode;
 		this.controller = controller;
 		
 		initialise();	

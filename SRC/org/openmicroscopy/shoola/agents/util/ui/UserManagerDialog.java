@@ -156,11 +156,11 @@ public class UserManagerDialog
 		GroupData g = (GroupData) groups.getSelectedItem();
 		Object user = users.getSelectedValue();
 		if (user == null) {
-			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.FALSE, 
-								Boolean.TRUE);
+			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
 			return;
 		}
-		r.put(new Long(g.getId()), (ExperimenterData) user);
+		r.put(g.getId(), (ExperimenterData) user);
 		firePropertyChange(USER_SWITCH_PROPERTY, null, r);
 		cancel();
 	}
@@ -382,6 +382,7 @@ public class UserManagerDialog
 				break;
 			case APPLY:
 				apply();
+				break;
 			case GROUPS:
 				DefaultListModel model = (DefaultListModel) users.getModel();
 				model.clear();

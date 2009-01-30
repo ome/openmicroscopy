@@ -98,7 +98,7 @@ public class BrowseContainerAction
     		"Plate.";
     
     /** Convenience reference to the icon manager. */
-    private static IconManager	icons;
+    private static IconManager	icons = IconManager.getInstance();;
     
     /**
      * Sets the action enabled depending on the browser's type and 
@@ -209,7 +209,6 @@ public class BrowseContainerAction
     {
         super(model);
         name = NAME;
-        icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 

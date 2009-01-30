@@ -154,7 +154,7 @@ public class RefreshVisitor
             	l = new ArrayList<Long>();
             	expandedTopNodes.put(ProjectData.class, l);
             }
-            l.add(new Long(id)); 
+            l.add(Long.valueOf(id)); 
         } else if ((userObject instanceof ScreenData) 
         		&& node.isExpanded()) {
         	long id = ((DataObject) userObject).getId();
@@ -163,7 +163,7 @@ public class RefreshVisitor
         		l = new ArrayList<Long>();
         		expandedTopNodes.put(ScreenData.class, l);
         	}
-        	l.add(new Long(id));
+        	l.add(Long.valueOf(id));
         } else if (userObject instanceof PlateData) {
         	parent = node.getParentDisplay();
     		if (!(parent.getUserObject() instanceof ScreenData)) {

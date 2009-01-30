@@ -720,7 +720,7 @@ class EditorModel
         List<AnnotationData> userAnnos;
         while (i.hasNext()) {
             annotation = (AnnotationData) i.next();
-            ownerID = new Long(annotation.getOwner().getId());
+            ownerID = Long.valueOf(annotation.getOwner().getId());
             userAnnos = textualAnnotationsByUsers.get(ownerID);
             if (userAnnos == null) {
                 userAnnos = new ArrayList<AnnotationData>();

@@ -117,7 +117,7 @@ public class QuickFinder
 		//SearchObject node = (SearchObject) evt.getNewValue();
 		if (getSelectedNode() == null) return;
 		List values = null;//getSelectedNode().getResult();
-		if (values == null || values.size() == 0) {
+		if (values == null) {
 			UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 			un.notifyInfo("Quick Search", "Please enter a term to search for.");
 			return;

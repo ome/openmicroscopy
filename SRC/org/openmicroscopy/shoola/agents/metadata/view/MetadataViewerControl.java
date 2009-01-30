@@ -62,19 +62,19 @@ class MetadataViewerControl
 {
 
 	/** Identifies the <code>Refresh</code> action. */
-	static final Integer		REFRESH = new Integer(0);
+	static final Integer		REFRESH = Integer.valueOf(0);
 	
 	/** Identifies the <code>Browse</code> action. */
-	static final Integer		BROWSE = new Integer(1);
+	static final Integer		BROWSE = Integer.valueOf(1);
 	
 	/** Identifies the <code>Remove</code> action. */
-	static final Integer		REMOVE = new Integer(2);
+	static final Integer		REMOVE = Integer.valueOf(2);
 	
 	/** Identifies the <code>Remove all</code> action. */
-	static final Integer		REMOVE_ALL = new Integer(3);
+	static final Integer		REMOVE_ALL = Integer.valueOf(3);
 	
 	/** Identifies the <code>Add</code> action. */
-	static final Integer		ADD = new Integer(4);
+	static final Integer		ADD = Integer.valueOf(4);
 	
 	/** 
 	 * Reference to the {@link MetadataViewer} component, which, in this

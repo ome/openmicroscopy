@@ -577,7 +577,7 @@ class RendererModel
 	{
 		List<Integer> active = new ArrayList<Integer>();
 		for (int i = 0; i < getMaxC(); i++) {
-			if (rndControl.isActive(i)) active.add(new Integer(i));
+			if (rndControl.isActive(i)) active.add(Integer.valueOf(i));
 		}
 		return active;
 	}

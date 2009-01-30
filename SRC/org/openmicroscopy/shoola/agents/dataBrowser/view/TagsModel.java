@@ -117,8 +117,8 @@ public class TagsModel 	extends DataBrowserModel
 				}
 			} else if (object instanceof ProjectData) {
 				datasets = ((ProjectData) object).getDatasets();
-				j = datasets.iterator();
 				if (datasets != null) {
+					j = datasets.iterator();
 					while (j.hasNext()) {
 						images = (j.next()).getImages();
 						if (images != null) {

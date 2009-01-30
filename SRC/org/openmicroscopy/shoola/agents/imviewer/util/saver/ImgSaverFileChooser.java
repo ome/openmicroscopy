@@ -35,6 +35,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -206,7 +207,10 @@ class ImgSaverFileChooser
     {
     	File dir = getCurrentDirectory();
     	String n = dir.getAbsolutePath()+File.separator+name;
-    	new File(n).mkdir();
+    	String message = "Cannot create a folder.";
+    	boolean b = new File(n).mkdir();
+		if (b) message = "Folder created.";
+		ImViewerAgent.getRegistry().getLogger().info(this, message);
     }
     
     /**

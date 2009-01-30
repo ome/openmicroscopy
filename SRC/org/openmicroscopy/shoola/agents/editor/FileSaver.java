@@ -118,7 +118,9 @@ public class FileSaver
 	{
 		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
 		viewer.onFileSave((FileAnnotationData) result);
-		file.delete();
+		String message = "Cannot delete the file.";
+		if (file.delete()) message = "File deleted.";
+		registry.getLogger().info(this, message);
 	}
 	
 }

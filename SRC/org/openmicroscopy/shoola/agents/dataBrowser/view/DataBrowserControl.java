@@ -75,39 +75,39 @@ class DataBrowserControl
 {
 
 	/** Identifies the <code>View action</code>. */
-    static final Integer     VIEW = new Integer(0);
+    static final Integer     VIEW = Integer.valueOf(0);
     
     /** Identifies the <code>Copy object action</code>. */
-	static final Integer	COPY_OBJECT = new Integer(1);
+	static final Integer	COPY_OBJECT = Integer.valueOf(1);
 
 	/** Identifies the <code>Paste object action</code>. */
-	static final Integer	PASTE_OBJECT = new Integer(2);
+	static final Integer	PASTE_OBJECT = Integer.valueOf(2);
 
 	/** Identifies the <code>Remove object action</code>. */
-	static final Integer	REMOVE_OBJECT = new Integer(3);
+	static final Integer	REMOVE_OBJECT = Integer.valueOf(3);
 	
 	/** Identifies the <code>Cut object action</code>. */
-	static final Integer	CUT_OBJECT = new Integer(4);
+	static final Integer	CUT_OBJECT = Integer.valueOf(4);
 	
 	/** Identifies the <code>Paste rendering settings action</code>. */
-	static final Integer    PASTE_RND_SETTINGS = new Integer(5);
+	static final Integer    PASTE_RND_SETTINGS = Integer.valueOf(5);
 
 	/** Identifies the <code>Copy rendering settings action</code>. */
-	static final Integer    COPY_RND_SETTINGS = new Integer(6);
+	static final Integer    COPY_RND_SETTINGS = Integer.valueOf(6);
 	
 	/** Identifies the <code>Reset rendering settings action</code>. */
-	static final Integer    RESET_RND_SETTINGS = new Integer(7);
+	static final Integer    RESET_RND_SETTINGS = Integer.valueOf(7);
 	
 	/** 
 	 * Identifies the <code>Set the original rendering settings action</code>. 
 	 */
-	static final Integer    SET_ORIGINAL_RND_SETTINGS = new Integer(8);
+	static final Integer    SET_ORIGINAL_RND_SETTINGS = Integer.valueOf(8);
 	
 	/** Identifies the <code>Refresh action</code>. */
-	static final Integer    REFRESH = new Integer(9);
+	static final Integer    REFRESH = Integer.valueOf(9);
 	
 	/** Identifies the <code>Save As</code> action. */
-	static final Integer    SAVE_AS = new Integer(10);
+	static final Integer    SAVE_AS = Integer.valueOf(10);
 
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,

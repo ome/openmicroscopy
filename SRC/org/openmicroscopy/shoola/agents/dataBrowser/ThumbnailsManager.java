@@ -155,7 +155,7 @@ public class ThumbnailsManager
     public void setThumbnail(long imageID, BufferedImage thumb)
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
-        Long id = new Long(imageID);
+        Long id = Long.valueOf(imageID);
         Set providers = thumbProviders.get(id);
         if (providers != null) {
             Iterator p = providers.iterator();
@@ -174,7 +174,7 @@ public class ThumbnailsManager
     public void setFullSizeImage(long imageID, BufferedImage thumb)
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
-        Long id = new Long(imageID);
+        Long id = Long.valueOf(imageID);
         Set providers = thumbProviders.get(id);
         if (providers != null) {
             Iterator p = providers.iterator();

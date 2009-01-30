@@ -1592,7 +1592,6 @@ class TreeViewerComponent
 			if (!(o instanceof ImageData)) return;
 			image = (ImageData) o;
 		}
-		if (image == null) return;
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new CopyRndSettings(image));
 	}

@@ -486,6 +486,7 @@ public class EditorUtil
             details.put(PIXEL_TYPE, "");  
             details.put(WAVELENGTHS, "");
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
+            return details;
         }
         PixelsData data = image.getDefaultPixels();
 	
@@ -842,15 +843,15 @@ public class EditorUtil
         		details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EM_WAVE, new Integer(0));
-        details.put(EX_WAVE, new Integer(0));
-        details.put(ND_FILTER, new Float(0));
-        details.put(PIN_HOLE_SIZE, new Float(0));
+        details.put(EM_WAVE, Integer.valueOf(0));
+        details.put(EX_WAVE, Integer.valueOf(0));
+        details.put(ND_FILTER, Float.valueOf(0));
+        details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");
         details.put(ILLUMINATION, "");
         details.put(CONTRAST_METHOD, "");
         details.put(MODE, "");
-        details.put(POCKEL_CELL_SETTINGS, new Integer(0));
+        details.put(POCKEL_CELL_SETTINGS, Integer.valueOf(0));
         if (data == null) {
         	notSet.add(NAME);
         	notSet.add(EM_WAVE);
@@ -934,15 +935,15 @@ public class EditorUtil
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
-    	details.put(NOMINAL_MAGNIFICATION, new Integer(0));
-    	details.put(CALIBRATED_MAGNIFICATION, new Float(0));
+    	details.put(NOMINAL_MAGNIFICATION, Integer.valueOf(0));
+    	details.put(CALIBRATED_MAGNIFICATION,Float.valueOf(0));
         details.put(LENSNA, new Float(0));
         details.put(IMMERSION, "");
         details.put(CORRECTION, "");
-        details.put(WORKING_DISTANCE, new Float(0));
-        details.put(CORRECTION_COLLAR, new Float(0));
+        details.put(WORKING_DISTANCE, Float.valueOf(0));
+        details.put(CORRECTION_COLLAR, Float.valueOf(0));
     	details.put(MEDIUM, "");
-    	details.put(REFRACTIVE_INDEX, new Float(0));
+    	details.put(REFRACTIVE_INDEX, Float.valueOf(0));
     	details.put(IRIS, null);
         if (data == null) {
         	notSet.add(MODEL);
@@ -1106,6 +1107,7 @@ public class EditorUtil
     		notSet.add(POSITION_Y);
     		notSet.add(POSITION_Z);
     		details.put(NOT_SET, notSet);
+    		return details;
     	}
     	String s = data.getLabelName();
 		if (s == null || s.trim().length() == 0) 

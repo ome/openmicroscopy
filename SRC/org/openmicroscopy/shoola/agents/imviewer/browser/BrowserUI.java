@@ -96,7 +96,7 @@ class BrowserUI
         layeredPane = new JLayeredPane();
         browserCanvas = new BrowserCanvas(model, this);
         //The image canvas is always at the bottom of the pile.
-        layeredPane.add(browserCanvas, new Integer(0));
+        layeredPane.add(browserCanvas, Integer.valueOf(0));
         canvasListener = new ImageCanvasListener(this, model, browserCanvas);
         canvasListener.setHandleKeyDown(true);
         getVerticalScrollBar().addMouseMotionListener(this);
@@ -175,7 +175,7 @@ class BrowserUI
     	for (int i = 0; i < components.length; i++) {
 			if (components[i] == c) return;
 		}
-    	layeredPane.add(c, new Integer(1));
+    	layeredPane.add(c, Integer.valueOf(1));
     }
     
     /**
