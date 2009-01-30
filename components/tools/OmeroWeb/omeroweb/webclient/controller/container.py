@@ -26,8 +26,8 @@ from django.conf import settings
 
 import omero
 from omero.rtypes import *
-from omero_model_TextAnnotationI import TextAnnotationI
-from omero_model_UrlAnnotationI import UrlAnnotationI
+from omero_model_CommentAnnotationI import CommentAnnotationI
+from omero_model_UriAnnotationI import UriAnnotationI
 from omero_model_FileAnnotationI import FileAnnotationI
 from omero_model_OriginalFileI import OriginalFileI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
@@ -93,9 +93,12 @@ class BaseContainer(BaseController):
             'iris':['bool', 'Objective'], 'lensNA':('float', 'Objective'), 'manufacturer':('string', 'Objective'), 'model':('string', 'Objective'), 
             'nominalMagnification':('int', 'Objective'), 'serialNumber':('string', 'Objective'), 'workingDistance':('float', 'Objective'),
             
-            # Condition
-            'airPressure':('int', 'Condition'), 'co2percent':('float', 'Condition'), 'humidity':('float', 'Condition'), 
-            'temperature':('float', 'Condition'),
+            # ImagingEnvironment
+            'airPressure':('int', 'ImagingEnvironment'), 'co2percent':('float', 'ImagingEnvironment'), 'humidity':('float', 'ImagingEnvironment'), 
+            'temperature':('float', 'ImagingEnvironment'),
+            
+            # StageLabel
+            'positionx':('float', 'StageLabel'), 'positiony':('float', 'StageLabel'), 'positionz':('float', 'StageLabel')
         }
         
         metadataFamily = metadata_rtype.get(matadataType)[1]
@@ -114,11 +117,11 @@ class BaseContainer(BaseController):
         if meta is not None and meta._obj.__dict__.has_key("_"+matadataType):
             if enum is not None:
                 setattr(meta._obj, matadataType, enum)
-                self.conn.updateObject(meta._obj)
+                self.conn.saveObject(meta._obj)
             else:
                 if metadataValue == "":
                     setattr(meta._obj, matadataType, None)
-                    self.conn.updateObject(meta._obj)
+                    self.conn.saveObject(meta._obj)
                 else:
                     try:
                         if m_rtype == 'int':
@@ -131,7 +134,7 @@ class BaseContainer(BaseController):
                             setattr(meta._obj, matadataType, rbool(bool(metadataValue.lower())))
                         else:
                             raise "Cannot save the metadata"
-                        self.conn.updateObject(meta._obj)
+                        self.conn.saveObject(meta._obj)
                     except:
                         raise
         else:
@@ -575,7 +578,7 @@ class BaseContainer(BaseController):
         else:
             img.description = None
         self.objectPermissions(img, permissions)
-        self.conn.updateObject(img)
+        self.conn.saveObject(img)
     
     def imageAnnotationList(self):
         self.text_annotations = list()
@@ -583,12 +586,12 @@ class BaseContainer(BaseController):
         self.url_annotations = list()
         self.file_annotations = list()
         for ann in self.image.listAnnotations():
-            if ann._obj.__class__.__name__ == 'TextAnnotationI':
+            if ann._obj.__class__.__name__ == 'CommentAnnotationI':
                 self.text_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'LongAnnotationI':
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
-            elif ann._obj.__class__.__name__ == 'UrlAnnotationI':
+            elif ann._obj.__class__.__name__ == 'UriAnnotationI':
                 self.url_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'FileAnnotationI':
                 self.file_annotations.append(ann)
@@ -610,12 +613,12 @@ class BaseContainer(BaseController):
         self.url_annotations = list()
         self.file_annotations = list()
         for ann in self.dataset.listAnnotations():
-            if ann._obj.__class__.__name__ == 'TextAnnotationI':
+            if ann._obj.__class__.__name__ == 'CommentAnnotationI':
                 self.text_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'LongAnnotationI':
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
-            elif ann._obj.__class__.__name__ == 'UrlAnnotationI':
+            elif ann._obj.__class__.__name__ == 'UriAnnotationI':
                 self.url_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'FileAnnotationI':
                 self.file_annotations.append(ann)
@@ -637,12 +640,12 @@ class BaseContainer(BaseController):
         self.url_annotations = list()
         self.file_annotations = list()
         for ann in self.project.listAnnotations():
-            if ann._obj.__class__.__name__ == 'TextAnnotationI':
+            if ann._obj.__class__.__name__ == 'CommentAnnotationI':
                 self.text_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'LongAnnotationI':
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
-            elif ann._obj.__class__.__name__ == 'UrlAnnotationI':
+            elif ann._obj.__class__.__name__ == 'UriAnnotationI':
                 self.url_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'FileAnnotationI':
                 self.file_annotations.append(ann)
@@ -668,7 +671,7 @@ class BaseContainer(BaseController):
         self.objectPermissions(container, permissions)
         for l_ds in container.copyProjectLinks():
             self.objectPermissions(l_ds,permissions)
-        self.conn.updateObject(container)
+        self.conn.saveObject(container)
 
     def updateProject(self, name, description, permissions):
         container = self.project._obj
@@ -678,7 +681,7 @@ class BaseContainer(BaseController):
         else:
             container.description = None
         self.objectPermissions(container, permissions)
-        self.conn.updateObject(container)
+        self.conn.saveObject(container)
 
     def createDataset(self, name, description, permissions):
         ds = DatasetI()
@@ -692,7 +695,7 @@ class BaseContainer(BaseController):
             l_ds.setChild(ds)
             self.objectPermissions(l_ds,permissions)
             ds.addProjectDatasetLink(l_ds)
-        res = self.conn.createObject(ds)
+        res = self.conn.saveObject(ds)
         return res
         
     def createProject(self, name, description, permissions):
@@ -702,26 +705,26 @@ class BaseContainer(BaseController):
         if description != "" :
             pr.description = rstring(str(description))
         
-        res = self.conn.createObject(pr)
+        res = self.conn.saveObject(pr)
         return res
     
-    def saveImageTextAnnotation(self, content):
-        ann = TextAnnotationI()
+    def createImageCommentAnnotation(self, content):
+        ann = CommentAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = ImageAnnotationLinkI()
         l_ann.setParent(self.image._obj)
         l_ann.setChild(ann)
-        self.conn.updateObject(l_ann)
+        self.conn.saveObject(l_ann)
     
-    def saveImageUrlAnnotation(self, content):
-        ann = UrlAnnotationI()
+    def createImageUriAnnotation(self, content):
+        ann = UriAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = ImageAnnotationLinkI()
         l_ann.setParent(self.image._obj)
         l_ann.setChild(ann)
-        self.conn.updateObject(l_ann)
+        self.conn.saveObject(l_ann)
     
-    def saveImageFileAnnotation(self, newFile):
+    def createImageFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
             format = self.conn.getFileFormt(f[1].upper())
@@ -735,7 +738,7 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.createObject(oFile);
+        of = self.conn.saveObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
@@ -743,25 +746,25 @@ class BaseContainer(BaseController):
         l_ia = ImageAnnotationLinkI()
         l_ia.setParent(self.image._obj)
         l_ia.setChild(fa)
-        self.conn.updateObject(l_ia)
+        self.conn.saveObject(l_ia)
     
-    def saveProjectTextAnnotation(self, content):
-        ann = TextAnnotationI()
+    def createProjectCommentAnnotation(self, content):
+        ann = CommentAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = ProjectAnnotationLinkI()
         l_ann.setParent(self.project._obj)
         l_ann.setChild(ann)
-        self.conn.updateObject(l_ann)
+        self.conn.saveObject(l_ann)
 
-    def saveProjectUrlAnnotation(self, content):
-        ann = UrlAnnotationI()
+    def createProjectUriAnnotation(self, content):
+        ann = UriAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = ProjectAnnotationLinkI()
         l_ann.setParent(self.project._obj)
         l_ann.setChild(ann)
-        self.conn.updateObject(l_ann)
+        self.conn.saveObject(l_ann)
     
-    def saveProjectFileAnnotation(self, newFile):
+    def createProjectFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
             format = self.conn.getFileFormt(f[1].upper())
@@ -775,7 +778,7 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.createObject(oFile);
+        of = self.conn.saveObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
@@ -783,25 +786,25 @@ class BaseContainer(BaseController):
         l_ia = ProjectAnnotationLinkI()
         l_ia.setParent(self.project._obj)
         l_ia.setChild(fa)
-        self.conn.updateObject(l_ia)
+        self.conn.saveObject(l_ia)
     
-    def saveDatasetTextAnnotation(self, content):
-        ann = TextAnnotationI()
+    def createDatasetCommentAnnotation(self, content):
+        ann = CommentAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = DatasetAnnotationLinkI()
         l_ann.setParent(self.dataset._obj)
         l_ann.setChild(ann)
-        self.conn.updateObject(l_ann)
+        self.conn.saveObject(l_ann)
 
-    def saveDatasetUrlAnnotation(self, content):
-        ann = UrlAnnotationI()
+    def createDatasetUriAnnotation(self, content):
+        ann = UriAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = DatasetAnnotationLinkI()
         l_ann.setParent(self.dataset._obj)
         l_ann.setChild(ann)
-        self.conn.updateObject(l_ann)
+        self.conn.saveObject(l_ann)
     
-    def saveDatasetFileAnnotation(self, newFile):
+    def createDatasetFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
             format = self.conn.getFileFormt(f[1].upper())
@@ -815,7 +818,7 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.createObject(oFile);
+        of = self.conn.saveObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
@@ -823,7 +826,7 @@ class BaseContainer(BaseController):
         l_ia = DatasetAnnotationLinkI()
         l_ia.setParent(self.dataset._obj)
         l_ia.setChild(fa)
-        self.conn.updateObject(l_ia)
+        self.conn.saveObject(l_ia)
     
     
     def move(self, parent, source, destination):
@@ -850,13 +853,13 @@ class BaseContainer(BaseController):
                     new_pr = self.conn.getProject(destination[1])
                     if len(parent) > 1:
                         up_pdl.setParent(new_pr._obj)
-                        self.conn.updateObject(up_pdl._obj)
+                        self.conn.saveObject(up_pdl._obj)
                     else:
                         ds = self.conn.getDataset(source[1])
                         up_pdl = ProjectDatasetLinkI()
                         up_pdl.setChild(ds._obj)
                         up_pdl.setParent(new_pr._obj)
-                        self.conn.updateObject(up_pdl)
+                        self.conn.saveObject(up_pdl)
             elif destination[0] == '0':
                 up_pdl = None
                 pdls = list(self.conn.getProjectDatasetLinks(source[1]))
@@ -891,13 +894,13 @@ class BaseContainer(BaseController):
                     new_ds = self.conn.getDataset(destination[1])
                     if len(parent) > 1:
                         up_dsl.setParent(new_ds._obj)
-                        self.conn.updateObject(up_dsl._obj)
+                        self.conn.saveObject(up_dsl._obj)
                     else:
                         im = self.conn.getImage(source[1])
                         up_dsl = DatasetImageLinkI()
                         up_dsl.setChild(im._obj)
                         up_dsl.setParent(new_ds._obj)
-                        self.conn.updateObject(up_dsl)
+                        self.conn.saveObject(up_dsl)
             elif destination[0] == 'pr':
                 return False
             elif destination[0] == '0':
@@ -941,7 +944,7 @@ class BaseContainer(BaseController):
             new_dsl = DatasetImageLinkI()
             new_dsl.setChild(im._obj)
             new_dsl.setParent(ds._obj)
-            self.conn.createObject(new_dsl)
+            self.conn.saveObject(new_dsl)
             return True
     
     def copyDatasetToProject(self, source, destination=None):
@@ -953,7 +956,7 @@ class BaseContainer(BaseController):
             new_pdl = ProjectDatasetLinkI()
             new_pdl.setChild(ds._obj)
             new_pdl.setParent(pr._obj)
-            self.conn.createObject(new_pdl)
+            self.conn.saveObject(new_pdl)
             return True
 
     #####################################################################

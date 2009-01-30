@@ -931,10 +931,8 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select im from Image im " \
               "join fetch im.details.owner join fetch im.details.group " \
-              "left outer join fetch im.datasetLinks dil " \
-              "left outer join fetch dil.parent d " \
-              "left outer join fetch im.position as position " \
-              "left outer join fetch im.condition as condition " \
+              "left outer join fetch im.stageLabel  as stageLabel  " \
+              "left outer join fetch im.imagingEnvironment as imagingEnvironment " \
               "left outer join fetch im.objectiveSettings as os " \
               "left outer join fetch os.medium as medium " \
               "left outer join fetch os.objective as objective " \
@@ -1052,7 +1050,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {} 
         p.map["oid"] = rlong(long(oid))
-        sql = "select ta from TextAnnotation ta where ta.id = :oid"
+        sql = "select ca from CommentAnnotation ca where ca.id = :oid"
         ta = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, ta)
     
@@ -1061,7 +1059,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {} 
         p.map["oid"] = rlong(long(oid))
-        sql = "select ua from UrlAnnotation ua where ua.id = :oid"
+        sql = "select ua from UriAnnotation ua where ua.id = :oid"
         ta = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, ta)
     
@@ -1235,19 +1233,19 @@ class BlitzGateway (threading.Thread):
         if password is not None:
             admin_serv.changePassword(password)
     
-    def updateObject (self, obj):
+    def saveObject (self, obj):
         u = self.getUpdateService()
-        u.saveObject(obj)
-
-    def deleteObject(self, obj):
-        u = self.getUpdateService()
-        u.deleteObject(obj)
-
-    def createObject (self, obj):
+        u.saveAndReturnObject(obj)
+    
+    def saveAndReturnObject (self, obj):
         u = self.getUpdateService()
         res = u.saveAndReturnObject(obj)
         obj = BlitzObjectWrapper(self, res)
         return obj
+    
+    def deleteObject(self, obj):
+        u = self.getUpdateService()
+        u.deleteObject(obj)
 
     def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiretion, members, enable):
         sh = self.getShareService()
@@ -2114,7 +2112,7 @@ def assert_pixels (func):
         return func(self, *args, **kwargs)
     return wrapped
 
-class ImageConditionWrapper (BlitzObjectWrapper):
+class ImageImagingEnvironmentWrapper (BlitzObjectWrapper):
     pass
 
 class ImageObjectiveSettingsWrapper (BlitzObjectWrapper):
@@ -2126,7 +2124,7 @@ class ImageObjectiveWrapper (BlitzObjectWrapper):
 class ImageInstrumentWrapper (BlitzObjectWrapper):
     pass
 
-class ImagePositionWrapper (BlitzObjectWrapper):
+class ImageStageLabelWrapper (BlitzObjectWrapper):
     pass
 
 class ImageWrapper (BlitzObjectWrapper):
@@ -2176,11 +2174,11 @@ class ImageWrapper (BlitzObjectWrapper):
             logger.debug(traceback.format_exc())
             return "unknown"
     
-    def getCondition(self):
-        if self._obj.condition is None:
+    def getImagingEnvironment(self):
+        if self._obj.imagingEnvironment is None:
             return None
         else:
-            return ImageConditionWrapper(self._conn, self._obj.condition)
+            return ImageImagingEnvironmentWrapper(self._conn, self._obj.imagingEnvironment)
     
     def getObjectiveSettings(self):
         if self._obj.objectiveSettings is None:
@@ -2206,11 +2204,11 @@ class ImageWrapper (BlitzObjectWrapper):
         else:
             return ImageInstrumentWrapper(self._conn, self._obj.objectiveSettings.objective.instrument)
     
-    def getPosition(self):
-        if self._obj.position is None:
+    def getStageLabel (self):
+        if self._obj.stageLabel is None:
             return None
         else:
-            return ImagePositionWrapper(self._conn, self._obj.position)
+            return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
     
     def getThumbnail (self, size=(120,120)):
         try:

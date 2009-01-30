@@ -130,11 +130,11 @@
             {% endif %}
         </div>
     </li>
-    <li><a href='#'>Position:</a>
+    <li><a href='#'>Stage label:</a>
         <div>
-            {% if form_position %}
+            {% if form_stageLabel %}
             <table class="forms">
-                {% for field in form_position %}
+                {% for field in form_stageLabel %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>

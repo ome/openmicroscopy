@@ -34,7 +34,7 @@
 {% if manager.urlannSize %}
 <h1>URLs:</h1>
     <div class="body_url">
-    <p>{% for urlann in manager.url_annotations %}
+    <p>| {% for urlann in manager.url_annotations %}
         {{ urlann.textValue|wikify|safe }} {% if urlann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/url/{{ urlann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} | 
     {% endfor %}</p>
     </div>

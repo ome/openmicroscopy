@@ -49,7 +49,7 @@ class BaseUploadFile(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.createObject(oFile);
+        of = self.conn.saveObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
@@ -57,6 +57,6 @@ class BaseUploadFile(BaseController):
         l_ea = ExperimenterAnnotationLinkI()
         l_ea.setParent(self.conn.getUser())
         l_ea.setChild(fa)
-        self.conn.updateObject(l_ea)
+        self.conn.saveObject(l_ea)
 
         

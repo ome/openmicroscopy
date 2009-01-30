@@ -25,8 +25,8 @@
 import omero
 from omero.rtypes import *
 
-from omero_model_TextAnnotationI import TextAnnotationI
-from omero_model_UrlAnnotationI import UrlAnnotationI
+from omero_model_CommentAnnotationI import CommentAnnotationI
+from omero_model_UriAnnotationI import UriAnnotationI
 from omero_model_FileAnnotationI import FileAnnotationI
 
 from webclient.controller import BaseController
@@ -45,15 +45,15 @@ class BaseAnnotation(BaseController):
             elif o_type == "url":
                 self.url = self.conn.getUrlAnnotation(long(oid))
     
-    def saveTextAnnotation(self, content):
+    def saveCommentAnnotation(self, content):
         ann = self.comment._obj
         ann.textValue = rstring(str(content))
-        self.conn.updateObject(ann)
+        self.conn.saveObject(ann)
     
     def saveUrlAnnotation(self, url):
         ann = self.url._obj
         ann.textValue = rstring(str(url))
-        self.conn.updateObject(ann)
+        self.conn.saveObject(ann)
     
     def getFileAnnotation(self, iid):
         self.annotation = self.conn.getFileAnnotation(iid)
