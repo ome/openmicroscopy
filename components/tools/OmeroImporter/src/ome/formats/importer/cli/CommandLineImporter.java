@@ -86,12 +86,12 @@ public class CommandLineImporter
     public void importImage(String path, Long datasetId, String name)
         throws IOException, FormatException, ServerError
     {
-        if (datasetId == null)
-        {
-            throw new IllegalArgumentException("datasetId cannot be null");
-        }
         File f = new File(path);
-        Dataset d = store.getDataset(datasetId);
+        Dataset d = null;
+        if (datasetId != null)
+        {
+            d = store.getDataset(datasetId);
+        }
         library.setDataset(d);
         library.importImage(f, 0, 0, 1, name, false);
     }
@@ -110,9 +110,9 @@ public class CommandLineImporter
                 "  -u\tOMERO experimenter name (username)\n" +
                 "  -w\tOMERO experimenter password\n" +
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
-                "  -d\tOMERO dataset Id to import image into\n" +
                 "\n" +
                 "Optional arguments:\n" +
+                "  -d\tOMERO dataset Id to import image into\n" +
                 "  -n\tImage name to use\n" +
                 "  -p\tOMERO server port [defaults to 4063]\n" +
                 "  -h\tDisplay this help and exit\n" +
@@ -197,7 +197,7 @@ public class CommandLineImporter
         
         // Ensure that we have all of our required login arguments
         if (((username == null || password == null) && sessionKey == null)
-            || hostname == null || datasetId == null)
+            || hostname == null)
         {
             usage();
         }

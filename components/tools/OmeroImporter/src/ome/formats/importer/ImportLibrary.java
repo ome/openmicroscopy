@@ -40,7 +40,6 @@ import org.springframework.aop.interceptor.CustomizableTraceInterceptor;
 
 import ome.formats.importer.util.Actions;
 
-import static omero.rtypes.*;
 import omero.ServerError;
 import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
@@ -115,12 +114,8 @@ public class ImportLibrary implements IObservable
     private int                wSize;
 
     /**
-     * Note: {@link #setDataset(String)} must be properly invoked before
-     * {@link #importMetadata()} can be used.
-     * 
      * @param store not null
      * @param reader not null
-     * @param fads2 not null, length > 0
      */
     public ImportLibrary(OMEROMetadataStoreClient store, OMEROWrapper reader)
     {
@@ -136,32 +131,27 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * sets the dataset to which images will be imported. Must be called before
-     * {@link #importMetadata()}
+     * Sets the dataset to which images will be imported. Must be called before
+     * {@link #importMetadata()}.
      * 
-     * @param dataset2 Not null.
+     * @param dataset Dataset to be linked to.
      */
-    public void setDataset(Dataset dataset2)
+    public void setDataset(Dataset dataset)
     {
-        if (dataset2 == null)
-            // FIXME: Blitz transition, ApiUsageException no longer client side.
-            throw new RuntimeException("Dataset name cannot be null.");
-        this.dataset = dataset2;
+        this.dataset = dataset;
     }
 
     
     // ~ Getters
     // =========================================================================
 
-    /** simpler getter. Checks if dataset is still null */
+    /**
+     * Returns the current dataset to be linked to imported images.
+     * @return See above.
+     */
     public Dataset getDataset()
     {
-        if (this.dataset == null)
-            // FIXME: Blitz transition, ApiUsageException no longer client side.
-            throw new RuntimeException(
-                    "The dataset has not been set. Please call setDataset(String).");
-
-        return this.dataset;
+        return dataset;
     }
 
     /** simpler getter for {@link #files} */
@@ -302,10 +292,13 @@ public class ImportLibrary implements IObservable
         
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
-        for (Pixels pixels : pixelsList)
+        if (dataset != null)
         {
-            Image image = pixels.getImage();
-            store.addImageToDataset(image, dataset);
+            for (Pixels pixels : pixelsList)
+            {
+                Image image = pixels.getImage();
+                store.addImageToDataset(image, dataset);
+            }
         }
         return pixelsList;
     }
