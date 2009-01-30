@@ -669,46 +669,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
 
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setChannelGlobalMinMax(int,
-     *      java.lang.Double, java.lang.Double, java.lang.Integer)
-     */
-    @SuppressWarnings("unchecked")
-    public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
-            Double globalMax, Integer imageIndex)
-    {
-        log.debug(String.format(
-                "Setting Image[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
-                imageIndex, channelIdx, globalMin, globalMax));
-        if (globalMin != null)
-        {
-            globalMin = new Double(Math.floor(globalMin.doubleValue()));
-        }
-        if (globalMax != null)
-        {
-            globalMax = new Double(Math.ceil(globalMax.doubleValue()));
-        }
-        StatsInfo statsInfo = new StatsInfo();
-        statsInfo.setGlobalMin(globalMin);
-        statsInfo.setGlobalMax(globalMax);
-        getPixels(imageIndex, 0).getChannel(channelIdx).setStatsInfo(statsInfo);
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.IMinMaxStore#setChannelGlobalMinMax(int, double, double, int)
      */
     public void setChannelGlobalMinMax(int channel, double minimum,
             double maximum, int imageIndex)
     {
-        log.debug(String.format(
-                "Setting Image[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
-                imageIndex, channel, minimum, maximum));
+        // We've been called after an IUpdate save we can use the Pixels list.
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(minimum);
         statsInfo.setGlobalMax(maximum);
-        getPixels(imageIndex, 0).getChannel(channel).setStatsInfo(statsInfo);
+        pixelsList.get(imageIndex).getChannel(channel).setStatsInfo(statsInfo);
     }
     
     /**
