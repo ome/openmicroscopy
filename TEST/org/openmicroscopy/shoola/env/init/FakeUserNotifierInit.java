@@ -58,7 +58,7 @@ public class FakeUserNotifierInit
      * Default Null service, so the GUI won't show up.
      * Change it to whatever implementation is required by your tests.
      */
-    public static UserNotifier userNotifier = new NullUserNotifier();
+    public static final UserNotifier userNotifier = new NullUserNotifier();
     
     
     /**

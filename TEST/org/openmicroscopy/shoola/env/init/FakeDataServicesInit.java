@@ -60,13 +60,13 @@ public class FakeDataServicesInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static OmeroImageService      rds = new NullRenderingService();
+    public static final OmeroImageService rds = new NullRenderingService();
     
     /** 
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static OmeroDataService          os = new NullOmeroPojoService();
+    public static final OmeroDataService os = new NullOmeroPojoService();
 
     /**
      * Constructor required by superclass.

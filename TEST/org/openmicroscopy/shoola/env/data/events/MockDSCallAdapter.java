@@ -84,14 +84,13 @@ public class MockDSCallAdapter
     {
         mockSupport = new MockSupport();
     }
-    
-    
+
     //Used both in set up and verification mode.
     public void update(DSCallFeedbackEvent progress) 
     {
         MockedCall mc = new MockedCall(update, new Object[] {progress});
         if (mockSupport.isSetUpMode()) mockSupport.add(mc);
-        else mc = mockSupport.verifyCall(mc);
+        else mockSupport.verifyCall(mc);
     }
 
     //Used both in set up and verification mode.
@@ -99,7 +98,7 @@ public class MockDSCallAdapter
     {
         MockedCall mc = new MockedCall(onEnd);
         if (mockSupport.isSetUpMode()) mockSupport.add(mc);
-        else mc = mockSupport.verifyCall(mc);
+        else mockSupport.verifyCall(mc);
     }
     
     //Used both in set up and verification mode.
@@ -107,7 +106,7 @@ public class MockDSCallAdapter
     {
         MockedCall mc = new MockedCall(handleResult, new Object[] {result});
         if (mockSupport.isSetUpMode()) mockSupport.add(mc);
-        else mc = mockSupport.verifyCall(mc);
+        else mockSupport.verifyCall(mc);
     }
     
     //Used both in set up and verification mode.
@@ -115,7 +114,7 @@ public class MockDSCallAdapter
     {
         MockedCall mc = new MockedCall(handleNullResult);
         if (mockSupport.isSetUpMode()) mockSupport.add(mc);
-        else mc = mockSupport.verifyCall(mc);
+        else mockSupport.verifyCall(mc);
     }
     
     //Used both in set up and verification mode.
@@ -123,7 +122,7 @@ public class MockDSCallAdapter
     {
         MockedCall mc = new MockedCall(handleCancellation);
         if (mockSupport.isSetUpMode()) mockSupport.add(mc);
-        else mc = mockSupport.verifyCall(mc);
+        else mockSupport.verifyCall(mc);
     }
     
     //Used both in set up and verification mode.
@@ -131,7 +130,7 @@ public class MockDSCallAdapter
     {
         MockedCall mc = new MockedCall(handleException, new Object[] {exc});
         if (mockSupport.isSetUpMode()) mockSupport.add(mc);
-        else mc = mockSupport.verifyCall(mc);
+        else mockSupport.verifyCall(mc);
     }
     
     /**

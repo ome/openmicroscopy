@@ -56,7 +56,7 @@ public class FakeCacheInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static CacheService  service = new NullCacheService();
+    public static final CacheService  service = new NullCacheService();
 
     /**
      * Constructor required by superclass.

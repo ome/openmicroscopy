@@ -58,13 +58,12 @@ public class TestExample
     public void testADataServicesView()
     {
         //Get a reference to the Data Services View we're going to use.
-        HierarchyBrowsingView hbw = (HierarchyBrowsingView)
-                    registry.getDataServicesView(HierarchyBrowsingView.class);
+        registry.getDataServicesView(HierarchyBrowsingView.class);
      
         //Create an observer so to be notified of the outcome of the call.
         //Because the Container is in test mode, this observer will be run
         //in this thread.
-        DSCallAdapter observer = new DSCallAdapter() {
+        new DSCallAdapter() {
             public void handleException(Throwable exc)
             {
                 throw new RuntimeException("Unexpected exception.", exc);

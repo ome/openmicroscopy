@@ -58,7 +58,7 @@ public class FakeLoginServiceInit
      * Default Null service, does nothing.
      * Change it to whatever implementation is required by your tests.
      */
-    public static LoginService loginService = new NullLoginService();
+    public static final LoginService loginService = new NullLoginService();
  
     
     /**

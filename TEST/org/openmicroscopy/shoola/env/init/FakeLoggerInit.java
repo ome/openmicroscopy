@@ -58,7 +58,7 @@ public class FakeLoggerInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static Logger  logger = new NullLogger();
+    public static final Logger  logger = new NullLogger();
     
     
     /**

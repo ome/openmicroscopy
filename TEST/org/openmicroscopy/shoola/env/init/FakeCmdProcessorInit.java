@@ -64,7 +64,7 @@ public class FakeCmdProcessorInit
      * 
      * @see org.openmicroscopy.shoola.env.Container#startupInTestMode(String)
      */
-    public static CmdProcessor  processor = new SyncProcessor();
+    public static final CmdProcessor  processor = new SyncProcessor();
     
     
     /**

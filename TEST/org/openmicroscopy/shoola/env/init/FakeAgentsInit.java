@@ -61,9 +61,8 @@ public class FakeAgentsInit
      * {@link org.openmicroscopy.shoola.env.config.AgentInfo} object for
      * each agent you want to create.
      */
-    public static List     agentsList = new ArrayList();
+    public static final List     agentsList = new ArrayList();
 
-    
     /**
      * Constructor required by superclass.
      */

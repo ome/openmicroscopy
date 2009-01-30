@@ -59,8 +59,7 @@ public class FakeTaskBarInit
      * Change it to whatever implementation is required by your tests.
      */
     public static TaskBar  taskBar = new NullTaskBar();
-    
-    
+
     /**
      * Constructor required by superclass.
      */

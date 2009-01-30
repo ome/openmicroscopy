@@ -90,7 +90,7 @@ public class MockMultiStepTask
     //thrown in verification mode.
     public void isDone(boolean retVal, RuntimeException re)
     {
-        MockedCall mc = new MockedCall(isDone, new Boolean(retVal));
+        MockedCall mc = new MockedCall(isDone, Boolean.valueOf(retVal));
         if (re != null) mc.setException(re);
         mockSupport.add(mc);
     }

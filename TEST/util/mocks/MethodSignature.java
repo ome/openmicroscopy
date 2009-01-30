@@ -259,12 +259,12 @@ public class MethodSignature
 	public boolean equals(Object methodSignature)
 	{
 		boolean b = (methodSignature != null && 
-						methodSignature.getClass() == MethodSignature.class);
+				MethodSignature.class.equals(methodSignature.getClass()));
 		if (b) {
 			MethodSignature ms = (MethodSignature) methodSignature;
 			b = (ms.visibility == visibility &&
-					ms.returnType == returnType &&
-					ms.name == name &&
+					ms.returnType.equals(returnType) &&
+					ms.name.equals(name) &&
 					ms.paramTypes.length == paramTypes.length);
 			if (b) {
 				for (int i = 0; i < paramTypes.length; ++i)
