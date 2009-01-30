@@ -50,7 +50,7 @@ public class TestEllipseArea
 {
     private static final int        LENGTH = 4, MAX_ITER = 1000;
     
-    public void TestEllipse()
+    public void testEllipse()
     {
         EllipseArea area = new EllipseArea(0, 0, Integer.MIN_VALUE, 
                                     Integer.MAX_VALUE);
