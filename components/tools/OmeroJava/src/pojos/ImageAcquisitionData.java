@@ -725,7 +725,7 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public long getImagingEnvironmentDirtyId()
+	public long getImagingEnvironmentId()
 	{
 		if (environment == null) return -1;
 		RLong id = environment.getId();
