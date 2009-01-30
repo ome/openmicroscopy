@@ -1720,4 +1720,1042 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public void setWellSampleRefID(String arg0,int arg2,int arg3,int arg4) {
+	    
+	}
+
+    public void setChannelComponentPixels(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setCirclecx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setCirclecy(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setCircler(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setCircletransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setContactExperimenter(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetDescription(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetGroupRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetLocked(Boolean arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDatasetRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDetectorAmplificationGain(Float arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDetectorZoom(Float arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDichroicLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDichroicManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDichroicModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsDisplay(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEllipsecx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEllipsecy(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEllipserx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEllipsery(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEllipsetransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEmFilterManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEmFilterModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setEmFilterType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExFilterLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExFilterManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExFilterModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExFilterType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimentExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimenterOMEName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterFilterWheel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterSetDichroic(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterSetEmFilter(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterSetExFilter(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterSetLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterSetManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterSetModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setFilterType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGreyChannelBlackLevel(Float arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGreyChannelChannelNumber(Integer arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGreyChannelGamma(Float arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGreyChannelMapColorMap(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGreyChannelWhiteLevel(Float arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGreyChannelisOn(Boolean arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setGroupName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageAcquiredPixels(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageExperimentRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageGroupRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageObjective(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLaserPockelCell(Boolean arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLaserRepetitionRate(Boolean arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLightSourceRefAttenuation(Float arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLightSourceRefLightSource(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLightSourceRefWavelength(Integer arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLineID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLinetransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLinex1(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLinex2(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLiney1(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLiney2(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelDetector(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelFilterSet(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelLightSource(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelSecondaryEmissionFilter(String arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelSecondaryExcitationFilter(String arg0,
+            int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskPixelsBigEndian(Boolean arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskPixelsSizeX(Integer arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskPixelsSizeY(Integer arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskheight(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMasktransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskwidth(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMaskx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMasky(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicrobeamManipulationExperimenterRef(String arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicrobeamManipulationID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicrobeamManipulationRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicrobeamManipulationType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicroscopeID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicroscopeManufacturer(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicroscopeModel(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicroscopeSerialNumber(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setMicroscopeType(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setOTFBinaryFile(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPlaneHashSHA1(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPlaneID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPlateRefSample(Integer arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPlateRefWell(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPointID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPointcx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPointcy(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPointr(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPointtransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPolygonpoints(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPolygontransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPolylinepoints(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPolylinetransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setProjectDescription(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setProjectExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setProjectGroupRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setProjectID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setProjectName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setProjectRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPumpLightSource(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRectID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRectheight(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRecttransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRectwidth(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRectx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRecty(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRegionID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRegionName(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setRegionTag(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setScreenDescription(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setScreenExtern(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setScreenReagentSetIdentifier(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setScreenRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setShapeID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setShapetheT(Integer arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setShapetheZ(Integer arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setThumbnailID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setThumbnailMIMEtype(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setThumbnailhref(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setTransmittanceRangeCutIn(Integer arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setTransmittanceRangeCutInTolerance(Integer arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setTransmittanceRangeCutOut(Integer arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setTransmittanceRangeCutOutTolerance(Integer arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setTransmittanceRangeTransmittance(Integer arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setWellReagent(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setWellSampleImageRef(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
+    }
 }

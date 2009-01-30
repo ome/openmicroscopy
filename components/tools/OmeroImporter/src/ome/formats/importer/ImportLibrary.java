@@ -409,7 +409,7 @@ public class ImportLibrary implements IObservable
             
             store.addBooleanAnnotationToPixels(annotation, pixList.get(series));
             
-            /*
+            
             importData(pixId, fileName, series, new ImportLibrary.Step()
             {
                 @Override
@@ -419,7 +419,6 @@ public class ImportLibrary implements IObservable
                     notifyObservers(Actions.IMPORT_STEP, args2);
                 }
             });
-            */
             
             notifyObservers(Actions.DATA_STORED, args);  
            

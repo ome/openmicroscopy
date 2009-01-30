@@ -1879,7 +1879,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         // TODO Auto-generated method stub
         //
-        throw new RuntimeException("Not implemented yet.");
+
     }
     
     public long getRepositorySpace()
@@ -1924,6 +1924,11 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         	delegate.updateObjects(containerArray);
         	delegate.updateReferences(referenceStringCache);
         	pixelsList = delegate.saveToDB();
+        	
+        	for (Pixels pixels : pixelsList)
+        	{
+        	    System.err.println("Saving pixels id: "  + pixels.getId().getValue());
+        	}
         	return pixelsList;
         }
         catch (ServerError e)
@@ -2060,7 +2065,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         // TODO Implement
         //
-        throw new RuntimeException("Not implemented yet.");
+
     }
 
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t) throws ServerError
@@ -2134,6 +2139,7 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         try
         {
+            //FIXME: might be called twice
             delegate.populateMinMax(toRType(id), toRType(i));
         }
         catch (ServerError e)
@@ -2178,8 +2184,9 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 
     public void setImageDefaultPixels(String defaultPixels, int imageIndex)
     {
-        LSID key = new LSID(Image.class, imageIndex);
-        referenceCache.put(key, new LSID(defaultPixels));
+        //FIXME: make this work!
+        //LSID key = new LSID(Image.class, imageIndex);
+        //referenceCache.put(key, new LSID(defaultPixels));
     }
 
     public void setLogicalChannelOTF(String otf, int imageIndex,
@@ -2364,5 +2371,1014 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
 			
 			return indexes;
 		}
+    }
+
+    public void setChannelComponentPixels(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setCirclecx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setCirclecy(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setCircler(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setCircletransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setContactExperimenter(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetDescription(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetGroupRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetLocked(Boolean arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDatasetRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDetectorAmplificationGain(Float arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDetectorZoom(Float arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDichroicLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDichroicManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDichroicModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setDisplayOptionsDisplay(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEllipsecx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEllipsecy(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEllipserx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEllipsery(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEllipsetransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEmFilterManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEmFilterModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setEmFilterType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setExFilterLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setExFilterManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setExFilterModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setExFilterType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setExperimentExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setExperimenterOMEName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterFilterWheel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterSetDichroic(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterSetEmFilter(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterSetExFilter(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterSetLotNumber(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterSetManufacturer(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterSetModel(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setFilterType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGreyChannelBlackLevel(Float arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGreyChannelChannelNumber(Integer arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGreyChannelGamma(Float arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGreyChannelMapColorMap(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGreyChannelWhiteLevel(Float arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGreyChannelisOn(Boolean arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setGroupName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setImageAcquiredPixels(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setImageExperimentRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setImageExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setImageGroupRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setImageObjective(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLaserPockelCell(Boolean arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLaserRepetitionRate(Boolean arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLightSourceRefAttenuation(Float arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLightSourceRefLightSource(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLightSourceRefWavelength(Integer arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLineID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLinetransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLinex1(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLinex2(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLiney1(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLiney2(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLogicalChannelDetector(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLogicalChannelFilterSet(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLogicalChannelLightSource(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLogicalChannelSecondaryEmissionFilter(String arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setLogicalChannelSecondaryExcitationFilter(String arg0,
+            int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskPixelsBigEndian(Boolean arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskPixelsSizeX(Integer arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskPixelsSizeY(Integer arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskheight(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMasktransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskwidth(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMaskx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMasky(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicrobeamManipulationExperimenterRef(String arg0, int arg1,
+            int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicrobeamManipulationID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicrobeamManipulationRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicrobeamManipulationType(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicroscopeID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicroscopeManufacturer(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicroscopeModel(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicroscopeSerialNumber(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setMicroscopeType(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setOTFBinaryFile(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPlaneHashSHA1(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPlaneID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPlateRefSample(Integer arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPlateRefWell(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPointID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPointcx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPointcy(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPointr(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPointtransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPolygonpoints(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPolygontransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPolylinepoints(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPolylinetransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setProjectDescription(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setProjectExperimenterRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setProjectGroupRef(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setProjectID(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setProjectName(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setProjectRefID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setPumpLightSource(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRectID(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRectheight(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRecttransform(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRectwidth(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRectx(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRecty(String arg0, int arg1, int arg2, int arg3)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRegionID(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRegionName(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setRegionTag(String arg0, int arg1, int arg2)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setScreenDescription(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setScreenExtern(String arg0, int arg1)
+    {
+        // TODO Auto-generated method stub
+        //
+
+    }
+
+    public void setScreenReagentSetIdentifier(String arg0, int arg1)
+    {
+
+    }
+
+    public void setScreenRefID(String arg0, int arg1, int arg2)
+    {
+
+    }
+
+    public void setShapeID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+    }
+
+    public void setShapetheT(Integer arg0, int arg1, int arg2, int arg3)
+    {
+
+    }
+
+    public void setShapetheZ(Integer arg0, int arg1, int arg2, int arg3)
+    {
+
+    }
+
+    public void setThumbnailID(String arg0, int arg1)
+    {
+
+    }
+
+    public void setThumbnailMIMEtype(String arg0, int arg1)
+    {
+
+    }
+
+    public void setThumbnailhref(String arg0, int arg1)
+    {
+
+    }
+
+    public void setTransmittanceRangeCutIn(Integer arg0, int arg1, int arg2)
+    {
+
+    }
+
+    public void setTransmittanceRangeCutInTolerance(Integer arg0, int arg1,
+            int arg2)
+    {
+
+    }
+
+    public void setTransmittanceRangeCutOut(Integer arg0, int arg1, int arg2)
+    {
+
+    }
+
+    public void setTransmittanceRangeCutOutTolerance(Integer arg0, int arg1,
+            int arg2)
+    {
+
+    }
+
+    public void setTransmittanceRangeTransmittance(Integer arg0, int arg1,
+            int arg2)
+    {
+
+    }
+
+    public void setWellReagent(String arg0, int arg1, int arg2)
+    {
+
+    }
+
+    public void setWellSampleImageRef(String arg0, int arg1, int arg2, int arg3)
+    {
+
+    }
+
+    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
+    {
+
     }
 }
