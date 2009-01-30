@@ -506,6 +506,7 @@ class LensController
 						if (checkBounds(deltaX, deltaY, deltaW, deltaH))
 							startX = startX+(x-offsetX);
 					}
+					break;
 				case LensUI.SOUTH_EAST:
 					if (y-offsetY > 0)
 					{

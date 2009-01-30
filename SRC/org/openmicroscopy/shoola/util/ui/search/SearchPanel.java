@@ -1000,11 +1000,9 @@ class SearchPanel
 	{
 		int index = dates.getSelectedIndex();
 		fromDate.setEnabled(index == SearchContext.RANGE);
-		if (fromDate.getEditor() != null);
-			fromDate.getEditor().setEnabled(false);
+		fromDate.getEditor().setEnabled(false);
 		toDate.setEnabled(index == SearchContext.RANGE);
-		if (toDate.getEditor() != null);
-			toDate.getEditor().setEnabled(false);
+		toDate.getEditor().setEnabled(false);
 	}
 	
 	/**

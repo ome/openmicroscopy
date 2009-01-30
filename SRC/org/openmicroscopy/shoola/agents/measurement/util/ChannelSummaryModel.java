@@ -143,7 +143,7 @@ public class ChannelSummaryModel
 			return(rowNames.get(row));
 		else
 			if(data[col-1][row]!=null)
-				return UIUtilities.FormatToDecimal(data[col-1][row]);
+				return UIUtilities.formatToDecimal(data[col-1][row]);
 			else
 				return null;
 	}

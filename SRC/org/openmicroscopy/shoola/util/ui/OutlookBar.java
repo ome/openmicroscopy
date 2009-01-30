@@ -176,7 +176,7 @@ public class OutlookBar
     {
     	OutlookBarComponent bar = bars.get(index);
     	if (bar == null) return;
-    	bars.remove(bar);
+    	bars.remove(index);
     	if (bar.getIndex() == visibleBar) visibleBar = 0;
     	rebuild();
     }

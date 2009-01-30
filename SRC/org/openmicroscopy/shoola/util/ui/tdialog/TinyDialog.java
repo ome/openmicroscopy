@@ -103,10 +103,7 @@ public class TinyDialog
     
     /** The magnification factor. */
     private float			zoomFactor;
-    
-    /** Collection of components to add to the title. */
-    private List			decoration;
-    
+   
     /** 
      * One of the following: {@link #BOTH}, {@link #CLOSE_ONLY} or 
      * {@link #SIZE_ONLY}. 
@@ -125,14 +122,7 @@ public class TinyDialog
         setRestoreSize(new Dimension(getWidth(), getHeight()));
         zoomFactor = MINIMUM_ZOOM;
     }
-    
-    /**
-     * Returns the elements added to the title bar.
-     * 
-     * @return See above.
-     */
-    List getDecoration() { return decoration; }
-    
+
     /** 
      * Returns the original image to display.
      * 

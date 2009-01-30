@@ -694,10 +694,10 @@ public class QuickSearch
 			SearchObject node = (SearchObject) evt.getNewValue();
 			SearchObject oldNode = selectedNode;
 			if (node != null) selectedNode = node;
-			searchButton.setIcon(node.getIcon());
+			searchButton.setIcon(selectedNode.getIcon());
 			UIUtilities.setTextAreaDefault(searchButton);
 			searchButton.setBorder(null);
-			searchArea.setToolTipText(node.getDescription());
+			searchArea.setToolTipText(selectedNode.getDescription());
 			setSearchContext(oldNode);
 			handleKeyEnter();
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) search();

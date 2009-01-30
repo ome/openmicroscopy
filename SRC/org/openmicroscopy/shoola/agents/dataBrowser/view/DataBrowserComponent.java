@@ -937,7 +937,7 @@ class DataBrowserComponent
 				double v = (double) nodes.size()/numberOfImages;
 				
 				writer.writeElement(count+2, col, 
-						UIUtilities.FormatToDecimal(v*100)+"%");
+						UIUtilities.formatToDecimal(v*100)+"%");
 				col++;
 			}
 			writer.sizeAllColumnsToFit();

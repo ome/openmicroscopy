@@ -205,7 +205,7 @@ class CustomizedFileChooser
 	 * 
 	 * @return See above.
 	 */
-	private Boolean setSelection()
+	private Object setSelection()
 	{
 		// Build the file .
 		File f = getSelectedFile();

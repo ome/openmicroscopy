@@ -53,13 +53,13 @@ class ColourIcon
 {
 	
     /** Colour of the icon */
-    private static  Color   colour;
+    private Color   colour;
     
 	/** Height of the icon. */
-	private int            h;
+	private int 	h;
 	
 	/** Width of the icon. */	
-	private int            w;
+	private int	w;
 
 	/**
 	 * Creates a new intance. 
@@ -96,7 +96,7 @@ class ColourIcon
      * Overridden to paint filled colour icon.
 	 * @see Icon#paintIcon(Component, Graphics, int, int)
 	 */
-	public void paintIcon(Component arg0, Graphics og, int arg2, int arg3) 
+	public void paintIcon(Component c, Graphics og, int arg2, int arg3) 
 	{
 		Graphics2D g = (Graphics2D) og;
 		g.setColor(colour);

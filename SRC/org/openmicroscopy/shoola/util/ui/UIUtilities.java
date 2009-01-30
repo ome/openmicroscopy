@@ -470,7 +470,7 @@ public class UIUtilities
         if (parent instanceof Frame) dialog = new JDialog((Frame) parent);
         else if (parent instanceof Dialog) 
             dialog = new JDialog((Dialog) parent);
-        else if (dialog == null || parent == null) 
+        else if (dialog == null) 
             dialog = new JDialog(); //no parent
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setModal(true);
@@ -1135,7 +1135,7 @@ public class UIUtilities
 	 * @param value The value to be formatted. 
      * @return See above.
      */
-    public static String FormatToDecimal(double value) 
+    public static String formatToDecimal(double value) 
     {
     	try { 
     		return String.format("%.2f",value);
