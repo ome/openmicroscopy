@@ -55,16 +55,29 @@ public class OMEROElementAction
 	private String	value;
 	
 	/**
-	 * Override
-	 * {@see omeeditpane.SelectionAction#onSelection(java.lang.String)}
+	 * Returns the type.
+	 * 
+	 * @return See above.
+	 */
+	public String getType() { return type; }
+	
+	/**
+	 * Returns the value.
+	 * 
+	 * @return See above.
+	 */
+	public String getValue() { return value; }
+	
+	/**
+	 * Overriden to set the value and the type.
+	 * @see SelectionAction#onSelection(String)
 	 */
 	public void onSelection(String selectedText)
 	{
-		 int index = 0; int tokenCount;
+		 int index = 0; 
 		 String tok[] = new String [500];
 		 StringTokenizer st = new StringTokenizer(selectedText,": []");
 		    
-		 tokenCount = st.countTokens();
 		 while (st.hasMoreTokens()) // make sure there is stuff to get
 		 { 
 			 tok[index] = st.nextToken(); 

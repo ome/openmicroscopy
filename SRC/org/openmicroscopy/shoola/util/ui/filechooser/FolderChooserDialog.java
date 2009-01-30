@@ -186,7 +186,7 @@ public class FolderChooserDialog
 		if (title == null || title.length() == 0)
 			title = TITLE;
 		this.title = title;
-		setTitle(title);
+		super.setTitle(title);
 		header.setTitle(title);
 	}
     

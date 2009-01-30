@@ -215,7 +215,7 @@ extends BasicButtonUI
         
         // Using the font metrics, centre the text in the button face.
         int x = (int) ((buttonRect.width/2.0f)-
-                fm.stringWidth(button.getText())/2);
+        		fm.stringWidth(button.getText())/2);
         int y = (int) ((buttonRect.height/2.0f) + 
                 (fm.getHeight()-fm.getDescent())/2);
         

@@ -114,7 +114,7 @@ class LensModel
 	/** Flushes the data buffer. */
 	private void flushDataBuffer()
 	{
-		System.gc();
+		//System.gc();
 		zoomedDataBuffer = null;
 	}
 	
@@ -201,7 +201,7 @@ class LensModel
    
         graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
         graphics2D.dispose();
-        System.gc();
+        //System.gc();
         return thumbImage;
     }
     
@@ -323,7 +323,7 @@ class LensModel
 
     	graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
     	graphics2D.dispose();
-    	System.gc();
+    	//System.gc();
 		return thumbImage;
 	}
 	

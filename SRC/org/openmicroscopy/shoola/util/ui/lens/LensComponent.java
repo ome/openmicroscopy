@@ -56,7 +56,7 @@ public class LensComponent
 {
 
 	/** Bound property indicating that the location of the lens has changed. */
-	public static String	LENS_LOCATION_PROPERTY = "lensLocation";
+	public static final String	LENS_LOCATION_PROPERTY = "lensLocation";
 	
 	/** Bound property indicating to close the zoom Window. */
 	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";

@@ -70,14 +70,13 @@ public class FigureProperties
 			IOConstants.DEFAULT_STROKE_COLOUR);
 		defaultProperties.put(DrawingAttributes.STROKE_WIDTH,
 			IOConstants.DEFAULT_STROKE_WIDTH);
-		defaultProperties.put(DrawingAttributes.TEXT,
-			new String("Text"));
+		defaultProperties.put(DrawingAttributes.TEXT, "Text");
 		defaultProperties.put(DrawingAttributes.TEXT_COLOR,
 			IOConstants.DEFAULT_TEXT_COLOUR);
 		defaultProperties.put(DrawingAttributes.FONT_SIZE,
 			IOConstants.DEFAULT_FONT_SIZE);
 		defaultProperties.put(DrawingAttributes.SHOWTEXT,
-			new Boolean(true));
+			Boolean.valueOf(true));
 		//defaultProperties.put(MeasurementAttributes.SHOWMEASUREMENT.getKey(),
 		//								MeasurementAttributes.SHOWMEASUREMENT);
 		//defaultProperties.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.getKey(),

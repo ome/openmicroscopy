@@ -97,7 +97,7 @@ public class TreeViewerTranslator
             Timestamp time = EditorUtil.getAcquisitionTime((ImageData) uo);
             if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;
             else title = UIUtilities.formatTime(time); 
-            toolTip = UIUtilities.formatToolTipText(title);
+            //toolTip = UIUtilities.formatToolTipText(title);
             //node.setToolTip(toolTip); 
         } else if (uo instanceof WellData) {
         	toolTip = UIUtilities.formatToolTipText(

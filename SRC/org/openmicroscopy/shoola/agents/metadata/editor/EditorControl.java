@@ -217,7 +217,6 @@ class EditorControl
 	/** Loads the existing Tags. */
 	void loadExistingTags()
 	{
-		view.onTagsLoading(true);
 		model.loadExistingTags();
 	}
 	

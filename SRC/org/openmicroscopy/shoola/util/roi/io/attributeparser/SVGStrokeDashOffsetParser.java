@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Third-party libraries
 import net.n3.nanoxml.IXMLElement;
-
 import static org.jhotdraw.draw.AttributeKeys.IS_STROKE_DASH_FACTOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_DASH_PHASE;
 
@@ -47,20 +46,22 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
  * </small>
  * @since OME3.0
  */
-public class SVGStrokeDashOffsetParser implements SVGAttributeParser
+public class SVGStrokeDashOffsetParser 
+	implements SVGAttributeParser
 {
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.roi.figures.ROIFigure, net.n3.nanoxml.IXMLElement, java.lang.String)
+	/**
+	 * Parses the roi.
+	 * @see SVGAttributeParser#parse(ROIFigure, IXMLElement, String)
 	 */
 	public void parse(ROIFigure figure, IXMLElement element, String value) 
 	{
-		if (value != IOConstants.VALUE_NULL) 
+		if (IOConstants.VALUE_NULL.equals(value)) 
 		{
-	            double doubleValue= new Double(value);
-	            STROKE_DASH_PHASE.set(figure, doubleValue);
-	            IS_STROKE_DASH_FACTOR.set(figure, false);
-	        }
+			double doubleValue= new Double(value);
+			STROKE_DASH_PHASE.set(figure, doubleValue);
+			IS_STROKE_DASH_FACTOR.set(figure, false);
+		}
 	}
 
 }

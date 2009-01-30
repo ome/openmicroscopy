@@ -27,24 +27,19 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -97,6 +92,7 @@ public class MeasureLineFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	/** The status of the figure. */
 	private int 					status;
 	
 	/**
@@ -483,13 +479,12 @@ public class MeasureLineFigure
 		
 		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
 		*/
-		Rectangle r = path.getBounds();
+		//Rectangle r = path.getBounds();
 		List<Point> vector = new ArrayList<Point>();
+		Line2D line;
 		for (int i = 0 ; i < getNodeCount()-1; i++)
 		{
-			Point2D pt1 = getPoint(i);
-			Point2D pt2 = getPoint(i+1);
-			Line2D line = new Line2D.Double(pt1, pt2);
+			line = new Line2D.Double(getPoint(i), getPoint(i+1));
 			iterateLine(line, vector);
 		}
 		
@@ -505,38 +500,47 @@ public class MeasureLineFigure
 	{
 		Point2D start = line.getP1();
 		Point2D end = line.getP2();
-		Point2D m = new Point2D.Double(end.getX()-start.getX(), end.getY()-start.getY());
+		Point2D m = new Point2D.Double(end.getX()-start.getX(), 
+				end.getY()-start.getY());
 		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
 		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
-		LinkedHashMap<Point2D, Boolean> map = new LinkedHashMap<Point2D, Boolean>();
-		for (double i = 0 ; i < lengthM ; i+=0.1)
+		LinkedHashMap<Point2D, Boolean> map = 
+			new LinkedHashMap<Point2D, Boolean>();
+		
+		Point2D pt, quantisedPoint;
+		for (double i = 0 ; i < lengthM ; i += 0.1)
 		{
-			Point2D pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
-				start.getY()+i*mNorm.getY());
-			Point2D quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
-				Math.floor(pt.getY()));
-			if(!map.containsKey(quantisedPoint))
-				map.put(quantisedPoint, new Boolean(true));
+			pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+					start.getY()+i*mNorm.getY());
+			quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+					Math.floor(pt.getY()));
+			if (!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, Boolean.valueOf(true));
 		}
 		Iterator<Point2D> i = map.keySet().iterator();
+		
 		while (i.hasNext())
 		{
-			Point2D p  = i.next();
-			vector.add(new Point((int) p.getX(), (int) p.getY()));
+			pt = i.next();
+			vector.add(new Point((int) pt.getX(), (int) pt.getY()));
 		}
-	
 	}
 
 	/**
 	 * Overridden method for bezier, make public what 7.0 made private.
 	 */
-	public void removeAllNodes()
-	{
-		super.removeAllNodes();
-	}
+	public void removeAllNodes() { super.removeAllNodes(); }
 	
+	/**
+	 * Sets the status of the figure.
+	 * @see ROIFigure#setStatus(int)
+	 */
 	public void setStatus(int status) { this.status = status; }
 	
+	/**
+	 * Returns the status of the figure.
+	 * @see ROIFigure#getStatus()
+	 */
 	public int getStatus() { return status; }
 	
 }

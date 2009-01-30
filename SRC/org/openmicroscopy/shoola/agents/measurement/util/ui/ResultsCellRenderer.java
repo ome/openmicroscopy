@@ -101,16 +101,15 @@ public class ResultsCellRenderer
 			if(element instanceof Float)
 			{
 				v = twoDecimalPlaces((Float) element);
-				if(v==null)
-					return list;
-				model.addElement(new String(v));
+				if (v == null) return list;
+				model.addElement(v);
 			}
-			else if(element instanceof Double)
+			else if (element instanceof Double)
 			{
 				v = twoDecimalPlaces((Double) element);
-				if(v==null)
+				if (v == null)
 					return list;
-				model.addElement(new String(v));
+				model.addElement(v);
 			}
 		}
 		list.setModel(model);

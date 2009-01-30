@@ -145,7 +145,7 @@ class OmeroMetadataServiceImpl
 	 */
 	private void saveChannelAcquisitionData(ChannelAcquisitionData data)
 	{
-		LogicalChannel lc = (LogicalChannel) data.asIObject();
+		//LogicalChannel lc = (LogicalChannel) data.asIObject();
 	}
 	
 	/**

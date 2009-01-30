@@ -410,7 +410,6 @@ class EditorComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			List<AnnotationData> toRemove = new ArrayList<AnnotationData>(1);
-			List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
 			toRemove.add(data);
 			//model.fireAnnotationSaving(toAdd, toRemove);
 		}

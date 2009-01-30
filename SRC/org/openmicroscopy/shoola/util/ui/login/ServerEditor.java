@@ -352,10 +352,10 @@ public class ServerEditor
         emptyMessagePanel = new JPanel();
         emptyMessagePanel.setOpaque(false);
         emptyMessagePanel.setBorder(new PartialLineBorder(Color.BLACK));
-        //Rectangle r = titlePanel.getBounds();
-        
+
         emptyMessagePanel.setLayout(new BoxLayout(emptyMessagePanel,
                                                 BoxLayout.X_AXIS));
+        /*
         JLabel label = new JLabel(icons.getIcon(IconManager.ERROR));
         emptyMessagePanel.add(label);
         int w = label.getWidth();
@@ -366,6 +366,8 @@ public class ServerEditor
         Insets i = emptyMessagePanel.getInsets();
         h += i.top+i.bottom;
         //emptyMessagePanel.setBounds(2, TITLE_HEIGHT-h-1, 3*w/2, h);
+         * */
+
     }
     
     /**
@@ -655,7 +657,7 @@ public class ServerEditor
 		if (defaultPort == null) defaultPort = "";
 		this.defaultPort = defaultPort;
 		if (activePort == null || activePort.trim().length() == 0)
-			activePort = defaultPort;
+			this.activePort = defaultPort;
 		int n = 0; 
 		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();

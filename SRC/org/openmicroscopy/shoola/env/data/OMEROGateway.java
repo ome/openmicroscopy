@@ -67,6 +67,7 @@ import omero.DataAccessException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
 import omero.RLong;
+import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -2298,8 +2299,10 @@ class OMEROGateway
 				data = (Annotation) i.next();
 				if (data instanceof BooleanAnnotation) {
 					BooleanAnnotation ann = (BooleanAnnotation) data;
-					if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
-						ann.getNs()))
+					RString nameSpace = ann.getNs();
+					String ns = null;
+					if (nameSpace != null) ns = nameSpace.getValue();
+					if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ns))
 						return ann.getBoolValue().getValue();
 				}
 			}
@@ -3516,7 +3519,7 @@ class OMEROGateway
 			ParametersI param = new ParametersI();
 			param.addLongs("ids", annotationIds);
 			StringBuilder sb = new StringBuilder();
-			sb = new StringBuilder();
+			
 			if (type.equals(ImageData.class)) {
 				sb.append("select img from Image as img ");
 				sb.append("left outer join fetch "
@@ -3884,9 +3887,11 @@ class OMEROGateway
 										null);
 				Iterator<IObject> i = l.iterator();
 				PixelsType pt;
+				String value;
 				while (i.hasNext()) {
 					pt = (PixelsType) i.next();
-					if (pt.getValue().equals(type)) {
+					value = pt.getValue().getValue();
+					if (value.equals(pixType)) {
 						type = pt;
 						break;
 					}

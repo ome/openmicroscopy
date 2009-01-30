@@ -58,255 +58,247 @@ public class IconManager
 {
 
     /** The <code>Status Info</code> icon. */
-    public  static int          STATUS_INFO = 0;
+    public  static final int          STATUS_INFO = 0;
     
     /** The <code>Create</code> icon. */
-    public  static int          CREATE = 1;
+    public  static final int          CREATE = 1;
     
     /** The <code>Create</code> icon. */
-    public  static int          EDITOR = 2;
-    
-    /*
-     * Icons for the Browser JTree
-     */
+    public  static final int          EDITOR = 2;
+
     /** The <code>Text-Line Field</code> icon. */
-    public  static int			TEXT_LINE_ICON = 3;
+    public  static final int			TEXT_LINE_ICON = 3;
     
     /** The <code>Add Text-Line Parameter</code> icon. */
-    public  static int			ADD_TEXT_LINE_ICON = 4;
+    public  static final int			ADD_TEXT_LINE_ICON = 4;
     
     /** The <code>Text Box Field</code> icon. */
-    public  static int			TEXT_BOX_ICON = 5;
+    public  static final int			TEXT_BOX_ICON = 5;
     
     /** The <code>Timer Field</code> icon. */
-    public  static int			TIMER_ICON = 6;
+    public  static final int			TIMER_ICON = 6;
    
     /** The <code>Table Field</code> icon. */
-    public  static int			TABLE_ICON = 7;
+    public  static final int			TABLE_ICON = 7;
     
     /** The <code>Image Link Field</code> icon. */
-    public  static int			IMAGE_ICON = 8;
+    public  static final int			IMAGE_ICON = 8;
     
     /** The <code>CheckBox Field</code> icon. */
-    public  static int			CHECK_BOX = 9;
+    public  static final int			CHECK_BOX = 9;
     
     /** The <code>Add CheckBox Parameter</code> icon. */
-    public  static int			ADD_CHECK_BOX = 10;
+    public  static final int			ADD_CHECK_BOX = 10;
     
     /** The <code>Drop-down Field</code> icon. */
-    public  static int			DROP_DOWN = 11;
+    public  static final int			DROP_DOWN = 11;
     
     /** The <code>Number Field</code> icon. */
-    public  static int			NUMBER = 12;
+    public  static final int			NUMBER = 12;
     
     /** The <code>Add Number Parameter</code> icon. */
-    public  static int			ADD_NUMBER = 13;
+    public  static final int			ADD_NUMBER = 13;
     
     /** The <code>Calendar</code> icon. */
-    public  static int			CALENDAR_ICON = 14;
+    public  static final int			CALENDAR_ICON = 14;
     
     /** The <code>URL (www)</code> icon. */
-    public  static int			WWW_ICON = 15;
+    public  static final int			WWW_ICON = 15;
     
     /** The <code>Open Image</code> icon. */
-    public  static int			OPEN_IMAGE_ICON = 16;
+    public  static final int			OPEN_IMAGE_ICON = 16;
     
     /** The <code>Zoom Image</code> icon. */
-    public  static int			ZOOM_ICON = 17;
+    public  static final int			ZOOM_ICON = 17;
     
     /** The <code>No Image</code> icon. */
-    public  static int			NO_IMAGE_ICON_32 = 18;
+    public  static final int			NO_IMAGE_ICON_32 = 18;
     
     /** The <code>Link to local file</code> icon. */
-    public  static int			LINK_LOCAL_ICON = 19;
+    public  static final int			LINK_LOCAL_ICON = 19;
     
     /** The <code>Relative link to local file</code> icon. */
-    public  static int			LINK_RELATIVE_ICON = 20;
+    public  static final int			LINK_RELATIVE_ICON = 20;
     
     /** The <code>Link to Editor file</code> icon. */
-    public  static int			LINK_SCIENCE_ICON = 21;
+    public  static final int			LINK_SCIENCE_ICON = 21;
     
     /** The <code>Relative link to Editor file</code> icon. */
-    public  static int			LINK_SCIENCE_RELATIVE_ICON = 22;
+    public  static final int			LINK_SCIENCE_RELATIVE_ICON = 22;
     
     /** The <code>Close file</code> icon. */
-    public  static int			FILE_CLOSE_ICON = 23;
+    public  static final int			FILE_CLOSE_ICON = 23;
     
     /** The <code>Wrench / configure</code> icon. */
-    public  static int			WRENCH_ICON = 24;
+    public  static final int			WRENCH_ICON = 24;
     
     /** The <code>New table row</code> icon. */
-    public  static int			NEW_ROW_ICON = 25;
+    public  static final int			NEW_ROW_ICON = 25;
     
     /** The <code>Clear table row</code> icon. */
-    public  static int			CLEAR_ROW_ICON = 26;
+    public  static final int			CLEAR_ROW_ICON = 26;
     
     /** The <code>Start Timer</code> icon. */
-    public  static int			TIMER_START_ICON = 27;
+    public  static final int			TIMER_START_ICON = 27;
     
     /** The <code>Stop Timer</code> icon. */
-    public  static int			TIMER_STOP_ICON = 28;
-    
-    /*
-     * Image Border Icons. 
-     */
-    
+    public  static final int			TIMER_STOP_ICON = 28;
+
     /** The <code>Image Border top left</code> icon. */
-    public  static int			BORDER_TOP_LEFT = 35;
+    public  static final int			BORDER_TOP_LEFT = 35;
     
     /** The <code>Image Border top</code> icon. */
-    public  static int			BORDER_TOP = 29;
+    public  static final int			BORDER_TOP = 29;
     
     /** The <code>Image Border top right</code> icon. */
-    public  static int			BORDER_TOP_RIGHT = 30;
+    public  static final int			BORDER_TOP_RIGHT = 30;
     
     /** The <code>Image Border left</code> icon. */
-    public  static int			BORDER_LEFT = 31;
+    public  static final int			BORDER_LEFT = 31;
     
     /** The <code>Image Border right</code> icon. */
-    public  static int			BORDER_RIGHT= 32;
+    public  static final int			BORDER_RIGHT= 32;
     
     /** The <code>Image Border bottom left</code> icon. */
-    public  static int			BORDER_BOTTOM_LEFT = 33;
+    public  static final int			BORDER_BOTTOM_LEFT = 33;
     
     /** The <code>Image Border bottom</code> icon. */
-    public  static int			BORDER_BOTTOM = 34;
+    public  static final int			BORDER_BOTTOM = 34;
     
     /** The <code>Image Border bottom right</code> icon. */
-    public  static int			BORDER_BOTTOM_RIGHT = 36;
+    public  static final int			BORDER_BOTTOM_RIGHT = 36;
     
     /** The <code>Image Border top left</code> icon. */
-    public  static int			BORDER_TOP_LEFT_HLT = 37;
+    public  static final int			BORDER_TOP_LEFT_HLT = 37;
     
     /** The <code>Image Border top</code> icon. */
-    public  static int			BORDER_TOP_HLT = 38;
+    public  static final int			BORDER_TOP_HLT = 38;
     
     /** The <code>Image Border top right</code> icon. */
-    public  static int			BORDER_TOP_RIGHT_HLT = 39;
+    public  static final int			BORDER_TOP_RIGHT_HLT = 39;
     
     /** The <code>Image Border left</code> icon. */
-    public  static int			BORDER_LEFT_HLT = 40;
+    public  static final int			BORDER_LEFT_HLT = 40;
     
     /** The <code>Image Border right</code> icon. */
-    public  static int			BORDER_RIGHT_HLT = 41;
+    public  static final int			BORDER_RIGHT_HLT = 41;
     
     /** The <code>Image Border bottom left</code> icon. */
-    public  static int			BORDER_BOTTOM_LEFT_HLT = 42;
+    public  static final int			BORDER_BOTTOM_LEFT_HLT = 42;
     
     /** The <code>Image Border bottom</code> icon. */
-    public  static int			BORDER_BOTTOM_HLT = 43;
+    public  static final int			BORDER_BOTTOM_HLT = 43;
     
     /** The <code>Image Border bottom right</code> icon. */
-    public  static int			BORDER_BOTTOM_RIGHT_HLT = 44;
-    
-    
+    public  static final int			BORDER_BOTTOM_RIGHT_HLT = 44;
+
     /** The <code>Info</code> icon. */
-    public  static int			INFO_ICON = 45;
+    public  static final int			INFO_ICON = 45;
     
-    /** The <code>Close</code> icon. */
-    public  static int			N0 = 46;
+    /** The <code>No</code> icon. */
+    public  static final int			N0 = 46;
     
     /** The <code>Undo</code> icon. */
-    public  static int			UNDO_ICON = 47;
+    public  static final int			UNDO_ICON = 47;
     
     /** The <code>Redo</code> icon. */
-    public  static int			REDO_ICON = 48;
+    public  static final int			REDO_ICON = 48;
     
     /** The <code>Add Field</code> icon. */
-    public  static int			ADD_ICON = 49;
+    public  static final int			ADD_ICON = 49;
     
     /** The <code>Delete Field</code> icon. */
-    public  static int			DELETE_ICON = 50;
+    public  static final int			DELETE_ICON = 50;
     
     /** The <code>Configure</code> icon. */
-    public  static int			CONFIGURE_ICON = 51;
+    public  static final int			CONFIGURE_ICON = 51;
     
     /** The <code>Open Folder</code> icon. */
-    public  static int			OPEN_FOLDER = 52;
+    public  static final int			OPEN_FOLDER = 52;
 
     /** The <code>Open Folder</code> icon. */
-    public  static int			INDENT_RIGHT = 53;
+    public  static final int			INDENT_RIGHT = 53;
     
     /** The <code>Open Folder</code> icon. */
-    public  static int			INDENT_LEFT = 54;
+    public  static final int			INDENT_LEFT = 54;
     
     /** The <code>Template locked</code> icon. */
-    public  static int			TEMPLATE_LOCK = 55;
+    public  static final int			TEMPLATE_LOCK = 55;
     
     /** The <code>Fully locked</code> icon. */
-    public  static int			FULL_LOCK = 56;
+    public  static final int			FULL_LOCK = 56;
     
     /** The <code>OMERO.editor 16</code> icon. */
-    public  static int			OMERO_EDITOR = 57;
+    public  static final int			OMERO_EDITOR = 57;
     
     /** The <code>Save</code> icon. */
-    public  static int			SAVE_ICON = 58;
+    public  static final int			SAVE_ICON = 58;
     
-    /** The <code>Up-Down</code> icon. */
-    public  static int			UP_DOWN_9_12 = 59;
+    /** The <code>Up-Down 9x12</code> icon. */
+    public  static final int			UP_DOWN_9_12 = 59;
     
     /** The <code>Spacer-16</code> icon. */
-    public  static int			SPACER = 60;
+    public  static final int			SPACER = 60;
     
     /** The <code>New Blank File</code> icon. */
-    public  static int			NEW_FILE_ICON = 61;
+    public  static final int			NEW_FILE_ICON = 61;
     
     /** The <code>Edit XML</code> icon. */
-    public  static int			EDIT_XML_ICON = 62;
+    public  static final int			EDIT_XML_ICON = 62;
     
     /** The <code>Up</code> icon. */
-    public  static int			UP_ICON = 63;
+    public  static final int			UP_ICON = 63;
     
     /** The <code>Down</code> icon. */
-    public  static int			DOWN_ICON = 64;
+    public  static final int			DOWN_ICON = 64;
     
     /** The <code>Ontology Parameter</code> icon. */
-    public  static int			ONTOLOGY_ICON = 65;
+    public  static final int			ONTOLOGY_ICON = 65;
     
     /** The <code>Add Table</code> icon. */
-    public  static int			ADD_TABLE_ICON = 66;
+    public  static final int			ADD_TABLE_ICON = 66;
     
     /** The <code>Copy</code> icon. */
-    public  static int			COPY_ICON = 67;
+    public  static final int			COPY_ICON = 67;
     
     /** The <code>Paste</code> icon. */
-    public  static int			PASTE_ICON = 68;
+    public  static final int			PASTE_ICON = 68;
     
     /** The <code>Save-As</code> icon. */
-    public  static int			SAVE_AS_ICON = 69;
+    public  static final int			SAVE_AS_ICON = 69;
     
     /** The <code>Remove table</code> icon. */
-    public  static int			REMOVE_TABLE_ICON = 70;
+    public  static final int			REMOVE_TABLE_ICON = 70;
     
     /** The <code>WWW-Folder</code> icon. */
-    public  static int			WWW_FOLDER_ICON = 71;
+    public  static final int			WWW_FOLDER_ICON = 71;
     
     /** The <code>WWW-Folder-48</code> icon. */
-    public  static int			WWW_FOLDER_ICON_48 = 72;
+    public  static final int			WWW_FOLDER_ICON_48 = 72;
     
     /** The <code>Save to Server</code> icon. */
-    public  static int			SAVE_SERVER_ICON = 73;
+    public  static final int			SAVE_SERVER_ICON = 73;
     
     /** The <code>Red Asterisk</code> icon. */
-    public  static int			RED_ASTERISK_ICON_11 = 74;
+    public  static final int			RED_ASTERISK_ICON_11 = 74;
     
     /** The <code>Info</code> icon, 12 pixels square. */
-    public  static int			INFO_12_ICON = 75;
+    public  static final int			INFO_12_ICON = 75;
     
     /** The <code>Split</code> icon, 12 pixels square. */
-    public  static int			SPLIT_12_ICON = 76;
+    public  static final int			SPLIT_12_ICON = 76;
     
-    /** The <code>Split</code> icon, 12 pixels square. */
-    public  static int			EXP_9_11_ICON = 77;
+    /** The <code>Exp</code> icon, 9x11 pixels square. */
+    public  static final int			EXP_9_11_ICON = 77;
     
     /** The <code>Add-Text-Box</code> icon.*/
-    public  static int			ADD_TEXTBOX_ICON = 78;
+    public  static final int			ADD_TEXTBOX_ICON = 78;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 78;
+    private static final int          MAX_ID = 78;
    
     
     /** Paths of the icon files. */

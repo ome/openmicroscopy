@@ -76,7 +76,7 @@ class IntensityTable
 			columnWidth = Math.max(w, COLUMNWIDTH);
 		}
 		
-		w = metrics.stringWidth(model.getColumnName(0));
+		//w = metrics.stringWidth(model.getColumnName(0));
 		TableColumn col;
 		int width;
 		for (int i = 0 ; i < getColumnCount(); i++)

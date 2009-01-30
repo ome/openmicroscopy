@@ -67,7 +67,7 @@ public class RegExFileFilter
 	 */
     private String parse(String ex)
     {
-    	String newString = new String();
+    	String newString = "";
     	
     	for (int i = 0 ; i < ex.length(); i++)	
     	{

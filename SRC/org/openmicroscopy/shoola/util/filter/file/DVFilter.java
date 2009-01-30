@@ -60,7 +60,7 @@ public class DVFilter
 	public static final String 		R3D_D3D = "r3d_d3d";
 	
 	/** The possible extensions. */
-	private static final String[] 	extensions;
+	public static final String[] 	extensions;
 	
 	/** The description of the filter. */
 	private static final String		description;
@@ -79,12 +79,6 @@ public class DVFilter
 		s += ")";
 		description = s;
 	}
-	
-	/**
-	 * 	Overriden to return the extension of the filter.
-	 * 	@see CustomizedFileFilter#getExtensions()
-	 */
-	public String[] getExtensions() { return extensions; }
 	
 	/**
 	 * 	Overriden to return the extension of the filter.

@@ -79,8 +79,7 @@ class RGBModel
     {
         float []vals = RGBtoHSV();
         vals[2] = v;
-        float rgb[] = new float[3];
-        rgb = HSVtoRGB(vals[0], vals[1], vals[2]);
+        float[] rgb = HSVtoRGB(vals[0], vals[1], vals[2]);
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
@@ -95,8 +94,7 @@ class RGBModel
     {
         float []vals = RGBtoHSV();
         vals[0] = h;
-        float rgb[] = new float[3];
-        rgb = HSVtoRGB(vals[0], vals[1], vals[2]);
+        float[] rgb = HSVtoRGB(vals[0], vals[1], vals[2]);
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
@@ -109,10 +107,9 @@ class RGBModel
      */
     private void setS(float s)
     {
-        float []vals = RGBtoHSV();
+        float[] vals = RGBtoHSV();
         vals[1] = s;
-        float rgb[] = new float[3];
-        rgb = HSVtoRGB(vals[0], vals[1], vals[2]);
+        float[] rgb = HSVtoRGB(vals[0], vals[1], vals[2]);
         red = rgb[0];
         green = rgb[1];
         blue = rgb[2];
@@ -287,8 +284,7 @@ class RGBModel
 	 */
 	void setHSVColour(float h, float s, float v, float a)
 	{
-		float []rgb = new float[3];
-		rgb = HSVtoRGB(h,s,v);
+		float[] rgb = HSVtoRGB(h,s,v);
 		red = rgb[0];
 		green = rgb[1];
 		blue = rgb[2];

@@ -351,13 +351,12 @@ public class TitledLineBorder
         	 img = (Image) i.next();
         	 w = img.getWidth(null);
         	 h = img.getHeight(null);
-        	 r.setBounds(x, textLoc.y-3*h/4, w, h);
-        	 g.drawImage(img, x, textLoc.y-3*h/4, w, h, null); 
+        	 r.setBounds(x, y-3*h/4, w, h);
+        	 g.drawImage(img, x, y-3*h/4, w, h, null); 
         	 x += w;
         	 x += EDGE_GAP;
         	 imageBounds.add(r);
          }
-        
     }
     
 }

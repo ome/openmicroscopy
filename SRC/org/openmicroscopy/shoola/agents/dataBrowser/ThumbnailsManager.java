@@ -102,7 +102,7 @@ public class ThumbnailsManager
     	while (i.hasNext()) {
     		node = (WellImageSet) i.next();
     		is = node.getSelectedImage();
-    		id = new Long(is.getId());
+    		id = is.getId();
     		providers = thumbProviders.get(id);
     		if (providers == null) {
     			t++;
@@ -136,7 +136,7 @@ public class ThumbnailsManager
         while (i.hasNext()) {
             node = (ImageNode) i.next();
             is = (ImageData) node.getHierarchyObject();
-            id = new Long(is.getId());
+            id = is.getId();
             providers = thumbProviders.get(id);
             if (providers == null) {
                 providers = new HashSet<Thumbnail>();

@@ -125,49 +125,49 @@ public class IconManager
 	public static final int		POINTICON_22 = 24;
 
 	 /** The <code>Progress</code> icon. */
-    public static int           PROGRESS = 25;
+    public static final int           PROGRESS = 25;
 
     /** The <code>GraphPane</code> icon. */
-    public static int           GRAPHPANE = 26;
+    public static final int           GRAPHPANE = 26;
     
     /** The <code>Itensity View</code> icon. */
-    public static int          INTENSITYVIEW = 27;
+    public static final int          INTENSITYVIEW = 27;
     
     /** The <code>Roi stack</code> icon. */
-    public static int          ROISTACK = 28;
+    public static final int          ROISTACK = 28;
     
-    /** The <code>Rioshape</code> icon. */
-    public static int          ROISHAPE = 29;
+    /** The <code>Roishape</code> icon. */
+    public static final int          ROISHAPE = 29;
     
     /** The <code>Line 16</code> icon. */
-    public static int          LINE_16 = 30;
+    public static final int          LINE_16 = 30;
     
     /** The <code>Ellipse 16</code> icon. */
-    public static int          ELLIPSE_16 = 31;
+    public static final int          ELLIPSE_16 = 31;
     
     /** The <code>Rectangle 16</code> icon. */
-    public static int          RECTANGLE_16 = 32;
+    public static final int          RECTANGLE_16 = 32;
     
     /** The <code>Connection 16</code> icon. */
-    public static int          CONNECTION_16 = 33;
+    public static final int          CONNECTION_16 = 33;
     
     /** The <code>Polygon 16</code> icon. */
-    public static int          POLYGON_16 = 34;
+    public static final int          POLYGON_16 = 34;
     
     /** The <code>Scribble 16</code> icon. */
-    public static int          SCRIBBLE_16 = 35;
+    public static final int          SCRIBBLE_16 = 35;
 
     /** The <code>Point 16</code> icon. */
-    public static int          POINT_16 = 36;
+    public static final int          POINT_16 = 36;
 
     /** The <code>Text</code> icon. */
-    public static int          TEXT_16 = 37;
+    public static final int          TEXT_16 = 37;
 
     /** The <code>Question</code> icon. */
-    public static int          QUESTION_32 = 38;
+    public static final int          QUESTION_32 = 38;
 
     /** The <code>CornerIcon</code> icon. */
-    public static int          CORNERICON = 39;
+    public static final int          CORNERICON = 39;
         
 	/** 
      * The maximum ID used for the icon IDs.

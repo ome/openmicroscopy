@@ -97,7 +97,7 @@ public class ChannelButton
         Boolean value = Boolean.TRUE;
         if (isSelected()) value = Boolean.FALSE;
         HashMap<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
-        map.put(new Integer(index), value);
+        map.put(Integer.valueOf(index), value);
         firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
     }
   
@@ -224,7 +224,7 @@ public class ChannelButton
     /** Fires a property change to bring up on screen the color picker. */
     void showColorPicker()
     {
-        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, new Integer(index));
+        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, Integer.valueOf(index));
     }
     
     /**

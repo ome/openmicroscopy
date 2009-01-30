@@ -246,25 +246,19 @@ class IntensityView
 	private TreeMap<Coord3D, ROIShape> shapeMap;
 	
 	/** The current coord of the ROI being depicted in the slider. */
-	private Coord3D 				coord;
+	private Coord3D 					coord;
 	
 	/** Button for the calling of the intensity table. */
-	private JButton 				showIntensityTable;
+	private JButton 					showIntensityTable;
 	
 	/** Current ROIShape. */
-	private ROIShape 				shape;
+	private ROIShape 					shape;
 	
 	/** Dialog showing the intensity values for the selected channel. */
-	private IntensityValuesDialog 	intensityDialog;
+	private IntensityValuesDialog 		intensityDialog;
 	
 	/** Table Model. */
-	private IntensityModel			tableModel;
-
-	/**
-	 * overridden version of {@line TabPaneInterface#getIndex()}
-	 * @return the index.
-	 */
-	public int getIndex() {return INDEX; }
+	private IntensityModel				tableModel;
 	
 	/**
 	 * The slider has changed value and the mouse button released. 
@@ -937,7 +931,7 @@ class IntensityView
 		return (fig instanceof MeasurePointFigure);
 	}
 	
-	/** Save the results to a csv File. */
+	/** Save the results to an Excel File. */
 	private void saveResults() 
 	{
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
@@ -974,7 +968,6 @@ class IntensityView
 				
 		try
 		{
-			//out = new BufferedWriter(new FileWriter(file));
 			ExcelWriter writer = new ExcelWriter(file.getAbsolutePath());
 			writer.openFile();
 			writer.createSheet("Channel Summary");
@@ -1000,22 +993,24 @@ class IntensityView
 			int col = writer.getMaxColumn(0);
 			writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
 
-			if(channelSummarySelected(channels) && channels.size()!=1)
+			if (channelSummarySelected(channels) && channels.size() != 1)
 				while (coordMapIterator.hasNext())
 				{
 					currentCoord = coordMapIterator.next();
 					for (int i = 0 ; i < n ; i++)
 					{
 						channel = channels.get(i);
-						if(channel==ChannelSelectionForm.SUMMARYVALUE)
+						if (channel == ChannelSelectionForm.SUMMARYVALUE)
 							continue;
 						if (!nameMap.containsKey(channelName.get(channel)))
 							continue;
 						int rowIndex = 0;
-						writer.createSheet("Channel Number "+channelName.get(channel));
+						writer.createSheet("Channel Number "+
+								channelName.get(channel));
 						writeHeader(writer, rowIndex, currentCoord);
 						channel = nameMap.get(channelName.get(channel));
-						writeData(writer, rowIndex, currentCoord, channel.intValue());
+						writeData(writer, rowIndex, currentCoord, 
+								channel.intValue());
 					}
 				}
 			writer.close();
@@ -1033,56 +1028,44 @@ class IntensityView
 	}
 	
 	/**
-	 * Get the active channels in the image.
-	 * @param channels which are selected from the channelSelectionForm.
-	 * @return see above.
-	 */
-	private List<Integer> activeChannels(List<Integer> channels)
-	{
-		List<Integer> aChannels = new ArrayList<Integer>();
-		for(Integer i : channels)
-			if(i!=ChannelSelectionForm.SUMMARYVALUE)
-				aChannels.add(i);
-		return aChannels;
-	}
-	
-	/**
 	 * Create summary table with horizontal columns.
 	 * 
-	 * @param out The output stream
-	 * @throws IOException Any io error.
+	 * @param writer 	The Excel writer.
+	 * @param rowIndex 	The selected row.
 	 */
 	private void printSummaryHeader(ExcelWriter writer, int rowIndex) 
-		throws IOException
 	{
 		writer.writeElement(rowIndex, 0, "channel");
 		writer.writeElement(rowIndex, 1, "zsection");
 		writer.writeElement(rowIndex, 2, "time");
-		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
-				writer.writeElement(rowIndex, 3+y, channelSummaryTable.getValueAt(y, 0));
+		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
+				writer.writeElement(rowIndex, 3+y, 
+						channelSummaryTable.getValueAt(y, 0));
 	}
 	
 	/**
-	 * Output the summary information from the shape map.
-	 * @param out output file.
+	 * Outputs the summary information from the shape map.
+	 * 
+	 * @param writer 	The Excel writer.
 	 * @param shapeMap see above.
 	 * @throws IOException
 	 */
-	private void outputSummary(ExcelWriter writer, TreeMap<Coord3D, ROIShape> shapeMap) 
-		throws IOException
+	private void outputSummary(ExcelWriter writer, TreeMap<Coord3D, 
+			ROIShape> shapeMap) 
 	{
 		int rowIndex = 0;
 		printSummaryHeader(writer, rowIndex);
 		rowIndex++;
 		Coord3D start = shapeMap.firstKey();
 		Coord3D end = shapeMap.lastKey();
+		Coord3D coord;
 		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
 		for(Integer c : channels)
 		{
-			for(int z = start.getZSection() ; z<= end.getZSection(); z++)
-				for(int t = start.getTimePoint() ; t <= end.getTimePoint(); t++)
+			for (int z = start.getZSection() ; z<= end.getZSection(); z++)
+				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); t++)
 				{
-					Coord3D coord = new Coord3D(z, t);
+					coord = new Coord3D(z, t);
 					populateData(coord, c);
 					outputSummaryRow(writer,rowIndex, c, z, t);
 					rowIndex++;
@@ -1092,52 +1075,57 @@ class IntensityView
 
 	
 	/**
-	 * Add the any remaining fields (min, max, mean, stdDev) to the file being
+	 * Adds the any remaining fields (min, max, mean, stdDev) to the file being
 	 * saved. 
-	 * @param channel channel to output. 
+	 * 
+	 * @param writer 	The Excel writer.
+	 * @param rowIndex 	The selected row.
+	 * @param channel 	The channel to output. 
 	 * @param z z-section to output.
 	 * @param t timepoint to output.
-	 * @param out The output stream
-	 * @throws IOException Any io error.
 	 */
-	private void outputSummaryRow(ExcelWriter writer, int rowIndex, Integer channel, int z, int t) 
-		throws IOException
+	private void outputSummaryRow(ExcelWriter writer, int rowIndex, 
+			Integer channel, int z, int t) 
 	{
 		writer.writeElement(rowIndex, 0, channelName.get(channel));
 		writer.writeElement(rowIndex, 1, z+"");
 		writer.writeElement(rowIndex, 2, t+"");
-
+		int col;
 		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
-			int col = getColumn(channelName.get(channel));
-			if(col == -1)
+			col = getColumn(channelName.get(channel));
+			if (col == -1)
 				continue;
-			writer.writeElement(rowIndex, 3+y, channelSummaryTable.getValueAt(y, col));
+			writer.writeElement(rowIndex, 3+y, 
+					channelSummaryTable.getValueAt(y, col));
 		}
 	}
 	
 	/** 
-	 * Get the column for the name equal to the string.
+	 * Returns the column for the name equal to the string.
+	 * 
 	 * @param name see above.
 	 * @return see above.
 	 */
 	private int getColumn(String name)
 	{
-		for( int i = 0 ; i < channelSummaryModel.getColumnCount(); i++)
-			if(channelSummaryModel.getColumnName(i).equals(name))
+		for (int i = 0 ; i < channelSummaryModel.getColumnCount(); i++)
+			if (channelSummaryModel.getColumnName(i).equals(name))
 				return i;
 		return -1;
 	}
 
 	/**
-	 * Return true if the user has selected the summary channel.
+	 * Returns <code>true</code> if the user has selected the summary channel,
+	 * <code>false</code> otherwise.
+	 * 
 	 * @param selection see above.
 	 * @return see above.
 	 */
 	private boolean channelSummarySelected(List<Integer> selection)
 	{
-		for(Integer value: selection)
-			if(value==ChannelSelectionForm.SUMMARYVALUE)
+		for (Integer value: selection)
+			if (value == ChannelSelectionForm.SUMMARYVALUE)
 				return true;
 		return false;
 	}
@@ -1145,52 +1133,46 @@ class IntensityView
 	/**
 	 * Writes the header information for the file, image, projects, dataset.
 	 * 
-	 * @param out	The buffer to write data into.
-	 * @param currentCoord the coord of the shape being written.
+	 * @param writer 	The Excel writer.
+	 * @param rowIndex 	The selected row.
+	 * @param currentCoord  The coord of the shape being written.
 	 * @throws IOException Thrown if the data cannot be written.
 	 */
-	private void writeHeader(ExcelWriter writer, int rowIndex, Coord3D currentCoord) 
-		throws IOException
+	private void writeHeader(ExcelWriter writer, int rowIndex, 
+			Coord3D currentCoord) 
 	{
 		writer.writeElement(rowIndex, 0 , "Image ");
 		writer.writeElement(rowIndex, 1 , model.getImageName());
 		rowIndex++;
 		writer.writeElement(rowIndex, 0 , "Z ");
-		writer.writeElement(rowIndex, 1 ,  (currentCoord.getZSection()+1));
+		writer.writeElement(rowIndex, 1 , (currentCoord.getZSection()+1));
 		rowIndex++;
 		writer.writeElement(rowIndex, 0 , "T ");
-		writer.writeElement(rowIndex, 1 ,  (currentCoord.getTimePoint()+1));
+		writer.writeElement(rowIndex, 1 , (currentCoord.getTimePoint()+1));
 		rowIndex++;
 	}
 	
 	/** 
-	 * Write the title for the current channel. 
-	 * @param out The output stream.
-	 * @param string The title.
-	 * @throws IOException 
+	 * Writes the channel intensities and stats to the files.
+	 * 
+	 * @param writer 	The Excel writer.
+	 * @param rowIndex 	The selected row.
+	 * @param coord		The specified coordinate.
+	 * @param channel	The channel to output.
 	 */
-	private void writeTitle(BufferedWriter out, String string) throws IOException
-	{
-		out.write(string);
-		out.newLine();
-	}
-	
-	
-	/** 
-	 * Write the channel intensities and stats to the files.
-	 * @param out The output stream.
-	 * @param coord the coord of the channel being written.
-	 * @param channel The channel to output.
-	 * @throws IOException Any IO Error.
-	 */
-	private void writeData(ExcelWriter writer, int rowIndex, Coord3D coord, int channel) 
-		throws IOException
+	private void writeData(ExcelWriter writer, int rowIndex, Coord3D coord, 
+			int channel) 
 	{
 		populateData(coord, channel);
-		Double value;
-		rowIndex = writer.writeTableToSheet(rowIndex, 0, tableModel);
+		writer.writeTableToSheet(rowIndex, 0, tableModel);
 	}
-	
+
+	 /** Shows the intensity results dialog. */
+	 private void showIntensityResults()
+	 {
+		 UIUtilities.setLocationRelativeToAndSizeToWindow(this, intensityDialog, 
+				 intensityTableSize);
+	 }
 	
 	/** 
 	 * 	Action called when the combo box changed. 
@@ -1226,14 +1208,6 @@ class IntensityView
 			 showIntensityResults();
 		 }
 	
-	 }
-	 
-	 /**
-	  * Show the intensity results dialog.
-	  */
-	 private void showIntensityResults()
-	 {
-		 UIUtilities.setLocationRelativeToAndSizeToWindow(this, intensityDialog, intensityTableSize);
 	 }
 
 	/* (non-Javadoc)
@@ -1275,4 +1249,9 @@ class IntensityView
 		state=State.READY;
 	}
 	
+	/**
+	 * Overridden version of {@line TabPaneInterface#getIndex()}
+	 * @return the index.
+	 */
+	public int getIndex() {return INDEX; }
 }

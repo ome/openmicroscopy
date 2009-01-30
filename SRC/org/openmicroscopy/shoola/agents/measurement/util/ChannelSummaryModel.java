@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -60,22 +62,23 @@ public class ChannelSummaryModel
 	private int			numRows;
 	
 	/** The names of the channels being summarised. */
-	private ArrayList<String> columnNames;
+	private List<String> columnNames;
 	
 	/** The names of the data being summarised. */
-	private ArrayList<String> rowNames;
-	
-	
+	private List<String> rowNames;
+
 	/**
 	 * Model of the ChannelSummaryTable to the summary of the values in the
 	 * current ROI selection.
+	 * 
 	 * @param rowNames the names of the rows in the table.
 	 * @param columnNames the names of the columns in the table.
 	 * @param data The data in the table.
 	 */
-	public ChannelSummaryModel(ArrayList<String> rowNames, ArrayList<String> columnNames, Double[][] data)
+	public ChannelSummaryModel(List<String> rowNames, List<String> columnNames, 
+			Double[][] data)
 	{
-		this.data=data;
+		this.data = data;
 		this.rowNames = rowNames;
 		this.columnNames = columnNames;
 		this.setColumnCount(columnNames.size());

@@ -56,175 +56,175 @@ public class IconManager
 {
 
 	/** The <code>Refresh</code> icon. */
-    public static int           REFRESH = 0;
+    public static final int           REFRESH = 0;
     
     /** The <code>Collapse</code> icon. */
-    public static int           COLLAPSE = 1;
+    public static final int           COLLAPSE = 1;
     
     /** The <code>Annotation</code> icon. */
-    public static int           ANNOTATION = 2;
+    public static final int           ANNOTATION = 2;
     
     /** The <code>Tag</code> icon. */
-    public static int           TAG = 3;
+    public static final int           TAG = 3;
     
     /** The <code>Attachment</code> icon. */
-    public static int           ATTACHMENT = 4;
+    public static final int           ATTACHMENT = 4;
     
     /** The <code>Properties</code> icon. */
-    public static int           PROPERTIES = 5;
+    public static final int           PROPERTIES = 5;
     
     /** The <code>URL</code> icon. */
-    public static int           URL = 6;
+    public static final int           URL = 6;
     
     /** The <code>Image</code> icon. */
-    public static int           IMAGE = 7;
+    public static final int           IMAGE = 7;
     
     /** The <code>Project</code> icon. */
-    public static int           PROJECT = 8;
+    public static final int           PROJECT = 8;
     
     /** The <code>Dataset</code> icon. */
-    public static int           DATASET = 9;
+    public static final int           DATASET = 9;
     
     /** The <code>Add</code> icon. */
-    public static int           ADD = 10;
+    public static final int           ADD = 10;
     
     /** The <code>Remove</code> icon. */
-    public static int           REMOVE = 11;
+    public static final int           REMOVE = 11;
     
     /** The <code>Browse</code> icon. */
-    public static int           BROWSE = 12;
+    public static final int           BROWSE = 12;
     
     /** The <code>View</code> icon. */
-    public static int           VIEW = 13;
+    public static final int           VIEW = 13;
     
     /** The <code>Owner</code> icon. */
-    public static int           OWNER = 14;
+    public static final int           OWNER = 14;
     
     /** The <code>Root</code> icon. */
-    public static int           ROOT = 15;
+    public static final int           ROOT = 15;
     
     /** The <code>List view</code> icon. */
-    public static int           LIST_VIEW = 16;
+    public static final int           LIST_VIEW = 16;
     
     /** The <code>Grid view</code> icon. */
-    public static int           GRID_VIEW = 17;
+    public static final int           GRID_VIEW = 17;
     
     /** The <code>Download</code> icon. */
-    public static int           DOWNLOAD = 18;
+    public static final int           DOWNLOAD = 18;
     
     /** The <code>Info</code> icon. */
-    public static int           INFO = 19;
+    public static final int           INFO = 19;
     
     /** The <code>Right arrow</code> icon. */
-    public static int           RIGHT_ARROW = 20;
+    public static final int           RIGHT_ARROW = 20;
     
     /** The <code>Left arrow</code> icon. */
-    public static int           LEFT_ARROW = 21;
+    public static final int           LEFT_ARROW = 21;
     
     /** The <code>Double right arrow</code> icon. */
-    public static int           DOUBLE_RIGHT_ARROW = 22;
+    public static final int           DOUBLE_RIGHT_ARROW = 22;
     
     /** The <code>Double left arrow</code> icon. */
-    public static int           DOUBLE_LEFT_ARROW = 23;
+    public static final int           DOUBLE_LEFT_ARROW = 23;
     
     /** The <code>Tags 48</code> icon. */
-    public static int           TAGS_48 = 24;
+    public static final int           TAGS_48 = 24;
     
     /** The <code>Order by date</code> icon. */
-    public static int           ORDER_BY_DATE = 25;
+    public static final int           ORDER_BY_DATE = 25;
     
     /** The <code>Order by user</code> icon. */
-    public static int           ORDER_BY_USER = 26;
+    public static final int           ORDER_BY_USER = 26;
     
     /** The <code>Close</code> icon. */
-    public static int           CLOSE = 27;
+    public static final int           CLOSE = 27;
     
     /** The <code>Close</code> icon. */
-    public static int           EDIT = 28;
+    public static final int           EDIT = 28;
     
     /** The <code>Info 48</code> icon. */
-    public static int           INFO_48 = 29;
+    public static final int           INFO_48 = 29;
     
     /** The <code>PDF</code> icon. */
-    public static int           PDF_DOC_22 = 30;
+    public static final int           PDF_DOC_22 = 30;
     
     /** The <code>Text</code> icon. */
-    public static int           TEXT_DOC_22 = 32;
+    public static final int           TEXT_DOC_22 = 32;
     
     /** The <code>Word</code> icon. */
-    public static int           WORD_DOC_22 = 33;
+    public static final int           WORD_DOC_22 = 33;
     
     /** The <code>Excel</code> icon. */
-    public static int           EXCEL_DOC_22 = 34;
+    public static final int           EXCEL_DOC_22 = 34;
     
     /** The <code>Power point</code> icon. */
-    public static int           PPT_DOC_22 = 35;
+    public static final int           PPT_DOC_22 = 35;
     
     /** The <code>XML</code> icon. */
-    public static int           XML_DOC_22 = 36;
+    public static final int           XML_DOC_22 = 36;
     
     /** The <code>Save</code> icon. */
-    public static int           SAVE = 37;
+    public static final int           SAVE = 37;
     
     /** The <code>Columns view</code> icon. */
-    public static int           COLUMNS_VIEW = 38;
+    public static final int           COLUMNS_VIEW = 38;
      
     /** The <code>Upload</code> icon. */
-    public static int           UPLOAD = 39;
+    public static final int           UPLOAD = 39;
     
     /** The <code>Sort</code> icon. */
-    public static int           SORT = 40;
+    public static final int           SORT = 40;
     
     /** The <code>URL</code> 48 icon. */
-    public static int           URL_48 = 41;
+    public static final int           URL_48 = 41;
      
     /** The <code>Attachment 48</code> icon. */
-    public static int           ATTACHMENT_48 = 42;
+    public static final int           ATTACHMENT_48 = 42;
     
     /** The <code>Metadata 48</code> icon. */
-    public static int           METADATA_48 = 43;
+    public static final int           METADATA_48 = 43;
     
     /** The <code>Doc</code> icon. */
-    public static int           DOC = 44;
+    public static final int           DOC = 44;
     
     /** The <code>Tag 12</code> icon. */
-    public static int           TAG_12 = 45;
+    public static final int           TAG_12 = 45;
     
     /** The <code>HTML Document</code> icon. */
-    public static int           HTML_DOC_22 = 46;
+    public static final int           HTML_DOC_22 = 46;
     
     /** The <code>Screen</code> icon. */
-    public static int           SCREEN = 47;
+    public static final int           SCREEN = 47;
     
     /** The <code>Plate</code> icon. */
-    public static int           PLATE = 48;
+    public static final int           PLATE = 48;
     
     /** The <code>Attach</code> icon. */
-    public static int           ATTACH = 49;
+    public static final int           ATTACH = 49;
     
     /** The <code>Acquisition</code> icon. */
-    public static int           ACQUISITION = 50;
+    public static final int           ACQUISITION = 50;
     
     /** The <code>Plus</code> icon. */
-    public static int           PLUS = 51;
+    public static final int           PLUS = 51;
     
     /** The <code>Minus</code> icon. */
-    public static int           MINUS = 52;
+    public static final int           MINUS = 52;
     
     /** The <code>Edit 8</code> icon. */
-    public static int           EDIT_8 = 53;
+    public static final int           EDIT_8 = 53;
     
     /** The <code>Edit 12</code> icon. */
-    public static int           EDIT_12 = 54;
+    public static final int           EDIT_12 = 54;
     
     /** The <code>Edit 48</code> icon. */
-    public static int           EDIT_48 = 55;
+    public static final int           EDIT_48 = 55;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 55;
+	private static final int          MAX_ID = 55;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];

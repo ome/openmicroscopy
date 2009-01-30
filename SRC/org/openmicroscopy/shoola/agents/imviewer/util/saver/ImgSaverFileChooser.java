@@ -152,28 +152,24 @@ class ImgSaverFileChooser
     {
     	// Build the file .
     	File f = getSelectedFile();
-    	
-        if (f != null) {
-            String format = getFormat(getFileFilter());
-            String fileName = f.getAbsolutePath();
-            String message = MSG_DIR+""+getCurrentDirectory();
-            model.setFileName(fileName);
-            model.setFileFormat(format);
-            model.setFileMessage(message);
-            File[] l = getCurrentDirectory().listFiles();
-            String n = model.getExtendedName(fileName, format);
-            boolean exist = false;
-            for (int i = 0; i < l.length; i++) {
-                if ((l[i].getAbsolutePath()).equals(n)) {
-                    exist = true;
-                    break;
-                }
-            }
-            setSelectedFile(null);
-            return new Boolean(exist);
-            //if (display) return;    // to check
-        }   
-        return null;
+    	if (f == null) return null;
+    	 String format = getFormat(getFileFilter());
+         String fileName = f.getAbsolutePath();
+         String message = MSG_DIR+""+getCurrentDirectory();
+         model.setFileName(fileName);
+         model.setFileFormat(format);
+         model.setFileMessage(message);
+         File[] l = getCurrentDirectory().listFiles();
+         String n = model.getExtendedName(fileName, format);
+         boolean exist = false;
+         for (int i = 0; i < l.length; i++) {
+             if ((l[i].getAbsolutePath()).equals(n)) {
+                 exist = true;
+                 break;
+             }
+         }
+         setSelectedFile(null);
+         return Boolean.valueOf(exist);
     }
     
     /**

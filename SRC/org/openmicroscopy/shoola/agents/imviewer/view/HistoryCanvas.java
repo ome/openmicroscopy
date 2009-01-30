@@ -128,9 +128,9 @@ class HistoryCanvas
 		if (nodes == null || nodes.size() == 0) return;
 		HistoryItem child = null;
         Dimension maxDim = ((HistoryItem) nodes.get(0)).getPreferredSize();
-        int m = width/maxDim.width;
-        int n = nodes.size();
-        if (m != 0) n = n/m+1;
+        //int m = width/maxDim.width;
+        //int n = nodes.size();
+        //if (m != 0) n = n/m+1;
         Iterator i = nodes.iterator();
         int j = 0;
         while (i.hasNext()) {

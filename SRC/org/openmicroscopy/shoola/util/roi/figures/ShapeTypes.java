@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //Java imports
 
@@ -45,18 +46,20 @@ import java.util.ArrayList;
  */
 public class ShapeTypes
 {	
-	public static ArrayList<String> shapeList; 
+	/** The collection of supported shapes. */
+	public static final List<String> SHAPE_LIST; 
+	
 	static 
 	{
-		shapeList = new ArrayList<String>();
-		shapeList.add("Ellipse");
-		shapeList.add("Rectangle");
-		shapeList.add("Polygon");
-		shapeList.add("Line Connection");
-		shapeList.add("Line");
-		shapeList.add("Scribble");
-		shapeList.add("Point");
-		shapeList.add("Text");
+		SHAPE_LIST = new ArrayList<String>();
+		SHAPE_LIST.add("Ellipse");
+		SHAPE_LIST.add("Rectangle");
+		SHAPE_LIST.add("Polygon");
+		SHAPE_LIST.add("Line Connection");
+		SHAPE_LIST.add("Line");
+		SHAPE_LIST.add("Scribble");
+		SHAPE_LIST.add("Point");
+		SHAPE_LIST.add("Text");
 		
 	};
 }

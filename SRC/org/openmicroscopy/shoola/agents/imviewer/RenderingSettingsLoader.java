@@ -131,9 +131,8 @@ public class RenderingSettingsLoader
         	ExperimenterData exp;
         	while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				if (userID == exp.getId()) {
+				if (userID == exp.getId())
 					viewer.setSettingsToPaste((RndProxyDef) map.get(exp));
-				}
 			}
         } else {
         	viewer.setRenderingSettings(map);

@@ -127,6 +127,11 @@ public class TaskBarManager
             return url;
         } catch (Exception e) { 
         	if (suDialog != null) suDialog.close();
+        	Logger logger = container.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print("Error while saving.");
+	        msg.print(e);
+	        logger.error(this, msg);
         	//UserNotifier un = container.getRegistry().getUserNotifier();
 			//un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
         }   
@@ -171,6 +176,12 @@ public class TaskBarManager
             message = buffer.toString();
 		} catch (Exception e) {
 			message = "Error: Cannot find the About file.";
+			Logger logger = container.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print(message);
+	        msg.print(e);
+	        logger.error(this, msg);
+			
 		}
 		return message;
 	}

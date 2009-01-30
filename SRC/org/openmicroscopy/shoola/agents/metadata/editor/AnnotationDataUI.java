@@ -53,6 +53,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JToolBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -60,13 +61,11 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -321,6 +320,22 @@ class AnnotationDataUI
 		};
 	}
 	
+	/**
+	 * Creates a tool bar and adds the passed button to it.
+	 * 
+	 * @param button The button to add.
+	 * @return See above.
+	 */
+	private JToolBar createBar(JButton button)
+	{
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setBorder(null);
+		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+		bar.add(button);
+		return bar;
+	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -345,7 +360,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
-		p.add(addTagsButton);
+		p.add(createBar(addTagsButton));
 		
 		content.add(p, "0, "+i+", l, t");
 		content.add(tagsPane, "2, "+i);
@@ -354,7 +369,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
-		p.add(addDocsButton);
+		p.add(createBar(addDocsButton));
 		content.add(p, "0, "+i+", l, t");
 		content.add(docPane, "2, "+i);
 		i++;

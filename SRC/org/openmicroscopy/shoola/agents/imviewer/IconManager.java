@@ -60,187 +60,187 @@ public class IconManager
 {
 
     /** The <code>Status Info</code> icon. */
-    public  static int          STATUS_INFO = 0;
+    public  static final int          STATUS_INFO = 0;
     
     /** The <code>Renderer</code> icon. */
-    public  static int          RENDERER = 1;
+    public  static final int          RENDERER = 1;
     
     /** The <code>Save</code> icon. */
-    public  static int          SAVE = 2;
+    public  static final int          SAVE = 2;
     
     /** The <code>Movie</code> icon. */
-    public  static int          MOVIE = 3;
+    public  static final int          MOVIE = 3;
     
     /** The <code>Lens</code> icon. */
-    public  static int          LENS = 4;
+    public  static final int          LENS = 4;
     
     /** The tiny <code>Info</code> icon. */
-    public  static int          TINY_INFO = 5;
+    public  static final int          TINY_INFO = 5;
     
     /** The tiny <code>Info</code> icon. */
-    public  static int          DOMAIN = 6;
+    public  static final int          DOMAIN = 6;
     
     /** The tiny <code>Info</code> icon. */
-    public  static int          CODOMAIN = 7;
+    public  static final int          CODOMAIN = 7;
     
     /** The <code>Contrast Stretching</code> icon. */
-    public static  int          CONTRAST_STRETCHING = 8;
+    public static  final int          CONTRAST_STRETCHING = 8;
     
     /** The <code>Plane slicing</code> icon. */
-    public static  int          PLANE_SLICING = 9;
+    public static  final int          PLANE_SLICING = 9;
     
     /** The big <code>Contrast Stretching</code> icon. */
-    public static  int          CONTRAST_STRETCHING_48 = 10;
+    public static  final int          CONTRAST_STRETCHING_48 = 10;
     
     /** The big <code>Plane slicing</code> icon. */
-    public static  int          PLANE_SLICING_48 = 11;
+    public static  final int          PLANE_SLICING_48 = 11;
     
     /** The <code>Save settings</code> icon. */
-    public static  int          SAVE_SETTINGS = 12;
+    public static  final int          SAVE_SETTINGS = 12;
     
     /** The <code>Reset settings</code> icon. */
-    public static  int          RESET_SETTINGS = 13;
+    public static  final int          RESET_SETTINGS = 13;
     
     /** The <code>Histogram</code> icon. */
-    public static  int          HISTOGRAM = 14;
+    public static  final int          HISTOGRAM = 14;
    
     /** The <code>Play</code> icon. */
-    public static  int          PLAY = 15;
+    public static  final int          PLAY = 15;
     
     /** The <code>Stop</code> icon. */
-    public static  int          STOP = 16;
+    public static  final int          STOP = 16;
     
     /** The <code>Pause</code> icon. */
-    public static  int          PAUSE = 17;
+    public static  final int          PAUSE = 17;
     
     /** The <code>Histogram big</code> icon. */
-    public static  int          HISTOGRAM_48 = 18;
+    public static  final int          HISTOGRAM_48 = 18;
     
     /** The <code>Save As big</code> icon. */
-    public static  int          SAVE_48 = 19;
+    public static  final int          SAVE_48 = 19;
     
     /** The <code>Question</code> icon. */
-    public static  int          QUESTION = 20;
+    public static  final int          QUESTION = 20;
     
     /** The <code>Cancel</code> icon. */
-    public static  int          CANCEL = 21;
+    public static  final int          CANCEL = 21;
     
     /** The <code>Viewer</code> icon. */
-    public static  int          VIEWER = 22;
+    public static  final int          VIEWER = 22;
     
     /** The <code>GreyScale</code> icon. */
-    public static  int          GRAYSCALE = 23;
+    public static  final int          GRAYSCALE = 23;
     
     /** The <code>RGB</code> icon. */
-    public static  int          RGB = 24;
+    public static  final int          RGB = 24;
     
     /** The <code>HSB</code> icon. */
-    public static  int          HSB = 25;
+    public static  final int          HSB = 25;
     
     /** The <code>Plus</code> icon. */
-    public static  int          PLUS = 26;
+    public static  final int          PLUS = 26;
     
     /** The <code>MINUS</code> icon. */
-    public static  int          MINUS = 27;
+    public static  final int          MINUS = 27;
     
     /** The <code>Histogram</code> icon. */
-    public static int 			TEMPORARY_HISTOGRAM = 28;
+    public static final int 			TEMPORARY_HISTOGRAM = 28;
 
     /** The <code>Color Picker</code> icon. */
-    public static int           COLOR_PICKER = 29;
+    public static final int           COLOR_PICKER = 29;
 
     /** The <code>Info</code> icon. */
-    public static int           INFO = 30;
+    public static final int           INFO = 30;
     
     /** The <code>Info</code> icon 48 by 48. */
-    public static int           INFO_48 = 31;
+    public static final int           INFO_48 = 31;
     
     /** The <code>Download</code> icon. */
-    public static int           DOWNLOAD = 32;
+    public static final int           DOWNLOAD = 32;
     
     /** The <code>Annotation</code> icon. */
-    public static int           ANNOTATION = 33;
+    public static final int           ANNOTATION = 33;
     
     /** The <code>Grid View</code> icon. */
-    public static int           GRIDVIEW = 34;
+    public static final int           GRIDVIEW = 34;
     
     /** The <code>Channel Split</code> icon. */
-    public static int           CHANNEL_SPLIT = 35;
+    public static final int           CHANNEL_SPLIT = 35;
     
     /** The <code>Text</code> icon. */
-    public static int           TEXT = 36;
+    public static final int           TEXT = 36;
     
     /** The <code>Measurement tool</code> icon. */
-    public static int           MEASUREMENT_TOOL = 37;
+    public static final int           MEASUREMENT_TOOL = 37;
     
     /** The <code>Zoom in</code> icon. */
-    public static int           ZOOM_IN = 38;
+    public static final int           ZOOM_IN = 38;
     
     /** The <code>Zoom out</code> icon. */
-    public static int           ZOOM_OUT = 39;
+    public static final int           ZOOM_OUT = 39;
     
     /** The <code>Zoom fit</code> icon. */
-    public static int           ZOOM_FIT = 40;
+    public static final int           ZOOM_FIT = 40;
     
     /** The <code>Clear</code> icon. */
-    public static int           HISTORY_CLEAR = 41;
+    public static final int           HISTORY_CLEAR = 41;
 
     /** The <code>Create big</code> icon. */
-    public static int           CREATE_48 = 43;
+    public static final int           CREATE_48 = 43;
     
     /** The <code>Filter menu</code> icon. */
-    public static int           FILTER_MENU = 44;
+    public static final int           FILTER_MENU = 44;
 
     /** The <code>Browse</code> icon. */
-    public static int           BROWSE = 46;
+    public static final int           BROWSE = 46;
     
     /** The <code>Transparent</code> icon. */
-    public static int           TRANSPARENT = 47;
+    public static final int           TRANSPARENT = 47;
     
     /** The <code>Ratio min</code> icon. */
-    public static int           RATIO_MIN = 48;
+    public static final int           RATIO_MIN = 48;
     
     /** The <code>Ratio max</code> icon. */
-    public static int           RATIO_MAX = 49;
+    public static final int           RATIO_MAX = 49;
     
     /** The <code>Copy</code> icon. */
-    public static int           COPY = 50;
+    public static final int           COPY = 50;
     
     /** The <code>Paste</code> icon. */
-    public static int           PASTE = 51;
+    public static final int           PASTE = 51;
     
-    /** The <code>Preferences</code> icon. */
-    public static int           PREFERENCES_48 = 52;
+    /** The <code>Preferences</code> 48x48 icon. */
+    public static final int           PREFERENCES_48 = 52;
     
     /** The <code>User</code> icon. */
-    public static int           USER = 53;
+    public static final int           USER = 53;
     
     /** The <code>Search</code> icon. */
-    public static int           SEARCH = 54;
+    public static final int           SEARCH = 54;
     
     /** The <code>History</code> icon. */
-    public static int           HISTORY = 55;
+    public static final int           HISTORY = 55;
     
     /** The <code>Clear 12x12</code> icon. */
-    public static int           HISTORY_CLEAR_12 = 56;
+    public static final int           HISTORY_CLEAR_12 = 56;
     
     /** The <code>Set original Rendering settings</code> icon. */
-    public static int           SET_RND_SETTINGS = 57;
+    public static final int           SET_RND_SETTINGS = 57;
     
     /** The <code>Projection</code> icon. */
-    public static int           PROJECTION = 58;
+    public static final int           PROJECTION = 58;
     
     /** The <code>Projection 48</code> icon. */
-    public static int           PROJECTION_48 = 59;
+    public static final int           PROJECTION_48 = 59;
     
     /** The <code>Projection 12</code> icon. */
-    public static int           PROJECTION_12 = 60;
+    public static final int           PROJECTION_12 = 60;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 60;
+    private static final int          MAX_ID = 60;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];

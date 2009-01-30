@@ -108,7 +108,8 @@ public class ContainerFinder
                 containers.add((DataObject) userObject);
             } else if (userObject instanceof TagAnnotationData) {
             	TagAnnotationData tag = (TagAnnotationData) userObject;
-            	if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag)) {
+            	String ns = tag.getNameSpace();
+            	if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
             		containerNodes.add(node); 
                     containers.add((DataObject) userObject);
             	}

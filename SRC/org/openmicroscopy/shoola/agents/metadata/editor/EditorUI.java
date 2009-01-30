@@ -358,13 +358,7 @@ public class EditorUI
 	 * @return See above.
 	 */
 	Collection getExistingTags() { return model.getExistingTags(); }
-
-	void onTagsLoading(boolean wizard)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	/** 
 	 * Attaches the specified file.
 	 * 

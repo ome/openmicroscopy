@@ -117,7 +117,8 @@ public class ImageSet
         if (child == null) throw new NullPointerException("No child.");
         Class childClass = child.getClass();
         if (containsImages == null) {  //First time add is invoked.
-            containsImages = new Boolean(childClass.equals(ImageNode.class));
+        	containsImages = Boolean.valueOf(
+        			childClass.equals(ImageNode.class));
         } else {  //Either ImageNodes or ImageSets have been added.
         	/*
             if (containsImages.booleanValue()) {  //Children are ImageNodes.

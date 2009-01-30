@@ -126,10 +126,10 @@ public class ContainerCounterLoader
             root = (DataObject) i.next();
             if (root instanceof DatasetData) {
                 rootType = DatasetData.class;
-                id = new Long(((DatasetData) root).getId());
+                id = Long.valueOf(((DatasetData) root).getId());
             } else if (root instanceof TagAnnotationData) {
             	rootType = TagAnnotationData.class;
-                id = new Long(((TagAnnotationData) root).getId());
+                id = Long.valueOf(((TagAnnotationData) root).getId());
             }
             if (id != null) ids.add(id);
         }

@@ -349,6 +349,7 @@ public class SearchContext
 						gc.get(Calendar.DAY_OF_MONTH), 23, 59, 0);
 				startTime = new Timestamp(
 							gc.getTime().getTime()-60*UIUtilities.DAY);
+				break;
 			case ONE_YEAR:
 				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
 											0, 1, 0, 0, 0);

@@ -56,19 +56,19 @@ public class IconManager
 {
     
 	/** The <code>Status Info</code> icon. */
-    public  static int          STATUS_INFO = 0;
+    public  static final int	STATUS_INFO = 0;
     
     /** The <code>Import</code> icon. */
-    public  static int          IMPORT = 1;
+    public  static final int	IMPORT = 1;
     
     /** The <code>Import</code> icon. */
-    public  static int          IMPORT_48 = 2;
+    public  static final int	IMPORT_48 = 2;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 2;
+    private static final int	MAX_ID = 2;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];

@@ -243,13 +243,13 @@ public class ROINode
 		Object userObject=getUserObject();
 		if (userObject instanceof ROI)
 		{
-			ROI roi=(ROI) userObject;
+			ROI roi = (ROI) userObject;
 			switch (column)
 			{
 				case 0:
 					return null;
 				case ROIID_COLUMN+1:
-					return new Long(roi.getID());
+					return Long.valueOf(roi.getID());
 				case TIME_COLUMN+1:
 					return roi.getTRange();
 				case Z_COLUMN+1:
@@ -257,7 +257,7 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					return roi.getShapeTypes();
 				case ANNOTATION_COLUMN+1:
-					return new String(AnnotationKeys.TEXT.get(roi));
+					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:
 					return roi.isVisible();
 				default:
@@ -266,25 +266,24 @@ public class ROINode
 		}
 		else if (userObject instanceof ROIShape)
 		{
-			ROIShape roiShape=(ROIShape) userObject;
+			ROIShape roiShape = (ROIShape) userObject;
 			switch (column)
 			{
 				case 0:
 					return null;
 				case ROIID_COLUMN+1:
-					return ((Long)roiShape.getID()).toString();
+					return ((Long) roiShape.getID()).toString();
 				case TIME_COLUMN+1:
-					return ((Integer)(roiShape.getT()+1)).toString();
+					return ((Integer) (roiShape.getT()+1)).toString();
 				case Z_COLUMN+1:
-					Integer z = (Integer)roiShape.getZ()+1;
+					Integer z = roiShape.getZ()+1;
 					return z.toString();
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:
-					return new String(AnnotationKeys.TEXT
-						.get(roiShape));
+					return AnnotationKeys.TEXT.get(roiShape);
 				case VISIBLE_COLUMN+1:
-					return new Boolean(roiShape.getFigure().isVisible());
+					return Boolean.valueOf(roiShape.getFigure().isVisible());
 				default:
 					return null;
 			}

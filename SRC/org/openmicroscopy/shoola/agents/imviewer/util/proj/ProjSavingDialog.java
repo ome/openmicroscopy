@@ -419,12 +419,14 @@ public class ProjSavingDialog
 			startT = timeSelection.getStartValue()-1;
 			endT = timeSelection.getEndValue()-1;
 		}
+		/*
 		String type = null;
 		if (algorithm == ImViewer.SUM_INTENSITY) {
 			String value = (String) pixelsType.getSelectedItem();
 			type = EditorUtil.PIXELS_TYPE.get(value);
-			if (type.equals(pixelsType)) type = null;
+			if (type.equals(value)) type = null;
 		}
+		*/
 		ProjectionRef ref = new ProjectionRef();
 		ref.setDatasets(datasets);
 		ref.setImageName(nameField.getText());

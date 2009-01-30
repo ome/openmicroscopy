@@ -1317,6 +1317,7 @@ class ImViewerComponent
 				}
 				*/
 				active = model.getActiveChannels();
+				i = active.iterator();
 				while (i.hasNext()) { //reset values.
 					index = ((Integer) i.next()).intValue();
 					model.setChannelActive(index, true);
@@ -1382,6 +1383,7 @@ class ImViewerComponent
 			}
 			
 			active = model.getActiveChannels();
+			i = active.iterator();
 			while (i.hasNext()) { //reset values.
 				index = ((Integer) i.next()).intValue();
 				model.setChannelActive(index, true);

@@ -28,6 +28,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -75,7 +77,7 @@ public class OMETreeTable
 {	
 	
 	/** A map of the default cell editors in the table.  */
-	protected static HashMap<Class<?>, DefaultCellEditor> DEFAULT_EDITORS;
+	protected static final Map<Class<?>, DefaultCellEditor> DEFAULT_EDITORS;
 	
 	static
 	{
@@ -89,7 +91,7 @@ public class OMETreeTable
 	}
 
 	/** A map of the default cell renderers in the table. */
-	protected static HashMap<Class<?>, TableCellRenderer> DEFAULT_RENDERERS;
+	protected static final Map<Class<?>, TableCellRenderer> DEFAULT_RENDERERS;
 	
 	static
 	{

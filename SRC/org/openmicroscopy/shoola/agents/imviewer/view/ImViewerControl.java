@@ -617,7 +617,7 @@ class ImViewerControl
 		pref.setRenderer(view.isRendererShown());
 		pref.setHistory(view.isHistoryShown());
 		Color c = model.getUnitBarColor();
-		if (c == null)
+		if (c != null)
 			pref.setScaleBarColor(c);
 		index = view.getScaleBarIndex();
 		if (index > 0) pref.setScaleBarIndex(index);

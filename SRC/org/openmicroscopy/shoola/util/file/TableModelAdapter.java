@@ -140,9 +140,10 @@ class TableModelAdapter
 		Boolean[][] array = new Boolean[typeArray.length][typeArray[0].length];
 		columnCount = array[0].length;
 		rowCount = array.length;
-		for (int i=0; i<typeArray.length; i++)
-			for (int j=0; j<typeArray[i].length; j++)
-				array[i][j] = new Boolean(typeArray[i][j]);
+		for (int i = 0; i < typeArray.length; i++)
+			for (int j = 0; j < typeArray[i].length; j++) {
+				array[i][j] = Boolean.valueOf(typeArray[i][j]);
+			}
 		return array;
 	}
 	

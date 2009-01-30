@@ -61,7 +61,7 @@ public class JPEGFilter
 	public static final String 	JPE = "jpe";
 		
 	/** The possible extensions. */
-	private static final String[] 	extensions;
+	public static final String[] 	extensions;
 	
 	/** The description of the filter. */
 	private static final String		description;
@@ -81,12 +81,6 @@ public class JPEGFilter
 		s += ")";
 		description = s;
 	}
-	
-	/**
-	 * 	Overriden to return the extension of the filter.
-	 * 	@see CustomizedFileFilter#getExtensions()
-	 */
-	public String[] getExtensions() { return extensions; }
 	
 	/**
 	 * 	Overriden to return the extension of the filter.

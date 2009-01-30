@@ -99,9 +99,10 @@ public abstract class Encoder
      */
 	public Encoder(BufferedImage image, DataOutputStream output)
     {
-        if (output == null) new IllegalArgumentException("Output not valid");
+        if (output == null) 
+        	throw new IllegalArgumentException("Output not valid");
         if (image == null)  
-            new IllegalArgumentException("Image to encode not valid");
+        	throw new IllegalArgumentException("Image to encode not valid");
         colorType = checkColorModel(image);
         this.image = image;
         this.imageHeight = image.getWidth();

@@ -232,8 +232,8 @@ class GraphicsPane
     	 int width = codomainSlider.getPreferredSize().width;
     	 double size[][] =
          {{width, knobWidth/2, TableLayout.FILL, knobWidth/2},  // Columns
-          {knobHeight/2, TableLayout.FILL, knobHeight/2, knobHeight+2, 
-        	 TableLayout.PREFERRED, 5}}; // Rows
+          {knobHeight/2, TableLayout.FILL, (double) knobHeight/2, 
+        	 (double) knobHeight+2, TableLayout.PREFERRED, 5}}; // Rows
     	 p.setLayout(new TableLayout(size));
     	 p.add(codomainSlider, "0, 0, 0, 2");
     	 p.add(uiDelegate, "2, 1");

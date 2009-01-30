@@ -51,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
  * @since OME3.0
  */
 public class ROITreeNode
-extends OMETreeNode
+	extends OMETreeNode
 {
 	
 	/** The map of the children, ROIShapes belonging to the ROITreeNode. */
@@ -92,6 +92,7 @@ extends OMETreeNode
 
 	/**
 	 * Get the point in the parent where a child with coord should be inserted.
+	 * 
 	 * @param coord see above.
 	 * @return see above.
 	 */
@@ -99,20 +100,18 @@ extends OMETreeNode
 	{
 		Iterator<Coord3D> i = childCoordMap.keySet().iterator();
 		int index = 0;
-		while(i.hasNext())
+		Coord3D nodeCoord;
+		while (i.hasNext())
 		{
-			Coord3D nodeCoord = i.next();
-			if(nodeCoord.compare(nodeCoord, coord)!=-1)
+			nodeCoord = i.next();
+			if (nodeCoord.compare(nodeCoord, coord) != -1)
 				return index;
 			index++;
 		}
 		return index;
 	}
 	
-	/** 
-	 * Initialise the maps for the child nodes. 
-	 *
-	 */
+	/** Initialises the maps for the child nodes. */
 	private void initMaps()
 	{
 		childMap = new HashMap<ROIShape, ROITreeNode>();
@@ -162,12 +161,12 @@ extends OMETreeNode
 	 {
 		 super.insert(child, index);
 		 Object userObject = child.getUserObject();
-		 if(userObject instanceof ROIShape)
+		 if (userObject instanceof ROIShape)
 		 {
 			 ROIShape shape = (ROIShape)userObject;
 			 child.setExpanded(true);
-			 childMap.put(shape, (ROITreeNode)child);
-			 childCoordMap.put(shape.getCoord3D(), (ROITreeNode)child);
+			 childMap.put(shape, child);
+			 childCoordMap.put(shape.getCoord3D(), child);
 		 }
 	 }
 
@@ -197,7 +196,7 @@ extends OMETreeNode
 		 
 		 super.remove(childNode);
 		 Object userObject = childNode.getUserObject();
-		 if(userObject instanceof ROIShape)
+		 if (userObject instanceof ROIShape)
 		 {
 			 ROIShape shape = (ROIShape)userObject;
 			 childMap.remove(shape);
@@ -206,23 +205,16 @@ extends OMETreeNode
 	 }
 	 
 	/**
-	 * Get the value for the node at column
+	 * Returns the value for the node at column
+	 * 
 	 * @param column return the value of the element at column.
 	 * @return see above.
 	 */
 	public Object getValueAt(int column)
 	{
-		Object userObject=getUserObject();
-		if (userObject instanceof ROI)
-		{
-			ROI roi=(ROI) userObject;
-	
-		}
-		else if (userObject instanceof ROIShape)
-		{
-			ROIShape roiShape=(ROIShape) userObject;
-		
-		}
+		Object userObject = getUserObject();
+		if ((userObject instanceof ROI) || (userObject instanceof ROIShape))
+			return userObject;
 		return null;
 	}
 	

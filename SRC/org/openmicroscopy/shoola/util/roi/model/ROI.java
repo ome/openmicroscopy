@@ -157,7 +157,7 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		return new String("["+(low.getTimePoint()+1)+","+(high.getTimePoint()+1)+"]");
+		return "["+(low.getTimePoint()+1)+","+(high.getTimePoint()+1)+"]";
 	}
 	
 	/** Get the range of the timepoints this ROI spans. 
@@ -167,7 +167,7 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		return new String("["+(low.getZSection()+1)+","+(high.getZSection()+1)+"]");
+		return "["+(low.getZSection()+1)+","+(high.getZSection()+1)+"]";
 	}
 	
 	/** Get the range of the shapes this ROI contains. 
@@ -175,33 +175,36 @@ public class ROI
 	 */
 	public String getShapeTypes()
 	{
-		String shapes = new String("");
+		String shapes = "";
 		HashMap<String,Integer> shapeTypes = new HashMap<String, Integer>();
 		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
+		ROIShape shape;
+		String type;
 		while(shapeIterator.hasNext())
 		{
-			ROIShape shape = shapeIterator.next();
-			String type = shape.getFigure().getType();
-			if(shapeTypes.containsKey(type))
+			shape = shapeIterator.next();
+			type = shape.getFigure().getType();
+			if (shapeTypes.containsKey(type))
 			{
 				int value  = shapeTypes.get(type)+1;
 				shapeTypes.put(type, value);
 			}
 			else
-				shapeTypes.put(type, new Integer(1));
+				shapeTypes.put(type, Integer.valueOf(1));
 		}
 		
 		Iterator<String> typeIterator = shapeTypes.keySet().iterator();
 		boolean first = true;
-		while(typeIterator.hasNext())
+		
+		while (typeIterator.hasNext())
 		{
-			String shape = typeIterator.next();
+			type = typeIterator.next();
 			if(!first)
 			{
 				shapes = shapes + ",";
 				first = false;
 			}
-			shapes = shapes+shape;
+			shapes = shapes+type;
 		}
 		shapes = shapes + "";
 		return shapes;
@@ -215,13 +218,15 @@ public class ROI
 	{
 		boolean visible = false;
 		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
-		while(shapeIterator.hasNext())
+		ROIShape shape;
+		while (shapeIterator.hasNext())
 		{
-			ROIShape shape = shapeIterator.next();
+			shape = shapeIterator.next();
 			visible = visible | shape.getFigure().isVisible();
 		}
 		return visible;
 	}
+	
 	/** 
 	 * Return true if the ROI contains a ROIShape on coord.
 	 * @param coord see above.
@@ -241,10 +246,10 @@ public class ROI
 	public boolean containsKey(Coord3D start, Coord3D end)
 	{
 		//for(int c = start.c; c < end.c ; c++)
-			for(int t = start.getTimePoint(); t < end.getTimePoint() ; t++)
-				for(int z = start.getZSection(); z < end.getZSection() ; z++)
-					if(!roiShapes.containsKey(new Coord3D(z,t)))
-						return false;
+		for (int t = start.getTimePoint(); t < end.getTimePoint() ; t++)
+			for (int z = start.getZSection(); z < end.getZSection() ; z++)
+				if (!roiShapes.containsKey(new Coord3D(z, t)))
+					return false;
 		return true;
 	}
 	
@@ -266,7 +271,7 @@ public class ROI
 	 */
 	public ROIShape getShape(Coord3D coord) throws NoSuchROIException
 	{
-		if(!roiShapes.containsKey(coord))
+		if (!roiShapes.containsKey(coord))
 			throw new NoSuchROIException("ROI " + id + " does not contain " +
 					"ROIShape on Coord " + coord.toString());
 		return roiShapes.get(coord);
@@ -281,7 +286,7 @@ public class ROI
 	 */
 	public ROIFigure getFigure(Coord3D coord) throws NoSuchROIException
 	{
-		if(!roiShapes.containsKey(coord))
+		if (!roiShapes.containsKey(coord))
 			throw new NoSuchROIException("ROI " + id + " does not contain " +
 					"ROIShape on Coord " + coord.toString());
 		return getShape(coord).getFigure();
@@ -294,9 +299,9 @@ public class ROI
 	 * @throws ROICreationException see above. 
 	 */
 	public void addShape(ROIShape shape) 
-												throws ROICreationException
+		throws ROICreationException
 	{
-		if(roiShapes.containsKey(shape.getCoord3D()))
+		if (roiShapes.containsKey(shape.getCoord3D()))
 			throw new ROICreationException();
 		roiShapes.put(shape.getCoord3D(), shape);
 	}
@@ -310,14 +315,12 @@ public class ROI
 	 */
 	public void deleteShape(Coord3D coord) throws NoSuchROIException
 	{
-		if(!roiShapes.containsKey(coord))
+		if (!roiShapes.containsKey(coord))
 			throw new NoSuchROIException("ROI " + id + " does not contain " +
 					"ROIShape on Coord " + coord.toString());
 			roiShapes.remove(coord);
 	}
-	  
-	
-	
+
 	/**
 	 * Set the value off the annotation with key.
 	 * @param key see above.
@@ -453,7 +456,7 @@ public class ROI
     {
         if (hasAnnotation(key)) 
         {
-            Object oldValue = getAnnotation(key);
+            //Object oldValue = getAnnotation(key);
             annotations.remove(key);
         }
     }

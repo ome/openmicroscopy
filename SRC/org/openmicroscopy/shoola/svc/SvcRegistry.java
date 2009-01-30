@@ -113,7 +113,8 @@ public class SvcRegistry
             	SvcActivator activator = createActivator(factory);
                 service = ((CommunicatorFactory) activator).activate(desc);
             } catch (Exception e) {
-                new SvcActivationException("Descriptor not recognized", e);
+                throw new SvcActivationException("Descriptor not recognized", 
+                		e);
             }
         } else {  //Somebody is attempting to retrieve a service for which
                   //no factory has been registered.

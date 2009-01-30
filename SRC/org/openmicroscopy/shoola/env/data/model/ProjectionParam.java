@@ -307,6 +307,13 @@ public class ProjectionParam
 	}
 	
 	/**
+	 * Sets the pixels type.
+	 * 
+	 * @param type The value to set.
+	 */
+	public void setPixelsType(String type) { pixelsType = type; }
+	
+	/**
 	 * Returns the type of projection.
 	 * 
 	 * @return See above.

@@ -187,7 +187,7 @@ class TreeViewerComponent
 	        						db.setSelectedNodes(
 	        								browser.getSelectedDataObjects());
 	        					} 
-	        					else if (object instanceof TagAnnotationData) {
+	        					else if (ho instanceof TagAnnotationData) {
 	        						TagAnnotationData tag = 
 	        							(TagAnnotationData) ho;
 	        						if (tag.getTags() == null) {
@@ -761,7 +761,7 @@ class TreeViewerComponent
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		//TODO
-		Browser browser = model.getSelectedBrowser();
+		//Browser browser = model.getSelectedBrowser();
 		//browser.refreshEdition(data, operation);
 		
 		setStatus(false, "", true);
@@ -984,11 +984,9 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		Browser browser = model.getSelectedBrowser();
 		if (browser != null) browser.onComponentStateChange(b);
-		Boolean oldValue = Boolean.TRUE;
-		if (b) oldValue = Boolean.FALSE;
 		view.onStateChanged(b);
-		firePropertyChange(ON_COMPONENT_STATE_CHANGED_PROPERTY, oldValue, 
-				new Boolean(b));
+		firePropertyChange(ON_COMPONENT_STATE_CHANGED_PROPERTY, 
+				Boolean.valueOf(!b), Boolean.valueOf(b));
 	}
 
 	/**
@@ -1310,7 +1308,7 @@ class TreeViewerComponent
 				}
 				index++;
 			}
-			s.trim();
+			s = s.trim();
 			un.notifyInfo("Paste Image's settings", "The settings of "+name+
 					"\ncould not be applied to the following images with ID:" +
 					"\n"+s);

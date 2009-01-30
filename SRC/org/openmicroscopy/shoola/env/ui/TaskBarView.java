@@ -532,9 +532,8 @@ class TaskBarView
 	                for (int j = 0; j < comps.length; j++) {
 	                	c = comps[j];
 						if (c instanceof JMenu) {
-							if (((JMenu) c).getText() == entry.getText()) {
+							if (((JMenu) c).getText().equals(entry.getText())) 
 								menu.remove(c);
-							}
 						} 
 					}
 	            }

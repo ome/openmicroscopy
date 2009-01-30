@@ -121,9 +121,10 @@ public class InputStrategy
 		defaultAttributes.put(MeasurementAttributes.TEXT, "Text");
 		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, new Boolean(
-			false));
-		defaultAttributes.put(MeasurementAttributes.SHOWTEXT, new Boolean(false));
+		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
+				Boolean.valueOf(false));
+		defaultAttributes.put(MeasurementAttributes.SHOWTEXT, 
+				Boolean.valueOf(false));
 	}
 	
 	/**
@@ -446,7 +447,7 @@ public class InputStrategy
 					annotationElement.getAttribute(IOConstants.VALUE_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
 			if (value.equals(IOConstants.VALUE_NULL)) return 0;
-			return new Integer(value);
+			return Integer.valueOf(value);
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_BOOLEAN))
 		{
@@ -454,7 +455,7 @@ public class InputStrategy
 					annotationElement.getAttribute(IOConstants.VALUE_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
 			if (value.equals(IOConstants.VALUE_NULL)) return 0;
-			return new Boolean(value);
+			return Boolean.valueOf(value);
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_LONG))
 		{
@@ -462,7 +463,7 @@ public class InputStrategy
 					annotationElement.getAttribute(IOConstants.VALUE_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
 			if (value.equals(IOConstants.VALUE_NULL)) return 0;
-			return new Long(value);
+			return Long.valueOf(value);
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_FLOAT))
 		{
@@ -470,7 +471,7 @@ public class InputStrategy
 					annotationElement.getAttribute(IOConstants.VALUE_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
 			if (value.equals(IOConstants.VALUE_NULL)) return 0;
-			return new Float(value);
+			return Float.valueOf(value);
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_DOUBLE))
 		{
@@ -478,7 +479,7 @@ public class InputStrategy
 					annotationElement.getAttribute(IOConstants.VALUE_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
 			if (value.equals(IOConstants.VALUE_NULL)) return 0;
-			return new Double(value);
+			return Double.valueOf(value);
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_POINT2D))
 		{
@@ -489,9 +490,10 @@ public class InputStrategy
 					annotationElement.getAttribute(IOConstants.Y_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
 			if (xValue.equals(IOConstants.VALUE_NULL)
-					||yValue.equals(IOConstants.VALUE_NULL)) return new Point2D.Double(
-				0, 0);
-			return new Point2D.Double(new Double(xValue), new Double(yValue));
+					||yValue.equals(IOConstants.VALUE_NULL)) 
+				return new Point2D.Double(0, 0);
+			return new Point2D.Double(Double.valueOf(xValue), 
+					Double.valueOf(yValue));
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_RECTANGLE2D)
 				||dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_ELLIPSE2D))
@@ -515,7 +517,7 @@ public class InputStrategy
 			{
 				if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_RECTANGLE2D)) 
 					return new Rectangle2D.Double();
-				else return new Ellipse2D.Double();
+				return new Ellipse2D.Double();
 			}
 			if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_RECTANGLE2D)) 
 				new Rectangle2D.Double(

@@ -201,7 +201,7 @@ class BrowserModel
 	    while (i.hasNext())
 	        oldValue.add((ImageDisplay) i.next());
 	    
-	    if (!multiSelection) selectedDisplays.removeAll(selectedDisplays);
+	    if (!multiSelection) selectedDisplays.clear();
 	    if (node != null) selectedDisplays.add(node);
 	    if (fireProperty)
 	    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);

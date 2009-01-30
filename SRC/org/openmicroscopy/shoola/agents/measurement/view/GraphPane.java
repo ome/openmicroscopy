@@ -381,7 +381,6 @@ class GraphPane
 	 * display analysis method. This method should be called from either the 
 	 * display analysis method or the changelistener which uses the same ROI 
 	 * data generated in the displayAnalysis method.
-	 *
 	 */
 	private void buildGraphsAndDisplay()
 	{
@@ -399,7 +398,7 @@ class GraphPane
 		channelColour.clear();
 		channelXYData.clear();
 		channelData.clear();
-		Iterator<Integer> k = data.keySet().iterator();
+
 		ChannelData cData;
 		List<ChannelData> metadata = model.getMetadata();
 		Iterator<ChannelData> j = metadata.iterator();

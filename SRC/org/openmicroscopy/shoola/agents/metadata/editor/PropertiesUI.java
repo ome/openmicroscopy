@@ -47,6 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
+import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -342,7 +343,12 @@ class PropertiesUI
     {
     	JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(button);
+    	JToolBar bar = new JToolBar();
+    	bar.setBorder(null);
+    	bar.setFloatable(false);
+    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	bar.add(button);
+		p.add(bar);
 		p.add(c);
     	return p;
     }

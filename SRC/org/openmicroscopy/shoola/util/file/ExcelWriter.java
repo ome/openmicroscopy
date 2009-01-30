@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.table.TableModel;
 
 //Third-party libraries
@@ -368,6 +370,7 @@ public class ExcelWriter
 	/**
 	 * Returns the size of the image of size [width, height] in pixels in cells 
 	 * [width, height].
+	 * 
 	 * @param width see above.
 	 * @param height see above.
 	 * @return see above.
@@ -375,9 +378,9 @@ public class ExcelWriter
 	public Dimension getImageSize(int width, int height)
 	{
 		Dimension d = new Dimension();
-		double remainderWidth =  (width%68)/68.0;
+		//double remainderWidth =  (width%68)/68.0;
 		int widthInCells = width/68;
-		double remainderHeight = (height%18)/18.0;
+		//double remainderHeight = (height%18)/18.0;
 		int heightInCells = (height/18);
 		d.setSize(widthInCells, heightInCells);
 		return d;
@@ -888,7 +891,15 @@ public class ExcelWriter
 	 */
 	public String[] getCellStyles()
 	{
-		return (String[]) styleMap.keySet().toArray();
+		Set<String> keys = styleMap.keySet();
+		String[] array = new String[keys.size()];
+		Iterator<String> i = keys.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			array[index] = i.next();
+			index++;
+		}
+		return array;
 	}
 	
 	/**
@@ -898,10 +909,17 @@ public class ExcelWriter
 	 */
 	public String[] getFonts()
 	{
-		return (String[]) fontMap.keySet().toArray();
+		Set<String> keys = fontMap.keySet();
+		String[] array = new String[keys.size()];
+		Iterator<String> i = keys.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			array[index] = i.next();
+			index++;
+		}
+		return array;
 	}
-	
-	
+
 	/**
 	 * Sets the cell Style for cell at row and col.
 	 * 

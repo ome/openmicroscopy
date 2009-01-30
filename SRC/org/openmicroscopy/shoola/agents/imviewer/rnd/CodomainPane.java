@@ -134,9 +134,10 @@ class CodomainPane
     /** Sets the default values. */
     private void setDefaultValues()
     {
-        List cdMaps = model.getCodomainMaps();
-        Iterator i = cdMaps.iterator();
+       
         /*
+         *  List cdMaps = model.getCodomainMaps();
+        Iterator i = cdMaps.iterator();
         CodomainMapContext ctx;
         while (i.hasNext()) {
             ctx = (CodomainMapContext) i.next();

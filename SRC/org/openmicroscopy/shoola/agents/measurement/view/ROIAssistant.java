@@ -206,10 +206,9 @@ class ROIAssistant
 				if(row < 0 || row >= table.getRowCount() || 
 							col < 0 || col > table.getColumnCount())
 					return;
-				Object value = table.getShapeAt(row, col);
-				if(value instanceof ROIShape)
+				ROIShape shape = table.getShapeAt(row, col);
+				if (shape != null)
 				{
-					ROIShape shape = (ROIShape)value;
 					initialShape = shape;
 					shapeType.setText(shape.getFigure().getType());
 					description.setText(
@@ -223,10 +222,6 @@ class ROIAssistant
 					height.setText(Math.abs(
 							shape.getFigure().getEndPoint().getY()-
 							shape.getFigure().getStartPoint().getY())+"");
-				}
-				else if (value == null)
-				{
-			
 				}
 
 			}

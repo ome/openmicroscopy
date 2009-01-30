@@ -483,9 +483,9 @@ public class MessengerDialog
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false);
         tPane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-        IconManager icons = IconManager.getInstance();
-        Icon icon = icons.getIcon(IconManager.ERROR_ICON_64);
-        if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
+        //IconManager icons = IconManager.getInstance();
+        //Icon icon = icons.getIcon(IconManager.ERROR_ICON_64);
+        //if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
         tPane.addTab("Comments", null, buildCommentPanel(DEBUG_COMMENT_FIELD), 
         		"Your comments go here.");
         tPane.addTab("Error Message", null, buildDebugPanel(),

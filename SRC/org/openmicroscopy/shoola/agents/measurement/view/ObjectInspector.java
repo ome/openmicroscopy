@@ -194,8 +194,8 @@ class ObjectInspector
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
 		Boolean value = (Boolean)fieldTable.getModel().getValueAt(row, col);
-		boolean newValue = !(value.booleanValue());
-		fieldTable.getModel().setValueAt(new Boolean(newValue), row, col);
+		boolean newValue = !(value.booleanValue()); 
+		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
 	}
 	
 	/** Builds and lays out the UI. */

@@ -279,8 +279,10 @@ public class UIUtilities
 	{
 		if (window == null) return;
 		if (location == null) centerOnScreen(window);
-		window.setLocation(location);
-		window.setVisible(true);
+		else {
+			window.setLocation(location);
+			window.setVisible(true);
+		}
 	}
 	
 	/**

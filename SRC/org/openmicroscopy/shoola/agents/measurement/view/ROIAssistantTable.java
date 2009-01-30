@@ -82,7 +82,7 @@ class ROIAssistantTable
 			columnWidth = Math.max(columnWidth, metrics.stringWidth(""+i));
 		}
 		
-		w  =  metrics.stringWidth(model.getColumnName(0));
+		//w  =  metrics.stringWidth(model.getColumnName(0));
 
 		TableColumn col;
 		int width;

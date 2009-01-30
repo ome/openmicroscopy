@@ -116,9 +116,9 @@ public class ContainersManager
             node = (TreeImageSet) i.next();
             userObject = node.getUserObject();
             if (userObject instanceof DatasetData) 
-                id = new Long(((DatasetData) userObject).getId());
+                id = Long.valueOf(((DatasetData) userObject).getId());
            else if (userObject instanceof TagAnnotationData) 
-                id = new Long(((TagAnnotationData) userObject).getId());
+                id = Long.valueOf(((TagAnnotationData) userObject).getId());
             if (id != null) {
                 p = (Set) providers.get(id);
                 if (p == null) {

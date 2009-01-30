@@ -1329,11 +1329,13 @@ class RenderingControlProxy
     		 ChannelData m;
     		 Iterator j;
     		 Family family;
+    		 String value;
     		 for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
     			 j = list.iterator();
     			 while (j.hasNext()) {
     				 family= (Family) j.next();
-    				 if (family.getValue().equals(getChannelFamily(i))) {
+    				 value = family.getValue().getValue();
+    				 if (value.equals(getChannelFamily(i))) {
     					 servant.setQuantizationMap(i, family, 
     							 getChannelCurveCoefficient(i), false);
     				 }

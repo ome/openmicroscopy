@@ -98,8 +98,8 @@ public Component getTreeCellRendererComponent(JTree tree,
  */
 private boolean isShape(String str)
 {
-	for(int i = 0 ; i < ShapeTypes.shapeList.size() ; i++)
-		if(ShapeTypes.shapeList.get(i).equals(str))
+	for(int i = 0 ; i < ShapeTypes.SHAPE_LIST.size() ; i++)
+		if(ShapeTypes.SHAPE_LIST.get(i).equals(str))
 			return true;
 	return false;
 }

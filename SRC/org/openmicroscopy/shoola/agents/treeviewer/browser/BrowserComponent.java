@@ -678,8 +678,8 @@ class BrowserComponent
             case READY:   
                 break;
             default:
-                new IllegalStateException("This method can only be invoked " +
-                        "in the NEW or READY state.");
+            	throw new IllegalStateException("This method can only " +
+            			"be invoked in the NEW or READY state.");
         }
         Object o = object;
         List nodes = null;

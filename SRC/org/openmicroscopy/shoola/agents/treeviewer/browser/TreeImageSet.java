@@ -190,7 +190,7 @@ public class TreeImageSet
     public TreeImageDisplay copy()
     {
         TreeImageSet copy = new TreeImageSet(this.getUserObject());
-        copy.setChildrenLoaded(new Boolean(this.isChildrenLoaded()));
+        copy.setChildrenLoaded(Boolean.valueOf(this.isChildrenLoaded()));
         copy.setNumberItems(this.getNumberItems());
         copy.setHighLight(this.getHighLight());
         copy.setToolTip(this.getToolTip());

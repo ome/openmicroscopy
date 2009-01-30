@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,7 +82,15 @@ public class WikiView
 	 */
 	String[] getRegexList()
 	{
-		return (String[]) regexMap.keySet().toArray();
+		Set<String> keys = regexMap.keySet();
+		String[] array = new String[keys.size()];
+		Iterator<String> i = keys.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			array[index] = i.next();
+			index++;
+		}
+		return array;
 	}
 	
 	/**

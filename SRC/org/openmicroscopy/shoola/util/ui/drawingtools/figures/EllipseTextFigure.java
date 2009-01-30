@@ -243,8 +243,7 @@ public class EllipseTextFigure
 			text = text.trim();
 			TextLayout layout = getTextLayout();
 			
-			Rectangle r = getTransformedShape().getBounds();
-			
+
 			// TODO: I BROKE THIS.
 			//Rectangle2D r = this.getBounds();
 			FontMetrics fm = 
@@ -255,7 +254,8 @@ public class EllipseTextFigure
 			double x = this.getBounds().getCenterX()-textWidth/2;
 			double y = this.getBounds().getCenterY();
 			Font font = AttributeKeys.FONT_FACE.get(this);
-			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
+			Font viewFont = font.deriveFont(
+					AttributeKeys.FONT_SIZE.get(this).intValue());
 			g.setFont(viewFont);
 			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
 			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);

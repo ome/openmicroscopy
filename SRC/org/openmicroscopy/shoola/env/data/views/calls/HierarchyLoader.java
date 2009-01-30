@@ -87,9 +87,11 @@ public class HierarchyLoader
     {
         if (rootNodeType == null) 
             throw new IllegalArgumentException("No root node type.");
-        if (rootNodeIDs == null && rootNodeIDs.size() == 0)
+        if (rootNodeIDs == null)
             throw new IllegalArgumentException("No root node ids.");
-
+        if (rootNodeIDs.size() == 0)
+            throw new IllegalArgumentException("No root node ids.");
+        
         if (rootNodeType.equals(ProjectData.class) ||
             rootNodeType.equals(DatasetData.class))
             loadCall = makeBatchCall(rootNodeType, rootNodeIDs);
@@ -148,7 +150,7 @@ public class HierarchyLoader
     {
         this.userID = userID;
         List<Long> set = new ArrayList<Long>(1);
-        set.add(new Long(rootNodeID));
+        set.add(Long.valueOf(rootNodeID));
         validate(rootNodeType, set);
     }
     

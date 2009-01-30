@@ -299,7 +299,7 @@ public class ModelMapper
             model.setDescription(omero.rtypes.rstring(data.getDescription()));
             if (parent != null)
             	model.linkProject(
-            			new ProjectI(new Long(parent.getId()), false));
+            			new ProjectI(Long.valueOf(parent.getId()), false));
             return model;
         } else if (child instanceof ImageData) {
             if (!(parent instanceof DatasetData))
@@ -308,9 +308,9 @@ public class ModelMapper
             Image model = new ImageI();
             model.setName(omero.rtypes.rstring(data.getName()));
             model.setDescription(omero.rtypes.rstring(data.getDescription()));
-            if (parent instanceof DatasetData) 
-                model.linkDataset(new DatasetI(new Long(parent.getId()), 
-                                            false));
+            model.linkDataset(new DatasetI(Long.valueOf(parent.getId()), 
+                    false));
+                
             return model; 
         } else if (child instanceof ScreenData) {
         	ScreenData data = (ScreenData) child;

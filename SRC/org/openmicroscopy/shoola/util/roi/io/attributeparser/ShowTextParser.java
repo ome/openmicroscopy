@@ -54,10 +54,9 @@ public class ShowTextParser
 	 * This Method will parse the ShowText Attribute of the figure.
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
-		{
-			Boolean booleanValue = new Boolean(value);
-			DrawingAttributes.SHOWTEXT.set(figure, booleanValue);
-		}
+	{
+		DrawingAttributes.SHOWTEXT.set(figure, Boolean.valueOf(value));
+	}
 		
 }
 

@@ -141,10 +141,7 @@ class BrowserControl
     	//Check if alls node are of the same type.
     	if (!(pathComponent instanceof TreeBrowserDisplay)) return;
     	TreeBrowserDisplay node = (TreeBrowserDisplay) pathComponent;
-    	ArrayList<TreePath> pathsToRemove = new ArrayList<TreePath>();
-    	TreeBrowserDisplay no;
-    	Object o;
-    	ArrayList<TreeBrowserDisplay> l = new ArrayList<TreeBrowserDisplay>();
+    	List<TreeBrowserDisplay> l = new ArrayList<TreeBrowserDisplay>();
     	l.add(node);
     	
     	/*

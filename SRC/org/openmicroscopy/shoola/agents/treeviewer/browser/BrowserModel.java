@@ -236,7 +236,7 @@ class BrowserModel
     void setSelectedDisplay(TreeImageDisplay display, boolean single)
     {
     	if (single) {
-    		selectedNodes.removeAll(selectedNodes);
+    		selectedNodes.clear();
             if (display != null) selectedNodes.add(display);
     	} else {
     		if (!selectedNodes.contains(display) && display != null)
@@ -257,7 +257,7 @@ class BrowserModel
     	if (display != null) {
     		if (!display.getUserObject().getClass().equals(
     				selectedDisplay.getUserObject().getClass()))
-    			selectedNodes.removeAll(selectedNodes);
+    			selectedNodes.clear();
     	}
     	selectedNodes.add(selectedDisplay);
     }

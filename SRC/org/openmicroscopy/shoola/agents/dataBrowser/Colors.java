@@ -86,9 +86,9 @@ public class Colors
     {
         Color c;
         c = (Color) registry.lookup("/resources/colors/TitleBarHighlight");
-        colorsMap.put(new Integer(TITLE_BAR_HIGHLIGHT), c);
+        colorsMap.put(TITLE_BAR_HIGHLIGHT, c);
         c = (Color) registry.lookup("/resources/colors/TitleBar");
-        colorsMap.put(new Integer(TITLE_BAR), c);
+        colorsMap.put(TITLE_BAR, c);
     }
     
     /**
@@ -115,7 +115,7 @@ public class Colors
             registry.getLogger().error(this, "color id out of range: "+id+".");
             return null;
         }
-        return colorsMap.get(new Integer(id));
+        return colorsMap.get(id);
     }
     
     /**

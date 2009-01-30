@@ -133,9 +133,6 @@ class EditorModel
     /** Collection of existing attachments if any. */
     private Collection				existingAttachments;
     
-    /** Collection of existing attachments if any. */
-    private Collection				existingURLs;
-    
     /** The list of emissions wavelengths for a given set of pixels. */
     private List					emissionsWavelengths;
     
@@ -786,9 +783,6 @@ class EditorModel
 		if (existingAttachments != null) 
 			existingAttachments.clear();
 	    existingAttachments = null;
-	    if (existingURLs != null) 
-	    	existingURLs.clear();
-	    existingURLs = null;
 	    if (emissionsWavelengths != null) 
 	    	emissionsWavelengths.clear();
 	    emissionsWavelengths = null;
@@ -1052,14 +1046,7 @@ class EditorModel
 	 * @return See above.
 	 */
 	Collection getExistingAttachments() { return existingAttachments; }
-	
-	/**
-	 * Returns the collection of existing urls.
-	 * 
-	 * @return See above.
-	 */
-	Collection getExistingURLs() { return existingURLs; }
-	
+
 	/**
 	 * Sets the channel data.
 	 * 

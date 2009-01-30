@@ -113,7 +113,7 @@ public class ImageNode
         thumbnail = t;
         if (t != null) {
         	canvas = new ThumbnailCanvas(this);
-            getInternalDesktop().add(canvas, new Integer(0));
+            getInternalDesktop().add(canvas, Integer.valueOf(0));
             setCanvasSize(t.getWidth(), t.getHeight());
             //setCanvasToolTip(getNodeName());
             setCanvasToolTip(getTitle());

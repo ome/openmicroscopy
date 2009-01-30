@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 public class ShowMeasurementParser
 	implements SVGAttributeParser
 {
+	
 	/**
 	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
 	 * IXMLElement, String)}
@@ -54,8 +55,8 @@ public class ShowMeasurementParser
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
-		Boolean booleanValue = new Boolean(value);
-		MeasurementAttributes.SHOWMEASUREMENT.set(figure, booleanValue);
+		MeasurementAttributes.SHOWMEASUREMENT.set(figure, 
+				Boolean.valueOf(value));
 	}
 	
 }
