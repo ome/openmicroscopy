@@ -30,8 +30,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,7 +59,6 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
@@ -584,15 +581,22 @@ class ImViewerComponent
 				case ColorModelAction.GREY_SCALE_MODEL:
 					historyActiveChannels = model.getActiveChannels();
 					model.setColorModel(GREY_SCALE_MODEL);
-					if (active != null && active.size() > 1) {
-						i = active.iterator();
-						int j = 0;
+					if (active != null && active.size() >= 1) {
 						List<ChannelData> channels = model.getChannelData();
-						ChannelData channel = channels.get(0);
+						ChannelData channel;
+						i = channels.iterator();
+						boolean set = false;
 						while (i.hasNext()) {
-							index = ((Integer) i.next()).intValue();
-							setChannelActive(index, j == channel.getIndex());
-							j++;
+							channel = (ChannelData) i.next();
+							index = channel.getIndex();
+							if (active.contains(index)) {
+								if (set) 
+									setChannelActive(index, false);
+								else {
+									setChannelActive(index, true);
+									set = true;
+								}
+							}
 						}
 					} else if (active == null || active.size() == 0) {
 						//no channel so no active channel
@@ -615,7 +619,6 @@ class ImViewerComponent
 							index = ((Integer) i.next()).intValue();
 							setChannelActive(index, true);
 						}
-	
 					} else {
 						if (active == null || active.size() == 0) {
 							//no channel so one will be active.
@@ -1848,10 +1851,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isTextVisible()
 	 */
-	public boolean isTextVisible()
-	{
-		return model.isTextVisible();
-	}
+	public boolean isTextVisible() { return model.isTextVisible(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.

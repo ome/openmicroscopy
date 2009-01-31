@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -60,6 +61,9 @@ class GridUI
 	/** Reference to the model. */
 	private BrowserModel	model;
 	
+	/** Reference to the view. */
+	private BrowserUI		view;
+	
 	/** The UI component hosting the {@link GridCanvas}. */
     private JLayeredPane	layeredPane;
     
@@ -87,13 +91,15 @@ class GridUI
 	/**
 	 * Links the components.
 	 * 
-	 * @param model 		Reference to the model. 
-	 * 						Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
 	 */
-	void initialize(BrowserModel model)
+	void initialize(BrowserModel model, BrowserUI view)
 	{
 		if (model == null) throw new NullPointerException("No model.");
+		if (view == null) throw new NullPointerException("No view.");
 		this.model = model;
+		this.view = view;
 		initComponents();
 		buildGUI();
 	}
@@ -106,6 +112,7 @@ class GridUI
         layeredPane.setSize(d);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
+        layeredPane.setBackground(Color.RED);
 	}
 	
 	/**
@@ -177,6 +184,7 @@ class GridUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
+		if (view.isAdjusting()) return;
 		Rectangle r = getViewport().getViewRect();
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);

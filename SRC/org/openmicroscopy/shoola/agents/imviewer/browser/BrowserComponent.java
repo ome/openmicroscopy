@@ -111,7 +111,7 @@ class BrowserComponent
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
-        gridView.initialize(model);
+        gridView.initialize(model, view);
         projectionView.initialize(model, view);
     }
     
@@ -455,6 +455,7 @@ class BrowserComponent
 	{
 		if (model.getSelectedIndex() != ImViewer.GRID_INDEX) return;
 		model.setGridImages();
+		if (gridView != null) gridView.repaint();
 	}
 
 	/** 
