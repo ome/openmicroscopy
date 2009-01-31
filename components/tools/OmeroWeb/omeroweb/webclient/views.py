@@ -606,7 +606,10 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     request.session['nav']['menu'] = 'mydata'
     request.session['nav']['whos'] = 'mydata'
     
+    conn = None
+    url = None
     try:
+        conn = kwargs["conn"]
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -619,14 +622,8 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     view = request.session['nav']['view']
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
-    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id)
+    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
     manager.buildBreadcrumb(whos)
         
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
@@ -751,7 +748,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
                     elif o1_type == 'image':
                         manager.createImageTagAnnotation(tag)
                 form_tag = TagAnnotationForm()
-            form_uri = UriAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
         elif action == "file":
@@ -807,7 +804,10 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     request.session['nav']['menu'] = 'collaboration'
     request.session['nav']['whos'] = 'userdata'
     
+    conn = None
+    url = None
     try:
+        conn = kwargs["conn"]
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -821,13 +821,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id)
+    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
     manager.buildBreadcrumb(whos)
         
     grs = list()
@@ -1052,7 +1046,10 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     request.session['nav']['menu'] = 'collaboration'
     request.session['nav']['whos'] = 'groupdata'
     
+    conn = None
+    url = None
     try:
+        conn = kwargs["conn"]
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -1066,13 +1063,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id)
+    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
     manager.buildBreadcrumb(whos)
     
     form_users = None
@@ -1268,29 +1259,72 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_annotations(request, o_type, o_id, **kwargs):
-    url = None
-    try:
-        url = kwargs["url"]  
-    except:
-        pass
+def manage_data_by_tag(request, iid, **kwargs):
+    request.session['nav']['menu'] = 'mydata'
+    request.session['nav']['whos'] = 'mydata'
+    
+    template = "omeroweb/tag.html"
     
     conn = None
+    url = None
     try:
         conn = kwargs["conn"]
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    view = request.session['nav']['view']
+    menu = request.session['nav']['menu']
+    whos = request.session['nav']['whos']
+    
+    manager = BaseContainer(conn, "tag", iid)
+    manager.buildBreadcrumb(whos)
+    manager.loadDataByTag()
+    
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
+    
+    
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def suggest_tags(request, **kwargs):
+    conn = None
+    url = None
+    mask = None
+    try:
+        conn = kwargs["conn"]
+        url = kwargs["url"]
+        mask = request.REQUEST['mask']
+    except:
+        logger.error(traceback.format_exc())
+    
+    json_data = simplejson.dumps(list(conn.listTags(mask)))
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@isUserConnected
+def manage_annotations(request, o_type, o_id, **kwargs):
+    conn = None
+    url = None
+    try:
+        conn = kwargs["conn"]
+        url = kwargs["url"]   
     except:
         logger.error(traceback.format_exc())
     
     manager = BaseContainer(conn, o_type, o_id)
     if o_type == 'project':
         template = "omeroweb/annotations.html"
-        manager.projectAnnotationList()
     elif o_type == "dataset":
         template = "omeroweb/annotations.html"
-        manager.datasetAnnotationList()
     elif o_type == "image":
         template = "omeroweb/annotations.html"
-        manager.imageAnnotationList()
+    else:
+        raise AttributeError("This object could not be annotated.")
+    
+    manager.annotationList()
     
     context = {'url':url, 'manager':manager}
 
@@ -1325,7 +1359,7 @@ def manage_tree_details(request, c_type, c_id, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_container_hierarchy(request, o_type=None, o_id=None, **kwargs):
+def manage_container_hierarchies(request, o_type=None, o_id=None, **kwargs):
     template = "omeroweb/hierarchy.html"
     conn = None
     try:
@@ -1336,7 +1370,7 @@ def manage_container_hierarchy(request, o_type=None, o_id=None, **kwargs):
     whos = request.session['nav']['whos']
     
     manager = BaseContainer(conn, o_type, o_id)
-    manager.loadHierarchy()
+    manager.loadHierarchies()
     
     context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
 
@@ -1360,7 +1394,7 @@ def manage_metadata(request, o_type, o_id, **kwargs):
     matadataType = request.REQUEST['matadataType']
     metadataValue = request.REQUEST['metadataValue']
     
-    manager = BaseContainer(conn, o_type, o_id)
+    manager = BaseContainer(conn, o_type, o_id, metadata=True)
     manager.saveMetadata(matadataType, metadataValue)
     
     return HttpResponse()
@@ -1384,8 +1418,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     if o_type == "dataset" or o_type == "project" or o_type == "image":
         manager = BaseContainer(conn, o_type, o_id)
         manager.buildBreadcrumb(action)
-    elif o_type == "comment" or o_type == "url":
+    elif o_type == "comment" or o_type == "url" or o_type == "tag":
         manager = BaseAnnotation(conn, o_type, o_id)
+        manager.buildBreadcrumb(action)
     else:
         manager = BaseContainer(conn)
         manager.buildBreadcrumb(action)
@@ -1426,6 +1461,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type =="url" and o_id > 0:
             template = "omeroweb/annotation_form.html"
             form = UriAnnotationForm(initial={'link':manager.url.textValue})
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type =="tag" and o_id > 0:
+            template = "omeroweb/annotation_form.html"
+            form = TagAnnotationForm(initial={'tag':manager.tag.textValue})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
@@ -1504,6 +1543,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             else:
                 template = "omeroweb/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == 'tag':
+            form = TagAnnotationForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                content = request.REQUEST['tag']
+                manager.saveTagAnnotation(content)
+                return HttpResponseRedirect(url)
+            else:
+                template = "omeroweb/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'addnew':
         if not request.method == 'POST':
             return HttpResponseRedirect("/%s/action/new/" % (settings.WEBCLIENT_ROOT_BASE))
@@ -1513,7 +1561,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 name = request.REQUEST['name']
                 description = request.REQUEST['description']
                 permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
-                res = manager.createDataset(name, description, permissions)
+                manager.createDataset(name, description, permissions)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_new.html"
@@ -1525,7 +1573,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name']
                     description = request.REQUEST['description']
                     permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
-                    res = manager.createDataset(name, description, permissions)
+                    manager.createDataset(name, description, permissions)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"
@@ -1536,7 +1584,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name']
                     description = request.REQUEST['description']
                     permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
-                    res = manager.createProject(name, description, permissions)
+                    manager.createProject(name, description, permissions)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"
@@ -1587,8 +1635,6 @@ def manage_image_zoom (request, iid, **kwargs):
 
 @isUserConnected
 def manage_annotation(request, action, iid, **kwargs):
-    menu = "annotation"
-    
     conn = None
     try:
         conn = kwargs["conn"]

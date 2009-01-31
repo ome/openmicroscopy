@@ -28,6 +28,7 @@ import omero
 from omero.rtypes import *
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero_model_UriAnnotationI import UriAnnotationI
+from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_FileAnnotationI import FileAnnotationI
 from omero_model_OriginalFileI import OriginalFileI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
@@ -46,6 +47,7 @@ class BaseContainer(BaseController):
     project = None
     dataset = None
     image = None
+    tag = None
     
     containers = None
     containersMyGroups = None
@@ -64,7 +66,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -77,10 +79,16 @@ class BaseContainer(BaseController):
             if o2_type == "image":
                 self.image = self.conn.getImageWithMetadata(o2_id)
         elif o1_type == "image":
-            self.image = self.conn.getImageWithMetadata(o1_id)
-            self.image._loadPixels()
+            if metadata:
+                self.image = self.conn.getImageWithMetadata(o1_id)
+                self.image._loadPixels()
+            else:
+                self.image = self.conn.getImage(o1_id)
+        elif o1_type == "tag":
+            self.tag = self.conn.getTagAnnotation(long(o1_id))
         elif o1_type == "orphaned":
             self.orphaned = True
+        
     
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {
@@ -153,7 +161,9 @@ class BaseContainer(BaseController):
         elif self.orphaned:
             self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), "Orphaned images"]
         else:
-            if self.project is not None:
+            if self.tag is not None:
+                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tag: %s' % (self.tag.breadcrumbName())]
+            elif self.project is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
                             '<a href="/%s/%s/project/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.project.breadcrumbName())]
                 if self.dataset is not None:
@@ -171,7 +181,43 @@ class BaseContainer(BaseController):
             else:
                 self.eContext['breadcrumb'] = [menu.title()] 
     
-    def loadHierarchy(self):
+    def loadDataByTag(self):
+        pr_list = list(self.conn.listProjectsByTag(self.tag.id))
+        ds_list = list(self.conn.listDatasetsByTag(self.tag.id))
+        im_list = list(self.conn.listImagesByTag(self.tag.id))
+        
+        pr_ids = [pr.id for pr in pr_list]
+        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+        
+        ds_ids = [ds.id for ds in ds_list]
+        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+        
+        im_ids = [im.id for im in im_list]
+        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+        
+        pr_list_with_counters = list()
+        for pr in pr_list:
+            pr.child_counter = pr_child_counter.get(pr.id)
+            pr.annotation_counter = pr_annotation_counter.get(pr.id)
+            pr_list_with_counters.append(pr)
+        
+        ds_list_with_counters = list()
+        for ds in ds_list:
+            ds.child_counter = ds_child_counter.get(ds.id)
+            ds.annotation_counter = ds_annotation_counter.get(ds.id)
+            ds_list_with_counters.append(ds)
+        
+        im_list_with_counters = list()
+        for im in im_list:
+            im.annotation_counter = im_annotation_counter.get(im.id)
+            im_list_with_counters.append(im)
+        
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
+        
+    def loadHierarchies(self):
         if self.image is not None:
             self.hierarchy = self.conn.findContainerHierarchies(self.image.id)
         elif self.dataset is not None:
@@ -567,25 +613,23 @@ class BaseContainer(BaseController):
         self.containers = {'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
     
-    ############################################################
-    # Update and save
-    
-    def updateImage(self, name, description, permissions):
-        img = self.image._obj
-        img.name = rstring(str(name))
-        if description != "" :
-            img.description = rstring(str(description))
-        else:
-            img.description = None
-        self.objectPermissions(img, permissions)
-        self.conn.saveObject(img)
-    
-    def imageAnnotationList(self):
+    # Annotation list
+    def annotationList(self):
         self.text_annotations = list()
         self.long_annotations = {'rate': 0.00 , 'votes': 0}
         self.url_annotations = list()
         self.file_annotations = list()
-        for ann in self.image.listAnnotations():
+        self.tag_annotations = list()
+        
+        aList = None
+        if self.image is not None:
+            aList = self.image.listAnnotations()
+        elif self.dataset is not None:
+            aList = self.dataset.listAnnotations()
+        elif self.project is not None:
+            aList = self.project.listAnnotations()
+        
+        for ann in aList:
             if ann._obj.__class__.__name__ == 'CommentAnnotationI':
                 self.text_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'LongAnnotationI':
@@ -595,94 +639,25 @@ class BaseContainer(BaseController):
                 self.url_annotations.append(ann)
             elif ann._obj.__class__.__name__ == 'FileAnnotationI':
                 self.file_annotations.append(ann)
+            elif ann._obj.__class__.__name__ == 'TagAnnotationI':
+                self.tag_annotations.append(ann)
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
         self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
         self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
+        self.tag_annotations = self.sortByAttr(self.tag_annotations, "textValue")
         
         self.txannSize = len(self.text_annotations)
         self.urlannSize = len(self.url_annotations)
         self.fileannSize = len(self.file_annotations)
+        self.tgannSize = len(self.tag_annotations)
 
         if self.long_annotations['votes'] > 0:
             self.long_annotations['rate'] /= self.long_annotations['votes']
+
+    ####################################################################
+    # Creation
     
-    def datasetAnnotationList(self):
-        self.text_annotations = list()
-        self.long_annotations = {'rate': 0.00 , 'votes': 0}
-        self.url_annotations = list()
-        self.file_annotations = list()
-        for ann in self.dataset.listAnnotations():
-            if ann._obj.__class__.__name__ == 'CommentAnnotationI':
-                self.text_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'LongAnnotationI':
-                self.long_annotations['votes'] += 1
-                self.long_annotations['rate'] += int(ann.longValue)
-            elif ann._obj.__class__.__name__ == 'UriAnnotationI':
-                self.url_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'FileAnnotationI':
-                self.file_annotations.append(ann)
-
-        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
-        self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
-        
-        self.txannSize = len(self.text_annotations)
-        self.urlannSize = len(self.url_annotations)
-        self.fileannSize = len(self.file_annotations)
-
-        if self.long_annotations['votes'] > 0:
-            self.long_annotations['rate'] /= self.long_annotations['votes']
-
-    def projectAnnotationList(self):
-        self.text_annotations = list()
-        self.long_annotations = {'rate': 0.00 , 'votes': 0}
-        self.url_annotations = list()
-        self.file_annotations = list()
-        for ann in self.project.listAnnotations():
-            if ann._obj.__class__.__name__ == 'CommentAnnotationI':
-                self.text_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'LongAnnotationI':
-                self.long_annotations['votes'] += 1
-                self.long_annotations['rate'] += int(ann.longValue)
-            elif ann._obj.__class__.__name__ == 'UriAnnotationI':
-                self.url_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'FileAnnotationI':
-                self.file_annotations.append(ann)
-
-        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
-        self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
-        
-        self.txannSize = len(self.text_annotations)
-        self.urlannSize = len(self.url_annotations)
-        self.fileannSize = len(self.file_annotations)
-
-        if self.long_annotations['votes'] > 0:
-            self.long_annotations['rate'] /= self.long_annotations['votes']
-
-    def updateDataset(self, name, description, permissions):
-        container = self.dataset._obj
-        container.name = rstring(str(name))
-        if description != "" :
-            container.description = rstring(str(description))
-        else:
-            container.description = None
-        self.objectPermissions(container, permissions)
-        for l_ds in container.copyProjectLinks():
-            self.objectPermissions(l_ds,permissions)
-        self.conn.saveObject(container)
-
-    def updateProject(self, name, description, permissions):
-        container = self.project._obj
-        container.name = rstring(str(name))
-        if description != "" :
-            container.description = rstring(str(description))
-        else:
-            container.description = None
-        self.objectPermissions(container, permissions)
-        self.conn.saveObject(container)
-
     def createDataset(self, name, description, permissions):
         ds = DatasetI()
         self.objectPermissions(ds, permissions)
@@ -695,8 +670,7 @@ class BaseContainer(BaseController):
             l_ds.setChild(ds)
             self.objectPermissions(l_ds,permissions)
             ds.addProjectDatasetLink(l_ds)
-        res = self.conn.saveObject(ds)
-        return res
+        self.conn.saveObject(ds)
         
     def createProject(self, name, description, permissions):
         pr = ProjectI()
@@ -704,15 +678,47 @@ class BaseContainer(BaseController):
         pr.name = rstring(str(name))
         if description != "" :
             pr.description = rstring(str(description))
-        
-        res = self.conn.saveObject(pr)
-        return res
+        self.conn.saveObject(pr)
+    
+    # Comment annotation
+    def createProjectCommentAnnotation(self, content):
+        ann = CommentAnnotationI()
+        ann.textValue = rstring(str(content))
+        l_ann = ProjectAnnotationLinkI()
+        l_ann.setParent(self.project._obj)
+        l_ann.setChild(ann)
+        self.conn.saveObject(l_ann)
+    
+    def createDatasetCommentAnnotation(self, content):
+        ann = CommentAnnotationI()
+        ann.textValue = rstring(str(content))
+        l_ann = DatasetAnnotationLinkI()
+        l_ann.setParent(self.dataset._obj)
+        l_ann.setChild(ann)
+        self.conn.saveObject(l_ann)
     
     def createImageCommentAnnotation(self, content):
         ann = CommentAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = ImageAnnotationLinkI()
         l_ann.setParent(self.image._obj)
+        l_ann.setChild(ann)
+        self.conn.saveObject(l_ann)
+    
+    # URI annotation
+    def createProjectUriAnnotation(self, content):
+        ann = UriAnnotationI()
+        ann.textValue = rstring(str(content))
+        l_ann = ProjectAnnotationLinkI()
+        l_ann.setParent(self.project._obj)
+        l_ann.setChild(ann)
+        self.conn.saveObject(l_ann)
+    
+    def createDatasetUriAnnotation(self, content):
+        ann = UriAnnotationI()
+        ann.textValue = rstring(str(content))
+        l_ann = DatasetAnnotationLinkI()
+        l_ann.setParent(self.dataset._obj)
         l_ann.setChild(ann)
         self.conn.saveObject(l_ann)
     
@@ -724,46 +730,32 @@ class BaseContainer(BaseController):
         l_ann.setChild(ann)
         self.conn.saveObject(l_ann)
     
-    def createImageFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = self.conn.getFileFormt(f[1].upper())
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
-        
-        of = self.conn.saveObject(oFile);
-        self.conn.saveFile(newFile, of.id)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of._obj)
-        l_ia = ImageAnnotationLinkI()
-        l_ia.setParent(self.image._obj)
-        l_ia.setChild(fa)
-        self.conn.saveObject(l_ia)
+    # Tag annotation
+    def createImageTagAnnotation(self, tag):
+        ann = TagAnnotationI()
+        ann.textValue = rstring(str(tag))
+        t_ann = ImageAnnotationLinkI()
+        t_ann.setParent(self.image._obj)
+        t_ann.setChild(ann)
+        self.conn.saveObject(t_ann)
     
-    def createProjectCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ProjectAnnotationLinkI()
-        l_ann.setParent(self.project._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-
-    def createProjectUriAnnotation(self, content):
-        ann = UriAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ProjectAnnotationLinkI()
-        l_ann.setParent(self.project._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
+    def createDatasetTagAnnotation(self, tag):
+        ann = TagAnnotationI()
+        ann.textValue = rstring(str(tag))
+        t_ann = DatasetAnnotationLinkI()
+        t_ann.setParent(self.dataset._obj)
+        t_ann.setChild(ann)
+        self.conn.saveObject(t_ann)
     
+    def createProjectTagAnnotation(self, tag):
+        ann = TagAnnotationI()
+        ann.textValue = rstring(str(tag))
+        t_ann = ProjectAnnotationLinkI()
+        t_ann.setParent(self.project._obj)
+        t_ann.setChild(ann)
+        self.conn.saveObject(t_ann)
+    
+    # File annotation
     def createProjectFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
@@ -778,7 +770,7 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.saveObject(oFile);
+        of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
@@ -787,22 +779,6 @@ class BaseContainer(BaseController):
         l_ia.setParent(self.project._obj)
         l_ia.setChild(fa)
         self.conn.saveObject(l_ia)
-    
-    def createDatasetCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = DatasetAnnotationLinkI()
-        l_ann.setParent(self.dataset._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-
-    def createDatasetUriAnnotation(self, content):
-        ann = UriAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = DatasetAnnotationLinkI()
-        l_ann.setParent(self.dataset._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
     
     def createDatasetFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
@@ -818,7 +794,7 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.saveObject(oFile);
+        of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
@@ -828,6 +804,65 @@ class BaseContainer(BaseController):
         l_ia.setChild(fa)
         self.conn.saveObject(l_ia)
     
+    def createImageFileAnnotation(self, newFile):
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = self.conn.getFileFormt(f[1].upper())
+        else:
+            format = self.conn.getFileFormt(newFile.content_type)
+        
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(newFile.name)));
+        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setSize(rlong(long(newFile.size)));
+        oFile.setSha1(rstring("pending"));
+        oFile.setFormat(format);
+        
+        of = self.conn.saveAndReturnObject(oFile);
+        self.conn.saveFile(newFile, of.id)
+        
+        fa = FileAnnotationI()
+        fa.setFile(of._obj)
+        l_ia = ImageAnnotationLinkI()
+        l_ia.setParent(self.image._obj)
+        l_ia.setChild(fa)
+        self.conn.saveObject(l_ia)
+    
+    
+    ################################################################
+    # Update
+    
+    def updateImage(self, name, description, permissions):
+        img = self.image._obj
+        img.name = rstring(str(name))
+        if description != "" :
+            img.description = rstring(str(description))
+        else:
+            img.description = None
+        self.objectPermissions(img, permissions)
+        self.conn.saveObject(img)
+    
+    def updateDataset(self, name, description, permissions):
+        container = self.dataset._obj
+        container.name = rstring(str(name))
+        if description != "" :
+            container.description = rstring(str(description))
+        else:
+            container.description = None
+        self.objectPermissions(container, permissions)
+        for l_ds in container.copyProjectLinks():
+            self.objectPermissions(l_ds,permissions)
+        self.conn.saveObject(container)
+    
+    def updateProject(self, name, description, permissions):
+        container = self.project._obj
+        container.name = rstring(str(name))
+        if description != "" :
+            container.description = rstring(str(description))
+        else:
+            container.description = None
+        self.objectPermissions(container, permissions)
+        self.conn.saveObject(container)
     
     def move(self, parent, source, destination):
         #print parent, source, destination
@@ -933,6 +968,10 @@ class BaseContainer(BaseController):
                     return True
         return False
     
+    
+    ##########################################################
+    # Copy
+    
     def copyImageToDataset(self, source, destination=None):
         if destination is None:
             dsls = self.conn.getDatasetImageLinks(source[1]) #gets every links for child
@@ -958,6 +997,7 @@ class BaseContainer(BaseController):
             new_pdl.setParent(pr._obj)
             self.conn.saveObject(new_pdl)
             return True
+
 
     #####################################################################
     # Permissions

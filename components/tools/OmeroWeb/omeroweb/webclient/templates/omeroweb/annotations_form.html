@@ -19,9 +19,24 @@
             googie_spell.decorateTextarea("id_content", null, "600px");
         </script>
     </div>
-    
     {% endif %}
 
+    {% if form_tag %}
+    <div class="tags">
+        <h1>Add new tag:</h1>
+        <form action="" method="post"><input type="hidden" name="action" value="tag" />
+        <table>
+            {% for field in form_tag %}
+                <tr>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+            {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+            </table>
+        </form>
+    </div>
+    {% endif %}
+    
     {% if form_uri %}
     <div class="url">
         <h1>Add new url:</h1>
@@ -53,5 +68,8 @@
         </form>
     </div>
     {% endif %}
+    
+    
+    
 </div>
 

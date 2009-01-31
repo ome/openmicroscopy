@@ -90,6 +90,9 @@ div#view, div#header_name {
 .dataset {
     width: 75%;
 }
+.tag {
+    width: 75%;
+}
 .image {
     width: 75%;
 }
@@ -144,11 +147,9 @@ div#view, div#header_name {
     text-decoration:none;
 }
 a.ui-accordion-header  {
-    color: #009981;
     text-decoration: none;
 }
 a.ui-accordion-header:hover,a.ui-accordion-header:link,a.ui-accordion-header:visited {
-    color: #009981;
     text-decoration: none;
 }
 

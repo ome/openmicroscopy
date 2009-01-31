@@ -1,6 +1,12 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+<h1>Tags:
+{% for tag in manager.tag_annotations %}
+    <a href="{% get_webclient_root_url %}/tag/{{ tag.id }}/"> {{ tag.textValue }}</a>, 
+{% endfor %}
+</h1>
+
 {% if manager.txannSize %}
 <h1>Comments:</h1>
     {% for tann in manager.text_annotations %}
@@ -44,7 +50,7 @@
 <h1>Files:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.file.name.val }}</a> - {{ fileann.getFileSize|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate }}</li>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate }}</li>
     {% endfor %}
 </ol>
 {% endif %}

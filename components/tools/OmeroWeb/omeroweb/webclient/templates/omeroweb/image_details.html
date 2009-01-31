@@ -98,7 +98,7 @@
             <table class="forms">
                 <tr><td><label>Image date </label></td><td>{{ manager.image.getDate }}</td></tr>
                 <tr><td><label>Dimensions [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
-                <tr><td><label>Pixel size [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} x {{ manager.image.getPixelSizeZ|floatformat:4 }}</td></tr>
+                <tr><td><label>Pixel size (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><td><label>Z-sections/timepoints </label></td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
                 <tr><td><label>Emissions wavelengths </label></td><td>{{ manager.image.getChannels.getEmissionWave }}</td></tr>
             </table>

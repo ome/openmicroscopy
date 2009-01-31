@@ -729,6 +729,54 @@ class BlitzGateway (threading.Thread):
         q = self.getPojosService()
         return q.findContainerHierarchies("Project", [long(nid)], None)
     
+    # By tag
+    def listProjectsByTag(self, tid):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["tid"] = rlong(long(tid))
+        sql = "select pr from Project pr " \
+              "left outer join fetch pr.annotationLinks pal " \
+              "left outer join fetch pal.child tag " \
+              "where tag.id=:tid "
+        for e in q.findAllByQuery(sql,p):
+            yield ProjectWrapper(self, e)
+    
+    def listDatasetsByTag(self, tid):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["tid"] = rlong(long(tid))
+        sql = "select ds from Dataset ds " \
+              "left outer join fetch ds.annotationLinks dal " \
+              "left outer join fetch dal.child tag " \
+              "where tag.id=:tid "
+        for e in q.findAllByQuery(sql,p):
+            yield DatasetWrapper(self, e)
+    
+    def listImagesByTag(self, tid):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["tid"] = rlong(long(tid))
+        sql = "select im from Image im " \
+              "left outer join fetch im.annotationLinks ial " \
+              "left outer join fetch ial.child tag " \
+              "where tag.id=:tid "
+        for e in q.findAllByQuery(sql,p):
+            yield ImageWrapper(self, e)
+    
+    def listTags(self, t):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        sql = "select tg from TagAnnotation tg "
+        return [t.textValue.val for t in q.findAllByQuery(sql,p)]
+    
     ##############################################
     ##   Share methods
     
@@ -931,7 +979,7 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select im from Image im " \
               "join fetch im.details.owner join fetch im.details.group " \
-              "left outer join fetch im.stageLabel  as stageLabel  " \
+              "left outer join fetch im.stageLabel as stageLabel  " \
               "left outer join fetch im.imagingEnvironment as imagingEnvironment " \
               "left outer join fetch im.objectiveSettings as os " \
               "left outer join fetch os.medium as medium " \
@@ -1054,7 +1102,7 @@ class BlitzGateway (threading.Thread):
         ta = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, ta)
     
-    def getUrlAnnotation (self, oid):
+    def getUriAnnotation (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -1062,6 +1110,15 @@ class BlitzGateway (threading.Thread):
         sql = "select ua from UriAnnotation ua where ua.id = :oid"
         ta = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, ta)
+    
+    def getTagAnnotation (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["oid"] = rlong(long(oid))
+        sql = "select tg from TagAnnotation tg where tg.id = :oid"
+        tg = query_serv.findByQuery(sql, p)
+        return AnnotationWrapper(self, tg)
     
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()
@@ -1868,6 +1925,7 @@ class BlitzObjectWrapper (object):
             return self._obj.name.val
     
     def breadcrumbName(self):
+        name = None
         try:
             name = self._obj.name.val
             l = len(name)
@@ -1882,8 +1940,13 @@ class BlitzObjectWrapper (object):
                 nname = "..." + name[l - 30:]
                 return nname
         except:
-            logger.debug(traceback.format_exc())
-            return self._obj.name.val
+            name = self._obj.textValue.val
+            l = len(name)
+            if l <= 100:
+                return name
+            elif l > 100:
+                return name[:45] + "..." + name[l - 45:]
+        return None
     
     def shortDescription(self):
         try:
@@ -2013,23 +2076,38 @@ class AnnotationWrapper (BlitzObjectWrapper):
             return self._obj.file.size.val
         else:
             return None
+    
+    def getFileName(self):
+        if isinstance(self._obj, FileAnnotationI):
+            try:
+                name = self._obj.file.name.val
+                l = len(name)
+                if l < 65:
+                    return name
+                return name[:30] + "..." + name[l - 30:] 
+            except:
+                logger.debug(traceback.format_exc())
+                return self._obj.file.name.val
+        else:
+            return None
 
 class OriginalFileWrapper (BlitzObjectWrapper):
     pass
 
-class ColorWrapper (BlitzObjectWrapper):
+class ColorWrapper (object):
+    
     RED = 'Red'
     GREEN = 'Green'
     BLUE = 'Blue'
     DEFAULT_ALPHA = rint(255)
-    @classmethod
-    def new (klass, conn, colorname=None):
-        color = klass(conn, omero.model.ColorFixI())
-        if colorname is not None:
-            color.setAlpha(klass.DEFAULT_ALPHA)
-            for cname in (klass.RED, klass.GREEN, klass.BLUE):
-                getattr(color, 'set'+cname)(cname == colorname and rint(255) or rint(0))
-        return color
+    
+    def __init__ (self,  colorname=None, **kwargs):
+        r,g,b,a = colorname
+        self.red = r and 255 or 0
+        self.green = g and 255 or 0
+        self.blue = b and 255 or 0
+        self.alpha = a and self.DEFAULT_ALPHA
+        
 
     def getHtml (self):
         """ Return the html usable color. Dumps the alpha information. """
@@ -2066,14 +2144,7 @@ class ChannelWrapper (BlitzObjectWrapper):
             return emWave.val
 
     def getColor (self):
-        r,g,b,a = self._re.getRGBA(self._idx)
-        #print r,g,b,a
-        color = omero.model.ColorFixI()
-        color.setRed(r)
-        color.setGreen(g)
-        color.setBlue(b)
-        color.setAlpha(a)
-        return ColorWrapper(self._conn, color)
+        return ColorWrapper(self._re.getRGBA(self._idx))
 
     def getWindowStart (self):
         return int(self._re.getChannelWindowStart(self._idx))
@@ -2336,15 +2407,27 @@ class ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPixelSizeX (self):
-        return self._obj.copyPixels()[0].getPhysicalSizeX().val
+        x = self._obj.copyPixels()[0].getPhysicalSizeX()
+        if x is not None:
+            return x.val
+        else:
+            return None
 
     @assert_pixels
     def getPixelSizeY (self):
-        return self._obj.copyPixels()[0].getPhysicalSizeY().val
+        y = self._obj.copyPixels()[0].getPhysicalSizeY()
+        if y is not None:
+            return y.val
+        else:
+            return None
 
     @assert_pixels
     def getPixelSizeZ (self):
-        return self._obj.copyPixels()[0].getPhysicalSizeZ().val
+        z = self._obj.copyPixels()[0].getPhysicalSizeZ()
+        if z is not None:
+            return z.val
+        else:
+            return None
 
     @assert_pixels
     def getWidth (self):

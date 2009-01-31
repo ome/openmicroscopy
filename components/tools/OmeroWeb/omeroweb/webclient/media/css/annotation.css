@@ -24,7 +24,11 @@ div.file {
     right:107px;
     top:100px;
 }
-
+div.tags {
+    position: absolute;
+    left:0;
+    top:250px;
+}
 /* comment display page */
 #comment_wrapper {
     width:630px;

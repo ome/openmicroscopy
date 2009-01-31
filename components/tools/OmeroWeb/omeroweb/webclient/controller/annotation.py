@@ -22,6 +22,8 @@
 # Version: 1.0
 #
 
+from django.conf import settings
+
 import omero
 from omero.rtypes import *
 
@@ -32,18 +34,28 @@ from omero_model_FileAnnotationI import FileAnnotationI
 from webclient.controller import BaseController
 
 class BaseAnnotation(BaseController):
-
-    annotation = None
-    ann_type = None
-    originalFile_data = None
-
+    
+    comment = None
+    url = None
+    tag = None
+    
     def __init__(self, conn, o_type=None, oid=None, **kw):
         BaseController.__init__(self, conn)
         if oid is not None:
             if o_type == "comment":
                 self.comment = self.conn.getCommentAnnotation(long(oid))
             elif o_type == "url":
-                self.url = self.conn.getUrlAnnotation(long(oid))
+                self.url = self.conn.getUriAnnotation(long(oid))
+            elif o_type == "tag":
+                self.tag = self.conn.getTagAnnotation(long(oid))
+    
+    def buildBreadcrumb(self, action):
+        if self.comment is not None:
+            self.eContext['breadcrumb'] = ['Edit: comment']
+        elif self.url is not None:
+            self.eContext['breadcrumb'] = ['Edit: URL']
+        elif self.tag is not None:
+            self.eContext['breadcrumb'] = ['Edit: %s' % self.tag.breadcrumbName()]
     
     def saveCommentAnnotation(self, content):
         ann = self.comment._obj
@@ -53,6 +65,11 @@ class BaseAnnotation(BaseController):
     def saveUrlAnnotation(self, url):
         ann = self.url._obj
         ann.textValue = rstring(str(url))
+        self.conn.saveObject(ann)
+    
+    def saveTagAnnotation(self, tag):
+        ann = self.tag._obj
+        ann.textValue = rstring(str(tag))
         self.conn.saveObject(ann)
     
     def getFileAnnotation(self, iid):

@@ -171,9 +171,9 @@ TODO:
     $('#wblitz-image-z-count').html(tmp.z);
     $('#wblitz-image-t-count').html(tmp.t);
     tmp = viewport.getPixelSizes();
-    $('#wblitz-image-pixel-size-x').html(tmp.x.toFixed(4));
-    $('#wblitz-image-pixel-size-y').html(tmp.y.toFixed(4));
-    $('#wblitz-image-pixel-size-z').html(tmp.z.toFixed(4));
+    if(tmp.x != null) $('#wblitz-image-pixel-size-x').html(tmp.x.toFixed(4));
+    if(tmp.y != null) $('#wblitz-image-pixel-size-y').html(tmp.y.toFixed(4));
+    if(tmp.z != null) $('#wblitz-image-pixel-size-z').html(tmp.z.toFixed(4));
 
     syncRDCW();
   };

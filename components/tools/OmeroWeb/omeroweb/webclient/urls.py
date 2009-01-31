@@ -69,8 +69,8 @@ urlpatterns = patterns('',
     ( r'(?i)^(?P<o1_type>((?i)project|dataset))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image))/(?P<o2_id>[0-9]+)/$', views.manage_group_containers ),
     ( r'(?i)^(?P<o1_type>((?i)project))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image))/(?P<o3_id>[0-9]+)/$', views.manage_group_containers ),
     
-    ( r'(?i)^hierarchy/$', views.manage_container_hierarchy ),
-    ( r'(?i)^hierarchy/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_container_hierarchy ),
+    ( r'(?i)^hierarchy/$', views.manage_container_hierarchies ),
+    ( r'(?i)^hierarchy/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_container_hierarchies ),
     ( r'(?i)^tree_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/$', views.manage_tree_details ),
     
     ( r'(?i)^image_zoom/(?P<iid>[0-9]+)/$', views.manage_image_zoom ),
@@ -82,6 +82,10 @@ urlpatterns = patterns('',
     
     ( r'(?i)^annotations/([a-zA-Z]+)/([0-9]+)/$', views.manage_annotations ),
     ( r'(?i)^annotation/([a-zA-Z]+)/([0-9]+)/$', views.manage_annotation ),
+    #( r'(?i)^tags/$', views.manage_data_by_tags ),
+    ( r'(?i)^tag/([0-9]+)/$', views.manage_data_by_tag ),
+    ( r'(?i)^suggesttags/$', views.suggest_tags ),
+    
     ( r'(?i)^render_thumbnail/(?P<iid>[0-9]+)/$', views.render_thumbnail ),
     ( r'(?i)^render_thumbnail/details/(?P<iid>[0-9]+)/$', views.render_thumbnail_details ),
     ( r'(?i)^render_thumbnail/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/$', views.render_thumbnail_resize ),

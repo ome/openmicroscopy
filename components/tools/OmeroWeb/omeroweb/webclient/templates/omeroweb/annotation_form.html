@@ -66,6 +66,20 @@
         </table>
     </form>
     {% endif %}
+    
+    {% if manager.tag %}
+    <h1>Edit tag:</h1>
+    <form action="{% get_webclient_root_url %}/action/save/tag/{{ manager.tag.id }}/?url={{url}}" method="post">
+    <table>
+        {% for field in form %}
+            <tr>
+                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+            </tr>
+        {% endfor %}
+            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+        </table>
+    </form>
+    {% endif %}
 </div>
 
 {% endif %}

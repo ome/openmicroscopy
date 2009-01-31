@@ -49,7 +49,7 @@ class BaseUploadFile(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
         
-        of = self.conn.saveObject(oFile);
+        of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
