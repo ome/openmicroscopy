@@ -61,10 +61,10 @@ public class MoviePlayerDialog
 	public static final String CLOSE_PROPERTY = "close";
 	
 	/** 
-	 * Bounds property indicating that the state of the player 
-	 * has changed.
+	 * Bounds property indicating that the state of the player has changed.
 	 */
-	public static final String	STATE_CHANGED_PROPERTY = "stateChanged";
+	public static final String	MOVIE_STATE_CHANGED_PROPERTY = 
+		"movieStateChanged";
 	
 	/** Indicates to play movie across z-sections only. */
 	public static final int    ACROSS_Z = 300;
@@ -139,9 +139,9 @@ public class MoviePlayerDialog
     void setMoviePlay(boolean b)
     { 
     	if (b) 
-    		firePropertyChange(STATE_CHANGED_PROPERTY, 
+    		firePropertyChange(MOVIE_STATE_CHANGED_PROPERTY, 
     						Boolean.FALSE, Boolean.TRUE);
-    	else firePropertyChange(STATE_CHANGED_PROPERTY, 
+    	else firePropertyChange(MOVIE_STATE_CHANGED_PROPERTY, 
 				Boolean.TRUE, Boolean.FALSE);
         if (uiDelegate != null) uiDelegate.setMoviePlay(b); 
     }

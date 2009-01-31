@@ -30,6 +30,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
@@ -41,6 +42,8 @@ import java.awt.event.HierarchyBoundsAdapter;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -85,6 +88,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -299,6 +304,27 @@ class ImViewerUI
 	/** The central component. */
 	private JComponent							mainComponent;
 
+	/** Listener attached to the rendering node. */
+	private MouseAdapter						nodeListener;
+
+	/**
+	 * Finds the first {@link HistoryItem} in <code>x</code>'s containement
+	 * hierarchy.
+	 * 
+	 * @param x A component.
+	 * @return The parent {@link HistoryItem} or <code>null</code> if none
+	 *         was found.
+	 */
+	private HistoryItem findParentDisplay(Object x)
+	{
+		while (true) {
+			if (x instanceof HistoryItem) return (HistoryItem) x;
+			if (x instanceof JComponent) x = ((JComponent) x).getParent();
+			else break;
+		}
+		return null;
+	}
+	
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -2059,6 +2085,60 @@ class ImViewerUI
     	if (historyUI != null) historyUI.clearHistory();
     }
     
+    /**
+     * Returns the last projection parameters.
+     * 
+     * @return See above.
+     */
+	ProjectionParam getLastProjRef() { return model.getLastProjRef(); }
+	
+    /** 
+     * Creates an history item. 
+	 * 
+	 * @param ref The projection ref or <code>null</code>.
+	 */
+	void createHistoryItem(ProjectionParam ref)
+	{
+		if (model.isPlayingChannelMovie()) return;
+		String title = null;
+		if (model.getHistory() == null) title = "Initial View";
+		HistoryItem node = model.createHistoryItem();
+		if (node == null) return;
+		if (title != null) node.setTitle(title);
+		node.setProjectionRef(ref);
+		node.setDefaultT(model.getDefaultT());
+		node.addPropertyChangeListener(controller);
+		//add Listener to node.
+		if (nodeListener == null) {
+			nodeListener = new MouseAdapter() {
+
+				public void mousePressed(MouseEvent evt) {
+					HistoryItem item = findParentDisplay(evt.getSource());
+					try {
+						if (item.getIndex() == ImViewer.PROJECTION_INDEX) {
+							model.setLastProjectionRef(
+									item.getProjectionRef());
+							model.setLastProjectionTime(item.getDefaultT());
+						}
+							
+						setCursor(Cursor.getPredefinedCursor(
+								Cursor.WAIT_CURSOR));
+						RndProxyDef def = item.getRndSettings();
+						model.resetMappingSettings(def, true);
+						setCursor(Cursor.getPredefinedCursor(
+								Cursor.DEFAULT_CURSOR));
+						resetDefaults();
+						showView(item.getIndex());
+						controller.renderXYPlane();
+						model.setLastRndDef(def);
+					} catch (Exception e) {}
+				}
+			};
+		}
+		node.addMouseListenerToComponents(nodeListener);
+		addHistoryItem(node);
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

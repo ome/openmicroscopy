@@ -141,9 +141,6 @@ class ImViewerComponent
 	/** Flag indicating that a new z-section or timepoint is selected. */
 	private boolean							newPlane;
 
-	/** Listener attached to the rendering node. */
-	private MouseAdapter					nodeListener;
-
 	/** 
 	 * Flag indicating that the rendering settings have been saved
 	 * before copying.
@@ -165,55 +162,7 @@ class ImViewerComponent
 		UIUtilities.centerAndShow(dialog);
 	}
 
-	/** Creates an history item. 
-	 * 
-	 * @param ref The projection ref or <code>null</code>.
-	 */
-	private void createHistoryItem(ProjectionParam ref)
-	{
-		String title = null;
-		if (model.getHistory() == null) title = "Initial View";
-		HistoryItem node = model.createHistoryItem();
-		if (node == null) return;
-		if (title != null) node.setTitle(title);
-		node.setProjectionRef(ref);
-		node.setDefaultT(model.getDefaultT());
-		node.addPropertyChangeListener(controller);
-		//add Listener to node.
-		if (nodeListener == null) {
-			nodeListener = new MouseAdapter() {
-
-				public void mousePressed(MouseEvent evt) {
-					HistoryItem item = findParentDisplay(evt.getSource());
-					try {
-						if (item.getIndex() == PROJECTION_INDEX) {
-							model.setLastProjectionRef(
-									item.getProjectionRef());
-							model.setLastProjectionTime(item.getDefaultT());
-						}
-							
-						view.setCursor(Cursor.getPredefinedCursor(
-								Cursor.WAIT_CURSOR));
-						RndProxyDef def = item.getRndSettings();
-						model.resetMappingSettings(def, true);
-						view.setCursor(Cursor.getPredefinedCursor(
-								Cursor.DEFAULT_CURSOR));
-						view.resetDefaults();
-						showView(item.getIndex());
-						//setSelectedPane(item.getIndex());
-						renderXYPlane();
-						model.setLastRndDef(def);
-						
-						//renderXYPlane();
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
-				}
-			};
-		}
-		node.addMouseListenerToComponents(nodeListener);
-		view.addHistoryItem(node);
-	}
+	
 
 	/**
 	 * Posts a {@link MeasurePlane} event to indicate that a new plane is
@@ -255,24 +204,6 @@ class ImViewerComponent
 				model.getActiveChannelsColorMap(), index);
 		bus.post(event);
 		view.setPlaneInfoStatus();
-	}
-
-	/**
-	 * Finds the first {@link HistoryItem} in <code>x</code>'s containement
-	 * hierarchy.
-	 * 
-	 * @param x A component.
-	 * @return The parent {@link HistoryItem} or <code>null</code> if none
-	 *         was found.
-	 */
-	private HistoryItem findParentDisplay(Object x)
-	{
-		while (true) {
-			if (x instanceof HistoryItem) return (HistoryItem) x;
-			if (x instanceof JComponent) x = ((JComponent) x).getParent();
-			else break;
-		}
-		return null;
 	}
 	
 	/** 
@@ -772,39 +703,9 @@ class ImViewerComponent
 			view.setIconImage(icon);
 		}
 			
-		if (view.isLensVisible()) view.setLensPlaneImage();
-		createHistoryItem(null);
-		List history = model.getHistory();
-		if (history != null && history.size() == 1) {
-			/*
-			ViewerPreferences pref = ImViewerFactory.getPreferences();
-			if (pref != null) {
-				if (pref.isFieldSelected(ViewerPreferences.RENDERER) &&
-						pref.isRenderer()) {
-					if (image != null)
-						view.setRestoreSize(image.getWidth(), image.getHeight());
-					//boolean oldValue = view.isHistoryShown();
-					view.showRenderer(true);
-					//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
-					//					!oldValue);
-				}
-				if (pref.isFieldSelected(ViewerPreferences.HISTORY) &&
-					pref.isHistory()) {
-					if (image != null)
-						view.setRestoreSize(image.getWidth(), 
-								image.getHeight());
-					//boolean oldValue = view.isHistoryShown();
-					view.showHistory(true);
-					//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
-					//					!oldValue);
-				}
-				if (pref.isFieldSelected(ViewerPreferences.ZOOM_FACTOR)) {
-					int index = pref.getZoomIndex();
-					double f = ZoomAction.getZoomFactor(index);
-					setZoomFactor(f, index);
-				}
-			}
-			*/
+		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
+			if (view.isLensVisible()) view.setLensPlaneImage();
+			view.createHistoryItem(null);
 		}
 		
 		view.setCursor(Cursor.getDefaultCursor());
@@ -1814,12 +1715,14 @@ class ImViewerComponent
 		MoviePlayerDialog d = controller.getMoviePlayer();
 		boolean doClick = false;
 		if (visible) { // we have to play the movie
-			controller.getAction(
-					ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
-			controller.getAction(
-					ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
-			play = true;
-			UIUtilities.setLocationRelativeToAndShow(view, d);
+			if (!d.isVisible()) {
+				controller.getAction(
+						ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
+				controller.getAction(
+						ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
+				play = true;
+				UIUtilities.setLocationRelativeToAndShow(view, d);
+			}
 		} else {
 			if (d.isVisible()) {
 				controller.getAction(
@@ -1857,35 +1760,36 @@ class ImViewerComponent
 		if (doClick) {
 			if (play) {
 				d.addPropertyChangeListener(
-						MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+						MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
 						controller);
 				d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
 			} else {
 				d.removePropertyChangeListener(
-						MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+						MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
 						controller);
 				d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
 			}
 		} else {
 			d.removePropertyChangeListener(
-					MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+					MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
 					controller);
 		}
 		if (!play) {
+			if (view.isLensVisible()) view.setLensPlaneImage();
+			switch (view.getTabbedIndex()) {
+				case ImViewer.VIEW_INDEX:
+					view.createHistoryItem(null);
+					break;
+				case ImViewer.PROJECTION_INDEX:
+					view.createHistoryItem(view.getLastProjRef());
+			}
 			model.setState(READY);
 			fireStateChange();
 		}
-			
-			
-		/*
-		controller.getAction(ImViewerControl.PLAY_MOVIE_Z).setEnabled(doClick);
-		controller.getAction(ImViewerControl.PLAY_MOVIE_T).setEnabled(doClick);
-		if (wasVisible)
-			controller.getAction(ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
-			*/
 	}
 
 	/** 
+	 * 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getGridImage()
 	 */
@@ -2408,8 +2312,10 @@ class ImViewerComponent
 		
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();	
-		if (view.isLensVisible()) view.setLensPlaneImage();
-		createHistoryItem(model.getLastProjRef());
+		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
+			if (view.isLensVisible()) view.setLensPlaneImage();
+			view.createHistoryItem(model.getLastProjRef());
+		}
 		fireStateChange();
 	}
 

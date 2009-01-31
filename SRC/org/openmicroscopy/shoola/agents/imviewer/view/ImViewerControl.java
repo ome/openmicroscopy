@@ -572,9 +572,8 @@ class ImViewerControl
 	{
 		if (moviePlayer != null) return moviePlayer;
 		moviePlayer = new MoviePlayerDialog(view, model);
-		moviePlayer.addPropertyChangeListener(
-				MoviePlayerDialog.CLOSE_PROPERTY, this);
-
+		moviePlayer.addPropertyChangeListener(MoviePlayerDialog.CLOSE_PROPERTY, 
+				this);
 		return moviePlayer;
 	}
 
@@ -657,6 +656,9 @@ class ImViewerControl
     	if (released) model.renderXYPlane();
     }
 
+    /** Forwards the call to the model. */
+	void renderXYPlane() { model.renderXYPlane(); }
+	
 	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
@@ -797,8 +799,11 @@ class ImViewerControl
 			view.scrollToNode((Rectangle) pce.getNewValue());
 		} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(pName)) {
 			model.playMovie(false, false, -1);
-		} else if (MoviePlayerDialog.STATE_CHANGED_PROPERTY.equals(pName)) {
+		} else if (MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY.equals(pName)) 
+		{
+			//when movie player stop
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
+			/*
 			if (!b && !getMoviePlayer().isVisible()) {
 				PlayMovieAction action = 
 					(PlayMovieAction) getAction(PLAY_MOVIE_T);
@@ -806,6 +811,27 @@ class ImViewerControl
 				action = (PlayMovieAction) getAction(PLAY_MOVIE_Z);
 				action.setActionIcon(true);
 				model.playMovie(false, false, -1);
+			}
+			*/
+			if (!b) {
+				if (!getMoviePlayer().isVisible()) {
+					PlayMovieAction action = 
+						(PlayMovieAction) getAction(PLAY_MOVIE_T);
+					action.setActionIcon(true);
+					action = (PlayMovieAction) getAction(PLAY_MOVIE_Z);
+					action.setActionIcon(true);
+					model.playMovie(false, false, -1);
+				} else {
+					/*
+					switch (view.getTabbedIndex()) {
+					case ImViewer.VIEW_INDEX:
+						view.createHistoryItem(null);
+						break;
+					case ImViewer.PROJECTION_INDEX:
+						view.createHistoryItem(view.getLastProjRef());
+					}
+					*/
+				}
 			}
 		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(pName)) {
 			Map  map = (Map) pce.getNewValue();
