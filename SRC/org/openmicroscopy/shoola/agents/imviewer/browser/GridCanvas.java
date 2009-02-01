@@ -234,7 +234,7 @@ class GridCanvas
         BufferedImage image;
         int x = 0, y = 0;
         SplitImage channel;
-        BufferedImage original = model.getAnnotateImage();
+        BufferedImage original = model.getCombinedImage();
     	int w = original.getWidth(), h = original.getHeight();
     	Rectangle imageRectangle;
         for (int i = 0; i < n; ++i) {

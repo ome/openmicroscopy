@@ -98,6 +98,7 @@ class BrowserComponent
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         controller = new BrowserControl();
+        model.getParentModel().addPropertyChangeListener(controller);
         view = new BrowserUI();
         gridView = new GridUI();
         projectionView = new ProjectionUI();
@@ -542,5 +543,16 @@ class BrowserComponent
 	public BufferedImage getProjectedImage()
 	{
 		return model.getProjectedImage();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#onColorModelChange()
+	 */
+	public void onColorModelChange()
+	{
+		view.clearGridImages();
+		viewSplitImages();
+		
 	}
 }

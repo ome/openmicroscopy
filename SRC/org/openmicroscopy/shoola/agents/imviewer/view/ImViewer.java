@@ -741,7 +741,7 @@ public interface ImViewer
 	 * @param index The index of the channel.
 	 * @return See above.
 	 */
-	public BufferedImage getImageForGrid(int index);
+	//public BufferedImage getImageForGrid(int index);
 
 	/** Copies the rendering settings. */
 	public void copyRenderingSettings();

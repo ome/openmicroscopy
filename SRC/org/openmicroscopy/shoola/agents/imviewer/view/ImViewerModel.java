@@ -262,7 +262,7 @@ class ImViewerModel
     
     /** The collection of sorted channel data, sorted by emission wavelength. */
     private List<ChannelData>			sortedChannels;
-    
+
     /**
 	 * Transforms 3D coords into linear coords.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -779,6 +779,7 @@ class ImViewerModel
 	void setColorModel(String colorModel)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		//oldColorModel = colorModel;
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
 			currentRndControl.setModel(colorModel);
 		else if (ImViewer.RGB_MODEL.equals(colorModel))

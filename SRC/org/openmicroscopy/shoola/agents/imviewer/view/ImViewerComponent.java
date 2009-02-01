@@ -574,8 +574,8 @@ class ImViewerComponent
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		try {
+			List active = model.getActiveChannels();
 			Iterator i;
-			List<Integer> active = model.getActiveChannels();
 			int index;
 			switch (key) {
 				case ColorModelAction.GREY_SCALE_MODEL:
@@ -606,14 +606,15 @@ class ImViewerComponent
 						i = active.iterator();
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
-							view.setChannelActive(index, ImViewerUI.GRID_ONLY);
+							view.setChannelActive(index, 
+									ImViewerUI.GRID_ONLY);
 						}
 					}
 					break;
 				case ColorModelAction.RGB_MODEL:
 					model.setColorModel(RGB_MODEL);
 					if (historyActiveChannels != null && 
-							historyActiveChannels.size() != 0) {
+							historyActiveChannels.size() > 0) {
 						i = historyActiveChannels.iterator();
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
@@ -637,13 +638,14 @@ class ImViewerComponent
 					"supported");
 			}
 			//need
-			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, Integer.valueOf(1), 
-					Integer.valueOf(-1));
+			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
+					Integer.valueOf(1), Integer.valueOf(-1));
 			view.setColorModel(key);
-			renderXYPlane();
+			if (model.getTabbedIndex() != GRID_INDEX) renderXYPlane();
 		} catch (Exception ex) {
 			reload(ex);
 		}
+		
 	}
 
 	/** 
@@ -1228,6 +1230,7 @@ class ImViewerComponent
 				i = active.iterator();
 				while (i.hasNext()) { //reset values.
 					index = ((Integer) i.next()).intValue();
+					//01/02 can be a problem
 					model.setChannelActive(index, true);
 				}
 			} else {
@@ -1306,6 +1309,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getImageForGrid(int)
 	 */
+	/*
 	public BufferedImage getImageForGrid(int index)
 	{
 		switch (model.getState()) {
@@ -1330,6 +1334,7 @@ class ImViewerComponent
 			Iterator i = active.iterator();
 			while (i.hasNext()) { //reset values.
 				index = ((Integer) i.next()).intValue();
+				//01/02 can be a problem
 				model.setChannelActive(index, true);
 			}
 
@@ -1339,6 +1344,7 @@ class ImViewerComponent
 		return image;
 	}
 
+*/
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getDisplayedImage()
@@ -2440,7 +2446,11 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		int oldIndex = model.getTabbedIndex();
 		if (oldIndex == index) return;
+		
 		view.setSelectedPane(index);
+		if (oldIndex == ImViewer.GRID_INDEX)
+			setColorModel(ColorModelAction.RGB_MODEL);
+		
 		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
 				index == ImViewer.VIEW_INDEX) ||
 				(index == ImViewer.PROJECTION_INDEX && 

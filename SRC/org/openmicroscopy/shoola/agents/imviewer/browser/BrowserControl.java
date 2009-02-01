@@ -23,10 +23,12 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
+
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 //Third-party libraries
 
@@ -48,6 +50,7 @@ import java.beans.PropertyChangeListener;
  * @since OME2.2
  */
 class BrowserControl
+	implements PropertyChangeListener
 {
 
     /** Reference to the Model. */
@@ -78,5 +81,18 @@ class BrowserControl
         this.model = model;
         this.view = view;
     }
+
+    /**
+     * Listen to property changes fired by <code>ImViewer</code>.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ImViewer.COLOR_MODEL_CHANGED_PROPERTY.endsWith(name)) {
+			view.clearGridImages();
+			model.onColorModelChange();
+		}
+	}
     
 }

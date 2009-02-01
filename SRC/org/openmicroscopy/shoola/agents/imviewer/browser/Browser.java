@@ -348,5 +348,7 @@ public interface Browser
 	 * @return See above.
 	 */
 	public BufferedImage getProjectedImage();
+
+	public void onColorModelChange();
 	
 }

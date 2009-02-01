@@ -107,7 +107,7 @@ class BrowserModel
     private BufferedImage		displayedProjectedImage;
     
     /** A smaller version (default 50%) of the original image. */
-    private BufferedImage		annotateImage;
+    //private BufferedImage		annotateImage;
     
     /** A smaller version (default 50%) of the original image. */
     private BufferedImage		combinedImage;
@@ -347,11 +347,11 @@ class BrowserModel
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
-    	
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
     		createGridImagesForGreyScale();
     		return;
     	}
+    	
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	switch (l.size()) {
@@ -363,12 +363,9 @@ class BrowserModel
 			case 2:
 			case 3:
 				if (isImageRGB(l)) {
-					if (gridRatio == ratio) 
-						combinedImage = annotateImage;
-					else {
+					if (combinedImage == null) 
 						combinedImage = Factory.magnifyImage(gridRatio, 
-														renderedImage);
-					}
+								renderedImage);
 					int w = combinedImage.getWidth();
 		        	int h = combinedImage.getHeight();
 		        	DataBuffer buf = combinedImage.getRaster().getDataBuffer();
@@ -464,9 +461,9 @@ class BrowserModel
         			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
         		init = false;
         	}
-        	annotateImage = Factory.magnifyImage(ratio, renderedImage);
-        } else annotateImage = null;
+        }
         displayedImage = null;
+        combinedImage = null;
         gridImages.clear();
     }
     
@@ -748,13 +745,6 @@ class BrowserModel
     }
     
     /**
-     * Returns a smaller version of the rendered image.
-     * 
-     * @return See above.
-     */
-    BufferedImage getAnnotateImage() { return annotateImage; }
-    
-    /**
      * Sets the selected XY-plane. A new plane is then rendered.
      * 
      * @param z The selected z-section.
@@ -1015,5 +1005,19 @@ class BrowserModel
 
 	/** Builds a projected image to preview. */
 	void projectionPreview() { parent.renderXYPlane(); }
+	
+	/**
+	 * Returns the parent model.
+	 * 
+	 * @return See above.
+	 */
+	ImViewer getParentModel() { return parent; }
+
+	/** Clears the grid images when the color model changes. */
+	void clearGridImages()
+	{ 
+		if (gridImages != null) gridImages.clear(); 
+		//if (originalGridImages != null) originalGridImages.clear();
+	}
 	
 }

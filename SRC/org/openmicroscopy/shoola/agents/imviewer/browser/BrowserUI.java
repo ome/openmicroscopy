@@ -33,7 +33,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -303,6 +302,8 @@ class BrowserUI
 		vBar.setValue(vBar.getValue()+vValue);
 	}
 
+	void clearGridImages() { model.clearGridImages(); }
+	
 	/**
 	 * Returns <code>true</code> if the user is adjusting the window,
 	 * <code>false</code> otherwise.
