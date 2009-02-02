@@ -14,6 +14,7 @@
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.accordion.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.tabs.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
@@ -52,6 +53,8 @@
                 alwaysOpen: false, 
                 navigation: true
             });
+            
+            $("#existing").tabs();
             
         });
       </script>

@@ -21,6 +21,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.slider.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.tabs.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
     
@@ -81,6 +82,8 @@
                     });
                 return false; 
             });
+            
+            $("#existing").tabs();
             
         });
     </script>

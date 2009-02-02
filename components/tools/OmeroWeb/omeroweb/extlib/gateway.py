@@ -730,52 +730,153 @@ class BlitzGateway (threading.Thread):
         return q.findContainerHierarchies("Project", [long(nid)], None)
     
     # By tag
-    def listProjectsByTag(self, tid):
+    def listProjectsByTag(self, tids):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
-        p.map["tid"] = rlong(long(tid))
-        sql = "select pr from Project pr " \
+        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
+        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
               "left outer join fetch pr.annotationLinks pal " \
               "left outer join fetch pal.child tag " \
-              "where tag.id=:tid "
+              "where tag.id in (:tids) and pr.details.owner.id=:eid"
         for e in q.findAllByQuery(sql,p):
             yield ProjectWrapper(self, e)
     
-    def listDatasetsByTag(self, tid):
+    def listDatasetsByTag(self, tids):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
-        p.map["tid"] = rlong(long(tid))
-        sql = "select ds from Dataset ds " \
+        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
+        sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.annotationLinks dal " \
               "left outer join fetch dal.child tag " \
-              "where tag.id=:tid "
+              "where tag.id in (:tids) and ds.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
     
-    def listImagesByTag(self, tid):
+    def listImagesByTag(self, tids):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
-        p.map["tid"] = rlong(long(tid))
-        sql = "select im from Image im " \
+        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
+        sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.annotationLinks ial " \
               "left outer join fetch ial.child tag " \
-              "where tag.id=:tid "
+              "where tag.id in (:tids) and im.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
     
-    def listTags(self, t):
+    def listTags(self, o_type, oid):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["oid"] = rlong(long(oid))
+        if o_type == "image":
+            sql = "select a from TagAnnotation as a " \
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+        elif o_type == "dataset":
+            sql = "select a from TagAnnotation as a " \
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+        elif o_type == "project":
+            sql = "select a from TagAnnotation as a " \
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )"
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listComments(self, o_type, oid):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        if o_type == "image":
+            sql = "select a from CommentAnnotation as a " \
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+        elif o_type == "dataset":
+            sql = "select a from CommentAnnotation as a " \
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+        elif o_type == "project":
+            sql = "select a from CommentAnnotation as a " \
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listUrls(self, o_type, oid):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        if o_type == "image":
+            sql = "select a from UriAnnotation as a " \
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+        elif o_type == "dataset":
+            sql = "select a from UriAnnotation as a " \
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+        elif o_type == "project":
+            sql = "select a from UriAnnotation as a " \
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listFiles(self, o_type, oid):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        if o_type == "image":
+            sql = "select a from FileAnnotation as a join fetch a.file " \
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+        elif o_type == "dataset":
+            sql = "select a from FileAnnotation as a join fetch a.file " \
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+        elif o_type == "project":
+            sql = "select a from FileAnnotation as a join fetch a.file " \
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listSpecifiedTags(self, ids):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+        sql = "select a from TagAnnotation a where a.id in (:ids) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listSpecifiedComments(self, ids):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+        sql = "select a from CommentAnnotation a where a.id in (:ids) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listSpecifiedFiles(self, ids):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+        sql = "select a from FileAnnotation a where a.id in (:ids) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def listSpecifiedUrls(self, ids):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+        sql = "select a from UriAnnotation a where a.id in (:ids) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper(self, e)
+    
+    def filterTags(self, t):
+        q = self.getQueryService()
         sql = "select tg from TagAnnotation tg "
-        return [t.textValue.val for t in q.findAllByQuery(sql,p)]
+        return [t.textValue.val for t in q.findAllByQuery(sql,None)]
     
     ##############################################
     ##   Share methods
@@ -1031,6 +1132,39 @@ class BlitzGateway (threading.Thread):
                 left outer join fetch pdl.parent as pr where ds.id=:oid"
         for pdl in query_serv.findAllByQuery(sql, p):
             yield ProjectDatasetLinkWrapper(self, pdl)
+    
+    def getImageAnnotationLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select ial from ImageAnnotationLink as ial left outer join fetch ial.child as an \
+                left outer join fetch ial.parent as im where im.id=:parent and an.id=:oid"
+        dsl = query_serv.findByQuery(sql, p)
+        return AnnotationLinkWrapper(self, dsl)
+    
+    def getDatasetAnnotationLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select dal from DatasetAnnotationLink as dal left outer join fetch dal.child as an \
+                left outer join fetch dal.parent as ds where ds.id=:parent and an.id=:oid"
+        dsl = query_serv.findByQuery(sql, p)
+        return AnnotationLinkWrapper(self, dsl)
+    
+    def getProjectAnnotationLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select pal from ProjectAnnotationLink as pal left outer join fetch pal.child as an \
+                left outer join fetch pal.parent as pr where pr.id=:parent and an.id=:oid"
+        dsl = query_serv.findByQuery(sql, p)
+        return AnnotationLinkWrapper(self, dsl)
     
     def getSpecifiedImages(self, oids):
         query_serv = self.getQueryService()
@@ -1292,7 +1426,11 @@ class BlitzGateway (threading.Thread):
     
     def saveObject (self, obj):
         u = self.getUpdateService()
-        u.saveAndReturnObject(obj)
+        u.saveObject(obj)
+    
+    def saveArray (self, objs):
+        u = self.getUpdateService()
+        u.saveArray(objs)
     
     def saveAndReturnObject (self, obj):
         u = self.getUpdateService()
@@ -1797,12 +1935,6 @@ class BlitzObjectWrapper (object):
         self.annotations = pojos.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
         #self.annotationsLoaded = True
         for ann in self.annotations:
-            if isinstance(ann, FileAnnotationI):
-                p = omero.sys.Parameters()
-                p.map = {} 
-                p.map["oid"] = ann.file.id
-                sql = "select p from OriginalFile as p left outer join fetch p.format where p.id = :oid"
-                ann.file = self._conn.getQueryService().findByQuery(sql, p)
             yield AnnotationWrapper(self._conn, ann)
     
     def countAnnotations (self):
@@ -2067,6 +2199,9 @@ class GroupWrapper (BlitzObjectWrapper):
     CHILD_WRAPPER_CLASS = None
 
 class ScriptWrapper (BlitzObjectWrapper):
+    pass
+
+class AnnotationLinkWrapper (BlitzObjectWrapper):
     pass
 
 class AnnotationWrapper (BlitzObjectWrapper):

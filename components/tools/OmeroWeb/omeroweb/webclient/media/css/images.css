@@ -98,7 +98,7 @@ div#view, div#header_name {
 }
 .toolbar {
     position: absolute;
-    top: 5px;
+    top: 0;
     right: 0;
     text-align: right;
     background-color: #fff;

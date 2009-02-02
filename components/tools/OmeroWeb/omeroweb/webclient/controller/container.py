@@ -48,6 +48,8 @@ class BaseContainer(BaseController):
     dataset = None
     image = None
     tag = None
+    tag2 = None
+    tag3 = None
     
     containers = None
     containersMyGroups = None
@@ -85,7 +87,12 @@ class BaseContainer(BaseController):
             else:
                 self.image = self.conn.getImage(o1_id)
         elif o1_type == "tag":
-            self.tag = self.conn.getTagAnnotation(long(o1_id))
+            if o1_id is not None:
+                self.tag = self.conn.getTagAnnotation(long(o1_id))
+            if o2_id is not None:
+                self.tag2 = self.conn.getTagAnnotation(long(o2_id))
+            if o3_id is not None:
+                self.tag3 = self.conn.getTagAnnotation(long(o3_id))
         elif o1_type == "orphaned":
             self.orphaned = True
         
@@ -163,6 +170,10 @@ class BaseContainer(BaseController):
         else:
             if self.tag is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tag: %s' % (self.tag.breadcrumbName())]
+                if self.tag2 is not None:
+                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s' % (self.tag.breadcrumbName(), self.tag2.breadcrumbName())]
+                    if self.tag3 is not None:
+                        self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s' % (self.tag.breadcrumbName(), self.tag2.breadcrumbName(), self.tag3.breadcrumbName())]
             elif self.project is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
                             '<a href="/%s/%s/project/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.project.breadcrumbName())]
@@ -182,9 +193,15 @@ class BaseContainer(BaseController):
                 self.eContext['breadcrumb'] = [menu.title()] 
     
     def loadDataByTag(self):
-        pr_list = list(self.conn.listProjectsByTag(self.tag.id))
-        ds_list = list(self.conn.listDatasetsByTag(self.tag.id))
-        im_list = list(self.conn.listImagesByTag(self.tag.id))
+        tagids = [self.tag.id]
+        if self.tag2 is not None:
+            tagids.append(self.tag2.id)
+        if self.tag3 is not None:
+            tagids.append(self.tag3.id)
+        
+        pr_list = list(self.conn.listProjectsByTag(tagids))
+        ds_list = list(self.conn.listDatasetsByTag(tagids))
+        im_list = list(self.conn.listImagesByTag(tagids))
         
         pr_ids = [pr.id for pr in pr_list]
         pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
@@ -654,7 +671,39 @@ class BaseContainer(BaseController):
 
         if self.long_annotations['votes'] > 0:
             self.long_annotations['rate'] /= self.long_annotations['votes']
-
+    
+    def listTags(self):
+        if self.image is not None:
+            return list(self.conn.listTags("image", self.image.id))
+        elif self.dataset is not None:
+            return list(self.conn.listTags("dataset", self.dataset.id))
+        elif self.project is not None:
+            return list(self.conn.listTags("project", self.project.id))
+    
+    def listComments(self):
+        if self.image is not None:
+            return list(self.conn.listComments("image", self.image.id))
+        elif self.dataset is not None:
+            return list(self.conn.listComments("dataset", self.dataset.id))
+        elif self.project is not None:
+            return list(self.conn.listComments("project", self.project.id))
+    
+    def listUrls(self):
+        if self.image is not None:
+            return list(self.conn.listUrls("image", self.image.id))
+        elif self.dataset is not None:
+            return list(self.conn.listUrls("dataset", self.dataset.id))
+        elif self.project is not None:
+            return list(self.conn.listUrls("project", self.project.id))
+    
+    def listFiles(self):
+        if self.image is not None:
+            return list(self.conn.listFiles("image", self.image.id))
+        elif self.dataset is not None:
+            return list(self.conn.listFiles("dataset", self.dataset.id))
+        elif self.project is not None:
+            return list(self.conn.listFiles("project", self.project.id))
+    
     ####################################################################
     # Creation
     
@@ -807,7 +856,11 @@ class BaseContainer(BaseController):
     def createImageFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
-            format = self.conn.getFileFormt(f[1].upper())
+            format = None
+            try:
+                format = self.conn.getFileFormt(f[1].upper())
+            except:
+                format = self.conn.getFileFormt("application/octet-stream")
         else:
             format = self.conn.getFileFormt(newFile.content_type)
         
@@ -828,6 +881,63 @@ class BaseContainer(BaseController):
         l_ia.setChild(fa)
         self.conn.saveObject(l_ia)
     
+    # Create links
+    def createImageAnnotationLinks(self, o_type, ids):
+        anns = None
+        if o_type == 'tag':
+            anns = self.conn.listSpecifiedTags(ids)
+        elif o_type == 'comment':
+            anns = self.conn.listSpecifiedComments(ids)
+        elif o_type == 'url':
+            anns = self.conn.listSpecifiedUrls(ids)
+        elif o_type == 'file':
+            anns = self.conn.listSpecifiedFiles(ids)
+        
+        new_links = list()
+        for a in anns:
+            ann = ImageAnnotationLinkI()
+            ann.setParent(self.image._obj)
+            ann.setChild(a._obj)
+            new_links.append(ann)
+        self.conn.saveArray(new_links)
+    
+    def createDatasetAnnotationLinks(self, o_type, ids):
+        anns = None
+        if o_type == 'tag':
+            anns = self.conn.listSpecifiedTags(ids)
+        elif o_type == 'comment':
+            anns = self.conn.listSpecifiedComments(ids)
+        elif o_type == 'url':
+            anns = self.conn.listSpecifiedUrls(ids)
+        elif o_type == 'file':
+            anns = self.conn.listSpecifiedFiles(ids)
+        
+        new_links = list()
+        for a in anns:
+            ann = DatasetAnnotationLinkI()
+            ann.setParent(self.dataset._obj)
+            ann.setChild(a._obj)
+            new_links.append(ann)
+        self.conn.saveArray(new_links)
+    
+    def createProjectAnnotationLinks(self, o_type, ids):
+        anns = None
+        if o_type == 'tag':
+            anns = self.conn.listSpecifiedTags(ids)
+        elif o_type == 'comment':
+            anns = self.conn.listSpecifiedComments(ids)
+        elif o_type == 'url':
+            anns = self.conn.listSpecifiedUrls(ids)
+        elif o_type == 'file':
+            anns = self.conn.listSpecifiedFiles(ids)
+        
+        new_links = list()
+        for a in anns:
+            ann = ProjectAnnotationLinkI()
+            ann.setParent(self.project._obj)
+            ann.setChild(a._obj)
+            new_links.append(ann)
+        self.conn.saveArray(new_links)
     
     ################################################################
     # Update
@@ -959,14 +1069,26 @@ class BaseContainer(BaseController):
                 pdl = self.conn.getProjectDatasetLink(parent[1], source[1])
                 if pdl is not None:
                     self.conn.deleteObject(pdl._obj)
-                    return True
         elif source[0] == 'img':
             if parent[0] == 'ds':
                 dil = self.conn.getDatasetImageLink(parent[1], source[1])
                 if dil is not None:
                     self.conn.deleteObject(dil._obj)
-                    return True
-        return False
+        elif source[0] == 'tann' or source[0] == 'cann' or source[0] == 'fann' or source[0] == 'uann':
+            if parent[0] == 'pr':
+                pal = self.conn.getProjectAnnotationLink(parent[1], source[1])
+                if pal is not None:
+                    self.conn.deleteObject(pal._obj)
+            elif parent[0] == 'ds':
+                dal = self.conn.getDataseteAnnotationLink(parent[1], source[1])
+                if dal is not None:
+                    self.conn.deleteObject(dal._obj)
+            elif parent[0] == 'img':
+                ial = self.conn.getImageAnnotationLink(parent[1], source[1])
+                if ial is not None:
+                    self.conn.deleteObject(ial._obj)
+        else:
+            raise AttributeError("Atribut not specified.")
     
     
     ##########################################################

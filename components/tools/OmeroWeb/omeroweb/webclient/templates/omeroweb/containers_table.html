@@ -20,6 +20,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.tabs.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
@@ -84,6 +85,8 @@
                     {% endif %}    
                     return false; 
                 });
+                
+                $("#existing").tabs();
         })
     </script>
 {% endblock %}

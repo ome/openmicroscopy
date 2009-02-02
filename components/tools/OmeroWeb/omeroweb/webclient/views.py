@@ -68,7 +68,8 @@ from omeroweb.webadmin.controller.experimenter import BaseExperimenter
 
 from models import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, \
-                    HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm
+                    HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
+                    TagListForm, UrlListForm, CommentListForm, FileListForm
 from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm
 
 from omeroweb.webadmin.models import Gateway, LoginForm
@@ -673,6 +674,17 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     form_tag = None
     form_uri = None
     form_file = None
+    
+    form_tags = None
+    form_urls = None
+    form_comments = None
+    form_files = None
+    
+    tag_list = manager.listTags()
+    comment_list = manager.listComments()
+    url_list = manager.listUrls()
+    file_list = manager.listFiles()
+    
     try:
         action = request.REQUEST["action"]
     except:
@@ -681,6 +693,11 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
     else:
         if action == "comment":
             form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
@@ -705,6 +722,11 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "url":
             form_uri = UriAnnotationForm(data=request.REQUEST.copy())
             if form_uri.is_valid():
@@ -728,6 +750,11 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "tag":
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
@@ -751,6 +778,11 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "file":
             if request.method == 'POST':
                 form_file = UploadFileForm(request.POST, request.FILES)
@@ -775,25 +807,153 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+        elif action == "usetag":
+            if request.method == 'POST':
+                form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
+                if form_tags.is_valid():
+                    tags = request.POST.getlist('tags')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('tag',tags)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    form_tags = TagListForm(initial={'tags':manager.listTags()})
+            
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
+        elif action == "usecomment":
+            if request.method == 'POST':
+                form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
+                if form_comments.is_valid():
+                    comments = request.POST.getlist('comments')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('comment',comments)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    form_comments = CommentListForm(initial={'comments':manager.listComments()})
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+            
+        elif action == "useurl":
+            if request.method == 'POST':
+                form_urls = UrlListForm(data=request.REQUEST.copy(), initial={'urls':url_list})
+                if form_urls.is_valid():
+                    urls = request.POST.getlist('urls')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('url',urls)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    form_urls = UrlListForm(initial={'urls':manager.listUrls()})
+                    
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
+        elif action == "usefile":
+            if request.method == 'POST':
+                form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
+                if form_files.is_valid():
+                    files = request.POST.getlist('files')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('file',files)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    form_files = FileListForm(initial={'files':manager.listFiles()})
+            
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
     
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         context = {'manager':manager, 'eContext':manager.eContext}
     elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -871,6 +1031,17 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     form_tag = None
     form_uri = None
     form_file = None
+    
+    form_tags = None
+    form_urls = None
+    form_comments = None
+    form_files = None
+    
+    tag_list = manager.listTags()
+    comment_list = manager.listComments()
+    url_list = manager.listUrls()
+    file_list = manager.listFiles()
+    
     try:
         action = request.REQUEST["action"]
     except:
@@ -879,6 +1050,11 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
     else:
         if action == "comment":
             form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
@@ -886,69 +1062,84 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                 content = request.REQUEST['content']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.saveImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.saveDatasetTextAnnotation(content)
+                        manager.createDatasetCommentAnnotation(content)
                     elif o2_type == 'image':
-                        manager.saveImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.saveProjectTextAnnotation(content)
+                        manager.createProjectCommentAnnotation(content)
                     elif o1_type == 'dataset':
-                        manager.saveDatasetTextAnnotation(content)
+                        manager.createDatasetCommentAnnotation(content)
                     elif o1_type == 'image':
-                        manager.saveImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 form_comment = CommentAnnotationForm()
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "url":
             form_uri = UriAnnotationForm(data=request.REQUEST.copy())
             if form_uri.is_valid():
                 content = request.REQUEST['link']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.saveImageUrlAnnotation(content)
+                        manager.createImageUriAnnotation(content)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.saveDatasetUrlAnnotation(content)
+                        manager.createDatasetUriAnnotation(content)
                     elif o2_type == 'image':
-                        manager.saveImageUrlAnnotation(content)
+                        manager.createImageUriAnnotation(content)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.saveProjectUrlAnnotation(content)
+                        manager.createProjectUriAnnotation(content)
                     elif o1_type == 'dataset':
-                        manager.saveDatasetUrlAnnotation(content)
+                        manager.createDatasetUriAnnotation(content)
                     elif o1_type == 'image':
-                        manager.saveImageUrlAnnotation(content)
+                        manager.createImageUriAnnotation(content)
                 form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "tag":
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
                 tag = request.REQUEST['tag']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.saveImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.saveDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag)
                     elif o2_type == 'image':
-                        manager.saveImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.saveProjectTagAnnotation(tag)
+                        manager.createProjectTagAnnotation(tag)
                     elif o1_type == 'dataset':
-                        manager.saveDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag)
                     elif o1_type == 'image':
-                        manager.saveImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag)
                 form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "file":
             if request.method == 'POST':
                 form_file = UploadFileForm(request.POST, request.FILES)
@@ -973,7 +1164,135 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
-    
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+        
+        elif action == "usetag":
+            if request.method == 'POST':
+                form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
+                if form_tags.is_valid():
+                    tags = request.POST.getlist('tags')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('tag',tags)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    form_tags = TagListForm(initial={'tags':manager.listTags()})
+            
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
+        elif action == "usecomment":
+            if request.method == 'POST':
+                form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
+                if form_comments.is_valid():
+                    comments = request.POST.getlist('comments')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('comment',comments)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    form_comments = CommentListForm(initial={'comments':manager.listComments()})
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+            
+        elif action == "useurl":
+            if request.method == 'POST':
+                form_urls = UrlListForm(data=request.REQUEST.copy(), initial={'urls':url_list})
+                if form_urls.is_valid():
+                    urls = request.POST.getlist('urls')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('url',urls)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    form_urls = UrlListForm(initial={'urls':manager.listUrls()})
+                    
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
+        elif action == "usefile":
+            if request.method == 'POST':
+                form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
+                if form_files.is_valid():
+                    files = request.POST.getlist('files')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('file',files)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    form_files = FileListForm(initial={'files':manager.listFiles()})
+            
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
     
     template = None
     if o3_type and o3_id:
@@ -1018,16 +1337,16 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
@@ -1035,7 +1354,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1113,6 +1432,17 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     form_tag = None
     form_uri = None
     form_file = None
+    
+    form_tags = None
+    form_urls = None
+    form_comments = None
+    form_files = None
+    
+    tag_list = manager.listTags()
+    comment_list = manager.listComments()
+    url_list = manager.listUrls()
+    file_list = manager.listFiles()
+    
     try:
         action = request.REQUEST["action"]
     except:
@@ -1121,6 +1451,11 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
     else:
         if action == "comment":
             form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
@@ -1128,46 +1463,84 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                 content = request.REQUEST['content']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.saveImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.saveDatasetTextAnnotation(content)
+                        manager.createDatasetCommentAnnotation(content)
                     elif o2_type == 'image':
-                        manager.saveImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.saveProjectTextAnnotation(content)
+                        manager.createProjectCommentAnnotation(content)
                     elif o1_type == 'dataset':
-                        manager.saveDatasetTextAnnotation(content)
+                        manager.createDatasetCommentAnnotation(content)
                     elif o1_type == 'image':
-                        manager.saveImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 form_comment = CommentAnnotationForm()
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "url":
             form_uri = UriAnnotationForm(data=request.REQUEST.copy())
             if form_uri.is_valid():
                 content = request.REQUEST['link']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.saveImageUrlAnnotation(content)
+                        manager.createImageUriAnnotation(content)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.saveDatasetUrlAnnotation(content)
+                        manager.createDatasetUriAnnotation(content)
                     elif o2_type == 'image':
-                        manager.saveImageUrlAnnotation(content)
+                        manager.createImageUriAnnotation(content)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.saveProjectUrlAnnotation(content)
+                        manager.createProjectUriAnnotation(content)
                     elif o1_type == 'dataset':
-                        manager.saveDatasetUrlAnnotation(content)
+                        manager.createDatasetUriAnnotation(content)
                     elif o1_type == 'image':
-                        manager.saveImageUrlAnnotation(content)
+                        manager.createImageUriAnnotation(content)
                 form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+        elif action == "tag":
+            form_tag = TagAnnotationForm(data=request.REQUEST.copy())
+            if form_tag.is_valid():
+                tag = request.REQUEST['tag']
+                if o3_type and o3_id:
+                    if o3_type == 'image':
+                        manager.createImageTagAnnotation(tag)
+                elif o2_type and o2_id:
+                    if o2_type == 'dataset':
+                        manager.createDatasetTagAnnotation(tag)
+                    elif o2_type == 'image':
+                        manager.createImageTagAnnotation(tag)
+                elif o1_type and o1_id:
+                    if o1_type == 'project':
+                        manager.createProjectTagAnnotation(tag)
+                    elif o1_type == 'dataset':
+                        manager.createDatasetTagAnnotation(tag)
+                    elif o1_type == 'image':
+                        manager.createImageTagAnnotation(tag)
+                form_tag = TagAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_comment = CommentAnnotationForm()
+            form_file = UploadFileForm()
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
         elif action == "file":
             if request.method == 'POST':
                 form_file = UploadFileForm(request.POST, request.FILES)
@@ -1175,24 +1548,153 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                     f = request.FILES['annotation_file']
                     if o3_type and o3_id:
                         if o3_type == 'image':
-                            manager.saveImageFileAnnotation(f)
+                            manager.createImageFileAnnotation(f)
                     elif o2_type and o2_id:
                         if o2_type == 'dataset':
-                            manager.saveDatasetFileAnnotation(f)
+                            manager.createDatasetFileAnnotation(f)
                         elif o2_type == 'image':
-                            manager.saveImageFileAnnotation(f)
+                            manager.createImageFileAnnotation(f)
                     elif o1_type and o1_id:
                         if o1_type == 'project':
-                            manager.saveProjectFileAnnotation(f)
+                            manager.createProjectFileAnnotation(f)
                         elif o1_type == 'dataset':
-                            manager.saveDatasetFileAnnotation(f)
+                            manager.createDatasetFileAnnotation(f)
                         elif o1_type == 'image':
-                            manager.saveImageFileAnnotation(f)
+                            manager.createImageFileAnnotation(f)
                     form_file = UploadFileForm()
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
-    
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+        
+        elif action == "usetag":
+            if request.method == 'POST':
+                form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
+                if form_tags.is_valid():
+                    tags = request.POST.getlist('tags')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('tag',tags)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                    form_tags = TagListForm(initial={'tags':manager.listTags()})
+            
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
+        elif action == "usecomment":
+            if request.method == 'POST':
+                form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
+                if form_comments.is_valid():
+                    comments = request.POST.getlist('comments')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('comment',comments)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                    form_comments = CommentListForm(initial={'comments':manager.listComments()})
+            
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+            
+        elif action == "useurl":
+            if request.method == 'POST':
+                form_urls = UrlListForm(data=request.REQUEST.copy(), initial={'urls':url_list})
+                if form_urls.is_valid():
+                    urls = request.POST.getlist('urls')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('url',urls)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                    form_urls = UrlListForm(initial={'urls':manager.listUrls()})
+                    
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_files = FileListForm(initial={'files':file_list})
+                    
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
+        elif action == "usefile":
+            if request.method == 'POST':
+                form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
+                if form_files.is_valid():
+                    files = request.POST.getlist('files')
+                    if o3_type and o3_id:
+                        if o3_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    elif o2_type and o2_id:
+                        if o2_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif o2_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    elif o1_type and o1_id:
+                        if o1_type == 'project':
+                            manager.createProjectAnnotationLinks('file',files)
+                        elif o1_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif o1_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                    form_files = FileListForm(initial={'files':manager.listFiles()})
+            
+            form_comments = CommentListForm(initial={'comments':comment_list})
+            form_tags = TagListForm(initial={'tags':tag_list})
+            form_urls = UrlListForm(initial={'urls':url_list})
+            
+            form_tag = TagAnnotationForm()
+            form_comment = CommentAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            form_file = UploadFileForm()
+        
     template = None
     if o3_type and o3_id:
         if o3_type == 'image':
@@ -1235,16 +1737,16 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                     
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_mygroups':form_mygroups, 'form_users':form_users, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
@@ -1252,14 +1754,14 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_data_by_tag(request, iid, **kwargs):
+def manage_data_by_tag(request, tid1=None, tid2=None, tid3=None, **kwargs):
     request.session['nav']['menu'] = 'mydata'
     request.session['nav']['whos'] = 'mydata'
     
@@ -1277,12 +1779,14 @@ def manage_data_by_tag(request, iid, **kwargs):
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, "tag", iid)
+    manager = BaseContainer(conn, "tag", tid1, "tag", tid2, "tag", tid3 )
     manager.buildBreadcrumb(whos)
-    manager.loadDataByTag()
+    if tid1 is not None:
+        manager.loadDataByTag()
+    else:
+        pass
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
-    
     
     context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -1301,7 +1805,7 @@ def suggest_tags(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    json_data = simplejson.dumps(list(conn.listTags(mask)))
+    json_data = simplejson.dumps(list(conn.filterTags(mask)))
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
@@ -1314,8 +1818,16 @@ def manage_annotations(request, o_type, o_id, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
+    t = None
+    try:
+        t = request.REQUEST['t']
+    except:
+        pass
+    
     manager = BaseContainer(conn, o_type, o_id)
-    if o_type == 'project':
+    if t == "zoom":
+        template = "omeroweb/annotations_zoom.html"
+    elif o_type == 'project':
         template = "omeroweb/annotations.html"
     elif o_type == "dataset":
         template = "omeroweb/annotations.html"
@@ -1488,8 +2000,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'remove':
         parent = request.REQUEST['parent'].split('-')
         source = request.REQUEST['source'].split('-')
-        if not manager.remove(parent,source):
-            return False
+        try:
+            manager.remove(parent,source)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            raise x
         return HttpResponseRedirect(url)
     elif action == 'save':
         if o_type == "dataset":

@@ -59,7 +59,8 @@ class Advice(models.Model):
 
 #################################################################
 # Non-model Form
-from custom_forms import PermissionCheckboxSelectMultiple, MultiEmailField, UrlField, MetadataModelChoiceField
+from custom_forms import PermissionCheckboxSelectMultiple, MultiEmailField, UrlField, MetadataModelChoiceField, \
+                         AnnotationModelMultipleChoiceField
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         GroupModelChoiceField, ExperimenterModelMultipleChoiceField
 
@@ -114,6 +115,34 @@ class UriAnnotationForm(forms.Form):
 
 class TagAnnotationForm(forms.Form):
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':55}))
+
+class TagListForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(TagListForm, self).__init__(*args, **kwargs)
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':5, 'class':'existing'}), required=False)
+        self.fields.keyOrder = ['tags']
+
+class CommentListForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(CommentListForm, self).__init__(*args, **kwargs)
+        self.fields['comments'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['comments'], widget=forms.SelectMultiple(attrs={'size':5, 'class':'existing'}), required=False)
+        self.fields.keyOrder = ['comments']
+
+class UrlListForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(UrlListForm, self).__init__(*args, **kwargs)
+        self.fields['urls'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['urls'], widget=forms.SelectMultiple(attrs={'size':5, 'class':'existing'}), required=False)
+        self.fields.keyOrder = ['urls']
+
+class FileListForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(FileListForm, self).__init__(*args, **kwargs)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':5, 'class':'existing'}), required=False)
+        self.fields.keyOrder = ['files']
 
 class UploadFileForm(forms.Form):
     annotation_file  = forms.FileField()

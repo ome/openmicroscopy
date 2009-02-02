@@ -82,8 +82,9 @@ urlpatterns = patterns('',
     
     ( r'(?i)^annotations/([a-zA-Z]+)/([0-9]+)/$', views.manage_annotations ),
     ( r'(?i)^annotation/([a-zA-Z]+)/([0-9]+)/$', views.manage_annotation ),
-    #( r'(?i)^tags/$', views.manage_data_by_tags ),
     ( r'(?i)^tag/([0-9]+)/$', views.manage_data_by_tag ),
+    ( r'(?i)^tag/([0-9]+)/([0-9]+)/$', views.manage_data_by_tag ),
+    ( r'(?i)^tag/([0-9]+)/([0-9]+)/([0-9]+)/$', views.manage_data_by_tag ),
     ( r'(?i)^suggesttags/$', views.suggest_tags ),
     
     ( r'(?i)^render_thumbnail/(?P<iid>[0-9]+)/$', views.render_thumbnail ),

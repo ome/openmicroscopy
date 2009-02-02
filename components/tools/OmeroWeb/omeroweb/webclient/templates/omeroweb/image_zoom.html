@@ -23,7 +23,7 @@
             $("a.loadAnnotation").click(function()
             {
                 $("div#annotation").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
-                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ image.image.id }}/?url={{ url }}", function() {  
+                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ image.image.id }}/?t=zoom&url={{ url }}", function() {  
                         $("a.loadAnnotation").remove();                        
                     });
                 return false; 

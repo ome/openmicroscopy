@@ -3,7 +3,7 @@
 
 <h1>Tags:
 {% for tag in manager.tag_annotations %}
-    <a href="{% get_webclient_root_url %}/tag/{{ tag.id }}/"> {{ tag.textValue }}</a> {% if tag.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}, 
+    <a href="{% get_webclient_root_url %}/tag/{{ tag.id }}/" target="_blank"> {{ tag.textValue }}</a>, 
 {% endfor %}
 </h1>
 
@@ -41,7 +41,7 @@
 <h1>URLs:</h1>
     <div class="body_url">
     <p>| {% for urlann in manager.url_annotations %}
-        {{ urlann.textValue|wikify|safe }} {% if urlann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/url/{{ urlann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> <a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=uann-{{ urlann.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %} | 
+        {{ urlann.textValue|wikify|safe }} | 
     {% endfor %}</p>
     </div>
 {% endif %}
@@ -50,7 +50,7 @@
 <h1>Files:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate }} {% if fileann.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</li>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate }}</li>
     {% endfor %}
 </ol>
 {% endif %}
