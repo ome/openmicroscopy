@@ -66,7 +66,6 @@ import omero.AuthenticationException;
 import omero.DataAccessException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
-import omero.RLong;
 import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
@@ -1113,21 +1112,6 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			/*
-			IPojosPrx service = getPojosService();
-			List<String> list = new ArrayList<String>(1);
-			list.add(name);
-			Map<String, RType> options = new HashMap<String, RType>();
-
-			Map m = PojoMapper.asDataObjects(service.getUserDetails(list,
-			options));
-			ExperimenterData data = (ExperimenterData) m.get(name);
-			if (data == null) {
-				throw new DSOutOfServiceException("Cannot retrieve user's "
-			                        + "data");
-			}
-			return data;
-			*/
 			IAdminPrx service = getAdminService();
 			return (ExperimenterData) 
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
@@ -1187,6 +1171,7 @@ class OMEROGateway
 			//fillEnumerations();
 			return getUserDetails(userName);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -4145,8 +4130,8 @@ class OMEROGateway
 		sb = new StringBuilder();
 		param = new ParametersI();
 		sb.append("select img from Image as img ");
-		sb.append("left outer join fetch img.position as position ");
-        sb.append("left outer join fetch img.condition as condition ");
+		sb.append("left outer join fetch img.stageLabel as position ");
+        sb.append("left outer join fetch img.imagingEnvironment as condition ");
         sb.append("left outer join fetch img.objectiveSettings as os ");
         sb.append("left outer join fetch os.medium as me ");
         sb.append("left outer join fetch os.objective as objective ");

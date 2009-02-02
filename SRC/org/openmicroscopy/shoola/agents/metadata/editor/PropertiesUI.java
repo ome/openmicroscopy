@@ -190,15 +190,12 @@ class PropertiesUI
     		}
 		});
     	descriptionPane.addPropertyChangeListener(controller);
-    	//descriptionPane.setDefaultText(DEFAULT_TEXT);
     	descriptionPane.setText(DEFAULT_TEXT);
-    	//descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	//descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	descriptionPane.addFocusListener(this);
     	defaultBorder = namePane.getBorder();
     	
     	f = namePane.getFont();
-    	namePane.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
+    	namePane.setFont(f.deriveFont(Font.BOLD));
     	f = descriptionPane.getFont();
     	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);

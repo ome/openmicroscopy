@@ -183,6 +183,24 @@ public interface LoginService
     extends AgentEventListener
 {
 
+	/** 
+	 * Indicates that the client couldn't connect b/c a 
+	 * <code>DNSException</code> was thrown by the server.
+	 */
+	public static final int		DNS_INDEX = 100;
+	
+	/** 
+	 * Indicates that the client couldn't connect b/c a 
+	 * <code>PermissionException</code> was thrown by the server.
+	 */
+	public static final int		PERMISSION_INDEX = 101;
+	
+	/** 
+	 * Indicates that the client couldn't connect b/c a 
+	 * <code>ConnectionException</code> was thrown by the server.
+	 */
+	public static final int		CONNECTION_INDEX = 102;
+	
     /**
      * Flag to denote the Idle state.
      * While in this state, the Login Service is waiting for a login request.
@@ -252,5 +270,12 @@ public interface LoginService
      *                                 posted by an Agent.
      */
     public void eventFired(AgentEvent serviceActivationRequest);
+    
+    /**
+     * Returns one of the index defined by this class.
+     * 
+     * @return See above.
+     */
+    public int getLoginFailureIndex();
     
 }

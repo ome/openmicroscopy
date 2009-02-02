@@ -103,8 +103,13 @@ public interface SplashScreen
 	 */
 	public UserCredentials getUserCredentials(boolean init);
 	
-	/** Updates the view when failed to log in. */
-	public void notifyLoginFailure();
+	/** 
+	 * Updates the view when failed to log in. 
+	 * 
+	 * @param failureIndex  The index of the failure. One of the constants 
+	 * 						defined by the <code>LoginService</code>
+	 */
+	public void notifyLoginFailure(int failureIndex);
 
 	/** Updates the view when failed to log in. */
 	public void notifyLoginTimeout();

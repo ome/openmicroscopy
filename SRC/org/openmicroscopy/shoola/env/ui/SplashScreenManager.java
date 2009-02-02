@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -252,14 +253,30 @@ class SplashScreenManager
 		doneTasks = 0;
 	}
 
-	/** Updates the {@link ScreenLogin}. */
-    void nofityLoginFailure()
+	/** 
+	 * Updates the {@link ScreenLogin}. 
+	 * 
+	 * @param failureIndex The index of the failure. One of the constants 
+	 * 					   defined by the <code>LoginService</code>
+	 */
+    void nofityLoginFailure(int failureIndex)
     { 
     	//Need to do it that way to keep focus on login dialog
+    	String text = "";
+    	switch (failureIndex) {
+			case LoginService.DNS_INDEX:
+				text = "the server address\n";
+				break;
+			case LoginService.CONNECTION_INDEX:
+				text = "the port\n";
+				break;
+			case LoginService.PERMISSION_INDEX:
+				default:
+				text = "your user name\nand/or password ";
+		}
     	NotificationDialog dialog = new NotificationDialog(
                 view, "Login Failure", "Failed to log onto OMERO.\n" +
-                "Please check your user name\n"+
-                "and/or password or try again later.", 
+                "Please check "+text+"or try again later.", 
                 IconManager.getDefaultErrorIcon());
 		dialog.pack();  
 		UIUtilities.centerAndShow(dialog);

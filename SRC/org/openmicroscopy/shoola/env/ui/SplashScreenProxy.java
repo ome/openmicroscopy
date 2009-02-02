@@ -225,16 +225,16 @@ class SplashScreenProxy
 	
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#notifyLoginFailure()
+	 * @see SplashScreen#notifyLoginFailure(int)
 	 */
-	public void notifyLoginFailure()
+	public void notifyLoginFailure(int failureIndex)
 	{
 		if (!isValid) return;  //Somebody's already called close().
-		
+		final int index = failureIndex;
 
 		//Construct request of method execution.
 		Runnable doUpdate = new Runnable() {
-			public void run() { servant.nofityLoginFailure(); }
+			public void run() { servant.nofityLoginFailure(index); }
 		};
 
 		//Schedule execution within Swing dispatching thread.

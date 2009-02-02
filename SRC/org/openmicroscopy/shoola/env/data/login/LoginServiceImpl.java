@@ -30,6 +30,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 //Third-party libraries
+import Glacier2.PermissionDeniedException;
+import Ice.ConnectionRefusedException;
+import Ice.DNSException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
@@ -41,6 +44,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+
 
 /** 
  * Implements the Login Service's logic.
@@ -79,7 +83,10 @@ public class LoginServiceImpl
     private Timer 			timer;
     
     /** Flag indicating if the attempt to connect has started. */
-    private boolean 		connAttempt = true;
+    private boolean 		connAttempt;
+    
+    /** The index set if an error occured while trying to connect. */
+    private int				failureIndex;
     
     /** Allows to easily access the service's configuration. */
     protected LoginConfig   config;
@@ -161,6 +168,14 @@ public class LoginServiceImpl
             return CONNECTED;
             */
         } catch (DSOutOfServiceException dsose) {  //Log failure.
+        	Throwable cause = dsose.getCause();
+        	if (cause instanceof ConnectionRefusedException) {
+        		failureIndex = CONNECTION_INDEX;
+        	} else if (cause instanceof DNSException) {
+        		failureIndex = DNS_INDEX;
+        	} else if (cause instanceof PermissionDeniedException) {
+        		failureIndex = PERMISSION_INDEX;
+        	}
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+dsose.getMessage());
@@ -203,6 +218,7 @@ public class LoginServiceImpl
         bus.register(this, ServiceActivationRequest.class);
         state = IDLE;
         connAttempt = true;
+        failureIndex = 0;
     }
     
     /**
@@ -271,6 +287,12 @@ public class LoginServiceImpl
         bus.post(resp);
     }
 
+    /**
+     * Implemented as specified by the {@link LoginService} interface.
+     * @see LoginService#getLoginFailureIndex()
+     */
+	public int getLoginFailureIndex() { return failureIndex; }
+	
     /** Helper inner class. */
 	class LoginTask 
 		extends TimerTask {

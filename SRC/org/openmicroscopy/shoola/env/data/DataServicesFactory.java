@@ -325,6 +325,7 @@ public class DataServicesFactory
         
         
         //replace Server string in fs config
+        /*
         Iterator k = fsConfig.keySet().iterator();
         String value, key;
         String regex = LookupNames.FS_HOSTNAME;
@@ -335,7 +336,7 @@ public class DataServicesFactory
 			fsConfig.setProperty(key, value);
 		}
         omeroGateway.startFS(fsConfig);
-        
+        */
         
         boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);

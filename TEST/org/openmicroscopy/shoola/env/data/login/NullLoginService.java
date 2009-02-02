@@ -70,4 +70,9 @@ public class NullLoginService
      */
     public void eventFired(AgentEvent serviceActivationRequest) {}
 
+    /**
+     * @see LoginService#getLoginFailureIndex()
+     */
+	public int getLoginFailureIndex() { return 0; }
+
 }

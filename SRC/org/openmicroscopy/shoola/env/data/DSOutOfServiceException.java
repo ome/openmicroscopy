@@ -48,7 +48,7 @@ package org.openmicroscopy.shoola.env.data;
 public class DSOutOfServiceException
 	extends Exception
 {
-
+	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
