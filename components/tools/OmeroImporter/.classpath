@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="target/libs/omero-client-utils.jar"/>
+	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -373,7 +373,7 @@ public class Main extends JFrame
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(ICON);
         view = new ScreenLogin(ini.getAppTitle(), gui.getImageIcon("gfx/login_background.png"), img,
-                ini.getVersionNumber());
+                ini.getVersionNumber(), ini.getServerPort());
         view.showConnectionSpeed(false);
         viewTop = new ScreenLogo(ini.getAppTitle(), gui.getImageIcon(splash), img);
         viewTop.setStatusVisible(false);
