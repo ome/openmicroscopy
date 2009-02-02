@@ -235,6 +235,26 @@
       Tests didn't pass.  See report details in ${test.reports.html.dir}.
     </fail> 
   </target>
+
+  <target name="findbugs"
+          description="Run findbugs.">
+    <property name="findbugs.version" value="1.2.1"/>
+    <property name="findbugs.path"    value="test.compile.classpath"/>
+    <property name="findbugs.target"  value="${test.reports.dir}/findbugs.xml"/>
+    <property name="findbugs.home"    value="${base.build.dir}/tools/findbugs-${findbugs.version}"/>
+    <taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="${findbugs.path}"/>
+    <find-bugs home="${findbugs.home}" output="xml:withMessages" outputFile="${findbugs.target}" excludeFilter="${base.build.dir}/tools/excludebugs.xml">
+        <class location="${dist.dir}/${dist.jar.file}"/>
+	<auxClasspath>
+            <path refid="${findbugs.path}"/>
+        </auxClasspath>
+        <sourcePath>
+           <path>
+               <pathelement location="${base.src.dir}"/>
+           </path>
+        </sourcePath>
+    </find-bugs>
+  </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run all Data Services tests, produce a report, and halt the build upon 
