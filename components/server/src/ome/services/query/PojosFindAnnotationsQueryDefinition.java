@@ -56,6 +56,8 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
                 LEFT_JOIN);
         Criteria ann_create = ann.createAlias("details.creationEvent",
                 "ann_create", LEFT_JOIN);
+        Criteria ann_file = ann.createAlias("file",
+                "ann_file", LEFT_JOIN);
 
         obj.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
