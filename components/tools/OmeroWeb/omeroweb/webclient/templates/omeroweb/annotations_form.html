@@ -84,7 +84,7 @@
             <table>
             {% for field in form_tags %}
                 <tr>
-                    <td> </td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
@@ -97,7 +97,7 @@
             <table>
             {% for field in form_comments %}
                 <tr>
-                    <td> </td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
@@ -110,7 +110,7 @@
             <table>
             {% for field in form_urls %}
                 <tr>
-                    <td> </td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
@@ -123,7 +123,7 @@
             <table>
             {% for field in form_files %}
                 <tr>
-                    <td> </td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>

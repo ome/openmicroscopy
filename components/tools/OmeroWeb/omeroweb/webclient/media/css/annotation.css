@@ -5,7 +5,7 @@
 }
 #annotation_form {
     border-bottom:1px solid #BBBBBB;
-    height: 450px;
+    height: 500px;
     position: relative;
 }
 
@@ -16,18 +16,18 @@ div.comment {
 }
 div.url {
     position: absolute;
-    right:0;
-    top:0;
+    left:0;
+    top:350px;
 }
 div.file {
     position: absolute;
     right:107px;
-    top:100px;
+    top:0;
 }
 div.ui-tabs-nav {
     position: absolute;
     right:0;
-    top:200px;
+    top:100px;
     width: 360px;
 }
 div.tags {
