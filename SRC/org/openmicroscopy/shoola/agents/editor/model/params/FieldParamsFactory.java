@@ -45,7 +45,7 @@ public class FieldParamsFactory {
 	
 	public static final String NO_PARAMS = "noParams";
 	
-	public static final String[] PARAM_TYPES = 
+	private static final String[] PARAM_TYPES = 
 	{NO_PARAMS, 
 		TextParam.TEXT_LINE_PARAM,
 		EnumParam.ENUM_PARAM, 
@@ -58,7 +58,7 @@ public class FieldParamsFactory {
 	
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
-	public static final String[] UI_INPUT_TYPES = 	
+	private static final String[] UI_INPUT_TYPES = 	
 	{ "DELETE Parameter", 
 		"Text", 
 		"Drop-down Menu", 
@@ -68,6 +68,21 @@ public class FieldParamsFactory {
 		"Ontology Term"
 		// "Phenote Observation"
 		};
+	
+	/**
+	 * Gets a list of the Strings that ID the parameter types used by Editor.
+	 * 
+	 * @return		see above
+	 */
+	public static String[] getParamTypes() { return PARAM_TYPES; }
+	
+	/**
+	 * Gets a list of the Strings to display the parameter types used by Editor.
+	 * NB these correspond to the IDs returned by {@link #getParamTypes()}
+	 * 
+	 * @return		see above
+	 */
+	public static String[] getUiParamTypes() { return UI_INPUT_TYPES; }
 	
 	/**
 	 * Returns the UI-suitable parameter type name 

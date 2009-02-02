@@ -104,7 +104,7 @@ public class ParamEditor
 	 */
 	private void initialise()
 	{
-		String[] options = FieldParamsFactory.UI_INPUT_TYPES;
+		String[] options = FieldParamsFactory.getUiParamTypes();
 		paramTypeChooser = new DropDownMenu(options);
 		// listen for selection changes
 		paramTypeChooser.addPropertyChangeListener(DropDownMenu.SELECTION, this);
@@ -127,8 +127,9 @@ public class ParamEditor
 		// add parameter type chooser, set it's value
 		String paramType = parameter.getAttribute(AbstractParam.PARAM_TYPE);
 		if (paramType != null) {
-			for (int i=0; i<FieldParamsFactory.UI_INPUT_TYPES.length; i++)
-				if (paramType.equals(FieldParamsFactory.PARAM_TYPES[i])) {
+			String[] paramTypes = FieldParamsFactory.getParamTypes();
+			for (int i=0; i<paramTypes.length; i++)
+				if (paramType.equals(paramTypes[i])) {
 					paramTypeChooser.setSelectedIndex(i);
 				}
 		}
@@ -211,7 +212,7 @@ public class ParamEditor
 		
 		if (DropDownMenu.SELECTION.equals(evt.getPropertyName())) {
 			int selectedIndex = paramTypeChooser.getSelectedIndex();
-			 String newType = FieldParamsFactory.PARAM_TYPES[selectedIndex];
+			 String newType = FieldParamsFactory.getParamTypes()[selectedIndex];
 			 
 			 firePropertyChange(PARAM_TYPE, null, newType);
 		}
