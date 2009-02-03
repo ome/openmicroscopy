@@ -108,8 +108,11 @@ public class FullTextIndexer implements Work {
     /**
      * Runes {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called
+     *
+     * Note: This is read-write because the configuration value in the database
+     * will be reset. However, Hibernate should consider it read-only. TODO.
      */
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = false)
     public Object doWork(Session session, ServiceFactory sf) {
         int count = 1;
         int perbatch = 0;
