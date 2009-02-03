@@ -46,8 +46,10 @@ import javax.swing.plaf.basic.BasicButtonUI;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.CompoundPainter;
+import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
+import org.jdesktop.swingx.painter.GlossPainter.GlossPosition;
 import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
@@ -508,18 +510,26 @@ class ColouredButtonUI
 		
 		
 		//We cannot use this
-		org.apache.batik.ext.awt.RadialGradientPaint rp =
+		/*org.apache.batik.ext.awt.RadialGradientPaint rp =
 			new org.apache.batik.ext.awt.RadialGradientPaint(new 
 				Point2D.Double(startX,startY), radius, 
 				new Point2D.Double(colourStartX, colourStartY),
 	                new float[] { 0.0f, 0.5f },
 	                new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f),
-	                    new Color(1.0f, 1.0f, 1.0f, 0.0f) } );
+	                    new Color(1.0f, 1.0f, 1.0f, 0.0f) } );*/
 		
-	    MattePainter specularHighlight = new MattePainter(rp);
+		HSV newHSV = new HSV(colour);
+		float colourAlpha = 0.5f;
+		if(newHSV.getHue()>(100.0/360.0) && newHSV.getHue()<(150.0/360.0))
+			colourAlpha = 0.7f;
+		
+		MattePainter gradientLight = new MattePainter(
+			    new GradientPaint(new Point2D.Double(startX, startY), new Color(1.0f, 1.0f, 1.0f, colourAlpha),
+			    new Point2D.Double(colourStartX, colourStartY),  new Color(1.0f, 1.0f, 1.0f, 0.0f) ));
+		
 	    if (spec == SPEC)
 	    	return new CompoundPainter<JXButton>(gradientWhite, 
-					gradientBrighterDarker, specularHighlight);
+					gradientBrighterDarker, gradientLight);
 	    if (spec == MATTE)
 	    	return new CompoundPainter<JXButton>( gradientWhite, 
 	    			gradientBrighterDarker);
