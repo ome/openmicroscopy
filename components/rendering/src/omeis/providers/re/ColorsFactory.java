@@ -120,7 +120,41 @@ public class ColorsFactory {
         if (lc.getPhotometricInterpretation() != null)
         	pi = lc.getPhotometricInterpretation().getValue();
         
+        Integer red = channel.getRed();
+        Integer green = channel.getGreen();
+        Integer blue = channel.getBlue();
+        Integer alpha = channel.getAlpha();
+        if (red != null && green != null && blue != null && alpha != null) {
+        	// We've got a color image of some type that has explicitly
+        	// specified which channel is Red, Green, Blue or some other wacky
+        	// color.
+        	ColorFix c = new ColorFix();
+        	c.setRed(red);
+        	c.setGreen(green);
+        	c.setBlue(blue);
+        	c.setAlpha(alpha);
+        	return c;
+        }
+
+        if (emWave == null)
+        {
+            return null;
+        }
+        if (rangeBlue(emWave))
+        {
+            return newBlueColor();
+        }
+        if (rangeGreen(emWave))
+        {
+            return newGreenColor();
+        }
+        if (rangeRed(emWave))
+        {
+            return newRedColor();
+        }
+        return null;
         // Handle the pixel data as a set of monochrome (greyscale) channels.
+        /*
         if (pi != null && pi.equals(Renderer.PHOTOMETRIC_MONOCHROME))
         {
             if (emWave == null)
@@ -153,6 +187,7 @@ public class ColorsFactory {
         	return c;
         }
         return null;
+        */
     }
 
     /**
