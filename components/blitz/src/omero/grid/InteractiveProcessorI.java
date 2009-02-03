@@ -7,12 +7,14 @@
 
 package omero.grid;
 
+import static omero.rtypes.rmap;
+import static omero.rtypes.robject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static omero.rtypes.*;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
@@ -24,7 +26,6 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.ApiUsageException;
 import omero.RMap;
-import omero.RObject;
 import omero.RType;
 import omero.ServerError;
 import omero.model.Job;
@@ -33,7 +34,7 @@ import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -246,7 +247,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private void optionallyLoadFile(final Map<String, RType> val,
             final String name) {
-        this.ex.execute(this.principal, new Executor.Work() {
+        this.ex.execute(this.principal, new Executor.SimpleWork(this, "optionallyLoadFile") {
+            @Transactional(readOnly=true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
 

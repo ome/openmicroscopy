@@ -18,9 +18,9 @@ import java.util.UUID;
 
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -43,7 +43,7 @@ import ome.testing.FileUploader;
 
 import org.hibernate.Session;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
@@ -77,7 +77,8 @@ public class FullTextTest extends AbstractTest {
                 .getBean("persistentEventLogLoader");
         final EventLog max;
         final long id;
-        max = (EventLog) getExecutor().execute(p, new Executor.Work() {
+        max = (EventLog) getExecutor().execute(p, new Executor.SimpleWork(this, "whole db") {
+            @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 pell.deleteCurrentId();
                 return pell.lastEventLog();
@@ -92,7 +93,8 @@ public class FullTextTest extends AbstractTest {
         // Can't use more() here since it will always return true
         // since PELL is designed to be called by a timer.
         // Instead we only do the whole database once.
-        id = (Long) getExecutor().execute(p, new Executor.Work() {
+        id = (Long) getExecutor().execute(p, new Executor.SimpleWork(this, "whole db 2") {
+            @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return pell.getCurrentId();
             }

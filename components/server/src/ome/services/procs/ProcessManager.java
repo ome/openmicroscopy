@@ -72,6 +72,10 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
             this.processors = Arrays.asList(procs);
         }
 
+        public String description() {
+            return "ProcessManager";
+        }
+        
         public List<Job> doWork(Session session, ServiceFactory sf) {
             final List<Job> jobs = sf.getQueryService().findAllByQuery(
                     "select j from Job j where status.id = :id",
@@ -177,7 +181,7 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
 
         try {
 
-            this.executor.execute(getPrincipal(), this.work, false);
+            this.executor.execute(getPrincipal(), this.work);
 
         } catch (Exception e) {
             if (log.isErrorEnabled()) {

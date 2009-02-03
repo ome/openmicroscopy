@@ -155,17 +155,6 @@ public class EventHandler implements MethodInterceptor {
      *         read-only, or if no annotation is found.
      */
     boolean checkReadOnly(MethodInvocation mi) {
-
-        // This user attribute can be set by an interceptor somewhere along the
-        // stack up, to prevent this invocation from writing to the database.
-        if (mi instanceof ProxyMethodInvocation) {
-            ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
-            Object o = pmi.getUserAttribute("readOnly");
-            if (o instanceof Boolean) {
-                Boolean b = (Boolean) o;
-                return b.booleanValue();
-            }
-        }
         TransactionAttribute ta = txSource.getTransactionAttribute(mi
                 .getMethod(), mi.getThis().getClass());
         return ta == null ? true : ta.isReadOnly();

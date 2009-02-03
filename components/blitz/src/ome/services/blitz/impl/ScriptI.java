@@ -46,7 +46,7 @@ import omero.model.OriginalFileI;
 import omero.model.ScriptJobI;
 
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -199,8 +199,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 try {
                     Map<String, RType> scr = new HashMap<String, RType>();
                     scr.put((String) factory.executor.execute(
-                            factory.principal, new Executor.Work() {
-
+                            factory.principal, new Executor.SimpleWork(this, "getScriptWithDetails") {
+                                @Transactional(readOnly=true)
                                 public Object doWork(Session session,
                                         ServiceFactory sf) {
                                     RawFileStore rawFileStore = sf
@@ -259,8 +259,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 try {
                     cb.ice_response((String) factory.executor.execute(
-                            factory.principal, new Executor.Work() {
+                            factory.principal, new Executor.SimpleWork(this, "getScript") {
 
+				    @Transactional(readOnly=true)
                                 public Object doWork(Session session,
                                         ServiceFactory sf) {
                                     RawFileStore rawFileStore = sf
@@ -399,8 +400,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     final String queryString = "from OriginalFile as o where o.format.id = "
                             + fmt;
                     factory.executor.execute(factory.principal,
-                            new Executor.Work() {
+                            new Executor.SimpleWork(this, "getScripts") {
 
+				@Transactional(readOnly=true)
                                 public Object doWork(Session session,
                                         ServiceFactory sf) {
                                     List<OriginalFile> fileList = sf
@@ -520,8 +522,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     private OriginalFile updateFile(final OriginalFile file) throws ServerError {
         OriginalFile updatedFile = (OriginalFile) factory.executor.execute(
-                factory.principal, new Executor.Work() {
+                factory.principal, new Executor.SimpleWork(this, "updateFile") {
 
+			@Transactional(readOnly=false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         IUpdate update = sf.getUpdateService();
                         return update.saveAndReturnObject(file);
@@ -543,7 +546,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     private void writeContent(final OriginalFile file, final String script)
             throws ServerError {
-        factory.executor.execute(factory.principal, new Executor.Work() {
+        factory.executor.execute(factory.principal, new Executor.SimpleWork(this, "writeContent") {
+		@Transactional(readOnly=true)
             public Object doWork(Session session, ServiceFactory sf) {
 
                 RawFileStore rawFileStore = sf.createRawFileStore();
@@ -576,8 +580,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private void deleteTempJob(final long id) throws ServerError {
 
         Boolean success = (Boolean) factory.executor.execute(factory.principal,
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "deleteTempJob") {
 
+		    @Transactional(readOnly=false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         try {
                             IUpdate update = sf.getUpdateService();
@@ -607,8 +612,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     private void deleteOriginalFile(final OriginalFile file) throws ServerError {
         Boolean success = (Boolean) factory.executor.execute(factory.principal,
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "deleteOriginalFile") {
 
+		    @Transactional(readOnly=false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         IUpdate update = sf.getUpdateService();
                         List<JobOriginalFileLink> links = sf.getQueryService()
@@ -653,8 +659,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 + " and o.name = '"
                 + fileName + "'";
         List<OriginalFile> fileList = (List<OriginalFile>) factory.executor
-                .execute(factory.principal, new Executor.Work() {
+                .execute(factory.principal, new Executor.SimpleWork(this, "originalFileExists") {
 
+			@Transactional(readOnly=true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getQueryService().findAllByQuery(queryString,
                                 null);
@@ -687,8 +694,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     + " and o.name = '"
                     + name + "'";
             OriginalFile file = (OriginalFile) factory.executor.execute(
-                    factory.principal, new Executor.Work() {
+                    factory.principal, new Executor.SimpleWork(this, "getOriginalFileOrNull") {
 
+			    @Transactional(readOnly=true)
                         public Object doWork(Session session, ServiceFactory sf) {
                             return sf.getQueryService().findByQuery(
                                     queryString, null);
@@ -716,8 +724,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final String queryString = "from OriginalFile as o where o.format.id = "
                     + getFormat(PYTHONSCRIPT).getId() + " and o.id = " + id;
             OriginalFile file = (OriginalFile) factory.executor.execute(
-                    factory.principal, new Executor.Work() {
+                    factory.principal, new Executor.SimpleWork(this, "getOriginalFileOrNull") {
 
+			    @Transactional(readOnly=true)
                         public Object doWork(Session session, ServiceFactory sf) {
                             return sf.getQueryService().findByQuery(
                                     queryString, null);
@@ -738,8 +747,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     Format getFormat(String fmt) {
         return (Format) factory.executor.execute(factory.principal,
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "getFormat") {
 
+		    @Transactional(readOnly=true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getQueryService().findByQuery(
                                 "from Format as f where f.value='"

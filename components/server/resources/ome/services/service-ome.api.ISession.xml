@@ -37,27 +37,19 @@
     <property name="target" ref="internal-ome.api.ISession"/>
   </bean>  
 
-  <!--
-  <bean id="updateCache" class="ome.services.sessions.state.UpdateCacheThread">
-    <constructor-arg ref="sessionManager"/>
-    <constructor-arg ref="executor"/>
-    <constructor-arg ref="sessionCache"/>
-  </bean>
-
   <bean id="updateCacheRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-    <property name="targetObject" ref="updateCache" />
-    <property name="targetMethod" value="run" />
+    <property name="targetObject" ref="sessionCache" />
+    <property name="targetMethod" value="doUpdate" />
   </bean>
   
   <bean id="updateCacheTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <description>
-    Runs the update cache thread every 30 minutes ( x:00:15 and x:30:15 ) so that
-    unreaped sessions will be found and the DestroySessionMessage propagated and
-    all resources freed.
+    Runs the update cache thread every 5 seconds so that
+    unreaped sessions will be found and the DestroySessionMessage
+    propagated and all resources freed.
     </description>
     <property name="jobDetail" ref="updateCacheRun" />
-    <property name="cronExpression" value="5,15,25,35,45,55 * * * * ?" />
+    <property name="cronExpression" value="0/5 * * * * ?" />
   </bean>
-  -->
   
 </beans>

@@ -73,8 +73,13 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
         if (log.isInfoEnabled()) {
             // Method and arguments
-            log.info(" Meth:\t" + arg0.getMethod().getDeclaringClass() + "."
+            if (Executor.Work.class.isAssignableFrom(arg0.getThis().getClass())) {
+                Executor.Work work = (Executor.Work) arg0.getThis();
+                log.info(" Executor.doWork -- "+work.description());
+            } else {
+                log.info(" Meth:\t" + arg0.getMethod().getDeclaringClass() + "."
                     + arg0.getMethod().getName());
+            }
             log.info(" Args:\t" + getArgumentsString(arg0));
         }
 

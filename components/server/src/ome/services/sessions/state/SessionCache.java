@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -48,12 +49,6 @@ public class SessionCache implements ApplicationContextAware {
     private final static Log log = LogFactory.getLog(SessionCache.class);
 
     /**
-     * Read/write lock used to protect access to the {@link #doUpdate()} method
-     * and any other use of {@link #internalRemove(String)}
-     */
-    private final ReadWriteLock updateLock = new ReentrantReadWriteLock();
-
-    /**
      * Observer pattern used to clear the blocked
      * {@link SessionCache#needsUpdate} state, which prevents all further calls
      * from happening.
@@ -83,12 +78,31 @@ public class SessionCache implements ApplicationContextAware {
      * {@link #setUpdateInterval(long)} but has a non-null value just in case
      * (30 minutes)
      */
-    private long updateInterval = 1800000;
+    private long forceUpdateInterval = 1800000;
 
     /**
-     * Time of the last update.
+     * The amount of time in milliseconds that a thread is allowed to
+     * block for during {@link #waitForUpdate()}.
      */
-    private long lastUpdate = System.currentTimeMillis();
+    private long allowedBlockTime = 10000L;
+    
+    /**
+     * Time of the last update. This will be updated by a background thread.
+     */
+    private long lastUpdateRun = System.currentTimeMillis();
+
+    /**
+     * Time of the last update request. Most likely occurs via
+     * SessionManagerImpl.onApplicationEvent(). Initialized to <em>before</em>
+     * {@link #lastUpdateRun} to prevent initial blocking.
+     */
+    private AtomicLong lastUpdateRequest = new AtomicLong(lastUpdateRun - 1);
+
+    /**
+     * Read/write lock used to protect access to the {@link #doUpdate()} method
+     * and any other use of {@link #internalRemove(String)}
+     */
+    private final ReadWriteLock runUpdate = new ReentrantReadWriteLock();
 
     /**
      * Injected {@link CacheManager} used to create various caches.
@@ -135,18 +149,25 @@ public class SessionCache implements ApplicationContextAware {
      * Inject time in milliseconds between updates.
      */
     public void setUpdateInterval(long milliseconds) {
-        this.updateInterval = milliseconds;
+        this.forceUpdateInterval = milliseconds;
+    }
+    
+    /**
+     * Inject time in milliseconds to allow blocking
+     */
+    public void setAllowedBlockTime(long allowedBlockTime) {
+        this.allowedBlockTime = allowedBlockTime;
     }
 
     // Accessors
     // ========================================================================
 
     public void setStaleCacheListener(StaleCacheListener staleCacheListener) {
-        updateLock.writeLock().lock();
+        runUpdate.writeLock().lock();
         try {
             this.staleCacheListener = staleCacheListener;
         } finally {
-            updateLock.writeLock().unlock();
+            runUpdate.writeLock().unlock();
         }
     }
 
@@ -186,10 +207,10 @@ public class SessionCache implements ApplicationContextAware {
 
     }
 
-    public SessionContext getSessionContext(String uuid) {
-        return getSessionContext(uuid, true);
-    }
-
+    /**
+     * Retrieve a session possibly raising either
+     * {@link RemovedSessionException} or {@link SessionTimeoutException}.
+     */
     public SessionContext getSessionContext(String uuid, boolean blocking) {
 
         if (uuid == null) {
@@ -200,7 +221,7 @@ public class SessionCache implements ApplicationContextAware {
         // to pass through without blocking, but if an internal remove is
         // later necessary these will be blockage anyway.
         if (blocking) {
-            blockingUpdate();
+            waitForUpdate();
         }
 
         //
@@ -208,7 +229,7 @@ public class SessionCache implements ApplicationContextAware {
         //
 
         // Getting quiet so that we have the previous access and hit info
-        Element elt = sessions.getQuiet(uuid);
+        final Element elt = sessions.getQuiet(uuid);
 
         if (elt == null) {
             // Previously we called internalRemove here, under the
@@ -221,8 +242,6 @@ public class SessionCache implements ApplicationContextAware {
 
         long lastAccess = elt.getLastAccessTime();
         long hits = elt.getHitCount();
-        // Up'ing access time
-        elt = sessions.get(uuid);
 
         // Get session info
         SessionContext ctx = (SessionContext) elt.getObjectValue();
@@ -244,14 +263,15 @@ public class SessionCache implements ApplicationContextAware {
         if (0 < timeToLive && timeToLive < alive) {
             String reason = reason("timeToLive", lastAccess, hits, start,
                     timeToLive, (alive - timeToLive));
-            internalRemove(uuid, reason);
             throw new SessionTimeoutException(reason);
         } else if (0 < timeToIdle && timeToIdle < idle) {
             String reason = reason("timeToIdle", lastAccess, hits, start,
                     timeToIdle, (idle - timeToIdle));
-            internalRemove(uuid, reason);
             throw new SessionTimeoutException(reason);
         }
+        
+        // Up'ing access time
+        sessions.get(uuid);
         return ctx;
     }
 
@@ -263,12 +283,11 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     public void removeSession(String uuid) {
-        blockingUpdate();
         internalRemove(uuid, "Remove session called");
     }
 
     private void internalRemove(String uuid, String reason) {
-        updateLock.writeLock().lock();
+        runUpdate.writeLock().lock();
         try {
 
             if (!sessions.isKeyInCache(uuid)) {
@@ -303,12 +322,12 @@ public class SessionCache implements ApplicationContextAware {
             ehmanager.removeCache("ondisk:" + uuid);
             sessions.remove(uuid);
         } finally {
-            updateLock.writeLock().unlock();
+            runUpdate.writeLock().unlock();
         }
     }
 
     public List<String> getIds() {
-        blockingUpdate();
+        waitForUpdate();
         return sessions.getKeys();
     }
 
@@ -317,14 +336,14 @@ public class SessionCache implements ApplicationContextAware {
 
     public Ehcache inMemoryCache(String uuid) {
         // Check to make sure exists
-        getSessionContext(uuid);
+        getSessionContext(uuid, true);
         String key = "memory:" + uuid;
         return createCache(key, true, Integer.MAX_VALUE);
     }
 
     public Ehcache onDiskCache(String uuid) {
         // Check to make sure exists
-        getSessionContext(uuid);
+        getSessionContext(uuid, true);
         String key = "ondisk:" + uuid;
         return createCache(key, false, 100);
     }
@@ -356,75 +375,126 @@ public class SessionCache implements ApplicationContextAware {
     // =========================================================================
 
     public long getLastUpdated() {
-        updateLock.readLock().lock();
+        runUpdate.readLock().lock();
         try {
-            return lastUpdate;
+            return lastUpdateRun;
         } finally {
-            updateLock.readLock().unlock();
+            runUpdate.readLock().unlock();
         }
     }
 
-    public void markForUpdate() {
-        updateLock.writeLock().lock();
-        try {
-            lastUpdate = 1;
-        } finally {
-            updateLock.writeLock().unlock();
-        }
-    }
-    
     /**
-     * May be called simultaneously by several threads. Similar to
-     * {@link #blockingUpdate()} but uses the timestamp of the
-     * {@link UserGroupUpdateEvent} rather than the current time.
+     * Marks a new update request in {@link #lastUpdateRequest}. If the
+     * timestamp on the event is invalid, then
+     * {@link System#currentTimeMillis()} will be used. This method updates
+     * {@link #lastUpdateRequest} in the {@link ReadWriteLock#readLock()} of
+     * {@link #runUpdate}, since only blocking changed during the background
+     * thread are of importance (i.e. we don't want to miss a change). However,
+     * because getting/setting a long value is not always an atomic operation,
+     * we use a {@link AtomicLong}.
      */
     public void updateEvent(UserGroupUpdateEvent ugue) {
+        long time = 0;
         if (ugue == null || ugue.getTimestamp() > System.currentTimeMillis()) {
-            // If the event is not valid, perform a regular blockingUpdate
-            blockingUpdate();
+            time = System.currentTimeMillis();
         } else {
-            updateLock.readLock().lock();
-            if (lastUpdate <= ugue.getTimestamp()) {
-                updateLock.readLock().unlock();
-                doUpdate(ugue.getTimestamp());
-            } else {
-                updateLock.readLock().unlock();
-            }
+            time = ugue.getTimestamp();
+        }
+
+        runUpdate.readLock().lock();
+        try {
+            lastUpdateRequest.set(time);
+        } finally {
+            runUpdate.readLock().unlock();
         }
     }
 
     /**
-     * May be called simultaneously by several threads. Similar to
-     * {@link #updateEvent(UserGroupUpdateEvent)} but uses the current time
-     * rather than the event timestamp.
+     * If {@link #lastUpdateRun} is older than {@link #lastUpdateRequest}, then
+     * wait until the next background thread updates lastUpdateRequest. Note:
+     * this method does not use {@link #forceUpdateInterval} since that is
+     * primarily to guarantee that old sessions are removed. If synchronization
+     * takes too long, an {@link InternalException} is thrown.
      */
-    protected void blockingUpdate() {
-        updateLock.readLock().lock();
-        long targetUpdate = System.currentTimeMillis() - updateInterval;
-        if (lastUpdate <= targetUpdate) {
-            updateLock.readLock().unlock();
-            doUpdate(targetUpdate);
-        } else {
-            updateLock.readLock().unlock();
+    protected void waitForUpdate() {
+        long start = System.currentTimeMillis();
+        long finish = start + allowedBlockTime;
+        boolean first = true;
+        while (finish > System.currentTimeMillis()) {
+            boolean needsUpdate = false;
+
+            // Gets the current status, possibly waiting on any running updates
+            runUpdate.readLock().lock();
+            try {
+                needsUpdate = checkNeedsUpdateWithoutLock();
+            } finally {
+                runUpdate.readLock().unlock();
+            }
+
+            if (needsUpdate) {
+                try {
+                    if (first) {
+                        log.info("Waiting for synchronization");
+                        first = false;
+                    }
+                    Thread.sleep(500L);
+                } catch (InterruptedException e) {
+                    log.warn("Interrupted. Retrying wait...");
+                    continue; // Not sure about this. Shouldn't happen.
+                }
+            } else {
+                return;
+            }
         }
+
+        throw new InternalException(
+                "Timed out while waiting on synchronization");
+
+    }
+
+    /**
+     * Whether or not {@link #doUpdate()} should run. This does not perform any
+     * synchronization so that methods can choose to use a read or write lock.
+     */
+    protected boolean checkNeedsUpdateWithoutLock() {
+
+        // Check whether entry is required.
+        if (lastUpdateRun < 0) {
+            // Then we are currently running
+            return false;
+        }
+
+        long manual = lastUpdateRequest.get();
+        if (lastUpdateRun <= manual) {
+            return true;
+        }
+
+        long timed = System.currentTimeMillis() - forceUpdateInterval;
+        if (lastUpdateRun <= timed) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Will only ever be accessed by a single thread. Rechecks the target update
      * time again in case a second write thread was blocking the current one.
+     * {@link #lastUpdateRun} gets set to a negative value to specify that this
+     * method is currently running.
      */
     @SuppressWarnings("unchecked")
-    protected void doUpdate(long targetUpdate) {
-        updateLock.writeLock().lock();
+    public void doUpdate() {
+        runUpdate.writeLock().lock();
         try {
-            // Could have been unset while we were waiting.
-            if (0 <= lastUpdate && lastUpdate <= targetUpdate) {
+            // Check whether entry is required.
+            if (checkNeedsUpdateWithoutLock()) {
 
                 // Prevent recursion!
                 // ------------------
                 // To prevent another call from entering this block it's
                 // necessary to update the lastUpdate time here.
-                lastUpdate = -1;
+                lastUpdateRun = -1;
                 boolean success = false;
 
                 try {
@@ -461,9 +531,9 @@ public class SessionCache implements ApplicationContextAware {
                     log.error("Error synchronizing cache", e);
                 } finally {
                     if (success) {
-                        lastUpdate = System.currentTimeMillis();
+                        lastUpdateRun = System.currentTimeMillis();
                     } else {
-                        lastUpdate = 0L;
+                        lastUpdateRun = 0L;
                         throw new InternalException(
                                 "Could not update session cache."
                                         + "\nAll further attempts to access the server may fail."
@@ -472,7 +542,7 @@ public class SessionCache implements ApplicationContextAware {
                 }
             }
         } finally {
-            updateLock.writeLock().unlock();
+            runUpdate.writeLock().unlock();
         }
     }
 }

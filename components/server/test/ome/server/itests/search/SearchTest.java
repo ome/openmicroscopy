@@ -28,7 +28,6 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.UriAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
@@ -47,7 +46,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.aop.framework.Advised;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 /**
@@ -2253,8 +2252,8 @@ public class SearchTest extends AbstractTest {
         loginUser(user1.getOmeName());
         String uuid = this.iAdmin.getEventContext().getCurrentSessionUuid();
         Principal p = new Principal(uuid, "user", "Test");
-        ex.execute(p, new Executor.Work() {
-
+        ex.execute(p, new Executor.SimpleWork(this, "reproduce sec vio") {
+            @Transactional(readOnly=true)
             public Object doWork(Session session, ServiceFactory sf) {
                 Criteria c = session.createCriteria(Image.class);
                 Criteria links = c.createCriteria("annotationLinks");

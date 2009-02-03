@@ -124,7 +124,7 @@ public class FullTextThread extends ExecutionThread {
             DetailsFieldBridge.lock();
             try {
                 DetailsFieldBridge.setFieldBridge(this.bridge);
-                this.executor.execute(getPrincipal(), work, true);
+                this.executor.execute(getPrincipal(), work);
             } finally {
                 DetailsFieldBridge.unlock();
             }
@@ -132,7 +132,7 @@ public class FullTextThread extends ExecutionThread {
             if (DetailsFieldBridge.tryLock()) {
                 try {
                     DetailsFieldBridge.setFieldBridge(this.bridge);
-                    this.executor.execute(getPrincipal(), work, true);
+                    this.executor.execute(getPrincipal(), work);
                 } finally {
                     DetailsFieldBridge.unlock();
                 }

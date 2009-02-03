@@ -13,11 +13,11 @@ import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import ome.services.util.Executor;
 
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -44,8 +44,9 @@ public class GuestLoginTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testGuestThenTriesToDoSomethingDisallowed() throws Exception {
         testGuestUserCreatesSession();
-        ex.execute(p, new Executor.Work() {
+        ex.execute(p, new Executor.SimpleWork(this, "do something disallowed") {
             @RolesAllowed("user")
+            @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 return sf.getQueryService().get(Experimenter.class, 0);
@@ -55,7 +56,7 @@ public class GuestLoginTest extends AbstractManagedContextTest {
 
     public void testGuestThenTriesToDoSomethingAllowed() throws Exception {
         testGuestUserCreatesSession();
-        ex.execute(p, new Executor.Work() {
+        ex.execute(p, new Executor.SimpleWork(this, "test guest then tries") {
             @RolesAllowed("guest")
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -66,19 +67,20 @@ public class GuestLoginTest extends AbstractManagedContextTest {
 
     public void testGuestThenTriesToDoSomethingVeryAllowed() throws Exception {
         testGuestUserCreatesSession();
-        ex.execute(p, new Executor.Work() {
-            @PermitAll
-            public Object doWork(org.hibernate.Session session,
-                    ServiceFactory sf) {
-                return sf.getQueryService().get(Experimenter.class, 0);
-            }
-        });
+        ex.execute(p,
+                new Executor.SimpleWork(this, "do something very allowed") {
+                    @PermitAll
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        return sf.getQueryService().get(Experimenter.class, 0);
+                    }
+                });
     }
 
     @Test(expectedExceptions = SecurityViolation.class)
     public void testButGuestCantMakeAdminCalls() throws Exception {
         testGuestUserCreatesSession();
-        ex.execute(p, new Executor.Work() {
+        ex.execute(p, new Executor.SimpleWork(this, "cant make admin calls") {
             @RolesAllowed("system")
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {

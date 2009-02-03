@@ -101,6 +101,10 @@ public class FullTextIndexer implements Work {
         this.loader = ll;
     }
 
+    public String description() {
+        return "FullTextIndexer";
+    }
+    
     /**
      * Runes {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called

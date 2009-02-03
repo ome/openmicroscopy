@@ -13,7 +13,7 @@ import ome.conditions.InternalException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Hook run by the context. This hook tests the database version against the
@@ -55,7 +55,8 @@ public class DBPatchCheck {
 
         final String[] results = new String[3];
         try {
-            executor.executeStateless(new Executor.StatelessWork() {
+            executor.executeStateless(new Executor.SimpleStatelessWork(this, "DBPatchCheck") {
+                @Transactional(readOnly = true)
                 public Object doWork(SimpleJdbcOperations jdbc) {
                     results[0] = config.getDatabaseVersion();
                     results[1] = config.getInternalValue("omero.db.version");

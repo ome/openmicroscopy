@@ -91,7 +91,7 @@ public class XADataSourceWrapper implements XADataSource, DataSource {
 
     public Connection getConnection(String username, String password)
             throws SQLException {
-        String url = TransactionalDriver.arjunaDriver + "reuseconnection=true:" + jndiName;
+        String url = TransactionalDriver.arjunaDriver + jndiName;
         Properties properties = new Properties();
         properties.setProperty(TransactionalDriver.userName, username);
         properties.setProperty(TransactionalDriver.password, password);

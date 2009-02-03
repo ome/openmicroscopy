@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import junit.framework.TestCase;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -55,14 +56,14 @@ public class SessionCacheTest extends TestCase {
 
     @BeforeMethod
     public void setup() throws Exception {
-        initCache(1);
+        initCache();
         called[0] = called[0] = false;
     }
 
-    private void initCache(int UNUSED) {
+    private void initCache() {
         cache = new SessionCache();
-        cache.setUpdateInterval(10000L);
         cache.setApplicationContext(ctx);
+        cache.setStaleCacheListener(new NoOpStaleCacheListener());
         cache.setCacheManager(CacheManager.getInstance());
         // Waiting a second to let the fresh cache cool down.
         while (cache.getLastUpdated() == System.currentTimeMillis()) {
@@ -101,6 +102,7 @@ public class SessionCacheTest extends TestCase {
         cache.setStaleCacheListener(doesSomething);
         before = cache.getLastUpdated();
         cache.updateEvent(new UserGroupUpdateEvent(this));
+        cache.doUpdate();
         cache.getIds();
         after = cache.getLastUpdated();
         assertTrue(called[0]);
@@ -111,6 +113,7 @@ public class SessionCacheTest extends TestCase {
         before = cache.getLastUpdated();
         try {
             cache.updateEvent(new UserGroupUpdateEvent(this));
+            cache.doUpdate();
             fail("This should fail");
         } catch (InternalException e) {
             // ok
@@ -125,7 +128,7 @@ public class SessionCacheTest extends TestCase {
     List<String> roles = Arrays.asList("");
 
     public void testSimpleTimeout() throws Exception {
-        initCache(1);
+        initCache();
         called[0] = false;
         final Session s = sess();
         s.setTimeToIdle(1L);
@@ -147,21 +150,16 @@ public class SessionCacheTest extends TestCase {
             }
         });
         Thread.sleep(2000L);
-        assertGetFails(s);
+        throwsSessionTimeout(s.getUuid());
+        throwsSessionTimeout(s.getUuid());
+        cache.updateEvent(new UserGroupUpdateEvent(this));
+        cache.setStaleCacheListener(new NullStaleCacheListener());
+        cache.doUpdate(); // Now it will be removed and the event published.
         assertTrue(called[0]);
     }
 
-    private void assertGetFails(final Session s) {
-        try {
-            cache.getSessionContext(s.getUuid());
-            fail("Exception must be thrown");
-        } catch (SessionException se) {
-
-        }
-    }
-
     public void testPutNonSerializable() {
-        initCache(10000);
+        initCache();
         final Session s = sess();
         int size = cache.getIds().size();
         cache.putSession(s.getUuid(), sc(s));
@@ -169,9 +167,11 @@ public class SessionCacheTest extends TestCase {
     }
 
     public void testNoSuccessfulListenersThrowsExceptionOnUpdate() {
-        initCache(1000);
+        initCache();
         try {
+            cache.setStaleCacheListener(null);
             cache.updateEvent(new UserGroupUpdateEvent(this));
+            cache.doUpdate();
             fail("Should throw internal exception");
         } catch (InternalException ie) {
             // ok
@@ -184,6 +184,8 @@ public class SessionCacheTest extends TestCase {
 
     class TryUpdate extends Thread {
         int i;
+        Exception ex;
+        CyclicBarrier barrier = new CyclicBarrier(2);
 
         TryUpdate(int i) {
             this(i, "try-thread");
@@ -197,56 +199,36 @@ public class SessionCacheTest extends TestCase {
         @Override
         public void run() {
             try {
-                cache.getSessionContext("anything");
+                barrier.await();
+                cache.getSessionContext(this.getName(), true);
             } catch (Exception e) {
+                this.ex = e;
             }
             done[i] = true;
         }
     }
 
-    public void testIfFirstThreadFailsSecondThreadAlsoTriesToUpdate()
-            throws Exception {
-        initCache(10000);
+    public void testThreadWillRemainedBlockOrThrowException() throws Exception {
+        initCache();
         Session s = sess();
         cache.putSession(s.getUuid(), sc(s));
-        cache.setStaleCacheListener(new StaleCacheListener() {
-            public void prepareReload() {
-                // noop.
-            }
-
-            public SessionContext reload(SessionContext context) {
-                throw new RuntimeException();
-            }
-        });
-
-        try {
-            cache.updateEvent(new UserGroupUpdateEvent(this));
-            cache.getIds();
-            fail("throw!");
-        } catch (InternalException ie) {
-            // ok.
-        }
-
-        Thread t1 = new TryUpdate(0), t2 = new TryUpdate(1);
+        cache.setStaleCacheListener(new ThrowsStaleCacheListener());
+        cache.updateEvent(new UserGroupUpdateEvent(this));
+        
+        TryUpdate t1 = new TryUpdate(0, s.getUuid());
         t1.start();
+        t1.barrier.await();
         t1.join();
-        t2.start();
-        t2.join();
+        assertNotNull(t1.ex);
+        assertTrue(t1.ex instanceof InternalException);
         assertTrue(done[0]);
-        assertTrue(done[1]);
 
     }
 
     public void testOneThreadSuccessfulThenOtherReturns() throws Exception {
-        initCache(10000);
+
         final Session s = sess();
         cache.putSession(s.getUuid(), sc(s));
-        try {
-            cache.updateEvent(new UserGroupUpdateEvent(this));
-            fail("throw!");
-        } catch (InternalException ie) {
-            // ok.
-        }
 
         done[0] = done[1] = false;
         final int[] count = new int[] { 0 };
@@ -266,10 +248,14 @@ public class SessionCacheTest extends TestCase {
                 return context;
             }
         });
-        Thread t1 = new TryUpdate(0, "0-try-thread"), t2 = new TryUpdate(1,
+        cache.updateEvent(new UserGroupUpdateEvent(this)); // Locks & blocks
+        TryUpdate t1 = new TryUpdate(0, "0-try-thread"), t2 = new TryUpdate(1,
                 "1-try-thread");
         t1.start();
         t2.start();
+        t1.barrier.await();
+        t2.barrier.await();
+        cache.doUpdate(); // This should release the lock
         t1.join();
         t2.join();
         assertTrue(done[0]);
@@ -280,7 +266,7 @@ public class SessionCacheTest extends TestCase {
 
     @Test
     public void testInMemoryAndOnDiskAreProperlyDisposed() {
-        initCache(10000);
+        initCache();
         Ehcache inmemory, ondisk;
         try {
             inmemory = cache.inMemoryCache("doesnotexist");
@@ -350,13 +336,17 @@ public class SessionCacheTest extends TestCase {
         while (System.currentTimeMillis() - start < 1000L) {
             Thread.sleep(200L);
         }
-        try {
-            cache.getSessionContext(uuid);
-            fail("Should throw");
-        } catch (SessionTimeoutException ste) {
-            // ok;
-        }
+        throwsSessionTimeout(uuid);
+        throwsSessionTimeout(uuid);
+        throwsSessionTimeout(uuid);
+        // doUpdate() is no longer called automatically
+        // so multiple calls to getSession will throw SessTimeout
+        // until the background thread runs
+        cache.updateEvent(new UserGroupUpdateEvent(this));
+        cache.setStaleCacheListener(new NullStaleCacheListener());
+        cache.doUpdate();
         assertTrue(listener.called);
+        throwsRemovedSession(uuid);
     }
 
     @Test
@@ -370,18 +360,6 @@ public class SessionCacheTest extends TestCase {
             }
         }
 
-        StaleCacheListener stale = new StaleCacheListener() {
-            public void prepareReload() {
-                // noop
-            }
-
-            public SessionContext reload(SessionContext context) {
-                return context;
-            }
-
-        };
-        cache.setStaleCacheListener(stale);
-
         String uuid = UUID.randomUUID().toString();
         Listener listener = new Listener();
         ApplicationEventMulticaster multicaster = mc();
@@ -394,6 +372,8 @@ public class SessionCacheTest extends TestCase {
             Thread.sleep(200L);
         }
         cache.updateEvent(new UserGroupUpdateEvent(this));
+        cache.setStaleCacheListener(new NullStaleCacheListener());
+        cache.doUpdate();
         assertTrue(listener.called);
     }
 
@@ -455,79 +435,78 @@ public class SessionCacheTest extends TestCase {
 
     @Test
     public void testGetSessionDoesUpdateTheTimestamp() throws Exception {
-        initCache(1);
-        StaleCacheListener stale = new StaleCacheListener() {
-            public void prepareReload() {
-                // noop
-            }
-            public SessionContext reload(SessionContext context) {
-                return context;
-            }
-            
-        };
-        cache.setStaleCacheListener(stale);
-        
-        called[0] = false;
         final Session s = sess();
-        s.setTimeToIdle(5*1000L);
+        s.setTimeToIdle(5 * 1000L);
         cache.putSession(s.getUuid(), sc(s));
         for (int i = 0; i < 10; i++) {
-            Thread.sleep(1*1000L);
+            Thread.sleep(1 * 1000L);
             try {
-                cache.getSessionContext(s.getUuid());
+                cache.getSessionContext(s.getUuid(), true);
             } catch (RemovedSessionException rse) {
-                fail("Removed session on loop "+ i);
+                fail("Removed session on loop " + i);
             }
         }
     }
-    
+
     /**
      * For {@link #testGetSessionDoesUpdateTheTimestamp()} we changed from
      * cache.putQuiet(new Element) to cache.put(new Element) but we want to make
      * REAL sure that timeouts are still in effect.
      */
     @Test
-    public void testSessionsTimeoutDispiteTheNewElementPutCall() throws Exception {
-        initCache(1);
-        StaleCacheListener stale = new StaleCacheListener() {
-            public void prepareReload() {
-                // noop
-            }
-            public SessionContext reload(SessionContext context) {
-                return context;
-            }
-            
-        };
+    public void testSessionsTimeoutDispiteTheNewElementPutCall()
+            throws Exception {
+        initCache();
+        StaleCacheListener stale = new NoOpStaleCacheListener();
         cache.setStaleCacheListener(stale);
-        
+
         called[0] = false;
         final Session s1 = sess(); // One to keep alive
         final Session s2 = sess(); // One to let die
-        s1.setTimeToIdle(5*1000L);
-        s2.setTimeToIdle(5*1000L);
+        s1.setTimeToIdle(5 * 1000L);
+        s2.setTimeToIdle(5 * 1000L);
         cache.putSession(s1.getUuid(), sc(s1));
         cache.putSession(s2.getUuid(), sc(s2));
         for (int i = 0; i < 10; i++) {
-            Thread.sleep(1*1000L);
+            Thread.sleep(1 * 1000L);
             try {
-                cache.getSessionContext(s1.getUuid());
+                cache.getSessionContext(s1.getUuid(), true);
             } catch (RemovedSessionException rse) {
-                fail("Removed session on loop "+ i);
+                fail("Removed session on loop " + i);
             } catch (SessionTimeoutException ste) {
                 fail("Session timeout on loop " + i);
             }
         }
-        
+
         // Make sure that clean up happened.
         cache.updateEvent(new UserGroupUpdateEvent(this));
+        cache.doUpdate();
         try {
-            cache.getSessionContext(s2.getUuid());
-            fail("Should fail for "+s2.getUuid());
+            cache.getSessionContext(s2.getUuid(), false);
+            fail("Should fail for " + s2.getUuid());
         } catch (RemovedSessionException rse) {
             // ok.
         } catch (SessionTimeoutException ste) {
             // ok.
         }
+    }
+
+    @Test
+    public void testExpiredSessionRemainsInCacheTilCleanup() throws Exception {
+        initCache();
+        cache.setStaleCacheListener(new NoOpStaleCacheListener());
+        Session s = sess();
+        s.setTimeToIdle(1L);
+        cache.putSession(s.getUuid(), sc(s));
+        Thread.sleep(2L);
+        try {
+            cache.getSessionContext(s.getUuid(), false);
+            fail("should time out");
+        } catch (SessionException se) {
+            // Good.
+        }
+        Cache internal = CacheManager.getInstance().getCache("SessionCache");
+        assertTrue(internal.isKeyInCache(s.getUuid()));
     }
 
     // Helpers
@@ -552,5 +531,61 @@ public class SessionCacheTest extends TestCase {
         ApplicationEventMulticaster multicaster = (ApplicationEventMulticaster) ctx
                 .getBean("applicationEventMulticaster");
         return multicaster;
+    }
+
+    private void throwsSessionTimeout(String uuid) {
+        try {
+            cache.getSessionContext(uuid, true);
+            fail("Should throw");
+        } catch (SessionTimeoutException ste) {
+            // ok;
+        }
+    }
+
+    private void throwsRemovedSession(String uuid) {
+        try {
+            cache.getSessionContext(uuid, true);
+            fail("Should throw");
+        } catch (RemovedSessionException rse) {
+            // ok;
+        }
+    }
+
+    private final class NoOpStaleCacheListener implements StaleCacheListener {
+
+        boolean called = false;
+
+        public void prepareReload() {
+            // noop
+        }
+
+        public SessionContext reload(SessionContext context) {
+            called = true;
+            return context;
+        }
+    }
+
+    private final class NullStaleCacheListener implements StaleCacheListener {
+
+        boolean called = false;
+
+        public void prepareReload() {
+            // noop
+        }
+
+        public SessionContext reload(SessionContext context) {
+            called = true;
+            return null;
+        }
+    }
+
+    private final class ThrowsStaleCacheListener implements StaleCacheListener {
+        public void prepareReload() {
+            // noop.
+        }
+
+        public SessionContext reload(SessionContext context) {
+            throw new RuntimeException();
+        }
     }
 }

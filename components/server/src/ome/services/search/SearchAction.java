@@ -57,6 +57,13 @@ public abstract class SearchAction implements Serializable,
         this.values.copy(values);
     }
 
+    /**
+     * Returns the {@link SearchAction} subclass as the description.
+     */
+    public String description() {
+        return this.getClass().getName();
+    }
+    
     public SearchValues copyOfValues() {
         SearchValues copy = new SearchValues();
         copy.copy(this.values);

@@ -42,12 +42,6 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
-  <bean id="transactionManager" depends-on="jndiBind"
-        class="org.springframework.transaction.jta.JtaTransactionManager">
-    <property name="transactionManager" ref="jtaTransactionManager" />
-    <property name="userTransaction" ref="jtaUserTransaction"/>
-  </bean>
-
   <bean id="transactionHandler"
         class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <description>
@@ -55,12 +49,15 @@
     </description>
     <property name="transactionManager" ref="transactionManager"/>
     <property name="transactionAttributeSource">
-      <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+      <bean class="org.springframework.transaction.interceptor.CompositeTransactionAttributeSource">
+        <constructor-arg>
+          <list>
+            <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+            <bean class="ome.tools.spring.ForceTransactionAttributeSource"/>
+          </list>
+        </constructor-arg>
+      </bean>
     </property>
-  </bean>
-
-  <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <constructor-arg ref="transactionManager"/>
   </bean>
 
   <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">

@@ -37,7 +37,6 @@ import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Simple execution/work interface which can be used for <em>internal</em> tasks
@@ -60,35 +59,34 @@ public interface Executor extends ApplicationContextAware {
     public OmeroContext getContext();
 
     /**
-     * Calls
-     * {@link #execute(Principal, ome.services.util.Executor.Work, boolean) with
-     * readOnly set to false.
-     */
-    public Object execute(final Principal p, final Work work);
-
-    /**
      * Executes a {@link Work} instance wrapped in two layers of AOP. The first
      * is intended to acquire the proper arguments for
-     * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for the
+     * {@link Work#doWork(Session, ServiceFactory)} from the
      * {@link OmeroContext}, and the second performs all the standard service
      * actions for any normal method call.
      * 
      * If the {@link Principal} argument is not null, then additionally, a
      * login/logout sequence will be performed in a try/finally block.
      * 
+     * {@link Work} implementation must be annotated with {@link Transactional}
+     * in order to properly specify isolation, read-only status, etc.
+     * 
      * @param p
+     *            Possibly null.
      * @param work
+     *            Not null.
      */
-    public Object execute(final Principal p, final Work work, boolean readOnly);
+    public Object execute(final Principal p, final Work work);
 
     /**
-     * Executes a {@link StatelessWork} in a call to
-     * {@link TransactionTemplate#execute(TransactionCallback)} and
-     * {@link HibernateTemplate#execute(HibernateCallback)}. No OMERO specific
-     * AOP is applied. Since {@link StatelessSession} does not return proxies,
-     * there is less concern about returned values, but this method
-     * <em>completely</em> overrides OMERO security, and should be used
-     * <b>very</em> carefully. *
+     * Executes a {@link StatelessWork} wrapped with a transaction. Since
+     * {@link StatelessSession} does not return proxies, there is less concern
+     * about returned values, but this method <em>completely</em> overrides
+     * OMERO security, and should be used <b>very</em> carefully. *
+     * 
+     * As with {@link #execute(Principal, Work)} the {@link StatelessWork}
+     * instance must be properly marked with an {@link Transactional}
+     * annotation.
      * 
      * @param work
      *            Non-null.
@@ -104,6 +102,13 @@ public interface Executor extends ApplicationContextAware {
      * properly handled.
      */
     public interface Work {
+
+        /**
+         * Returns a description of what this work will be doing for logging
+         * purposes.
+         */
+        String description();
+
         /**
          * Work method. Must return all results coming from Hibernate via the
          * {@link Object} return method.
@@ -116,7 +121,6 @@ public interface Executor extends ApplicationContextAware {
          *            non null.
          * @return Any results which will be used by non-wrapped code.
          */
-        @Transactional(readOnly = false)
         Object doWork(Session session, ServiceFactory sf);
 
     }
@@ -139,8 +143,48 @@ public interface Executor extends ApplicationContextAware {
      * currently supported in Spring's transaction management.
      */
     public interface StatelessWork {
-        @Transactional(readOnly = false)
+
+        /**
+         * Return a description of what this work will be doing for logging
+         * purposes.
+         */
+        String description();
+
         Object doWork(SimpleJdbcOperations jdbc);
+    }
+
+    /**
+     * Simple adapter which takes a String for {@link #description}
+     */
+    public abstract class SimpleWork implements Work {
+
+        final private String description;
+
+        public SimpleWork(Object o, String method) {
+            this.description = o.getClass().getName() + "." + method;
+        }
+
+        public String description() {
+            return description;
+        }
+
+    }
+
+    /**
+     * Simple adapter which takes a String for {@link #description}
+     */
+    public abstract class SimpleStatelessWork implements StatelessWork {
+
+        final private String description;
+
+        public SimpleStatelessWork(Object o, String method) {
+            this.description = o.getClass().getName() + "." + method;
+        }
+
+        public String description() {
+            return description;
+        }
+
     }
 
     public class Impl implements Executor {
@@ -151,14 +195,11 @@ public interface Executor extends ApplicationContextAware {
         final protected List<Advice> advices = new ArrayList<Advice>();
         final protected PrincipalHolder principalHolder;
         final protected String[] proxyNames;
-        final protected TransactionTemplate txTemplate;
         final protected HibernateTemplate hibTemplate;
         final protected SimpleJdbcOperations jdbcOps;
 
-        public Impl(PrincipalHolder principalHolder, TransactionTemplate tt,
-                HibernateTemplate ht, SimpleJdbcOperations jdbc,
-                String[] proxyNames) {
-            this.txTemplate = tt;
+        public Impl(PrincipalHolder principalHolder, HibernateTemplate ht,
+                SimpleJdbcOperations jdbc, String[] proxyNames) {
             this.hibTemplate = ht;
             this.jdbcOps = jdbc;
             this.principalHolder = principalHolder;
@@ -178,15 +219,6 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
-         * Calls
-         * {@link #execute(Principal, ome.services.util.Executor.Work, boolean)
-         * with readOnly set to false.
-         */
-        public Object execute(final Principal p, final Work work) {
-            return execute(p, work, false);
-        }
-
-        /**
          * Executes a {@link Work} instance wrapped in two layers of AOP. The
          * first is intended to acquire the proper arguments for
          * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for
@@ -199,15 +231,12 @@ public interface Executor extends ApplicationContextAware {
          * @param p
          * @param work
          */
-        public Object execute(final Principal p, final Work work,
-                boolean readOnly) {
-            Interceptor i = new Interceptor(hibTemplate.getSessionFactory(), readOnly);
+        public Object execute(final Principal p, final Work work) {
+            Interceptor i = new Interceptor(hibTemplate.getSessionFactory());
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
             factory.setInterfaces(new Class[] { Work.class });
 
-            // Add interceptor twice: once at head, and once at tail
-            factory.addAdvice(0, i);
             for (Advice advice : advices) {
                 factory.addAdvice(advice);
             }
@@ -230,57 +259,40 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
-         * Executes a {@link StatelessWork} in a call to
-         * {@link TransactionTemplate#execute(TransactionCallback)}.
+         * Executes a {@link StatelessWork} in transaction.
          * 
          * @param work
          *            Non-null.
          * @return
          */
         public Object executeStateless(final StatelessWork work) {
-            return work.doWork(jdbcOps);
+            ProxyFactory factory = new ProxyFactory();
+            factory.setTarget(work);
+            factory.setInterfaces(new Class[] { StatelessWork.class });
+            factory.addAdvice(advices.get(2)); // TX FIXME
+            StatelessWork wrapper = (StatelessWork) factory.getProxy();
+            return wrapper.doWork(this.jdbcOps);
         }
 
         /**
-         * Interceptor class which properly lookups and injects the transaction
-         * and session objects in the
+         * Interceptor class which properly lookups and injects the session
+         * objects in the
          * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)}
-         * method. Interceptor works in two stages. During its first execution,
-         * the "readOnly" property is set if necessary. On the second execution,
-         * a hibernate- and transaction-template wrap the actual work.
+         * method.
          */
         static class Interceptor implements MethodInterceptor {
-
-            private final boolean readOnly;
             private final SessionFactory factory;
-            private boolean stageOne = true;
 
-            public Interceptor(SessionFactory sf,
-                    boolean readOnly) {
-                this.readOnly = readOnly;
+            public Interceptor(SessionFactory sf) {
                 this.factory = sf;
             }
 
             public Object invoke(final MethodInvocation mi) throws Throwable {
-
                 final Object[] args = mi.getArguments();
-
-                if (stageOne) {
-
-                    // Used by EventHandler to set the readOnly status of
-                    // this Event. Determines whether changes can be made to
-                    // the database.
-                    if (mi instanceof ProxyMethodInvocation) {
-                        ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
-                        pmi.setUserAttribute("readOnly", readOnly);
-                    }
-                    stageOne = false;
-                    return mi.proceed();
-                } else {
-                    args[0] = SessionFactoryUtils.getSession(factory, false);
-                    return mi.proceed();
-                }
+                args[0] = SessionFactoryUtils.getSession(factory, false);
+                return mi.proceed();
             }
         }
+
     }
 }

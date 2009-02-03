@@ -55,6 +55,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Is for ISession a cache and will be kept there in sync? OR Factors out the
@@ -193,7 +194,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // If credentials exist as session, then return that
         try {
             SessionContext context = cache
-                    .getSessionContext(credentials, false /* non-blocking */);
+                    .getSessionContext(credentials, false);
             if (context != null) {
                 context.increment();
                 return context.getSession(); // EARLY EXIT!
@@ -240,7 +241,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // If username exists as session, then return that
         try {
             SessionContext context = cache.getSessionContext(principal
-                    .getName(), false /* non-blocking */);
+                    .getName(), false);
             if (context != null) {
                 context.increment();
                 return context.getSession(); // EARLY EXIT!
@@ -250,7 +251,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
 
         principal = checkPrincipalNameAndDefaultGroup(principal);
-        long userId = 0L; // FIXME executeLookupUser(principal);
+        long userId = executeLookupUser(principal);
         session = executeUpdate(session, userId);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
         if (ctx == null) {
@@ -285,7 +286,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new RemovedSessionException("Cannot update; No uuid.");
         }
 
-        SessionContext ctx = cache.getSessionContext(session.getUuid());
+        SessionContext ctx = cache.getSessionContext(session.getUuid(), true);
         if (ctx == null) {
             throw new RemovedSessionException(
                     "Can't update; No session with uuid:" + session.getUuid());
@@ -381,12 +382,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public Session find(String uuid) {
-        SessionContext sessionContext = cache.getSessionContext(uuid);
+        SessionContext sessionContext = cache.getSessionContext(uuid, true);
         return (sessionContext == null) ? null : sessionContext.getSession();
     }
 
     public int getReferenceCount(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid);
+        SessionContext ctx = cache.getSessionContext(uuid, true);
         return ctx.refCount();
     }
 
@@ -396,7 +397,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public SessionStats getSessionStats(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid);
+        SessionContext ctx = cache.getSessionContext(uuid, true);
         return ctx.stats();
     }
 
@@ -441,7 +442,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public List<String> getUserRoles(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid);
+        SessionContext ctx = cache.getSessionContext(uuid, true);
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid: " + uuid);
         }
@@ -548,7 +549,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     public EventContext getEventContext(Principal principal) {
-        final SessionContext ctx = cache.getSessionContext(principal.getName());
+        final SessionContext ctx = cache.getSessionContext(principal.getName(), true);
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid:"
                     + principal.getName());
@@ -567,15 +568,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserGroupUpdateEvent) {
-            // cache.updateEvent((UserGroupUpdateEvent) event);
-            cache.markForUpdate();
+            cache.updateEvent((UserGroupUpdateEvent) event);
         } else if (event instanceof DestroySessionMessage) {
             executeCloseSession(((DestroySessionMessage) event).getSessionId());
         }
-
-        // TODO
-        // if is a session event or admin event (user change, etc.) act.
-        // send to all notifications.
     }
 
     // ~ Callbacks (Registering session-based components)
@@ -727,14 +723,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     /**
-     * Calls {@link #flushAsCurrentUser()} to prevent strange Hibernate
-     * exceptions during {@link #reload(SessionContext)}. This is not necessary
-     * the best solution to the problem, but will work for now. Most likely the
-     * session manager should have its own session, but how it takes parts in
-     * transactions would have to be clarified.
      */
     public void prepareReload() {
-        flushAsCurrentUser();
+        // Noop
     }
 
     /**
@@ -750,28 +741,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // Executor methods
     // =========================================================================
 
-    /**
-     * Calls flush without passing a principal to
-     * {@link Executor#execute(Principal, ome.services.util.Executor.Work)} and
-     * read-only set to false to make way for proper read-only reloading via
-     * {@link StaleCacheListener#reload(SessionContext)}. This should be safe
-     * since currently no stateful services make changes to the users/groups
-     * which would cause a {@link UserGroupUpdateEvent} to be raised.
-     * 
-     * Note: if there is not currently a principal (i.e. no one is logged in),
-     * then this is skipped, since no action can be active.
-     */
-    private void flushAsCurrentUser() {
-        if (principalHolder.size() > 0) {
-            executor.execute(null, new Executor.Work() {
-                public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
-                    ((LocalUpdate) sf.getUpdateService()).flush();
-                    return null;
-                }
-            }, false);
-        }
-    }
-
     public boolean executePasswordCheck(final String name,
             final String credentials) {
 
@@ -783,7 +752,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     @SuppressWarnings("unchecked")
     private Session executeUpdate(final Session session, final long userId) {
-        return (Session) executor.execute(asroot, new Executor.Work() {
+        return (Session) executor.execute(asroot, new Executor.SimpleWork(this, "executeUpdate") {
+            @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
                 Node node = sf.getQueryService().findByString(Node.class,
                         "uuid", internal_uuid);
@@ -794,39 +764,42 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 session.setOwner(new Experimenter(userId, false));
                 return sf.getUpdateService().saveAndReturnObject(session);
             }
-        }, false);
+        });
     }
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
-        boolean ok = (Boolean) executor.execute(asroot, new Executor.Work() {
+        boolean ok = (Boolean) executor.execute(asroot, new Executor.SimpleWork(this, "executeCheckPassword") {
+            @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).checkPassword(
                         _principal.getName(), credentials);
             }
-        }, false);
+        });
         return ok;
     }
 
     private Experimenter executeUserProxy(final long uid) {
-        return (Experimenter) executor.execute(asroot, new Executor.Work() {
+        return (Experimenter) executor.execute(asroot, new Executor.SimpleWork(this, "executeUserProxy") {
+            @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).userProxy(uid);
             }
-        }, true);
+        });
     }
 
     private ExperimenterGroup executeGroupProxy(final long gid) {
         return (ExperimenterGroup) executor.execute(asroot,
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "executeGroupProxy") {
+                    @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
                         return ((LocalAdmin) sf.getAdminService())
                                 .groupProxy(gid);
                     }
-                }, true);
+                });
     }
 
     /**
@@ -836,7 +809,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     @SuppressWarnings("unchecked")
     private ExperimenterGroup executeDefaultGroup(final String name) {
         return (ExperimenterGroup) executor.execute(asroot,
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "executeDefaultGroup") {
+                    @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
                         LocalAdmin admin = (LocalAdmin) sf.getAdminService();
@@ -850,7 +824,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                             return null;
                         }
                     }
-                }, false); // FIXME with jta change this had to be read-write
+                });
     }
 
     /**
@@ -858,7 +832,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * a removed user session, then a {@link RemovedSessionException} is thrown.
      */
     private long executeLookupUser(final Principal p) {
-        return (Long) executor.execute(asroot, new Executor.Work() {
+        return (Long) executor.execute(asroot, new Executor.SimpleWork(this, "executeLookupUser") {
+            @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 LocalAdmin admin = (LocalAdmin) sf.getAdminService();
@@ -871,7 +846,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                             "Cannot find a user with name " + p.getName());
                 }
             }
-        }, true);
+        });
     }
 
     /**
@@ -881,8 +856,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     @SuppressWarnings("unchecked")
     private List<Object> executeSessionContextLookup(final Principal principal) {
-        return (List<Object>) executor.execute(asroot, new Executor.Work() {
-
+        return (List<Object>) executor.execute(asroot, new Executor.SimpleWork(this, "executeSessionContextLookup") {
+            @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
                 try {
@@ -907,7 +882,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     return null;
                 }
             }
-        }, false);
+        });
 
     }
 
@@ -922,7 +897,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     private Session executeCloseSession(final String uuid) {
         return (Session) executor
-                .executeStateless(new Executor.StatelessWork() {
+                .executeStateless(new Executor.SimpleStatelessWork(this, "executeCloseSession") {
+                    @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
                         try {
                             int count = jdbcOps.update(
@@ -946,7 +922,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private Session executeInternalSession() {
         return (Session) executor
-                .executeStateless(new Executor.StatelessWork() {
+                .executeStateless(new Executor.SimpleStatelessWork(this, "executeInternalSession") {
+                    @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
 
                         // Create a basic session

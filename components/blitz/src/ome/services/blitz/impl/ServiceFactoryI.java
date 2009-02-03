@@ -124,7 +124,7 @@ import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
@@ -425,8 +425,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // The InteractiveProcessor will be responsible for its
         // further lifetime.
         final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) this.executor
-                .execute(this.principal, new Executor.Work() {
-
+                .execute(this.principal, new Executor.SimpleWork(this, "submitJob") {
+                    @Transactional(readOnly = false)
                     public ome.model.jobs.Job doWork(Session session,
                             ServiceFactory sf) {
 

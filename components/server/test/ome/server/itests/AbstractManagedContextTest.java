@@ -160,21 +160,25 @@ public class AbstractManagedContextTest extends
 
     public Experimenter loginNewUser() {
         loginRoot();
+        String uuid;
+        Experimenter user;
         String guid = uuid();
         ExperimenterGroup group = new ExperimenterGroup();
         group.setName(guid);
+
         iAdmin.createGroup(group);
 
-        String uuid = uuid();
+        uuid = uuid();
         Experimenter e = new Experimenter();
         e.setFirstName("New");
         e.setLastName("User");
         e.setOmeName(uuid);
 
         long uid = iAdmin.createUser(e, guid);
-        loginUser(uuid);
+        user = iQuery.get(Experimenter.class, uid);
 
-        return iQuery.get(Experimenter.class, uid);
+        loginUser(uuid);
+        return user;
     }
 
     public Experimenter loginNewUserInOtherUsersGroup(Experimenter e1) {

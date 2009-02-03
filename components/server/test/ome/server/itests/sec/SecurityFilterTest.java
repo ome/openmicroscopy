@@ -38,7 +38,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -148,8 +148,9 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
         assertCannotReadImage(d, i);
 
         final SecurityFilterTest test = this;
-	ex.execute(null /*principal*/, new Executor.Work() {
+	ex.execute(null /*principal*/, new Executor.SimpleWork(this, "run as admin") {
 		@RolesAllowed("user")
+		@Transactional(readOnly=true)
 		    public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
 		    securitySystem.runAsAdmin(new AdminAction() {
 			    public void runAsAdmin() {

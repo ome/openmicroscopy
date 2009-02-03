@@ -26,8 +26,7 @@
     be activated at any given time. The primary responsibility of this file
     is to configure the objects:
 
-      * jtaTransactionManager
-      * jtaUserTransaction
+      * transactionManager
       * dataSource
 
     see: https://trac.openmicroscopy.org.uk/omero/ticket/1158
@@ -64,6 +63,12 @@
         <entry key="OmeroDs" value-ref="dataSource"/>
       </map>
     </constructor-arg>
+  </bean>
+
+  <bean id="transactionManager" depends-on="jndiBind"
+        class="org.springframework.transaction.jta.JtaTransactionManager">
+    <property name="transactionManager" ref="jtaTransactionManager" />
+    <property name="userTransaction" ref="jtaUserTransaction"/>
   </bean>
 
 </beans>

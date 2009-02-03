@@ -34,7 +34,7 @@
 
   </description>
 
-  <bean id="datasource"
+  <bean id="simpleDataSource"
       class="com.atomikos.jdbc.SimpleDataSourceBean"
       init-method="init" destroy-method="close">
       <property name="uniqueResourceName" ref="uuid"/>
@@ -53,12 +53,21 @@
       <property name="connectionPoolSize" value="3"/>
    </bean>
 
-  <bean id="xaDataSource"
-        class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+  <bean id="nonXaDataSource" class="com.atomikos.jdbc.nonxa.NonXADataSourceBean">
     <property name="uniqueResourceName" ref="uuid"/>
-    <property name="xaProperties">
-    </property>
-    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
+    <property name="driverClassName" value="org.postgresql.Driver"/>
+    <property name="url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
+    <property name="user" value="${omero.db.user}"/>
+    <property name="password" value="${omero.db.pass}"/>
+    <property name="poolSize" value="${omero.db.poolsize}"/>
+  </bean>
+
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+    <property name="targetDataSource" ref="nonXaDataSource"/>
+  </bean>
+
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"/>
   </bean>
 
   <!-- configured in etc/jta.properties -->

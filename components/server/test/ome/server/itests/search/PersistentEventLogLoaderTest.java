@@ -15,7 +15,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -39,7 +39,8 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
                 "FullText"));
         final boolean[] result = new boolean[1];
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "with no db entry") {
+                    @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         ll.deleteCurrentId();
                         EventLog log = ll.next();
@@ -61,7 +62,8 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         ome.model.meta.Session s = sm.create(new Principal("root", "system",
                 "FullText"));
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
-                new Executor.Work() {
+                new Executor.SimpleWork(this, "test excludes") {
+                    @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         ll.nextEventLog(0);
                         return null;
