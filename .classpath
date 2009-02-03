@@ -109,7 +109,8 @@
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
-	<classpathentry kind="lib" path="target/libs/btm.jar"/>
+	<classpathentry kind="lib" path="target/libs/jbossts.jar"/>
+	<classpathentry kind="lib" path="target/libs/jbossts-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/tyrex.jar"/>
 	<classpathentry kind="lib" path="target/libs/backport-util-concurrent.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>

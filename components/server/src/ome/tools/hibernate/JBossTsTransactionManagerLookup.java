@@ -3,6 +3,7 @@
 //
 package ome.tools.hibernate;
 
+import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -13,37 +14,39 @@ import javax.transaction.UserTransaction;
 import org.hibernate.HibernateException;
 import org.hibernate.transaction.TransactionManagerLookup;
 
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
-
 /**
  * Simple helper class copied from
  * http://docs.codehaus.org/display/BTM/Hibernate This implementation is
  * available in Hibernate 3.3 at which point this can be removed.
  */
-public class BitronixTransactionManagerLookup implements
+public class JBossTsTransactionManagerLookup implements
         TransactionManagerLookup {
 
     private final static String utName = "UserTransaction";
 
+    private final static String tmName = "TransactionManager";
+
     /**
      * Default constructor used by Hibernate.
      */
-    public BitronixTransactionManagerLookup() {
+    public JBossTsTransactionManagerLookup() {
 
     }
 
     /**
-     * Constructor used to publish a {@link PoolingDataSource} to JNDI.
+     * Constructor used to publish a {@link UserTransaction} to JNDI.
      * 
      * @param ds
      */
-    public BitronixTransactionManagerLookup(PoolingDataSource ds,
-            UserTransaction ut) {
+    public JBossTsTransactionManagerLookup(TransactionManager tm,
+            UserTransaction ut, Map<String, Object> map) {
         try {
             Context ctx = new InitialContext();
+            ctx.bind(tmName, tm);
             ctx.bind(utName, ut);
-            ctx.bind(ds.getUniqueName(), ds);
+            for (String key : map.keySet()) {
+                ctx.bind(key, map.get(key));
+            }
         } catch (Exception e) {
             throw new RuntimeException(
                     "Failed to create and bind pooled JTA resources", e);
@@ -52,7 +55,13 @@ public class BitronixTransactionManagerLookup implements
 
     public TransactionManager getTransactionManager(Properties props)
             throws HibernateException {
-        return TransactionManagerServices.getTransactionManager();
+        try {
+            Context ctx = new InitialContext();
+            return (TransactionManager) ctx.lookup(tmName);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to lookup transaction manager from JNDI", e);
+        }
     }
 
     public String getUserTransactionName() {

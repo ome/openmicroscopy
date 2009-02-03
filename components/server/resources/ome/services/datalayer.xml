@@ -42,73 +42,46 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
-  <bean id="btmConfig" factory-method="getConfiguration"
-        class="bitronix.tm.TransactionManagerServices">
-    <property name="serverId" ref="uuid" />
-    <property name="disableJmx" value="true" />
-    <property name="defaultTransactionTimeout" value="600"/>
+  <bean id="jtaTransactionManager" class="com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple"/>
+
+  <bean id="jtaUserTransaction" class="com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple"/>
+
+  <bean id="xaDataSource" class="org.postgresql.xa.PGXADataSource">
+        <property name="user" value="${omero.db.user}"/>
+        <property name="password" value="${omero.db.pass}"/>
+        <property name="databaseName" value="${omero.db.name}"/>
+        <property name="serverName" value="${omero.db.host}"/>
+        <property name="portNumber" value="5432"/>
   </bean>
-
-  <alias name="onePcDataSource" alias="dataSource"/>
-
-  <bean abstract="true" id="btmDataSource">
-    <property name="uniqueName" ref="uuid" />
-    <property name="minPoolSize" value="5" />
-    <property name="maxPoolSize" value="${omero.db.poolsize}" />
-    <property name="allowLocalTransactions" value="false" />
+  
+  <bean id="jndiBind" class="ome.tools.hibernate.JBossTsTransactionManagerLookup">
+    <constructor-arg ref="jtaUserTransaction"/>
+    <constructor-arg ref="jtaTransactionManager"/>
+    <constructor-arg>
+      <map>
+        <entry key="OmeroDs" value-ref="xaDataSource"/>
+      </map>
+    </constructor-arg>
   </bean>
-
-  <bean id="xaDataSource"
-        class="bitronix.tm.resource.jdbc.PoolingDataSource"
-        lazy-init="true"
-        init-method="init"
-        destroy-method="close"
-        parent="btmDataSource">
-    <property name="className" value="org.postgresql.xa.PGXADataSource"/>
-    <property name="driverProperties">
+ 
+  <bean id="dataSource" depends-on="jndiBind"
+    class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName">
+      <value>com.arjuna.ats.jdbc.TransactionalDriver</value>
+    </property>
+    <property name="url" value="jdbc:arjuna:OmeroDs"/>
+    <property name="connectionProperties">
       <props>
         <prop key="user">${omero.db.user}</prop>
-        <prop key="password">${omero.db.pass}</prop>
-        <prop key="databaseName">${omero.db.name}</prop>
-        <prop key="serverName">${omero.db.host}</prop>
-        <prop key="portNumber">5432</prop>
+        <prop key="password">${omero.db.pass}</prop><!-- "pass" causes a NPE in arjuna -->
       </props>
     </property>
   </bean>
 
-  <bean id="onePcDataSource"
-        class="bitronix.tm.resource.jdbc.PoolingDataSource"
-        lazy-init="true"
-        init-method="init"
-        destroy-method="close"
-        parent="btmDataSource">
-    <property name="className" value="bitronix.tm.resource.jdbc.lrc.LrcXADataSource"/>
-    <property name="driverProperties">
-      <props>
-        <prop key="driverClassName">org.postgresql.Driver</prop>
-        <prop key="url">jdbc:postgresql://${omero.db.host}/${omero.db.name}</prop>
-        <prop key="user">${omero.db.user}</prop>
-        <prop key="password">${omero.db.pass}</prop>
-      </props>
-    </property>
-  </bean>
-
-  <bean id="BitronixTransactionManager"
-        factory-method="getTransactionManager"
-        class="bitronix.tm.TransactionManagerServices"
-        depends-on="btmConfig,dataSource"
-        destroy-method="shutdown" />
-
-  <bean id="btmDeployer" class="ome.tools.hibernate.BitronixTransactionManagerLookup">
-    <description>Binds the two arguments into JNDI</description>
-    <constructor-arg ref="dataSource"/>
-    <constructor-arg ref="BitronixTransactionManager"/>
-  </bean>
-
-  <bean id="transactionManager" depends-on="btmDeployer"
+  <bean id="transactionManager"
         class="org.springframework.transaction.jta.JtaTransactionManager">
-    <property name="transactionManager" ref="BitronixTransactionManager" />
-    <property name="userTransaction" ref="BitronixTransactionManager" />
+    <property name="transactionManager" ref="jtaTransactionManager" />
+    <property name="userTransaction" ref="jtaUserTransaction"/>
   </bean>
 
   <bean id="transactionHandler"

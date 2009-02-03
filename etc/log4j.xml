@@ -54,8 +54,6 @@ system to be re-configured.
   <category name="org.springframework.beans"> <priority value="ERROR"/> </category>
   <!-- Whether or not to print jamon timing info. ERROR or TRACE -->
   <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/> </category>
-  <!-- This is bogus, and will be caught by our exception handlers anyway -->
-  <category name="org.hibernate.util.JDBCExceptionReporter"> <priority value="FATAL"/> </category>
   <!-- Quieting blitz startup -->
   <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
 
@@ -67,11 +65,13 @@ system to be re-configured.
 
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <!-- WAY too verbose at INFO -->
-  <category name="bitronix"> <priority value="WARN"/> </category>
+  <category name="com.arjuna"> <priority value="WARN"/> </category>
   <!-- Limit memory warning -->
   <category name="org.hibernate.hql.ast.QueryTranslatorImpl"> <priority value="ERROR"/> </category>
   <!-- Limit fail-safe cleanup -->
   <category name="org.hibernate.engine.loading.LoadContexts"> <priority value="ERROR"/> </category>
+  <!-- This is bogus, and will be caught by our exception handlers anyway -->
+  <category name="org.hibernate.util.JDBCExceptionReporter"> <priority value="FATAL"/> </category>
   <!-- Other overly verbose messages -->
   <category name="org.hibernate.SQL"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.cfg"> <priority value="ERROR"/> </category>
