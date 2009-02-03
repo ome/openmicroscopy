@@ -135,6 +135,20 @@ public class SessionHandler implements MethodInterceptor,
         this.ctx = (OmeroContext) applicationContext;
     }
 
+    public void cleanThread() {
+        if (TransactionSynchronizationManager.hasResource(factory)) {
+            SessionHolder holder = (SessionHolder) TransactionSynchronizationManager
+                    .getResource(factory);
+            if (holder == null) {
+                throw new IllegalStateException("Can't be null.");
+            } else if (holder == DUMMY) {
+                TransactionSynchronizationManager.unbindResource(factory);
+            } else {
+                throw new IllegalStateException("Thread corrupted.");
+            }
+        }
+    }
+
     /**
      * delegates to {@link HibernateInterceptor} or manages sessions internally,
      * based on the type of service.

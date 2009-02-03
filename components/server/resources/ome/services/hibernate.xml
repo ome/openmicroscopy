@@ -82,6 +82,7 @@
     <description>
     Scope: private
     </description>
+    <property name="sessionHandler" ref="sessionHandler"/>
   </bean>
   
   <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">
