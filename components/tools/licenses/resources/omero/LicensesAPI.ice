@@ -20,7 +20,7 @@ module omero {
   };
   module licenses {
 
-    exception NoAvailableLicenseException extends omero::SessionCreationException {
+    exception NoAvailableLicenseException extends Glacier2::CannotCreateSessionException {
 
     };
 

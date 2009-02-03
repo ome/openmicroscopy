@@ -48,8 +48,9 @@
  *  Ice Exceptions
  *  ==============
  *  Glacier2::CannotCreateSessionException (only exception throwable by createSession)
- *   |_omero.AuthenticationException 
- *   \_omero.ExpiredCredentialException
+ *   |_ omero.AuthenticationException 
+ *   |_ omero.ExpiredCredentialException
+ *   \_ omero.licenses.NoAvailableLicensesException (see tools/licenses)
  *
  */
  
