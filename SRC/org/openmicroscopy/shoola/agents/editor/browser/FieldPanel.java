@@ -161,7 +161,7 @@ public class FieldPanel
 	 * A reference to the node represented by this field. 
 	 * Used eg. to set the selected field to this node with undo/redo
 	 */
-	private FieldNode			 	treeNode;
+	private DefaultMutableTreeNode	treeNode;
 	
 	/**
 	 * This panel (BorderLayout) contains nameLabel in the WEST of this,
@@ -326,7 +326,6 @@ public class FieldPanel
 		// values for each parameter. 
 		if (field.getTableData() != null) {
 			
-			TableModel tm = field.getTableData();
 			// table sets cell renderers and editors according to parameter types
 			JTable table = new ParamValuesTable(field);
 			// put the table in a UI with buttons for adding and deleting rows
@@ -415,7 +414,10 @@ public class FieldPanel
 	private void setDescriptionText() 
 	{
 		String description = getDescription();
-		boolean showDescription = treeNode.getDescriptionVisisibility();
+		boolean showDesc = false;
+		if (treeNode instanceof FieldNode) {
+			showDesc = ((FieldNode)treeNode).getDescriptionVisisibility();
+		}
 		
 		if ((description != null) && (description.trim().length() > 0)) {
 			String htmlDescription = 
@@ -424,7 +426,7 @@ public class FieldPanel
 				"</div></html>";
 			descriptionButton.setToolTipText(htmlDescription);
 			descriptionButton.setVisible(true);
-			descriptionLabel.setVisible(showDescription);
+			descriptionLabel.setVisible(showDesc);
 			descriptionLabel.setFont(new Font("SansSerif", Font.PLAIN, 9));
 			descriptionLabel.setText(htmlDescription);
 		}
@@ -448,7 +450,8 @@ public class FieldPanel
 		
 		int contentCount = field.getContentCount();
 		IFieldContent content;
-		String text = "";
+		StringBuffer buf = new StringBuffer();
+
 		for (int i=0; i< contentCount; i++) {
 			content = field.getContentAt(i);
 			// don't print parameters unless followed by text 
@@ -461,12 +464,13 @@ public class FieldPanel
 					}
 				}
 				if (followedByText) {
-					text = text + "[" + content.toString() + "]";
+					buf.append("[" + content.toString() + "]");
 				}
 			} else {
-				text = text + content.toString();
+				buf.append(content.toString());
 			}
 		}
+		String text = buf.toString();
 		if (text.length() == 0) 	return null;	// don't return blank string
 		return text;
 	}
@@ -681,7 +685,9 @@ public class FieldPanel
 		String cmd = e.getActionCommand();
 		 
 		if (TOGGLE_DESCRIPTION_CMD.equals(cmd)) {
-			treeNode.toggleDescriptionVisibility();
+			if (treeNode instanceof FieldNode) {
+				((FieldNode)treeNode).toggleDescriptionVisibility();
+			}
 			refreshEditingOfPanel();
 		}
 		

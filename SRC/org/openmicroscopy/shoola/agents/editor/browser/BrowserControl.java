@@ -98,40 +98,40 @@ public class BrowserControl
 	
 
 	/** Identifies the <code>Edit</code> action. */
-	static final Integer    EDIT = new Integer(0);
+	static final Integer    EDIT = Integer.valueOf(0);
 	
 	/** Identifies the <code>Undo</code> action. */
-	static final Integer    UNDO_ACTION = new Integer(1);
+	static final Integer    UNDO_ACTION = Integer.valueOf(1);
 	
 	/** Identifies the <code>Redo</code> action. */
-	static final Integer    REDO_ACTION = new Integer(2);
+	static final Integer    REDO_ACTION = Integer.valueOf(2);
 	
 	/** Identifies the <code>Add Field</code> action. */
-	static final Integer    ADD_FIELD_ACTION = new Integer(3);
+	static final Integer    ADD_FIELD_ACTION = Integer.valueOf(3);
 	
 	/** Identifies the <code>Add Field</code> action. */
-	static final Integer    DELETE_FIELD_ACTION = new Integer(4);
+	static final Integer    DELETE_FIELD_ACTION = Integer.valueOf(4);
 	
 	/** Identifies the <code>Indent Right</code> action. */
-	static final Integer    INDENT_RIGHT_ACTION = new Integer(5);
+	static final Integer    INDENT_RIGHT_ACTION = Integer.valueOf(5);
 	
 	/** Identifies the <code>Indent Left</code> action. */
-	static final Integer    INDENT_LEFT_ACTION = new Integer(6);
+	static final Integer    INDENT_LEFT_ACTION = Integer.valueOf(6);
 	
 	/** Identifies the <code>Move Up</code> action. */
-	static final Integer    MOVE_UP_ACTION = new Integer(7);
+	static final Integer    MOVE_UP_ACTION = Integer.valueOf(7);
 	
 	/** Identifies the <code>Move Down</code> action. */
-	static final Integer    MOVE_DOWN_ACTION = new Integer(8);
+	static final Integer    MOVE_DOWN_ACTION = Integer.valueOf(8);
 	
 	/** Identifies the <code>Copy Fields</code> action. */
-	static final Integer    COPY_FIELDS_ACTION = new Integer(9);
+	static final Integer    COPY_FIELDS_ACTION = Integer.valueOf(9);
 	
 	/** Identifies the <code>Paste Fields</code> action. */
-	static final Integer    PASTE_FIELDS_ACTION = new Integer(10);
+	static final Integer    PASTE_FIELDS_ACTION = Integer.valueOf(10);
 	
 	/** Identifies the <code>Add Text-Box Field</code> action. */
-	static final Integer    ADD_TEXTBOX_FIELD_ACTION = new Integer(11);
+	static final Integer    ADD_TEXTBOX_FIELD_ACTION = Integer.valueOf(11);
 	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,

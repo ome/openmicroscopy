@@ -282,8 +282,9 @@ class BrowserUI
      * Update the editable status of the main tree display. 
      */
     void onStateChanged() {
-    	int state = model.getState();
+    	//int state = model.getState();
     	
+    	// May want to re-implement this code in future, to toggle editable state.
     	// if the state is editable (not Display mode), enable and show...
     	//boolean editable = (state != Browser.TREE_DISPLAY);
     	//treeDisplay.setEditable(editable);	
