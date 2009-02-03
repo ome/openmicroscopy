@@ -6,6 +6,8 @@
  */
 package ome.testing;
 
+import java.sql.Timestamp;
+
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -110,6 +112,7 @@ public class ObjectFactory {
             pl.setDeltaT(new Float(0.0));
             p.addPlaneInfo(pl);
             i.setName("test");
+            i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
             i.addPixels(p);
 
         }
