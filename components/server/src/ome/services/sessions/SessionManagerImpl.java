@@ -567,7 +567,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserGroupUpdateEvent) {
-            cache.updateEvent((UserGroupUpdateEvent) event);
+            // cache.updateEvent((UserGroupUpdateEvent) event);
+            cache.markForUpdate();
         } else if (event instanceof DestroySessionMessage) {
             executeCloseSession(((DestroySessionMessage) event).getSessionId());
         }

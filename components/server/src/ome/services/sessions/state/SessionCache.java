@@ -356,9 +356,23 @@ public class SessionCache implements ApplicationContextAware {
     // =========================================================================
 
     public long getLastUpdated() {
-        return lastUpdate;
+        updateLock.readLock().lock();
+        try {
+            return lastUpdate;
+        } finally {
+            updateLock.readLock().unlock();
+        }
     }
 
+    public void markForUpdate() {
+        updateLock.writeLock().lock();
+        try {
+            lastUpdate = 1;
+        } finally {
+            updateLock.writeLock().unlock();
+        }
+    }
+    
     /**
      * May be called simultaneously by several threads. Similar to
      * {@link #blockingUpdate()} but uses the timestamp of the
