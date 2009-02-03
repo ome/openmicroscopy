@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
@@ -51,7 +50,7 @@ import javax.swing.JButton;
  * @since OME2.2
  */
 public class ColouredButton
-extends JButton
+	extends JButton
 {
 	/** UI for the colour button. */
 	private ColouredButtonUI colourButtonUI;
@@ -95,28 +94,11 @@ extends JButton
 
 	/**
 	 * Changes to size need to be reflected in changes in painters. 
+	 * @see JButton#setSize(Dimension)
 	 */
 	public void setSize(Dimension d)
 	{
 		super.setSize(d);
-		setColor(color);
-	}
-	
-	/**
-	 * Changes to size need to be reflected in changes in painters. 
-	 */
-	public void setSize(int x, int y)
-	{
-		super.setSize(x,y);
-		setColor(color);
-	}
-	
-	/**
-	 * Changes to size need to be reflected in changes in painters. 
-	 */
-	public void setPreferredSize(Dimension preferredSize)
-	{
-		super.setPreferredSize(preferredSize);
 		setColor(color);
 	}
 	
@@ -179,4 +161,24 @@ extends JButton
 	 */
 	public Dimension getMaximumSize() { return getPreferredSize(); }
 
+	/**
+	 * Changes to size need to be reflected in changes in painters. 
+	 * @see JButton#setSize(int, int)
+	 */
+	public void setSize(int x, int y)
+	{
+		super.setSize(x,y);
+		setColor(color);
+	}
+	
+	/**
+	 * Changes to size need to be reflected in changes in painters. 
+	 * @see JButton#setPreferredSize(Dimension)
+	 */
+	public void setPreferredSize(Dimension preferredSize)
+	{
+		super.setPreferredSize(preferredSize);
+		setColor(color);
+	}
+	
 }

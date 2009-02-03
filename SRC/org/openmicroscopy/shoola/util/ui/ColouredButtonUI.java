@@ -38,7 +38,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
-
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
@@ -65,7 +64,7 @@ import org.openmicroscopy.shoola.util.ui.colour.HSV;
  * @since OME2.2
  */
 class ColouredButtonUI
-extends BasicButtonUI
+	extends BasicButtonUI
 {
 
 	/** set the matte painter. */
@@ -76,6 +75,9 @@ extends BasicButtonUI
 		
 	/** The stroke of the graphics context. */
 	private static final Stroke	STROKE = new BasicStroke(1.0f);
+	
+	/** The default value for width or height. */
+	private static final int DEFAULT_SIZE = 32;
 	
     /** Current Colour of the button. */
     private Color           colour;
@@ -463,6 +465,91 @@ extends BasicButtonUI
          // Draw text in centre of button.
         drawText(g);
     }
+
+    /**  Creates painters for the different button options. */
+    private void createPainters()
+    {
+    	buttonFacePainter = getPainter(colour, SPEC);
+    	selectedButtonFacePainter = getPainter(colour, MATTE);
+    	greyMaskPainter = getPainter(Color.gray, SPEC);
+    	selectedGreyMaskPainter = getPainter(Color.gray, MATTE);
+    }
+
+    /**
+     * Creates the painters for the colour, and adds specular highlight if the
+     * spec is <code>true</code>. 
+     * 
+     * @param colour see above.
+     * @param spec see above.
+     * @return see above.
+     */
+    private Painter<JXButton> getPainter(Color colour, int spec) 
+	{
+		int startX = (int)(getWidth()*0.2);
+		int startY = 6;
+		int colourStartX = (int)(getWidth()*0.3);
+		int colourStartY = 18;
+		int radius = (int) Math.max(18, getWidth()*0.9);
+		int matteEndX = 10;
+		int matteEndY = 18;
+		
+		Color c = colour.brighter();
+		MattePainter gradientWhite = new MattePainter(
+			    new GradientPaint(new Point2D.Double(0.0, 0.0), c,
+			    new Point2D.Double(matteEndX, matteEndY), Color.white));
+		
+		MattePainter gradientBrighterColour = new MattePainter(
+			    new GradientPaint(new Point2D.Double(0.0, 0.0), c,
+			    new Point2D.Double(matteEndX, matteEndY), colour));
+		
+		MattePainter gradientBrighterDarker = new MattePainter(
+			    new GradientPaint(new Point2D.Double(0.0, 0.0), c,
+			    new Point2D.Double(matteEndX, matteEndY), colour.darker()));
+		
+		
+		//We cannot use this
+		org.apache.batik.ext.awt.RadialGradientPaint rp =
+			new org.apache.batik.ext.awt.RadialGradientPaint(new 
+				Point2D.Double(startX,startY), radius, 
+				new Point2D.Double(colourStartX, colourStartY),
+	                new float[] { 0.0f, 0.5f },
+	                new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f),
+	                    new Color(1.0f, 1.0f, 1.0f, 0.0f) } );
+		
+	    MattePainter specularHighlight = new MattePainter(rp);
+	    if (spec == SPEC)
+	    	return new CompoundPainter<JXButton>(gradientWhite, 
+					gradientBrighterDarker, specularHighlight);
+	    if (spec == MATTE)
+	    	return new CompoundPainter<JXButton>( gradientWhite, 
+	    			gradientBrighterDarker);
+	 
+	    return null;
+	}
+
+    /**
+     * Draws the painter on the graphics context.
+     * 
+     * @param g 	The graphics context.
+     * @param painter 	The painter to draw.
+     */
+    private void invokePainter(Graphics g, Painter painter) 
+    {
+        if (painter == null) return;
+        
+        Graphics2D g2d = (Graphics2D) g.create();
+
+        if (!isPaintBorderInsets()) 
+        	painter.paint(g2d, this, getWidth(), getHeight());
+        else 
+        {
+        	Insets ins = new Insets(3,3,3,3);
+        	g2d.translate(ins.left, ins.top);
+        	painter.paint(g2d, this, getWidth()-ins.left-ins.right,
+        			getHeight()-ins.top-ins.bottom);
+        }
+
+    }
     
     /**
      * Creates a new instance.
@@ -504,65 +591,7 @@ extends BasicButtonUI
     	setGradientColours();
     	createPainters();
     }
-      
-    /** 
-     * Create painters for the different button options.
-     */
-    private void createPainters()
-    {
-    	buttonFacePainter = getPainter(colour, SPEC);
-    	selectedButtonFacePainter = getPainter(colour, MATTE);
-    	greyMaskPainter = getPainter(Color.gray, SPEC);
-    	selectedGreyMaskPainter = getPainter(Color.gray, MATTE);
-    }
-    
-    
-    /**
-     * Create the painters for the colour, and add specular highlight if the
-     * spec is true. 
-     * @param colour see above.
-     * @param spec see above.
-     * @return see above.
-     */
-    private Painter<JXButton> getPainter(Color colour, int op) 
-	{
-		int startX = (int)(getWidth()*0.2);
-		int startY = 6;
-		int colourStartX = (int)(getWidth()*0.3);
-		int colourStartY = (int)(18);
-		int radius = (int)Math.max(18, getWidth()*0.9);
-		int matteEndX = 10;
-		int matteEndY = 18;
-		
-		MattePainter gradientWhite = new MattePainter(
-			    new GradientPaint(new Point2D.Double(0.0, 0.0), colour.brighter(),
-			    new Point2D.Double(matteEndX, matteEndY), Color.white));
-		MattePainter gradientBrighterColour = new MattePainter(
-			    new GradientPaint(new Point2D.Double(0.0, 0.0), colour.brighter(),
-			    new Point2D.Double(matteEndX, matteEndY), colour));
-		MattePainter gradientBrighterDarker = new MattePainter(
-			    new GradientPaint(new Point2D.Double(0.0, 0.0), colour.brighter(),
-			    new Point2D.Double(matteEndX, matteEndY), colour.darker()));
-		
-		
-		
-		org.apache.batik.ext.awt.RadialGradientPaint rp =
-			new org.apache.batik.ext.awt.RadialGradientPaint(new 
-				Point2D.Double(startX,startY), radius, 
-				new Point2D.Double(colourStartX, colourStartY),
-	                new float[] { 0.0f, 0.5f },
-	                new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f),
-	                    new Color(1.0f, 1.0f, 1.0f, 0.0f) } );
-	    MattePainter specularHighlight = new MattePainter(rp);
-	    if(op==SPEC)
-	    	return new CompoundPainter<JXButton>( gradientWhite, 
-					gradientBrighterDarker, specularHighlight);
-	    if(op==MATTE)
-	    	return new CompoundPainter<JXButton>( gradientWhite, 
-	    			gradientBrighterDarker);
-	 
-	    return null;
-	}
+   
     /**
      * Sets the index of the derived font used to paint the text.
      * 
@@ -583,65 +612,39 @@ extends BasicButtonUI
     }
     
     /** 
-     * will the button paint borders.
+     * Returns <code>true</code> if the button paints borders, 
+     * <code>false</code> otherwise.
+     * 
      * @return see above.
      */
-    public boolean isPaintBorderInsets()
-    {
-    	return paintBorderInsets;
-    }
+    boolean isPaintBorderInsets() { return paintBorderInsets; }
 
     /**
-     * if true the button will paint borders.
-     * @param pb
+     * Sets to <code>true</code> if the button paints borders, to
+     * <code>false</code> otherwise.
+     * 
+     * @param pb The value to set.
      */
-    public void setPaintBorderInsets(boolean pb)
-    {
-    	paintBorderInsets = pb;
-    }
-    
-    /**
-     * Draw the painter on the graphics context.
-     * @param g see above.
-     * @param ptr see above.
-     */
-    private void invokePainter(Graphics g, Painter ptr) 
-    {
-        if(ptr == null) return;
-        
-        Graphics2D g2d = (Graphics2D) g.create();
-   
-            if(!isPaintBorderInsets()) 
-            {
-                ptr.paint(g2d, this, getWidth(), getHeight());
-            } 
-            else 
-            {
-                Insets ins = new Insets(3,3,3,3);
-                g2d.translate(ins.left, ins.top);
-                ptr.paint(g2d, this,
-                       getWidth() - ins.left - ins.right,
-                        getHeight() - ins.top - ins.bottom);
-            }
-         
-    }
-    
+    void setPaintBorderInsets(boolean pb) { paintBorderInsets = pb; }
+
     /** 
-     * Get the width of the components.
-     * @return see above.
+     * Returns the width of the components.
+     * 
+     * @return See above.
      */
     protected int getWidth()
     {
-    	return Math.max(button.getWidth(), 32);
+    	return Math.max(button.getWidth(), DEFAULT_SIZE);
     }
     
     /** 
-     * Get the height of the components.
-     * @return see above.
+     * Returns the height of the components.
+     * 
+     * @return See above.
      */
     protected int getHeight()
     {
-    	return Math.max(button.getHeight(), 32);
+    	return Math.max(button.getHeight(), DEFAULT_SIZE);
     }
     
 }
