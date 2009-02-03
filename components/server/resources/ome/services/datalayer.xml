@@ -25,12 +25,12 @@
     Configuration for standalone properties and general database access.
     The beans in this configuration file should NOT be generally accessed.
     In general, this entire file should be considered to have a "private" scope.
-    
+
     Note: As other forms of data access (caching esp. distributed, Freeze, etc.
     are added, they should also be configured at this level)
   </description>
 
-  <!-- 
+  <!--
         Unique identifier for this Spring context. This is important to
         distinguish multiple uses of the same database, for example in clustering.
         This value may also be used as the internal session for this server instance
@@ -53,32 +53,28 @@
         <property name="serverName" value="${omero.db.host}"/>
         <property name="portNumber" value="5432"/>
   </bean>
-  
+
+  <bean id="dataSource" destroy-method="destroy"
+    class="ome.services.util.arjuna.XADataSourceWrapper">
+    <constructor-arg index="0" ref="xaDataSource"/>
+    <constructor-arg index="1" value="OmeroDs"/>
+    <constructor-arg index="2" value="${java.naming.factory.initial}"/>
+    <constructor-arg index="3" value="${java.naming.provider.url}"/>
+    <constructor-arg index="4" value="${omero.db.user}"/>
+    <constructor-arg index="5" value="${omero.db.pass}"/>
+  </bean>
+
   <bean id="jndiBind" class="ome.tools.hibernate.JBossTsTransactionManagerLookup">
     <constructor-arg ref="jtaUserTransaction"/>
     <constructor-arg ref="jtaTransactionManager"/>
     <constructor-arg>
       <map>
-        <entry key="OmeroDs" value-ref="xaDataSource"/>
+        <entry key="OmeroDs" value-ref="dataSource"/>
       </map>
     </constructor-arg>
   </bean>
- 
-  <bean id="dataSource" depends-on="jndiBind"
-    class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="driverClassName">
-      <value>com.arjuna.ats.jdbc.TransactionalDriver</value>
-    </property>
-    <property name="url" value="jdbc:arjuna:OmeroDs"/>
-    <property name="connectionProperties">
-      <props>
-        <prop key="user">${omero.db.user}</prop>
-        <prop key="password">${omero.db.pass}</prop><!-- "pass" causes a NPE in arjuna -->
-      </props>
-    </property>
-  </bean>
 
-  <bean id="transactionManager"
+  <bean id="transactionManager" depends-on="jndiBind"
         class="org.springframework.transaction.jta.JtaTransactionManager">
     <property name="transactionManager" ref="jtaTransactionManager" />
     <property name="userTransaction" ref="jtaUserTransaction"/>

@@ -44,8 +44,10 @@ public class JBossTsTransactionManagerLookup implements
             Context ctx = new InitialContext();
             ctx.bind(tmName, tm);
             ctx.bind(utName, ut);
-            for (String key : map.keySet()) {
-                ctx.bind(key, map.get(key));
+            if (map != null) {
+                for (String key : map.keySet()) {
+                    ctx.bind(key, map.get(key));
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(

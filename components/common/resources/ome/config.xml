@@ -50,6 +50,7 @@
                 <value>hibernate.properties</value>
                 <value>omero.properties</value>
                 <value>local.properties</value> <!-- Activating mostly for backwards compatibility -->
+                <value>jndi.properties</value>
                 <!-- As of ticket:800 (vers. 4.0) these values are static
                      and are compiled into the finished binaries. All other configuration
                      takes place via the "prefs" class. -->

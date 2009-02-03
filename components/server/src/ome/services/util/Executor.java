@@ -34,6 +34,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
@@ -302,21 +303,17 @@ public interface Executor extends ApplicationContextAware {
                     });
 
                 } else {
-                    return hibTemplate.execute(new HibernateCallback() {
-                        public Object doInHibernate(Session session)
-                                throws HibernateException, SQLException {
-                            args[1] = session;
-                            try {
-                                return mi.proceed();
-                            } catch (Throwable e) {
-                                if (e instanceof RuntimeException) {
-                                    throw (RuntimeException) e;
-                                } else {
-                                    throw new RuntimeException(e);
-                                }
-                            }
+                    args[1] = SessionFactoryUtils.getSession(hibTemplate
+                            .getSessionFactory(), false);
+                    try {
+                        return mi.proceed();
+                    } catch (Throwable e) {
+                        if (e instanceof RuntimeException) {
+                            throw (RuntimeException) e;
+                        } else {
+                            throw new RuntimeException(e);
                         }
-                    });
+                    }
                 }
             }
         }

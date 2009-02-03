@@ -34,4 +34,5 @@ public class CurrentSessionContext extends JTASessionContext {
     protected boolean isAutoCloseEnabled() {
         return false;
     }
+
 }
