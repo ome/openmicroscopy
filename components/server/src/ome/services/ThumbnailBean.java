@@ -1090,8 +1090,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
-    	
         iQuery.clear();
+        // Resetting thumbnail metadata because we don't know what may have
+        // happened in the database since or if sizeX and sizeY have changed.
+        metadata = null;
         return _getThumbnail(sizeX, sizeY);
     }
     
@@ -1149,6 +1151,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// Ensure that we do not have "dirty" pixels or rendering settings left
     	// around in the Hibernate session cache.
     	iQuery.clear();
+        // Resetting thumbnail metadata because we don't know what may have
+        // happened in the database since or if sizeX and sizeY have changed.
+    	metadata = null;
     	return _getThumbnailByLongestSide(size);
     }
     
