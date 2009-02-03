@@ -2068,30 +2068,44 @@ public class OMEROMetadataStoreClient
         }
     }
 
- // FIXME: change to iQuery
     public List<Project> getProjects()
     {
-        try
-        {
-            return delegate.getProjects();
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    	try
+    	{
+    		List<IObject> objects = 
+    			iPojos.loadContainerHierarchy(Project.class.getName(), null, null);
+    		List<Project> projects = new ArrayList<Project>(objects.size());
+    		for (IObject object : objects)
+    		{
+    			projects.add((Project) object);
+    		}
+    		return projects;
+    	}
+    	catch (ServerError e)
+    	{
+    		throw new RuntimeException(e);
+    	}
     }
 
- // FIXME: change to iQuery
     public List<Dataset> getDatasets(Project p)
     {
-        try
-        {
-            return delegate.getDatasets(p);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    	try
+    	{
+    		List<Long> ids = new ArrayList<Long>(1);
+    		ids.add(p.getId().getValue());
+    		List<IObject> objects = 
+    			iPojos.loadContainerHierarchy(Dataset.class.getName(), ids, null);
+    		List<Dataset> datasets = new ArrayList<Dataset>(objects.size());
+    		for (IObject object : objects)
+    		{
+    			datasets.add((Dataset) object);
+    		}
+    		return datasets;
+    	}
+    	catch (ServerError e)
+    	{
+    		throw new RuntimeException(e);
+    	}
     }
 
     public Project addProject(String projectName, String projectDescription)
