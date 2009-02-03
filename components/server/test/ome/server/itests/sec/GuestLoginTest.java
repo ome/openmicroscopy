@@ -44,42 +44,46 @@ public class GuestLoginTest extends AbstractManagedContextTest {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testGuestThenTriesToDoSomethingDisallowed() throws Exception {
         testGuestUserCreatesSession();
-	ex.execute(p, new Executor.Work() {
-		@RolesAllowed("user")
-		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
-		    return sf.getQueryService().get(Experimenter.class, 0);
-		}
-	    });
+        ex.execute(p, new Executor.Work() {
+            @RolesAllowed("user")
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                return sf.getQueryService().get(Experimenter.class, 0);
+            }
+        });
     }
 
     public void testGuestThenTriesToDoSomethingAllowed() throws Exception {
         testGuestUserCreatesSession();
-	ex.execute(p, new Executor.Work() {
-		@RolesAllowed("guest")
-		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
-		    return sf.getQueryService().get(Experimenter.class, 0);
-		}
-	    });
+        ex.execute(p, new Executor.Work() {
+            @RolesAllowed("guest")
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                return sf.getQueryService().get(Experimenter.class, 0);
+            }
+        });
     }
 
     public void testGuestThenTriesToDoSomethingVeryAllowed() throws Exception {
         testGuestUserCreatesSession();
-	ex.execute(p, new Executor.Work() {
-		@PermitAll
-		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
-		    return sf.getQueryService().get(Experimenter.class, 0);
-		}
-	    });
+        ex.execute(p, new Executor.Work() {
+            @PermitAll
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                return sf.getQueryService().get(Experimenter.class, 0);
+            }
+        });
     }
 
     @Test(expectedExceptions = SecurityViolation.class)
     public void testButGuestCantMakeAdminCalls() throws Exception {
         testGuestUserCreatesSession();
-	ex.execute(p, new Executor.Work() {
-		@RolesAllowed("system")
-		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
-		    return sf.getQueryService().get(Experimenter.class, 0);
-		}
-	    });
+        ex.execute(p, new Executor.Work() {
+            @RolesAllowed("system")
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                return sf.getQueryService().get(Experimenter.class, 0);
+            }
+        });
     }
 }

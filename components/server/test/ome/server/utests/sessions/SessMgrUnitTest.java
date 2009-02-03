@@ -58,7 +58,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     private final class DoWorkStub implements Stub {
         public Object invoke(Invocation i) throws Throwable {
             Executor.Work work = (Executor.Work) i.parameterValues.get(1);
-            return work.doWork(null, null, sf);
+            return work.doWork(null, sf);
         }
 
         public StringBuffer describeTo(StringBuffer sb) {

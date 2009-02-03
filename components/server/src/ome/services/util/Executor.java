@@ -7,7 +7,6 @@
 
 package ome.services.util;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +22,8 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
@@ -118,8 +117,7 @@ public interface Executor extends ApplicationContextAware {
          * @return Any results which will be used by non-wrapped code.
          */
         @Transactional(readOnly = false)
-        Object doWork(TransactionStatus status, Session session,
-                ServiceFactory sf);
+        Object doWork(Session session, ServiceFactory sf);
 
     }
 
@@ -142,7 +140,7 @@ public interface Executor extends ApplicationContextAware {
      */
     public interface StatelessWork {
         @Transactional(readOnly = false)
-        Object doWork(TransactionStatus status, SimpleJdbcOperations jdbc);
+        Object doWork(SimpleJdbcOperations jdbc);
     }
 
     public class Impl implements Executor {
@@ -203,7 +201,7 @@ public interface Executor extends ApplicationContextAware {
          */
         public Object execute(final Principal p, final Work work,
                 boolean readOnly) {
-            Interceptor i = new Interceptor(txTemplate, hibTemplate, readOnly);
+            Interceptor i = new Interceptor(hibTemplate.getSessionFactory(), readOnly);
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
             factory.setInterfaces(new Class[] { Work.class });
@@ -222,7 +220,7 @@ public interface Executor extends ApplicationContextAware {
             }
             try {
                 // Arguments will be replaced after hibernate is in effect
-                return wrapper.doWork(null, null, new InternalServiceFactory(
+                return wrapper.doWork(null, new InternalServiceFactory(
                         this.context));
             } finally {
                 if (p != null) {
@@ -240,11 +238,7 @@ public interface Executor extends ApplicationContextAware {
          * @return
          */
         public Object executeStateless(final StatelessWork work) {
-            return txTemplate.execute(new TransactionCallback() {
-                public Object doInTransaction(TransactionStatus status) {
-                    return work.doWork(status, jdbcOps);
-                }
-            });
+            return work.doWork(jdbcOps);
         }
 
         /**
@@ -258,15 +252,13 @@ public interface Executor extends ApplicationContextAware {
         static class Interceptor implements MethodInterceptor {
 
             private final boolean readOnly;
-            private final TransactionTemplate txTemplate;
-            private final HibernateTemplate hibTemplate;
+            private final SessionFactory factory;
             private boolean stageOne = true;
 
-            public Interceptor(TransactionTemplate tt, HibernateTemplate ht,
+            public Interceptor(SessionFactory sf,
                     boolean readOnly) {
                 this.readOnly = readOnly;
-                this.txTemplate = tt;
-                this.hibTemplate = ht;
+                this.factory = sf;
             }
 
             public Object invoke(final MethodInvocation mi) throws Throwable {
@@ -283,37 +275,10 @@ public interface Executor extends ApplicationContextAware {
                         pmi.setUserAttribute("readOnly", readOnly);
                     }
                     stageOne = false;
-
-                    // Here we use a transaction template to have control over
-                    // the transaction at this point rather than lower down the
-                    // stack.
-                    return txTemplate.execute(new TransactionCallback() {
-                        public Object doInTransaction(TransactionStatus arg0) {
-                            args[0] = arg0;
-                            try {
-                                return mi.proceed();
-                            } catch (Throwable e) {
-                                if (e instanceof RuntimeException) {
-                                    throw (RuntimeException) e;
-                                } else {
-                                    throw new RuntimeException(e); // ???
-                                }
-                            }
-                        }
-                    });
-
+                    return mi.proceed();
                 } else {
-                    args[1] = SessionFactoryUtils.getSession(hibTemplate
-                            .getSessionFactory(), false);
-                    try {
-                        return mi.proceed();
-                    } catch (Throwable e) {
-                        if (e instanceof RuntimeException) {
-                            throw (RuntimeException) e;
-                        } else {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                    args[0] = SessionFactoryUtils.getSession(factory, false);
+                    return mi.proceed();
                 }
             }
         }

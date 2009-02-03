@@ -39,8 +39,7 @@ public class UpdateCacheThread extends ExecutionThread {
             this.cache = cache;
         }
 
-        public Object doWork(TransactionStatus status,
-                org.hibernate.Session session, ServiceFactory sf) {
+        public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
             cache.updateEvent(new UserGroupUpdateEvent(this));
             return null;
         }

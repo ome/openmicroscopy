@@ -30,10 +30,11 @@ import org.testng.annotations.Test;
 public class SearchBeanTest extends MockObjectTestCase {
 
     protected Class<? extends Analyzer> analyzer = FullTextAnalyzer.class;
-    protected Executor executor = new Executor.Impl(null, null, null, null, null) {
+    protected Executor executor = new Executor.Impl(null, null, null, null,
+            null) {
         @Override
         public Object execute(Principal p, Work work) {
-            return work.doWork(null, null, null);
+            return work.doWork(null, null);
         }
     };
 
@@ -155,7 +156,7 @@ public class SearchBeanTest extends MockObjectTestCase {
     @Test
     public void testCanSearchForObjectsWhichArentAnnotated() {
         bean = new SearchBean(executor, analyzer);
-        bean.onlyAnnotatedWith((java.lang.Class[])null);
+        bean.onlyAnnotatedWith((java.lang.Class[]) null);
     }
 
     // ==============================================
@@ -163,8 +164,7 @@ public class SearchBeanTest extends MockObjectTestCase {
     private void addActionWithResultOfSize_n(final int n) {
         bean.addAction(new SearchAction(new SearchValues()) {
 
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 List<IObject> rv = new ArrayList<IObject>();
                 for (int i = 0; i < n; i++) {
                     rv.add(new Image());

@@ -188,8 +188,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
             finishedOrThrow();
 
             // Gather output
-            omero.RMap output = rmap(
-                    new HashMap<String, omero.RType>());
+            omero.RMap output = rmap(new HashMap<String, omero.RType>());
             Map<String, Object> env = mgr.outputEnvironment(session.getUuid());
             IceMapper mapper = new IceMapper();
             for (String key : env.keySet()) {
@@ -248,16 +247,16 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     private void optionallyLoadFile(final Map<String, RType> val,
             final String name) {
         this.ex.execute(this.principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status,
-                    org.hibernate.Session session, ServiceFactory sf) {
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
 
                 OriginalFile file = sf.getQueryService().findByQuery(
                         stdfile_query,
-                        new Parameters().addId(job.getId().getValue()).addString(
-                                "name", name));
+                        new Parameters().addId(job.getId().getValue())
+                                .addString("name", name));
                 if (file != null) {
-                    val.put(name, robject(new OriginalFileI(file.getId(),
-                            false)));
+                    val.put(name,
+                            robject(new OriginalFileI(file.getId(), false)));
                 }
                 return null;
             }

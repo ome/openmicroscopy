@@ -43,8 +43,7 @@ public class HqlQuery extends SearchAction {
         this.params = p;
     }
 
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
+    public Object doWork(Session session, ServiceFactory sf) {
 
         Parameters _p = this.params;
 

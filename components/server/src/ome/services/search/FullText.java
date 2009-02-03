@@ -105,7 +105,7 @@ public class FullText extends SearchAction {
         }
     }
 
-    public Object doWork(TransactionStatus status, Session s, ServiceFactory sf) {
+    public Object doWork(Session s, ServiceFactory sf) {
 
         final Class<?> cls = values.onlyTypes.get(0);
 

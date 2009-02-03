@@ -764,8 +764,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private void flushAsCurrentUser() {
         if (principalHolder.size() > 0) {
             executor.execute(null, new Executor.Work() {
-                public Object doWork(TransactionStatus status,
-                        org.hibernate.Session s, ServiceFactory sf) {
+                public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
                     ((LocalUpdate) sf.getUpdateService()).flush();
                     return null;
                 }
@@ -785,8 +784,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     @SuppressWarnings("unchecked")
     private Session executeUpdate(final Session session, final long userId) {
         return (Session) executor.execute(asroot, new Executor.Work() {
-            public Object doWork(TransactionStatus status,
-                    org.hibernate.Session s, ServiceFactory sf) {
+            public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
                 Node node = sf.getQueryService().findByString(Node.class,
                         "uuid", internal_uuid);
                 if (node == null) {
@@ -802,8 +800,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
         boolean ok = (Boolean) executor.execute(asroot, new Executor.Work() {
-            public Object doWork(TransactionStatus status,
-                    org.hibernate.Session session, ServiceFactory sf) {
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).checkPassword(
                         _principal.getName(), credentials);
             }
@@ -813,8 +811,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private Experimenter executeUserProxy(final long uid) {
         return (Experimenter) executor.execute(asroot, new Executor.Work() {
-            public Object doWork(TransactionStatus status,
-                    org.hibernate.Session session, ServiceFactory sf) {
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).userProxy(uid);
             }
         }, true);
@@ -823,8 +821,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private ExperimenterGroup executeGroupProxy(final long gid) {
         return (ExperimenterGroup) executor.execute(asroot,
                 new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            org.hibernate.Session session, ServiceFactory sf) {
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
                         return ((LocalAdmin) sf.getAdminService())
                                 .groupProxy(gid);
                     }
@@ -839,8 +837,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private ExperimenterGroup executeDefaultGroup(final String name) {
         return (ExperimenterGroup) executor.execute(asroot,
                 new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            org.hibernate.Session session, ServiceFactory sf) {
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
                         LocalAdmin admin = (LocalAdmin) sf.getAdminService();
 
                         try {
@@ -861,8 +859,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     private long executeLookupUser(final Principal p) {
         return (Long) executor.execute(asroot, new Executor.Work() {
-            public Object doWork(TransactionStatus status,
-                    org.hibernate.Session session, ServiceFactory sf) {
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
                 LocalAdmin admin = (LocalAdmin) sf.getAdminService();
 
                 try {
@@ -885,8 +883,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private List<Object> executeSessionContextLookup(final Principal principal) {
         return (List<Object>) executor.execute(asroot, new Executor.Work() {
 
-            public Object doWork(TransactionStatus status,
-                    org.hibernate.Session session, ServiceFactory sf) {
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
                 try {
                     List<Object> list = new ArrayList<Object>();
                     LocalAdmin admin = (LocalAdmin) sf.getAdminService();
@@ -925,8 +923,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private Session executeCloseSession(final String uuid) {
         return (Session) executor
                 .executeStateless(new Executor.StatelessWork() {
-                    public Object doWork(TransactionStatus status,
-                            SimpleJdbcOperations jdbcOps) {
+                    public Object doWork(SimpleJdbcOperations jdbcOps) {
                         try {
                             int count = jdbcOps.update(
                                     "UPDATE session SET closed = now() "
@@ -950,8 +947,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private Session executeInternalSession() {
         return (Session) executor
                 .executeStateless(new Executor.StatelessWork() {
-                    public Object doWork(TransactionStatus status,
-                            SimpleJdbcOperations jdbcOps) {
+                    public Object doWork(SimpleJdbcOperations jdbcOps) {
 
                         // Create a basic session
                         final Permissions p = Permissions.USER_PRIVATE;
@@ -963,7 +959,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         // Set the owner and node specially for an internal sess
                         long nodeId = 0L;
                         try {
-                            jdbcOps.queryForLong("SELECT id FROM node where uuid = ?", internal_uuid);
+                            jdbcOps.queryForLong(
+                                    "SELECT id FROM node where uuid = ?",
+                                    internal_uuid);
                         } catch (EmptyResultDataAccessException erdae) {
                             // Using default node
                         }
@@ -984,15 +982,22 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         params.put("uuid", s.getUuid());
                         params.put("node", nodeId);
                         params.put("owner", roles.getRootId());
-                        int count = jdbcOps.update("insert into session "
-                                + "(id,permissions,timetoidle,timetolive,started,closed,"
-                                + "defaultpermissions,defaulteventtype,uuid,owner,node)"
-                                + "select nextval('seq_session'),-35,:ttl,:tti,:start,null,"
-                                + ":perms,:type,:uuid,:owner,:node", params);
+                        int count = jdbcOps
+                                .update(
+                                        "insert into session "
+                                                + "(id,permissions,timetoidle,timetolive,started,closed,"
+                                                + "defaultpermissions,defaulteventtype,uuid,owner,node)"
+                                                + "select nextval('seq_session'),-35,:ttl,:tti,:start,null,"
+                                                + ":perms,:type,:uuid,:owner,:node",
+                                        params);
                         if (count == 0) {
-                            throw new InternalException("Failed to insert new session: "+s.getUuid());
+                            throw new InternalException(
+                                    "Failed to insert new session: "
+                                            + s.getUuid());
                         }
-                        Long id = jdbcOps.queryForLong("SELECT id FROM session WHERE uuid = ?", s.getUuid());
+                        Long id = jdbcOps.queryForLong(
+                                "SELECT id FROM session WHERE uuid = ?", s
+                                        .getUuid());
                         s.setId(id);
                         return s;
                     }

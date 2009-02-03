@@ -40,8 +40,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         final boolean[] result = new boolean[1];
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         ll.deleteCurrentId();
                         EventLog log = ll.next();
                         assertTrue(log.getId() == null);
@@ -63,8 +62,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
                 "FullText"));
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         ll.nextEventLog(0);
                         return null;
                     }

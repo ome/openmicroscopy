@@ -63,7 +63,6 @@
             <list>
                 <value>serviceHandler</value>
                 <value>proxyHandler</value>
-                <!-- OMITvalue>transactionHandler</value-->
                 <value>hibernateHandler</value>
                 <value>eventHandler</value>
             </list>
@@ -92,7 +91,6 @@
             <list>
                 <value>serviceHandler</value>
                 <value>proxyHandler</value>
-                <value>transactionHandler</value>
                 <value>hibernateHandler</value>
                 <value>eventHandler</value>
             </list>
@@ -105,7 +103,6 @@
 			<list>
 				<value>serviceHandler</value>
 				<value>proxyHandler</value>
-				<value>transactionHandler</value>
 				<value>sessionHandler</value>
 				<value>eventHandler</value>
 			</list>

@@ -201,8 +201,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     scr.put((String) factory.executor.execute(
                             factory.principal, new Executor.Work() {
 
-                                public Object doWork(TransactionStatus status,
-                                        Session session, ServiceFactory sf) {
+                                public Object doWork(Session session,
+                                        ServiceFactory sf) {
                                     RawFileStore rawFileStore = sf
                                             .createRawFileStore();
                                     try {
@@ -261,8 +261,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     cb.ice_response((String) factory.executor.execute(
                             factory.principal, new Executor.Work() {
 
-                                public Object doWork(TransactionStatus status,
-                                        Session session, ServiceFactory sf) {
+                                public Object doWork(Session session,
+                                        ServiceFactory sf) {
                                     RawFileStore rawFileStore = sf
                                             .createRawFileStore();
                                     try {
@@ -368,8 +368,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     ScriptJobI job = buildJob(id);
                     InteractiveProcessorPrx proc = factory.acquireProcessor(
                             job, 10, __current);
-                    omero.grid.ProcessPrx prx = proc
-                            .execute(rmap(map));
+                    omero.grid.ProcessPrx prx = proc.execute(rmap(map));
                     prx._wait();
                     cb.ice_response(proc.getResults(prx).getValue());
                 } catch (Exception e) {
@@ -402,8 +401,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     factory.executor.execute(factory.principal,
                             new Executor.Work() {
 
-                                public Object doWork(TransactionStatus status,
-                                        Session session, ServiceFactory sf) {
+                                public Object doWork(Session session,
+                                        ServiceFactory sf) {
                                     List<OriginalFile> fileList = sf
                                             .getQueryService().findAllByQuery(
                                                     queryString, null);
@@ -523,8 +522,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         OriginalFile updatedFile = (OriginalFile) factory.executor.execute(
                 factory.principal, new Executor.Work() {
 
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         IUpdate update = sf.getUpdateService();
                         return update.saveAndReturnObject(file);
                     }
@@ -546,8 +544,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private void writeContent(final OriginalFile file, final String script)
             throws ServerError {
         factory.executor.execute(factory.principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
 
                 RawFileStore rawFileStore = sf.createRawFileStore();
                 rawFileStore.setFileId(file.getId());
@@ -581,8 +578,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         Boolean success = (Boolean) factory.executor.execute(factory.principal,
                 new Executor.Work() {
 
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         try {
                             IUpdate update = sf.getUpdateService();
                             update.deleteObject(new ome.model.jobs.ScriptJob(
@@ -613,8 +609,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         Boolean success = (Boolean) factory.executor.execute(factory.principal,
                 new Executor.Work() {
 
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         IUpdate update = sf.getUpdateService();
                         List<JobOriginalFileLink> links = sf.getQueryService()
                                 .findAllByQuery(
@@ -660,8 +655,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         List<OriginalFile> fileList = (List<OriginalFile>) factory.executor
                 .execute(factory.principal, new Executor.Work() {
 
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getQueryService().findAllByQuery(queryString,
                                 null);
                     }
@@ -695,8 +689,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     factory.principal, new Executor.Work() {
 
-                        public Object doWork(TransactionStatus status,
-                                Session session, ServiceFactory sf) {
+                        public Object doWork(Session session, ServiceFactory sf) {
                             return sf.getQueryService().findByQuery(
                                     queryString, null);
                         }
@@ -725,8 +718,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     factory.principal, new Executor.Work() {
 
-                        public Object doWork(TransactionStatus status,
-                                Session session, ServiceFactory sf) {
+                        public Object doWork(Session session, ServiceFactory sf) {
                             return sf.getQueryService().findByQuery(
                                     queryString, null);
                         }
@@ -748,8 +740,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         return (Format) factory.executor.execute(factory.principal,
                 new Executor.Work() {
 
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getQueryService().findByQuery(
                                 "from Format as f where f.value='"
                                         + PYTHONSCRIPT + "'", null);

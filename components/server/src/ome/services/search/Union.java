@@ -44,15 +44,14 @@ public class Union extends SearchAction {
         this.b = b;
     }
 
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
+    public Object doWork(Session session, ServiceFactory sf) {
 
         List<IObject> rvA;
         List<IObject> rvB;
 
-        rvA = (List<IObject>) a.doWork(status, session, sf);
+        rvA = (List<IObject>) a.doWork(session, sf);
         b.chainedSearch(rvA);
-        rvB = (List<IObject>) b.doWork(status, session, sf);
+        rvB = (List<IObject>) b.doWork(session, sf);
         rvA.addAll(rvB);
 
         return rvA;

@@ -105,8 +105,7 @@ public class FullTextIndexer implements Work {
      * Runes {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called
      */
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
+    public Object doWork(Session session, ServiceFactory sf) {
         int count = 1;
         int perbatch = 0;
         do {

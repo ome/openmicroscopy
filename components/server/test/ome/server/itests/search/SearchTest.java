@@ -71,7 +71,9 @@ import org.testng.annotations.Test;
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
 
-    private java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+    private java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
+            .currentTimeMillis());
+
     // User Examples
     // =========================================================================
     // This section tests provides various small example tests, and doesn't
@@ -168,31 +170,31 @@ public class SearchTest extends AbstractTest {
 
     @Test
     public void testBySearchTerms() {
-        
+
         String base = uuid();
         String base1 = base + "1";
         String base2 = base + "2";
         String base3 = base + "3";
-        
+
         Image i1 = new Image(testTimestamp, base1);
         Image i2 = new Image(testTimestamp, base2);
         Image i3 = new Image(testTimestamp, base3);
-        
+
         i1 = iUpdate.saveAndReturnObject(i1);
         i2 = iUpdate.saveAndReturnObject(i2);
         i3 = iUpdate.saveAndReturnObject(i3);
-        
+
         iUpdate.indexObject(i1);
         iUpdate.indexObject(i2);
         iUpdate.indexObject(i3);
-        
+
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
         search.bySimilarTerms(base1);
         List annotations = search.results();
         List<String> terms = new ArrayList<String>();
         for (Object obj : annotations) {
-            terms.add(((CommentAnnotation)obj).getTextValue());
+            terms.add(((CommentAnnotation) obj).getTextValue());
         }
         // Lower-casing is necessary since that's what's stored in the index.
         assertTrue(terms.contains(base2.toLowerCase()));
@@ -200,7 +202,7 @@ public class SearchTest extends AbstractTest {
         assertFalse(terms.contains(base.toLowerCase()));
         assertFalse(terms.contains(base1.toLowerCase()));
     }
-    
+
     @Test
     public void testByGroupForTags() {
         String groupStr = uuid();
@@ -585,11 +587,10 @@ public class SearchTest extends AbstractTest {
         // As of 4.0, text annotation is abstract, and so it's not possible
         // to do this.
         /*
-        CommentAnnotation txtAnn = new CommentAnnotation();
-        txtAnn.setTextValue(uuid);
-        search.byAnnotatedWith(txtAnn);
-        assertResults(search, 1);
-        */
+         * CommentAnnotation txtAnn = new CommentAnnotation();
+         * txtAnn.setTextValue(uuid); search.byAnnotatedWith(txtAnn);
+         * assertResults(search, 1);
+         */
     }
 
     @Test
@@ -877,7 +878,7 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 0);
 
         // unrestrict
-        search.onlyIds((java.lang.Long[])null);
+        search.onlyIds((java.lang.Long[]) null);
         // full text
         search.byFullText(uuid);
         assertResults(search, 2);
@@ -1493,7 +1494,8 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
         // But if we restrict it to another user, there should be none
-        Experimenter e1 = new Experimenter(iAdmin.getEventContext().getCurrentUserId(), false);
+        Experimenter e1 = new Experimenter(iAdmin.getEventContext()
+                .getCurrentUserId(), false);
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
         Details d = Details.create();
         d.setOwner(e2);
@@ -2253,8 +2255,7 @@ public class SearchTest extends AbstractTest {
         Principal p = new Principal(uuid, "user", "Test");
         ex.execute(p, new Executor.Work() {
 
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 Criteria c = session.createCriteria(Image.class);
                 Criteria links = c.createCriteria("annotationLinks");
                 Criteria ann = links.createCriteria("child");
@@ -2454,13 +2455,12 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
     }
-    
-    
+
     @Test(groups = "shoola:ticket:663")
     public void testParseException() throws Exception {
-        
+
         String query = "(tag:100x, OR tag:aurora) +tag:eg5,+tag:jj99 -tag:ph3";
-        
+
         String name = uuid();
         String tag = "aurora";
         Image i = new Image(testTimestamp, name);
@@ -2473,7 +2473,7 @@ public class SearchTest extends AbstractTest {
         i.linkAnnotation(aurora);
         i.linkAnnotation(jj99);
         i.linkAnnotation(eg5);
-        
+
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
 
@@ -2486,11 +2486,10 @@ public class SearchTest extends AbstractTest {
         } catch (Exception e) {
             // Known problem.
         }
-        
-        search.bySomeMustNone(
-                new String[]{"tag:100x","tag:aurora"},
-                new String[]{"tag:eg5","tag:jj99"},
-                new String[]{"tag:ph3"});
+
+        search.bySomeMustNone(new String[] { "tag:100x", "tag:aurora" },
+                new String[] { "tag:eg5", "tag:jj99" },
+                new String[] { "tag:ph3" });
         assertAtLeastResults(search, 1);
     }
 
@@ -2525,7 +2524,6 @@ public class SearchTest extends AbstractTest {
         assertAtLeastResults(search, 1);
     }
 
-    
     // Helpers
     // =========================================================================
 

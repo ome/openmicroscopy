@@ -45,8 +45,7 @@ public class TagsAndGroups extends SearchAction {
         }
     }
 
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
+    public Object doWork(Session session, ServiceFactory sf) {
 
         // Ignore:
         // values.onlyTypes

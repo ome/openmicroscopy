@@ -80,8 +80,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.createRoot();
                         return null;
@@ -95,8 +94,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         ome.model.containers.Project _project = safeReverse(
                                 project, mapper);
@@ -111,8 +109,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         return store.getPixels(series, 0);
                     }
@@ -126,8 +123,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         return null;
                     }
@@ -140,8 +136,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         return store.getProjects();
                     }
@@ -154,8 +149,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return store.getRoot();
                     }
                 }));
@@ -168,8 +162,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.populateMinMax(toJavaType(id), toJavaType(i));
                         return null;
@@ -183,8 +176,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         return store.saveToDB();
                     }
@@ -199,8 +191,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         return null;
                     }
@@ -215,8 +206,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setArcType(toJavaType(type), instrumentIndex,
                                 lightSourceIndex);
@@ -234,12 +224,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setChannelComponentColorDomain(toJavaType(colorDomain),
-                                imageIndex, logicalChannelIndex,
-                                channelComponentIndex);
+                        store.setChannelComponentColorDomain(
+                                toJavaType(colorDomain), imageIndex,
+                                logicalChannelIndex, channelComponentIndex);
                         return null;
                     }
                 }));
@@ -254,11 +243,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setChannelComponentIndex(toJavaType(index), imageIndex,
-                                logicalChannelIndex, channelComponentIndex);
+                        store.setChannelComponentIndex(toJavaType(index),
+                                imageIndex, logicalChannelIndex,
+                                channelComponentIndex);
                         return null;
                     }
                 }));
@@ -273,8 +262,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setChannelGlobalMinMax(channelIdx, globalMin,
                                 globalMax, pixelsIndex);
@@ -291,11 +279,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorGain(toJavaType(gain), instrumentIndex,
-                                detectorIndex);
+                        store.setDetectorGain(toJavaType(gain),
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
@@ -309,8 +296,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorID(toJavaType(id), instrumentIndex,
                                 detectorIndex);
@@ -328,8 +314,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorManufacturer(toJavaType(manufacturer),
                                 instrumentIndex, detectorIndex);
@@ -346,11 +331,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorModel(toJavaType(model), instrumentIndex,
-                                detectorIndex);
+                        store.setDetectorModel(toJavaType(model),
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
@@ -365,8 +349,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         return null;
                     }
@@ -382,11 +365,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorOffset(toJavaType(offset), instrumentIndex,
-                                detectorIndex);
+                        store.setDetectorOffset(toJavaType(offset),
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
@@ -401,8 +383,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorSerialNumber(toJavaType(serialNumber),
                                 instrumentIndex, detectorIndex);
@@ -420,8 +401,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorSettingsDetector(toJavaType(detector),
                                 imageIndex, logicalChannelIndex);
@@ -439,11 +419,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsGain(toJavaType(gain), imageIndex,
-                                logicalChannelIndex);
+                        store.setDetectorSettingsGain(toJavaType(gain),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -458,11 +437,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorSettingsOffset(toJavaType(offset), imageIndex,
-                                logicalChannelIndex);
+                        store.setDetectorSettingsOffset(toJavaType(offset),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -476,11 +454,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorType(toJavaType(type), instrumentIndex,
-                                detectorIndex);
+                        store.setDetectorType(toJavaType(type),
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
@@ -495,11 +472,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDetectorVoltage(toJavaType(voltage), instrumentIndex,
-                                detectorIndex);
+                        store.setDetectorVoltage(toJavaType(voltage),
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
@@ -513,11 +489,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDimensionsPhysicalSizeX(toJavaType(physicalSizeX),
-                                imageIndex, pixelsIndex);
+                        store.setDimensionsPhysicalSizeX(
+                                toJavaType(physicalSizeX), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -531,11 +507,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDimensionsPhysicalSizeY(toJavaType(physicalSizeY),
-                                imageIndex, pixelsIndex);
+                        store.setDimensionsPhysicalSizeY(
+                                toJavaType(physicalSizeY), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -549,11 +525,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDimensionsPhysicalSizeZ(toJavaType(physicalSizeZ),
-                                imageIndex, pixelsIndex);
+                        store.setDimensionsPhysicalSizeZ(
+                                toJavaType(physicalSizeZ), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -567,11 +543,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDimensionsTimeIncrement(toJavaType(timeIncrement),
-                                imageIndex, pixelsIndex);
+                        store.setDimensionsTimeIncrement(
+                                toJavaType(timeIncrement), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -585,11 +561,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDimensionsWaveIncrement(toJavaType(waveIncrement),
-                                imageIndex, pixelsIndex);
+                        store.setDimensionsWaveIncrement(
+                                toJavaType(waveIncrement), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -603,11 +579,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDimensionsWaveStart(toJavaType(waveStart), imageIndex,
-                                pixelsIndex);
+                        store.setDimensionsWaveStart(toJavaType(waveStart),
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
@@ -620,8 +595,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDisplayOptionsID(toJavaType(id), imageIndex);
                         return null;
@@ -637,8 +611,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -652,11 +625,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsProjectionZStart(toJavaType(start),
-                                imageIndex);
+                        store.setDisplayOptionsProjectionZStart(
+                                toJavaType(start), imageIndex);
                         return null;
                     }
                 }));
@@ -670,11 +642,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsProjectionZStop(toJavaType(stop),
-                                imageIndex);
+                        store.setDisplayOptionsProjectionZStop(
+                                toJavaType(stop), imageIndex);
                         return null;
                     }
                 }));
@@ -688,12 +659,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setDisplayOptionsTimeTStart(toJavaType(start),
-                                        imageIndex);
+                        store.setDisplayOptionsTimeTStart(toJavaType(start),
+                                imageIndex);
                         return null;
                     }
                 }));
@@ -707,10 +676,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsTimeTStop(toJavaType(stop), imageIndex);
+                        store.setDisplayOptionsTimeTStop(toJavaType(stop),
+                                imageIndex);
                         return null;
                     }
                 }));
@@ -724,10 +693,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setDisplayOptionsZoom(toJavaType(zoom), imageIndex);
+                        store.setDisplayOptionsZoom(toJavaType(zoom),
+                                imageIndex);
                         return null;
                     }
                 }));
@@ -741,8 +710,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -756,12 +724,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setExperimenterEmail(toJavaType(email),
-                                        experimenterIndex);
+                        store.setExperimenterEmail(toJavaType(email),
+                                experimenterIndex);
                         return null;
                     }
                 }));
@@ -775,8 +741,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setExperimenterFirstName(toJavaType(firstName),
                                 experimenterIndex);
@@ -793,10 +758,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setExperimenterID(toJavaType(id), experimenterIndex);
+                        store.setExperimenterID(toJavaType(id),
+                                experimenterIndex);
                         return null;
                     }
                 }));
@@ -810,11 +775,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setExperimenterInstitution(toJavaType(institution),
-                                experimenterIndex);
+                        store.setExperimenterInstitution(
+                                toJavaType(institution), experimenterIndex);
                         return null;
                     }
                 }));
@@ -828,8 +792,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setExperimenterLastName(toJavaType(lastName),
                                 experimenterIndex);
@@ -846,8 +809,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -861,8 +823,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -876,11 +837,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setFilamentType(toJavaType(type), instrumentIndex,
-                                lightSourceIndex);
+                        store.setFilamentType(toJavaType(type),
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
@@ -894,12 +854,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setImageCreationDate(toJavaType(creationDate),
-                                        imageIndex);
+                        store.setImageCreationDate(toJavaType(creationDate),
+                                imageIndex);
                         return null;
                     }
                 }));
@@ -913,10 +871,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setImageDescription(toJavaType(description), imageIndex);
+                        store.setImageDescription(toJavaType(description),
+                                imageIndex);
                         return null;
                     }
                 }));
@@ -929,8 +887,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setImageID(toJavaType(id), imageIndex);
                         return null;
@@ -946,8 +903,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setImageInstrumentRef(toJavaType(instrumentRef),
                                 imageIndex);
@@ -963,8 +919,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setImageName(toJavaType(name), imageIndex);
                         return null;
@@ -979,8 +934,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -994,11 +948,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentAirPressure(toJavaType(airPressure),
-                                imageIndex);
+                        store.setImagingEnvironmentAirPressure(
+                                toJavaType(airPressure), imageIndex);
                         return null;
                     }
                 }));
@@ -1012,11 +965,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentCO2Percent(toJavaType(percent),
-                                imageIndex);
+                        store.setImagingEnvironmentCO2Percent(
+                                toJavaType(percent), imageIndex);
                         return null;
                     }
                 }));
@@ -1030,11 +982,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentHumidity(toJavaType(humidity),
-                                imageIndex);
+                        store.setImagingEnvironmentHumidity(
+                                toJavaType(humidity), imageIndex);
                         return null;
                     }
                 }));
@@ -1048,11 +999,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setImagingEnvironmentTemperature(toJavaType(temperature),
-                                imageIndex);
+                        store.setImagingEnvironmentTemperature(
+                                toJavaType(temperature), imageIndex);
                         return null;
                     }
                 }));
@@ -1066,8 +1016,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setInstrumentID(toJavaType(id), instrumentIndex);
                         return null;
@@ -1083,8 +1032,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -1099,12 +1047,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLaserFrequencyMultiplication(
-                                toJavaType(frequencyMultiplication), instrumentIndex,
-                                lightSourceIndex);
+                                toJavaType(frequencyMultiplication),
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1119,8 +1066,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLaserLaserMedium(toJavaType(laserMedium),
                                 instrumentIndex, lightSourceIndex);
@@ -1137,8 +1083,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -1152,8 +1097,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLaserPulse(toJavaType(pulse), instrumentIndex,
                                 lightSourceIndex);
@@ -1171,11 +1115,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLaserTuneable(toJavaType(tuneable), instrumentIndex,
-                                lightSourceIndex);
+                        store.setLaserTuneable(toJavaType(tuneable),
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1189,8 +1132,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLaserType(toJavaType(type), instrumentIndex,
                                 lightSourceIndex);
@@ -1208,8 +1150,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLaserWavelength(toJavaType(wavelength),
                                 instrumentIndex, lightSourceIndex);
@@ -1226,8 +1167,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLightSourceID(toJavaType(id), instrumentIndex,
                                 lightSourceIndex);
@@ -1245,11 +1185,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLightSourceManufacturer(toJavaType(manufacturer),
-                                instrumentIndex, lightSourceIndex);
+                        store.setLightSourceManufacturer(
+                                toJavaType(manufacturer), instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1264,10 +1204,9 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                        store.setLightSourceModel(toJavaType(model), instrumentIndex,
-                                lightSourceIndex);
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        store.setLightSourceModel(toJavaType(model),
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1283,11 +1222,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLightSourceID(toJavaType(nodeID), instrumentIndex,
-                                lightSourceIndex);
+                        store.setLightSourceID(toJavaType(nodeID),
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1302,11 +1240,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLightSourcePower(toJavaType(power), instrumentIndex,
-                                lightSourceIndex);
+                        store.setLightSourcePower(toJavaType(power),
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1321,11 +1258,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLightSourceSerialNumber(toJavaType(serialNumber),
-                                instrumentIndex, lightSourceIndex);
+                        store.setLightSourceSerialNumber(
+                                toJavaType(serialNumber), instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
@@ -1340,8 +1277,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLightSourceSettingsAttenuation(
                                 toJavaType(attenuation), imageIndex,
@@ -1360,8 +1296,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLightSourceSettingsLightSource(
                                 toJavaType(lightSource), imageIndex,
@@ -1380,11 +1315,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLightSourceSettingsWavelength(toJavaType(wavelength),
-                                imageIndex, logicalChannelIndex);
+                        store.setLightSourceSettingsWavelength(
+                                toJavaType(wavelength), imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1399,8 +1334,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelContrastMethod(
                                 toJavaType(contrastMethod), imageIndex,
@@ -1419,11 +1353,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelEmWave(toJavaType(emWave), imageIndex,
-                                logicalChannelIndex);
+                        store.setLogicalChannelEmWave(toJavaType(emWave),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1438,11 +1371,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelExWave(toJavaType(exWave), imageIndex,
-                                logicalChannelIndex);
+                        store.setLogicalChannelExWave(toJavaType(exWave),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1457,11 +1389,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelFluor(toJavaType(fluor), imageIndex,
-                                logicalChannelIndex);
+                        store.setLogicalChannelFluor(toJavaType(fluor),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1475,8 +1406,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelID(toJavaType(id), imageIndex,
                                 logicalChannelIndex);
@@ -1494,8 +1424,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelIlluminationType(
                                 toJavaType(illuminationType), imageIndex,
@@ -1514,11 +1443,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelMode(toJavaType(mode), imageIndex,
-                                logicalChannelIndex);
+                        store.setLogicalChannelMode(toJavaType(mode),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1533,11 +1461,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelName(toJavaType(name), imageIndex,
-                                logicalChannelIndex);
+                        store.setLogicalChannelName(toJavaType(name),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1552,8 +1479,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelNdFilter(toJavaType(ndFilter),
                                 imageIndex, logicalChannelIndex);
@@ -1571,8 +1497,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -1587,12 +1512,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelPhotometricInterpretation(
-                                toJavaType(photometricInterpretation), imageIndex,
-                                logicalChannelIndex);
+                                toJavaType(photometricInterpretation),
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1607,11 +1531,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setLogicalChannelPinholeSize(toJavaType(pinholeSize),
-                                imageIndex, logicalChannelIndex);
+                        store.setLogicalChannelPinholeSize(
+                                toJavaType(pinholeSize), imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -1626,8 +1550,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelPockelCellSetting(
                                 toJavaType(pockelCellSetting), imageIndex,
@@ -1646,8 +1569,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setLogicalChannelSamplesPerPixel(
                                 toJavaType(samplesPerPixel), imageIndex,
@@ -1664,10 +1586,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setOTFID(toJavaType(id), instrumentIndex, otfIndex);
+                        store.setOTFID(toJavaType(id), instrumentIndex,
+                                otfIndex);
                         return null;
                     }
                 }));
@@ -1680,8 +1602,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -1695,12 +1616,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setOTFOpticalAxisAveraged(
-                                toJavaType(opticalAxisAveraged), instrumentIndex,
-                                otfIndex);
+                                toJavaType(opticalAxisAveraged),
+                                instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1713,8 +1633,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -1728,11 +1647,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setOTFPixelType(toJavaType(pixelType), instrumentIndex,
-                                otfIndex);
+                        store.setOTFPixelType(toJavaType(pixelType),
+                                instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
@@ -1745,10 +1663,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setOTFSizeX(toJavaType(sizeX), instrumentIndex, otfIndex);
+                        store.setOTFSizeX(toJavaType(sizeX), instrumentIndex,
+                                otfIndex);
                         return null;
                     }
                 }));
@@ -1761,10 +1679,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setOTFSizeY(toJavaType(sizeY), instrumentIndex, otfIndex);
+                        store.setOTFSizeY(toJavaType(sizeY), instrumentIndex,
+                                otfIndex);
                         return null;
                     }
                 }));
@@ -1779,12 +1697,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveCalibratedMagnification(
-                                toJavaType(calibratedMagnification), instrumentIndex,
-                                objectiveIndex);
+                                toJavaType(calibratedMagnification),
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
@@ -1799,8 +1716,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveCorrection(toJavaType(correction),
                                 instrumentIndex, objectiveIndex);
@@ -1817,8 +1733,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveID(toJavaType(id), instrumentIndex,
                                 objectiveIndex);
@@ -1835,11 +1750,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setObjectiveIris(toJavaType(iris), instrumentIndex,
-                                objectiveIndex);
+                        store.setObjectiveIris(toJavaType(iris),
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
@@ -1854,8 +1768,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveImmersion(toJavaType(immersion),
                                 instrumentIndex, objectiveIndex);
@@ -1873,11 +1786,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setObjectiveLensNA(toJavaType(lensNA), instrumentIndex,
-                                objectiveIndex);
+                        store.setObjectiveLensNA(toJavaType(lensNA),
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
@@ -1892,11 +1804,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setObjectiveManufacturer(toJavaType(manufacturer),
-                                instrumentIndex, objectiveIndex);
+                        store.setObjectiveManufacturer(
+                                toJavaType(manufacturer), instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
@@ -1911,11 +1823,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setObjectiveModel(toJavaType(model), instrumentIndex,
-                                objectiveIndex);
+                        store.setObjectiveModel(toJavaType(model),
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
@@ -1930,8 +1841,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -1946,12 +1856,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveNominalMagnification(
-                                toJavaType(nominalMagnification), instrumentIndex,
-                                objectiveIndex);
+                                toJavaType(nominalMagnification),
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
@@ -1966,11 +1875,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setObjectiveSerialNumber(toJavaType(serialNumber),
-                                instrumentIndex, objectiveIndex);
+                        store.setObjectiveSerialNumber(
+                                toJavaType(serialNumber), instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
@@ -1985,11 +1894,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setObjectiveWorkingDistance(toJavaType(workingDistance),
-                                instrumentIndex, objectiveIndex);
+                        store.setObjectiveWorkingDistance(
+                                toJavaType(workingDistance), instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
@@ -2003,11 +1912,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPixelsBigEndian(toJavaType(bigEndian), imageIndex,
-                                pixelsIndex);
+                        store.setPixelsBigEndian(toJavaType(bigEndian),
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
@@ -2021,11 +1929,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPixelsDimensionOrder(toJavaType(dimensionOrder),
-                                imageIndex, pixelsIndex);
+                        store.setPixelsDimensionOrder(
+                                toJavaType(dimensionOrder), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2038,10 +1946,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPixelsID(toJavaType(id), imageIndex, pixelsIndex);
+                        store.setPixelsID(toJavaType(id), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2055,8 +1963,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -2070,11 +1977,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPixelsPixelType(toJavaType(pixelType), imageIndex,
-                                pixelsIndex);
+                        store.setPixelsPixelType(toJavaType(pixelType),
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
@@ -2088,12 +1994,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setPixelsSizeC(toJavaType(sizeC), imageIndex,
-                                        pixelsIndex);
+                        store.setPixelsSizeC(toJavaType(sizeC), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2107,12 +2011,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setPixelsSizeT(toJavaType(sizeT), imageIndex,
-                                        pixelsIndex);
+                        store.setPixelsSizeT(toJavaType(sizeT), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2126,12 +2028,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setPixelsSizeX(toJavaType(sizeX), imageIndex,
-                                        pixelsIndex);
+                        store.setPixelsSizeX(toJavaType(sizeX), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2145,12 +2045,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setPixelsSizeY(toJavaType(sizeY), imageIndex,
-                                        pixelsIndex);
+                        store.setPixelsSizeY(toJavaType(sizeY), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2164,12 +2062,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store
-                                .setPixelsSizeZ(toJavaType(sizeZ), imageIndex,
-                                        pixelsIndex);
+                        store.setPixelsSizeZ(toJavaType(sizeZ), imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
@@ -2182,11 +2078,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheC(toJavaType(theC), imageIndex, pixelsIndex,
-                                planeIndex);
+                        store.setPlaneTheC(toJavaType(theC), imageIndex,
+                                pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
@@ -2199,11 +2094,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheT(toJavaType(theT), imageIndex, pixelsIndex,
-                                planeIndex);
+                        store.setPlaneTheT(toJavaType(theT), imageIndex,
+                                pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
@@ -2216,11 +2110,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheZ(toJavaType(theZ), imageIndex, pixelsIndex,
-                                planeIndex);
+                        store.setPlaneTheZ(toJavaType(theZ), imageIndex,
+                                pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
@@ -2234,11 +2127,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlaneTimingDeltaT(toJavaType(deltaT), imageIndex,
-                                pixelsIndex, planeIndex);
+                        store.setPlaneTimingDeltaT(toJavaType(deltaT),
+                                imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
@@ -2253,11 +2145,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlaneTimingExposureTime(toJavaType(exposureTime),
-                                imageIndex, pixelsIndex, planeIndex);
+                        store.setPlaneTimingExposureTime(
+                                toJavaType(exposureTime), imageIndex,
+                                pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
@@ -2271,10 +2163,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlateDescription(toJavaType(description), plateIndex);
+                        store.setPlateDescription(toJavaType(description),
+                                plateIndex);
                         return null;
                     }
                 }));
@@ -2288,8 +2180,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setPlateExternalIdentifier(
                                 toJavaType(externalIdentifier), plateIndex);
@@ -2305,8 +2196,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setPlateID(toJavaType(id), plateIndex);
                         return null;
@@ -2321,8 +2211,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setPlateName(toJavaType(name), plateIndex);
                         return null;
@@ -2337,10 +2226,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlateRefID(toJavaType(id), screenIndex, plateRefIndex);
+                        store.setPlateRefID(toJavaType(id), screenIndex,
+                                plateRefIndex);
                         return null;
                     }
                 }));
@@ -2353,8 +2242,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus _status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setPlateStatus(toJavaType(status), plateIndex);
                         return null;
@@ -2369,8 +2257,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIID(toJavaType(id), imageIndex, roiIndex);
                         return null;
@@ -2385,8 +2272,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
                         return null;
                     }
                 }));
@@ -2399,8 +2285,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIT0(toJavaType(t0), imageIndex, roiIndex);
                         return null;
@@ -2415,8 +2300,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIT1(toJavaType(t1), imageIndex, roiIndex);
                         return null;
@@ -2431,8 +2315,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIX0(toJavaType(x0), imageIndex, roiIndex);
                         return null;
@@ -2447,8 +2330,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIX1(toJavaType(x1), imageIndex, roiIndex);
                         return null;
@@ -2463,8 +2345,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIY0(toJavaType(y0), imageIndex, roiIndex);
                         return null;
@@ -2479,8 +2360,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIY1(toJavaType(y1), imageIndex, roiIndex);
                         return null;
@@ -2495,8 +2375,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIZ0(toJavaType(z0), imageIndex, roiIndex);
                         return null;
@@ -2511,8 +2390,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setROIZ1(toJavaType(z1), imageIndex, roiIndex);
                         return null;
@@ -2528,8 +2406,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setReagentDescription(toJavaType(description),
                                 screenIndex, reagentIndex);
@@ -2545,10 +2422,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setReagentID(toJavaType(id), screenIndex, reagentIndex);
+                        store.setReagentID(toJavaType(id), screenIndex,
+                                reagentIndex);
                         return null;
                     }
                 }));
@@ -2562,8 +2439,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setReagentName(toJavaType(name), screenIndex,
                                 reagentIndex);
@@ -2580,8 +2456,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setReagentReagentIdentifier(
                                 toJavaType(reagentIdentifier), screenIndex,
@@ -2597,8 +2472,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         Object object = null;
                         try {
@@ -2622,8 +2496,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setScreenAcquisitionEndTime(toJavaType(endTime),
                                 screenIndex, screenAcquisitionIndex);
@@ -2641,11 +2514,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setScreenAcquisitionID(toJavaType(id), screenIndex,
-                                screenAcquisitionIndex);
+                        store.setScreenAcquisitionID(toJavaType(id),
+                                screenIndex, screenAcquisitionIndex);
                         return null;
                     }
                 }));
@@ -2660,11 +2532,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setScreenAcquisitionStartTime(toJavaType(startTime),
-                                screenIndex, screenAcquisitionIndex);
+                        store.setScreenAcquisitionStartTime(
+                                toJavaType(startTime), screenIndex,
+                                screenAcquisitionIndex);
                         return null;
                     }
                 }));
@@ -2677,8 +2549,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setScreenID(toJavaType(id), screenIndex);
                         return null;
@@ -2693,8 +2564,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setScreenName(toJavaType(name), screenIndex);
                         return null;
@@ -2710,8 +2580,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setScreenProtocolDescription(
                                 toJavaType(protocolDescription), screenIndex);
@@ -2728,8 +2597,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setScreenProtocolIdentifier(
                                 toJavaType(protocolIdentifier), screenIndex);
@@ -2746,8 +2614,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setScreenReagentSetDescription(
                                 toJavaType(reagentSetDescription), screenIndex);
@@ -2763,8 +2630,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStageLabelName(toJavaType(name), imageIndex);
                         return null;
@@ -2779,8 +2645,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStageLabelX(toJavaType(x), imageIndex);
                         return null;
@@ -2795,8 +2660,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStageLabelY(toJavaType(y), imageIndex);
                         return null;
@@ -2811,8 +2675,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStageLabelZ(toJavaType(z), imageIndex);
                         return null;
@@ -2829,8 +2692,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStagePositionPositionX(toJavaType(positionX),
                                 imageIndex, pixelsIndex, planeIndex);
@@ -2848,8 +2710,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStagePositionPositionY(toJavaType(positionY),
                                 imageIndex, pixelsIndex, planeIndex);
@@ -2867,8 +2728,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setStagePositionPositionZ(toJavaType(positionZ),
                                 imageIndex, pixelsIndex, planeIndex);
@@ -2884,8 +2744,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setPixelsId(toJavaType(id));
                         return null;
@@ -2902,11 +2761,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setTiffDataFileName(toJavaType(fileName), imageIndex,
-                                pixelsIndex, tiffDataIndex);
+                        store.setTiffDataFileName(toJavaType(fileName),
+                                imageIndex, pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
@@ -2921,8 +2779,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setTiffDataFirstC(toJavaType(firstC), imageIndex,
                                 pixelsIndex, tiffDataIndex);
@@ -2940,8 +2797,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setTiffDataFirstT(toJavaType(firstT), imageIndex,
                                 pixelsIndex, tiffDataIndex);
@@ -2959,8 +2815,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setTiffDataFirstZ(toJavaType(firstZ), imageIndex,
                                 pixelsIndex, tiffDataIndex);
@@ -2978,11 +2833,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setTiffDataIFD(toJavaType(ifd), imageIndex, pixelsIndex,
-                                tiffDataIndex);
+                        store.setTiffDataIFD(toJavaType(ifd), imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
@@ -2997,11 +2851,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setTiffDataNumPlanes(toJavaType(numPlanes), imageIndex,
-                                pixelsIndex, tiffDataIndex);
+                        store.setTiffDataNumPlanes(toJavaType(numPlanes),
+                                imageIndex, pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
@@ -3016,8 +2869,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setTiffDataUUID(toJavaType(uuid), imageIndex,
                                 pixelsIndex, tiffDataIndex);
@@ -3032,8 +2884,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setUUID(toJavaType(uuid));
                         return null;
@@ -3048,10 +2899,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setWellColumn(toJavaType(column), plateIndex, wellIndex);
+                        store.setWellColumn(toJavaType(column), plateIndex,
+                                wellIndex);
                         return null;
                     }
                 }));
@@ -3065,11 +2916,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setWellExternalDescription(
-                                toJavaType(externalDescription), plateIndex, wellIndex);
+                                toJavaType(externalDescription), plateIndex,
+                                wellIndex);
                         return null;
                     }
                 }));
@@ -3083,11 +2934,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setWellExternalIdentifier(toJavaType(externalIdentifier),
-                                plateIndex, wellIndex);
+                        store.setWellExternalIdentifier(
+                                toJavaType(externalIdentifier), plateIndex,
+                                wellIndex);
                         return null;
                     }
                 }));
@@ -3100,8 +2951,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setWellID(toJavaType(id), plateIndex, wellIndex);
                         return null;
@@ -3116,10 +2966,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setWellRow(toJavaType(row), plateIndex, wellIndex);
+                        store
+                                .setWellRow(toJavaType(row), plateIndex,
+                                        wellIndex);
                         return null;
                     }
                 }));
@@ -3134,11 +2985,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setWellSampleID(toJavaType(id), plateIndex, wellIndex,
-                                wellSampleIndex);
+                        store.setWellSampleID(toJavaType(id), plateIndex,
+                                wellIndex, wellSampleIndex);
                         return null;
                     }
                 }));
@@ -3153,8 +3003,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setWellSampleIndex(toJavaType(index), plateIndex,
                                 wellIndex, wellSampleIndex);
@@ -3172,8 +3021,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setWellSamplePosX(toJavaType(posX), plateIndex,
                                 wellIndex, wellSampleIndex);
@@ -3191,8 +3039,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setWellSamplePosY(toJavaType(posY), plateIndex,
                                 wellIndex, wellSampleIndex);
@@ -3210,11 +3057,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setWellSampleTimepoint(toJavaType(timepoint), plateIndex,
-                                wellIndex, wellSampleIndex);
+                        store.setWellSampleTimepoint(toJavaType(timepoint),
+                                plateIndex, wellIndex, wellSampleIndex);
                         return null;
                     }
                 }));
@@ -3227,10 +3073,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setWellType(toJavaType(type), plateIndex, wellIndex);
+                        store.setWellType(toJavaType(type), plateIndex,
+                                wellIndex);
                         return null;
                     }
                 }));
@@ -3239,40 +3085,34 @@ public class MetadataStoreI extends AbstractAmdServant implements
     // ~ Service methods
     // =========================================================================
 
-    public void setPlaneInfo_async(
-            final AMD_MetadataStore_setPlaneInfo __cb,
-            final PlaneInfo planeInfo, final int imageIndex, 
-            final int pixelsIndex, final int planeIndex,
-            final Current __current) throws ServerError
-    {
+    public void setPlaneInfo_async(final AMD_MetadataStore_setPlaneInfo __cb,
+            final PlaneInfo planeInfo, final int imageIndex,
+            final int pixelsIndex, final int planeIndex, final Current __current)
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.setPlaneTheC(planeInfo.getTheC().getValue(), imageIndex, 
-                                pixelsIndex, planeIndex);
+                        store.setPlaneTheC(planeInfo.getTheC().getValue(),
+                                imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
     }
 
     public void setDetectorSettingsBinning_async(
-            AMD_MetadataStore_setDetectorSettingsBinning __cb, 
-            final RString binning, final int imageIndex, 
+            AMD_MetadataStore_setDetectorSettingsBinning __cb,
+            final RString binning, final int imageIndex,
             final int logicalChannelIndex, Current __current)
-            throws ServerError
-    {
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorSettingsBinning(toJavaType(binning),
-                                                         imageIndex,
-                                                         logicalChannelIndex);
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
@@ -3280,15 +3120,13 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     public void setDetectorSettingsReadOutRate_async(
             AMD_MetadataStore_setDetectorSettingsReadOutRate __cb,
-            final RFloat readOutRate, final int imageIndex, 
-            final int logicalChannelIndex,
-            Current __current) throws ServerError
-    {
+            final RFloat readOutRate, final int imageIndex,
+            final int logicalChannelIndex, Current __current)
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorSettingsReadOutRate(
                                 toJavaType(readOutRate), imageIndex,
@@ -3300,35 +3138,29 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     public void setDetectorSettingsVoltage_async(
             AMD_MetadataStore_setDetectorSettingsVoltage __cb,
-            final RFloat voltage, final int imageIndex, 
+            final RFloat voltage, final int imageIndex,
             final int logicalChannelIndex, Current __current)
-            throws ServerError
-    {
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setDetectorSettingsVoltage(toJavaType(voltage),
-                                                         imageIndex,
-                                                         logicalChannelIndex);
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
     }
-    
+
     public void setObjectiveSettingsCorrectionCollar_async(
             AMD_MetadataStore_setObjectiveSettingsCorrectionCollar __cb,
             final RFloat correctionCollar, final int imageIndex,
-            Current __current)
-            throws ServerError
-    {
+            Current __current) throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsCorrectionCollar(
                                 toJavaType(correctionCollar), imageIndex);
@@ -3338,18 +3170,16 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void setObjectiveSettingsMedium_async(
-            AMD_MetadataStore_setObjectiveSettingsMedium __cb, 
-            final RString medium, final int imageIndex, 
-            Current __current) throws ServerError
-    {
+            AMD_MetadataStore_setObjectiveSettingsMedium __cb,
+            final RString medium, final int imageIndex, Current __current)
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsMedium(toJavaType(medium),
-                                                         imageIndex);
+                                imageIndex);
                         return null;
                     }
                 }));
@@ -3358,13 +3188,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
     public void setObjectiveSettingsObjective_async(
             AMD_MetadataStore_setObjectiveSettingsObjective __cb,
             final RString objective, final int imageIndex, Current __current)
-            throws ServerError
-    {
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsObjective(
                                 toJavaType(objective), imageIndex);
@@ -3376,14 +3204,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
     public void setObjectiveSettingsRefractiveIndex_async(
             AMD_MetadataStore_setObjectiveSettingsRefractiveIndex __cb,
             final RFloat refractiveIndex, final int imageIndex,
-            Current __current)
-            throws ServerError
-    {
+            Current __current) throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         store.setObjectiveSettingsRefractiveIndex(
                                 toJavaType(refractiveIndex), imageIndex);
@@ -3393,23 +3218,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void updateObjects_async(AMD_MetadataStore_updateObjects __cb,
-        final IObjectContainer[] objects, Current __current) throws ServerError
-    {
+            final IObjectContainer[] objects, Current __current)
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                    for (IObjectContainer o : objects)
-                    {
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        for (IObjectContainer o : objects) {
                             IObject sourceObject;
-                            try
-                            {
-                                sourceObject = 
-                                    (IObject) mapper.reverse(o.sourceObject);
-                            }
-                            catch (Exception e)
-                            {
+                            try {
+                                sourceObject = (IObject) mapper
+                                        .reverse(o.sourceObject);
+                            } catch (Exception e) {
                                 // TODO: This is **WRONG**; exception handling
                                 // here is messed up.
                                 throw new RuntimeException(e);
@@ -3422,82 +3242,88 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void updateReferences_async(AMD_MetadataStore_updateReferences __cb,
-        final Map<String, String> references, Current __current) throws ServerError
-    {
+            final Map<String, String> references, Current __current)
+            throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                    	store.updateReferences(references);
-                    	return null;
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        store.updateReferences(references);
+                        return null;
                     }
                 }));
     }
+
     /**
      * Transforms an OMERO RType into the corresponding Java type.
-     * @param x OMERO RType value.
-     * @return Java type or <code>null</code> if <code>x</code> is 
-     * <code>null</code>.
+     * 
+     * @param x
+     *            OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is
+     *         <code>null</code>.
      */
-    public Integer toJavaType(RInt x)
-    {
-        return x == null? null : x.getValue();
+    public Integer toJavaType(RInt x) {
+        return x == null ? null : x.getValue();
     }
-    
+
     /**
      * Transforms an OMERO RType into the corresponding Java type.
-     * @param x OMERO RType value.
-     * @return Java type or <code>null</code> if <code>x</code> is 
-     * <code>null</code>.
+     * 
+     * @param x
+     *            OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is
+     *         <code>null</code>.
      */
-    public Long toJavaType(RLong x)
-    {
-        return x == null? null : x.getValue();
+    public Long toJavaType(RLong x) {
+        return x == null ? null : x.getValue();
     }
-    
+
     /**
      * Transforms an OMERO RType into the corresponding Java type.
-     * @param x OMERO RType value.
-     * @return Java type or <code>null</code> if <code>x</code> is 
-     * <code>null</code>.
+     * 
+     * @param x
+     *            OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is
+     *         <code>null</code>.
      */
-    public Boolean toJavaType(RBool x)
-    {
-        return x == null? null : x.getValue();
+    public Boolean toJavaType(RBool x) {
+        return x == null ? null : x.getValue();
     }
-    
+
     /**
      * Transforms an OMERO RType into the corresponding Java type.
-     * @param x OMERO RType value.
-     * @return Java type or <code>null</code> if <code>x</code> is 
-     * <code>null</code>.
+     * 
+     * @param x
+     *            OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is
+     *         <code>null</code>.
      */
-    public Float toJavaType(RFloat x)
-    {
-        return x == null? null : x.getValue();
+    public Float toJavaType(RFloat x) {
+        return x == null ? null : x.getValue();
     }
-    
+
     /**
      * Transforms an OMERO RType into the corresponding Java type.
-     * @param x OMERO RType value.
-     * @return Java type or <code>null</code> if <code>x</code> is 
-     * <code>null</code>.
+     * 
+     * @param x
+     *            OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is
+     *         <code>null</code>.
      */
-    public Double toJavaType(RDouble x)
-    {
-        return x == null? null : x.getValue();
+    public Double toJavaType(RDouble x) {
+        return x == null ? null : x.getValue();
     }
-    
+
     /**
      * Transforms an OMERO RType into the corresponding Java type.
-     * @param x OMERO RType value.
-     * @return Java type or <code>null</code> if <code>x</code> is 
-     * <code>null</code>.
+     * 
+     * @param x
+     *            OMERO RType value.
+     * @return Java type or <code>null</code> if <code>x</code> is
+     *         <code>null</code>.
      */
-    public String toJavaType(RString x)
-    {
-        return x == null? null : x.getValue();
+    public String toJavaType(RString x) {
+        return x == null ? null : x.getValue();
     }
 
     // Stateful interface methods
@@ -3508,9 +3334,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-			// Do nothing for now.
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        // Do nothing for now.
                         return null;
                     }
                 }));
@@ -3522,9 +3347,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-			// Do nothing for now.
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        // Do nothing for now.
                         return null;
                     }
                 }));
@@ -3537,8 +3361,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public Object doWork(Session session, ServiceFactory sf) {
 
                         // Nulling should be sufficient.
                         store = null;
@@ -3561,9 +3384,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                    	return null;
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return null;
                     }
                 }));
     }

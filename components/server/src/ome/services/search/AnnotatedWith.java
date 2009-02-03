@@ -180,8 +180,7 @@ public class AnnotatedWith extends SearchAction {
 
     }
 
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
+    public Object doWork(Session session, ServiceFactory sf) {
 
         String[] link = new String[annotation.length];
         String[] ann = new String[annotation.length];

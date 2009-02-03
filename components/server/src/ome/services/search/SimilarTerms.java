@@ -50,7 +50,7 @@ public class SimilarTerms extends SearchAction {
         this.terms = terms;
     }
 
-    public Object doWork(TransactionStatus status, Session s, ServiceFactory sf) {
+    public Object doWork(Session s, ServiceFactory sf) {
 
         if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
             throw new ApiUsageException(

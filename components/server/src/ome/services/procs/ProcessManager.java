@@ -72,8 +72,7 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
             this.processors = Arrays.asList(procs);
         }
 
-        public List<Job> doWork(TransactionStatus status, Session session,
-                ServiceFactory sf) {
+        public List<Job> doWork(Session session, ServiceFactory sf) {
             final List<Job> jobs = sf.getQueryService().findAllByQuery(
                     "select j from Job j where status.id = :id",
                     new Parameters().addId(getSubmittedStatus(sf).getId()));

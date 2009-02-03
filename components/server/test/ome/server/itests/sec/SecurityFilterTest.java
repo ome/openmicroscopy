@@ -150,7 +150,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
         final SecurityFilterTest test = this;
 	ex.execute(null /*principal*/, new Executor.Work() {
 		@RolesAllowed("user")
-		    public Object doWork(TransactionStatus status, org.hibernate.Session session, ServiceFactory sf) {
+		    public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
 		    securitySystem.runAsAdmin(new AdminAction() {
 			    public void runAsAdmin() {
 				assertCanReadImage(d, i);

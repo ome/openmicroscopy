@@ -380,7 +380,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         values.copy(params);
                         FullText fullText = new FullText(values, query,
                                 analyzer);
-                        return fullText.doWork(null, session, null);
+                        return fullText.doWork(session, null);
                     }
                 });
     }

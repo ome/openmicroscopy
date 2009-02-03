@@ -63,7 +63,7 @@ public class Ring extends _ClusterNodeDisp {
      * components. <em>Must</em> specify a valid session id.
      */
     public final String uuid;
-    
+
     public final Principal principal;
 
     private final Executor executor;
@@ -233,8 +233,7 @@ public class Ring extends _ClusterNodeDisp {
      */
     public String getRedirect() {
         return (String) executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getConfigService().getConfigValue(REDIRECT);
             }
         }, true);
@@ -371,8 +370,7 @@ public class Ring extends _ClusterNodeDisp {
     @SuppressWarnings("unchecked")
     private Set<String> getManagerList(final boolean onlyActive) {
         return (Set<String>) executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 List<Node> nodes = sf.getQueryService().findAll(Node.class,
                         null);
                 Set<String> nodeIds = new HashSet<String>();
@@ -388,12 +386,11 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private int closeSessionsForManager(String managerUuid) {
-        final String query = "select session from Session session where " +
-        		"session.node.uuid = :uuid";
+        final String query = "select session from Session session where "
+                + "session.node.uuid = :uuid";
         final Parameters p = new Parameters().addString("uuid", managerUuid);
         return (Integer) executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 List<ome.model.meta.Session> sessions = sf.getQueryService()
                         .findAllByQuery(query, p);
                 for (ome.model.meta.Session s : sessions) {
@@ -414,8 +411,7 @@ public class Ring extends _ClusterNodeDisp {
 
     private void setManagerDown(final String managerUuid) {
         executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 Node node = sf.getQueryService().findByString(Node.class,
                         "uuid", managerUuid);
                 node.setDown(new Timestamp(System.currentTimeMillis()));
@@ -430,8 +426,7 @@ public class Ring extends _ClusterNodeDisp {
         node.setUuid(managerUuid);
         node.setUp(new Timestamp(System.currentTimeMillis()));
         return (Node) executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getUpdateService().saveAndReturnObject(node);
             }
         });
@@ -440,8 +435,7 @@ public class Ring extends _ClusterNodeDisp {
     private boolean setRedirect(final String managerUuid,
             final boolean setIfPresent) {
         return (Boolean) executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 IConfig config = sf.getConfigService();
                 if (managerUuid == null || managerUuid.length() == 0) {
                     config.setConfigValue(REDIRECT, null);
@@ -459,8 +453,7 @@ public class Ring extends _ClusterNodeDisp {
 
     private void removeRedirectIfEquals(final String redirect) {
         executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 LocalConfig config = (LocalConfig) sf.getConfigService();
                 return config.setConfigValueIfEquals(REDIRECT, null, redirect);
             }
@@ -473,15 +466,14 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private String proxyForSession(final String sessionUuid) {
-        final String query = "select node from Node node " +
-        		"join node.sessions as s where s.uuid = :uuid";
+        final String query = "select node from Node node "
+                + "join node.sessions as s where s.uuid = :uuid";
         return nodeProxyQuery(sessionUuid, query);
     }
 
     private String nodeProxyQuery(final String uuid, final String query) {
         return (String) executor.execute(principal, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 Parameters p = new Parameters().addString("uuid", uuid);
                 Node node = sf.getQueryService().findByQuery(query, p);
                 if (node == null) {

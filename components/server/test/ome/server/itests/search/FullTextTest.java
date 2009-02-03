@@ -78,8 +78,7 @@ public class FullTextTest extends AbstractTest {
         final EventLog max;
         final long id;
         max = (EventLog) getExecutor().execute(p, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 pell.deleteCurrentId();
                 return pell.lastEventLog();
             }
@@ -94,8 +93,7 @@ public class FullTextTest extends AbstractTest {
         // since PELL is designed to be called by a timer.
         // Instead we only do the whole database once.
         id = (Long) getExecutor().execute(p, new Executor.Work() {
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
+            public Object doWork(Session session, ServiceFactory sf) {
                 return pell.getCurrentId();
             }
         });
@@ -262,7 +260,8 @@ public class FullTextTest extends AbstractTest {
 
         ome.model.containers.Project p = new ome.model.containers.Project();
         Dataset d = new Dataset("middle");
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
+                .currentTimeMillis());
         Image i = new Image(testTimestamp, before);
 
         // Save the project and the image should be found
@@ -343,7 +342,8 @@ public class FullTextTest extends AbstractTest {
             // when run in the server
         }
 
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
+                .currentTimeMillis());
         Image i = new Image(testTimestamp, str);
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));
@@ -386,7 +386,8 @@ public class FullTextTest extends AbstractTest {
             // when run in the server
         }
 
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
+                .currentTimeMillis());
         Image i = new Image(testTimestamp, name + "_links.txt");
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));

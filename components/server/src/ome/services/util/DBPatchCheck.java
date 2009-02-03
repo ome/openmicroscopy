@@ -18,7 +18,7 @@ import org.springframework.transaction.TransactionStatus;
 /**
  * Hook run by the context. This hook tests the database version against the
  * software version on {@link #start()}.
- *
+ * 
  * @author Josh Moore, josh at glencoesoftwarecom
  * @since 3.0-Beta3
  */
@@ -28,7 +28,7 @@ public class DBPatchCheck {
 
     final Executor executor;
     final LocalConfig config;
-    
+
     public DBPatchCheck(Executor executor, LocalConfig config) {
         this.executor = executor;
         this.config = config;
@@ -55,14 +55,14 @@ public class DBPatchCheck {
 
         final String[] results = new String[3];
         try {
-            executor.executeStateless(new Executor.StatelessWork(){
-                public Object doWork(TransactionStatus status,
-                        SimpleJdbcOperations jdbc) {
+            executor.executeStateless(new Executor.StatelessWork() {
+                public Object doWork(SimpleJdbcOperations jdbc) {
                     results[0] = config.getDatabaseVersion();
                     results[1] = config.getInternalValue("omero.db.version");
                     results[2] = config.getInternalValue("omero.db.patch");
                     return null;
-                }});
+                }
+            });
         } catch (Exception e) {
             log.fatal(no_table, e);
             InternalException ie = new InternalException(no_table);

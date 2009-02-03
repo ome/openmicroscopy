@@ -427,8 +427,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) this.executor
                 .execute(this.principal, new Executor.Work() {
 
-                    public ome.model.jobs.Job doWork(
-                            TransactionStatus txStatus, Session session,
+                    public ome.model.jobs.Job doWork(Session session,
                             ServiceFactory sf) {
 
                         final JobHandle handle = sf.createJobHandle();
@@ -748,10 +747,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) {
-        
+
         // First take measures to keep the session alive
         sessionManager.getEventContext(this.principal);
-        
+
         if (proxies == null || proxies.length == 0) {
             return -1; // All set to 1
         }
@@ -771,10 +770,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * Currently ignoring the individual proxies
      */
     public boolean keepAlive(ServiceInterfacePrx proxy, Current __current) {
-        
+
         // First take measures to keep the session alive
         sessionManager.getEventContext(this.principal);
-        
+
         if (proxy == null) {
             return false;
         }

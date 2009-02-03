@@ -30,7 +30,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     protected Executor executor = new Executor.Impl(null, null, null, null, null) {
         @Override
         public Object execute(Principal p, Work work) {
-            return work.doWork(null, null, null);
+            return work.doWork(null, null);
         }
     };
 
