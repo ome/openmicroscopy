@@ -27,28 +27,27 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import ome.formats.LSID;
-import ome.formats.OMEROMetadataStoreClient;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
 
 /**
- * Processes the pixels sets of an OMERO client side metadata store and ensures
+ * Processes the pixels sets of an IObjectContainerStore and ensures
  * that LogicalChannel containers are present in the container cache, adding
  * them if they are missing.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class ChannelProcessor
+public class ChannelProcessor implements ModelProcessor
 {
     /**
      * Processes the OMERO client side metadata store.
      * @param store OMERO metadata store to process.
      * @throws ModelException If there is an error during processing.
      */
-    public void process(OMEROMetadataStoreClient store)
+    public void process(IObjectContainerStore store)
     	throws ModelException
     {
     	List<Image> images = store.getSourceObjects(Image.class);

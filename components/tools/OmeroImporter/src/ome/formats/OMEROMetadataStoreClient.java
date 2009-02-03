@@ -31,7 +31,9 @@ import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.MetaLightSource;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
+import ome.formats.model.IObjectContainerStore;
 import ome.formats.model.InstanceProvider;
+import ome.formats.model.ModelProcessor;
 import ome.formats.model.ReferenceProcessor;
 import omero.RBool;
 import omero.RDouble;
@@ -113,16 +115,30 @@ import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 
 
-public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
+public class OMEROMetadataStoreClient
+	implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
 	/** Logger for this class */
 	private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
 	
     private MetadataStorePrx delegate;
     
+    /** Our IObject container cache. */
     private Map<LSID, IObjectContainer> containerCache = 
     	new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
+    
+    /** Our LSID reference cache. */
     private Map<LSID, LSID> referenceCache = new HashMap<LSID, LSID>();
+    
+    /** 
+     * Our string based reference cache. This will be populated after all
+     * model population has been completed by a ReferenceProcessor. 
+     */
+    private Map<String, String> referenceStringCache;
+
+    /** Our model processors. Will be called on saveToDB(). */
+    private List<ModelProcessor> modelProcessors = 
+    	new ArrayList<ModelProcessor>();
     
     private List<Pixels> pixelsList;
     
@@ -146,17 +162,23 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     private void initialize()
     	throws ServerError
     {
-    	 iUpdate = serviceFactory.getUpdateService();
-         iQuery = serviceFactory.getQueryService();
-         iAdmin = serviceFactory.getAdminService();
-         rawFileStore = serviceFactory.createRawFileStore();
-         rawPixelStore = serviceFactory.createRawPixelsStore();
-         iRepoInfo = serviceFactory.getRepositoryInfoService();
-         iPojos = serviceFactory.getPojosService();
-         enumProvider = new IQueryEnumProvider(iQuery);
-         instanceProvider = new BlitzInstanceProvider(enumProvider);
+    	// Blitz services
+    	iUpdate = serviceFactory.getUpdateService();
+    	iQuery = serviceFactory.getQueryService();
+    	iAdmin = serviceFactory.getAdminService();
+    	rawFileStore = serviceFactory.createRawFileStore();
+    	rawPixelStore = serviceFactory.createRawPixelsStore();
+    	iRepoInfo = serviceFactory.getRepositoryInfoService();
+    	iPojos = serviceFactory.getPojosService();
+    	delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
 
-         delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));        
+    	// Client side services
+    	enumProvider = new IQueryEnumProvider(iQuery);
+    	instanceProvider = new BlitzInstanceProvider(enumProvider);
+    	
+    	// Default model processors
+    	modelProcessors.add(new ReferenceProcessor());
+    	modelProcessors.add(new ChannelProcessor());
     }
     
     public IQueryPrx getIQuery()
@@ -343,23 +365,75 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
         return enumProvider.getEnumeration(klass, value, false);
     }
-
+    
     /**
-     * Returns the current container cache.
-     * @return See above.
+     * Retrieves the current list of model processors the metadata store is
+     * using.
+     * @return See above. 
+     */
+    public List<ModelProcessor> getModelProcessors()
+    {
+    	return modelProcessors;
+    }
+    
+    /**
+     * Sets the current set of model processors.
+     * @param modelProcessors List of model processors to use.
+     */
+    public void setModelProcessors(List<ModelProcessor> modelProcessors)
+    {
+    	this.modelProcessors = modelProcessors;
+    }
+    
+    /**
+     * Removes a model processor from use.
+     * @param processor Model processor to remove.
+     */
+    public void removeModelProcessor(ModelProcessor processor)
+    {
+    	modelProcessors.remove(processor);
+    }
+    
+    /**
+     * Adds a model processor to the end of the processing chain.
+     * @param processor Model processor to add.
+     * @return <code>true</code> as specified by {@link Collection.add(E)}.
+     */
+    public boolean addModelProcessor(ModelProcessor processor)
+    {
+    	return modelProcessors.add(processor);
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getContainerCache()
      */
     public Map<LSID, IObjectContainer> getContainerCache()
     {
     	return containerCache;
     }
     
-    /**
-     * Returns the current reference cache.
-     * @return See above.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getReferenceCache()
      */
     public Map<LSID, LSID> getReferenceCache()
     {
     	return referenceCache;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getReferenceStringCache()
+     */
+    public Map<String, String> getReferenceStringCache()
+    {
+    	return referenceStringCache;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setReferenceStringCache(java.util.Map)
+     */
+    public void setReferenceStringCache(Map<String, String> referenceStringCache)
+    {
+    	this.referenceStringCache = referenceStringCache;
     }
     
     /**
@@ -374,10 +448,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         return (T) getIObjectContainer(klass, indexes).sourceObject;
     }
     
-    /**
-     * Retrieves an OMERO Blitz source object for a given LSID.
-     * @param LSID LSID to retrieve a source object for.
-     * @return See above.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getSourceObject(ome.formats.LSID)
      */
     public IObject getSourceObject(LSID LSID)
     {
@@ -389,10 +461,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         return o.sourceObject;
     }
     
-    /**
-     * Retrieves all OMERO Blitz source objects of a given class.
-     * @param klass Class to retrieve source objects for.
-     * @return See above.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getSourceObjects(java.lang.Class)
      */
     public <T extends IObject> List<T> getSourceObjects(Class<T> klass)
     {
@@ -409,13 +479,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     	return toReturn;
     }
     
-    
-    /**
-     * Checks to see if there is currently an active reference for two LSIDs.
-     * @param source LSID of the source object.
-     * @param target LSID of the target object.
-     * @return <code>true</code> if a reference exists, <code>false</code>
-     * otherwise.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#hasReference(ome.formats.LSID, ome.formats.LSID)
      */
     public boolean hasReference(LSID source, LSID target)
     {
@@ -427,12 +492,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         return true;
     }
     
-    /**
-     * Retrieves an IObject container for a given class and location within the
-     * OME-XML data model.
-     * @param klass Class to retrieve a container for.
-     * @param indexes Indexes into the OME-XML data model.
-     * @return See above.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getIObjectContainer(java.lang.Class, java.util.LinkedHashMap)
      */
     public IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
     		                                    LinkedHashMap<String, Integer> indexes)
@@ -519,10 +580,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     	return instanceProvider.getInstance(klass);
     }
         
-    /**
-     * Counts the number of containers the MetadataStore has of a given class.
-     * @param klass Class to count containers of.
-     * @return See above.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#countCachedContainers(java.lang.Class)
      */
     public int countCachedContainers(Class<? extends IObject> klass)
     {
@@ -543,16 +602,8 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
         return count;
     }
     
-    /**
-     * Counts the number of references the MetadataStore has between objects
-     * of two classes.
-     * @param source Class of the source object. If <code>null</code> it is
-     * treated as a wild card, all references whose target match
-     * <code>target</code> will be counted. 
-     * @param target Class of the target object. If <code>null</code> it is
-     * treated as a wild card, all references whose source match
-     * <code>source</code> will be counted. 
-     * @return See above.
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#countCachedReferences(java.lang.Class, java.lang.Class)
      */
     public int countCachedReferences(Class<? extends IObject> source,
                                      Class<? extends IObject> target)
@@ -1897,16 +1948,15 @@ public class OMEROMetadataStoreClient implements MetadataStore, IMinMaxStore
     {
     	try
     	{
-        	ReferenceProcessor referenceProcessor = new ReferenceProcessor();
-        	ChannelProcessor channelProcessor = new ChannelProcessor();
-        	referenceProcessor.process(this);
-        	channelProcessor.process(this);
+    		// Perform model processing
+    		for (ModelProcessor processor : modelProcessors)
+    		{
+    			processor.process(this);
+    		}
         	
         	Collection<IObjectContainer> containers = containerCache.values();
         	IObjectContainer[] containerArray = 
         		containers.toArray(new IObjectContainer[containers.size()]);
-        	Map<String, String> referenceStringCache = 
-        		referenceProcessor.getReferenceStringCache();
             
             for (LSID key : containerCache.keySet())
             {

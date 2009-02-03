@@ -28,32 +28,29 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ome.formats.LSID;
-import ome.formats.OMEROMetadataStoreClient;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
 import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
 
 /**
- * Processes the references of an OMERO client side metadata store and ensures
+ * Processes the references of an IObjectContainerStore and ensures
  * that containers are consistent. It also keeps track of all LSID references
  * in their string form so that the may be sent to the server.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class ReferenceProcessor
+public class ReferenceProcessor implements ModelProcessor
 {
 	/** LSID reference map in string format. */
 	private Map<String, String> referenceStringCache = 
 		new HashMap<String, String>();
     	
-    /**
-     * Processes the OMERO client side metadata store.
-     * @param store OMERO metadata store to process.
-     * @throws ModelException If there is an error during processing.
+    /* (non-Javadoc)
+     * @see ome.formats.model.ModelProcessor#process(ome.formats.model.IObjectContainerStore)
      */
-    public void process(OMEROMetadataStoreClient store)
+    public void process(IObjectContainerStore store)
     	throws ModelException
     {
     	Map<LSID, LSID> referenceCache = store.getReferenceCache();
@@ -94,19 +91,11 @@ public class ReferenceProcessor
                 }
                 referenceStringCache.put(container.LSID, reference.toString());
             }
+            store.setReferenceStringCache(referenceStringCache);
         }
     	catch (Exception e)
     	{
     		throw new ModelException("Error processing references.", null, e);
     	}
-    }
-    
-    /**
-     * Returns the current string format representation of the reference cache.
-     * @return See above.
-     */
-    public Map<String, String> getReferenceStringCache()
-    {
-    	return referenceStringCache;
     }
 }
