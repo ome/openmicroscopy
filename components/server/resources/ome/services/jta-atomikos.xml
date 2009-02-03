@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+       default-lazy-init="true">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+  <description>
+    JTA configuration for atomikos. Only one of the jta-*.xml files should
+    be activated at any given time. The primary responsibility of this file
+    is to configure the objects:
+
+      * jtaTransactionManager
+      * jtaUserTransaction
+      * dataSource
+
+    see: https://trac.openmicroscopy.org.uk/omero/ticket/1158
+
+  </description>
+
+  <bean id="datasource"
+      class="com.atomikos.jdbc.SimpleDataSourceBean"
+      init-method="init" destroy-method="close">
+      <property name="uniqueResourceName" ref="uuid"/>
+      <property name="xaDataSourceClassName" value="org.postgresql.xa.PGXADataSource"/>
+      <property name="xaDataSourceProperties">
+        <props>
+          <prop key="user">${omero.db.user}</prop>
+          <prop key="password">${omero.db.pass}</prop>
+          <prop key="databaseName">${omero.db.name}</prop>
+          <prop key="serverName">${omero.db.host}</prop>
+          <prop key="portNumber">5432</prop>
+        </props>
+      </property>
+      <property name="exclusiveConnectionMode"><value>true</value></property>
+       <!-- how many connections in the pool? -->
+      <property name="connectionPoolSize" value="3"/>
+   </bean>
+
+  <bean id="xaDataSource"
+        class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+    <property name="uniqueResourceName" ref="uuid"/>
+    <property name="xaProperties">
+    </property>
+    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
+  </bean>
+
+  <!-- configured in etc/jta.properties -->
+  <bean id="jtaransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close"/>
+  <bean id="jtaUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp"/>
+</beans>
+

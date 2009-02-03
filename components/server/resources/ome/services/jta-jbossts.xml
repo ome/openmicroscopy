@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+       default-lazy-init="true">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+  <description>
+    JTA configuration for jbossts. Only one of the jta-*.xml files should
+    be activated at any given time. The primary responsibility of this file
+    is to configure the objects:
+
+      * jtaTransactionManager
+      * jtaUserTransaction
+      * dataSource
+
+    see: https://trac.openmicroscopy.org.uk/omero/ticket/1158
+
+  </description>
+
+  <bean id="jtaTransactionManager" class="com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple"/>
+
+  <bean id="jtaUserTransaction" class="com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple"/>
+
+  <bean id="xaDataSource" class="org.postgresql.xa.PGXADataSource">
+        <property name="user" value="${omero.db.user}"/>
+        <property name="password" value="${omero.db.pass}"/>
+        <property name="databaseName" value="${omero.db.name}"/>
+        <property name="serverName" value="${omero.db.host}"/>
+        <property name="portNumber" value="5432"/>
+  </bean>
+
+  <bean id="dataSource" destroy-method="destroy"
+    class="ome.services.util.arjuna.XADataSourceWrapper">
+    <constructor-arg index="0" ref="xaDataSource"/>
+    <constructor-arg index="1" value="OmeroDs"/>
+    <constructor-arg index="2" value="${java.naming.factory.initial}"/>
+    <constructor-arg index="3" value="${java.naming.provider.url}"/>
+    <constructor-arg index="4" value="${omero.db.user}"/>
+    <constructor-arg index="5" value="${omero.db.pass}"/>
+  </bean>
+
+  <bean id="jndiBind" class="ome.tools.hibernate.JBossTsTransactionManagerLookup">
+    <constructor-arg ref="jtaUserTransaction"/>
+    <constructor-arg ref="jtaTransactionManager"/>
+    <constructor-arg>
+      <map>
+        <entry key="OmeroDs" value-ref="dataSource"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+</beans>
+

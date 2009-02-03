@@ -25,6 +25,7 @@
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="jbossts" name="jbossts" rev="4.5.0.GA"/>
     <dependency org="jbossts" name="jbossts-common" rev="4.5.0.GA"/>
+    <dependency org="atomikos" name="atomikos-transactions-essentials" rev="3.4.3"/>
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="slf4j" name="slf4j-api" rev="1.4.3"/>
     <dependency org="slf4j" name="slf4j-log4j12" rev="1.4.3"/>
