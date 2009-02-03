@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
@@ -551,7 +552,8 @@ public class FieldTextArea
 		tagAttributes.addAttribute(FieldTextArea.PARAM_TAG, aAttributes);
 		
 		if ((selectedText == null) || (selectedText.length() == 0)) {
-			selectedText = "param";		// need to insert something!
+			// need to insert something!
+			selectedText = AbstractParam.DEFAULT_PARAM_NAME;	
 		}
 		
 		try {

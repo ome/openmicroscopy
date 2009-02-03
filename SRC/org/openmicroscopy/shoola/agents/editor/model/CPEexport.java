@@ -90,8 +90,10 @@ public class CPEexport {
 			"PUBLIC \"-//Common Protocol Exchange Format//DTD upe 1.0//EN\" " +
 			"\"" + dtd + "\">";
 		
-		cpeStyles ="<?xml-stylesheet href=\"" + xsl + "\""
+		if ((xsl != null) && (xsl.length() > 0)) {
+			cpeStyles ="<?xml-stylesheet href=\"" + xsl + "\""
 				+ " type=\"text/xsl\"?>";
+		}
 	}
 
 	/**
@@ -312,7 +314,7 @@ public class CPEexport {
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
 		if (name == null) {
 			// must have a name
-			name = param.getAttribute(AbstractParam.PARAM_TYPE);
+			name = AbstractParam.DEFAULT_PARAM_NAME;
 		}
 		addChildContent(parameter, CPEimport.NAME, name);
 		addChildContent(parameter, CPEimport.ID, paramID++ +"");
@@ -556,7 +558,7 @@ public class CPEexport {
 			// output the XML file with suitable headers...
 			output = new FileWriter(file);
 			output.write(XML_HEADER + "\n");
-			output.write(cpeStyles + "\n");
+			if (cpeStyles != null) 	output.write(cpeStyles + "\n");
 			output.write(cpeDtd + "\n");
 			XMLWriter xmlwriter = new XMLWriter(output);
 			xmlwriter.write(protocolArchive, true);

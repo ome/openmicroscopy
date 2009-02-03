@@ -72,6 +72,12 @@ public abstract class AbstractParam
 	public static final String 		PARAM_NAME = "paramName";
 	
 	/**
+	 * Parameters must have a name in the cpe data model. If the user doesn't
+	 * name a parameter, use this name. 
+	 */
+	public static final String 		DEFAULT_PARAM_NAME = "param";
+	
+	/**
 	 * A property that should be set to 'true' to indicate that this 
 	 * parameter must be filled in. 
 	 */
