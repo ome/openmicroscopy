@@ -393,9 +393,11 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     public static EventContext convert(ome.system.EventContext ctx) {
         EventContext ec = new EventContext();
+        Long event = ctx.getCurrentEventId();
+        ec.eventId = event == null ? -1 : event;
+        
         ec.sessionId = ctx.getCurrentSessionId();
         ec.sessionUuid = ctx.getCurrentSessionUuid();
-        ec.eventId = ctx.getCurrentEventId();
         ec.eventType = ctx.getCurrentEventType();
         ec.groupId = ctx.getCurrentGroupId();
         ec.groupName = ctx.getCurrentGroupName();
@@ -959,48 +961,109 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
 
         Class c = t.getClass();
+        
         if (Ice.UserException.class.isAssignableFrom(c)) {
             return (Ice.UserException) t;
-        } else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
-            omero.ValidationException ve = new omero.ValidationException();
-            return IceMapper.fillServerError(ve, t);
-        } else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            return IceMapper.fillServerError(aue, t);
-        } else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
-            omero.SecurityViolation sv = new omero.SecurityViolation();
-            return IceMapper.fillServerError(sv, t);
-        } else if (ome.conditions.OptimisticLockException.class
-                .isAssignableFrom(c)) {
+        }
+        
+        // API USAGE
+       
+        
+        else if (ome.conditions.OptimisticLockException.class.isAssignableFrom(c)) {
             omero.OptimisticLockException ole = new omero.OptimisticLockException();
             return IceMapper.fillServerError(ole, t);
-        } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
+            
+        } 
+        
+        else if (ome.conditions.OverUsageException.class.isAssignableFrom(c)) {
+            omero.OverUsageException oue = new omero.OverUsageException();
+            return IceMapper.fillServerError(oue, t);
+            
+        } 
+        
+        else if (ome.services.query.QueryException.class.isAssignableFrom(c)) {
+            omero.QueryException qe = new omero.QueryException();
+            return IceMapper.fillServerError(qe, t);
+            
+        } 
+       
+        else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
+            omero.ValidationException ve = new omero.ValidationException();
+            return IceMapper.fillServerError(ve, t);
+            
+        } 
+        
+        else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            return IceMapper.fillServerError(aue, t);
+        }
+        
+        // CONCURRENCY
+        
+        else if (ome.conditions.DatabaseBusyException.class.isAssignableFrom(c)) {
+            omero.DatabaseBusyException dbe = new omero.DatabaseBusyException();
+            return IceMapper.fillServerError(dbe, t);
+        }
+        
+        else if (ome.conditions.ConcurrencyException.class.isAssignableFrom(c)) {
+            omero.ConcurrencyException re = new omero.ConcurrencyException();
+            return IceMapper.fillServerError(re, t);
+        }
+        
+        // RESOURCE
+        
+        else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
-        } else if (ome.conditions.RemovedSessionException.class
+        }
+        
+        // SECURITY
+        
+        else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
+            omero.SecurityViolation sv = new omero.SecurityViolation();
+            return IceMapper.fillServerError(sv, t);
+        }
+
+        // SESSIONS
+        
+        else if (ome.conditions.RemovedSessionException.class
                 .isAssignableFrom(c)) {
             omero.RemovedSessionException rse = new omero.RemovedSessionException();
             return IceMapper.fillServerError(rse, t);
-        } else if (ome.conditions.SessionTimeoutException.class
+        }
+        
+        else if (ome.conditions.SessionTimeoutException.class
                 .isAssignableFrom(c)) {
             omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
             return IceMapper.fillServerError(ste, t);
-        } else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
-            omero.InternalException ie = new omero.InternalException();
-            return IceMapper.fillServerError(ie, t);
-        } else if (ome.conditions.AuthenticationException.class
+        }
+        
+        
+        else if (ome.conditions.AuthenticationException.class
                 .isAssignableFrom(c)) {
             // not an omero.ServerError()
             omero.AuthenticationException ae = new omero.AuthenticationException(
                     t.getMessage());
             return ae;
-        } else if (ome.conditions.ExpiredCredentialException.class
+        }
+        
+
+        else if (ome.conditions.ExpiredCredentialException.class
                 .isAssignableFrom(c)) {
             // not an omero.ServerError()
             omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(
                     t.getMessage());
             return ece;
-        } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
+        }
+
+        // INTERNAL etc.
+        
+        else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
+            omero.InternalException ie = new omero.InternalException();
+            return IceMapper.fillServerError(ie, t);
+        }
+        
+        else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
             // Not returning but logging error message.
             log
                     .error("RootException thrown which is an unknown subclasss.\n"

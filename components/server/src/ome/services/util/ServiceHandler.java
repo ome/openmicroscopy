@@ -17,6 +17,7 @@ import ome.annotations.ApiConstraintChecker;
 import ome.annotations.Hidden;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.DatabaseBusyException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
@@ -35,6 +36,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateSystemException;
+import org.springframework.transaction.CannotCreateTransactionException;
 
 /**
  * 
@@ -157,6 +159,13 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 ve.setStackTrace(t.getStackTrace());
                 printException("DataIntegrityViolationException thrown.", t);
                 return ve;
+            }
+            
+            else if (CannotCreateTransactionException.class.isAssignableFrom(t.getClass())) {
+                DatabaseBusyException dbe = new DatabaseBusyException("cannot create transaction", 5000L);
+                dbe.setStackTrace(t.getStackTrace());
+                printException("CannotCreateTransactionException thrown.", t);
+                return dbe;
             }
 
             else if (HibernateObjectRetrievalFailureException.class

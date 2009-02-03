@@ -12,12 +12,47 @@
 #include <Glacier2/Session.ice>
 
 /*
- * Exceptions thrown by OMERO.blitz. These model closely the
- * exceptions of OMERO.server. See the JavaDoc for the ome.conditions
- * package or:
+ * Exceptions thrown by OMERO server components. Exceptions thrown client side
+ * are available defined in each language binding separately. For more
+ * information, see:
  *
- * http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+ *   http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+ *
+ * OMERO Specific:
+ * ===============
+ *  ServerError (root server exception)
+ *   |
+ *   |_ InternalException (server bug)
+ *   |
+ *   |_ ResourceError (non-recoverable)
+ *   |
+ *   |_ ConcurrencyException (recoverable) 
+ *   |  |_ OptimisticLockException (changed data)
+ *   |  |_ TooManyUsersException
+ *   |     \_ DatabaseBusyException
+ *   |
+ *   |_ ApiUsageException (misuse of services)
+ *   |   |_ OverUsageException (too much)
+ *   |   |_ QueryException
+ *   |   \_ ValidationException (bad data)
+ *   |
+ *   |- SecurityViolation (some no-no)
+ *   |
+ *   \_SessionException
+ *      |_RemovedSessionException (accessing a non-extant session)
+ *      |_SessionTimeoutException (session timed out; not yet removed)
+ * 
+ * However, the Ice runtime also has its own hierarchy (which we subclass in
+ * some cases);
+ *
+ *  Ice Exceptions
+ *  ==============
+ *  Glacier2::CannotCreateSessionException (only exception throwable by createSession)
+ *   |_omero.AuthenticationException 
+ *   \_omero.ExpiredCredentialException
+ *
  */
+ 
 module omero
 {
   /*
@@ -92,31 +127,57 @@ module omero
   // OTHER SERVER EXCEPTIONS ------------------------------
 
 
+  /**
+   * Programmer error. Ideally should not be thrown.
+   */
   exception InternalException extends ServerError
     {
     };
 
+  // RESOURCE
+
+  /**
+   * Unrecoverable error. The resource being accessed is not available.
+   */
   exception ResourceError extends ServerError
     {
     };
 
-  exception DataAccessException extends ServerError
+  // CONCURRENCY
+
+  /**
+   * Recoverable error caused by simultaneous access of some form.
+   */
+  exception ConcurrencyException extends ServerError
+    {
+       long backOff; // Backoff in milliseconds
+    };
+
+  /**
+   * Too many simultaneous database users.
+   */
+  exception DatabaseBusyException extends ConcurrencyException
+    {
+    };
+    
+  /**
+   * Conflicting changes to the same piece of data.
+   */
+  exception OptimisticLockException extends ConcurrencyException
     {
     };
 
-  exception OutOfServiceException extends ServerError
+  // API USAGE
+
+  exception ApiUsageException extends ServerError
     {
     };
 
-  exception SecurityViolation extends DataAccessException
+  exception OverUsageException extends ApiUsageException
     {
     };
-
-  exception OptimisticLockException extends DataAccessException
-    {
-    };
-
-  exception ApiUsageException extends DataAccessException
+    
+  exception QueryException extends ApiUsageException
     {
     };
 
@@ -124,19 +185,12 @@ module omero
     {
     };
 
+  // SECURITY
 
-  // DEPRECATED EXCEPTIONS
-
-
-  /*
-   * OMERO.blitz specific exception not thrown by OMERO.server.
-   * Deprecated. This was a possible solution from before the
-   * implementation of OmeroSessions. Now, omero.createSession()
-   * will throw SessionException-specific subclasses. See above.
-   */
-  exception SessionCreationException extends Glacier2::CannotCreateSessionException
+  exception SecurityViolation extends ServerError
     {
     };
+
 
 };
 
