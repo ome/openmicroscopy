@@ -113,7 +113,7 @@ public class GatewayUtils
 	{
 		String type = pixels.getPixelsType().getValue().getValue();
 		int bytesPerPixels = getBytesPerPixels(type);
-		BytesConverter strategy = BytesConverter.getConverter(type);
+		BytesConverter strategy = getConverter(type);
 		return createPlane(pixels, rawPlane, bytesPerPixels, strategy);
 	}
 	
@@ -397,6 +397,23 @@ public class GatewayUtils
 			return mapToByteArray(val.doubleValue());
 	}
 
+	static BytesConverter getConverter(String pixelsType)
+	{
+		if (UINT_8.equals(pixelsType) || 
+			UINT_16.equals(pixelsType) ||
+			UINT_32.equals(pixelsType))
+			return new UintConverter();
+		else if (INT_8.equals(pixelsType) || 
+				INT_16.equals(pixelsType) ||
+				INT_32.equals(pixelsType))
+			return new IntConverter();
+		else if (FLOAT.equals(pixelsType))
+			return new FloatConverter();
+		else if (DOUBLE.equals(pixelsType))
+			return new DoubleConverter();
+		return null;
+	}
+	
 	
 }
 
