@@ -173,7 +173,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.SimpleWork(
                         this, "populateMinMax") {
-                    @Transactional(readOnly = true)
+                    @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
 
                         store.populateMinMax(toJavaType(id), toJavaType(i));
