@@ -22,7 +22,6 @@
  */
 package ome.services.blitz.gateway.services;
 
-import omero.api.BufferedImage;
 import omero.model.Pixels;
 
 /** 

@@ -31,7 +31,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.ServerError;
-import omero.api.BufferedImage;
 import omero.model.Image;
 import omero.model.Pixels;
 

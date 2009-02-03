@@ -24,7 +24,6 @@ package ome.services.blitz.gateway.services.impl;
 
 
 //Java imports
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,6 @@ import ome.services.blitz.gateway.services.RenderingService;
 import ome.services.blitz.gateway.services.ThumbnailService;
 import omero.RInt;
 import omero.ServerError;
-import omero.api.BufferedImage;
 import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.model.Image;

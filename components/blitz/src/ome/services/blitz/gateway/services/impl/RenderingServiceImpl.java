@@ -26,7 +26,6 @@ import java.awt.Color;
 
 import ome.services.blitz.gateway.services.RenderingService;
 import omero.ServerError;
-import omero.api.BufferedImage;
 import omero.api.RenderingEnginePrx;
 import omero.model.Pixels;
 import omero.romio.PlaneDef;
