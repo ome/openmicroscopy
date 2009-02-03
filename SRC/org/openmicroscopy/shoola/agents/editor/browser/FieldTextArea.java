@@ -319,7 +319,7 @@ public class FieldTextArea
 				lastChar = param.getEnd();	// update the end of last element
 			}
     		// any text left over?
-    		description = d.getText(lastChar, d.getLength()-lastChar);
+    		description = d.getText(lastChar, d.getLength()-lastChar+1);
     		if (description.trim().length() > 0) {
     			// if so, add another text content to the list
 				contentList.add(new TextContent(description));
@@ -450,7 +450,7 @@ public class FieldTextArea
     		// get the new name...
     		TextToken nameTag = getNameTag();
     		if (nameTag != null) {
-    			getEditedName(nameTag.getText());
+    			fieldName = getEditedName(nameTag.getText());
     		}
     		
     		// convert the current text of this editor into a list of
