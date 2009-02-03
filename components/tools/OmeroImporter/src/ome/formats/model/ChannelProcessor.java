@@ -1,5 +1,5 @@
 /*
- * ome.formats.model.ReferenceProcessor
+ * ome.formats.model.ChannelProcessor
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

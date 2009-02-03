@@ -36,7 +36,8 @@ import omero.model.ObjectiveSettings;
 /**
  * Processes the references of an IObjectContainerStore and ensures
  * that containers are consistent. It also keeps track of all LSID references
- * in their string form so that the may be sent to the server.
+ * in their string form so that the may be sent to the server and removes
+ * duplicate entries from the values of the container cache.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
  *
@@ -89,6 +90,12 @@ public class ReferenceProcessor implements ModelProcessor
                     }
                     container = store.getIObjectContainer(targetClass, indexes);
                 }
+                
+                // The reference will always be duplicated in the container
+                // cache so we're going to clean up our mess.
+                containerCache.remove(reference);
+                
+                // Add our LSIDs to the string based reference cache.
                 referenceStringCache.put(container.LSID, reference.toString());
             }
             store.setReferenceStringCache(referenceStringCache);
