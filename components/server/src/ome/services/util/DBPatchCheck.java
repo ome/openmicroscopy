@@ -12,11 +12,13 @@ import ome.conditions.InternalException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.transaction.TransactionStatus;
 
 /**
  * Hook run by the context. This hook tests the database version against the
  * software version on {@link #start()}.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftwarecom
  * @since 3.0-Beta3
  */
@@ -24,9 +26,11 @@ public class DBPatchCheck {
 
     public final static Log log = LogFactory.getLog(DBPatchCheck.class);
 
+    final Executor executor;
     final LocalConfig config;
-
-    public DBPatchCheck(LocalConfig config) {
+    
+    public DBPatchCheck(Executor executor, LocalConfig config) {
+        this.executor = executor;
         this.config = config;
     }
 
@@ -46,25 +50,28 @@ public class DBPatchCheck {
     }
 
     /**
-     * Attempts twice to connect to the server to overcome any initial
-     * difficulties.
-     * 
-     * @see <a
-     *      href="https://trac.openmicroscopy.org.uk/omero/ticket/444">ticket:444</a>
      */
     public void start() throws Exception {
 
-        String patch = null;
+        final String[] results = new String[3];
         try {
-            patch = config.getDatabaseVersion();
+            executor.executeStateless(new Executor.StatelessWork(){
+                public Object doWork(TransactionStatus status,
+                        SimpleJdbcOperations jdbc) {
+                    results[0] = config.getDatabaseVersion();
+                    results[1] = config.getInternalValue("omero.db.version");
+                    results[2] = config.getInternalValue("omero.db.patch");
+                    return null;
+                }});
         } catch (Exception e) {
             log.fatal(no_table, e);
             InternalException ie = new InternalException(no_table);
             throw ie;
         }
 
-        String version = config.getInternalValue("omero.db.version");
-        String dbpatch = config.getInternalValue("omero.db.patch");
+        String patch = results[0];
+        String version = results[1];
+        String dbpatch = results[2];
         String omero = version + "__" + dbpatch;
         if (patch == null || !patch.equals(omero)) {
             String str = String.format(wrong_version, patch, omero);
@@ -75,7 +82,5 @@ public class DBPatchCheck {
 
         log.info(String.format("Verified database patch: %s", patch));
     }
-
-
 
 }

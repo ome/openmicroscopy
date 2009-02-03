@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.conditions.RootException;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
 import ome.system.OmeroContext;
@@ -32,11 +31,10 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -60,7 +58,7 @@ public interface Executor extends ApplicationContextAware {
      * events, etc.
      */
     public OmeroContext getContext();
-    
+
     /**
      * Calls
      * {@link #execute(Principal, ome.services.util.Executor.Work, boolean) with
@@ -135,10 +133,15 @@ public interface Executor extends ApplicationContextAware {
      * <li>In the {@link ome.security.basic.EventHandler} to save
      * {@link ome.model.meta.EventLog event logs}
      * </ul>
+     * 
+     * Before the JTA fixes of 4.0, this interface provided a
+     * {@link org.hibernate.StatelessSession. However, as mentioned in
+     * http://jira.springframework.org/browse/SPR-2495, that interface is not
+     * currently supported in Spring's transaction management.
      */
     public interface StatelessWork {
-        Object doWork(TransactionStatus status, StatelessSession session);
-
+        @Transactional(readOnly = false)
+        Object doWork(TransactionStatus status, SimpleJdbcOperations jdbc);
     }
 
     public class Impl implements Executor {
@@ -151,11 +154,14 @@ public interface Executor extends ApplicationContextAware {
         final protected String[] proxyNames;
         final protected TransactionTemplate txTemplate;
         final protected HibernateTemplate hibTemplate;
+        final protected SimpleJdbcOperations jdbcOps;
 
         public Impl(PrincipalHolder principalHolder, TransactionTemplate tt,
-                HibernateTemplate ht, String[] proxyNames) {
+                HibernateTemplate ht, SimpleJdbcOperations jdbc,
+                String[] proxyNames) {
             this.txTemplate = tt;
             this.hibTemplate = ht;
+            this.jdbcOps = jdbc;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
         }
@@ -226,27 +232,18 @@ public interface Executor extends ApplicationContextAware {
 
         /**
          * Executes a {@link StatelessWork} in a call to
-         * {@link TransactionTemplate#execute(TransactionCallback)} and
-         * {@link HibernateTemplate#execute(HibernateCallback)}. No OMERO
-         * specific AOP is applied. Since {@link StatelessSession} does not
-         * return proxies, there is less concern about returned values, but this
-         * method <em>completely</em> overrides OMERO security, and should be
-         * used <b>very</em> carefully. *
+         * {@link TransactionTemplate#execute(TransactionCallback)}.
          * 
          * @param work
          *            Non-null.
          * @return
          */
         public Object executeStateless(final StatelessWork work) {
-            StatelessSession s = null;
-            try {
-                s = hibTemplate.getSessionFactory().openStatelessSession();
-                return work.doWork(null, s);
-            } finally {
-                if (s != null) {
-                    s.close();
+            return txTemplate.execute(new TransactionCallback() {
+                public Object doInTransaction(TransactionStatus status) {
+                    return work.doWork(status, jdbcOps);
                 }
-            }
+            });
         }
 
         /**
@@ -273,6 +270,8 @@ public interface Executor extends ApplicationContextAware {
 
             public Object invoke(final MethodInvocation mi) throws Throwable {
 
+                final Object[] args = mi.getArguments();
+
                 if (stageOne) {
 
                     // Used by EventHandler to set the readOnly status of
@@ -283,19 +282,32 @@ public interface Executor extends ApplicationContextAware {
                         pmi.setUserAttribute("readOnly", readOnly);
                     }
                     stageOne = false;
-                    return mi.proceed();
+
+                    // Here we use a transaction template to have control over
+                    // the transaction at this point rather than lower down the
+                    // stack.
+                    return txTemplate.execute(new TransactionCallback() {
+                        public Object doInTransaction(TransactionStatus arg0) {
+                            args[0] = arg0;
+                            try {
+                                return mi.proceed();
+                            } catch (Throwable e) {
+                                if (e instanceof RuntimeException) {
+                                    throw (RuntimeException) e;
+                                } else {
+                                    throw new RuntimeException(e); // ???
+                                }
+                            }
+                        }
+                    });
 
                 } else {
-                    return this.hibTemplate.execute(new HibernateCallback() {
+                    return hibTemplate.execute(new HibernateCallback() {
                         public Object doInHibernate(Session session)
                                 throws HibernateException, SQLException {
-                            Object[] args = mi.getArguments();
-                            args[0] = null;
                             args[1] = session;
                             try {
-                                Object rv = mi.proceed();
-                                session.flush();
-                                return rv;
+                                return mi.proceed();
                             } catch (Throwable e) {
                                 if (e instanceof RuntimeException) {
                                     throw (RuntimeException) e;
@@ -305,7 +317,6 @@ public interface Executor extends ApplicationContextAware {
                             }
                         }
                     });
-
                 }
             }
         }

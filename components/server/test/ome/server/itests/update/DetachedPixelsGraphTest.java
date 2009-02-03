@@ -52,7 +52,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         assertTrue("Related-to is null", p.getRelatedTo() != null);
         assertTrue("or it has no id", p.getRelatedTo().getId().longValue() > 0);
 
-        long id = unsafeJdbcTemplate.queryForLong(
+        long id = this.jdbcTemplate.queryForLong(
                 "select relatedto from pixels where id = ?", new Object[] { p
                         .getId() });
         assertTrue("Id *really* has to be there.", p.getRelatedTo().getId()

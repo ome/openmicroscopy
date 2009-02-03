@@ -7,6 +7,7 @@
 package ome.server.itests.update;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.ITypes;
@@ -370,6 +371,25 @@ public class UpdateTest extends AbstractUpdateTest {
         p1.linkDataset(new Dataset("d2"));
         iUpdate.saveObject(p1);
 
+    }
+    
+    @Test
+    public void testMultiThreadedPostJta() throws Exception {
+        class T extends Thread {
+            @Override
+            public void run() {
+                iUpdate.saveAndReturnObject(new Project("multi-thread-jta"));
+            }
+        };
+        List<T> ts = new ArrayList<T>();
+        for (int i = 0; i < 4; i++) {
+            T t = new T();
+            ts.add(t);
+        }
+        for (T t : ts) {
+            t.join();
+        }
+        
     }
 
     protected void assertLink(ProjectDatasetLink link) {

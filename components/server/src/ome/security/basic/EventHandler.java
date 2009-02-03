@@ -25,6 +25,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.aop.ProxyMethodInvocation;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
@@ -57,7 +58,9 @@ public class EventHandler implements MethodInterceptor {
 
     protected final BasicSecuritySystem secSys;
 
-    protected HibernateTemplate ht;
+    protected final HibernateTemplate ht;
+
+    protected final SimpleJdbcOperations jdbc;
 
     /**
      * only public constructor, used for dependency injection. Requires an
@@ -69,10 +72,11 @@ public class EventHandler implements MethodInterceptor {
      *            Not null.
      */
     public EventHandler(BasicSecuritySystem securitySystem,
-            HibernateTemplate template) {
+            HibernateTemplate template, SimpleJdbcOperations jdbc) {
         Assert.notNull(securitySystem);
         Assert.notNull(template);
         this.secSys = securitySystem;
+        this.jdbc = jdbc;
         this.ht = template;
     }
 
@@ -199,26 +203,23 @@ public class EventHandler implements MethodInterceptor {
             throw new InternalException(sb.toString());
         }
 
-        final SessionFactory sf = this.ht.getSessionFactory();
-        this.ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                StatelessSession s = sf.openStatelessSession();
-                try {
-                    for (EventLog l : logs) {
-                        Event e = l.getEvent();
-                        if (e.getId() == null) {
-                            throw new RuntimeException("Transient event");
-                        }
-                        s.insert(l);
-                    }
-                } finally {
-                    s.close();
-                }
-                return null;
+        for (EventLog l : logs) {
+            Event e = l.getEvent();
+            if (e.getId() == null) {
+                throw new RuntimeException("Transient event");
             }
-        });
+
+            try {
+                jdbc.update("INSERT INTO eventlog "
+                        + "(id, permissions, entityid, "
+                        + "entitytype, action, event) "
+                        + "values (nextval('seq_eventlog'),?,?,?,?,?)", -35L, l
+                        .getEntityId(), l.getEntityType(), l.getAction(), l
+                        .getEvent().getId());
+            } catch (Exception ex) {
+                log.error("Error saving event log: " + l, ex);
+            }
+        }
 
         if (secSys.getLogs().size() > 0) {
             throw new InternalException("More logs present after saveLogs()");

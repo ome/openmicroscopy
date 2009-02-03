@@ -34,7 +34,7 @@ system to be re-configured.
 
   <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
   <category name="ome"> <priority value="INFO"/> </category>
-  <category name="ome.formats"> <priority value="DEBUG"/> </category>
+  <category name="ome.formats"> <priority value="INFO"/> </category>
   <category name="omero"> <priority value="INFO"/> </category>
   <category name="OMERO"> <priority value="INFO"/> </category>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
@@ -51,7 +51,7 @@ system to be re-configured.
   <category name="org.hibernate"> <priority value="WARN"/> </category>
   <category name="org.springframework"> <priority value="WARN"/> </category>
   <!-- Suppressing "Warning missing properties files" -->
-  <category name="org.springframework.beans.factory.config"> <priority value="ERROR"/> </category>
+  <category name="org.springframework.beans"> <priority value="ERROR"/> </category>
   <!-- Whether or not to print jamon timing info. ERROR or TRACE -->
   <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/> </category>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
@@ -67,15 +67,22 @@ system to be re-configured.
 
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <!-- WAY too verbose at INFO -->
-  <category name="atomikos"> <priority value="WARN"/> </category>
+  <category name="bitronix"> <priority value="WARN"/> </category>
   <!-- Limit memory warning -->
   <category name="org.hibernate.hql.ast.QueryTranslatorImpl"> <priority value="ERROR"/> </category>
   <!-- Limit fail-safe cleanup -->
   <category name="org.hibernate.engine.loading.LoadContexts"> <priority value="ERROR"/> </category>
-  <!-- Overly verbose message printed to server.log -->
-  <category name="org.hibernate.cfg.SettingsFactory"> <priority value="ERROR"/> </category>
-  <!-- Overly verbose message printed to server.log -->
+  <!-- Other overly verbose messages -->
+  <category name="org.hibernate.SQL"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.cfg"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.engine"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.hql"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.hql.PARSER"> <priority value="FATAL"/> </category>
+  <category name="org.hibernate.loader"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.persister"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.pretty"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.type"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.validator"> <priority value="ERROR"/> </category>
 
   <root>
     <appender-ref ref="CONSOLE"/>

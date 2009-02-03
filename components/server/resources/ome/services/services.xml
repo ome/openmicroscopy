@@ -27,14 +27,15 @@
 
 <beans>
 
-<!-- 
-  HOOKS : These beans are used to 
+<!--
+  HOOKS : These beans are used to provide startup and shutdown logic.
 -->
 
   <bean id="dbPatchCheck"
      class="ome.services.util.DBPatchCheck"
      init-method="start" lazy-init="false">
      <constructor-arg ref="internal-ome.api.IConfig"/>
+     <constructor-arg ref="executor"/>
   </bean>
 
   <bean id="serverVersionCheck"
@@ -57,12 +58,12 @@
   Possibilities are: tracing, logging, security, transactions, etc.
 -->
 
-    <bean id="statelessInterceptors" class="java.util.ArrayList">
+    <bean id="executorInterceptors" class="java.util.ArrayList">
         <constructor-arg>
             <list>
                 <value>serviceHandler</value>
                 <value>proxyHandler</value>
-                <value>transactionHandler</value>
+                <!-- OMITvalue>transactionHandler</value-->
                 <value>hibernateHandler</value>
                 <value>eventHandler</value>
             </list>
@@ -87,7 +88,15 @@
     
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="interceptorNames" ref="statelessInterceptors"/>
+		<property name="interceptorNames">
+            <list>
+                <value>serviceHandler</value>
+                <value>proxyHandler</value>
+                <value>transactionHandler</value>
+                <value>hibernateHandler</value>
+                <value>eventHandler</value>
+            </list>
+		</property>
 	</bean>
 
 	<bean id="managedStatefulService" abstract="true"
@@ -165,7 +174,8 @@
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
-    <constructor-arg ref="statelessInterceptors"/>
+    <constructor-arg ref="executorInterceptors"/>
+    <constructor-arg ref="simpleJdbcTemplate"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">

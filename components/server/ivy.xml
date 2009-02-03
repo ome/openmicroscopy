@@ -22,11 +22,13 @@
     <!-- Ice -->
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
-    <!-- atomikos -->
-    <dependency org="atomikos" name="atomikos-transactions-essentials-all" rev="3.4.3"/>
+    <!-- j2ee replacements : jta, jndi, etc. -->
+    <dependency org="btm" name="btm" rev="1.3.3-20081114"/>
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="slf4j" name="slf4j-api" rev="1.4.3"/>
     <dependency org="slf4j" name="slf4j-log4j12" rev="1.4.3"/>
+    <dependency org="tyrex" name="tyrex" rev="1.0.3"/>
+    <dependency org="tyrex" name="tyrex" rev="1.0.3"/>
     <!-- Public -->
     <dependency org="commons-lang" name="commons-lang" rev="2.1"/>
     <dependency org="activemq" name="activemq-core" rev="3.2"/>
@@ -37,12 +39,12 @@
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="eclipse" name="jdtcore" rev="3.1.0"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}"/>
-    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="Java50-3.1"/>
+    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
     <dependency org="org/acegisecurity" name="acegi-security" rev="1.0.0-RC1"/>
     <dependency org="quartz" name="quartz" rev="1.5.2"/>
     <dependency org="xerces" name="xerces" rev="2.0.2"/>
-    <dependency org="xml-apis" name="xml-apis" rev="1.0.b2"/>
+    <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="mail" name="mail" rev="1.4.1"/>
     <dependency org="activation" name="activation" rev="1.1.1"/>
     <dependency org="PDFBox" name="PDFBox" rev="0.7.3"/>

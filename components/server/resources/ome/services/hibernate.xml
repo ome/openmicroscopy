@@ -45,18 +45,18 @@
     </description>
     <property name="properties">
       <props>
-        <prop key="hibernate.transaction.factory_class">org.springframework.orm.hibernate3.SpringTransactionFactory</prop>
-        <prop key="hibernate.transaction.manager_lookup_class">com.atomikos.icatch.jta.hibernate3.TransactionManagerLookup</prop> 
-        <prop key="hibernate.show_sql">false</prop>
-        <prop key="hibernate.current_session_context_class">jta</prop> 
-        <prop key="hibernate.hibernate.connection.release_mode">on_close</prop>
+        <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</prop>
+        <prop key="hibernate.transaction.manager_lookup_class">ome.tools.hibernate.BitronixTransactionManagerLookup</prop>
+        <prop key="hibernate.current_session_context_class">ome.tools.hibernate.CurrentSessionContext</prop>
+        <!-- session context sets: auto_close_session, flush_before_completion, release_mode -->  
         <prop key="hibernate.dialect">${omero.db.dialect}</prop>
+        <!-- FIXMEprop key="hibernate.connection.datasource">OmeroDs</prop-->
         <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
-        <prop key="cache.use_query_cache">false</prop>
-        <prop key="cache.use_minimal_puts">false</prop>
+        <prop key="hibernate.cache.use_query_cache">false</prop>
+        <prop key="hibernate.cache.use_minimal_puts">false</prop>
         <prop key="hibernate.search.default.indexBase">${omero.data.dir}</prop>
         <prop key="hibernate.search.analyzer">${omero.search.analyzer}</prop>
-        <prop key="hibernate.search.worker.batch_size">1</prop>
+        <prop key="hibernate.search.worker.batch_size">1</prop><!-- FIXME : ${omero.search.batch}-->
         <prop key="hibernate.search.default.batch.merge_factor">25</prop>
         <prop key="hibernate.search.default.batch.ram_buffer_size">64</prop>
       </props>
@@ -122,11 +122,6 @@
 			<ref bean="securityFilter"/>
 		</list>
 	</property>
-    <property name="jtaTransactionManager">
-        <bean id="transactionManager.transactionManager" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
-    </property>
-    <!-- http://coffeedrivenjava.blogspot.com/2006/08/distributed-xa-transactions-w-hibernate.html -->
-    <property name="useTransactionAwareDataSource" value="true"/>
   </bean>
 
 </beans>

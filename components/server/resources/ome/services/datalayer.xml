@@ -44,11 +44,21 @@
 
   <alias name="xaDataSource" alias="dataSource"/>
 
-  <bean id="xaDataSource"
-        class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
-    <property name="uniqueResourceName" ref="uuid"/>
-    <property name="xaDataSourceClassName" value="org.postgresql.xa.PGXADataSource"/>
-    <property name="xaProperties">
+  <bean id="btmConfig" factory-method="getConfiguration"
+        class="bitronix.tm.TransactionManagerServices">
+    <property name="serverId" ref="uuid" />
+    <property name="disableJmx" value="true" />
+    <property name="defaultTransactionTimeout" value="600"/>
+  </bean>
+
+  <bean id="xaDataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource"
+        init-method="init" destroy-method="close">
+    <property name="className" value="org.postgresql.xa.PGXADataSource"/>
+    <property name="uniqueName" ref="uuid" />
+    <property name="minPoolSize" value="5" />
+    <property name="maxPoolSize" value="${omero.db.poolsize}" />
+    <property name="allowLocalTransactions" value="false" />
+    <property name="driverProperties">
       <props>
         <prop key="user">${omero.db.user}</prop>
         <prop key="password">${omero.db.pass}</prop>
@@ -57,49 +67,45 @@
         <prop key="portNumber">5432</prop>
       </props>
     </property>
-    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
   </bean>
 
-  <!-- configured in etc/jta.properties -->
-  <bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close"/>
-  <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp"/>
+  <bean id="BitronixTransactionManager" factory-method="getTransactionManager"
+        class="bitronix.tm.TransactionManagerServices" depends-on="btmConfig,xaDataSource"
+        destroy-method="shutdown" />
 
-  <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
-    <property name="transactionManager"><ref bean="atomikosTransactionManager"  /></property>
-    <property name="userTransaction"><ref bean="atomikosUserTransaction"  /></property>
+  <bean id="btmDeployer" class="ome.tools.hibernate.BitronixTransactionManagerLookup">
+    <description>Binds the two arguments into JNDI</description>
+    <constructor-arg ref="dataSource"/>
+    <constructor-arg ref="BitronixTransactionManager"/>
+  </bean>
+
+  <bean id="transactionManager" depends-on="btmDeployer"
+        class="org.springframework.transaction.jta.JtaTransactionManager">
+    <property name="transactionManager" ref="BitronixTransactionManager" />
+    <property name="userTransaction" ref="BitronixTransactionManager" />
   </bean>
 
   <bean id="transactionHandler"
         class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <description>
-    Scope: private
+      Scope: private
     </description>
     <property name="transactionManager" ref="transactionManager"/>
     <property name="transactionAttributeSource">
       <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
     </property>
   </bean>
-  
+
   <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
     <constructor-arg ref="transactionManager"/>
   </bean>
-  
+
   <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
     <description>
     Scope: private
-    
-    This template uses session.connection() for data access. See javadocs for
-    more info.
-    </description>
-    <constructor-arg ref="dataSource"/>
-  </bean>
-  
-  <bean id="unsafeJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-    <description>
-    Scope: private
-    
-    This template is "unsafe" since it does not take part Hibernate transactions
-    and should only be used in cases where this is beneficial.
+
+    Users of JDBC Templates may need to manage their own transactions if they
+    don't expect to be part of an existing JTA transaction.
     </description>
     <constructor-arg ref="dataSource"/>
   </bean>
@@ -109,8 +115,8 @@
   <bean id="loggingDataSource" class="ome.services.util.LoggingDataSource" lazy-init="true">
     <description>
     Scope: private
-    
-    Under extreme conditions, c3p0 can run out of connections at which time the
+
+    Under extreme conditions, the data source can run out of connections at which time the
     server can come to a stand still. To catch this situation, the logging
     data source will now print to a special category which can be detected by
     log4j appenders and handled appropriately (sending email, etc.)
@@ -119,3 +125,4 @@
   </bean>
 
 </beans>
+
