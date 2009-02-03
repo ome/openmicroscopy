@@ -28,16 +28,16 @@
         <table>
             {% for field in form_tag %}
                 <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
             {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                <tr><td> </td><td colspan="2"><input type="submit" value="Save" /></td></tr>
             </table>
         </form>
     </div>
     {% endif %}
     
-    {% if form_uri %}
+    <!--{% if form_uri %}
     <div class="url">
         <h1>Add new url:</h1>
         <form action="" method="post"><input type="hidden" name="action" value="url" />
@@ -51,7 +51,7 @@
             </table>
         </form>
     </div>
-    {% endif %}
+    {% endif %}-->
 
     {% if form_file %}
     <div class="file">
@@ -70,11 +70,11 @@
     {% endif %}
     
     <div id="existing" class="ui-tabs">
-        <h1>Use existing annotation:</h1>
+        <h1>Use an existing annotation:</h1>
         <ul>
             <li><a href="#existingtags"><span>Tag</span></a></li>
             <li><a href="#existingcomments"><span>Comment</span></a></li>
-            <li><a href="#existingurls"><span>URL</span></a></li>
+            <!--<li><a href="#existingurls"><span>URL</span></a></li>-->
             <li><a href="#existingfiles"><span>File</span></a></li>
         </ul>
         <div class="clear"></div>
@@ -104,7 +104,7 @@
             </table>
             </form>
         </div>
-        <div id="existingurls">
+        <!--<div id="existingurls">
             <p>To add existing url please select one or more of the listed urls.</p>
             <form action="" method="post"><input type="hidden" name="action" value="useurl" />
             <table>
@@ -116,7 +116,7 @@
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
             </table>
             </form>
-        </div>
+        </div>-->
         <div id="existingfiles">
             <p>To add existing file please select one or more of the listed files.</p>
             <form action="" method="post"><input type="hidden" name="action" value="usefile" />

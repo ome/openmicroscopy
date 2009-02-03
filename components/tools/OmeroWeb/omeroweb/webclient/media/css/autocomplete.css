@@ -1,64 +1,48 @@
-.ac_conteiner {
-    border: 1px solid #abadb3;
-    height: 20px;
-}
-
-.ac_input {
-    text-indent:2px;
-    font-size:1em;
-    font-family:sans-serif;
-    display: block;
-    float: left;
-    border: 0;
-    height: 16px;
-    margin: 1px;
-}
-
-.ac_img {
-    width: 18px;
-    background: url('/webclient/static/images/select.gif');
-    height: 20px;
-    float: left;
-}
-
 .ac_results {
-    border: 1px solid gray;
-    background-color: white;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    position: absolute;
-    z-index: 10000;
-    display: none;
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 100px !important;
-    margin-left: -1px !important;
-    _margin-left: -3px !important;
-    _margin-top: -1px !important;
+	padding: 0px;
+	border: 1px solid black;
+	background-color: white;
+	overflow: hidden;
+	z-index: 99999;
 }
 
-.ac_results div {
-    font-size:1em;
-    font-family:sans-serif;
-    padding-left: 2px;
-    white-space: nowrap;
+.ac_results ul {
+	width: 100%;
+	list-style-position: outside;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ac_results li {
+	margin: 0px;
+	padding: 2px 5px;
+	cursor: default;
+	display: block;
+	/* 
+	if width will be 100% horizontal scrollbar will apear 
+	when scroll mode will be used
+	*/
+	/*width: 100%;*/
+	font: menu;
+	font-size: 12px;
+	/* 
+	it is very important, if line-height not setted or setted 
+	in relative units scroll will be broken in firefox
+	*/
+	line-height: 16px;
+	overflow: hidden;
+}
+
+.ac_loading {
+	background: white url('/webclient/static/images/indicator.gif') right center no-repeat;
+}
+
+.ac_odd {
+	background-color: #eee;
 }
 
 .ac_over {
-    cursor: pointer;
-    background-color: #3399ff;
-    color: #fff;
-}
-
-.ac_match {
-    text-decoration: underline;
-    color: inherit;
-    margin: 0;
-    padding: 0;
-}
-
-html:first-child .ac_results {
-/* opera <9.5 does not support css3 property overflow-y */
-    overflow: auto;
+	background-color: #1B7BC7;
+	color: white;
 }

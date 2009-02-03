@@ -7,12 +7,15 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/thickbox.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/table.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/autocomplete.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.min.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.ajaxQueue.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.autocomplete.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tablesorter.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
@@ -42,32 +45,188 @@
                     loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
                 });
                 
-        })
+                /*$("div#tag").hide();
+                $("div#tagloader").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                
+                $.getJSON("{% get_webclient_root_url %}/autocompletetags/", function(json){
+                     // access object
+                     prepareAutocomplite(json);
+                });
+                */
+                
+                
+                $("div#tag").hide();
+                $("div#tagloader").html('<p>Loading filters... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+                
+                $.ajax({  
+                    type: "GET",  
+                    url: "{% get_webclient_root_url %}/autocompletetags/",  
+                    contentType: "application/json; charset=utf-8",  
+                    cache:false,
+    				async: false,
+    				dataType: "json",  
+                    success: function(json){  
+                        prepareAutocomplite(json);
+                        $("div#tagloader").remove();
+                        $("div#tag").show();
+                    },  
+                    error: function(xhr, msg){  
+                        alert("Could not load tag component. Please contact Administrator.");  
+                    }
+                });
+                
+                function prepareAutocomplite(myjson){
+                    $("#id_tag").autocomplete(myjson, {
+                        //width: 320,
+                        max: 10,
+                        scroll: true,
+                        scrollHeight: 200,
+                        highlightItem: true,
+                        //multiple: true,
+                        //multipleSeparator: ";",
+                        formatItem: function(row, i, max, term) {
+                            if(row.desc!=null) {
+                                return row.tag + "<br/><small>" + row.desc + "</small>";
+                            } else {
+                                return row.tag
+                            }
+                        },
+                        formatMatch: function(row, i, max) {
+                            return row.tag + " " + row.id;
+                        },
+                        formatResult: function(row) {
+                            return row.tag;
+                        }
+                    });
+                    $("#id_tag2").autocomplete(myjson, {
+                        //width: 320,
+                        max: 10,
+                        scroll: true,
+                        scrollHeight: 200,
+                        highlightItem: true,
+                        //multiple: true,
+                        //multipleSeparator: ";",
+                        formatItem: function(row, i, max, term) {
+                            if(row.desc!=null) {
+                                return row.tag + "<br/><small>" + row.desc + "</small>";
+                            } else {
+                                return row.tag
+                            }
+                        },
+                        formatMatch: function(row, i, max) {
+                            return row.tag + " " + row.id;
+                        },
+                        formatResult: function(row) {
+                            return row.tag;
+                        }
+                    });
+                    $("#id_tag3").autocomplete(myjson, {
+                        //width: 320,
+                        max: 10,
+                        scroll: true,
+                        scrollHeight: 200,
+                        highlightItem: true,
+                        //multiple: true,
+                        //multipleSeparator: ";",
+                        formatItem: function(row, i, max, term) {
+                            if(row.desc!=null) {
+                                return row.tag + "<br/><small>" + row.desc + "</small>";
+                            } else {
+                                return row.tag
+                            }
+                        },
+                        formatMatch: function(row, i, max) {
+                            return row.tag + " " + row.id;
+                        },
+                        formatResult: function(row) {
+                            return row.tag;
+                        }
+                    });
+                    $("#id_tag4").autocomplete(myjson, {
+                        //width: 320,
+                        max: 10,
+                        scroll: true,
+                        scrollHeight: 200,
+                        highlightItem: true,
+                        //multiple: true,
+                        //multipleSeparator: ";",
+                        formatItem: function(row, i, max, term) {
+                            if(row.desc!=null) {
+                                return row.tag + "<br/><small>" + row.desc + "</small>";
+                            } else {
+                                return row.tag
+                            }
+                        },
+                        formatMatch: function(row, i, max) {
+                            return row.tag + " " + row.id;
+                        },
+                        formatResult: function(row) {
+                            return row.tag;
+                        }
+                    });
+                    $("#id_tag5").autocomplete(myjson, {
+                        //width: 320,
+                        max: 10,
+                        scroll: true,
+                        scrollHeight: 200,
+                        highlightItem: true,
+                        //multiple: true,
+                        //multipleSeparator: ";",
+                        formatItem: function(row, i, max, term) {
+                            if(row.desc!=null) {
+                                return row.tag + "<br/><small>" + row.desc + "</small>";
+                            } else {
+                                return row.tag
+                            }
+                        },
+                        formatMatch: function(row, i, max) {
+                            return row.tag + " " + row.id;
+                        },
+                        formatResult: function(row) {
+                            return row.tag;
+                        }
+                    });
+                }
+
+        });
     </script>
+    
 {% endblock %}
 
 {% block center %}
 
-{% if manager.tag %}
-<div class="tag"><h1>Tag1: {{ manager.tag.textValue }} {% if not manager.tag.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+<div class="tag">
+    <h1>Tags:</h1>
+    <p>That page allows you to display the data by tags. Please start typing tag and choose correct tag from auto-complete list. You can choose from 1 to 5 tags. Filter will show you ever data associated with those tags.</p>
 </div>
-{% endif %}
-{% if manager.tag2 %}
-<div class="tag"><h1>Tag2: {{ manager.tag2.textValue }} {% if not manager.tag2.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
-</div>
-{% endif %}
-{% if manager.tag3 %}
-<div class="tag"><h1>Tag3: {{ manager.tag3.textValue }} {% if not manager.tag3.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
-</div>
-{% endif %}
 
-
-
-<div class="toolbar">
-    
-    {% if manager.tag and manager.tag.isEditable %}| Edit tag1 <a href="{% get_webclient_root_url %}/action/edit/tag/{{ manager.tag.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> |{% endif %}
-    {% if manager.tag2 and manager.tag2.isEditable %} Edit tag2 <a href="{% get_webclient_root_url %}/action/edit/tag/{{ manager.tag2.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> |{% endif %}
-    {% if manager.tag3 and manager.tag3.isEditable %} Edit tag3 <a href="{% get_webclient_root_url %}/action/edit/tag/{{ manager.tag3.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> |{% endif %}
+<div>
+    {% if manager.tags %}
+    <h1>Selected tags:</h1>
+    {% endif %}
+    <div id="tagloader"></div>
+    <div id="tag">
+        {% if form_filter %}
+        <form action="" method="post">
+        <table>
+            <tr>
+                <td>{{ form_filter.tag }}</td><td>{% if form_filter.tag.errors %}{{ form_filter.tag.errors }}{% endif %}<br/>{{ form_filter.tag.help_text|safe }}</td>
+                <td>{{ form_filter.tag2 }}</td><td>{% if form_filter.tag2.errors %}{{ form_filter.tag2.errors }}{% endif %}<br/>{{ form_filter.tag2.help_text|safe }}</td>
+                <td>{{ form_filter.tag3 }}</td><td>{% if form_filter.tag3.errors %}{{ form_filter.tag3.errors }}{% endif %}<br/>{{ form_filter.tag3.help_text|safe }}</td>
+                <td>{{ form_filter.tag4 }}</td><td>{% if form_filter.tag4.errors %}{{ form_filter.tag4.errors }}{% endif %}<br/>{{ form_filter.tag4.help_text|safe }}</td>
+                <td>{{ form_filter.tag5 }}</td><td>{% if form_filter.tag5.errors %}{{ form_filter.tag5.errors }}{% endif %}<br/>{{ form_filter.tag5.help_text|safe }}</td>
+                <td><input type="submit" value="Filter" /></td>
+            </tr>
+        </table>
+        </form>
+        {% endif %}
+    </div>
+    <br/>
+    <p>| 
+        {% for t in manager.tags %}
+            ({{ t.id }}): {{ t.textValue }} {% if not t.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/tag/{{ t.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} | 
+        {% endfor %}
+    </p>
 </div>
 
 <div class="separate70"></div>
@@ -113,10 +272,9 @@
         <th>Type</th> 
         <th>Name</th> 
         <th>Action</th> 
-        <th>Created</th>
-        {% if manager.tag %}<th>Tag1</th>{% endif %}
-        {% if manager.tag2 %}<th>Tag2</th>{% endif %}
-        {% if manager.tag3 %}<th>Tag3</th>{% endif %}
+        {% for t in manager.tags %}
+            <th>{{ t.id }}</th>
+        {% endfor %}
     </tr> 
     </thead> 
     <tbody> 
@@ -124,22 +282,20 @@
         <tr> 
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% get_webclient_static_url %}/images/folder_image16.png"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-            <td></td>
-            <td>{{ c.creationEventDate }}</td>
-            {% if manager.tag %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
-            {% if manager.tag2 %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag2.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
-            {% if manager.tag3 %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag3.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
+            <td>{% if c.isOwned %} <a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %}</td>
+            {% for t in manager.tags %}
+                <td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val t.id %}x{% endifequal %} {% endfor %}</td>
+            {% endfor %}
         </tr> 
         {% endfor %}
         {% for c in manager.containers.datasets %}
         <tr> 
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img src="{% get_webclient_static_url %}/images/image16.png" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-            <td><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>{% if manager.project and c.isOwned %} <a href="{% get_webclient_root_url %}/action/remove/?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</td>
-            <td>{{ c.creationEventDate }}</td>
-            {% if manager.tag %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
-            {% if manager.tag2 %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag2.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
-            {% if manager.tag3 %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag3.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
+            <td>{% if c.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %} <a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>{% if manager.project and c.isOwned %} <a href="{% get_webclient_root_url %}/action/remove/?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</td>
+            {% for t in manager.tags %}
+                <td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val t.id %}x{% endifequal %} {% endfor %}</td>
+            {% endfor %}
         </tr> 
         {% endfor %}
         {% for c in manager.containers.images %}
@@ -147,10 +303,9 @@
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a> {% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
             <td><a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a> <a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.name }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %} <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a></td>
-            <td>{{ c.getDate }}</td>
-            {% if manager.tag %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
-            {% if manager.tag2 %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag2.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
-            {% if manager.tag3 %}<td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val manager.tag3.id %}x{% endifequal %} {% endfor %}</td>{% endif %}
+            {% for t in manager.tags %}
+                <td>{% for ch in c.copyAnnotationLinks %} {%ifequal ch.child.id.val t.id %}x{% endifequal %} {% endfor %}</td>
+            {% endfor %}
         </tr> 
         {% endfor %}
     </tbody> 

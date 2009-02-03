@@ -28,6 +28,7 @@ import omero
 from omero.rtypes import *
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero_model_UriAnnotationI import UriAnnotationI
+from omero_model_LongAnnotationI import LongAnnotationI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_FileAnnotationI import FileAnnotationI
 from omero_model_OriginalFileI import OriginalFileI
@@ -48,8 +49,9 @@ class BaseContainer(BaseController):
     dataset = None
     image = None
     tag = None
-    tag2 = None
-    tag3 = None
+    comment = None
+    
+    tags = None
     
     containers = None
     containersMyGroups = None
@@ -68,7 +70,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, tags=None, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -87,12 +89,12 @@ class BaseContainer(BaseController):
             else:
                 self.image = self.conn.getImage(o1_id)
         elif o1_type == "tag":
-            if o1_id is not None:
-                self.tag = self.conn.getTagAnnotation(long(o1_id))
-            if o2_id is not None:
-                self.tag2 = self.conn.getTagAnnotation(long(o2_id))
-            if o3_id is not None:
-                self.tag3 = self.conn.getTagAnnotation(long(o3_id))
+            self.tag = self.conn.getTagAnnotation(o1_id)
+        elif o1_type == "url":
+            self.uri = self.conn.getUriAnnotation(o1_id)
+        elif tags is not None:
+            if len(tags) > 0:
+                self.tags = list(self.conn.lookupTagsAnnotation(tags))
         elif o1_type == "orphaned":
             self.orphaned = True
         
@@ -165,15 +167,28 @@ class BaseContainer(BaseController):
                 self.eContext['breadcrumb'] = ['Edit dataset: %s' % (self.dataset.breadcrumbName())]
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
+            elif self.tag is not None:
+                self.eContext['breadcrumb'] = ['Edit tag: %s' % (self.tag.breadcrumbName())]
         elif self.orphaned:
             self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), "Orphaned images"]
         else:
-            if self.tag is not None:
-                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tag: %s' % (self.tag.breadcrumbName())]
-                if self.tag2 is not None:
-                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s' % (self.tag.breadcrumbName(), self.tag2.breadcrumbName())]
-                    if self.tag3 is not None:
-                        self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s' % (self.tag.breadcrumbName(), self.tag2.breadcrumbName(), self.tag3.breadcrumbName())]
+            if self.tags is not None:
+                try:
+                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName(), self.tags[4].breadcrumbName())]
+                except:
+                    try:
+                        self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName())]
+                    except:
+                        try:
+                            self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName())]
+                        except:
+                            try:
+                                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName())]
+                            except:
+                                try:
+                                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tag: %s' % (self.tags[0].breadcrumbName())]
+                                except:
+                                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags']
             elif self.project is not None:
                 self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
                             '<a href="/%s/%s/project/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.project.breadcrumbName())]
@@ -193,11 +208,9 @@ class BaseContainer(BaseController):
                 self.eContext['breadcrumb'] = [menu.title()] 
     
     def loadDataByTag(self):
-        tagids = [self.tag.id]
-        if self.tag2 is not None:
-            tagids.append(self.tag2.id)
-        if self.tag3 is not None:
-            tagids.append(self.tag3.id)
+        tagids = list()
+        for t in self.tags:
+            tagids.append(t.id)
         
         pr_list = list(self.conn.listProjectsByTag(tagids))
         ds_list = list(self.conn.listDatasetsByTag(tagids))
@@ -647,16 +660,16 @@ class BaseContainer(BaseController):
             aList = self.project.listAnnotations()
         
         for ann in aList:
-            if ann._obj.__class__.__name__ == 'CommentAnnotationI':
+            if isinstance(ann._obj, CommentAnnotationI) or isinstance(ann._obj, UriAnnotationI):
                 self.text_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'LongAnnotationI':
+            #elif ann._obj.__class__.__name__ == 'UriAnnotationI':
+            #    self.url_annotations.append(ann)
+            elif isinstance(ann._obj, LongAnnotationI):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
-            elif ann._obj.__class__.__name__ == 'UriAnnotationI':
-                self.url_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'FileAnnotationI':
+            elif isinstance(ann._obj, FileAnnotationI):
                 self.file_annotations.append(ann)
-            elif ann._obj.__class__.__name__ == 'TagAnnotationI':
+            elif isinstance(ann._obj, TagAnnotationI):
                 self.tag_annotations.append(ann)
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
@@ -780,25 +793,28 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ann)
     
     # Tag annotation
-    def createImageTagAnnotation(self, tag):
+    def createImageTagAnnotation(self, tag, desc):
         ann = TagAnnotationI()
         ann.textValue = rstring(str(tag))
+        ann.setDescription(rstring(str(desc)))
         t_ann = ImageAnnotationLinkI()
         t_ann.setParent(self.image._obj)
         t_ann.setChild(ann)
         self.conn.saveObject(t_ann)
     
-    def createDatasetTagAnnotation(self, tag):
+    def createDatasetTagAnnotation(self, tag, desc):
         ann = TagAnnotationI()
         ann.textValue = rstring(str(tag))
+        ann.setDescription(rstring(str(desc)))
         t_ann = DatasetAnnotationLinkI()
         t_ann.setParent(self.dataset._obj)
         t_ann.setChild(ann)
         self.conn.saveObject(t_ann)
     
-    def createProjectTagAnnotation(self, tag):
+    def createProjectTagAnnotation(self, tag, desc):
         ann = TagAnnotationI()
         ann.textValue = rstring(str(tag))
+        ann.setDescription(rstring(str(desc)))
         t_ann = ProjectAnnotationLinkI()
         t_ann.setParent(self.project._obj)
         t_ann.setChild(ann)

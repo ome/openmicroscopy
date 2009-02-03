@@ -7,7 +7,7 @@ table.tablesorter {
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
     background-color: #eee;
-    padding: 2px;
+    padding: 2px 10px 2px 2px;
 }
 table.tablesorter thead tr .header {
     background-image: url(/webclient/static/images/table/bg.gif);

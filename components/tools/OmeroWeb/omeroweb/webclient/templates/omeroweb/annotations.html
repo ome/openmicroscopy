@@ -13,7 +13,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment on {{ tann.creationEventDate }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment on {{ tann.creationEventDate }} <!--{% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}--></div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -37,14 +37,14 @@
     {% endfor %}
 {% endif %}
 
-{% if manager.urlannSize %}
+<!--{% if manager.urlannSize %}
 <h1>URLs:</h1>
     <div class="body_url">
     <p>| {% for urlann in manager.url_annotations %}
         {{ urlann.textValue|wikify|safe }} {% if urlann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/url/{{ urlann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> <a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=uann-{{ urlann.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %} | 
     {% endfor %}</p>
     </div>
-{% endif %}
+{% endif %}-->
 
 {% if manager.fileannSize %}
 <h1>Files:</h1>

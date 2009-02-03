@@ -43,6 +43,7 @@ import omero_api_IScript_ice
 from omero.rtypes import *
 
 from omero_model_FileAnnotationI import FileAnnotationI
+from omero_model_TagAnnotationI import TagAnnotationI
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -873,10 +874,14 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
-    def filterTags(self, t):
+    def getAllTags(self):
         q = self.getQueryService()
         sql = "select tg from TagAnnotation tg "
-        return [t.textValue.val for t in q.findAllByQuery(sql,None)]
+        tags = list()
+        for e in q.findAllByQuery(sql,None):
+            t = AnnotationWrapper(self, e)
+            tags.append({'tag': t.textValue,'id':t.id, 'desc':(t.tinyDescription())} )
+        return tags
     
     ##############################################
     ##   Share methods
@@ -1253,6 +1258,33 @@ class BlitzGateway (threading.Thread):
         sql = "select tg from TagAnnotation tg where tg.id = :oid"
         tg = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, tg)
+    
+    def lookupTagsAnnotation (self, names):
+        '''query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["names"] = rlist([rstring(n) for n in names])
+        f = omero.sys.Filter()
+        f.limit = rint(5)
+        p.theFilter = f
+        sql = "select tg from TagAnnotation tg where tg.textValue in (:names) order by tg.textValue"
+        for e in query_serv.findAllByQuery(sql, p):
+            yield AnnotationWrapper(self, e)'''
+        query_serv = self.getQueryService()
+        res = list()
+        for n in names:
+            p = omero.sys.Parameters()
+            p.map = {} 
+            p.map["text"] = rstring(str(n))
+            f = omero.sys.Filter()
+            f.limit = rint(1)
+            p.theFilter = f
+            sql = "select tg from TagAnnotation tg where tg.textValue=:text order by tg.textValue"
+            res.append(query_serv.findByQuery(sql, p))
+        
+        for e in res:
+            yield AnnotationWrapper(self, e)
+        
     
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()
@@ -2099,9 +2131,9 @@ class BlitzObjectWrapper (object):
             if desc == None or desc.val == "":
                 return None
             l = len(desc.val)
-            if l < 30:
+            if l <= 28:
                 return desc.val
-            return desc.val[:30] + "..."
+            return desc.val[:28] + "..."
         except:
             logger.debug(traceback.format_exc())
             return self._obj.description.val
@@ -2225,7 +2257,21 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 return self._obj.file.name.val
         else:
             return None
-
+    
+    def shortTag(self):
+        if isinstance(self._obj, TagAnnotationI):
+            try:
+                name = self._obj.textValue.val
+                l = len(name)
+                if l < 11:
+                    return name
+                return name[:5] + ".." + name[l - 5:] 
+            except:
+                logger.debug(traceback.format_exc())
+                return self._obj.textValue.val
+        else:
+            return None
+    
 class OriginalFileWrapper (BlitzObjectWrapper):
     pass
 

@@ -67,14 +67,17 @@ class BaseAnnotation(BaseController):
         ann.textValue = rstring(str(url))
         self.conn.saveObject(ann)
     
-    def saveTagAnnotation(self, tag):
+    def saveTagAnnotation(self, tag, description):
         ann = self.tag._obj
         ann.textValue = rstring(str(tag))
+        if description != "" :
+            ann.description = rstring(str(description))
+        else:
+            ann.description = None
         self.conn.saveObject(ann)
     
     def getFileAnnotation(self, iid):
         self.annotation = self.conn.getFileAnnotation(iid)
         self.ann_type = self.annotation.file.format.value.val
         self.originalFile_data = self.conn.getFile(self.annotation.file.id.val)
-    
-    
+        

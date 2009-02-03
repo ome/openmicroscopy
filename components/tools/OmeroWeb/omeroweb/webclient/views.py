@@ -69,7 +69,7 @@ from omeroweb.webadmin.controller.experimenter import BaseExperimenter
 from models import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, \
                     HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
-                    TagListForm, UrlListForm, CommentListForm, FileListForm
+                    TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
 from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm
 
 from omeroweb.webadmin.models import Gateway, LoginForm
@@ -759,21 +759,22 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
                 tag = request.REQUEST['tag']
+                desc = request.REQUEST['description']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag, desc)
                     elif o2_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.createProjectTagAnnotation(tag)
+                        manager.createProjectTagAnnotation(tag, desc)
                     elif o1_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag, desc)
                     elif o1_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
@@ -1118,21 +1119,21 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                 tag = request.REQUEST['tag']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag, desc)
                     elif o2_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.createProjectTagAnnotation(tag)
+                        manager.createProjectTagAnnotation(tag, desc)
                     elif o1_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag, desc)
                     elif o1_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 form_tag = TagAnnotationForm()
-            form_uri = UriAnnotationForm()
+            form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
             form_file = UploadFileForm()
             
@@ -1519,19 +1520,19 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                 tag = request.REQUEST['tag']
                 if o3_type and o3_id:
                     if o3_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 elif o2_type and o2_id:
                     if o2_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag, desc)
                     elif o2_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
-                        manager.createProjectTagAnnotation(tag)
+                        manager.createProjectTagAnnotation(tag, desc)
                     elif o1_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag)
+                        manager.createDatasetTagAnnotation(tag, desc)
                     elif o1_type == 'image':
-                        manager.createImageTagAnnotation(tag)
+                        manager.createImageTagAnnotation(tag, desc)
                 form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
@@ -1761,7 +1762,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_data_by_tag(request, tid1=None, tid2=None, tid3=None, **kwargs):
+def manage_data_by_tag(request, tid=None, **kwargs):
     request.session['nav']['menu'] = 'mydata'
     request.session['nav']['whos'] = 'mydata'
     
@@ -1779,33 +1780,54 @@ def manage_data_by_tag(request, tid1=None, tid2=None, tid3=None, **kwargs):
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, "tag", tid1, "tag", tid2, "tag", tid3 )
+    form_filter = None
+    tags = list()
+    
+    if tid is not None:
+        tag = str(conn.getTagAnnotation(long(tid)).textValue)
+        tags.append(tag)
+        form_filter = TagFilterForm(initial={'tag':tag})
+    
+    if request.method == 'POST':
+        form_filter = TagFilterForm(data=request.REQUEST.copy())
+        if form_filter.is_valid():
+            if request.REQUEST['tag'] != "" and tid is None:
+                tags.append(str(request.REQUEST['tag']))
+            if request.REQUEST['tag2'] != "":
+                tags.append(str(request.REQUEST['tag2']))
+            if request.REQUEST['tag3'] != "":
+                tags.append(str(request.REQUEST['tag3']))
+            if request.REQUEST['tag4'] != "":
+                tags.append(str(request.REQUEST['tag4']))
+            if request.REQUEST['tag5'] != "":
+                tags.append(str(request.REQUEST['tag5']))
+    
+    manager = BaseContainer(conn, tags=tags)
     manager.buildBreadcrumb(whos)
-    if tid1 is not None:
+    if len(tags) > 0:
         manager.loadDataByTag()
     else:
         pass
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
     
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+    if form_filter is None:
+        form_filter = TagFilterForm()
+    
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group, 'form_filter':form_filter}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def suggest_tags(request, **kwargs):
+def autocomplete_tags(request, **kwargs):
     conn = None
-    url = None
-    mask = None
     try:
         conn = kwargs["conn"]
-        url = kwargs["url"]
-        mask = request.REQUEST['mask']
     except:
         logger.error(traceback.format_exc())
-    
-    json_data = simplejson.dumps(list(conn.filterTags(mask)))
+        
+    json_data = simplejson.dumps(list(conn.getAllTags()))
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
@@ -1976,7 +1998,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="tag" and o_id > 0:
             template = "omeroweb/annotation_form.html"
-            form = TagAnnotationForm(initial={'tag':manager.tag.textValue})
+            form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
@@ -2062,7 +2084,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
                 content = request.REQUEST['tag']
-                manager.saveTagAnnotation(content)
+                description = request.REQUEST['description']
+                manager.saveTagAnnotation(content, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_form.html"

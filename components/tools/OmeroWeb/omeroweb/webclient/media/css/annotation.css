@@ -1,11 +1,12 @@
 #annotation {
     border-top:1px solid #BBBBBB;
+    border-bottom:1px solid #BBBBBB;
     margin: 50px 0 10px;
-    padding: 10px 0;
+    padding: 10px 0 50px;
 }
 #annotation_form {
     border-bottom:1px solid #BBBBBB;
-    height: 500px;
+    height: 430px;
     position: relative;
 }
 
