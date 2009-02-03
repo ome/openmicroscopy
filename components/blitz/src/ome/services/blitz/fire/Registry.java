@@ -78,13 +78,17 @@ public class Registry {
         }
     }
 
-    public void removeObjectSafely(Ice.Identity id) {
+    public boolean removeObjectSafely(Ice.Identity id) {
         try {
             removeObject(id);
+            return true;
+        } catch (IceGrid.ObjectNotRegisteredException onre) {
+            log.debug(Ice.Util.identityToString(id)+" not registered");
         } catch (Exception e) {
             log.error("Failed to remove registry object "
                     + Ice.Util.identityToString(id), e);
         }
+        return false;
     }
     
     public ClusterNodePrx[] lookupClusterNodes() {
