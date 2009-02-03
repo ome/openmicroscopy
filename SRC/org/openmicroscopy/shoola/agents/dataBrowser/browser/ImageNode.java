@@ -140,24 +140,6 @@ public class ImageNode
     }
     
     /**
-     * Returns <code>true</code> if the hosted object is classified, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isClassified()
-    {
-    	/*
-        if (hierarchyObject instanceof ImageData) {
-            ImageData d =  (ImageData) hierarchyObject;
-            Long n = null;//d.getClassificationCount();
-            return (n != null && n.longValue() > 0);
-        }
-        */
-        return false;
-    }
-    
-    /**
      * Spits out a runtime exception because it's not possible to add a
      * child to a leaf node.
      * 
@@ -191,10 +173,7 @@ public class ImageNode
      */
     public Timestamp getAcquisitionTime()
     {
-    	Timestamp t = null;
-    	try {
-    		t = ((ImageData) getHierarchyObject()).getAcquisitionDate();
-    	} catch (Exception e) {}
+    	Timestamp t = ((ImageData) getHierarchyObject()).getAcquisitionDate();
     	if (t == null) t = new Timestamp(new Date().getTime());
     	return t;
     }

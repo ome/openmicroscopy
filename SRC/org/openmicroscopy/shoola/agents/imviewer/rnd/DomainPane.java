@@ -63,7 +63,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
@@ -640,7 +639,7 @@ class DomainPane
         String colorModel = model.getColorModel();
         for (int i = 0 ; i < channelList.size() ; i++) {
             btn = channelList.get(i);
-            btn.setColor(model.getChannelColor(i));
+            btn.setColor(model.getChannelColor(btn.getChannelIndex()));
             btn.setGrayedOut(colorModel.equals(ImViewer.GREY_SCALE_MODEL));
         }
     }

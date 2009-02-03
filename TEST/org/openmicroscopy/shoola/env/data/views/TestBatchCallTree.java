@@ -84,7 +84,7 @@ public class TestBatchCallTree
             observer.eventFired(
                     new DSCallFeedbackEvent(perc, 
                                             target.getLeafDescription(i+1),
-                                            new Integer(i+1)),
+                                            Integer.valueOf(i+1)),
                     null);
         }    
         if (m < howMany)  //Normal outcome, set last feedback event.

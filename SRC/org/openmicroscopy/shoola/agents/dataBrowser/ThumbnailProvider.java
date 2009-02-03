@@ -74,7 +74,7 @@ public class ThumbnailProvider
      * The magnification factor used when the thumbnail of max size 
      * is magnified. 
      */
-    private final double		ZOOM_FACTOR = 1.5;
+    private static final double	ZOOM_FACTOR = 1.5;
     
     /** The thickness of the border added to the icon. */
     private static final int    BORDER = 1;

@@ -269,19 +269,13 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setChannelColor(int)
      */
-    public void setChannelColor(int index)
-    {
-    	view.setChannelColor(index);  
-    }
+    public void setChannelColor(int index) { view.setChannelColor(index); }
     
     /**
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setColorModelChanged()
      */
-    public void setColorModelChanged()
-    {
-    	view.setColorModelChanged();
-    }
+    public void setColorModelChanged() { view.setColorModelChanged(); }
     
     /** 
      * Implemented as specified by the {@link Renderer} interface.

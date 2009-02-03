@@ -109,7 +109,7 @@ public class FakeBatchCallTree
         int totalCount = 0;
         for (int i = 1; i < 6; ++i)
             totalCount += L[i].getDoCallCount();
-        return new Integer(totalCount);
+        return Integer.valueOf(totalCount);
     }
 
     /* (non-Javadoc)
@@ -119,7 +119,7 @@ public class FakeBatchCallTree
      */
     protected Object getPartialResult()
     {
-        return new Integer(++partResCount);
+        return Integer.valueOf(++partResCount);
     }
     
     //Called internally by the tree w/in exec().
@@ -158,7 +158,7 @@ public class FakeBatchCallTree
     //The result that should be eventually delivered to the observer.
     public Object getExpectedResult()
     {
-        return new Integer(5);
+        return Integer.valueOf(5);
     }
     
 }

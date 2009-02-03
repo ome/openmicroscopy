@@ -96,7 +96,7 @@ public class NullOmeroPojoService
 	public Boolean changePassword(String oldPassword, String newPassword)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return null;
+		return Boolean.valueOf(false);
 	}
 
 	/**

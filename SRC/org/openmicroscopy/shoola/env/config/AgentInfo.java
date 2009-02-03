@@ -164,12 +164,14 @@ public class AgentInfo
 	void setActive(String active)
 	{ 
 		if (active == null) this.active = true; 
-		active = active.toLowerCase();
-		if (TRUE.equals(active) || TRUE_SHORT.equals(active))
-			this.active = true;
-		else if (FALSE.equals(active) || FALSE_SHORT.equals(active))
-			this.active = false;
-		 this.active = true; 
+		else {
+			active = active.toLowerCase();
+			if (TRUE.equals(active) || TRUE_SHORT.equals(active))
+				this.active = true;
+			else if (FALSE.equals(active) || FALSE_SHORT.equals(active))
+				this.active = false;
+			else this.active = true; 
+		}
 	}
 	
 }

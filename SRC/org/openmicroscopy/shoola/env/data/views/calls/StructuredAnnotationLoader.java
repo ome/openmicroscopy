@@ -371,6 +371,17 @@ public class StructuredAnnotationLoader
     	}
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param index The index identifying the call. One of the constants
+     * 					defined by this class.
+     * @param userID	The id of the user or <code>-1</code> if the id 
+     * 					is not specified.
+     * @param data		The collection of data objects to handle.
+     * @param viewed
+    
+     */
     public StructuredAnnotationLoader(int index, List<DataObject> data, long 
     		userID, boolean viewed)
     {
@@ -397,6 +408,8 @@ public class StructuredAnnotationLoader
     									long userID)
     {
 
+    	if (object == null)
+    		throw new IllegalArgumentException("Object not defined.");
     	switch (index) {
     		case ALL:
     			loadCall = loadStructuredData(object, userID);
@@ -409,8 +422,7 @@ public class StructuredAnnotationLoader
     			}
     			break;
 			case ATTACHMENT:
-				Class klass = null;
-				if (object != null) klass = object.getClass();
+				Class klass = object.getClass();
 				loadCall = loadAttachments(klass, object.getId(), userID);
 				break;
 			case TAG:

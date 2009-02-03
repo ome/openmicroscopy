@@ -3311,7 +3311,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			SearchPrx service = getSearchService();
-			if (start != null || end != null)
+			if (start != null && end != null)
 				service.onlyAnnotatedBetween(
 						omero.rtypes.rtime(start.getTime()), 
 						omero.rtypes.rtime(end.getTime()));

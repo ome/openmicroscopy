@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -116,7 +115,7 @@ public class DataServicesFactory
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
 	
-    
+    /** The fs properties. */
     private Properties 					fsConfig;
     
     /**
@@ -129,11 +128,16 @@ public class DataServicesFactory
 	private static Properties loadConfig(String file)
 	{
 		Properties config = new Properties();
+		FileInputStream fis = null;
 		try { 
-			FileInputStream fis = new FileInputStream(file);
+			fis = new FileInputStream(file);
 			config.load(fis);
 		} catch (Exception e) {
 			return null;
+		} finally {
+			try {
+				if (fis != null) fis.close();
+			} catch (Exception ex) {}
 		}
 		return config;
 	}
