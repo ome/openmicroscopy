@@ -34,7 +34,7 @@
 
   </description>
 
-  <bean id="simpleDataSource"
+  <!--<bean id="simpleDataSource" lazy-init="true"
       class="com.atomikos.jdbc.SimpleDataSourceBean"
       init-method="init" destroy-method="close">
       <property name="uniqueResourceName" ref="uuid"/>
@@ -49,9 +49,8 @@
         </props>
       </property>
       <property name="exclusiveConnectionMode"><value>true</value></property>
-       <!-- how many connections in the pool? -->
       <property name="connectionPoolSize" value="3"/>
-   </bean>
+   </bean>-->
 
   <bean id="nonXaDataSource" class="com.atomikos.jdbc.nonxa.NonXADataSourceBean">
     <property name="uniqueResourceName" ref="uuid"/>
@@ -62,16 +61,22 @@
     <property name="poolSize" value="${omero.db.poolsize}"/>
   </bean>
 
+  <alias name="nonXaDataSource" alias="dataSource"/>
+
+  <!-- Seems to cause problems. Looks for JNDI
   <bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
     <property name="targetDataSource" ref="nonXaDataSource"/>
   </bean>
+  -->
 
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-  <!-- configured in etc/jta.properties -->
+  <!-- configured in etc/jta.properties which must be deleted for jbossts-->
+  <!--
   <bean id="jtaransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close"/>
   <bean id="jtaUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp"/>
+  -->
 </beans>
 

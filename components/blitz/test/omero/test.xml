@@ -52,7 +52,7 @@
 
  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
  <bean id="methodSecurity" factory-bean="methodMock" factory-method="proxy"/>
-  <bean id="executor"       factory-bean="executorMock" factory-method="proxy"/>
+  <bean id="executor"      factory-bean="executorMock" factory-method="proxy"/>
  <!-- Here it is necessary to specify the HardWiredInterceptors instances
  even if they are *not* specified in Spring -->
  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring">
@@ -95,28 +95,5 @@
   <bean id="sessionManager" class="org.springframework.aop.framework.ProxyFactoryBean">
       <property name="targetSource" ref="swappableSessionManagerSource"/>
   </bean>
-  
 
-  <!-- SessionManagerI configuration with a swappable adapter-->
-
-  <bean id="adapterMock" class="org.jmock.Mock">
-      <constructor-arg value="Ice.ObjectAdapter" type="java.lang.Class"/>
-  </bean>
-
-  <bean id="mockedAdapter" factory-bean="adapterMock" factory-method="proxy"/>
-
-  <bean id="swappableAdapterSource"
-      class="org.springframework.aop.target.HotSwappableTargetSource">
-      <constructor-arg ref="mockedAdapter"/>
-  </bean>
-
-  <bean id="adapter" class="org.springframework.aop.framework.ProxyFactoryBean">
-      <property name="targetSource" ref="swappableAdapterSource"/>
-  </bean>
-
-  <!-- Defined here since it is an application listener. -->
-  <bean id="ring" class="ome.services.blitz.fire.Ring">
-    <constructor-arg ref="executor"/>
-    <constructor-arg ref="sessionCache"/>
-  </bean>
 </beans>

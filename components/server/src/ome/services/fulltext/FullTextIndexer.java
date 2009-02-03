@@ -24,7 +24,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Simple action which can be done in an asynchronous thread in order to index
@@ -109,6 +109,7 @@ public class FullTextIndexer implements Work {
      * Runes {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called
      */
+    @Transactional(readOnly=true)
     public Object doWork(Session session, ServiceFactory sf) {
         int count = 1;
         int perbatch = 0;

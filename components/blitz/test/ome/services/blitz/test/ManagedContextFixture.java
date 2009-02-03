@@ -6,6 +6,7 @@
  */
 package ome.services.blitz.test;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import ome.api.IAdmin;
@@ -14,6 +15,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
+import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -63,6 +65,16 @@ public class ManagedContextFixture {
         setCurrentUser("root");
         String user = newUser();
         setCurrentUser(user);
+    }
+
+    public ServiceFactoryI createServiceFactoryI()
+            throws omero.ApiUsageException {
+        Ice.Current current = new Ice.Current();
+        current.ctx = new HashMap<String, String>();
+        current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
+        ServiceFactoryI factory = new ServiceFactoryI(current, ctx, mgr, ex,
+                getPrincipal(), null);
+        return factory;
     }
 
     public void tearDown() throws Exception {

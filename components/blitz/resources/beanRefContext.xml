@@ -31,6 +31,7 @@
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/throttling/throttling.xml</value>
         <value>classpath:omero/test.xml</value>
+        <value>classpath:omero/test2.xml</value>
         <value>classpath:ome/services/sec-primitives.xml</value>
         <value>classpath:ome/services/blitz-servantDefinitions.xml</value>
       </list>

@@ -55,41 +55,31 @@ public class TimelineITest extends TestCase {
         super.setUp();
 
         // Shared
-        OmeroContext ctx = OmeroContext.getManagedServerContext();
+        OmeroContext inner = OmeroContext.getManagedServerContext();
+        OmeroContext outer = new OmeroContext(new String[]{"classpath:omero/test2.xml"}, false);
+        outer.setParent(inner);
+        outer.afterPropertiesSet();
+        
         BlitzExecutor be = new InThreadThrottlingStrategy();
-        sm = (SessionManager) ctx.getBean("sessionManager");
+        sm = (SessionManager) outer.getBean("sessionManager");
 
-        user = new ManagedContextFixture(ctx);
+        user = new ManagedContextFixture(outer);
         String name = user.loginNewUserNewGroup();
-        user_sf = createServiceFactoryI(user);
+        user_sf = user.createServiceFactoryI();
 
         user_t = new TimelineI(be);
         user_t.setServiceFactory(user_sf);
         user_t.setSessionManager(sm);
         user_t.setLocalQuery((LocalQuery) user.managedSf.getQueryService());
 
-        root = new ManagedContextFixture(ctx);
+        root = new ManagedContextFixture(outer);
         // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
-        root_sf = createServiceFactoryI(root);
+        root_sf = root.createServiceFactoryI();
 
         root_t = new TimelineI(be);
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);
         root_t.setLocalQuery((LocalQuery) root.managedSf.getQueryService());
-    }
-
-    /**
-     * TODO: This method should be in the ManagedContextFixture, but that is
-     * under components/server. Either subclass or rearrange.
-     */
-    public ServiceFactoryI createServiceFactoryI(ManagedContextFixture fixture)
-            throws omero.ApiUsageException {
-        Ice.Current current = new Ice.Current();
-        current.ctx = new HashMap<String, String>();
-        current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
-        ServiceFactoryI factory = new ServiceFactoryI(current, fixture.ctx,
-                fixture.mgr, fixture.ex, fixture.getPrincipal(), null);
-        return factory;
     }
 
     @Override
