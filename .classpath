@@ -75,7 +75,7 @@
 	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate.jar" sourcepath="/Users/josh/lib/hibernate-3.2.5.ga"/>
+	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/ice-db.jar"/>
 	<classpathentry kind="lib" path="target/libs/ice.jar"/>
 	<classpathentry kind="lib" path="target/libs/ij.jar"/>
@@ -97,19 +97,21 @@
 	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi.jar"/>
-	<classpathentry kind="lib" path="target/libs/postgresql.jar" sourcepath="/Users/josh/Downloads/postgresql-jdbc-8.3-604.src"/>
+	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry kind="lib" path="target/libs/slf4j-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/slf4j-log4j12.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring.jar" sourcepath="/Users/josh/lib/spring-framework-2.5.5"/>
+	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
         <classpathentry kind="lib" path="target/libs/atomikos-transactions-essentials.jar"/>
+        <classpathentry kind="lib" path="target/libs/jbossts.jar"/>
+        <classpathentry kind="lib" path="target/libs/jbossts-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/tyrex.jar"/>
 	<classpathentry kind="lib" path="target/libs/backport-util-concurrent.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
