@@ -63,6 +63,7 @@
             <list>
                 <value>serviceHandler</value>
                 <value>proxyHandler</value>
+                <value>transactionHandler</value>
                 <value>hibernateHandler</value>
                 <value>eventHandler</value>
             </list>
@@ -91,6 +92,7 @@
             <list>
                 <value>serviceHandler</value>
                 <value>proxyHandler</value>
+                <value>transactionHandler</value>
                 <value>hibernateHandler</value>
                 <value>eventHandler</value>
             </list>
@@ -103,6 +105,7 @@
 			<list>
 				<value>serviceHandler</value>
 				<value>proxyHandler</value>
+				<value>transactionHandler</value>
 				<value>sessionHandler</value>
 				<value>eventHandler</value>
 			</list>
@@ -169,7 +172,6 @@
 
   <bean id="executor" class="ome.services.util.Executor$Impl">
     <constructor-arg ref="currentDetails"/>
-    <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="executorInterceptors"/>
     <constructor-arg ref="simpleJdbcTemplate"/>
@@ -199,6 +201,8 @@
     <property name="triggers">
       <list>
         <ref bean="fullTextIndexerTrigger"/>
+        <ref bean="updateCacheTrigger"/>
+        <ref bean="removeUnusedFilesTrigger"/>
       </list>
 
     <!--Disabling trigger, since context is not properly initialized

@@ -1,42 +1,38 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.tools;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.IRepositoryInfo;
-import ome.system.OmeroContext;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
  * Class implementation of various mechanised tasks, database queries, file I/O,
  * etc. This class is used by the public services provided by IRepositoryInfo
- * <p>
- * Copyright 2007 Glencoe Software Inc. All rights reserved. Use is subject to
- * license terms supplied in LICENSE.txt <p/>
  * 
- * @author David L. Whitehurst &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:david@glencoesoftware.com">david@glencoesoftware.com</a>
- * @version $Revision$
  * @since 3.0
  * @see IRepositoryInfo
  */
 public class RepositoryTask {
 
-	private OmeroContext ctx;
-	private SimpleJdbcTemplate template;
+	final private SimpleJdbcOperations template;
 
 	/**
 	 * Constructor
 	 */
-	public RepositoryTask() {
-		ctx = OmeroContext.getManagedServerContext();
-		template = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate");
+	public RepositoryTask(SimpleJdbcOperations template) {
+	    this.template = template;
 	}
 	
 	/**

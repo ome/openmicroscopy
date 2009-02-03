@@ -9,7 +9,6 @@ package ome.logic;
 
 import java.util.List;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
@@ -25,6 +24,7 @@ import ome.tools.RepositoryTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -34,8 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
  * image mount point, e.g. /OMERO See source code documentation for more.
  * <p>
  * Copyright 2007 Glencoe Software Inc. All rights reserved. Use is subject to
- * license terms supplied in LICENSE.txt <p/>
- *
+ * license terms supplied in LICENSE.txt
+ * <p/>
+ * 
  * @author David L. Whitehurst &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:david@glencoesoftware.com">david@glencoesoftware.com</a>
  * @version $Revision$
@@ -76,6 +77,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
     /* The ROMIO file service. */
     private transient OriginalFilesService fileService;
+
+    /* JDBC operations for removedUnusedFiles */
+    private transient SimpleJdbcOperations jdbc;
 
     // Static state
     // =========================================================================
@@ -126,6 +130,16 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     public void setFileService(OriginalFilesService fileService) {
         getBeanHelper().throwIfAlreadySet(this.fileService, fileService);
         this.fileService = fileService;
+    }
+
+    /**
+     * Bean injection setter for JDBC operations
+     * 
+     * @param rootdir
+     */
+    public void setSimpleJdbcOperations(SimpleJdbcOperations jdbcOps) {
+        getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcOps);
+        this.jdbc = jdbcOps;
     }
 
     /*
@@ -230,7 +244,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
         long elapsed = time - lastCheck;
 
         // If the usage is within 5% of the critical usage
-        // return true regarless
+        // return true regardless
         if (lastUsage > CRITICAL_USAGE - 5.0) {
             return true;
         }
@@ -287,7 +301,8 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public void removeUnusedFiles() {
-        RepositoryTask task = new RepositoryTask();
+
+        RepositoryTask task = new RepositoryTask(jdbc);
 
         // get ids for any objects marked as deleted
         List<Long> files = task.getFileIds();
@@ -295,13 +310,22 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
         List<Long> thumbs = task.getThumbnailIds();
 
         // cleanup any files
-        fileService.removeFiles(files);
+        if (files != null && files.size() > 0) {
+            log.info("Removing files: " + files);
+            fileService.removeFiles(files);
+        }
 
         // cleanup any pixels
-        pixelsService.removePixels(pixels);
+        if (pixels != null & pixels.size() > 0) {
+            log.info("Removing pixels: " + pixels);
+            pixelsService.removePixels(pixels);
+        }
 
         // cleanup any thumbnails
-        thumbnailService.removeThumbnails(thumbs);
+        if (thumbs != null && thumbs.size() > 0) {
+            log.info("Removing thumbnails: " + thumbs);
+            thumbnailService.removeThumbnails(thumbs);
+        }
     }
 
 }
