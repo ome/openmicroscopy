@@ -212,7 +212,7 @@
             <tr>
                 {% for t in manager.tags %}
                 <td>{% if t %}
-                    {{ t.textValue }} {% if not t.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/tag/{{ t.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
+                    ({{ t.id }}) {{ t.textValue }} {% if not t.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/tag/{{ t.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
                 {% else %}
                     <ul class="errorlist"><li>This tag does not exist.</li></ul>
                 {% endif %}</td><td> </td>
