@@ -393,7 +393,10 @@ class PropertiesUI
         add(buildProperties());
         Object refObject = model.getRefObject();
     	if (!(refObject instanceof ImageData)) return;
-    	PixelsData data = ((ImageData) refObject).getDefaultPixels();
+    	PixelsData data = null;
+    	try {
+    		data = ((ImageData) refObject).getDefaultPixels();
+		} catch (Exception e) {}
     	add(Box.createVerticalStrut(5));
     	add(buildContentPanel(EditorUtil.transformPixelsData(data)));
     }

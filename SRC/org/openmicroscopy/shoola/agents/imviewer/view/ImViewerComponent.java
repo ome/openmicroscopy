@@ -692,6 +692,13 @@ class ImViewerComponent
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
+		if (image == null) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Image retrieval", "An error occured while " +
+					"creating the image.");
+			return;
+		}
+			
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
 		model.setImage(image);

@@ -799,8 +799,12 @@ class OmeroMetadataServiceImpl
 		        context.getLogger().error(this, msg);
 		        results.setArchived(false);
 			}
-			results.setViewedBy(loadViewedBy(img.getId(), 
-								img.getDefaultPixels().getId()));
+			long pixelsID = -1;
+			try {
+				pixelsID = img.getDefaultPixels().getId();
+			} catch (Exception e) {}
+			if (pixelsID >= 0)
+				results.setViewedBy(loadViewedBy(img.getId(), pixelsID));
 		}
 		return results;
 	}
