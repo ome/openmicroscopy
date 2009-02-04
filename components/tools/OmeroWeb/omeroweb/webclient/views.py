@@ -717,7 +717,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
                     elif o1_type == 'dataset':
                         manager.createDatasetCommentAnnotation(content)
                     elif o1_type == 'image':
-                        manager.createImageTextAnnotation(content)
+                        manager.createImageCommentAnnotation(content)
                 form_comment = CommentAnnotationForm()
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})

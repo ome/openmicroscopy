@@ -775,15 +775,19 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         if o_type == "image":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "dataset":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "project":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )"
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
+                "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -792,15 +796,19 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         if o_type == "image":
             sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "dataset":
             sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "project":
             sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) "
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -809,15 +817,19 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         if o_type == "image":
             sql = "select a from UriAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "dataset":
             sql = "select a from UriAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "project":
             sql = "select a from UriAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) "
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -826,16 +838,21 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         if o_type == "image":
             sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) "
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "dataset":
             sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) "
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         elif o_type == "project":
             sql = "select a from FileAnnotation as a join fetch a.file " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) "
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
+            print e.details
             yield AnnotationWrapper(self, e)
     
     def listSpecifiedTags(self, ids):
