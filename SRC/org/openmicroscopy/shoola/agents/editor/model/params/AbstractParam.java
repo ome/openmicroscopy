@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -101,6 +103,11 @@ public abstract class AbstractParam
 	private List<Object>			paramValues;
 	
 	/**
+	 * A list of common units that the user can choose from. 
+	 */
+	private static String[] 		commonUnits;
+	
+	/**
 	 * Creates an instance, storing the field type in the attributes map.
 	 * @see FieldParamsFactory#PARAM_TYPES
 	 * 
@@ -112,6 +119,23 @@ public abstract class AbstractParam
 		valueAttributesMap.put(PARAM_TYPE, fieldType);
 		
 		paramValues = new ArrayList<Object>();
+	}
+	
+	/**
+	 * Returns a list of units that the user could choose from. 
+	 * 
+	 * @return		see above
+	 */
+	public static String[] getCommonUnits() { 
+		if (commonUnits == null) {
+			String units = (String)EditorAgent.getRegistry().lookup("/model/units");
+			commonUnits = units.split(",");
+			int unitsCount = commonUnits.length;
+			for (int i = 0; i < unitsCount; i++) {
+				commonUnits[i] = commonUnits[i].trim();
+			}
+		}
+		return commonUnits;	
 	}
 	
 	/**

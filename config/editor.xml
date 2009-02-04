@@ -31,5 +31,9 @@
      
      <!-- The 'home page' of online demo files -->
      <entry name="/demo/index">http://cvs.openmicroscopy.org.uk/snapshots/omero/editor/demoFiles/beta4/index.html</entry>
+
+	<!-- A comma-delimited list of common units -->
+	<entry name="/model/units"> M, ng, pH,µg, µg/ml, µl, µM, days, hours, minutes, seconds, ºC</entry>
+
 </resources>
 </agent>

@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
+import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 //Third-party libraries
@@ -77,7 +78,7 @@ public class AttributeEditLine
 	private String 				labelText;
 	
 	/** The text field used in this UI */
-	protected JTextComponent 		textField;
+	protected JTextField 		textField;
 	
 	/**
 	 * Builds the UI. 

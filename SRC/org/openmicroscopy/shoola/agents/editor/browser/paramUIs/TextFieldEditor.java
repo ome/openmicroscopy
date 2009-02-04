@@ -110,7 +110,7 @@ public class TextFieldEditor
 		initialise();
 	}
 	
-	public JTextComponent getTextField() {
+	public JTextField getTextField() {
 		return textField;
 	}
 	

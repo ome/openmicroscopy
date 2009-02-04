@@ -24,10 +24,16 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
 
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -36,8 +42,10 @@ import javax.swing.Box;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 
 /** 
  * This is the UI component for editing the "Template" of a number 
@@ -56,8 +64,19 @@ import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
  */
 public class NumberTemplate 
 	extends AbstractParamEditor
-	implements PropertyChangeListener
+	implements PropertyChangeListener, 
+		DocumentListener,
+		ActionListener
 {
+	/**
+	 * Keep a reference of the units text field for auto-complete.
+	 */
+	private JTextField			unitsField;
+	
+	/**
+	 * Auto-complete pop-up for units. 
+	 */
+	private HistoryDialog 		popup;
 	
 	/**
 	 * Builds the UI
@@ -77,7 +96,27 @@ public class NumberTemplate
 			(getParameter(), NumberParam.PARAM_UNITS, "Units");
 		unitsEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		unitsField = unitsEditor.textField;
+		unitsField.getDocument().addDocumentListener(this);
+		unitsField.addActionListener(this);
 		add(unitsEditor);
+	}
+	
+	/**
+	 * Shows the pop-up for users to choose an existing unit if they wish. 
+	 */
+	private void showUnitsPopup() {
+		Rectangle rect = unitsField.getBounds();
+
+		String[] unitsOptions = AbstractParam.getCommonUnits();
+		
+		popup = new HistoryDialog(unitsOptions, rect.width);
+		popup.addPropertyChangeListener(
+				HistoryDialog.SELECTION_PROPERTY, this);
+		popup.show(unitsField, 0, rect.height);
+		
+		// allows the user to keep typing
+		unitsField.requestFocusInWindow();
 	}
 	
 	/**
@@ -108,15 +147,34 @@ public class NumberTemplate
 	 */
 	public void propertyChange(PropertyChangeEvent evt) 
 	{	
-		if (AbstractParamEditor.VALUE_CHANGED_PROPERTY.
-				equals(evt.getPropertyName())) {
-		
+		String propName = evt.getPropertyName();
+		if (AbstractParamEditor.VALUE_CHANGED_PROPERTY.equals(propName)) {
+			
 			if (evt.getSource() instanceof ITreeEditComp) {
 				ITreeEditComp source = (ITreeEditComp)evt.getSource();
 				String attributeName = source.getAttributeName();
+				
+				// if editing Units, the pop-up causes loss of focus, and the 
+				// firing of this propertyChange. Don't want to save the edit
+				// at this point, because focus will be permanently lost from 
+				// textField when the panel is re-built. 
+				if (NumberParam.PARAM_UNITS.equals(attributeName)) {
+					// So, if the popup is visible (user not stopped editing units)
+					if (popup != null && popup.isVisible()) {
+						// ...don't do anything
+						return;
+					}
+				}
 				Object newValue = evt.getNewValue();
 				attributeEdited(attributeName, newValue);
 			}
+			
+			// If an item has been selected from pop-up, save change.
+			// This will also update the UI when the panel is rebuilt
+		} else if (HistoryDialog.SELECTION_PROPERTY.equals(propName)) {
+			String newUnits = popup.getSelectedTextValue() + "";
+			popup.setVisible(false);
+			attributeEdited(NumberParam.PARAM_UNITS, newUnits);
 		}
 	}
 	
@@ -127,6 +185,52 @@ public class NumberTemplate
 	 */
 	public String getEditDisplayName() {
 		return "Edit Number";
+	}
+
+	/**
+	 * Implemented as specified by the {@link DocumentListener} interface.
+	 * Listens to typing in the Units field, and calls {@link #showUnitsPopup()}
+	 * 
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {
+		showUnitsPopup();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DocumentListener} interface.
+	 * Listens to typing in the Units field, and calls {@link #showUnitsPopup()}
+	 * 
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e) {
+		showUnitsPopup();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DocumentListener} interface.
+	 * Listens to typing in the Units field, and calls {@link #showUnitsPopup()}
+	 * 
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e) {
+		showUnitsPopup();
+	}
+
+	/**
+	 * Implemented as specified by the {@link ActionListener} interface.
+	 * Listens for 'Enter' from Units field, hides pop-up and saves text.
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource().equals(unitsField)) {
+			String newUnits = unitsField.getText();
+			if (popup != null && popup.isVisible()) {
+				popup.setVisible(false);
+			}
+			attributeEdited(NumberParam.PARAM_UNITS, newUnits);
+		}
 	}
 
 }
