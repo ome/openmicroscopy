@@ -1281,9 +1281,11 @@ class BlitzGateway (threading.Thread):
             p.theFilter = f
             sql = "select tg from TagAnnotation tg where tg.textValue=:text order by tg.textValue"
             res.append(query_serv.findByQuery(sql, p))
-        
         for e in res:
-            yield AnnotationWrapper(self, e)
+            if e is None:
+                yield None
+            else:
+                yield AnnotationWrapper(self, e)
         
     
     def getFileAnnotation (self, oid):
@@ -2704,6 +2706,49 @@ class ShareWrapper (BlitzObjectWrapper):
         
     def getExpiretionDate(self):
         return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000).strftime("%Y-%m-%d")
+    
+    # Owner methods has to be updated because share.details.owner does not exist. Share.owner.
+    def isOwned(self):
+        if self._obj.owner.id.val == self._conn.getEventContext().userId:
+            return True
+        else:
+            return False
+    
+    def getOwner(self):
+        try:
+            # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
+            # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
+            # middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
+            lastName = ""
+            if hasattr(self._obj.owner.lastName, 'val'):
+                lastName = self._obj.owner.lastName.val
+            else:
+                if self._obj.owner.lastName is not None:
+                    lastName = self._obj.owner.lastName
+            firstName = ""
+            if hasattr(self._obj.owner.firstName, 'val'):
+                firstName = self._obj.owner.firstName.val
+            else:
+                if self._obj.owner.firstName is not None:
+                    firstName = self._obj.owner.firstName
+            middleName = ""
+            if hasattr(self._obj.owner.middleName, 'val'):
+                middleName = self._obj.owner.middleName.val
+            else:
+                if self._obj.owner.middleName is not None:
+                    middleName = self._obj.owner.middleName
+                    
+            if middleName != '':
+                name = "%s %s. %s" % (firstName, middleName[:1], lastName)
+            else:
+                name = "%s %s" % (firstName, lastName)
+            l = len(name)
+            if l < 40:
+                return name
+            return name[:40] + "..."
+        except:
+            logger.debug(traceback.format_exc())
+            return _("Unknown")
     
 class ShareContentWrapper (BlitzObjectWrapper):
     LINK_CLASS = None

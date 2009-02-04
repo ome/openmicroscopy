@@ -210,7 +210,8 @@ class BaseContainer(BaseController):
     def loadDataByTag(self):
         tagids = list()
         for t in self.tags:
-            tagids.append(t.id)
+            if t is not None:
+                tagids.append(t.id)
         
         pr_list = list(self.conn.listProjectsByTag(tagids))
         ds_list = list(self.conn.listDatasetsByTag(tagids))

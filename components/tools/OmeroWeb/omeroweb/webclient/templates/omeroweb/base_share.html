@@ -25,7 +25,7 @@
 </head>
 <body class="share">
     <div id="shared_menu">
-        <h1>Go back to <a href="{% get_webclient_root_url %}/share/">{% trans "Webclient" %}</a></h1>
+        <h1>Go back to <a href="{% get_webclient_root_url %}/share/">{% trans "Webclient" %}</a>{% if share.share.isOwned %} or Edit <a href="{% get_webclient_root_url %}/share/edit/{{ share.share.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</h1>
     </div>
     <div id="content">{% block center %}{% endblock %}</div>
     
