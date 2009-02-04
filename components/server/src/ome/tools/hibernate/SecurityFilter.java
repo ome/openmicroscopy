@@ -1,5 +1,5 @@
 /*
- * ome.tools.hibernate.SecurityFilter
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -7,15 +7,12 @@
 
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.Collection;
 import java.util.Properties;
 
-// Third-party libraries
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
-// Application-internal dependencies
 import ome.conditions.InternalException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -29,13 +26,20 @@ import static ome.model.internal.Permissions.Right.*;
  * security filter in code and not in XML. This allows us to make use of the
  * knowledge within {@link Permissions}
  * 
- * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * With the addition of shares in 4.0, it is necessary to remove the security
+ * filter is a share is active and allow loading to throw the necessary
+ * exceptions.
+ * 
+ * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0
- * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/117">ticket117</a>
+ * @see <a
+ *      href="https://trac.openmicroscopy.org.uk/omero/ticket/117">ticket117</a>
+ * @see <a
+ *      href="https://trac.openmicroscopy.org.uk/omero/ticket/1154">ticket1154</a>
  */
 public class SecurityFilter extends FilterDefinitionFactoryBean {
+
+    static public final String is_share = "is_share";
 
     static public final String is_admin = "is_admin";
 
@@ -51,12 +55,14 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     static private String defaultFilterCondition;
     static {
+        parameterTypes.setProperty(is_share, "java.lang.Boolean");
         parameterTypes.setProperty(is_admin, "java.lang.Boolean");
         parameterTypes.setProperty(current_user, "long");
         parameterTypes.setProperty(current_groups, "long");
         parameterTypes.setProperty(leader_of_groups, "long");
         // This can't be done statically because we need the securitySystem.
-        defaultFilterCondition = String.format("\n( " + "\n :is_admin OR "
+        defaultFilterCondition = String.format("\n( "
+                + "\n :is_share OR \n :is_admin OR "
                 + "\n (group_id in (:leader_of_groups)) OR "
                 + "\n (owner_id = :current_user AND %s) OR " + // 1st arg U
                 "\n (group_id in (:current_groups) AND %s) OR " + // 2nd arg G
@@ -67,9 +73,8 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     /**
      * default constructor which calls all the necessary setters for this
-     * {@link FactoryBean}. Also constructs the
-     * {@link #defaultFilterCondition } This query clause must be kept in sync
-     * with
+     * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
+     * This query clause must be kept in sync with
      * {@link #passesFilter(Details, Long, Collection, Collection, boolean)}
      * 
      * @see #passesFilter(Details, Long, Collection, Collection, boolean)
@@ -97,7 +102,7 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
      */
     public static boolean passesFilter(Details d, Long currentUserId,
             Collection<Long> memberOfGroups, Collection<Long> leaderOfGroups,
-            boolean admin) {
+            boolean admin, boolean share) {
         if (d == null || d.getPermissions() == null) {
             throw new InternalException("Details/Permissions null! "
                     + "Security system failure -- refusing to continue. "
@@ -124,6 +129,10 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         }
 
         if (admin) {
+            return true;
+        }
+
+        if (share) {
             return true;
         }
 

@@ -193,9 +193,11 @@ public class BasicSecuritySystem implements SecuritySystem {
         EventContext ec = getEventContext();
         Session sess = (Session) session;
         sess.enableFilter(SecurityFilter.filterName).setParameter(
-                SecurityFilter.is_admin, ec.isCurrentUserAdmin()).setParameter(
-                SecurityFilter.current_user, ec.getCurrentUserId())
-                .setParameterList(SecurityFilter.current_groups,
+                SecurityFilter.is_share, ec.getCurrentShareId() != null)
+                .setParameter(SecurityFilter.is_admin, ec.isCurrentUserAdmin())
+                .setParameter(SecurityFilter.current_user,
+                        ec.getCurrentUserId()).setParameterList(
+                        SecurityFilter.current_groups,
                         ec.getMemberOfGroupsList()).setParameterList(
                         SecurityFilter.leader_of_groups,
                         ec.getLeaderOfGroupsList());

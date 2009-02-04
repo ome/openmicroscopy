@@ -75,6 +75,10 @@ public class BasicACLVoter implements ACLVoter {
      * for the {@link #enableReadFilter(Object) read filter}
      * 
      * Ignores the id for the moment.
+     * 
+     * Though we pass in whether or not a share is active for completeness, a
+     * different {@link ACLVoter} implementation will almost certainly be active
+     * for share use.
      */
     public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
@@ -85,7 +89,7 @@ public class BasicACLVoter implements ACLVoter {
         BasicEventContext c = currentUser.current();
         return SecurityFilter.passesFilter(d, c.getOwner().getId(), c
                 .getMemberOfGroupsList(), c.getLeaderOfGroupsList(), c
-                .isCurrentUserAdmin());
+                .isCurrentUserAdmin(), c.getCurrentShareId() != null);
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

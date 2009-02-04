@@ -26,6 +26,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.parameters.Filter;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
 import org.testng.annotations.BeforeMethod;
@@ -406,6 +407,21 @@ public class SharingTest extends AbstractManagedContextTest {
 
         loginUser(member.getOmeName());
         assertEquals(1, share.getContentSize(id));
+        
+        try {
+            iQuery.find(Image.class, i.getId());
+            fail("Should throw");
+        } catch (SecurityViolation sv) {
+            // good.
+        }
+        share.activate(id);
+        assertNotNull(iQuery.find(Image.class, i.getId()));
+        
+        Parameters p = new Parameters();
+        p.addIds(Arrays.asList(i.getId()));
+        String sql = "select im from Image im where im.id in (:ids) order by im.name";
+        List<Image> res = iQuery.findAllByQuery(sql, p);
+        assertEquals(1, res.size());
     }
 
     @Test
