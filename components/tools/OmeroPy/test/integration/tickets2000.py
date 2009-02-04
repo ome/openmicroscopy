@@ -491,6 +491,68 @@ class TestTicket2000(lib.ITest):
             if m.id.val == exp.id.val:
                 self.assert_(m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
+    
+    def test1163(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.root.sf.getShareService()
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
         
+        ### create two users in one group
+        #group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        defaultGroup = admin.getGroup(gid)
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
+        
+        ## get user
+        user1 = admin.getExperimenter(eid)
+        
+        ## login as user1 
+        client_share1 = omero.client()
+        client_share1.createSession(user1.omeName.val,"ome")
+        update1 = client_share1.sf.getUpdateService()
+        search1 = client_share1.sf.createSearchService()
+        
+        # create image
+        img = ImageI()
+        img.setName(rstring('test1154-img-%s' % (uuid)))
+        img.setAcquisitionDate(rtime(0))
+        
+        # permission 'rw----':
+        img.details.permissions.setUserRead(True)
+        img.details.permissions.setUserWrite(True)
+        img.details.permissions.setGroupRead(False)
+        img.details.permissions.setGroupWrite(False)
+        img.details.permissions.setWorldRead(False)
+        img.details.permissions.setWorldWrite(False)
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+        
+        # search
+        search1.onlyType('Image')
+        search1.addOrderByAsc("name")
+        search1.setAllowLeadingWildcard(True)
+        search1.byFullText("test")
+        if search1.hasNext():
+            res = search1.results()
+
+            self.assert_(len(res) == 1)
+        
+        client_share1.sf.closeOnDestroy()
+    
 if __name__ == '__main__':
     unittest.main()
