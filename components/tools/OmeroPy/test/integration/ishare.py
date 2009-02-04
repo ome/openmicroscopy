@@ -301,11 +301,8 @@ class TestISShare(lib.ITest):
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % (uuid))
 
-        #
-        # Previously missing
-        #
-        share2.activate(sid)
-        
+        # Don't have to activate share2
+
         #get comments
         # by user1
         c1 = len(share.getComments(sid))

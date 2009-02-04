@@ -163,6 +163,9 @@ public class BlobShareStore extends ShareStore {
             return false;
         } else {
             List<Long> ids = data.objectMap.get(kls.getName());
+            if (ids == null) {
+                return false;
+            }
             return ids.contains(objId);
         }
     }
