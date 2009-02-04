@@ -2097,13 +2097,13 @@ public class OMEROMetadataStoreClient
     		List<Long> ids = new ArrayList<Long>(1);
     		ids.add(p.getId().getValue());
     		List<IObject> objects = 
-    			iPojos.loadContainerHierarchy(Dataset.class.getName(), ids, null);
-    		List<Dataset> datasets = new ArrayList<Dataset>(objects.size());
-    		for (IObject object : objects)
+    			iPojos.loadContainerHierarchy(Project.class.getName(), ids, null);
+    		if (objects.size() > 0)
     		{
-    			datasets.add((Dataset) object);
+    		    Project project = (Project) objects.get(0);
+    		    return project.linkedDatasetList();
     		}
-    		return datasets;
+    		return null;
     	}
     	catch (ServerError e)
     	{
