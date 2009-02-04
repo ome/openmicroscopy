@@ -56,6 +56,8 @@ public class ModelObjectHandlerFactory
 			     new FilamentHandler(enumProvider));
     	handlers.put(LaserHandler.HANDLER_FOR,
 			     new LaserHandler(enumProvider));
+    	handlers.put(LogicalChannelHandler.HANDLER_FOR, 
+    	        new LogicalChannelHandler(enumProvider));
     }
     
     /** Our fall through no-op enumeration handler. */

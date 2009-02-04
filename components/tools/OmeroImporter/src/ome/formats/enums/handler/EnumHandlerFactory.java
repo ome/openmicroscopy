@@ -43,6 +43,8 @@ public class EnumHandlerFactory
     {
     	handlers.put(CorrectionEnumHandler.HANDLER_FOR,
     			     new CorrectionEnumHandler());
+    	handlers.put(ImmersionEnumHandler.HANDLER_FOR, 
+    	            new ImmersionEnumHandler());
     }
     
     /** Our fall through no-op enumeration handler. */

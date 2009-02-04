@@ -58,6 +58,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
+import ome.model.screen.Well;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
@@ -184,6 +185,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	{
     		handle(lsid, (ObjectiveSettings) sourceObject, indexes);
     	}
+    	else if (sourceObject instanceof Plate)
+    	{
+    	    handle(lsid, (Plate) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Well)
+    	{
+    	    handle(lsid, (Well) sourceObject, indexes);
+    	}
     	else
     	{
     		throw new ApiUsageException(
@@ -257,6 +266,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     				continue;
     			}
     		}
+    		
 			throw new ApiUsageException(String.format(
 					"Missing reference handler for %s(%s) --> %s(%s) reference.",
 					reference, referenceObject, target, targetObject));
@@ -436,6 +446,34 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
     
     /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Plate sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        plateList.add(sourceObject);
+    }
+
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Well sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int plateIndex = indexes.get("plateIndex");
+        getPlate(plateIndex).addWell(sourceObject);   
+    }
+    
+    /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
      * @param target Target model object.
@@ -561,6 +599,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	return c.getLogicalChannel();
     }
 
+    /**
+     * Returns a Plate model object based on its indexes within the
+     * OMERO data model.
+     * @param PlateIndex Plate index.
+     * @return See above.
+     */ 
+    private Plate getPlate(int plateIndex)
+    {
+        return plateList.get(plateIndex);
+    }
+       
     /**
      * Creates a new instance.
      * 

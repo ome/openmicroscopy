@@ -16,16 +16,8 @@
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
     <dependency name="importer-common" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
+    <!-- Loci -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
-    <!-- Loci -->
-    <dependency org="loci" name="bufr" rev="1.1.00"/>
-    <dependency org="loci" name="grib" rev="5.1.03"/>
-    <dependency org="loci" name="ij" rev="unknown"/>
-    <dependency org="loci" name="netcdf" rev="4.0"/>
-    <dependency org="loci" name="poi" rev="${versions.poi}"/>
-    <dependency org="loci" name="poi-loci" rev="build777"/>
-    <dependency org="loci" name="slf4j-log4j12" rev="1.4.3"/>
   </dependencies>
 </ivy-module>
