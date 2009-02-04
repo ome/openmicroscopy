@@ -18,7 +18,7 @@ import ome.tools.hibernate.QueryBuilder;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Query template used by {@link SearchBean} to store user requests.
@@ -45,6 +45,7 @@ public class TagsAndGroups extends SearchAction {
         }
     }
 
+    @Transactional(readOnly = true)
     public Object doWork(Session session, ServiceFactory sf) {
 
         // Ignore:

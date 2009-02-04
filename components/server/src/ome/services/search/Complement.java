@@ -13,7 +13,7 @@ import ome.model.IObject;
 import ome.system.ServiceFactory;
 
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 /**
@@ -44,6 +44,7 @@ public class Complement extends SearchAction {
         this.b = b;
     }
 
+    @Transactional(readOnly = true)
     public Object doWork(Session session, ServiceFactory sf) {
 
         List<IObject> rvA;

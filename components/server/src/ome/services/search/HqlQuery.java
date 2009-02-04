@@ -17,7 +17,7 @@ import ome.parameters.QueryParameter;
 import ome.system.ServiceFactory;
 
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Delegate to {@link IQuery#findAllByQuery(String, Parameters)}. Uses the
@@ -43,6 +43,7 @@ public class HqlQuery extends SearchAction {
         this.params = p;
     }
 
+    @Transactional(readOnly = true)
     public Object doWork(Session session, ServiceFactory sf) {
 
         Parameters _p = this.params;

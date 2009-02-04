@@ -33,7 +33,7 @@ import ome.tools.hibernate.QueryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Query for {@link ome.api.Search} which uses an example {@link Annotation}
@@ -180,6 +180,7 @@ public class AnnotatedWith extends SearchAction {
 
     }
 
+    @Transactional(readOnly = true)
     public Object doWork(Session session, ServiceFactory sf) {
 
         String[] link = new String[annotation.length];

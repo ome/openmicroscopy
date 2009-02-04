@@ -28,7 +28,7 @@ import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.reader.ReaderProvider;
 import org.hibernate.search.store.DirectoryProvider;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 /**
@@ -50,6 +50,7 @@ public class SimilarTerms extends SearchAction {
         this.terms = terms;
     }
 
+    @Transactional(readOnly = true)
     public Object doWork(Session s, ServiceFactory sf) {
 
         if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
