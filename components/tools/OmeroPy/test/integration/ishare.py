@@ -212,7 +212,10 @@ class TestISShare(lib.ITest):
         p.map = {}
         p.map["ids"] = rlist([rlong(img.id.val)])
         sql = "select im from Image im where im.id in (:ids) order by im.name"
-        for e in query2.findAllByQuery(sql, p):
+        res = query2.findAllByQuery(sql, p)
+        self.assert_(len(res) == 1)
+        for e in res:
+            print e.id
             self.assert_(e.id.val == img.id.val)
         
         client_share1.sf.closeOnDestroy()
