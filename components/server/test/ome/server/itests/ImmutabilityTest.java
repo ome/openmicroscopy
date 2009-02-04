@@ -31,8 +31,7 @@ public class ImmutabilityTest extends AbstractManagedContextTest {
 
         loginRoot();
 
-        Image i = new Image();
-        i.setName("immutable creation");
+        Image i = new_Image("immutable creation");
         i = iUpdate.saveAndReturnObject(i);
 
         Event oldEvent = i.getDetails().getCreationEvent();

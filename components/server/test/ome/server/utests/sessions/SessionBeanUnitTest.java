@@ -66,7 +66,7 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
 
     @Test
     public void testClose() throws Exception {
-        smMock.expects(once()).method("close");
+        smMock.expects(once()).method("close").will(returnValue(0));
         bean.closeSession(session);
     }
 

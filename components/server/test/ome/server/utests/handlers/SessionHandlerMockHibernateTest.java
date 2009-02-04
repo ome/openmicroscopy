@@ -9,6 +9,8 @@ package ome.server.utests.handlers;
 // Java imports
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -16,12 +18,12 @@ import junit.framework.Assert;
 import ome.api.ServiceInterface;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
+import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.system.OmeroContext;
 import ome.tools.hibernate.SessionHandler;
 import omeis.providers.re.RenderingEngine;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
@@ -31,6 +33,8 @@ import org.jmock.builder.ArgumentsMatchBuilder;
 import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.testng.annotations.Configuration;
@@ -46,8 +50,8 @@ import org.testng.annotations.Test;
 @Test(groups = { "hibernate", "stateful", "ticket:326" })
 public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
 
-    private static Log log = LogFactory
-            .getLog(SessionHandlerMockHibernateTest.class);
+    private OmeroContext context = new OmeroContext(
+            new String[] { "classpath:ome/services/messaging.xml" });
 
     private ServiceInterface stateless;
 
@@ -68,6 +72,8 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
     private Mock mockSession, mockFactory, mockInvocation, mockStateful,
             mockStateless, mockDataSource, mockTransaction, mockConnection;
 
+    private List<RegisterServiceCleanupMessage> cleanups = new ArrayList<RegisterServiceCleanupMessage>();
+
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
@@ -78,6 +84,16 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         newSession();
         newSessionFactory();
         handler = new SessionHandler(factory);
+        // As of r2677 (ticket:1013) session close is delayed
+        // to servicehandler cleanup. We are simulating this.
+        handler.setApplicationContext(context);
+        context.addApplicationListener(new ApplicationListener() {
+            public void onApplicationEvent(ApplicationEvent arg0) {
+                if (arg0 instanceof RegisterServiceCleanupMessage) {
+                    cleanups.add((RegisterServiceCleanupMessage)arg0);
+                }
+            }
+        });
         // must call newXInvocation in test
 
         // these are reused unless otherwise noted
@@ -195,6 +211,9 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         disconnectsSession();
         closesSession();
         handler.invoke(invocation);
+        for (RegisterServiceCleanupMessage r : cleanups) {
+            r.close();
+        }
         super.verify();
     }
 

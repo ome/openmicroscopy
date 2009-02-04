@@ -66,11 +66,11 @@ public class ConfigUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testThatVersionsIsAccessible() {
+    public void testThatVersionsAreAccessible() {
         mockAdmin();
         String v = config.getVersion();
         String cv = config.getConfigValue("omero.version");
-        assertEquals(v, cv);
+        assertTrue(cv.contains(v));
     }
 
     @Test(expectedExceptions = SecurityViolation.class)

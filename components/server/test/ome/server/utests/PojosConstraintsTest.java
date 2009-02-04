@@ -20,7 +20,10 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.PrincipalHolder;
+import ome.server.itests.LoginInterceptor;
 import ome.services.util.ServiceHandler;
+import ome.system.Principal;
 import ome.util.builders.PojoOptions;
 
 import org.jmock.MockObjectTestCase;
@@ -44,10 +47,14 @@ public class PojosConstraintsTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         impl = new PojosImpl();
-        ProxyFactory factory = new ProxyFactory(impl);
+        ProxyFactory pf = new ProxyFactory(impl);
+        PrincipalHolder holder = new CurrentDetails();
+        LoginInterceptor login = new LoginInterceptor(holder);
         ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
-        factory.addAdvice(serviceHandler);
-        manager = (IPojos) factory.getProxy();
+        pf.addAdvice(login);
+        pf.addAdvice(serviceHandler);
+        login.p = new Principal("user","user","Test");
+        manager = (IPojos) pf.getProxy();
     }
 
     @Override

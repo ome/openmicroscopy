@@ -9,6 +9,7 @@ package ome.server.utests.sec;
 import ome.security.SystemTypes;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.OmeroInterceptor;
+import ome.security.basic.TokenHolder;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.stats.NullSessionStats;
 import ome.testing.MockServiceFactory;
@@ -29,7 +30,8 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
         MockServiceFactory sf = new MockServiceFactory();
         SessionManager sm = (SessionManager) mock(SessionManager.class).proxy();
         BasicSecuritySystem sec = BasicSecuritySystem.selfConfigure(sm, sf);
-        oi = new OmeroInterceptor(new SystemTypes(), null, null, null, new NullSessionStats());
+        TokenHolder tokenHolder = new TokenHolder();
+        oi = new OmeroInterceptor(new SystemTypes(), null, null, tokenHolder, new NullSessionStats());
     }
 
     // ~ TESTS

@@ -20,7 +20,7 @@ public class LoginInterceptor implements MethodInterceptor {
     final PrincipalHolder holder;
     public Principal p;
 
-    LoginInterceptor(PrincipalHolder holder) {
+    public LoginInterceptor(PrincipalHolder holder) {
         this.holder = holder;
     }
 

@@ -23,8 +23,7 @@ public class CountTest extends AbstractManagedContextTest {
     public void testQueryWithCounts() throws Exception {
         long self = iAdmin.getEventContext().getCurrentUserId();
 
-        Image i = new Image();
-        i.setName("counts");
+        Image i = new_Image("counts");
         i = iUpdate.saveAndReturnObject(i);
 
         i = loadImageWithAnnotationCounts(i);

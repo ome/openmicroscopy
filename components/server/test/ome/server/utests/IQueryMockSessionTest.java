@@ -17,7 +17,10 @@ import ome.model.IObject;
 import ome.model.containers.Project;
 import ome.parameters.Filter;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.PrincipalHolder;
+import ome.server.itests.LoginInterceptor;
 import ome.services.util.ServiceHandler;
+import ome.system.Principal;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -51,8 +54,12 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         super.setUp();
         impl = new QueryImpl();
         ProxyFactory pf = new ProxyFactory(impl);
+        PrincipalHolder holder = new CurrentDetails();
+        LoginInterceptor login = new LoginInterceptor(holder);
         ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
+        pf.addAdvice(login);
         pf.addAdvice(serviceHandler);
+        login.p = new Principal("user","user","Test");
         iQuery = (IQuery) pf.getProxy();
         createMocks();
     }

@@ -326,8 +326,15 @@ public class SessionCache implements ApplicationContextAware {
         }
     }
 
+    /**
+     * Since all methods which use {@link #getIds()} will subsequently check
+     * for the existing session, we do not block here. Blocking is primarily
+     * useful for post-admintype changes which can add or remove a user from
+     * a group. The existence of a session (which is what getIds specifies)
+     * is not significantly effected. 
+     */
     public List<String> getIds() {
-        waitForUpdate();
+        // waitForUpdate();
         return sessions.getKeys();
     }
 

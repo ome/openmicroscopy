@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
@@ -25,6 +24,7 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
+import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -47,14 +47,12 @@ import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -620,6 +618,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             }
             group = g.getName();
         }
+        
+        // Also checking event type
+        executeCheckEventType(type);
+        
         Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
         if (umask == null) {
@@ -780,6 +782,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return ok;
     }
 
+    private EventType executeCheckEventType(final String type) {
+        return (EventType) executor.execute(asroot, new Executor.SimpleWork(this, "executeUserProxy") {
+            @Transactional(readOnly = true)
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                return sf.getTypesService().getEnumeration(EventType.class, type);
+            }
+        });
+    }
+    
     private Experimenter executeUserProxy(final long uid) {
         return (Experimenter) executor.execute(asroot, new Executor.SimpleWork(this, "executeUserProxy") {
             @Transactional(readOnly = true)

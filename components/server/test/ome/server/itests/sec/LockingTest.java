@@ -83,6 +83,9 @@ public class LockingTest extends AbstractManagedContextTest {
 
         p = new Project();
         p.setName("ticket:337");
+        // As for 4.0 with private permissions, this must be set
+        // otherwise the following tests fail.
+        p.getDetails().setPermissions(Permissions.READ_ONLY);
         p = iUpdate.saveAndReturnObject(p);
 
         assertFalse(p.getDetails().getPermissions().isSet(Flag.LOCKED));

@@ -20,6 +20,7 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
+import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -148,6 +149,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
                 returnValue(userRoles));
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
+        sf.mockTypes.expects(once()).method("getEnumeration").will(
+                returnValue(new EventType(0L, false)));
         sf.mockQuery.expects(once()).method("findAllByQuery")
                 .will(
                         returnValue(Collections
@@ -439,7 +442,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testReferenceCounting() throws Exception {
         testCreateNewSession();
         String uuid = session.getUuid();
-        SessionContext ctx = cache.getSessionContext(uuid, false/*FIXME*/);
+        SessionContext ctx = cache.getSessionContext(uuid, false/* FIXME */);
 
         assertEquals(1, ctx.refCount());
         assertNull(ctx.getSession().getClosed());
@@ -460,7 +463,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         // cache
         // assertNotNull(ctx.getSession().getClosed());
         try {
-            cache.getSessionContext(uuid, false/*FIXME*/);
+            cache.getSessionContext(uuid, false/* FIXME */);
             fail(uuid + " not removed");
         } catch (RemovedSessionException rse) {
             // ok
@@ -472,7 +475,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testTimeoutDefaults() throws Exception {
         testCreateNewSession();
-        SessionContext ctx = cache.getSessionContext(session.getUuid(), false/*FIXME*/);
+        SessionContext ctx = cache
+                .getSessionContext(session.getUuid(), false/* FIXME */);
 
         assertEquals(TTL, ctx.getSession().getTimeToLive());
         assertEquals(TTI, ctx.getSession().getTimeToIdle());
@@ -482,7 +486,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testTimeoutUpdatesValid() throws Exception {
 
         testTimeoutDefaults();
-        SessionContext ctx = cache.getSessionContext(session.getUuid(), false/*FIXME*/);
+        SessionContext ctx = cache
+                .getSessionContext(session.getUuid(), false/* FIXME */);
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(300L);
@@ -496,7 +501,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         // the values in the session context are the same as the
         // returned values
 
-        ctx = cache.getSessionContext(session.getUuid(), false/*FIXME*/);
+        ctx = cache.getSessionContext(session.getUuid(), false/* FIXME */);
         assertEquals(new Long(300L), ctx.getSession().getTimeToLive());
         assertEquals(new Long(100L), ctx.getSession().getTimeToIdle());
     }
@@ -505,7 +510,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testTimeoutUpdatesTTLNotZero() throws Exception {
 
         testTimeoutDefaults();
-        SessionContext ctx = cache.getSessionContext(session.getUuid(), false/*FIXME*/);
+        SessionContext ctx = cache
+                .getSessionContext(session.getUuid(), false/* FIXME */);
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(0L);
@@ -518,7 +524,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testTimeoutUpdatesTTINotZero() throws Exception {
 
         testTimeoutDefaults();
-        SessionContext ctx = cache.getSessionContext(session.getUuid(), false/*FIXME*/);
+        SessionContext ctx = cache
+                .getSessionContext(session.getUuid(), false/* FIXME */);
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(100L);
@@ -531,7 +538,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testTimeoutUpdatesTooBig() throws Exception {
 
         testTimeoutDefaults();
-        SessionContext ctx = cache.getSessionContext(session.getUuid(), false/*FIXME*/);
+        SessionContext ctx = cache
+                .getSessionContext(session.getUuid(), false/* FIXME */);
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(Long.MAX_VALUE);

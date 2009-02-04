@@ -82,6 +82,8 @@ public class DeleteUnitTest extends MockObjectTestCase {
 
         ecm = mock(EventContext.class);
         ec = (EventContext) ecm.proxy();
+        ecm.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
+                returnValue(false));
     }
 
     @Test(expectedExceptions = SecurityViolation.class)

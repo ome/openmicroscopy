@@ -7,6 +7,7 @@
 package ome.server.itests;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.model.containers.Dataset;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -116,8 +118,8 @@ public class AbstractManagedContextTest extends
         ldapTemplate = (LdapTemplate) applicationContext
                 .getBean("ldapTemplate");
 
-        data = new OMEData();
-        data.setDataSource(dataSource);
+        // data = new OMEData();
+        // data.setDataSource(dataSource);
 
         hibernateTemplate = (HibernateTemplate) applicationContext
                 .getBean("hibernateTemplate");
@@ -222,6 +224,13 @@ public class AbstractManagedContextTest extends
                 .getProperty("omero.data.dir");
     }
 
+    protected Image new_Image(String name) {
+        Image i = new Image();
+        i.setName(name);
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
+        return i;
+    }
+    
     protected Pixels makePixels() {
         try {
             final File file = ResourceUtils

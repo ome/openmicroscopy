@@ -93,7 +93,7 @@ public class LoginTest extends TestCase {
         assertTrue(!sec.isReady());
     }
 
-    @Test
+    @Test(enabled = false)
     public void testLoginWithInvalidThrowsException() throws Exception {
         try {
             login("unknown2349akljf9q283", "system", "Test");
