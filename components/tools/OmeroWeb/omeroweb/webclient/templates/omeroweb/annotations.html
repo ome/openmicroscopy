@@ -1,11 +1,13 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+{% if manager.tgannSize %}
 <h1>Tags:
 {% for tag in manager.tag_annotations %}
     <a href="{% get_webclient_root_url %}/tag/{{ tag.id }}/"> {{ tag.textValue }}</a> {% if tag.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}, 
 {% endfor %}
 </h1>
+{% endif %}
 
 {% if manager.txannSize %}
 <h1>Comments:</h1>
