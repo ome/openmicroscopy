@@ -657,13 +657,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     private Session shareToSession(ShareData data) {
-        /*
-         * TODO: When Share will have details method can be updated: return
-         * iQuery.findByQuery("select sh from Session sh " +
-         * "join fetch sh.details.owner where sh.id = :id ", new
-         * Parameters().addId(data.id));
-         */
-        return iQuery.find(Share.class, data.id);
+        return iQuery.findByQuery("select sh from Session sh " +
+                "join fetch sh.owner where sh.id = :id ", new
+                Parameters().addId(data.id));
     }
 
     @SuppressWarnings("unchecked")
