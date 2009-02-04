@@ -10,8 +10,13 @@ package ome.server.itests.query.pojos;
 import java.util.Arrays;
 import java.util.List;
 
+import ome.model.acquisition.Instrument;
+import ome.model.acquisition.Objective;
+import ome.model.annotations.DoubleAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.enums.Correction;
+import ome.model.enums.Immersion;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -155,6 +160,47 @@ public class QueryTest extends AbstractManagedContextTest {
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("unique result"));
         }
+
+    }
+
+    @Test(groups = "ticket:1150")
+    public void testFloatsDontGetRounded() throws Exception {
+        Correction correction = iQuery.findAll(Correction.class, null).get(0);
+        Immersion immersion = iQuery.findAll(Immersion.class, null).get(0);
+
+        Objective o = new Objective();
+        Instrument instrument = new Instrument();
+        o.setCorrection(correction);
+        o.setImmersion(immersion);
+        o.setInstrument(instrument);
+        // o.setLensNA(new Float(1.4));
+        o.setLensNA(1.4f);
+
+        Objective t1 = iUpdate.saveAndReturnObject(o);
+
+        // Test value via jdbc
+        Float lensNA = jdbcTemplate.queryForObject(
+                "SELECT lensna FROM objective WHERE id = ?", Float.class, t1
+                        .getId());
+        assertEquals(1.4, lensNA.floatValue(), 0.01);
+        assertEquals(1.4, lensNA.floatValue(), Float.MIN_VALUE);
+
+        // Test value return by iUpdate
+        assertEquals(1.4, t1.getLensNA().floatValue(), 0.001);
+        assertEquals(1.4, t1.getLensNA().floatValue(), Float.MIN_VALUE);
+        assertEquals(1.4, t1.getLensNA().floatValue());
+
+        Objective t2 = iQuery.find(Objective.class, o.getId());
+        assertEquals(1.4, t2.getLensNA().floatValue());
+    }
+
+    @Test(groups = "ticket:1150")
+    public void testDoublesDontGetRounded() throws Exception {
+        DoubleAnnotation da = new DoubleAnnotation();
+        da.setDoubleValue(1.4);
+
+        DoubleAnnotation t1 = iUpdate.saveAndReturnObject(da);
+        assertEquals(1.4, t1.getDoubleValue().doubleValue(), Double.MIN_VALUE);
 
     }
 

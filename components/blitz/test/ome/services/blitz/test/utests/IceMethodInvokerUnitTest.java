@@ -29,6 +29,7 @@ import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.acquisition.Objective;
 import ome.model.enums.Family;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
@@ -123,17 +124,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         @Override
         public String toString() {
-            return String
-		.format("%d closes", closed);
+            return String.format("%d closes", closed);
         }
 
         int closed = 0;
 
-	public void activate() {
-	}
+        public void activate() {
+        }
 
-	public void passivate() {
-	}
+        public void passivate() {
+        }
 
         public void close() {
             closed++;
@@ -272,7 +272,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         current.operation = "XXXXXXXXXXXXXXXXXXXXXXXX";
         IceMethodInvoker imi = new IceMethodInvoker(c, ctx);
-        imi.invoke(prx, current, new IceMapper(), (java.lang.Object[])null);
+        imi.invoke(prx, current, new IceMapper(), (java.lang.Object[]) null);
 
     }
 
@@ -946,8 +946,8 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         Throwable t = mapper.handleException(se, ctx);
         assertEquals(t, se);
 
-        t = mapper
-                .handleException(new java.lang.IllegalThreadStateException(), ctx);
+        t = mapper.handleException(new java.lang.IllegalThreadStateException(),
+                ctx);
         assertTrue(t instanceof omero.InternalException);
     }
 
@@ -975,6 +975,15 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     public void testByteArraysAsMaValues() {
 
+    }
+
+    @Test(groups = "ticket:1150")
+    public void testRFloatDoesNotGetRounded() throws Exception {
+        Objective o = new Objective();
+        o.setLensNA(new Float(1.4));
+        omero.model.Objective o2 = (omero.model.Objective) mapper.handleOutput(
+                Objective.class, o);
+        assertEquals(o.getLensNA().floatValue(), o2.getLensNA().getValue());
     }
 
     // ~ Helpers
