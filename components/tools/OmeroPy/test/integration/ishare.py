@@ -215,7 +215,6 @@ class TestISShare(lib.ITest):
         res = query2.findAllByQuery(sql, p)
         self.assert_(len(res) == 1)
         for e in res:
-            print e.id
             self.assert_(e.id.val == img.id.val)
         
         client_share1.sf.closeOnDestroy()
