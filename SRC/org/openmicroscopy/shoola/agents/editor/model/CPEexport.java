@@ -333,8 +333,7 @@ public class CPEexport {
 			addChildContent(parameter, CPEimport.PARAM_TYPE, "NUMERIC");
 			setValueAndDefault(parameter, param);
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
-			if (units != null)
-				addChildContent(parameter, CPEimport.UNITS, units);
+			addChildContent(parameter, CPEimport.UNITS, units);
 		} else 
 		if (param instanceof EnumParam) {
 			addChildContent(parameter, CPEimport.PARAM_TYPE, "ENUMERATION");
@@ -349,8 +348,7 @@ public class CPEexport {
 				parameter.addChild(enumList);
 			}
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
-			if (units != null)
-				addChildContent(parameter, CPEimport.UNITS, units);
+			addChildContent(parameter, CPEimport.UNITS, units);
 		} 
 		else 
 		if (param instanceof TextParam) {
