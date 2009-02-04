@@ -162,8 +162,10 @@ public class TableEditUI
 	private void refreshViewportSize() 
 	{
 		int rows = table.getRowCount();
+		int cols = table.getColumnCount();
 		int height = rows * table.getRowHeight();
-		table.setPreferredScrollableViewportSize(new Dimension(450, height));
+		int width = cols * 100;
+		table.setPreferredScrollableViewportSize(new Dimension(width, height));
 	}
 	
 	/**

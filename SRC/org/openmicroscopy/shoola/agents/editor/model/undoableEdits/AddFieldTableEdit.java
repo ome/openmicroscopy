@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.model.undoableEdits;
 //Java imports
 
 import javax.swing.JTree;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -82,13 +83,17 @@ extends AbstractUndoableEdit {
 	/**
 	 * The newly-created table data
 	 */
-	private TableModel			tableData;
+	private TableModel			newTableAdaptor;
 	
 	/**
 	 * The old table data, for undo (will be null if none existed). 
 	 */
-	private TableModel			oldTableData;
+	private TableModel			oldTableAdaptor;
 	
+	
+	private TableModel 			newTableData;
+	
+	private TableModel			oldTableData;
 	
 	/**
 	 * Initialises variables and does the adding edit. 
@@ -99,13 +104,17 @@ extends AbstractUndoableEdit {
 	 * @param node
 	 */
 	private void initialise(IField field, JTree tree, TreeNode node,
-													TableModel tableData) 
+													TableModel tableAdaptor) 
 	{
 		this.field = field;
 		this.tree = tree;
 		this.node = node;
-		this.tableData = tableData;
-		oldTableData = field.getTableData();
+		this.newTableAdaptor = tableAdaptor;
+		
+		if (tableAdaptor == null) {
+			
+		}
+		oldTableAdaptor = field.getTableData();
 		
 		redo();
 	}
@@ -158,15 +167,101 @@ extends AbstractUndoableEdit {
 		return true;
 	}
 	
+	/**
+	 * Implemented as specified by the {@link AbstractUndoableEdit} class
+	 * Copies field data to 'new' and copies 'old' to field.
+	 * 
+	 * @see AbstractUndoableEdit#undo();
+	 */
 	public void undo() {
+		// copy adaptor and data from field to newTableAdaptor & newTableData
+		newTableAdaptor = field.getTableData(); 
+		if (newTableAdaptor != null) {
+			int rows = newTableAdaptor.getRowCount();
+			int cols = newTableAdaptor.getColumnCount();
+			newTableData = new DefaultTableModel(rows, cols);
+			Object cellValue;
+			for (int r=0; r<rows; r++) {
+				for (int c=0; c<cols; c++) {
+					// copy data
+					cellValue = newTableAdaptor.getValueAt(r, c);
+					newTableData.setValueAt(cellValue, r, c);	
+					// delete old data, but not the first row
+					if (r > 0)
+					newTableAdaptor.setValueAt(null, r, c);		
+				}
+			}
+		}
 		
-		field.setTableData(oldTableData);
+		// re-set the table adaptor to the oldAdaptor
+		field.setTableData(oldTableAdaptor);
+		
+		// re-copy any data in oldTableData back to the field
+		if (oldTableData != null) {
+			int rows = oldTableData.getRowCount();
+			int cols = oldTableData.getColumnCount();
+			
+			Object cellValue;
+			for (int r=0; r<rows; r++) {
+				for (int c=0; c<cols; c++) {
+					// copy old data to field
+					cellValue = oldTableData.getValueAt(r, c);
+					oldTableAdaptor.setValueAt(cellValue, r, c);	
+					// delete old data
+					oldTableData.setValueAt(null, r, c);		
+				}
+			}
+		}
+		
 		notifySelectStartEdit();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link AbstractUndoableEdit} class
+	 * Copies field data to 'old' and copies 'new to field.
+	 * 
+	 * @see AbstractUndoableEdit#redo();
+	 */
 	public void redo() {
+		// save any data in field to oldTableData, save oldTableAdaptor
+		oldTableAdaptor = field.getTableData();	
+		if (oldTableAdaptor != null) {
+			int rows = oldTableAdaptor.getRowCount();
+			int cols = oldTableAdaptor.getColumnCount();
+			oldTableData = new DefaultTableModel(rows, cols);
+			Object cellValue;
+			for (int r=0; r<rows; r++) {
+				for (int c=0; c<cols; c++) {
+					// copy old data
+					cellValue = oldTableAdaptor.getValueAt(r, c);
+					oldTableData.setValueAt(cellValue, r, c);	
+					// delete old data
+					if (r > 0)
+					oldTableAdaptor.setValueAt(null, r, c);		
+				}
+			}
+		}
 		
-		field.setTableData(tableData);
+		// set the table data with the new adaptor
+		field.setTableData(newTableAdaptor);
+		
+		// fill the new table adaptor with new data, copying it to parameters
+		if (newTableData != null) {
+			int rows = newTableData.getRowCount();
+			int cols = newTableData.getColumnCount();
+			
+			Object cellValue;
+			for (int r=0; r<rows; r++) {
+				for (int c=0; c<cols; c++) {
+					// copy new data to field
+					cellValue = newTableData.getValueAt(r, c);
+					newTableAdaptor.setValueAt(cellValue, r, c);	
+					// delete new data
+					newTableData.setValueAt(null, r, c);		
+				}
+			}
+		}
+		
 		notifySelectStartEdit();
 	}
 	
