@@ -111,6 +111,7 @@ Note how the whitespace for the python definitions is important.
 [$pyc] import Ice
 [$pyc] import omero_model_DetailsI
 [$pyc] import omero_model_${Pojo}_ice
+[$pyc] from omero.rtypes import rlong
 [$pyc] _omero = Ice.openModule("omero")
 [$pyc] _omero_model = Ice.openModule("omero.model")
 [$pyc] __name__ = "omero.model"

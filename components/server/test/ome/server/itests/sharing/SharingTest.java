@@ -6,6 +6,7 @@
  */
 package ome.server.itests.sharing;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -13,11 +14,15 @@ import java.util.Set;
 
 import ome.api.IShare;
 import ome.conditions.SecurityViolation;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
+import ome.model.core.Image;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.parameters.Filter;
@@ -58,6 +63,81 @@ public class SharingTest extends AbstractManagedContextTest {
 
     }
 
+    @Test
+    public void testPrivateCommentsVisibleForMembers() {
+
+        Experimenter e = loginNewUser();
+
+        share = factory.getShareService();
+        long id = share.createShare("with comments", null, null, null, null,
+                true);
+        TextAnnotation annotation = share.addComment(id, "hello");
+        assertFalse(annotation.getDetails().getPermissions().isGranted(
+                Role.GROUP, Right.READ));
+
+        List<Annotation> annotations = share.getComments(id);
+        assertContained(annotation, annotations);
+
+        // Add a new user
+        Experimenter member = loginNewUser();
+        loginUser(e.getOmeName());
+        share.addUser(id, member);
+        
+        // Then as that user try to obtain the comments
+        loginUser(member.getOmeName());
+        annotations = share.getComments(id);
+        assertContained(annotation, annotations);
+
+    }
+
+    @Test
+    public void testPrivateCommentsNotVisibleForNonMembers() {
+     
+        Experimenter e = loginNewUser();
+
+        share = factory.getShareService();
+        long id = share.createShare("with comments", null, null, null, null,
+                true);
+        TextAnnotation annotation = share.addComment(id, "hello");
+        assertFalse(annotation.getDetails().getPermissions().isGranted(
+                Role.GROUP, Right.READ));
+
+        List<Annotation> annotations = share.getComments(id);
+        assertContained(annotation, annotations);
+
+        // NOT adding a new user
+        Experimenter member = loginNewUser();
+        // share.addUser(id, member);
+        
+        // Then as that user try to obtain the comments
+        loginUser(member.getOmeName());
+        annotations = share.getComments(id);
+        assertNotContained(annotation, annotations);
+    }
+    
+    @Test
+    public void testPrivateCommentsVisibleForAdmin() {
+     
+        Experimenter e = loginNewUser();
+
+        share = factory.getShareService();
+        long id = share.createShare("with comments", null, null, null, null,
+                true);
+        TextAnnotation annotation = share.addComment(id, "hello");
+        assertFalse(annotation.getDetails().getPermissions().isGranted(
+                Role.GROUP, Right.READ));
+
+        List<Annotation> annotations = share.getComments(id);
+        assertContained(annotation, annotations);
+
+        // NOT adding root either
+                
+        // Then as that root try to obtain the comments
+        loginRoot();
+        annotations = share.getComments(id);
+        assertContained(annotation, annotations);
+    }
+    
     @Test
     public void testRetrieval() {
         loginRoot();
@@ -278,7 +358,7 @@ public class SharingTest extends AbstractManagedContextTest {
         try {
             share.activate(id);
             fail("Should not be allowed");
-        } catch (SecurityViolation e) {
+        } catch (ValidationException e) {
             // ok
         }
         try {
@@ -307,6 +387,25 @@ public class SharingTest extends AbstractManagedContextTest {
         loginUser(member.getOmeName());
         share.activate(id);
         iQuery.get(Dataset.class, d.getId());
+    }
+
+    @Test
+    public void testUserAddsPrivateImageAndThenShares() {
+
+        Experimenter owner = loginNewUser();
+        Image i = new Image(new Timestamp(System.currentTimeMillis()), "test");
+        i.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        i = iUpdate.saveAndReturnObject(i);
+
+        long id = share.createShare("desc", null, Collections.singletonList(i),
+                null, null, true);
+
+        Experimenter member = loginNewUser();
+        loginUser(owner.getOmeName());
+        share.addUser(id, member);
+
+        loginUser(member.getOmeName());
+        assertEquals(1, share.getContentSize(id));
     }
 
     @Test

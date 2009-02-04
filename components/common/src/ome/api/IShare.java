@@ -37,7 +37,8 @@ public interface IShare extends ServiceInterface {
      * Turns on the access control lists attached to the given share for the
      * current session. Warning: this will slow down the execution of the
      * current session for all database reads. Writing to the database will not
-     * be allowed.
+     * be allowed. If share does not exist or is not accessible (non-members)
+     * or is disabled, then an {@link ValidationException} is thrown.
      * 
      * @param shareId
      */

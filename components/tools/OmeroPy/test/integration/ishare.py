@@ -19,39 +19,31 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero.rtypes import *
+from omero.rtypes import rtime, rlong, rstring, rlist
 
 class TestISShare(lib.ITest):
+
+    def testThatPermissionsAreDefaultPrivate(self):
+        i = omero.model.ImageI()
+        i.name = rstring("name")
+        i.acquisitionDate = rtime(0)
+        i = self.client.sf.getUpdateService().saveAndReturnObject(i)
+        self.assert_( not i.details.permissions.isGroupRead() )
+        self.assert_( not i.details.permissions.isWorldRead() )
 
     def testBasicUsage(self):
         share = self.client.sf.getShareService()
         update = self.client.sf.getUpdateService()
         admin = self.client.sf.getAdminService()
-        
-        test_user = None
-        try:
-            test_user = admin.lookupExperimenter("share_test_user")
-        except:
-            new_exp = ExperimenterI()
-            new_exp.omeName = rstring("share_test_user")
-            new_exp.firstName = rstring("Share")
-            new_exp.lastName = rstring("Test")
-            new_exp.email = rstring("sharetest@emaildomain.com")
-            
-            listOfGroups = list()
-            defaultGroup = admin.lookupGroup("default")
-            listOfGroups.append(admin.lookupGroup("user"))
-            
-            admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
-            admin.changeUserPassword(new_exp.omeName, "ome")
 
+        test_user = self.new_user()
         # create share
         description = "my description"
         timeout = None
         objects = []
-        experimenters = [admin.lookupExperimenter("share_test_user")]
+        experimenters = [test_user]
         guests = ["ident@emaildomain.com"]
-        enabled = rtime()
+        enabled = True
         self.id = share.createShare(description, timeout, objects,experimenters, guests, enabled)
         
         self.assert_(len(share.getContents(self.id)) == 0)
@@ -83,14 +75,14 @@ class TestISShare(lib.ITest):
         
         #check access by a member to see the content
         client_guest_read_only = omero.client()
-        client_guest_read_only.createSession("share_test_user","ome")
+        client_guest_read_only.createSession(test_user.omeName.val,"ome")
         
         #get dataset - not allowed
         query = client_guest_read_only.sf.getQueryService()
         try:
             query.find("Dataset",d.id.val)
         except Exception, x:
-            print traceback.format_exc()
+            pass
         
         share_read_only = client_guest_read_only.sf.getShareService()
         share_read_only.activate(self.id)
@@ -99,7 +91,7 @@ class TestISShare(lib.ITest):
         
         #check access by a member to add comments
         client_guest = omero.client()
-        client_guest.createSession("share_test_user","ome")
+        client_guest.createSession(test_user.omeName.val,"ome")
         
         share_guest = client_guest.sf.getShareService()
         share_guest.addComment(self.id,"comment for share %i" % self.id)
@@ -123,8 +115,8 @@ class TestISShare(lib.ITest):
         client_share_guest.createSession("guest","guest") # maybe there can be some verification of identity by (share_key, email) - both params could be sent to email
         
         share2 = client_share_guest.sf.getShareService()
-        share2.getAllGuestShares(guest_email)
-        self.assert_(share2.getGuestShare(token) > 0)
+        # Doesn't exist # share2.getAllGuestShares(guest_email)
+        # Doesn't exist # self.assert_(share2.getGuestShare(token) > 0)
         share2.addComment(self.id,"guest comment for share %i" % self.id)
         self.assert_(len(share2.getComments(self.id)) == 1)
 
@@ -180,6 +172,7 @@ class TestISShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
+        img.setAcquisitionDate(rtime(0))
         
         # permission 'rw----':
         img.details.permissions.setUserRead(True)
@@ -197,7 +190,7 @@ class TestISShare(lib.ITest):
         objects = [img]
         experimenters = [user2]
         guests = []
-        enabled = rtime()
+        enabled = True
         sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
         
         self.assert_(len(share1.getContents(sid)) == 1)
@@ -216,7 +209,7 @@ class TestISShare(lib.ITest):
         share2.activate(sid)
 
         p = omero.sys.Parameters()
-        p.map = {} 
+        p.map = {}
         p.map["ids"] = rlist([rlong(img.id.val)])
         sql = "select im from Image im where im.id in (:ids) order by im.name"
         for e in query2.findAllByQuery(sql, p):
@@ -274,6 +267,7 @@ class TestISShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
+        img.setAcquisitionDate(rtime(0))
         
         # permission 'rw----':
         img.details.permissions.setUserRead(True)
@@ -291,7 +285,7 @@ class TestISShare(lib.ITest):
         objects = [img]
         experimenters = [user2]
         guests = []
-        enabled = rtime()
+        enabled = True
         sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
         self.assert_(len(share1.getContents(sid)) == 1)
         # add comment by the owner
@@ -306,12 +300,19 @@ class TestISShare(lib.ITest):
         sh = share2.getShare(sid)
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % (uuid))
+
+        #
+        # Previously missing
+        #
+        share2.activate(sid)
         
         #get comments
         # by user1
-        self.assert_(len(share.getComments(sid)) == 2)
+        c1 = len(share.getComments(sid))
+        self.assertEquals(2,c1)
         # by user2
-        self.assert_(len(share2.getComments(sid)) == 2)
+        c2 = len(share2.getComments(sid))
+        self.assertEquals(2,c2)
         
         client_share1.sf.closeOnDestroy()
         client_share2.sf.closeOnDestroy()

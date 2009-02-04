@@ -157,9 +157,14 @@ public class BlobShareStore extends ShareStore {
     @Override
     public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
             long objId) {
+        
         ShareData data = get(sessionId);
-        List<Long> ids = data.objectMap.get(kls.getName());
-        return ids.contains(objId);
+        if (data == null) {
+            return false;
+        } else {
+            List<Long> ids = data.objectMap.get(kls.getName());
+            return ids.contains(objId);
+        }
     }
 
     @Override

@@ -111,27 +111,17 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public void activate(long shareId) {
 
-        EventContext ec = admin.getEventContext();
-        long userId = ec.getCurrentUserId();
-        String sessId = ec.getCurrentSessionUuid();
-
         // Check status of the store
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessibble(shareId);
         if (data == null) {
-            throw new ApiUsageException("No such share:" + shareId);
+            throw new ValidationException("No accessible share:" + shareId);
         }
         if (!data.enabled) {
-            throw new SecurityViolation("Share disabled."); // TODO other
-            // exception
-        }
-
-        // Check if current user is a member
-        if (data.owner != userId && !data.members.contains(userId)) {
-            throw new SecurityViolation("User " + userId
-                    + " is not a member or owner of share " + shareId);
+            throw new ValidationException("Share disabled.");
         }
 
         // Ok, set share
+        String sessId = admin.getEventContext().getCurrentSessionUuid();
         SessionContext sc = (SessionContext) sessionManager
                 .getEventContext(new Principal(sessId));
         sc.setShareId(shareId);
@@ -164,24 +154,25 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     @RolesAllowed("user")
-    public Set<Session> getSharesOwnedBy(@NotNull
-    Experimenter user, boolean active) {
+    public Set<Session> getSharesOwnedBy(@NotNull Experimenter user,
+            boolean active) {
         List<ShareData> shares = store.getShares(user.getId(), true /* own */,
                 active);
         return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
-    public Set<Session> getMemberSharesFor(@NotNull
-    Experimenter user, boolean active) {
-        List<ShareData> shares = store.getShares(user.getId(),
-                false /* own */, active);
+    public Set<Session> getMemberSharesFor(@NotNull Experimenter user,
+            boolean active) {
+        List<ShareData> shares = store.getShares(user.getId(), false /* own */,
+                active);
         return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
     public Session getShare(long sessionId) {
         ShareData data = store.get(sessionId);
+        throwOnNullData(sessionId, data);
         Session session = shareToSession(data);
         return session;
     }
@@ -189,6 +180,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public <T extends IObject> List<T> getContents(long shareId) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         return list(data.objectList);
     }
 
@@ -196,6 +188,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public <T extends IObject> List<T> getContentSubList(long shareId,
             int start, int finish) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         try {
             return list(data.objectList.subList(start, finish));
         } catch (IndexOutOfBoundsException ioobe) {
@@ -208,12 +201,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public <T extends IObject> Map<Class<T>, List<Long>> getContentMap(
             long shareId) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         return map(data.objectMap);
     }
 
     @RolesAllowed("user")
     public int getContentSize(long shareId) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         return data.objectList.size();
     }
 
@@ -222,9 +217,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public <T extends IObject> long createShare(@NotNull
-    String description, Timestamp expiration, List<T> items,
-            List<Experimenter> exps, List<String> guests, final boolean enabled) {
+    public <T extends IObject> long createShare(@NotNull String description,
+            Timestamp expiration, List<T> items, List<Experimenter> exps,
+            List<String> guests, final boolean enabled) {
 
         //
         // Input validation
@@ -275,8 +270,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void setDescription(long shareId, @NotNull
-    String description) {
+    public void setDescription(long shareId, @NotNull String description) {
         String uuid = idToUuid(shareId);
         Session session = sessionManager.find(uuid);
         session.setMessage(description);
@@ -285,8 +279,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void setExpiration(long shareId, @NotNull
-    Timestamp expiration) {
+    public void setExpiration(long shareId, @NotNull Timestamp expiration) {
         String uuid = idToUuid(shareId);
         Session session = sessionManager.find(uuid);
         session.setTimeToLive(expirationAsLong(expiration));
@@ -297,6 +290,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void setActive(long shareId, boolean active) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         data.enabled = active;
         store(shareId, data);
     }
@@ -313,9 +307,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public <T extends IObject> void addObjects(long shareId, @NotNull
-    T... objects) {
+    public <T extends IObject> void addObjects(long shareId,
+            @NotNull T... objects) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         for (T object : objects) {
             List<Long> ids = data.objectMap.get(object.getClass().getName());
             if (ids == null) {
@@ -339,9 +334,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public <T extends IObject> void addObject(long shareId, @NotNull
-    T object) {
+    public <T extends IObject> void addObject(long shareId, @NotNull T object) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         List<Long> ids = data.objectMap.get(object.getClass().getName());
         ids.add(object.getId());
         Obj obj = new Obj();
@@ -353,9 +348,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public <T extends IObject> void removeObjects(long shareId, @NotNull
-    T... objects) {
+    public <T extends IObject> void removeObjects(long shareId,
+            @NotNull T... objects) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         for (T object : objects) {
             List<Long> ids = data.objectMap.get(object.getClass().getName());
             ids.remove(object.getId());
@@ -376,8 +372,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public <T extends IObject> void removeObject(long shareId, @NotNull
-    T object) {
+    public <T extends IObject> void removeObject(long shareId, @NotNull T object) {
         ShareData data = store.get(shareId);
         List<Long> ids = data.objectMap.get(object.getClass().getName());
         ids.remove(object.getId());
@@ -397,26 +392,39 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     // =========================================================================
 
     @RolesAllowed("user")
-    public List<Annotation> getComments(long shareId) {
-        List<SessionAnnotationLink> links = iQuery.findAllByQuery(
-                "select l from SessionAnnotationLink l "
-                        + "join fetch l.details.owner "
-                        + "join fetch l.parent as share "
-                        + "join fetch l.child as comment "
-                        + "where share.id = :id and comment.ns like :ns ",
-                new Parameters().addString("ns", NS_COMMENT + "%").addId(
-                        shareId));
-        List<Annotation> rv = new ArrayList<Annotation>();
-        for (SessionAnnotationLink link : links) {
-            rv.add(link.child());
+    public List<Annotation> getComments(final long shareId) {
+
+        final List<Annotation> rv = new ArrayList<Annotation>();
+        if (getShareIfAccessibble(shareId) == null) {
+            return rv; // EARLY EXIT.
         }
+
+        // Now load the comments as an administrator,
+        // otherwise it is necessary to add every link
+        // to the share
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                List<SessionAnnotationLink> links = iQuery
+                        .findAllByQuery(
+                                "select l from SessionAnnotationLink l "
+                                        + "join fetch l.details.owner "
+                                        + "join fetch l.parent as share "
+                                        + "join fetch l.child as comment "
+                                        + "where share.id = :id and comment.ns like :ns ",
+                                new Parameters().addString("ns",
+                                        NS_COMMENT + "%").addId(shareId));
+                for (SessionAnnotationLink link : links) {
+                    rv.add(link.child());
+                }
+
+            }
+        });
         return rv;
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public CommentAnnotation addComment(long shareId, @NotNull
-    String comment) {
+    public CommentAnnotation addComment(long shareId, @NotNull String comment) {
         Share s = new Share(shareId, false);
         CommentAnnotation commentAnnotation = new CommentAnnotation();
         commentAnnotation.setTextValue(comment);
@@ -429,16 +437,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public CommentAnnotation addReply(long shareId, @NotNull
-    String comment, @NotNull
-    CommentAnnotation replyTo) {
+    public CommentAnnotation addReply(long shareId, @NotNull String comment,
+            @NotNull CommentAnnotation replyTo) {
         throw new UnsupportedOperationException();
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void deleteComment(@NotNull
-    Annotation comment) {
+    public void deleteComment(@NotNull Annotation comment) {
         List<SessionAnnotationLink> links = iQuery.findAllByQuery(
                 "select l from SessionAnnotationLink l "
                         + "where l.child.id = :id", new Parameters()
@@ -455,6 +461,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public Set<Experimenter> getAllMembers(long shareId) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         List<Experimenter> e = loadMembers(data);
         return new HashSet<Experimenter>(e);
     }
@@ -462,6 +469,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public Set<String> getAllGuests(long shareId) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         return new HashSet<String>(data.guests);
     }
 
@@ -489,6 +497,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void addUsers(long shareId, Experimenter... exps) {
         List<Experimenter> es = Arrays.asList(exps);
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         for (Experimenter experimenter : es) {
             data.members.remove(experimenter.getId());
         }
@@ -500,6 +509,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void addGuests(long shareId, String... emailAddresses) {
         List<String> addresses = Arrays.asList(emailAddresses);
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         data.guests.addAll(addresses);
         store(shareId, data);
     }
@@ -508,6 +518,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void removeUsers(long shareId, List<Experimenter> exps) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         for (Experimenter experimenter : exps) {
             data.members.remove(experimenter.getId());
         }
@@ -527,6 +538,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void addUser(long shareId, Experimenter exp) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         data.members.add(exp.getId());
         store(shareId, data);
     }
@@ -535,6 +547,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void addGuest(long shareId, String emailAddress) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         data.guests.add(emailAddress);
         store(shareId, data);
     }
@@ -543,6 +556,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void removeUser(long shareId, Experimenter exp) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         data.members.remove(exp.getId());
         store(shareId, data);
     }
@@ -551,6 +565,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void removeGuest(long shareId, String emailAddress) {
         ShareData data = store.get(shareId);
+        throwOnNullData(shareId, data);
         data.guests.remove(emailAddress);
         store(shareId, data);
     }
@@ -590,9 +605,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     private List<Experimenter> loadMembers(ShareData data) {
         List<Experimenter> members = new ArrayList<Experimenter>();
         if (data.members.size() > 0)
-            members = iQuery.findAllByQuery(
-                "select e from Experimenter e " + "where e.id in (:ids)",
-                new Parameters().addIds(data.members));
+            members = iQuery.findAllByQuery("select e from Experimenter e "
+                    + "where e.id in (:ids)", new Parameters()
+                    .addIds(data.members));
         return members;
     }
 
@@ -619,14 +634,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     private Set<Session> sharesToSessions(List<ShareData> datas) {
-        /* TODO: When Share will have details method can be updated:
-         * + "join fetch sh.details.owner where sh.id in (:ids) ",
+        /*
+         * TODO: When Share will have details method can be updated: +
+         * "join fetch sh.details.owner where sh.id in (:ids) ",
          */
-        /*Set<Session> sessions = new HashSet<Session>();
-        for (ShareData data : datas) {
-            sessions.add(shareToSession(data));
-        }
-        return sessions;*/
+        /*
+         * Set<Session> sessions = new HashSet<Session>(); for (ShareData data :
+         * datas) { sessions.add(shareToSession(data)); } return sessions;
+         */
         Set<Long> ids = new HashSet<Long>();
         for (ShareData data : datas) {
             ids.add(data.id);
@@ -642,11 +657,12 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     private Session shareToSession(ShareData data) {
-        /* TODO: When Share will have details method can be updated:
-        return iQuery.findByQuery("select sh from Session sh "
-                + "join fetch sh.details.owner where sh.id = :id ",
-                new Parameters().addId(data.id));
-        */
+        /*
+         * TODO: When Share will have details method can be updated: return
+         * iQuery.findByQuery("select sh from Session sh " +
+         * "join fetch sh.details.owner where sh.id = :id ", new
+         * Parameters().addId(data.id));
+         */
         return iQuery.find(Share.class, data.id);
     }
 
@@ -690,5 +706,27 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                 iUpdate.flush();
             }
         });
+    }
+
+    void throwOnNullData(long shareId, ShareData data) {
+        if (data == null) {
+            throw new ValidationException("Share not found: " + shareId);
+        }
+    }
+
+    ShareData getShareIfAccessibble(long shareId) {
+        
+        ShareData data = store.get(shareId);
+        if (data == null) {
+            return null;
+        }
+        
+        EventContext ec = admin.getEventContext();
+        boolean isAdmin = ec.isCurrentUserAdmin();
+        long userId = ec.getCurrentUserId();
+        if (data.owner == userId || data.members.contains(userId) || isAdmin) {
+            return data;
+        }
+        return null;
     }
 }
