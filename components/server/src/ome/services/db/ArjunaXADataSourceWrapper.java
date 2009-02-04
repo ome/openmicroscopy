@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.util.arjuna;
+package ome.services.db;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -26,7 +26,7 @@ import com.arjuna.ats.jdbc.common.jdbcPropertyManager;
  * Based on code available from:
  * http://anonsvn.labs.jboss.com/labs/jbosstm/workspace/jhalliday/tomcat-integration/README.txt
  */
-public class XADataSourceWrapper implements XADataSource, DataSource {
+public class ArjunaXADataSourceWrapper implements XADataSource, DataSource {
 
     final private XADataSource dataSource;
     
@@ -46,7 +46,7 @@ public class XADataSourceWrapper implements XADataSource, DataSource {
     // Spring-lifecycle-management (OMERO-specific)
     // =========================================================================
 
-    public XADataSourceWrapper(XADataSource dataSource, String jndiName,
+    public ArjunaXADataSourceWrapper(XADataSource dataSource, String jndiName,
             String jndiInitial, String jndiPkg, String username, String password) {
         
         this.dataSource = dataSource;
