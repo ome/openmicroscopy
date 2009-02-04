@@ -26,26 +26,14 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -73,7 +61,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ToolBar
     extends JPanel
-    implements ActionListener, ChangeListener
 {
 
 	/** Flag to indicate that the image is not compressed. */
@@ -94,25 +81,14 @@ class ToolBar
 	/** Horizontal space between the buttons. */
 	private static final Dimension	H_SPACE = new Dimension(2, 5);
 	
-    /** Default text describing the compression check box.  */
-    private static final String		PROJECTION_DESCRIPTION = 
-    				"Select the type of projection.";
-    
     /** The compression option. */
     private static final String[] 				compression;
-    
-	/** The type of projections supported. */
-	private static final Map<Integer, String>	projections;
-	
+
     static {
     	compression = new String[3];
     	compression[UNCOMPRESSED] = "No compression";
     	compression[MEDIUM] = "Medium compression";
     	compression[LOW] = "High compression";
-    	projections = new LinkedHashMap<Integer, String>();
-    	projections.put(ImViewer.MAX_INTENSITY, "Maximum Intensity");
-    	projections.put(ImViewer.MEAN_INTENSITY, "Mean Intensity");
-    	//projections.put(ImViewer.SUM_INTENSITY, "Sum Intensity");
     }
     
     /** Reference to the Control. */
@@ -139,18 +115,6 @@ class ToolBar
     /** Button to paste the rendering settings. */
 	private JButton					pasteButton;
 	
-	/** The tool bar hosting the controls for the porjection. */
-	private JPanel					projectionBar;
-	
-    /** The type of supported projections. */
-    private JComboBox				projectionTypesBox;
-    
-	/** The type of projection. */
-	private Map<Integer, Integer> 	projectionTypes;
-
-    /** Sets the stepping for the mapping. */
-    private JSpinner			   	projectionFrequency;
-
 	/** Indicates the loading progress. */
 	private JXBusyLabel				busyLabel;
 
@@ -229,27 +193,6 @@ class ToolBar
     	busyLabel.setVisible(false);
     }
     
-    /** Initializes the projection bar. */
-    private void createProjectionBar()
-    {	
-    	String[] names = new String[projections.size()];
-        int index = 0;
-        Iterator<Integer> i = projections.keySet().iterator();
-        projectionTypes = new HashMap<Integer, Integer>();
-        int j;
-        while (i.hasNext()) {
-			j = i.next();
-			projectionTypes.put(index, j);
-			names[index] = projections.get(j);
-			index++;
-		}
-        projectionTypesBox = EditorUtil.createComboBox(names, 0, 
-        		getBackground());
-        projectionTypesBox.setBackground(getBackground());
-        projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
-        projectionTypesBox.addActionListener(this);
-    }
-    
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
@@ -257,7 +200,6 @@ class ToolBar
     			getBackground());
     	compressionBox.setBackground(getBackground());
         createControlsBar();
-        createProjectionBar();
     }
     
     /** Builds and lays out the GUI. */
@@ -309,31 +251,7 @@ class ToolBar
 		compressionBox.setSelectedIndex(view.convertCompressionLevel());
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));
-		projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, 
-				view.getMaxZ()+1, 1));
-		projectionFrequency.addChangeListener(this);
-		JPanel bar = new JPanel();
-		bar.setBorder(null);
-		bar.add(projectionTypesBox);
-		bar.add(new JLabel(" Every n-th slice: "));
-		bar.add(projectionFrequency);
-		projectionBar = new JPanel();
-		projectionBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		projectionBar.add(bar);
     	buildGUI(); 
-    }
-    
-    /** 
-     * Adds the {@link #projectionBar} when the projection tabbed is 
-     * selected.
-     */
-    void onTabbedSelection()
-    {
-    	remove(projectionBar);
-    	if (view.getTabbedIndex() == ImViewer.PROJECTION_INDEX)
-    		add(projectionBar);
-    	revalidate();
-    	repaint();
     }
     
     /** Selects or deselects the {@link #rndButton}. */
@@ -353,38 +271,6 @@ class ToolBar
 	 * 			otherwise.
 	 */
 	void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
-
-	/**
-	 * Returns the stepping used for the projection.
-	 * 
-	 * @return See above.
-	 */
-	int getProjectionStepping()
-	{
-		return (Integer) projectionFrequency.getValue();
-	}
-
-	/**
-	 * Returns the type of projection.
-	 * 
-	 * @return See above.
-	 */
-	int getProjectionType()
-	{
-		int index = projectionTypesBox.getSelectedIndex();
-		return projectionTypes.get(index);
-	}
-    
-	/**
-	 * Returns a textual version of the type of projection.
-	 * 
-	 * @return See above.
-	 */
-	String getProjectionTypeName()
-	{
-		int index = projectionTypesBox.getSelectedIndex();
-		return projections.get(index);
-	}
 	
 	/**
      * Sets to <code>true</code> if loading data, to <code>false</code>
@@ -407,12 +293,7 @@ class ToolBar
      */
     void onStateChange(boolean b)
     {
-    	if (compressionBox != null)
-    		compressionBox.setEnabled(b);
-    	if (projectionTypesBox != null)
-    		projectionTypesBox.setEnabled(b);
-    	if (projectionFrequency != null)
-    		projectionFrequency.setEnabled(b);
+    	if (compressionBox != null) compressionBox.setEnabled(b);
 	}
     
     /**
@@ -422,26 +303,4 @@ class ToolBar
      */
 	int getUICompressionLevel() { return compressionBox.getSelectedIndex(); }
 	
-    /**
-     * Reacts to the selection of the {@link #compressionBox}.
-     * @see ActionListener#actionPerformed(ActionEvent)
-     */
-	public void actionPerformed(ActionEvent e)
-	{
-		Object src = e.getSource();
-		if (src == projectionTypesBox)
-			controller.setProjectionRange(true);
-	}
-
-	/**
-	 * Reacts to selection in spinner.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		Object src = e.getSource();
-		if (src == projectionFrequency)
-			controller.setProjectionRange(true);
-	}
-
 }

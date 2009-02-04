@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
@@ -33,19 +34,26 @@ import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -61,6 +69,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -118,9 +127,24 @@ class ControlPane
     /** The maximum height of a magnification slider. */
     private static final int		SLIDER_HEIGHT = 100;
     
+	
+    /** Default text describing the compression check box.  */
+    private static final String		PROJECTION_DESCRIPTION = 
+    				"Select the type of projection.";
+    
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
     
+    /** The type of projections supported. */
+	private static final Map<Integer, String>	projections;
+	
+    static {
+    	projections = new LinkedHashMap<Integer, String>();
+    	projections.put(ImViewer.MAX_INTENSITY, "Maximum Intensity");
+    	projections.put(ImViewer.MEAN_INTENSITY, "Mean Intensity");
+    	//projections.put(ImViewer.SUM_INTENSITY, "Sum Intensity");
+    }
+
     /** Reference to the Control. */
     private ImViewerControl 		controller;
     
@@ -202,11 +226,17 @@ class ControlPane
     /** Button to play movie across T displayed in the split view. */
     private JButton					playZMovieGrid;
     
-    /** Button to select preview the projection. */
-    //private JButton         		projectionPreview;
-    
     /** Button to bring up the color picker. */
     private JButton         		projectionProject;
+
+    /** The type of supported projections. */
+    private JComboBox				projectionTypesBox;
+    
+	/** The type of projection. */
+	private Map<Integer, Integer> 	projectionTypes;
+
+    /** Sets the stepping for the mapping. */
+    private JSpinner			   	projectionFrequency;
     
     /** Helper reference. */
     private IconManager     		icons;
@@ -386,7 +416,25 @@ class ControlPane
 	    //		controller.getAction(ImViewerControl.PROJECTION_PREVIEW));
 	    projectionProject = new JButton(
 	    		controller.getAction(ImViewerControl.PROJECTION_PROJECT));
-	    UIUtilities.unifiedButtonLookAndFeel(projectionProject);
+	    //UIUtilities.unifiedButtonLookAndFeel(projectionProject);
+	    
+	    projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+	    String[] names = new String[projections.size()];
+        int index = 0;
+        Iterator<Integer> i = projections.keySet().iterator();
+        projectionTypes = new HashMap<Integer, Integer>();
+        int j;
+        while (i.hasNext()) {
+			j = i.next();
+			projectionTypes.put(index, j);
+			names[index] = projections.get(j);
+			index++;
+		}
+        projectionTypesBox = EditorUtil.createComboBox(names, 0, 
+        		getBackground());
+        projectionTypesBox.setBackground(getBackground());
+        projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
+        projectionTypesBox.addActionListener(this);
     }
     
     /**
@@ -461,6 +509,10 @@ class ControlPane
         		getColorModelIcon(model.getColorModel()));
         colorModelButtonProjection.setToolTipText(
         				getColorModelDescription(model.getColorModel()));
+        SpinnerNumberModel m = 
+        	(SpinnerNumberModel) projectionFrequency.getModel();
+        m.setMaximum(view.getMaxZ()+1);
+		projectionFrequency.addChangeListener(this);
     }
     
     /**
@@ -579,12 +631,12 @@ class ControlPane
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
-        bar.add(projectionProject);
-        bar.add(Box.createRigidArea(VBOX));
+        //bar.add(projectionProject);
+        //bar.add(Box.createRigidArea(VBOX));
         bar.add(colorModelButtonProjection);
         return bar;
     }
-    
+
     /**
      * Creates a UI component hosting the {@link ChannelButton}s.
      * 
@@ -657,6 +709,8 @@ class ControlPane
     	slider.setMaximum(max);
     	slider.addChangeListener(this);
     }
+    
+   
     
     /**
      * Creates a new instance.
@@ -774,6 +828,26 @@ class ControlPane
         content.add(UIUtilities.buildComponentPanel(controls));
         content.add(p);
         return content;
+    }
+    
+    /** 
+     * Builds the component hosting controls for projection.
+     * 
+     * @return See above
+     */
+    JPanel buildProjectionToolBar()
+    {
+    	JPanel bar = new JPanel();
+		bar.setBorder(null);
+		bar.add(projectionTypesBox);
+		bar.add(new JLabel(" Every n-th slice: "));
+		bar.add(projectionFrequency);
+		bar.add(Box.createRigidArea(VBOX));
+		bar.add(projectionProject);
+		JPanel projectionBar = new JPanel();
+		projectionBar.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		projectionBar.add(bar);
+		return projectionBar;
     }
     
     /**
@@ -1080,6 +1154,10 @@ class ControlPane
         colorModelButton.setEnabled(b);
         colorModelButtonGrid.setEnabled(b);
         colorModelButtonProjection.setEnabled(b);
+        
+        //projection stuff
+        if (projectionTypesBox != null) projectionTypesBox.setEnabled(b);
+    	if (projectionFrequency != null) projectionFrequency.setEnabled(b);
     }
     
     /**
@@ -1293,6 +1371,38 @@ class ControlPane
     }
     
     /**
+	 * Returns the stepping used for the projection.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionStepping()
+	{
+		return (Integer) projectionFrequency.getValue();
+	}
+
+	/**
+	 * Returns the type of projection.
+	 * 
+	 * @return See above.
+	 */
+	int getProjectionType()
+	{
+		int index = projectionTypesBox.getSelectedIndex();
+		return projectionTypes.get(index);
+	}
+    
+	/**
+	 * Returns a textual version of the type of projection.
+	 * 
+	 * @return See above.
+	 */
+	String getProjectionTypeName()
+	{
+		int index = projectionTypesBox.getSelectedIndex();
+		return projections.get(index);
+	}
+	
+    /**
      * Reacts to the selection of an item in the {@link #zoomingBox} or
      * {@link #ratingBox}.
      * @see ActionListener#actionPerformed(ActionEvent)
@@ -1330,7 +1440,8 @@ class ControlPane
         	else if (object == zSliderAnnotator || object == tSliderAnnotator)
         		controller.setSelectedXYPlane(zSliderAnnotator.getValue(), 
         				tSliderAnnotator.getValue());
-        }
+        } else if (object == projectionFrequency)
+			controller.setProjectionRange(true);
     }
     
     /**

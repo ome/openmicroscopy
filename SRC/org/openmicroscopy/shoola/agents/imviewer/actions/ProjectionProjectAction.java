@@ -25,13 +25,11 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -67,9 +65,9 @@ public class ProjectionProjectAction
     public ProjectionProjectAction(ImViewer model)
     {
     	super(model, NAME);
-    	//putValue(Action.NAME, NAME);
-    	IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECTION));
+    	putValue(Action.NAME, NAME);
+    	//IconManager icons = IconManager.getInstance();
+        //putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECTION));
     	putValue(Action.SHORT_DESCRIPTION, 
     			UIUtilities.formatToolTipText(DESCRIPTION));
     }

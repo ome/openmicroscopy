@@ -801,23 +801,31 @@ class ImViewerUI
 		gridViewPanel = new ClosableTabbedPaneComponent(ImViewer.GRID_INDEX, 
 				browser.getGridViewTitle(),  browser.getGridViewIcon(), "");
 		gridViewPanel.setLayout(new TableLayout(tl));
+
 		gridViewPanel.add(controlPane.buildGridComponent(), "0, 0");
 		gridViewPanel.add(browser.getGridView(), "1, 0");
 		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
 						"1, 1");
 
+		
 		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), 
 						gridViewPanel, "", ImViewer.GRID_INDEX);
+		
+		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+				{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED}};
 		
 		projectionViewPanel = new ClosableTabbedPaneComponent(
 				ImViewer.PROJECTION_INDEX, browser.getProjectionViewTitle(),  
 				browser.getProjectionViewIcon(), "");
-		projectionViewPanel.setLayout(new TableLayout(tl));
-		projectionViewPanel.add(controlPane.buildProjectionComponent(), "0, 0");
-		projectionViewPanel.add(browser.getProjectionView(), "1, 0");
+		
+		projectionViewPanel.setLayout(new TableLayout(tl2));
+		projectionViewPanel.add(controlPane.buildProjectionToolBar(), 
+				"0, 0, 1, 0");
+		projectionViewPanel.add(controlPane.buildProjectionComponent(), "0, 1");
+		projectionViewPanel.add(browser.getProjectionView(), "1, 1");
 		projectionViewPanel.add(
 				controlPane.getTimeSliderPane(ImViewer.PROJECTION_INDEX), 
-						"1, 1");
+						"1, 2");
 		mainComponent = tabs;
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
@@ -1609,7 +1617,6 @@ class ImViewerUI
 		}
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
-		toolBar.onTabbedSelection();
 		tabs.removeChangeListener(controller);
 		int n = tabs.getTabCount();
 		Component c;
@@ -2054,21 +2061,24 @@ class ImViewerUI
 	 * 
 	 * @return See above.
 	 */
-	int getProjectionStepping() { return toolBar.getProjectionStepping(); }
+	int getProjectionStepping() { return controlPane.getProjectionStepping(); }
 	
 	/**
 	 * Returns the type of projection.
 	 * 
 	 * @return See above.
 	 */
-	int getProjectionType() { return toolBar.getProjectionType(); }
+	int getProjectionType() { return controlPane.getProjectionType(); }
 	
 	/**
 	 * Returns a textual version of the type of projection.
 	 * 
 	 * @return See above.
 	 */
-	String getProjectionTypeName() { return toolBar.getProjectionTypeName(); }
+	String getProjectionTypeName()
+	{ 
+		return controlPane.getProjectionTypeName();
+	}
 	
 	/**
      * Sets to <code>true</code> if loading data, to <code>false</code>
