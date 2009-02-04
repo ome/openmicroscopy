@@ -44,16 +44,14 @@ import omero.model.ObjectiveSettings;
  */
 public class ReferenceProcessor implements ModelProcessor
 {
-	/** LSID reference map in string format. */
-	private Map<String, String> referenceStringCache = 
-		new HashMap<String, String>();
-    	
     /* (non-Javadoc)
      * @see ome.formats.model.ModelProcessor#process(ome.formats.model.IObjectContainerStore)
      */
     public void process(IObjectContainerStore store)
     	throws ModelException
     {
+        Map<String, String> referenceStringCache = 
+            new HashMap<String, String>();
     	Map<LSID, LSID> referenceCache = store.getReferenceCache();
     	Map<LSID, IObjectContainer> containerCache = store.getContainerCache();
     	try

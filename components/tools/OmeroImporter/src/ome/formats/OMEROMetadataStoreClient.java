@@ -337,11 +337,14 @@ public class OMEROMetadataStoreClient
     {
         try
         {
+            System.err.println("Creating root!");
             containerCache = 
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, LSID>();
+            referenceStringCache = null;
             delegate.createRoot();
-        } catch (ServerError e)
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }

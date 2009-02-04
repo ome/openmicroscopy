@@ -621,9 +621,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         imageList = new ArrayList<Image>();
         pixelsList = new ArrayList<Pixels>();
-        instrumentList = new ArrayList<Instrument>();
-        plateList = new ArrayList<Plate>();
         screenList = new ArrayList<Screen>();
+        plateList = new ArrayList<Plate>();
+        instrumentList = new ArrayList<Instrument>();
         lsidMap = new HashMap<LSID, IObject>();
     }
 
