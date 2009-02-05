@@ -135,7 +135,7 @@ public class MockFixture {
         ts.swap(blitz.getBlitzAdapter());
 
         // Add our topic manager
-        TopicManager tm = new TopicManager.Impl(blitz.getCommunicator());
+        TopicManager tm = new TopicManager(blitz.getCommunicator());
         this.ctx.addApplicationListener(tm);
         
         // Setup mock router which allows us to use omero.client

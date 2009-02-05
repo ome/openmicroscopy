@@ -79,7 +79,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     
     // ~ Constructors
     // =========================================================================
-    
+
     public OmeroContext(String configLocation) throws BeansException {
         super(configLocation);
     }

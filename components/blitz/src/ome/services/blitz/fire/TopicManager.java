@@ -27,14 +27,7 @@ import IceStorm.NoSuchTopic;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since December 2008
  */
-public interface TopicManager extends ApplicationListener {
-
-    /**
-     * Enforces <em>no</em> security constraints. For the moment, that is the
-     * responsibility of application code. WILL CHANGE>
-     */
-    public void register(String topicName, Ice.ObjectPrx prx)
-            throws omero.ServerError;
+public final class TopicManager implements ApplicationListener {
 
     public final static class TopicMessage extends ApplicationEvent {
 
@@ -53,132 +46,129 @@ public interface TopicManager extends ApplicationListener {
         }
     }
 
-    public final static class Impl implements TopicManager {
+    private final static Log log = LogFactory.getLog(TopicManager.class);
 
-        private final static Log log = LogFactory.getLog(Impl.class);
+    private final Ice.Communicator communicator;
 
-        private final Ice.Communicator communicator;
+    public TopicManager(Ice.Communicator communicator) {
+        this.communicator = communicator;
+    }
 
-        public Impl(Ice.Communicator communicator) {
-            this.communicator = communicator;
-        }
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof TopicMessage) {
 
-        public void onApplicationEvent(ApplicationEvent event) {
-            if (event instanceof TopicMessage) {
-
-                IceStorm.TopicManagerPrx topicManager = managerOrNull();
-                if (topicManager == null) {
-                    log.warn("No topic manager");
-                    return; // EARLY EXIT
-                }
-
-                TopicMessage msg = (TopicMessage) event;
-                try {
-                    Ice.ObjectPrx obj = publisherOrNull(msg.topic);
-                    msg.base.__copyFrom(obj);
-                    Method m = msg.base.getClass().getMethod(msg.method);
-                    m.invoke(msg.base, msg.args);
-                } catch (Exception e) {
-                    log.error("Error publishing to topic:" + msg.topic, e);
-                }
-            }
-        }
-
-        public void register(String topicName, Ice.ObjectPrx prx)
-                throws omero.ServerError {
-            String id = prx.ice_id();
-            id = id.replaceFirst("::", "");
-            id = id.replace("::", ".");
-            id = id + "PrxHelper";
-            Class<?> pubClass = null;
-            try {
-                pubClass = Class.forName(id);
-            } catch (ClassNotFoundException e) {
-                throw new ApiUsageException(null, null,
-                        "Unknown type for proxy: " + prx.ice_id());
-            }
-            IceStorm.TopicPrx topic = topicOrNull(topicName);
-
-            while (topic != null) { // See 45.7.3 IceStorm Clients under HA
-                                    // IceStorm
-                try {
-                    topic.subscribeAndGetPublisher(null, prx);
-                } catch (Ice.UnknownException ue) {
-                    log.warn("Unknown exception on subscribeAndGetPublisher");
-                    continue;
-                } catch (AlreadySubscribed e) {
-                    throw new ApiUsageException(null, null,
-                            "Proxy already subscribed: " + prx);
-                } catch (BadQoS e) {
-                    throw new InternalException(null, null,
-                            "BadQos in TopicManager.subscribe");
-                }
-                break;
-            }
-        }
-
-        // Helpers
-        // =========================================================================
-
-        protected IceStorm.TopicManagerPrx managerOrNull() {
-
-            Ice.ObjectPrx objectPrx = communicator
-                    .stringToProxy("IceGrid/Query");
-            Ice.ObjectPrx[] candidates = null;
-
-            try {
-                IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
-                        .checkedCast(objectPrx);
-                candidates = query
-                        .findAllObjectsByType("::IceStorm::TopicManager");
-            } catch (Exception e) {
-                log.warn("Error querying for topic manager", e);
-            }
-
-            IceStorm.TopicManagerPrx tm = null;
-
-            if (candidates == null || candidates.length == 0) {
-                log.warn("Found no topic manager");
-            } else if (candidates.length > 1) {
-                log.warn("Found wrong number of topic managers: "
-                        + candidates.length);
-            } else {
-                try {
-                    tm = IceStorm.TopicManagerPrxHelper
-                            .checkedCast(candidates[0]);
-                } catch (Exception e) {
-                    log.warn("Could not cast to TopicManager", e);
-                }
-            }
-            return tm;
-        }
-
-        protected IceStorm.TopicPrx topicOrNull(String name) {
             IceStorm.TopicManagerPrx topicManager = managerOrNull();
-            IceStorm.TopicPrx topic = null;
-            if (topicManager != null) {
-                try {
-                    topic = topicManager.create(name);
-                } catch (IceStorm.TopicExists ex2) {
-                    try {
-                        topic = topicManager.retrieve(name);
-                    } catch (NoSuchTopic e) {
-                        throw new RuntimeException(
-                                "Race condition retriving topic: " + name);
-                    }
-                }
+            if (topicManager == null) {
+                log.warn("No topic manager");
+                return; // EARLY EXIT
             }
-            return topic;
+
+            TopicMessage msg = (TopicMessage) event;
+            try {
+                Ice.ObjectPrx obj = publisherOrNull(msg.topic);
+                msg.base.__copyFrom(obj);
+                Method m = msg.base.getClass().getMethod(msg.method);
+                m.invoke(msg.base, msg.args);
+            } catch (Exception e) {
+                log.error("Error publishing to topic:" + msg.topic, e);
+            }
+        }
+    }
+
+    /**
+     * Enforces <em>no</em> security constraints. For the moment, that is the
+     * responsibility of application code. WILL CHANGE>
+     */
+    public void register(String topicName, Ice.ObjectPrx prx)
+            throws omero.ServerError {
+        String id = prx.ice_id();
+        id = id.replaceFirst("::", "");
+        id = id.replace("::", ".");
+        id = id + "PrxHelper";
+        Class<?> pubClass = null;
+        try {
+            pubClass = Class.forName(id);
+        } catch (ClassNotFoundException e) {
+            throw new ApiUsageException(null, null, "Unknown type for proxy: "
+                    + prx.ice_id());
+        }
+        IceStorm.TopicPrx topic = topicOrNull(topicName);
+
+        while (topic != null) { // See 45.7.3 IceStorm Clients under HA IceStorm
+            try {
+                topic.subscribeAndGetPublisher(null, prx);
+            } catch (Ice.UnknownException ue) {
+                log.warn("Unknown exception on subscribeAndGetPublisher");
+                continue;
+            } catch (AlreadySubscribed e) {
+                throw new ApiUsageException(null, null,
+                        "Proxy already subscribed: " + prx);
+            } catch (BadQoS e) {
+                throw new InternalException(null, null,
+                        "BadQos in TopicManager.subscribe");
+            }
+            break;
+        }
+    }
+
+    // Helpers
+    // =========================================================================
+
+    protected IceStorm.TopicManagerPrx managerOrNull() {
+
+        Ice.ObjectPrx objectPrx = communicator.stringToProxy("IceGrid/Query");
+        Ice.ObjectPrx[] candidates = null;
+
+        try {
+            IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
+                    .checkedCast(objectPrx);
+            candidates = query.findAllObjectsByType("::IceStorm::TopicManager");
+        } catch (Exception e) {
+            log.warn("Error querying for topic manager", e);
         }
 
-        protected Ice.ObjectPrx publisherOrNull(String name) {
-            IceStorm.TopicPrx topic = topicOrNull(name);
-            Ice.ObjectPrx pub = null;
-            if (topic != null) {
-                pub = topic.getPublisher().ice_oneway();
+        IceStorm.TopicManagerPrx tm = null;
+
+        if (candidates == null || candidates.length == 0) {
+            log.warn("Found no topic manager");
+        } else if (candidates.length > 1) {
+            log.warn("Found wrong number of topic managers: "
+                    + candidates.length);
+        } else {
+            try {
+                tm = IceStorm.TopicManagerPrxHelper.checkedCast(candidates[0]);
+            } catch (Exception e) {
+                log.warn("Could not cast to TopicManager", e);
             }
-            return pub;
         }
+        return tm;
+    }
+
+    protected IceStorm.TopicPrx topicOrNull(String name) {
+        IceStorm.TopicManagerPrx topicManager = managerOrNull();
+        IceStorm.TopicPrx topic = null;
+        if (topicManager != null) {
+            try {
+                topic = topicManager.create(name);
+            } catch (IceStorm.TopicExists ex2) {
+                try {
+                    topic = topicManager.retrieve(name);
+                } catch (NoSuchTopic e) {
+                    throw new RuntimeException(
+                            "Race condition retriving topic: " + name);
+                }
+            }
+        }
+        return topic;
+    }
+
+    protected Ice.ObjectPrx publisherOrNull(String name) {
+        IceStorm.TopicPrx topic = topicOrNull(name);
+        Ice.ObjectPrx pub = null;
+        if (topic != null) {
+            pub = topic.getPublisher().ice_oneway();
+        }
+        return pub;
     }
 
 }

@@ -24,7 +24,7 @@ system to be re-configured.
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
-    <param name="Threshold" value="DEBUG"/>
+    <param name="Threshold" value="INFO"/>
     <param name="Target" value="System.out"/>
     <param name="Follow" value="true"/>
     <layout class="org.apache.log4j.PatternLayout">
@@ -49,7 +49,7 @@ system to be re-configured.
   <category name="org.jgroups"> <priority value="WARN"/> </category>
   <category name="org.quartz"> <priority value="WARN"/> </category>
   <category name="org.hibernate"> <priority value="WARN"/> </category>
-  <category name="org.springframework"> <priority value="DEBUG"/> </category>
+  <category name="org.springframework"> <priority value="WARN"/> </category>
   <!-- Suppressing "Warning missing properties files" -->
   <category name="org.springframework.beans"> <priority value="ERROR"/> </category>
   <!-- Whether or not to print jamon timing info. ERROR or TRACE -->

@@ -22,10 +22,10 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- * Command-line (and static) utility for working with the {@link #ROOT
- * omero.prefs} {@link Preferences} node in order to store Java properties-file
- * like values on a user basis. This simplifies configuration and permits
- * quicker re-installs, and less wrangling with configuration files.
+ * Command-line (and static) utility for working with the
+ * {@link #ROOT omero.prefs} {@link Preferences} node in order to store Java
+ * properties-file like values on a user basis. This simplifies configuration
+ * and permits quicker re-installs, and less wrangling with configuration files.
  * 
  * A single string value is stored as {@link #DEFAULT} (which by default is the
  * value {@link #DEFAULT}, and points to the name of some node under
@@ -42,38 +42,10 @@ import java.util.prefs.Preferences;
 public class prefs {
 
     /**
-     * Storing the standard in as a {@link Properties} instance as early as
-     * possible to prevent lost data.
-     */
-    public final static Properties STDIN;
-    static {
-        Properties p = new Properties();
-        try {
-            if (System.in.available() > 0) {
-                p.load(System.in);
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        STDIN = p;
-    }
-
-    /**
      * Activated by setting DBEUG=true in the environment. Various information
      * is printed to {@link System#err}.
      */
-    public final static boolean DEBUG = Boolean.valueOf(System.getenv("DEBUG"))
-            || "1".equals(System.getenv("DEBUG"));
-    static {
-        if (DEBUG) {
-            printErr(args("STANDARD IN:"));
-            try {
-                STDIN.store(System.err, null);
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-    }
+    public final static boolean DEBUG = Boolean.valueOf(System.getenv("DEBUG"));
 
     /**
      * "omero.prefs", the value of the root {@link Preferences} node used for
@@ -121,9 +93,6 @@ public class prefs {
      */
     public static void main(String[] args) {
         try {
-            if (DEBUG) {
-                printErr(args("Debugging profile " + def(args())[0]));
-            }
             exit(print(dispatch(notNull(args))));
         } catch (Throwable e) {
 
@@ -225,13 +194,6 @@ public class prefs {
      * Uses the length of the argument array as the exit code.
      */
     public static String[] exit(String[] args) {
-        try {
-            Thread.sleep(1L);
-            System.out.flush();
-            Thread.sleep(1L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         System.exit(args.length);
         return null;
     }
@@ -308,7 +270,7 @@ public class prefs {
                     OMERO = DEFAULT;
                 }
             }
-            return args(OMERO);
+            return new String[] { OMERO };
         } else if (args.length == 1) {
             prefs.put(DEFAULT, args[0] == null ? "" : args[0]);
             return new String[] { "Default set to: " + def(args())[0] };
@@ -402,7 +364,7 @@ public class prefs {
         } else {
             _node().put(key, val);
         }
-
+        
         return args();
     }
 
@@ -457,7 +419,7 @@ public class prefs {
 
         Properties p;
         if (args.length == 0) {
-            p = STDIN;
+            p = _stdin();
         } else {
             p = _merge(args);
         }
@@ -483,7 +445,7 @@ public class prefs {
 
         Properties p;
         if (args.length == 0) {
-            p = STDIN;
+            p = _stdin();
         } else {
             p = _merge(args);
         }
@@ -724,8 +686,8 @@ public class prefs {
     }
 
     /**
-     * Loads the {@link Properties} instance into the {@link #_node() current
-     * profile}.
+     * Loads the {@link Properties} instance into the
+     * {@link #_node() current profile}.
      */
     private static void _load(Properties properties) {
         Preferences p = _node();
@@ -736,6 +698,21 @@ public class prefs {
             }
             p.put(obj.toString(), value.toString());
         }
+    }
+
+    /**
+     * Reads from {@link System#in} and creates a {@link Properties} instance,
+     * or throws an exception if there is an issue with the stream.
+     */
+    private static Properties _stdin() throws IOException {
+        int available = 0;
+        available = System.in.available();
+
+        Properties p = new Properties();
+        if (available > 0) {
+            p.load(System.in);
+        }
+        return p;
     }
 
     /**

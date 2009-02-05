@@ -70,7 +70,7 @@
                         <transaction src="${target.dir}/ddl.sql"/>
                         <transaction src="${target.dir}/data.sql"/>
                         <transaction src="${target.dir}/views.sql"/>
-               </sql_run>
+                </sql_run>
 	</target>
 
 	<target name="prepare" depends="deps-retrieve">
