@@ -508,7 +508,7 @@ public class CPEimport {
 			// process any remaining text. 
 			if (currentPosition < description.length()) {
 				content = description.substring(currentPosition, 
-													description.length()-1);
+													description.length());
 				field.addContent(new TextContent(content));
 			}
 			
