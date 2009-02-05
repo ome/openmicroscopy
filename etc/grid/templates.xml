@@ -165,11 +165,11 @@
             topic-manager-endpoints="${topic-manager-endpoints}"
             publish-endpoints="${publish-endpoints}"
             flush-timeout="${flush-timeout}"/>
+        <properties>
+          <property name="IceBox.InheritProperties" value="1"/>
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+        </properties>
       </icebox>
-      <properties>
-        <property name="IceBox.InheritProperties" value="1"/>
-        <property name="Ice.Override.ConnectTimeout" value="5000"/>
-      </properties>
     </server-template>
 
   </application>
