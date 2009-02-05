@@ -203,7 +203,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             WrappedCreateSessionException wrapped = new WrappedCreateSessionException();
             wrapped.backOff = -1;
             wrapped.concurrency = false;
-            wrapped.message = t.getMessage();
+            wrapped.reason = t.getMessage();
             wrapped.type = t.getClass().getName();
             wrapped.setStackTrace(t.getStackTrace());
             throw wrapped;
