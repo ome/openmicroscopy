@@ -156,8 +156,8 @@ class client(object):
             id.properties.setProperty("Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
 
         # Setting ConnectTimeout
-        parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
-                           omero.constants.CONNECTIMEOUT.value)
+        self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
+                           omero.constants.CONNECTTIMEOUT)
 
         # Endpoints set to tcp if not present
         endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints")
@@ -165,7 +165,7 @@ class client(object):
             id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp")
 
         # Port, setting to default if not present
-        port = parseAndSetInt(id, "omero.port",\
+        port = self.parseAndSetInt(id, "omero.port",\
                                   omero.constants.GLACIER2PORT)
 
         # Default Router, set a default and then replace

@@ -295,19 +295,6 @@ public interface IContainer extends ServiceInterface {
     public Set<Image> getUserImages(Map options);
 
     /**
-     * Retrieves <code>Experimenter</code> instances based on unique user name
-     * 
-     * @param names
-     *            Set of user names for <code>Experimenter</code>
-     * @param options
-     *            Map. Unused.
-     * @return A map from username to <code>Experimenter</code>
-     */
-    public Map getUserDetails(@NotNull
-    @Validate(String.class)
-    Set<String> names, Map options);
-
-    /**
      * Counts the number of members in a collection for a given object. For
      * example, if you wanted to retrieve the number of Images contained in a
      * Dataset you would pass TODO.
