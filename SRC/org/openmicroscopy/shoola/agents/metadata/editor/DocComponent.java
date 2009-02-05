@@ -216,7 +216,7 @@ class DocComponent
 	private void initButton()
 	{
 		IconManager icons = IconManager.getInstance();
-		deleteButton = new JButton(icons.getIcon(IconManager.MINUS_9));
+		deleteButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		if (data instanceof FileAnnotationData)
