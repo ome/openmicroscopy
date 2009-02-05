@@ -32,7 +32,8 @@ import path as pathModule
 # If any platform-specific stuff in the imported library fails an exception will be
 # raised, a further sanity check.
 #
-supported = { 'MACOS_10_5+'                : 'Mac-10-5-Monitor', 
+supported = { 
+              'MACOS_10_5+'                : 'Mac-10-5-Monitor', 
               'LINUX_2_6_13+pyinotify_0_7' : 'Pyinotify-0-7-Monitor', 
               'LINUX_2_6_13+pyinotify_0_8' : 'Pyinotify-0-8-Monitor', 
               'WIN_XP'                     : 'Win-XP-Monitor', 
@@ -46,10 +47,17 @@ import platform
 system = platform.system()
 if system == 'Darwin':
     version = platform.mac_ver()[0].split('.')
-    if  int(version[0]) == 10 and int(version[1]) >= 5:
-        current = 'MACOS_10_5+'
-    else:
-        errorString = "Mac Os 10.5 or above required. You have: %s" % str(platform.mac_ver()[0])
+    try:
+        if  int(version[0]) == 10 and int(version[1]) >= 5:
+            current = 'MACOS_10_5+'
+        else:
+            errorString = "Mac Os 10.5 or above required. You have: %s" % str(platform.mac_ver()[0])
+    except:
+        ## mac_ver() on python built with macports returns a version tuple
+        ## full of empty strings. That's caught here but the OS version is unknown.
+        ## Until a better solution is found MACOS? is used to flag this.
+        current = 'MACOS?'
+        errorString = "Mac Os 10.5 or above required. You have and unkown version"
         
 elif system == 'Linux':
     kernel = platform.platform().split('-')[1].split('.')
@@ -84,7 +92,7 @@ try:
 except KeyError:
     raise Exception(errorString)
 except Exception, e:
-    raise Exception("Libraries required by OMERO.fs failed to load: " + str(e))
+    raise Exception("Libraries required by OMERO.fs failed to load: " + errorString + "\n" + str(e))
 
 import monitors
 
