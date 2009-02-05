@@ -92,11 +92,16 @@ public interface IObjectContainerStore
     		                             LinkedHashMap<String, Integer> indexes);
     
     /**
-     * Counts the number of containers the MetadataStore has of a given class.
+     * Counts the number of containers the MetadataStore has of a given class
+     * and at a given index of the hierarchy if specified.
      * @param klass Class to count containers of.
+     * @param indexes Indexes to use in the container count. For example, if
+     * <code>klass</code> is <code>Image</code> and indexes is 
+     * <code>int[] { 0 };</code> only containers that have an LSID of type
+     * <code>Image</code> and a first index of <code>0</code> will be counted.
      * @return See above.
      */
-    int countCachedContainers(Class<? extends IObject> klass);
+    int countCachedContainers(Class<? extends IObject> klass, int... indexes);
     
     /**
      * Counts the number of references the MetadataStore has between objects

@@ -31,6 +31,7 @@ import java.util.List;
 import loci.formats.FormatException;
 import loci.formats.meta.MetadataStore;
 import loci.common.DataTools;
+import ome.formats.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 
 import org.apache.commons.logging.Log;
@@ -42,8 +43,10 @@ import ome.formats.importer.util.Actions;
 
 import omero.ServerError;
 import omero.model.BooleanAnnotationI;
+import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Image;
+import omero.model.LogicalChannel;
 import omero.model.Pixels;
 
 /**
@@ -247,47 +250,86 @@ public class ImportLibrary implements IObservable
     {
     	// Ensure that our metadata is consistent before writing to the DB.
     	int series = 0;
+    	// 1st we post-process the metadata that we've been given.
+    	log.debug("Post-processing metadata.");
+    	store.postProcess();
+    	// 2nd we ensure that the Image name and channel colors are set.
     	for (Pixels pixels : store.getSourceObjects(Pixels.class))
     	{
     		String name = imageName;
     		String seriesName = reader.getImageName(series);
 
-    		if (reader.getImageReader().isRGB() || reader.getImageReader().isIndexed())
+    		if (reader.getImageReader().isRGB()
+    			|| reader.getImageReader().isIndexed())
     		{
-    			log.debug("Setting color channels to RGB format.");
-    			if (pixels.sizeOfChannels() == 3)
+    			int channelCount = 
+    				store.countCachedContainers(Channel.class, series); 
+    			if (channelCount == 3 || channelCount == 4)
     			{
+    				log.debug("Setting color channels to RGB format.");
     				// red
-    				pixels.getChannel(0).setRed(rint(255));
-    				pixels.getChannel(0).setGreen(rint(0));
-    				pixels.getChannel(0).setBlue(rint(0));
-    				pixels.getChannel(0).setAlpha(rint(255));
+    				Channel c = (Channel)
+    					store.getSourceObject(new LSID(Channel.class, series, 0));
+    				LogicalChannel lc = (LogicalChannel)
+						store.getSourceObject(new LSID(LogicalChannel.class, series, 0));
+    				c.setRed(rint(255));
+    				c.setGreen(rint(0));
+    				c.setBlue(rint(0));
+    				c.setAlpha(rint(255));
+    				if (lc.getName() == null)
+    				{
+    					lc.setName(rstring("Red"));
+    				}
 
     				// green
-    				pixels.getChannel(1).setGreen(rint(255));
-    				pixels.getChannel(1).setRed(rint(0));
-    				pixels.getChannel(1).setBlue(rint(0));
-    				pixels.getChannel(1).setAlpha(rint(255)); 
+    				c = (Channel)
+						store.getSourceObject(new LSID(Channel.class, series, 1));
+    				lc = (LogicalChannel)
+						store.getSourceObject(new LSID(LogicalChannel.class, series, 1));
+    				c.setRed(rint(0));
+    				c.setGreen(rint(255));
+    				c.setBlue(rint(0));
+    				c.setAlpha(rint(255));
+    				if (lc.getName() == null)
+    				{
+    					lc.setName(rstring("Green"));
+    				}
 
     				// blue
-    				pixels.getChannel(2).setBlue(rint(255));
-    				pixels.getChannel(2).setGreen(rint(0));
-    				pixels.getChannel(2).setRed(rint(0));
-    				pixels.getChannel(2).setAlpha(rint(255));            
+    				c = (Channel)
+						store.getSourceObject(new LSID(Channel.class, series, 2));
+    				lc = (LogicalChannel)
+						store.getSourceObject(new LSID(LogicalChannel.class, series, 2));;
+    				c.setRed(rint(0));
+    				c.setGreen(rint(0));
+    				c.setBlue(rint(255));
+    				c.setAlpha(rint(255));
+    				if (lc.getName() == null)
+    				{
+    					lc.setName(rstring("Blue"));
+    				}
+    				
+    				// alpha channel, if it exists
+    				if (channelCount == 4)
+    				{
+        				c = (Channel)
+							store.getSourceObject(new LSID(Channel.class, series, 3));
+        				lc = (LogicalChannel)
+        					store.getSourceObject(new LSID(LogicalChannel.class, series, 3));;
+        				c.setRed(rint(0));
+        				c.setGreen(rint(0));
+        				c.setBlue(rint(0));
+        				c.setAlpha(rint(0));  // Transparent
+        				if (lc.getName() == null)
+        				{
+        					lc.setName(rstring("Alpha"));
+        				}
+    				}
     			}
     		}
-
     		if (seriesName != null && seriesName.length() != 0)
     			name += " [" + seriesName + "]";
-
     		store.setImageName(name, series);
-
-    		if (pixels.getPhysicalSizeX() == null)
-    			store.setDimensionsPhysicalSizeX(1.0f, series, 0);
-    		if (pixels.getPhysicalSizeY() == null)
-    			store.setDimensionsPhysicalSizeY(1.0f, series, 0);
-    		if (pixels.getPhysicalSizeZ() == null)
-    			store.setDimensionsPhysicalSizeZ(1.0f, series, 0);
     	}
         
         log.debug("Saving pixels to DB.");

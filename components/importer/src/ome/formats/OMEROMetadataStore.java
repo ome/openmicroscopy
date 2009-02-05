@@ -137,6 +137,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	{
     		handle(lsid, (Pixels) sourceObject, indexes);
     	}
+    	else if (sourceObject instanceof Channel)
+    	{
+    		handle(lsid, (Channel) sourceObject, indexes);
+    	}
     	else if (sourceObject instanceof LogicalChannel)
     	{
     		handle(lsid, (LogicalChannel) sourceObject, indexes);
@@ -307,13 +311,26 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, LogicalChannel sourceObject,
+    private void handle(String LSID, Channel sourceObject,
     		            Map<String, Integer> indexes)
     {
     	Pixels p = getPixels(indexes.get("imageIndex"), 0);
-    	Channel c = new Channel();
+    	p.addChannel(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, LogicalChannel sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Channel c = getChannel(indexes.get("imageIndex"),
+    			               indexes.get("logicalChannelIndex"));
     	c.setLogicalChannel(sourceObject);
-    	p.addChannel(c);
     }
     
     /**
@@ -586,6 +603,18 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
     
     /**
+     * Returns a Channel model object based on its indexes within the
+     * OMERO data model.
+     * @param imageIndex Image index.
+     * @param logicalChannelIndex Logical channel index.
+     * @return See above.
+     */
+    private Channel getChannel(int imageIndex, int logicalChannelIndex)
+    {
+    	return getPixels(imageIndex, 0).getChannel(logicalChannelIndex); 
+    }
+    
+    /**
      * Returns a LogicalChannel model object based on its indexes within the
      * OMERO data model.
      * @param imageIndex Image index.
@@ -595,8 +624,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private LogicalChannel getLogicalChannel(int imageIndex,
     		                                 int logicalChannelIndex)
     {
-    	Channel c = getPixels(imageIndex, 0).getChannel(logicalChannelIndex); 
-    	return c.getLogicalChannel();
+    	return getChannel(imageIndex, logicalChannelIndex).getLogicalChannel();
     }
 
     /**

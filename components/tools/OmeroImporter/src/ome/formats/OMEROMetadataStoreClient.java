@@ -584,9 +584,10 @@ public class OMEROMetadataStoreClient
     }
         
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#countCachedContainers(java.lang.Class)
+     * @see ome.formats.model.IObjectContainerStore#countCachedContainers(java.lang.Class, int[])
      */
-    public int countCachedContainers(Class<? extends IObject> klass)
+    public int countCachedContainers(Class<? extends IObject> klass,
+    		                         int... indexes)
     {
         if (klass == null)
         {
@@ -599,6 +600,17 @@ public class OMEROMetadataStoreClient
         	Class<? extends IObject> lsidClass = lsid.getJavaClass();
             if (lsidClass != null && lsidClass.equals(klass))
             {
+            	if (indexes != null)
+            	{
+            		int[] lsidIndexes = lsid.getIndexes();
+            		for (int i = 0; i < indexes.length; i++)
+            		{
+            			if (lsidIndexes[i] != indexes[i])
+            			{
+            				continue;
+            			}
+            		}
+            	}
                 count++;
             }
         }
@@ -1946,17 +1958,29 @@ public class OMEROMetadataStoreClient
             throw new RuntimeException(e);
         }
     }
+    
+    /**
+     * Post processes the internal structure of the client side MetadataStore.
+     * Should be called before {@link saveToDB()}.
+     */
+    public void postProcess()
+    {
+		// Perform model processing
+		for (ModelProcessor processor : modelProcessors)
+		{
+			processor.process(this);
+		}
+    }
 
+    /**
+     * Updates the server side MetadataStore with a list of our objects and
+     * references and saves them into the database.
+     * @return List of Pixels after database commit.
+     */
     public List<Pixels> saveToDB()
     {
     	try
     	{
-    		// Perform model processing
-    		for (ModelProcessor processor : modelProcessors)
-    		{
-    			processor.process(this);
-    		}
-        	
         	Collection<IObjectContainer> containers = containerCache.values();
         	IObjectContainer[] containerArray = 
         		containers.toArray(new IObjectContainer[containers.size()]);

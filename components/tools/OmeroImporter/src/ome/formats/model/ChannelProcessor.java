@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import ome.formats.LSID;
+import omero.model.Channel;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LogicalChannel;
@@ -58,6 +59,16 @@ public class ChannelProcessor implements ModelProcessor
     		for (int c = 0; c < pixels.getSizeC().getValue(); c++)
     		{
     			IObject sourceObject =
+    				store.getSourceObject(new LSID(Channel.class, i, c));
+    			if (sourceObject == null)
+    			{
+    				LinkedHashMap<String, Integer> indexes = 
+    					new LinkedHashMap<String, Integer>();
+    				indexes.put("imageIndex", i);
+    				indexes.put("logicalChannelIndex", c);
+    				store.getIObjectContainer(Channel.class, indexes);
+    			}
+    			sourceObject =
     				store.getSourceObject(new LSID(LogicalChannel.class, i, c));
     			if (sourceObject == null)
     			{
