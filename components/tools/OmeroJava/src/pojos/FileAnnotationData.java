@@ -74,6 +74,9 @@ public class FileAnnotationData extends AnnotationData {
     /** Identifies the <code>RTF</code> file formats. */
     public static final String RTF = "rtf";
 
+    /** Indicates that the format is not recognized. */
+    public static final String UNKNOWN = "UNKNOWN OR NULL FORMAT";
+    
     /**
      * The <code>PDF</code> file format as defined by specification
      * corresponding to the extension.
@@ -120,14 +123,20 @@ public class FileAnnotationData extends AnnotationData {
      * The <code>Microsoft PowerPoint</code> file format as defined by
      * specification corresponding to the extension.
      */
-    private static final String SERVER_MS_POWERPOINT = "application/ms-powerpoint";
+    private static final String SERVER_MS_POWERPOINT = "application/vndms-powerpoint";
 
     /**
      * The <code>Microsoft Excel</code> file format as defined by
      * specification corresponding to the extension.
      */
-    private static final String SERVER_MS_EXCEL = "application/ms-excel";
+    private static final String SERVER_MS_EXCEL = "application/vnd.ms-excel";
 
+    /**
+     * The file format as defined by specification corresponding to the extension.
+     */
+    private static final String SERVER_OCTET_STREAM = "application/octet-stream";
+
+    
     /** The file to upload to the server. */
     private File attachedFile;
 
@@ -164,7 +173,8 @@ public class FileAnnotationData extends AnnotationData {
         } else if (path.endsWith(RTF)) {
             format = RTF;
         } else {
-            throw new IllegalArgumentException("Format not supported.");
+        	format = "";
+            //throw new IllegalArgumentException("Format not supported.");
         }
     }
 
@@ -231,7 +241,8 @@ public class FileAnnotationData extends AnnotationData {
         if (format.equals(MS_POWER_POINT) || format.equals(MS_POWER_POINT_SHOW)) {
             return SERVER_MS_POWERPOINT;
         }
-        throw new IllegalArgumentException("Format not supported.");
+        return null;
+        //throw new IllegalArgumentException("Format not supported.");
     }
 
     /**
@@ -244,7 +255,7 @@ public class FileAnnotationData extends AnnotationData {
             return format;
         }
         OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-        String unknown = "UNKNOWN OR NULL FORMAT";
+        String unknown = UNKNOWN;
         String format = f == null ? unknown : (f.getFormat() == null ? unknown
                 : (f.getFormat().getValue() == null ? unknown : f.getFormat()
                         .getValue().getValue()));
@@ -267,7 +278,8 @@ public class FileAnnotationData extends AnnotationData {
         } else if (SERVER_MS_POWERPOINT.equals(format)) {
             return MS_POWER_POINT;
         }
-        throw new IllegalArgumentException("Format not supported.");
+        return UNKNOWN;
+        //throw new IllegalArgumentException("Format not supported.");
     }
 
     /**

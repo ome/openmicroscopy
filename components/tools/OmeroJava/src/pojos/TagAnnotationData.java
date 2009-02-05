@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import omero.RString;
 import omero.model.CommentAnnotation;
 import omero.model.DatasetAnnotationLink;
 import omero.model.ImageAnnotationLink;
@@ -60,7 +61,7 @@ public class TagAnnotationData extends AnnotationData {
     private List<TextualAnnotationData> descriptions;
 
     /** The textual description of the tag. */
-    private TextualAnnotationData description;
+    //private TextualAnnotationData description;
 
     /** The collection of data object related to the tag. */
     private Set<DataObject> dataObjects;
@@ -247,7 +248,8 @@ public class TagAnnotationData extends AnnotationData {
         if (value == null || value.trim().length() == 0) {
             return;
         }
-        description = new TextualAnnotationData(value);
+        asAnnotation().setDescription(rstring(value));
+        //description = new TextualAnnotationData(value);
     }
 
     /**
@@ -255,8 +257,10 @@ public class TagAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public TextualAnnotationData getTagDescription() {
-        return description;
+    public String getTagDescription() {
+    	RString value = asAnnotation().getDescription();
+    	if (value == null) return "";
+        return value.getValue();
     }
 
     /**
