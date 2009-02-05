@@ -58,7 +58,6 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ChannelData;
@@ -204,12 +203,14 @@ class PropertiesUI
     	
     	IconManager icons = IconManager.getInstance();
 		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
+		editName.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(editName);
 		editName.setBackground(UIUtilities.BACKGROUND_COLOR);
 		editName.setToolTipText("Edit the name.");
 		editName.addActionListener(this);
 		editName.setActionCommand(""+EDIT_NAME);
 		editDescription = new JButton(icons.getIcon(IconManager.EDIT_12));
+		editDescription.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(editDescription);
 		editDescription.setBackground(UIUtilities.BACKGROUND_COLOR);
 		editDescription.setToolTipText("Edit the description.");
@@ -539,6 +540,8 @@ class PropertiesUI
 			p.setDescription(desc);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
+			if (name.length() > 0) 
+				p.setTagValue(name);
 			if (desc.length() > 0)
 				p.setTagDescription(desc);
 		} else if (object instanceof ScreenData) {

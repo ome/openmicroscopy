@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.NodeCheckMenuItem 
+ * org.openmicroscopy.shoola.util.ui.search.NodeRadioMenuItem 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,16 +22,17 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 
 //Java imports
-import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Customized <code>JCheckBoxMenuItem</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,10 +42,10 @@ import javax.swing.JCheckBoxMenuItem;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-class NodeCheckMenuItem	
-	extends JCheckBoxMenuItem
+class NodeRadioMenuItem 	
+	extends JRadioButtonMenuItem
 {
 	
 	/** The node to host. */
@@ -55,7 +56,7 @@ class NodeCheckMenuItem
 	 * 
 	 * @param node	The node to host. Mustn't be <code>null</code>.
 	 */
-	NodeCheckMenuItem(SearchObject node) 
+	NodeRadioMenuItem(SearchObject node) 
 	{
 		if (node == null)
 			throw new IllegalArgumentException("No experimenter.");

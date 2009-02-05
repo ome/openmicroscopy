@@ -206,10 +206,10 @@ public class IconManager
     public static final int           ACQUISITION = 50;
     
     /** The <code>Plus</code> icon. */
-    public static final int           PLUS = 51;
+    public static final int           PLUS_9 = 51;
     
     /** The <code>Minus</code> icon. */
-    public static final int           MINUS = 52;
+    public static final int           MINUS_9 = 52;
     
     /** The <code>Edit 8</code> icon. */
     public static final int           EDIT_8 = 53;
@@ -220,11 +220,17 @@ public class IconManager
     /** The <code>Edit 48</code> icon. */
     public static final int           EDIT_48 = 55;
     
+    /** The <code>Plus 12</code> icon. */
+    public static final int           PLUS_12 = 56;
+    
+    /** The <code>Minus 12</code> icon. */
+    public static final int           MINUS_12 = 57;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 55;
+	private static final int          MAX_ID = 57;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -279,11 +285,13 @@ public class IconManager
         relPaths[PLATE] = "plate16.png";
         relPaths[ATTACH] = "nuvola_attach16.png";
         relPaths[ACQUISITION] = "nuvola_attach16.png";
-        relPaths[PLUS] = "plus.png";
-        relPaths[MINUS] = "minus.png";
+        relPaths[PLUS_9] = "plus.png";
+        relPaths[MINUS_9] = "minus.png";
         relPaths[EDIT_8] = "nuvola_ksig8.png";
         relPaths[EDIT_12] = "nuvola_ksig12.png";
         relPaths[EDIT_48] = "nuvola_ksig48.png";
+        relPaths[PLUS_12] = "plus.png";
+        relPaths[MINUS_12] = "minus.png";
 	}
    
 	/** The sole instance. */

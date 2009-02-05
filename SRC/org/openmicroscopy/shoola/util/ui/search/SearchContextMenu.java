@@ -87,7 +87,35 @@ class SearchContextMenu
     	Iterator i; 
 		ButtonGroup group = new ButtonGroup();
 		SearchObject node;
-		if (type.equals(NodeCheckMenuItem.class)) {
+		if (type.equals(NodeRadioMenuItem.class)) {
+			NodeRadioMenuItem uiNode;
+			int index = -1;
+			if (selectedNode != null) index = selectedNode.getIndex();
+			i = ratedNodes.iterator();
+			while (i.hasNext()) {
+				node = (SearchObject) i.next();
+				uiNode = new NodeRadioMenuItem(node);
+				if (node.getIndex() == index)
+					uiNode.setSelected(true);
+				uiNode.addActionListener(this);
+				add(uiNode);
+				items.add(uiNode);
+				if (singleSelection) group.add(uiNode);
+			}
+			if (ratedNodes.size() > 0)
+				add(new JSeparator());
+			i = nodes.iterator();
+			while (i.hasNext()) {
+				node = (SearchObject) i.next();
+				uiNode = new NodeRadioMenuItem(node);
+				if (node.getIndex() == index)
+					uiNode.setSelected(true);
+				uiNode.addActionListener(this);
+				add(uiNode);
+				items.add(uiNode);
+				if (singleSelection) group.add(uiNode);
+			}
+		} else if (type.equals(NodeCheckMenuItem.class)) {
 			NodeCheckMenuItem uiNode;
 			int index = -1;
 			if (selectedNode != null) index = selectedNode.getIndex();
@@ -115,6 +143,7 @@ class SearchContextMenu
 				items.add(uiNode);
 				if (singleSelection) group.add(uiNode);
 			}
+			
 		} else {
 			NodeMenuItem uiNode;
 			i = ratedNodes.iterator();
@@ -174,7 +203,7 @@ class SearchContextMenu
     				int width, SearchObject selectedNode, 
     				boolean singleSelection)
     {
-    	this(nodes, ratedNodes, width, NodeCheckMenuItem.class, selectedNode,
+    	this(nodes, ratedNodes, width, NodeRadioMenuItem.class, selectedNode,
     			singleSelection);
     }
     
@@ -212,6 +241,7 @@ class SearchContextMenu
     	Object uiNode;
     	NodeMenuItem nmItem;
     	NodeCheckMenuItem ncmItem;
+    	NodeRadioMenuItem rItem;
     	while (i.hasNext()) {
     		uiNode = i.next();
 			if (uiNode instanceof NodeMenuItem) {
@@ -227,6 +257,13 @@ class SearchContextMenu
 					ncmItem.removeActionListener(this);
 					ncmItem.setSelected(true);
 					ncmItem.addActionListener(this);
+				}
+			} else if (uiNode instanceof NodeRadioMenuItem) {
+				rItem = (NodeRadioMenuItem) uiNode;
+				if (rItem.getSearchObject().getIndex() == node.getIndex()) {
+					rItem.removeActionListener(this);
+					rItem.setSelected(true);
+					rItem.addActionListener(this);
 				}
 			}
 		}
@@ -244,6 +281,10 @@ class SearchContextMenu
 								item.getSearchObject());
 		} else if (src instanceof NodeCheckMenuItem) {
 			NodeCheckMenuItem item = (NodeCheckMenuItem) src;
+			firePropertyChange(SEARCH_CONTEXT_PROPERTY, null, 
+								item.getSearchObject());
+		} else if (src instanceof NodeRadioMenuItem) {
+			NodeRadioMenuItem item = (NodeRadioMenuItem) src;
 			firePropertyChange(SEARCH_CONTEXT_PROPERTY, null, 
 								item.getSearchObject());
 		}

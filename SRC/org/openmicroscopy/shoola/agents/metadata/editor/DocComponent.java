@@ -216,14 +216,15 @@ class DocComponent
 	private void initButton()
 	{
 		IconManager icons = IconManager.getInstance();
-		deleteButton = new JButton(icons.getIcon(IconManager.MINUS));
+		deleteButton = new JButton(icons.getIcon(IconManager.MINUS_9));
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		if (data instanceof FileAnnotationData)
 			deleteButton.setToolTipText("Remove the attachment.");
 		else if (data instanceof TagAnnotationData) {
 			deleteButton.setToolTipText("Remove the Tag.");
-			editButton = new JButton(icons.getIcon(IconManager.EDIT_8));
+			editButton = new JButton(icons.getIcon(IconManager.EDIT_12));
+			editButton.setOpaque(false);
 			UIUtilities.unifiedButtonLookAndFeel(editButton);
 			editButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 			editButton.setToolTipText("Add or Edit the description.");

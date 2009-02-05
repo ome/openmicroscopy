@@ -619,7 +619,7 @@ class DataBrowserToolBar
 	}
 	
 	/**
-	 * Sets the filering context.
+	 * Sets the filtering context.
 	 * 
 	 * @param context The context to handle.
 	 */
@@ -627,6 +627,7 @@ class DataBrowserToolBar
 	{
 		if (context == null) return;
 		List<String> terms;
+		search.setSearchEnabled(true);
 		switch (context.getContext()) {
 			case FilterContext.MULTI:
 				List<Integer> c = context.getContextList();
@@ -646,11 +647,12 @@ class DataBrowserToolBar
 			case FilterContext.NONE:
 				search.setSearchContext(QuickSearch.SHOW_ALL);
 				setFilterLabel("");
+				search.setSearchEnabled(false);
 				break;
 			case FilterContext.RATE:
+				search.setSearchEnabled(false);
 				setFilterLabel(SearchComponent.NAME_RATE);
 				if (context.getIndex() != FilterContext.LOWER) {
-					
 					switch (context.getRate()) {
 						case 0:
 							setFilterLabel(SearchComponent.UNRATED);

@@ -377,12 +377,14 @@ public class QuickSearch
 	{
 		String text = null;
 		if (selectedNode == null) return;
+		setSearchEnabled(true);
 		switch (selectedNode.getIndex()) {
 			case RATED_ONE_OR_BETTER:
 			case RATED_TWO_OR_BETTER:
 			case RATED_THREE_OR_BETTER:
 			case RATED_FOUR_OR_BETTER:
 			case RATED_FIVE:
+				setSearchEnabled(false);
 				text = selectedNode.getDescription();
 				cleanBar.setVisible(false);
 				break;
@@ -392,6 +394,7 @@ public class QuickSearch
 			case TAGGED:
 			case COMMENTED:
 			case SHOW_ALL:
+				setSearchEnabled(false);
 				text = "";
 				cleanBar.setVisible(false);
 				break;
@@ -576,6 +579,15 @@ public class QuickSearch
 	}
 	
 	/**
+	 * Sets the enabled flag of the {@link #searchArea}.
+	 * 
+	 * @param enabled The value to set.
+	 */
+	public void setSearchEnabled(boolean enabled)
+	{
+		searchArea.setEnabled(enabled);
+	}
+	/**
 	 * Sets the value of the {@link #searchArea}.
 	 * 
 	 * @param text The value to set.
@@ -636,7 +648,6 @@ public class QuickSearch
 			setSearchContext(null);
 		}
 	}
-	
 	
 	/** 
 	 * Class extended this class should override that method for 

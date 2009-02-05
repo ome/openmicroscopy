@@ -280,6 +280,7 @@ public class Factory
         g.dispose();
         bimg.flush();
         rescaleBuff.flush();
+        System.gc();
         return rescaleBuff;
     }   
     
@@ -293,27 +294,25 @@ public class Factory
      */
     public static BufferedImage magnifyImage(double f, BufferedImage img)
     {
-        if (img == null) return null;
-        int width = img.getWidth(), height = img.getHeight();
-        AffineTransform at = new AffineTransform();
-        at.scale(f, f);
-        BufferedImageOp biop = new AffineTransformOp(at, 
-        							AffineTransformOp.TYPE_BILINEAR); 
-        int type = img.getType();
-        if (type == BufferedImage.TYPE_CUSTOM)
-        	type = BufferedImage.TYPE_INT_RGB;
-        int scaleWidth = (int) (width*f);
-        int scaleHeight = (int) (height*f);
-        if (scaleWidth <= 0 || scaleHeight <= 0) return null;
-        BufferedImage rescaleBuff = img;//
-        //try {
-        	rescaleBuff = new BufferedImage(scaleWidth, 
-						scaleHeight, type); //img.getType()
-        	biop.filter(img, rescaleBuff);
-        	rescaleBuff.flush();
-		//} catch (Exception e) {}
-       
-        return rescaleBuff;
+    	if (img == null) return null;
+    	int width = img.getWidth(), height = img.getHeight();
+    	AffineTransform at = new AffineTransform();
+    	at.scale(f, f);
+    	BufferedImageOp biop = new AffineTransformOp(at, 
+    			AffineTransformOp.TYPE_BILINEAR); 
+    	int type = img.getType();
+    	if (type == BufferedImage.TYPE_CUSTOM)
+    		type = BufferedImage.TYPE_INT_RGB;
+    	int scaleWidth = (int) (width*f);
+    	int scaleHeight = (int) (height*f);
+    	if (scaleWidth <= 0 || scaleHeight <= 0) return null;
+    	BufferedImage rescaleBuff = img;//
+    	rescaleBuff = new BufferedImage(scaleWidth, 
+    			scaleHeight, type); //img.getType()
+    	biop.filter(img, rescaleBuff);
+    	rescaleBuff.flush();
+    	System.gc();
+    	return rescaleBuff;
     }
 
     /** 

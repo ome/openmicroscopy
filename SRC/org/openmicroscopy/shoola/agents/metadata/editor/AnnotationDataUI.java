@@ -194,13 +194,13 @@ class AnnotationDataUI
 		filesDocList = new ArrayList<DocComponent>();
 		existingTags = new HashMap<String, TagAnnotationData>();
 		IconManager icons = IconManager.getInstance();
-		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS));
+		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(addTagsButton);
 		addTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addTagsButton.setToolTipText("Add Tags.");
 		addTagsButton.addActionListener(controller);
 		addTagsButton.setActionCommand(""+EditorControl.ADD_TAGS);
-		addDocsButton = new JButton(icons.getIcon(IconManager.PLUS));
+		addDocsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		addDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addDocsButton.setToolTipText("Attach a document.");
 		addDocsButton.addMouseListener(new MouseAdapter() {

@@ -311,26 +311,15 @@ public class SelectionWizard
 					availableItems.add(item);
 			}
 		} else {
-			for (Object item: selectedItems) {
+			for (Object item: selectedItems)
 				availableItems.add(item);
-			}
 		}
 		
-			
 		selectedItems.clear();
-		
 		sortLists();
 		populateAvailableItems();
 		populateSelectedItems();
 		setButtonsEnabled();
-		/*
-		resetSelection();
-		sortLists();
-		selectedItems.clear();
-		populateAvailableItems();
-		populateSelectedItems();
-		setButtonsEnabled();
-		*/
 	}
 	
 	/**
@@ -569,8 +558,8 @@ public class SelectionWizard
 			String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
 			TagAnnotationData data;
 			for (int i = 0; i < names.length; i++) {
-				if (names[i] != null && names[i].length() > 0) {
-					data = new TagAnnotationData(names[i]);
+				if (names[i] != null && names[i].length() > 0) {	
+					data = new TagAnnotationData(names[i].trim());
 					if (!doesTagExist(data))
 						selectedItems.add(data);
 				}

@@ -128,6 +128,7 @@ public class QuickFiltering
 	{
 		setSingleSelection(true);
 		setDefaultSearchContext();
+		setSearchEnabled(false);
 		addPropertyChangeListener(this);
 	}
 	
