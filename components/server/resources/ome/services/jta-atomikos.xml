@@ -61,13 +61,24 @@
     <property name="poolSize" value="${omero.db.poolsize}"/>
   </bean>
 
-  <alias name="nonXaDataSource" alias="dataSource"/>
-
-  <!-- Seems to cause problems. Looks for JNDI
-  <bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
-    <property name="targetDataSource" ref="nonXaDataSource"/>
+  <bean id="dbSemaphore" class="java.util.concurrent.Semaphore">
+    <constructor-arg value="${omero.db.poolsize}"/>
+    <constructor-arg value="true"/><!-- fair -->
   </bean>
-  -->
+
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+    <property name="targetDataSource">
+      <bean class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+        <property name="targetDataSource">
+          <bean class="ome.services.db.SelfCorrectingDataSource">
+            <constructor-arg ref="nonXaDataSource"/>
+            <constructor-arg ref="dbSemaphore"/>
+            <constructor-arg value="300000"/> <!--5 minutes of errors -->
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
 
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"/>

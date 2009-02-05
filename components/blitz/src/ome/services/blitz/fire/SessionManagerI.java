@@ -155,6 +155,11 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             if (t instanceof CannotCreateSessionException) {
                 throw (CannotCreateSessionException) t;
+            } else if (t instanceof ome.conditions.ConcurrencyException) {
+                ome.conditions.ConcurrencyException ce = (ome.conditions.ConcurrencyException) t;
+                throw new CannotCreateSessionException(
+                        "ConcurrencyException: Please retry in " + ce.backOff
+                                + "ms. Cause: " + ce.getMessage());
             } else if (t instanceof ome.conditions.ApiUsageException) {
                 ome.conditions.ApiUsageException aue = (ome.conditions.ApiUsageException) t;
                 throw new CannotCreateSessionException(aue.getMessage());
