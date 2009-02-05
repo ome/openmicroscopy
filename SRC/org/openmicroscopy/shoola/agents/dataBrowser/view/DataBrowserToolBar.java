@@ -407,6 +407,7 @@ class DataBrowserToolBar
 		createDatasetButton = new JButton();
 		createDatasetButton.setToolTipText("Create a new dataset containing " +
 				"the displayed images.");
+		UIUtilities.unifiedButtonLookAndFeel(createDatasetButton);
 		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
 		createDatasetButton.addActionListener(this);
 		createDatasetButton.setActionCommand(""+NEW_OBJECT);
@@ -425,6 +426,7 @@ class DataBrowserToolBar
 		reportButton.setIcon(icons.getIcon(IconManager.REPORT));
 		reportButton.addActionListener(this);
 		reportButton.setActionCommand(""+REPORT);
+		UIUtilities.unifiedButtonLookAndFeel(reportButton);
 	}
 	
 	/**

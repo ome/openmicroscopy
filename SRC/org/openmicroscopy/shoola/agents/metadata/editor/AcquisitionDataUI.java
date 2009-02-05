@@ -378,6 +378,9 @@ class AcquisitionDataUI
 	 */
 	boolean hasDataToSave()
 	{
+		return false;
+		//For Beta4.0.0,metadata not editable.
+		/*
 		boolean b = imageAcquisition.hasDataToSave();
 		if (b) return b;
 		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
@@ -386,6 +389,7 @@ class AcquisitionDataUI
 			if (b) return true;
 		}
 		return false;
+		*/
 	}
 	
 	/**

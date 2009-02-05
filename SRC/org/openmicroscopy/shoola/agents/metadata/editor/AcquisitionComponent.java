@@ -116,6 +116,7 @@ class AcquisitionComponent
 		setField = true;
 		label.setLabelFor(area);
 		value = getValue();
+		area.setEnabled(false);
 		setBorder(AnnotationUI.EDIT_BORDER);
 	}
 	

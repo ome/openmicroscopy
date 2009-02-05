@@ -57,7 +57,6 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -71,7 +70,6 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
 
 /** 
  * Displays the properties of the selected object.
