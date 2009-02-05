@@ -13,7 +13,7 @@
 
 from omero.cli import BaseControl
 from omero_ext.strings import shlex
-import re, os, sys, subprocess, signal
+import re, os, sys, signal
 from exceptions import Exception as Exc
 from path import path
 
@@ -155,6 +155,9 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
             else:
                 command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
                 self.ctx.popen(command)
+        except OSError, o:
+                msg = """%s\nPossibly an error finding "icegridnode". Try "icegridnode -h" from the command line.""" % o
+                raise Exc(msg)
         except NonZeroReturnCode, nzrc:
                 self._handleNZRC(nzrc)
 

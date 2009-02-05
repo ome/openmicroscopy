@@ -70,34 +70,34 @@ namespace omero {
 	 * Identifier for this client instance. Multiple client uuids may be
 	 * attached to a single session uuid.
 	 */
-	std::string uuid;
+	std::string __uuid;
 
 	/*
 	 * InitializationData from the last communicator used to create
 	 * ic if nulled after closeSession(). A pointer is used since
 	 * ID is a simple struct.
 	 */
-	Ice::InitializationData* previous;
+	Ice::InitializationData* __previous;
 
 	/*
 	 * Ice.ObjectAdapter containing the ClientCallback for
 	 * this instance.
 	 */
-	Ice::ObjectAdapterPtr oa;
+	Ice::ObjectAdapterPtr __oa;
 
 	/*
 	 * Single communicator for this omero::client. Nullness is used as
 	 * a test of what state the client is in, therefore all access is
 	 * synchronized by locking on mutex.
 	 */
-	Ice::CommunicatorPtr ic;
+	Ice::CommunicatorPtr __ic;
 
 	/*
 	 * Single session for this omero::client. Nullness is used as a test
 	 * of what state the client is in, like ic, therefore all access is
 	 * synchronized by locking on mutex.
 	 */
-	omero::api::ServiceFactoryPrx sf;
+	omero::api::ServiceFactoryPrx __sf;
 
 	/*
 	 * Lock (mutex) for all access to ic and sf
@@ -255,6 +255,8 @@ namespace omero {
     protected:
 	const std::string sess();
 	omero::api::ISessionPrx env();
+	std::string parseAndSetInt(const Ice::InitializationData& id,
+				   const std::string& key, int port);
 
 	// Callback methods
 	// ==================================================================

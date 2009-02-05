@@ -47,20 +47,19 @@ namespace omero {
 	    id.properties->setProperty("Ice.MessageSizeMax", ssmsgsize.str());
 	}
 
+	// Setting ConnectTimeout
+        parseAndSetInt(id, "Ice.Override.ConnectTimeout",
+		       omero::constants::CONNECTTIMEOUT);
+
 	// Endpoints set to tcp if not present
 	std::string endpoints = id.properties->getProperty("omero.ClientCallback.Endpoints");
 	if ( endpoints.length() == 0 ) {
 	    id.properties->setProperty("omero.ClientCallback.Endpoints", "tcp");
 	}
 
-	// Por, setting to default if not present
-	std::string port = id.properties->getProperty("omero.port");
-	if ( port.length() == 0 ) {
-	    stringstream ssport;
-	    ssport << omero::constants::GLACIER2PORT;
-	    id.properties->setProperty("omero.port", ssport.str());
-	    port = ssport.str();
-	}
+	// Port, setting to default if not present
+	std::string port = parseAndSetInt(id, "omero.port",
+			    omero::constants::GLACIER2PORT);
 
 	// Default Router, set a default and then replace
 	std::string router = id.properties->getProperty("Ice.Default.Router");
@@ -103,37 +102,37 @@ namespace omero {
 	// Synchronization
 	IceUtil::RecMutex::Lock lock(mutex);
 
-	if ( ic ) {
+	if ( __ic ) {
 	    throw new ClientError(__FILE__, __LINE__, "Client already initialized.");
 	}
 
-	ic = Ice::initialize(id);
+	__ic = Ice::initialize(id);
 
-	if ( ! ic ) {
+	if ( ! __ic ) {
 	    throw new ClientError(__FILE__, __LINE__, "Improper initialization");
 	}
 
 	// Register Object Factory
-	omero::registerObjectFactory(ic);
+	omero::registerObjectFactory(__ic);
 	map<std::string, omero::rtypes::ObjectFactoryPtr> factories = omero::rtypes::objectFactories();
 	map<std::string, omero::rtypes::ObjectFactoryPtr>::iterator itr;
 	for(itr = factories.begin(); itr != factories.end(); itr++) {
-	    (*itr).second->register_(ic);
+	    (*itr).second->register_(__ic);
 	}
 
 	// Define our unique identifier (used during close/detach)
-	uuid = IceUtil::generateUUID();
-	Ice::ImplicitContextPtr ctx = ic->getImplicitContext();
+	__uuid = IceUtil::generateUUID();
+	Ice::ImplicitContextPtr ctx = __ic->getImplicitContext();
 	if (!ctx) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
 	}
-	ctx->put(omero::constants::CLIENTUUID, uuid);
+	ctx->put(omero::constants::CLIENTUUID, __uuid);
 
 	// Register the default client callback.
 	CallbackIPtr cb = new CallbackI(this);
-	oa = ic->createObjectAdapter("omero.ClientCallback");
-	oa->add(cb, ic->stringToIdentity("ClientCallback/" + uuid)) ;
-	oa->activate();
+	__oa = __ic->createObjectAdapter("omero.ClientCallback");
+	__oa->add(cb, __ic->stringToIdentity("ClientCallback/" + __uuid)) ;
+	__oa->activate();
 
     }
 
@@ -199,10 +198,10 @@ namespace omero {
 
     Ice::CommunicatorPtr client::getCommunicator() const {
 	IceUtil::RecMutex::Lock lock(mutex);
-	if ( ! ic ) {
+	if ( ! __ic ) {
 	    throw new ClientError(__FILE__, __LINE__, "No Ice.Communicator active; call createSession()");
 	}
-	return ic;
+	return __ic;
     }
 
 
@@ -211,10 +210,10 @@ namespace omero {
 
     omero::api::ServiceFactoryPrx client::getSession() const {
 	IceUtil::RecMutex::Lock lock(mutex);
-	if ( ! sf ) {
+	if ( ! __sf ) {
 	    throw new ClientError(__FILE__, __LINE__, "Call createSession() to login");
 	}
-	return sf;
+	return __sf;
     }
 
 
@@ -260,18 +259,18 @@ namespace omero {
 
 	// Checking state
 
-	if ( sf ) {
+	if ( __sf ) {
 	    throw new ClientError(__FILE__, __LINE__,
 				  "Session already active. Create a new omero.client or closeSession()");
 	}
 
-	if ( ! ic ) {
-	    if ( ! previous ) {
+	if ( ! __ic ) {
+	    if ( ! __previous ) {
 		throw new ClientError(__FILE__, __LINE__,
 				      "No previous data to recreate communicator");
 	    }
-	    init(*previous);
-	    previous = 0;
+	    init(*__previous);
+	    __previous = 0;
 	}
 
 	// Check the required properties
@@ -293,24 +292,51 @@ namespace omero {
 	}
 
 	// Acquire router and get the proxy
-	Glacier2::SessionPrx prx = getRouter(ic)->createSession(username, password);
+	Glacier2::SessionPrx prx;
+	int retries = 0;
+	while (retries < 3) {
+	    std::string reason;
+	    if (retries > 0) {
+		stringstream msg;
+		msg << reason << " - createSession retry: " << retries;
+		__ic->getLogger()->warning(msg.str());
+	    }
+	    try {
+		prx = getRouter(__ic)->createSession(username, password);
+		break;
+	    } catch (const omero::WrappedCreateSessionException& wrapped) {
+		if (!wrapped.concurrency) {
+		    throw wrapped; // We only retry concurrency issues.
+		}
+		stringstream msg;
+		msg << wrapped.type << ":" << wrapped.reason;
+		reason = msg.str();
+		retries++;
+	    } catch (Ice::ConnectTimeoutException cte) {
+		stringstream msg;
+		msg << "Ice.ConnectTimeoutException:" << cte;
+		reason = msg.str();
+		retries++;
+	    }
+	}
+
 	if ( ! prx ) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Obtained null object proxy");
 	}
 
 	// Check type
-	sf = omero::api::ServiceFactoryPrx::uncheckedCast(prx);
-	if ( ! sf ) {
+	__sf = omero::api::ServiceFactoryPrx::uncheckedCast(prx);
+	if ( ! __sf ) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Obtained object proxy is not a ServiceFactory.");
 	}
 
 	// Set the client callback on the session
 	// and pass it to icestorm
-	Ice::Identity id = ic->stringToIdentity("ClientCallback/" + uuid);
-	Ice::ObjectPrx raw = oa->createProxy(id);
-	sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
-	sf->subscribe("/public/HeartBeat", raw);
-	return sf;
+	Ice::Identity id = __ic->stringToIdentity("ClientCallback/" + __uuid);
+	Ice::ObjectPrx raw = __oa->createProxy(id);
+	__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
+	//__sf->subscribe("/public/HeartBeat", raw);
+	return __sf;
     }
 
 
@@ -343,14 +369,14 @@ namespace omero {
 
 	IceUtil::RecMutex::Lock lock(mutex);
 
-	omero::api::ServiceFactoryPrx oldSf = sf;
-	sf = omero::api::ServiceFactoryPrx();
+	omero::api::ServiceFactoryPrx oldSf = __sf;
+	__sf = omero::api::ServiceFactoryPrx();
 
-	Ice::ObjectAdapterPtr oldOa = oa;
-	oa = Ice::ObjectAdapterPtr();
+	Ice::ObjectAdapterPtr oldOa = __oa;
+	__oa = Ice::ObjectAdapterPtr();
 
-	Ice::CommunicatorPtr oldIc = ic;
-	ic = Ice::CommunicatorPtr();
+	Ice::CommunicatorPtr oldIc = __ic;
+	__ic = Ice::CommunicatorPtr();
 
 	// Only possible if improperly configured
 	if (! oldIc) {
@@ -367,8 +393,8 @@ namespace omero {
 	    }
 	}
 
-        previous = new Ice::InitializationData();
-        (*previous).properties = oldIc->getProperties()->clone();
+        __previous = new Ice::InitializationData();
+        (*__previous).properties = oldIc->getProperties()->clone();
 
 	try {
 	    getRouter(oldIc)->destroySession();
@@ -433,17 +459,30 @@ namespace omero {
 	return env()->getOutputKeys(sess());
     }
     omero::api::ISessionPrx client::env() {
-	return sf->getSessionService();
+	return __sf->getSessionService();
     }
     const std::string client::sess() {
-	return sf->getAdminService()->getEventContext()->sessionUuid;
+	return __sf->getAdminService()->getEventContext()->sessionUuid;
+    }
+
+    std::string client::parseAndSetInt(const Ice::InitializationData& data,
+			       const std::string& key, int newValue) {
+	std::string currentValue = data.properties->getProperty(key);
+        if (currentValue.empty()) {
+	    stringstream t;
+	    t << newValue;
+	    std::string newStr = t.str();
+            data.properties->setProperty(key, newStr);
+            currentValue = newStr;
+        }
+        return currentValue;
     }
 
     // Callback methods
     // ====================================================================
 
     CallbackIPtr client::_getCb() {
-	Ice::ObjectPtr obj = oa->find(ic->stringToIdentity("ClientCallback" + uuid));
+	Ice::ObjectPtr obj = __oa->find(__ic->stringToIdentity("ClientCallback" + __uuid));
 	CallbackIPtr cb = CallbackIPtr::dynamicCast(obj);
 	if (!cb) {
 	    throw new ClientError(__FILE__,__LINE__,"Cannot find CallbackI in ObjectAdapter");
@@ -483,13 +522,13 @@ namespace omero {
     }
 
     void CallbackI::execute(Callable callable, const string& action) {
-	Ice::CommunicatorPtr ic = client->getCommunicator();
+	Ice::CommunicatorPtr __ic = client->getCommunicator();
 	try {
 	    callable();
-	    ic->getLogger()->trace("ClientCallback", action + " run");
+	    __ic->getLogger()->trace("ClientCallback", action + " run");
 	} catch (const std::exception& ex) {
 	    try {
-		ic->getLogger()->error("Error performing " + action+": "+ex.what());
+		__ic->getLogger()->error("Error performing " + action+": "+ex.what());
 	    } catch (const std::exception& ex2) {
 		std::cerr << "Error performing " << action << ": " << ex.what() << std::endl;
 		std::cerr << "(Stderr due to: " << ex2.what() << std::endl;

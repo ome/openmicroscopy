@@ -27,6 +27,8 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import omero.ApiUsageException;
+import omero.ConcurrencyException;
+import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrx;
 import omero.api.ClientCallbackPrxHelper;
 import omero.constants.EVENT;
@@ -153,22 +155,28 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
         } catch (Exception t) {
 
+            // Then we are good to go.
             if (t instanceof CannotCreateSessionException) {
                 throw (CannotCreateSessionException) t;
-            } else if (t instanceof ome.conditions.ConcurrencyException) {
-                ome.conditions.ConcurrencyException ce = (ome.conditions.ConcurrencyException) t;
-                throw new CannotCreateSessionException(
-                        "ConcurrencyException: Please retry in " + ce.backOff
-                                + "ms. Cause: " + ce.getMessage());
-            } else if (t instanceof ome.conditions.ApiUsageException) {
-                ome.conditions.ApiUsageException aue = (ome.conditions.ApiUsageException) t;
-                throw new CannotCreateSessionException(aue.getMessage());
-            } else if (t instanceof ApiUsageException) {
-                ApiUsageException aue = (ApiUsageException) t;
-                throw new CannotCreateSessionException(aue.message);
-            } else if (t instanceof SecurityViolation) {
-                SecurityViolation sv = (SecurityViolation) t;
-                throw new CannotCreateSessionException(sv.getMessage());
+            }
+
+            // These need special handling as well.
+            else if (t instanceof ome.conditions.ConcurrencyException
+                    || t instanceof omero.ConcurrencyException) {
+
+                // Parse out the back off, then everything is generic.
+                long backOff = (t instanceof omero.ConcurrencyException) ? ((omero.ConcurrencyException) t).backOff
+                        : ((ome.conditions.ConcurrencyException) t).backOff;
+
+                WrappedCreateSessionException wrapped = new WrappedCreateSessionException();
+                wrapped.backOff = backOff;
+                wrapped.type = t.getClass().getName();
+                wrapped.concurrency = true;
+                wrapped.reason = "ConcurrencyException: " + t.getMessage()
+                        + "\nPlease retry in " + backOff + "ms. Cause: "
+                        + t.getMessage();
+                throw wrapped;
+
             }
 
             ConvertToBlitzExceptionMessage convert = new ConvertToBlitzExceptionMessage(
@@ -184,11 +192,21 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 throw (CannotCreateSessionException) convert.to;
             }
 
-            // FIXME this copying should be a part of ome.conditions.*
-            log.error("Error while creating ServiceFactoryI", t);
-            InternalException ie = new InternalException(t.getMessage());
-            ie.setStackTrace(t.getStackTrace());
-            throw ie;
+            // We make an exception for some more or less "expected" exception
+            // types. Everything else gets logged as an error which we need
+            // to review.
+            if (!(t instanceof omero.ApiUsageException
+                    || t instanceof ome.conditions.ApiUsageException || t instanceof ome.conditions.SecurityViolation)) {
+                log.error("Error while creating ServiceFactoryI", t);
+            }
+            
+            WrappedCreateSessionException wrapped = new WrappedCreateSessionException();
+            wrapped.backOff = -1;
+            wrapped.concurrency = false;
+            wrapped.message = t.getMessage();
+            wrapped.type = t.getClass().getName();
+            wrapped.setStackTrace(t.getStackTrace());
+            throw wrapped;
         }
     }
 

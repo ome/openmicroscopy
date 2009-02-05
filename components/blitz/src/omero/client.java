@@ -224,7 +224,7 @@ public class client {
         }
 
         if (id.properties == null) {
-            id.properties = Ice.Util.createProperties(new String[]{});
+            id.properties = Ice.Util.createProperties(new String[] {});
         }
 
         // Strictly necessary for this class to work
@@ -237,20 +237,21 @@ public class client {
                     .toString(omero.constants.MESSAGESIZEMAX.value));
         }
 
+        // Setting ConnectTimeout
+        parseAndSetInt(id, "Ice.Override.ConnectTimeout",
+                omero.constants.CONNECTTIMEOUT.value);
+
         // Endpoints set to tcp if not present
-        String endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints");
+        String endpoints = id.properties
+                .getProperty("omero.ClientCallback.Endpoints");
         if (endpoints == null || endpoints.length() == 0) {
             id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp");
         }
 
         // Port, setting to default if not present
-        String port = id.properties.getProperty("omero.port");
-        if (port == null || port.length() == 0) {
-            String portStr = Integer
-                    .toString(omero.constants.GLACIER2PORT.value);
-            id.properties.setProperty("omero.port", portStr);
-            port = portStr;
-        }
+        String port = parseAndSetInt(id, "omero.port",
+                omero.constants.GLACIER2PORT.value);
+
         // Default Router, set a default and then replace
         String router = id.properties.getProperty("Ice.Default.Router");
         if (router == null || router.length() == 0) {
@@ -266,9 +267,11 @@ public class client {
         String dump = id.properties.getProperty("omero.dump");
         if (dump != null && dump.length() > 0) {
             for (String prefix : Arrays.asList("omero", "Ice")) {
-                Map<String, String> prefixed = id.properties.getPropertiesForPrefix(prefix);
+                Map<String, String> prefixed = id.properties
+                        .getPropertiesForPrefix(prefix);
                 for (String key : prefixed.keySet()) {
-                    System.out.println(String.format("%s=%s", key, prefixed.get(key)));
+                    System.out.println(String.format("%s=%s", key, prefixed
+                            .get(key)));
                 }
             }
         }
@@ -292,7 +295,8 @@ public class client {
                 of.register(__ic);
             }
             __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
-            __ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+            __ic.addObjectFactory(PermissionsI.Factory, PermissionsI
+                    .ice_staticId());
 
             // Define our unique identifer (used during close/detach)
             __uuid = UUID.randomUUID().toString();
@@ -305,7 +309,7 @@ public class client {
             // Register the default client callback.
             CallbackI cb = new CallbackI(this);
             __oa = __ic.createObjectAdapter("omero.ClientCallback");
-            __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/"+__uuid));
+            __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/" + __uuid));
             __oa.activate();
 
             // Store this instance for cleanup on shutdown.
@@ -465,8 +469,28 @@ public class client {
             }
 
             // Acquire router and get the proxy
-            Glacier2.SessionPrx prx = getRouter(__ic).createSession(username,
-                    password);
+            Glacier2.SessionPrx prx = null;
+            int retries = 0;
+            while (retries < 3) {
+                String reason = null;
+                if (retries > 0) {
+                    __ic.getLogger().warning(reason + " - createSession retry: "+retries);
+                }
+                try {
+                    prx = getRouter(__ic).createSession(username, password);
+                    break;
+                } catch (omero.WrappedCreateSessionException wrapped) {
+                    if (! wrapped.concurrency) {
+                        throw wrapped; // We only retry concurrency issues.
+                    }
+                    reason = wrapped.type +":" + wrapped.reason;
+                    retries++;
+                } catch (Ice.ConnectTimeoutException cte) {
+                    reason = "Ice.ConnectTimeoutException : " +cte.getMessage();
+                    retries++;
+                }
+            }
+
             if (null == prx) {
                 throw new ClientError("Obtained null object proxy");
             }
@@ -480,7 +504,7 @@ public class client {
 
             // Set the client callback on the session
             // and pass it to icestorm
-            Ice.Identity id = __ic.stringToIdentity("ClientCallback/"+__uuid);
+            Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
             Ice.ObjectPrx raw = __oa.createProxy(id);
             __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
             // __sf.subscribe("/public/HeartBeat", raw);
@@ -640,6 +664,17 @@ public class client {
     // Helpers
     // =========================================================================
 
+    protected String parseAndSetInt(Ice.InitializationData data, String key,
+            int newValue) {
+        String currentValue = data.properties.getProperty(key);
+        if (currentValue == null || currentValue.length() == 0) {
+            String newStr = Integer.toString(newValue);
+            data.properties.setProperty(key, newStr);
+            currentValue = newStr;
+        }
+        return currentValue;
+    }
+
     protected static String filesToString(File... files) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < files.length; i++) {
@@ -673,7 +708,7 @@ public class client {
 
     private CallbackI _getCb() {
         Ice.Object obj = this.__oa.find(Ice.Util
-                .stringToIdentity("ClientCallback/"+__uuid));
+                .stringToIdentity("ClientCallback/" + __uuid));
         if (!(obj instanceof CallbackI)) {
             throw new ClientError("Cannot find CallbackI in ObjectAdapter");
         }
@@ -713,7 +748,7 @@ public class client {
                     client.__oa.deactivate();
                     client.__sf = null;
                 } catch (Exception e) {
-                    System.err.println("On session closed: "+e.getMessage());
+                    System.err.println("On session closed: " + e.getMessage());
                 }
             }
 

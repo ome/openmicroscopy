@@ -155,16 +155,18 @@ class client(object):
         if not messageSize or len(messageSize) == 0:
             id.properties.setProperty("Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
 
+        # Setting ConnectTimeout
+        parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
+                           omero.constants.CONNECTIMEOUT.value)
+
         # Endpoints set to tcp if not present
         endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints")
         if not endpoints or len(endpoints) == 0:
             id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp")
 
         # Port, setting to default if not present
-        port = id.properties.getProperty("omero.port")
-        if not port or len(port) == 0:
-            port = str(omero.constants.GLACIER2ROUTER)
-            id.properties.setProperty("omero.port", port)
+        port = parseAndSetInt(id, "omero.port",\
+                                  omero.constants.GLACIER2PORT)
 
         # Default Router, set a default and then replace
         router = id.properties.getProperty("Ice.Default.Router")
@@ -321,7 +323,25 @@ class client(object):
                 raise ClientError("No password specified")
 
             # Acquire router and get the proxy
-            prx = self.getRouter(self.__ic).createSession(username, password)
+            prx = None
+            retries = 0
+            while retries < 3:
+                reason = None
+                if retries > 0:
+                    self.__ic.getLogger().warning("%s - createSession retry: %s",\
+                                                      (reason, retries))
+                try:
+                    prx = self.getRouter(self.__ic).createSession(username, password)
+                    break
+                except omero.WrappedCreateSessionException, wrapped:
+                    if not wrapped.concurrency:
+                        raise wrapped # We only retry concurrency issues.
+                    reason = "%s:%s" % (wrapped.type, wrapped.reason)
+                    retries++
+                except Ice.ConnectTimeoutException, cte:
+                    reason = "Ice.ConnectTimeoutException:%" % str(ctr)
+                    retries++
+
             if not prx:
                 raise ClientError("Obtained null object prox")
 
@@ -335,7 +355,7 @@ class client(object):
             id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
             raw = self.__oa.createProxy(id)
             self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
-            self.__sf.subscribe("/public/HeartBeat", raw)
+            #self.__sf.subscribe("/public/HeartBeat", raw)
 
             return self.__sf
         finally:
@@ -568,6 +588,14 @@ class client(object):
     #
     # Misc.
     #
+
+    def parseAndSetInt(self, data, key, newValue):
+        currentValue = data.properties.getProperty(key)
+        if not currentValue or len(currentValue) == 0:
+            newStr = str(newValue)
+            data.properties.setProperty(key, newStr)
+            currentValue = newStr
+        return currentValue
 
     def __getattr__(self, name):
         """

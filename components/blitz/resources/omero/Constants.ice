@@ -36,6 +36,12 @@ module omero {
     const int MESSAGESIZEMAX = 8192;
 
     /*
+     * Default Ice.Override.ConnectTimeout (5000). Also not strictly necessary,
+     * but prevents clients being blocked by failed servers. -1 disables.
+     */
+     const int CONNECTTIMEOUT = 5000;
+
+    /*
      * Default connection string for connecting to Glacier2
      * (Ice.Default.Router). The '@omero.port@' and '@omero.host@' values will
      * be replaced by the properties with those names from the context.

@@ -50,6 +50,7 @@
  *  Glacier2::CannotCreateSessionException (only exception throwable by createSession)
  *   |_ omero.AuthenticationException 
  *   |_ omero.ExpiredCredentialException
+ *   |_ omero.WrappedCreateSessionException
  *   \_ omero.licenses.NoAvailableLicensesException (see tools/licenses)
  *
  */
@@ -122,6 +123,18 @@ module omero
   exception ExpiredCredentialException extends Glacier2::CannotCreateSessionException
     {
 
+    };
+
+  /**
+   * Thrown when any other server exception causes the session creation to fail.
+   * Since working with the static information of Ice exceptions is not as easy
+   * as with classes, here we use booleans to represent what has gone wrong.
+   */
+  exception WrappedCreateSessionException extends Glacier2::CannotCreateSessionException
+    {
+      bool    concurrency;
+      long    backOff;    // Only used if ConcurrencyException
+      string  type;       // Ice static type information
     };
 
 

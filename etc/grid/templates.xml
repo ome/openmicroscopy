@@ -24,6 +24,7 @@
           <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
           <property name="Ice.Default.CollocationOptimized" value="0"/>
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
         </properties>
       </server>
     </server-template>
@@ -41,6 +42,7 @@
           <property name="Ice.ThreadPool.Server.Size" value="2"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
         </properties>
       </server>
     </server-template>
@@ -57,6 +59,7 @@
           <property name="Ice.ThreadPool.Server.Size" value="2"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
         </properties>
       </server>
     </server-template>
@@ -73,6 +76,7 @@
           <property name="Ice.ThreadPool.Server.Size" value="2"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
         </properties>
       </server>
     </server-template>
@@ -121,6 +125,7 @@
            <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
            <property name="Glacier2.Client.ForwardContext" value="1"/>
            <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64MB -->
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
          </properties>
        </server>
      </server-template>
@@ -161,6 +166,10 @@
             publish-endpoints="${publish-endpoints}"
             flush-timeout="${flush-timeout}"/>
       </icebox>
+      <properties>
+        <property name="IceBox.InheritProperties" value="1"/>
+        <property name="Ice.Override.ConnectTimeout" value="5000"/>
+      </properties>
     </server-template>
 
   </application>
