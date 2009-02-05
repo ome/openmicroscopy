@@ -15,7 +15,7 @@ import org.jmock.Mock;
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IPixels;
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
@@ -72,11 +72,11 @@ public class MockServiceFactory extends ServiceFactory {
         return (IPixels) mockPixels.proxy();
     }
 
-    public Mock mockPojos = new Mock(IPojos.class);
+    public Mock mockContainer = new Mock(IContainer.class);
 
     @Override
-    public IPojos getPojosService() {
-        return (IPojos) mockPojos.proxy();
+    public IContainer getContainerService() {
+        return (IContainer) mockContainer.proxy();
     }
 
     public Mock mockQuery = new Mock(IQuery.class);
