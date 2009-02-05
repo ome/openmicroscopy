@@ -72,9 +72,9 @@ import omero.ServerError;
 import omero.SessionException;
 import omero.client;
 import omero.api.IAdminPrx;
+import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
 import omero.api.IPixelsPrx;
-import omero.api.IPojosPrx;
 import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
@@ -230,10 +230,7 @@ class OMEROGateway
 	
 	/** The raw pixels store. */
 	private RawPixelsStorePrx						pixelsStore;
-	
-	/** The Pojos service. */
-	private IPojosPrx								pojosService;
-	
+
 	/** The projection service. */
 	private IProjectionPrx							projService;
 	
@@ -257,6 +254,9 @@ class OMEROGateway
 	
 	/** The pixels service. */
 	private IPixelsPrx								pixelsService;
+	
+	/** The container service. */
+	private IContainerPrx							pojosService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -529,12 +529,12 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private IPojosPrx getPojosService()
+	private IContainerPrx getPojosService()
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
 			if (pojosService == null) {
-				pojosService = entry.getPojosService(); 
+				pojosService = entry.getContainerService();
 				services.add(pojosService);
 			}
 			return pojosService; 
@@ -1287,10 +1287,11 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
 				convertPojos(rootType).getName(), rootIDs, options));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
 		return new HashSet();
@@ -1323,7 +1324,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
 					convertPojos(rootNodeType).getName(), leavesIDs, options));
 		} catch (Throwable t) {
@@ -1366,7 +1367,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			return PojoMapper.asDataObjects(
 					service.findAnnotations(convertPojos(nodeType).getName(), 
 							nodeIDs, annotatorIDs, options));
@@ -1429,7 +1430,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
 					convertPojos(nodeType).getName(), nodeIDs, options));
 		} catch (Throwable t) {
@@ -1455,7 +1456,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getUserImages(options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find user images.");
@@ -1487,7 +1488,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
 			return PojoMapper.asDataObjects(service.getCollectionCount(
@@ -1673,7 +1674,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			
 			//return service.updateDataObject(object, options);
 			//tmp
@@ -1703,7 +1704,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			List<IObject> l = service.updateDataObjects(objects, options);
 			if (l == null) return l;
 			Iterator<IObject> i = l.iterator();
@@ -2270,7 +2271,7 @@ class OMEROGateway
 		ids.add(pixelsID);
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			Map m = service.findAnnotations(Pixels.class.getName(), ids, null, 
 									(new PojoOptions().map()));
 			Collection c = (Collection) m.get(pixelsID);
@@ -2723,7 +2724,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			IContainerPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImagesByOptions(map));
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the images imported " +
