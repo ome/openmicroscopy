@@ -123,7 +123,7 @@ public class FileAnnotationData extends AnnotationData {
      * The <code>Microsoft PowerPoint</code> file format as defined by
      * specification corresponding to the extension.
      */
-    private static final String SERVER_MS_POWERPOINT = "application/vndms-powerpoint";
+    private static final String SERVER_MS_POWERPOINT = "application/vnd.ms-powerpoint";
 
     /**
      * The <code>Microsoft Excel</code> file format as defined by
