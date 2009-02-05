@@ -337,10 +337,10 @@ class client(object):
                     if not wrapped.concurrency:
                         raise wrapped # We only retry concurrency issues.
                     reason = "%s:%s" % (wrapped.type, wrapped.reason)
-                    retries++
+                    retries = retries + 1
                 except Ice.ConnectTimeoutException, cte:
                     reason = "Ice.ConnectTimeoutException:%" % str(ctr)
-                    retries++
+                    retries = retries + 1
 
             if not prx:
                 raise ClientError("Obtained null object prox")
