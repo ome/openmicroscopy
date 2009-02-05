@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ome.conditions.InternalException;
-import ome.conditions.SecurityViolation;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
@@ -27,9 +25,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import omero.ApiUsageException;
-import omero.ConcurrencyException;
 import omero.WrappedCreateSessionException;
-import omero.api.ClientCallbackPrx;
 import omero.api.ClientCallbackPrxHelper;
 import omero.constants.EVENT;
 import omero.constants.GROUP;

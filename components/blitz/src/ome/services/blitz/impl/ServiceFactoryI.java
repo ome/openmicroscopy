@@ -201,7 +201,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.cptors = interceptors;
         this.initializer = new AopContextInitializer(new ServiceFactory(
                 this.context), this.principal);
-        // TODO Move this to injection.
+        // FIXME
         this.topicManager = (TopicManager) context.getBean("topicManager");
 
         // Setting up in memory store.

@@ -338,20 +338,6 @@ class BaseControl:
         a warning issued.
         """
         data, created = self._icedata("IceGrid.Registry.Data")
-        if created:
-            self.ctx.out("""
-  Warning:
-  %s,
-  the IceGrid.Registry.Data directory is not present.
-  This is the first time you've started OmeroGrid.
-
-  No servers have been deployed yet. To do so, you
-  will need to run "admin deploy" after the following
-  initialization. See the files under etc/grid/ for
-  example application descriptors.
-
-  This warning will not be shown again.
-            """ % data)
 
     def _pid(self):
         """

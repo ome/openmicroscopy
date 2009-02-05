@@ -38,7 +38,7 @@
     <constructor-arg ref="sessionCache"/>
   </bean>
   
-  <bean id="topicManager" class="ome.services.blitz.fire.TopicManager">
+  <bean id="topicManager" class="ome.services.blitz.fire.TopicManager$Impl">
     <constructor-arg ref="Ice.Communicator"/>
   </bean>
 
