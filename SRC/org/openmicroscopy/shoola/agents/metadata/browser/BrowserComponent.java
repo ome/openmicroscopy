@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -189,7 +190,12 @@ class BrowserComponent
 				nodes.add(new TreeBrowserNode(uo));
 			else if (uo instanceof ScreenData)
 				nodes.add(new TreeBrowserNode(uo));
-			else nodes.add(new TreeBrowserSet(uo));
+			else if (uo instanceof TagAnnotationData) {
+				TagAnnotationData tag = (TagAnnotationData) uo;
+				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+						tag.getNameSpace()))
+					nodes.add(new TreeBrowserNode(uo));
+			} else nodes.add(new TreeBrowserSet(uo));
 		}
 		view.setNodes(node, nodes);
 	}

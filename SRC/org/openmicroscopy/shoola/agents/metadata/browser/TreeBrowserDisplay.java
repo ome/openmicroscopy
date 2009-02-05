@@ -42,6 +42,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -101,6 +102,8 @@ public abstract class TreeBrowserDisplay
         	return ((ScreenData) obj).getName();
         else if (obj instanceof PlateData) 
         	return ((PlateData) obj).getName();
+        else if (obj instanceof TagAnnotationData)
+        	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof String) return (String) obj;
         return "";
     		

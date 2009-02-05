@@ -45,6 +45,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Renderer of Browser's tree.
@@ -92,6 +93,13 @@ public class TreeCellRenderer
         	icon = icons.getIcon(IconManager.SCREEN);
         else if (usrObject instanceof PlateData) 
         	icon = icons.getIcon(IconManager.PLATE);
+        else if (usrObject instanceof TagAnnotationData) {
+        	TagAnnotationData tag = (TagAnnotationData) usrObject;
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+        		icon = icons.getIcon(IconManager.TAG_SET);
+        	else 
+        		icon = icons.getIcon(IconManager.TAG);
+        }
         else if (usrObject instanceof String)
         	icon = null;//icons.getIcon(IconManager.ROOT);
         setIcon(icon);

@@ -363,6 +363,7 @@ class OMEROGateway
 		if (klass.equals(Dataset.class)) table = "DatasetImageLink";
 		else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
 		else if (klass.equals(Screen.class)) table = "ScreenPlateLink";
+		else if (klass.equals(TagAnnotation.class)) table = "AnnotationAnnotationLink";
 		return table;
 	}
 

@@ -55,6 +55,7 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
+import omero.model.TagAnnotation;
 import omero.sys.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -1183,6 +1184,8 @@ class OmeroDataServiceImpl
 				parentClass = Dataset.class;
 			else if (PlateData.class.equals(type))
 				parentClass = Screen.class;
+			else if (TagAnnotationData.class.equals(type))
+				parentClass = TagAnnotation.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(parentClass, id, userID);
 			if (links == null) return new HashSet();
@@ -1197,10 +1200,20 @@ class OmeroDataServiceImpl
 					parent = ((DatasetImageLink) i.next()).getParent();
 				else if (parentClass.equals(Screen.class))
 					parent = ((ScreenPlateLink) i.next()).getParent();
+				else if (parentClass.equals(TagAnnotation.class)) 
+					parent = ((AnnotationAnnotationLink) i.next()).getParent();
 				object = gateway.findIObject(parent.getClass().getName(), 
 						parent.getId().getValue());
 				data = PojoMapper.asDataObject(object);
-				nodes.add(data);
+				if (parentClass.equals(TagAnnotation.class)) {
+					if (data instanceof TagAnnotationData) {
+						TagAnnotationData tag = (TagAnnotationData) data;
+						if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+								tag.getNameSpace())) {
+							nodes.add(data);
+						}
+					}
+				} else nodes.add(data);
 			}
 			return nodes;
 		} catch (Exception e) {

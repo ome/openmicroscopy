@@ -48,6 +48,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 import pojos.WellData;
 
 /** 
@@ -292,6 +293,8 @@ public class ViewerSorter
         	return ((ScreenData) obj).getName();
         else if (obj instanceof PlateData)
         	return ((PlateData) obj).getName();
+        else if (obj instanceof TagAnnotationData)
+        	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof String) return (String) obj;
         return "";
     }

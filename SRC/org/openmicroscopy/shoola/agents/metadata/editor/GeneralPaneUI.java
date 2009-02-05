@@ -203,13 +203,22 @@ class GeneralPaneUI
 		Object refObject = model.getRefObject();
 		if (refObject instanceof TagAnnotationData) {
 			propertiesUI.setObjectDescription();
-			browserTaskPane.setCollapsed(true);
+			TagAnnotationData tag = (TagAnnotationData) refObject;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					tag.getNameSpace())) {
+				browserTaskPane.setCollapsed(true);
+			} else {
+				if (!multi) {
+					h = TableLayout.PREFERRED;
+					s = "Contained in Tag Sets";
+				}
+			}
 		} else if  (refObject instanceof DatasetData) {
 			if (!multi) {
 				h = TableLayout.PREFERRED;
 				s = "Contained in Projects";
 			}
-		}  else if (refObject instanceof ImageData) {
+		} else if (refObject instanceof ImageData) {
 			if (!multi) {
 				h = TableLayout.PREFERRED;
 				s = "Contained in Datasets";
