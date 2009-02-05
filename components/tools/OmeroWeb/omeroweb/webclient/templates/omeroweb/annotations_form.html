@@ -1,109 +1,88 @@
 {% load custom_tags %}
 
-<div id="annotation_form">
-    {% if form_comment %}
-    <div class="comment">
-        <h1>Add new comment:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="comment" />
-        <table>
-            {% for field in form_comment %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-        <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
-            googie_spell.decorateTextarea("id_content", null, "600px");
-        </script>
-    </div>
-    {% endif %}
-
-    {% if form_tag %}
-    <div class="tags">
-        <h1>Add new tag:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="tag" />
-        <table>
-            {% for field in form_tag %}
-                <tr>
-                    <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td> </td><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-    </div>
-    {% endif %}
-    
-    <!--{% if form_uri %}
-    <div class="url">
-        <h1>Add new url:</h1>
-        <form action="" method="post"><input type="hidden" name="action" value="url" />
-        <table>
-            {% for field in form_uri %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-        </form>
-    </div>
-    {% endif %}-->
-
-    {% if form_file %}
-    <div class="file">
-        <h1>Upload a file</h1>
-        <form enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
-        <table>
-        {% for field in form_file %}
-            <tr>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-            </tr>
-        {% endfor %}
-        </table>
-        <input type="submit" value="Upload" />
-        </form>
-    </div>
-    {% endif %}
-    
-    <div id="existing" class="ui-tabs">
-        <h1>Use an existing annotation:</h1>
+<div id="annotation_form" >
+    <div id="annotation_tabs" class="ui-tabs">
         <ul>
+            <li><a href="#existingcomments"><span>Add comment</span></a></li>
             <li><a href="#existingtags"><span>Tag</span></a></li>
-            <li><a href="#existingcomments"><span>Comment</span></a></li>
             <!--<li><a href="#existingurls"><span>URL</span></a></li>-->
-            <li><a href="#existingfiles"><span>File</span></a></li>
+            <li><a href="#existingfiles"><span>Attache file</span></a></li>
         </ul>
         <div class="clear"></div>
-        <div id="existingtags">
-            <p>To tag by the existing tags please select one or more of the listed tags.</p>
-            <form action="" method="post"><input type="hidden" name="action" value="usetag" />
-            <table>
-            {% for field in form_tags %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-            </form>
-        </div>
+        
         <div id="existingcomments">
-            <p>To add existing comment please select one or more of the listed comments.</p>
-            <form action="" method="post"><input type="hidden" name="action" value="usecomment" />
-            <table>
-            {% for field in form_comments %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-            </form>
+            <p>Create a new comment or choose one or more of the listed below.</p>
+            
+            {% if form_comment %}
+            <div class="comment">
+                <h1>Add new comment:</h1>
+                <form action="" method="post"><input type="hidden" name="action" value="comment" />
+                <table>
+                    {% for field in form_comment %}
+                        <tr>
+                            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                        </tr>
+                    {% endfor %}
+                        <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                    </table>
+                </form>
+                <script type="text/javascript">
+                    var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+                    googie_spell.decorateTextarea("id_content", null, "600px");
+                </script>
+            </div>
+            {% endif %}
+            
+            <div class="excomment">
+                <h1>Use existing comment:</h1>
+                <form action="" method="post"><input type="hidden" name="action" value="usecomment" />
+                <table>
+                {% for field in form_comments %}
+                    <tr>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                </table>
+                </form>
+            </div>
         </div>
+        
+        <div id="existingtags">
+            <p>Select one or more of the listed tags or create a new one.</p>
+            
+            <div class="extags">
+                <h1>Use existing tag:</h1>
+                <form action="" method="post"><input type="hidden" name="action" value="usetag" />
+                <table>
+                {% for field in form_tags %}
+                    <tr>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                </table>
+                </form>
+            </div>
+            
+            {% if form_tag %}
+            <div class="tags">
+                <h1>Add new tag:</h1>
+                <form action="" method="post"><input type="hidden" name="action" value="tag" />
+                <table>
+                    {% for field in form_tag %}
+                        <tr>
+                            <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        </tr>
+                    {% endfor %}
+                        <tr><td> </td><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                    </table>
+                </form>
+            </div>
+            {% endif %}
+            
+        </div>
+        
         <!--<div id="existingurls">
             <p>To add existing url please select one or more of the listed urls.</p>
             <form action="" method="post"><input type="hidden" name="action" value="useurl" />
@@ -116,19 +95,56 @@
             <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
             </table>
             </form>
+            
+            {% if form_uri %}
+            <div class="url">
+                <h1>Add new url:</h1>
+                <form action="" method="post"><input type="hidden" name="action" value="url" />
+                <table>
+                    {% for field in form_uri %}
+                        <tr>
+                            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        </tr>
+                    {% endfor %}
+                        <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                    </table>
+                </form>
+            </div>
+            {% endif %}
+            
         </div>-->
         <div id="existingfiles">
-            <p>To add existing file please select one or more of the listed files.</p>
-            <form action="" method="post"><input type="hidden" name="action" value="usefile" />
-            <table>
-            {% for field in form_files %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
-            </table>
-            </form>
+            <p>Attache one or more of the listed files or upload a new one.</p>
+            
+            <div class="exfile">
+                <h1>Attache existing file:</h1>
+                <form action="" method="post"><input type="hidden" name="action" value="usefile" />
+                <table>
+                {% for field in form_files %}
+                    <tr>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                </table>
+                </form>
+            </div>
+            
+            {% if form_file %}
+            <div class="file">
+                <h1>Upload a new file:</h1>
+                <form enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
+                <table>
+                {% for field in form_file %}
+                    <tr>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+                <input type="submit" value="Upload" />
+                </form>
+            </div>
+            {% endif %}
         </div>
         
 

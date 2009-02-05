@@ -31,7 +31,7 @@
         $(document).ready(function(){
             $("a.loadData").click(function()
             {
-                $("div#hierarchy").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#hierarchy").html('<p>Loading hierarchy... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#hierarchy").load("{% get_webclient_root_url %}/hierarchy/image/{{ manager.image.id }}/", 
                     function() {  
                         $("a.loadData").remove();                        
@@ -40,7 +40,7 @@
             });
             $("a.loadAnnotation").click(function()
             {
-                $("div#annotation").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#annotation").html('<p>Loading annotations... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ manager.image.id }}/?url={{ url }}", function() {  
                         $("a.loadAnnotation").remove();                        
                     });
@@ -54,7 +54,7 @@
                 navigation: true
             });
             
-            $("#existing").tabs();
+            $("#annotation_tabs").tabs();
             
         });
       </script>
@@ -151,7 +151,10 @@
 </div>
 <div class="clear"></div>
 
-{% if manager.image.countAnnotations %}<div id="annotation"><h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.image.countAnnotations }}]</a></div>{% endif %}
+<div id="annotation">
+<h1>Annotations:</h1>
+{% if manager.image.countAnnotations %}<a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.image.countAnnotations }}]</a>{% endif %}
+</div>
 
 {% include "omeroweb/annotations_form.html" %}
 <div class="clear"> </div>

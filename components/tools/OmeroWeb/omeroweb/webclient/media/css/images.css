@@ -140,7 +140,7 @@ div#view, div#header_name {
 }
 .ui-accordion-header {
     border-bottom: 1px solid #bbb;
-    padding: 1px 5px;
+    padding: 5px;
     display:block;
     height:20px;
     position:relative;
@@ -151,6 +151,10 @@ a.ui-accordion-header  {
 }
 a.ui-accordion-header:hover,a.ui-accordion-header:link,a.ui-accordion-header:visited {
     text-decoration: none;
+}
+
+a.selected {
+    background: #eee;
 }
 
 input.disable {

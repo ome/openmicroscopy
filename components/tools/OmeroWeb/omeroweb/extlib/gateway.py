@@ -852,7 +852,6 @@ class BlitzGateway (threading.Thread):
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
-            print e.details
             yield AnnotationWrapper(self, e)
     
     def listSpecifiedTags(self, ids):
@@ -2497,7 +2496,7 @@ class ImageWrapper (BlitzObjectWrapper):
             try:
                 t = self.defaultThumbnail(size)
             except Exception, e:
-                print e
+                logger.debug(traceback.format_exc())
         return t
 
     def getThumbnailByLongestSide (self, size=120):
@@ -2516,7 +2515,7 @@ class ImageWrapper (BlitzObjectWrapper):
             try:
                 t = self.defaultThumbnail((size, size))
             except Exception, e:
-                print e
+                logger.debug(traceback.format_exc())
         return t
 
     def defaultThumbnail(self, size=(120,120)):

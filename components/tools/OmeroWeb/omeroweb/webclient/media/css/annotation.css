@@ -1,58 +1,68 @@
 #annotation {
     border-top:1px solid #BBBBBB;
-    border-bottom:1px solid #BBBBBB;
-    margin: 50px 0 10px;
-    padding: 10px 0 50px;
+    margin-top: 50px;
 }
 #annotation_form {
+    margin-top: 30px;
+    padding-bottom: 50px;
     border-bottom:1px solid #BBBBBB;
-    height: 430px;
-    position: relative;
+    height: 300px;
+}
+
+#annotation_tabs {
+    margin: 0;
+    width: 100%;
+}
+#annotation_tabs.ui-tabs-nav {
+
+}
+select.existing {
+    width: 450px;
 }
 
 div.comment {
-    position: absolute;
-    left:0;
-    top:0;
+    float: left;
 }
-div.url {
-    position: absolute;
-    left:0;
-    top:350px;
-}
-div.file {
-    position: absolute;
-    right:107px;
-    top:0;
-}
-div.ui-tabs-nav {
-    position: absolute;
-    right:0;
-    top:100px;
-    width: 360px;
+div.excomment {
+    float: right;
+    margin-top: 25px;
 }
 div.tags {
-    position: absolute;
-    left:0;
-    top:250px;
+    float: right;
 }
-select.existing {
-    width: 320px;
+div.extags {
+    float: left;
 }
 
+div.file {
+    float: right;
+}
+div.exfile {
+    float: left;
+}
 /* tabs */
 
-.ui-tabs-nav { padding: .2em .2em 0 .2em;  position: relative; }
-.ui-tabs-nav li { float: left; border-bottom:0; margin: 0; padding: 0; list-style: none; }
-.ui-tabs-nav li a { display:block; text-decoration: none; padding: 5px 15px; }
-.ui-tabs-nav li.ui-tabs-selected {  
-    padding-bottom: .1em; 
+.ui-tabs-nav { padding: 0;  position: relative; }
+.ui-tabs-nav li { 
+    float: left; 
+    border-bottom:0; 
+    margin: 0 5px 0; 
+    padding: 0; 
+    list-style: none;
     border-color:#BBBBBB #BBBBBB;
     border-style:solid solid none;
     border-width:1px 1px 0;
+    background: #fff;
+}
+.ui-tabs-nav li a { 
+    display:block; 
+    text-decoration: none; 
+    padding: 5px 15px; 
+}
+.ui-tabs-nav li.ui-tabs-selected {  
     background: #eee;
 }
-.ui-tabs-panel { padding: 10px;  display: block; border: 0; background: none; border-top:1px solid #BBBBBB;}
+.ui-tabs-panel { padding: 10px 0;  display: block; border: 0; background: none; border-top:1px solid #BBBBBB;}
 .ui-tabs-hide { display: none !important; }
 
 /* comment display page */

@@ -50,7 +50,7 @@
             
             $("a.loadData").click(function()
             {
-                $("div#hierarchy").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#hierarchy").html('<p>Loading hierarchy... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#hierarchy").load(
                     {% if manager.project or manager.dataset %}
                         {% if manager.dataset %}
@@ -69,7 +69,7 @@
             });
             $("a.loadAnnotation").click(function()
             {
-                $("div#annotation").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+                $("div#annotation").html('<p>Loading annotations... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#annotation").load(
                     {% if manager.dataset %}
                         "{% get_webclient_root_url %}/annotations/dataset/{{ manager.dataset.id }}/", 
@@ -83,7 +83,7 @@
                 return false; 
             });
             
-            $("#existing").tabs();
+            $("#annotation_tabs").tabs();
             
         });
     </script>
@@ -286,12 +286,16 @@
 <div class="clear"> </div>
 
 <div class="separate70"></div>
+
 {% if manager.project or manager.dataset %}
 
-{% if manager.dataset.countAnnotations %}<div id="annotation"><h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.dataset.countAnnotations }}]</a></div>
+<div id="annotation">
+<h1>Annotations:</h1>
+{% if manager.dataset.countAnnotations %}<a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.dataset.countAnnotations }}]</a>
 {% else %}
-    {% if manager.project.countAnnotations %}<div id="annotation"><h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.project.countAnnotations }}]</a></div>{% endif %}
+    {% if manager.project.countAnnotations %}<a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.project.countAnnotations }}]</a>{% endif %}
 {% endif %}
+</div>
 
 {% include "omeroweb/annotations_form.html" %}
 <div class="clear"> </div>
