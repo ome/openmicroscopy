@@ -27,7 +27,7 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
     @Test(groups = "ticket:735")
     public void testCheckWithoutPixels() throws Exception {
         long id = createImage();
-        this.iPojos.findContainerHierarchies(Project.class, Collections
+        this.iContainer.findContainerHierarchies(Project.class, Collections
                 .singleton(id), null);
     }
 
@@ -35,7 +35,7 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
     public void testCheckWithPixels() throws Exception {
         long id = createImage();
         createPixelsFromImage(id, false);
-        this.iPojos.findContainerHierarchies(Project.class, Collections
+        this.iContainer.findContainerHierarchies(Project.class, Collections
                 .singleton(id), null);
     }
 
@@ -43,7 +43,7 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
     public void testCheckWithDefaultPixels() throws Exception {
         long id = createImage();
         createPixelsFromImage(id, true);
-        this.iPojos.findContainerHierarchies(Project.class, Collections
+        this.iContainer.findContainerHierarchies(Project.class, Collections
                 .singleton(id), null);
     }
 
@@ -54,15 +54,15 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
         Dataset d = new Dataset();
         d.setName(name);
         i.linkDataset(d);
-        return this.iPojos.createDataObject(i, null).getId().longValue();
+        return this.iContainer.createDataObject(i, null).getId().longValue();
     }
 
     private long createPixelsFromImage(long imageId, boolean def) {
-        Image i = iPojos.getImages(Image.class, Collections.singleton(imageId),
+        Image i = iContainer.getImages(Image.class, Collections.singleton(imageId),
                 null).iterator().next();
         Pixels pix = ObjectFactory.createPixelGraph(null);
         i.addPixels(pix);
-        i = this.iPojos.updateDataObject(i, null);
+        i = this.iContainer.updateDataObject(i, null);
         pix = i.getPixels(i.sizeOfPixels() - 1);
         return pix.getId().longValue();
     }

@@ -56,7 +56,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
         long self = iAdmin.getEventContext().getCurrentUserId();
 
-        Set<Dataset> ds = iPojos.loadContainerHierarchy(Dataset.class,
+        Set<Dataset> ds = iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), null);
         d = ds.iterator().next();
         assertNotNull(d.getAnnotationLinksCountPerOwner());
@@ -75,7 +75,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
         long self = iAdmin.getEventContext().getCurrentUserId();
 
-        Set<Project> ps = iPojos.loadContainerHierarchy(Project.class,
+        Set<Project> ps = iContainer.loadContainerHierarchy(Project.class,
                 Collections.singleton(p.getId()), null);
         p = ps.iterator().next();
         d = p.linkedDatasetList().get(0);
@@ -91,7 +91,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
     @Test(groups = "ticket:882")
     public void testDatasetImageCounts() throws Exception {
         Dataset d = createDataset();
-        Set<Dataset> ds = this.iPojos.loadContainerHierarchy(Dataset.class,
+        Set<Dataset> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), null);
         assertTrue(ds.size() == 1);
         d = ds.iterator().next();
@@ -99,7 +99,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         assertTrue(d.getAnnotationLinksCountPerOwner() != null);
 
         // With leaves
-        ds = this.iPojos.loadContainerHierarchy(Dataset.class, Collections
+        ds = this.iContainer.loadContainerHierarchy(Dataset.class, Collections
                 .singleton(d.getId()), new PojoOptions().leaves().map());
         assertTrue(ds.size() == 1);
         d = ds.iterator().next();
@@ -114,14 +114,14 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         Dataset d = createDataset();
 
         // with leaves
-        Set<Dataset> ds = this.iPojos.loadContainerHierarchy(Dataset.class,
+        Set<Dataset> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), new PojoOptions().leaves()
                         .map());
         assertTrue(ds.size() == 1);
         assertTrue(ds.iterator().next().sizeOfImageLinks() == 1);
 
         // without leaves
-        ds = this.iPojos.loadContainerHierarchy(Dataset.class, Collections
+        ds = this.iContainer.loadContainerHierarchy(Dataset.class, Collections
                 .singleton(d.getId()), new PojoOptions().noLeaves().map());
         assertTrue(ds.size() == 1);
         assertTrue(ds.iterator().next().sizeOfImageLinks() < 0);

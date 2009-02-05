@@ -58,7 +58,7 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
         ROOT = getOmeroDataDir();
 
         // Create set up the base fixture which sets up the database for us
-        baseFixture = new PixbufIOFixture(this.iPojos, this.iUpdate);
+        baseFixture = new PixbufIOFixture(this.iContainer, this.iUpdate);
         pixels = baseFixture.setUp();
 
         // "Our" fixture which creates the planes needed for this test case.

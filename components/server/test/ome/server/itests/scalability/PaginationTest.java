@@ -45,7 +45,7 @@ public class PaginationTest extends AbstractManagedContextTest {
             PojoOptions po, int size, int pages) {
         long start;
         start = System.currentTimeMillis();
-        Set<Image> images = iPojos.getImages(kls, containerIds, po.map());
+        Set<Image> images = iContainer.getImages(kls, containerIds, po.map());
         assertTrue(images.size() + " items", images.size() >= size);
         long getImagesTime = System.currentTimeMillis() - start;
 
@@ -63,7 +63,7 @@ public class PaginationTest extends AbstractManagedContextTest {
         for (int i = 0; i < pages; i++) {
             po.paginate(i * page_size, page_size);
             start = System.currentTimeMillis();
-            images = iPojos.getImages(kls, containerIds, po.map());
+            images = iContainer.getImages(kls, containerIds, po.map());
             pageTimes[i] = System.currentTimeMillis() - start;
             assertTrue(images.size() + " items", images.size() == page_size);
             for (Image img : images) {

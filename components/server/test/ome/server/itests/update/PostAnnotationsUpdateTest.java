@@ -39,7 +39,7 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
         d.linkImage(i);
         d = iUpdate.saveAndReturnObject(d);
 
-        Set<Dataset> s = iPojos.loadContainerHierarchy(Dataset.class,
+        Set<Dataset> s = iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), new PojoOptions().leaves()
                         .map());
         d = s.iterator().next();
@@ -48,7 +48,7 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
         assertTrue(p.isLoaded());
         // assertTrue(p.unmodifiableChannels().iterator().next().isLoaded());
 
-        s = iPojos.loadContainerHierarchy(Dataset.class, Collections
+        s = iContainer.loadContainerHierarchy(Dataset.class, Collections
                 .singleton(d.getId()), new PojoOptions().noLeaves().map());
         d = s.iterator().next();
         assertTrue(d.sizeOfImageLinks() < 0);
