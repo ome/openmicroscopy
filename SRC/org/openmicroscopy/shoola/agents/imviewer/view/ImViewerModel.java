@@ -1174,6 +1174,13 @@ class ImViewerModel
 		return m;
 	}
 
+	/** Sets the settings before turning on/off channels in the grid view. */
+	void setLastSettingsRef()
+	{
+		if (getTabbedIndex() != ImViewer.GRID_INDEX) return;
+		lastMainDef = currentRndControl.getRndSettingsCopy();
+	}
+	
 	/** 
 	 * Creates a new history item and adds it to the list of elements.
 	 * Returns the newly created item.

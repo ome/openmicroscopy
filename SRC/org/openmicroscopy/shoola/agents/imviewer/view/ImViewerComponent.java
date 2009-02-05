@@ -810,6 +810,7 @@ class ImViewerComponent
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		//depends on model
+		model.setLastSettingsRef();
 		try {
 			int uiIndex = -1;
 			if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
