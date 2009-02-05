@@ -36,8 +36,10 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * This Undoable-Edit pastes copied data from the {@link EditorFactory}, in 
@@ -113,7 +115,13 @@ public class PasteFieldsEdit
 	 */
 	public void doEdit() 
 	{	
-		if (! canDo() ) return;
+		if (! canDo() ) {
+			
+			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("No steps to paste", 
+					"Can't paste: No steps have been copied to the clipboard.");
+			return;
+		}
 		
 		Object data = EditorFactory.getCopiedData();
 		if (! (data instanceof Object[])) return;

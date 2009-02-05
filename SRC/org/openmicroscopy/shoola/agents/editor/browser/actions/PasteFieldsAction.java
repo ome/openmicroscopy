@@ -77,6 +77,19 @@ public class PasteFieldsAction
 		
 		refreshState();
 	}
+	
+	protected void refreshState() 
+	{
+		setEnabled(true);
+		
+		int state = model.getState();
+		if (state == Browser.TREE_DISPLAY) {
+			setEnabled(false);
+		}
+		if (treeUI == null) {
+			setEnabled(false);
+		}
+	}
 
 	/**
 	 * This creates a new instance of {@link PasteFieldsEdit}, calls it's doEdit()
