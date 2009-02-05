@@ -21,10 +21,10 @@ import omero.api.ClientCallbackPrx;
 import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
 import omero.api.IConfigPrx;
+import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
 import omero.api.ILdapPrx;
 import omero.api.IPixelsPrx;
-import omero.api.IPojosPrx;
 import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
@@ -320,12 +320,12 @@ public class TestServiceFactory implements ServiceFactoryPrx
         throw new RuntimeException("Not implemented yet.");
     }
 
-    public IPojosPrx getPojosService() throws ServerError
+    public IContainerPrx getContainerService() throws ServerError
     {
         return null;
     }
 
-    public IPojosPrx getPojosService(Map<String, String> arg0)
+    public IContainerPrx getContainerService(Map<String, String> arg0)
             throws ServerError
     {
         // TODO Auto-generated method stub

@@ -27,7 +27,7 @@
        <entry key="ome.api.IDelete"><null/></entry>
        <entry key="ome.api.ILdap"><null/></entry>
        <entry key="ome.api.IPixels"><null/></entry>
-       <entry key="ome.api.IPojos"><null/></entry>
+       <entry key="ome.api.IContainer"><null/></entry>
        <entry key="ome.api.IQuery" value="ome.api.local.LocalQuery"/>
        <entry key="ome.api.IRenderingSettings"><null/></entry>
        <entry key="ome.api.IRepositoryInfo"><null/></entry>

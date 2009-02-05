@@ -256,9 +256,9 @@ module omero {
 	};
 
 	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IPojos.html
+	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IContainer.html
 	 */
-	["ami", "amd"] interface IPojos extends ServiceInterface
+	["ami", "amd"] interface IContainer extends ServiceInterface
 	{
 	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
 	    idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
@@ -266,7 +266,6 @@ module omero {
 	    idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
 	    idempotent ImageList getUserImages(omero::sys::ParamMap options) throws ServerError;
 	    idempotent ImageList getImagesByOptions(omero::sys::ParamMap options) throws ServerError;
-	    idempotent UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
 	    idempotent omero::sys::CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
 	    idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
 	    omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
@@ -841,31 +840,31 @@ module omero {
 	interface ServiceFactory extends Glacier2::Session
 	{
 	    // Central OMERO.blitz stateless services.
-	    IAdmin*    getAdminService() throws ServerError;
-	    IConfig*   getConfigService() throws ServerError;
-            IDelete*   getDeleteService() throws ServerError;
-            ILdap*     getLdapService() throws ServerError;
-	    IPixels*   getPixelsService() throws ServerError;
-	    IPojos*    getPojosService() throws ServerError;
-	    IProjection* getProjectionService() throws ServerError;
-	    IQuery*    getQueryService() throws ServerError;
+	    IAdmin*          getAdminService() throws ServerError;
+	    IConfig*         getConfigService() throws ServerError;
+	    IContainer*      getContainerService() throws ServerError;
+            IDelete*         getDeleteService() throws ServerError;
+            ILdap*           getLdapService() throws ServerError;
+	    IPixels*         getPixelsService() throws ServerError;
+	    IProjection*     getProjectionService() throws ServerError;
+	    IQuery*          getQueryService() throws ServerError;
 	    IRenderingSettings* getRenderingSettingsService() throws ServerError;
 	    IRepositoryInfo* getRepositoryInfoService() throws ServerError;
-	    IScript*   getScriptService() throws ServerError;
-	    ISession*  getSessionService() throws ServerError;
-	    IShare*    getShareService() throws ServerError;
-	    ITimeline* getTimelineService() throws ServerError;
-	    ITypes*    getTypesService() throws ServerError;
-	    IUpdate*   getUpdateService() throws ServerError;
+	    IScript*         getScriptService() throws ServerError;
+	    ISession*        getSessionService() throws ServerError;
+	    IShare*          getShareService() throws ServerError;
+	    ITimeline*       getTimelineService() throws ServerError;
+	    ITypes*          getTypesService() throws ServerError;
+	    IUpdate*         getUpdateService() throws ServerError;
 
 	    // Central OMERO.blitz stateful services.
-	    Gateway *createGateway() throws ServerError;
-	    JobHandle* createJobHandle() throws ServerError;
-	    RawFileStore* createRawFileStore() throws ServerError;
-	    RawPixelsStore* createRawPixelsStore() throws ServerError;
+	    Gateway*         createGateway() throws ServerError;
+	    JobHandle*       createJobHandle() throws ServerError;
+	    RawFileStore*    createRawFileStore() throws ServerError;
+	    RawPixelsStore*  createRawPixelsStore() throws ServerError;
 	    RenderingEngine* createRenderingEngine() throws ServerError;
-	    Search* createSearchService() throws ServerError;
-	    ThumbnailStore* createThumbnailStore() throws ServerError;
+	    Search*          createSearchService() throws ServerError;
+	    ThumbnailStore*  createThumbnailStore() throws ServerError;
 
 	    /*
 	     * Allows looking up any service by name. See Constants.ice

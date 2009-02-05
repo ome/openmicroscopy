@@ -38,7 +38,7 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
 
         Criteria obj = session.createCriteria(k);
         // TODO refactor into CriteriaUtils
-        // Not currently loading, since IPojos.findAnnotations, rearranges
+        // Not currently loading, since IContainer.findAnnotations, rearranges
         // them to return the annotations, which have no links to their
         // owning objects
         // obj.setFetchMode("details.owner", FetchMode.JOIN);

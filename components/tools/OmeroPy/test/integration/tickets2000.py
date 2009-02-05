@@ -101,7 +101,7 @@ class TestTicket2000(lib.ITest):
 
     def test1071(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        pojos = self.root.sf.getPojosService()
+        pojos = self.root.sf.getContainerService()
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
         
@@ -230,14 +230,14 @@ class TestTicket2000(lib.ITest):
         #test
         c1 = omero.client()
         c1.createSession("new_test_user1", "ome")
-        c1_pojos = c1.sf.getPojosService()
+        c1_pojos = c1.sf.getContainerService()
         c1_query = c1.sf.getQueryService()
         c1_update = c1.sf.getUpdateService()
         c1_uuid = c1.sf.getAdminService().getEventContext().sessionUuid
         
         c2 = omero.client()
         c2.createSession("new_test_user2", "ome")
-        c2_pojos = c2.sf.getPojosService()
+        c2_pojos = c2.sf.getContainerService()
         c2_query = c2.sf.getQueryService()
         c2_update = c2.sf.getUpdateService()
         c2_uuid = c2.sf.getAdminService().getEventContext().sessionUuid
@@ -403,7 +403,7 @@ class TestTicket2000(lib.ITest):
         #login as user2
         c2 = omero.client()
         c2.createSession("test_load_hierarchy_user2", "ome")
-        pojos = c2.sf.getPojosService()
+        pojos = c2.sf.getContainerService()
         
         self.assert_( c2.sf.getAdminService().getEventContext() )
         #print c1.sf.getAdminService().getEventContext()

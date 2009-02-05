@@ -75,6 +75,15 @@
     </constructor-arg>
   </bean>
 
+  <bean id="omero.api.IContainer" class="omero.api._IContainerTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.ContainerI">
+            <constructor-arg ref="managed-ome.api.IContainer"/>
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
   <bean id="omero.api.IDelete" class="omero.api._IDeleteTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.DeleteI">
@@ -98,15 +107,6 @@
     <constructor-arg>
         <bean class="ome.services.blitz.impl.PixelsI">
             <constructor-arg ref="managed-ome.api.IPixels"/>
-            <constructor-arg ref="throttlingStrategy"/>
-        </bean>
-    </constructor-arg>
-  </bean>
-
-  <bean id="omero.api.IPojos" class="omero.api._IPojosTie" singleton="false">
-    <constructor-arg>
-        <bean class="ome.services.blitz.impl.PojosI">
-            <constructor-arg ref="managed-ome.api.IPojos"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>

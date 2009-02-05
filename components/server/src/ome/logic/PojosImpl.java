@@ -25,7 +25,7 @@ import java.util.Set;
 
 import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -63,10 +63,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @since OMERO 2.0
  */
 @Transactional
-public class PojosImpl extends AbstractLevel2Service implements IPojos {
+public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     public final Class<? extends ServiceInterface> getServiceInterface() {
-        return IPojos.class;
+        return IContainer.class;
     }
 
     // ~ READ

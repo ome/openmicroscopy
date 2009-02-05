@@ -43,8 +43,8 @@ import omero.api.ILdapPrx;
 import omero.api.ILdapPrxHelper;
 import omero.api.IPixelsPrx;
 import omero.api.IPixelsPrxHelper;
-import omero.api.IPojosPrx;
-import omero.api.IPojosPrxHelper;
+import omero.api.IContainerPrx;
+import omero.api.IContainerPrxHelper;
 import omero.api.IProjectionPrx;
 import omero.api.IProjectionPrxHelper;
 import omero.api.IQueryPrx;
@@ -257,8 +257,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
-    public IPojosPrx getPojosService(Ice.Current current) throws ServerError {
-        return IPojosPrxHelper.uncheckedCast(getByName(POJOSSERVICE.value,
+    public IContainerPrx getContainerService(Ice.Current current) throws ServerError {
+        return IContainerPrxHelper.uncheckedCast(getByName(POJOSSERVICE.value,
                 current));
     }
 

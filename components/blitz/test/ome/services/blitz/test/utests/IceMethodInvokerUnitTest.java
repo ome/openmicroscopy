@@ -17,7 +17,7 @@ import java.util.Set;
 
 import ome.api.IAdmin;
 import ome.api.IConfig;
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.api.IQuery;
 import ome.api.ISession;
 import ome.api.IShare;
@@ -765,38 +765,38 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     }
 
-    // Pojos
+    // Container
 
     @Test
-    public void testPojosWorks() throws Exception {
+    public void testContainerWorks() throws Exception {
 
-        IPojos p;
+        IContainer p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
         paramMap.put("foo", rstring("bar"));
 
-        init(IPojos.class, "getUserDetails");
+        init(IContainer.class, "getUserDetails");
         method().will(returnValue(new HashMap()));
         Object rv = invoke(Arrays.asList("u1", "u2"), paramMap);
         Map map = (Map) rv;
         assertNotNull(map);
 
-        init(IPojos.class, "loadContainerHierarchy");
+        init(IContainer.class, "loadContainerHierarchy");
         method().will(returnValue(new HashSet()));
         rv = invoke("Project", Arrays.asList(1L), paramMap);
 
     }
 
     @Test
-    public void testPojosCanFindAnnotations() throws Exception {
-        IPojos p;
+    public void testContainerCanFindAnnotations() throws Exception {
+        IContainer p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
         paramMap.put("foo", rbool(true));
 
         Map<Long, Set<? extends IObject>> retVal = new HashMap<Long, Set<? extends IObject>>();
 
-        init(IPojos.class, "findAnnotations");
+        init(IContainer.class, "findAnnotations");
         method().will(returnValue(retVal));
         Object rv = invoke("Image", Arrays.asList(1L, 2L), Arrays
                 .asList(1L, 2L), paramMap);
@@ -806,14 +806,14 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testPojosReceivesProperPojoOptions() throws Exception {
-        IPojos p;
+    public void testContainerReceivesProperPojoOptions() throws Exception {
+        IContainer p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
         paramMap.put(POJOLEAVES.value, rbool(true));
         paramMap.put(POJOEXPERIMENTER.value, rlong(1L));
 
-        init(IPojos.class, "loadContainerHierarchy");
+        init(IContainer.class, "loadContainerHierarchy");
         method().with(ANYTHING, ANYTHING, new Constraint() {
             public StringBuffer describeTo(StringBuffer buffer) {
                 buffer.append(" proper PojoOptions ");
@@ -841,9 +841,9 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testPojosHandlesArraysProperly() throws Exception {
+    public void testContainerHandlesArraysProperly() throws Exception {
 
-        init(IPojos.class, "createDataObjects");
+        init(IContainer.class, "createDataObjects");
 
         method().will(returnValue(null));
         Object rv = invoke(null, null);
@@ -859,7 +859,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         rv = invoke(Collections.EMPTY_LIST, null);
         assertTrue(((List) rv).size() == 1);
 
-        init(IPojos.class, "updateDataObjects");
+        init(IContainer.class, "updateDataObjects");
 
         method().will(returnValue(null));
         rv = invoke(null, null);
@@ -875,7 +875,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         rv = invoke(Collections.EMPTY_LIST, null);
         assertTrue(((List) rv).size() == 1);
 
-        init(IPojos.class, "link");
+        init(IContainer.class, "link");
 
         method()
                 .will(

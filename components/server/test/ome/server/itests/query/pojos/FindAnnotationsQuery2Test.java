@@ -69,9 +69,9 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
         }
     }
 
-    public void testSameTestAgainstIPojos() throws Exception {
+    public void testSameTestAgainstIContainer() throws Exception {
         testFindImageAnnotationsReturnsEventTimes();
-        Map<Long, Set<IObject>> map = this.iPojos.findAnnotations(Image.class,
+        Map<Long, Set<IObject>> map = this.iContainer.findAnnotations(Image.class,
                 ids, Collections.<Long> emptySet(), null);
         assertTrue(map.size() > 0);
         Annotation ann = (Annotation) map.values().iterator().next().iterator()

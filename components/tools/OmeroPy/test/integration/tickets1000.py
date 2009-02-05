@@ -88,7 +88,7 @@ class TestTicket1000(lib.ITest):
             self.fail("No dataset named ticket989 found")
 
         pixelsIds = list()
-        pojos = self.client.sf.getPojosService()
+        pojos = self.client.sf.getContainerService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map[omero.constants.POJOEXPERIMENTER] = rlong(0)

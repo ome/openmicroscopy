@@ -45,7 +45,7 @@ import omero.RTime;
 import omero.ServerError;
 import omero.client;
 import omero.api.IAdminPrx;
-import omero.api.IPojosPrx;
+import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IUpdatePrx;
@@ -149,7 +149,7 @@ public class OMEROMetadataStoreClient
     private RawFileStorePrx rawFileStore;
     private RawPixelsStorePrx rawPixelStore;
     private IRepositoryInfoPrx iRepoInfo;
-    private IPojosPrx iPojos;
+    private IContainerPrx iContainer;
     
     /** Our enumeration provider. */
     private EnumerationProvider enumProvider;
@@ -169,7 +169,7 @@ public class OMEROMetadataStoreClient
     	rawFileStore = serviceFactory.createRawFileStore();
     	rawPixelStore = serviceFactory.createRawPixelsStore();
     	iRepoInfo = serviceFactory.getRepositoryInfoService();
-    	iPojos = serviceFactory.getPojosService();
+    	iContainer = serviceFactory.getContainerService();
     	delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
 
     	// Client side services
@@ -244,7 +244,7 @@ public class OMEROMetadataStoreClient
     {
         serviceFactory.keepAllAlive(new ServiceInterfacePrx[] 
                 {iQuery, iAdmin, rawFileStore, rawPixelStore, iRepoInfo,
-                 iPojos, iUpdate, delegate});
+                 iContainer, iUpdate, delegate});
         log.debug("KeepAlive ping");
     }
     
@@ -2100,7 +2100,7 @@ public class OMEROMetadataStoreClient
     	try
     	{
     		List<IObject> objects = 
-    			iPojos.loadContainerHierarchy(Project.class.getName(), null, null);
+    			iContainer.loadContainerHierarchy(Project.class.getName(), null, null);
     		List<Project> projects = new ArrayList<Project>(objects.size());
     		for (IObject object : objects)
     		{
@@ -2121,7 +2121,7 @@ public class OMEROMetadataStoreClient
     		List<Long> ids = new ArrayList<Long>(1);
     		ids.add(p.getId().getValue());
     		List<IObject> objects = 
-    			iPojos.loadContainerHierarchy(Project.class.getName(), ids, null);
+    			iContainer.loadContainerHierarchy(Project.class.getName(), ids, null);
     		if (objects.size() > 0)
     		{
     		    Project project = (Project) objects.get(0);

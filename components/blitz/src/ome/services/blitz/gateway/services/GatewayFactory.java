@@ -36,7 +36,7 @@ import ome.services.blitz.gateway.services.impl.RenderingServiceImpl;
 import ome.services.blitz.gateway.services.impl.ThumbnailServiceImpl;
 import omero.ServerError;
 import omero.api.IPixelsPrx;
-import omero.api.IPojosPrx;
+import omero.api.IContainerPrx;
 import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
 import omero.api.IScriptPrx;
@@ -72,7 +72,7 @@ public class GatewayFactory
 	private IQueryPrx 					iQuery;
 
 	/** The iPojo Service. */ 
-	private IPojosPrx 					iPojos;
+	private IContainerPrx 					iContainer;
 
 	/** The IScript Service. */ 
 	private IScriptPrx 					iScript;
@@ -147,7 +147,7 @@ public class GatewayFactory
 		iPixels = serviceFactory.getPixelsService();
 		iUpdate = serviceFactory.getUpdateService();
 		iScript	= serviceFactory.getScriptService();
-		iPojos = serviceFactory.getPojosService();
+		iContainer = serviceFactory.getContainerService();
 		iProjection = serviceFactory.getProjectionService();
 		rawPixelsStore = serviceFactory.createRawPixelsStore();
 		rawFileStore = serviceFactory.createRawFileStore();
@@ -236,12 +236,12 @@ public class GatewayFactory
 	}
 	
 	/**
-	 * Return the IPojos service.
+	 * Return the IContainer service.
 	 * @return see above.
 	 */
-	public IPojosPrx getIPojos()
+	public IContainerPrx getIContainer()
 	{
-		return iPojos;
+		return iContainer;
 	}
 		
 	/**

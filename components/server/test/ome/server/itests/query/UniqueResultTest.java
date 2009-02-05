@@ -9,7 +9,7 @@ package ome.server.itests.query;
 import java.util.HashSet;
 import java.util.Set;
 
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.containers.Project;
@@ -84,7 +84,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     // ~ 83
     // =========================================================================
     @Test(groups = { TICKET_83 })
-    public void test_PojosFindHierarchies_unique() throws Exception {
+    public void test_ContainerFindHierarchies_unique() throws Exception {
         p = new Parameters().addIds(getNewProjects(1, TICKET_83)).addClass(
                 Project.class);
         p.getFilter().unique();
@@ -93,7 +93,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = { TICKET_83 })
-    public void test_PojosFindHierarchies_list() throws Exception {
+    public void test_ContainerFindHierarchies_list() throws Exception {
         p = new Parameters().addIds(getNewProjects(2, TICKET_83)).addClass(
                 Project.class);
         assertFalse(p.getFilter().isUnique());
@@ -102,7 +102,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = { TICKET_83 })
-    public void test_PojosGetImages_unique() throws Exception {
+    public void test_ContainerGetImages_unique() throws Exception {
         p = new Parameters().addIds(getNewProjects(1, TICKET_83)).addClass(
                 Project.class);
         p.getFilter().unique();
@@ -111,7 +111,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = { TICKET_83 })
-    public void test_PojosGetImages_list() throws Exception {
+    public void test_ContainerGetImages_list() throws Exception {
         p = new Parameters().addIds(getNewProjects(2, TICKET_83)).addClass(
                 Project.class);
         assertFalse(p.getFilter().isUnique());
@@ -120,7 +120,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = { TICKET_83 })
-    public void test_PojosLoadHierarchies_unique() throws Exception {
+    public void test_ContainerLoadHierarchies_unique() throws Exception {
         p = new Parameters().addIds(getNewProjects(1, TICKET_83)).addClass(
                 Project.class);
         p.getFilter().unique();
@@ -129,7 +129,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = { TICKET_83 })
-    public void test_PojosLoadHierarchies_list() throws Exception {
+    public void test_ContainerLoadHierarchies_list() throws Exception {
         p = new Parameters().addIds(getNewProjects(2, TICKET_83)).addClass(
                 Project.class);
         assertFalse(p.getFilter().isUnique());

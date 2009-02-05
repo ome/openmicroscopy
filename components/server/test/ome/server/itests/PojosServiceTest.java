@@ -16,7 +16,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.conditions.ApiUsageException;
 import ome.model.ILink;
 import ome.model.annotations.CommentAnnotation;
@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
  */
 public class PojosServiceTest extends AbstractManagedContextTest {
 
-    protected IPojos iPojos;
+    protected IContainer iContainer;
 
     protected OMEData data;
 
@@ -48,13 +48,13 @@ public class PojosServiceTest extends AbstractManagedContextTest {
                 .getBean("dataSource");
         data = new OMEData();
         data.setDataSource(dataSource);
-        iPojos = factory.getPojosService();
+        iContainer = factory.getContainerService();
     }
 
     @Test
     public void test_unannotated_Event_version() throws Exception {
         ILink link = createLinkedCommentAnnotation();
-        iPojos.deleteDataObject(link, null);
+        iContainer.deleteDataObject(link, null);
 
     }
 
@@ -63,16 +63,16 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         PojoOptions po;
 
         try {
-            iPojos.loadContainerHierarchy(Project.class, null, null);
+            iContainer.loadContainerHierarchy(Project.class, null, null);
             fail("Should throw ApiUsage.");
         } catch (ApiUsageException aue) {
             // ok
         }
         po = new PojoOptions().exp(0L);
-        iPojos.loadContainerHierarchy(Project.class, null, po.map());
+        iContainer.loadContainerHierarchy(Project.class, null, po.map());
 
         po = new PojoOptions().grp(0L);
-        iPojos.loadContainerHierarchy(Project.class, null, po.map());
+        iContainer.loadContainerHierarchy(Project.class, null, po.map());
 
     }
 
@@ -94,7 +94,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
         d = iUpdate.saveAndReturnObject(d);
 
-        Set<Image> list = iPojos.getImages(Dataset.class, Collections
+        Set<Image> list = iContainer.getImages(Dataset.class, Collections
                 .singleton(d.getId()), null);
 
         i = list.iterator().next();
@@ -133,8 +133,8 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         options.startTime(startTime);
         options.endTime(endTime);
 
-        iPojos.getImagesByOptions(options.map());
-        iPojos.getImages(Dataset.class, Collections.singleton(ds.getId()),
+        iContainer.getImagesByOptions(options.map());
+        iContainer.getImages(Dataset.class, Collections.singleton(ds.getId()),
                 options.map());
     }
 
@@ -161,7 +161,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         options.startTime(startTime);
         options.endTime(endTime);
 
-        Set<Image> images = iPojos.getImagesByOptions(options.map());
+        Set<Image> images = iContainer.getImagesByOptions(options.map());
         Image i = images.iterator().next();
         assertTrue(i.getAnnotationLinksCountPerOwner() != null);
 
@@ -198,7 +198,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         da.setNs("");
         da.setTextValue("uEv");
         ds.linkAnnotation(da);
-        ds = iPojos.createDataObject(ds, null);
+        ds = iContainer.createDataObject(ds, null);
         return ds.collectAnnotationLinks((CBlock<ILink>) null).iterator()
                 .next();
     }

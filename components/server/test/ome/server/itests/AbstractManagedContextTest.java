@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 
 import ome.api.IConfig;
 import ome.api.IPixels;
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.api.ISession;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalLdap;
@@ -81,7 +81,7 @@ public class AbstractManagedContextTest extends
 
     protected IConfig iConfig;
 
-    protected IPojos iPojos;
+    protected IContainer iContainer;
 
     protected IPixels iPixels;
 
@@ -141,7 +141,7 @@ public class AbstractManagedContextTest extends
         iAdmin = (LocalAdmin) factory.getAdminService();
         iLdap = (LocalLdap) factory.getLdapService();
         iConfig = factory.getConfigService();
-        iPojos = factory.getPojosService();
+        iContainer = factory.getContainerService();
         iPixels = factory.getPixelsService();
         iSession = factory.getSessionService();
 

@@ -28,7 +28,7 @@ import ome.tools.lsid.LsidUtils;
 
 /**
  * counts the number of members in a collection. This query is used by the
- * {@link ome.api.IPojos IPojos} interface (possbly among others) to add
+ * {@link ome.api.IContainer IContainer} interface (possbly among others) to add
  * information to outgoing results.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

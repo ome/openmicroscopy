@@ -63,13 +63,13 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 .addOptions(null).addClass(Project.class));
 
         /*
-         * TODO currently handled by IPojos creation_fails( PojosQP.ids( new
-         * ArrayList() ), // Empty PojosQP.options( null ),
-         * PojosQP.Class(QP.CLASS, Project.class ) );
+         * TODO currently handled by IContainer creation_fails( ContainerQP.ids( new
+         * ArrayList() ), // Empty ContainerQP.options( null ),
+         * ContainerQP.Class(QP.CLASS, Project.class ) );
          * 
          * PojoOptions po = new PojoOptions().allExps(); creation_fails(
-         * PojosQP.ids( null ), PojosQP.options( po.map() ), // Has to have
-         * experimenter PojosQP.Class(QP.CLASS, Project.class ) );
+         * ContainerQP.ids( null ), ContainerQP.options( po.map() ), // Has to have
+         * experimenter ContainerQP.Class(QP.CLASS, Project.class ) );
          */
 
     }

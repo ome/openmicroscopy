@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.ModelBased;
@@ -556,7 +556,7 @@ public class IceMapper extends ome.util.ModelMapper implements
      * {@link Collection}s should be {@link List}s in Ice.
      * 
      * Originally necessitated by the Map<Long, Set<IObject>> return value of
-     * {@link IPojos#findAnnotations(Class, Set, Set, Map)}
+     * {@link IContainer#findAnnotations(Class, Set, Set, Map)}
      */
     @Override
     public Collection findCollection(Collection source) {

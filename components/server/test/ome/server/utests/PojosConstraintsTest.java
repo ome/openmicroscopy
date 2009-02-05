@@ -1,5 +1,5 @@
 /*
- * ome.server.utests.PojosConstraintsTest
+ * ome.server.utests.ContainerConstraintsTest
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.conditions.ApiUsageException;
 import ome.logic.PojosImpl;
 import ome.model.containers.Dataset;
@@ -40,7 +40,7 @@ import org.testng.annotations.Test;
 public class PojosConstraintsTest extends MockObjectTestCase {
     protected PojosImpl impl;
 
-    protected IPojos manager;
+    protected IContainer manager;
 
     @Override
     @Configuration(beforeTestMethod = true)
@@ -54,7 +54,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         pf.addAdvice(login);
         pf.addAdvice(serviceHandler);
         login.p = new Principal("user","user","Test");
-        manager = (IPojos) pf.getProxy();
+        manager = (IContainer) pf.getProxy();
     }
 
     @Override

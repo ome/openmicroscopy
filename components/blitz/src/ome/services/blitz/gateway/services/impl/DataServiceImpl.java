@@ -37,7 +37,7 @@ import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import omero.RType;
 import omero.ServerError;
 import omero.api.ContainerClass;
-import omero.api.IPojosPrx;
+import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IScriptPrx;
 import omero.api.ITypesPrx;
@@ -86,7 +86,7 @@ public class DataServiceImpl
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
-	private String convertPojos(ContainerClass nodeType)
+	private String convertContainer(ContainerClass nodeType)
 	{
 		return nodeType.name();
 	}
@@ -138,13 +138,13 @@ public class DataServiceImpl
 	public List<Dataset> getDatasets(List<Long> ids, boolean getLeaves)
 			throws ServerError
 	{
-		IPojosPrx iPojosService = gatewayFactory.getIPojos();
+		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		if(getLeaves)
 			map.put(omero.constants.POJOLEAVES.value, rbool(true));
 		return ServiceUtilities.collectionCast(Dataset.class, 
-			iPojosService.loadContainerHierarchy(
-				convertPojos(ContainerClass.Dataset), ids,	map));
+			iContainerService.loadContainerHierarchy(
+				convertContainer(ContainerClass.Dataset), ids,	map));
 	}
 
 	/* (non-Javadoc)
@@ -178,10 +178,10 @@ public class DataServiceImpl
 	public List<Image> getImages(ContainerClass nodeType, List<Long> nodeIds)
 			throws ServerError
 	{
-		IPojosPrx iPojosService = gatewayFactory.getIPojos();
+		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		return 
-			iPojosService.getImages(convertPojos(nodeType), nodeIds, map);
+			iContainerService.getImages(convertContainer(nodeType), nodeIds, map);
 	}
 
 	
@@ -224,13 +224,13 @@ public class DataServiceImpl
 	public List<Project> getProjects(List<Long> ids, boolean getLeaves)
 			throws ServerError
 	{
-		IPojosPrx iPojosService = gatewayFactory.getIPojos();
+		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		if(getLeaves)
 			map.put(omero.constants.POJOLEAVES.value, rbool(true));
 		return ServiceUtilities.collectionCast(Project.class, 
-			iPojosService.loadContainerHierarchy(
-				convertPojos(ContainerClass.Project), ids, map));
+			iContainerService.loadContainerHierarchy(
+				convertContainer(ContainerClass.Project), ids, map));
 	}
 
 	/* (non-Javadoc)

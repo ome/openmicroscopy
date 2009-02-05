@@ -8,7 +8,7 @@ package ome.io.nio.itests;
 
 import java.io.IOException;
 
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.api.local.LocalUpdate;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -21,10 +21,10 @@ import ome.testing.ObjectFactory;
 public class PixbufIOFixture {
     private Pixels pixels;
 
-    private final IPojos pojos;
+    private final IContainer pojos;
     private final LocalUpdate updater;
 
-    public PixbufIOFixture(IPojos pojos, LocalUpdate updater) {
+    public PixbufIOFixture(IContainer pojos, LocalUpdate updater) {
         this.updater = updater;
         this.pojos = pojos;
     }

@@ -190,6 +190,7 @@ public class QueryTest extends AbstractManagedContextTest {
         assertEquals(1.4, t1.getLensNA().floatValue(), Float.MIN_VALUE);
         assertEquals(1.4, t1.getLensNA().floatValue());
 
+        // Test via query
         Objective t2 = iQuery.find(Objective.class, o.getId());
         assertEquals(1.4, t2.getLensNA().floatValue());
     }

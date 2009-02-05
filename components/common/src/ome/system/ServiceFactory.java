@@ -13,10 +13,10 @@ import java.util.Properties;
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
+import ome.api.IContainer;
 import ome.api.IDelete;
 import ome.api.ILdap;
 import ome.api.IPixels;
-import ome.api.IPojos;
 import ome.api.IProjection;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
@@ -186,6 +186,10 @@ public class ServiceFactory {
         return getServiceByClass(IConfig.class);
     }
 
+    public IContainer getContainerService() {
+        return getServiceByClass(IContainer.class);
+    }
+
     public IDelete getDeleteService() {
         return getServiceByClass(IDelete.class);
     }
@@ -198,14 +202,10 @@ public class ServiceFactory {
         return getServiceByClass(IPixels.class);
     }
 
-    public IPojos getPojosService() {
-        return getServiceByClass(IPojos.class);
-    }
-    
     public IProjection getProjectionService() {
         return getServiceByClass(IProjection.class);
     }
-    
+
     public IQuery getQueryService() {
         return getServiceByClass(IQuery.class);
     }
