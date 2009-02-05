@@ -6,7 +6,7 @@ import ome.api.IConfig;
 import ome.api.IDelete;
 import ome.api.ILdap;
 import ome.api.IPixels;
-import ome.api.IPojos;
+import ome.api.IContainer;
 import ome.api.IProjection;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
@@ -98,7 +98,7 @@ public class TestServiceFactory extends ServiceFactory
     }
 
     @Override
-    public IPojos getPojosService()
+    public IContainer getContainerService()
     {
         return null;
     }
