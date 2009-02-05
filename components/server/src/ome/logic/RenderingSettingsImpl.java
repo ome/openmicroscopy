@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.annotations.NotNull;
-import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
@@ -591,7 +590,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public boolean applySettingsToImage(long from, long to) {
         Image img = iQuery.get(Image.class, to);
-        return applySettingsToPixels(from, img.getPrimaryPixels().getId());
+        Pixels pix = img.getPrimaryPixels();
+        if (pix == null) return false;
+        return applySettingsToPixels(from, pix.getId());
     }
 
     /**
@@ -683,6 +684,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#createNewRenderingDef(Pixels)
      */
     public RenderingDef createNewRenderingDef(@NotNull Pixels pixels) {
+    	if (pixels == null) return null;
         RenderingDef r = new RenderingDef();
         //The default rendering definition settings
         r.setDefaultZ(pixels.getSizeZ() / 2);
