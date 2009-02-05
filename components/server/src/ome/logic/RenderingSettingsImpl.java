@@ -590,6 +590,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public boolean applySettingsToImage(long from, long to) {
         Image img = iQuery.get(Image.class, to);
+        if (img == null) return false;
         Pixels pix = img.getPrimaryPixels();
         if (pix == null) return false;
         return applySettingsToPixels(from, pix.getId());
