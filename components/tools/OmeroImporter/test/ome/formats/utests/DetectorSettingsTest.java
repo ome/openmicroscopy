@@ -3,6 +3,7 @@ package ome.formats.utests;
 import ome.formats.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.model.BlitzInstanceProvider;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Instrument;
@@ -35,6 +36,9 @@ public class DetectorSettingsTest extends TestCase
 		ServiceFactoryPrx sf = new TestServiceFactory();
         wrapper = new OMEROWrapper();
         store = new OMEROMetadataStoreClient(sf);
+        store.setEnumerationProvider(new TestEnumerationProvider());
+        store.setInstanceProvider(
+        		new BlitzInstanceProvider(store.getEnumerationProvider()));
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field of each Image.

@@ -3,6 +3,7 @@ package ome.formats.utests;
 import ome.formats.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.model.BlitzInstanceProvider;
 import omero.model.Instrument;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
@@ -34,6 +35,8 @@ public class ObjectiveSettingsTest extends TestCase
         wrapper = new OMEROWrapper();
         store = new OMEROMetadataStoreClient(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
+        store.setInstanceProvider(
+        		new BlitzInstanceProvider(store.getEnumerationProvider()));
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field of each Image.
@@ -57,6 +60,33 @@ public class ObjectiveSettingsTest extends TestCase
         store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX + 2);
 	}
 
+	public void testObjectiveCorrectionExists()
+	{
+		Objective o =
+			(Objective) store.getSourceObject(new LSID("Objective:0"));
+		assertNotNull(o.getCorrection());
+	}
+	
+	public void testObjectiveCorrectionZeroLength()
+	{
+		store.setObjectiveCorrection("", INSTRUMENT_INDEX, OBJECTIVE_INDEX);
+		Objective o =
+			(Objective) store.getSourceObject(new LSID("Objective:0"));
+		// Test enumeration provider always returns "Unknown", in reality this
+		// should be "Other".
+		assertEquals("Unknown", o.getCorrection().getValue().getValue());
+	}
+	
+	public void testObjectiveCorrectionNull()
+	{
+		store.setObjectiveCorrection(null, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
+		Objective o =
+			(Objective) store.getSourceObject(new LSID("Objective:0"));
+		// Test enumeration provider always returns "Unknown", in reality this
+		// should be "Other".
+		assertEquals("Unknown", o.getCorrection().getValue().getValue());
+	}
+	
 	public void testImageObjectiveExists()
 	{
 	    for (int i = 0; i < 3; i++)

@@ -4,6 +4,7 @@ import ome.formats.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.MetaLightSource;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.model.BlitzInstanceProvider;
 import omero.model.Filament;
 import omero.model.LightSettings;
 import omero.model.LightSource;
@@ -34,6 +35,8 @@ public class LightSourceSettingsFilamentTest extends TestCase
         wrapper = new OMEROWrapper();
         store = new OMEROMetadataStoreClient(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
+        store.setInstanceProvider(
+        		new BlitzInstanceProvider(store.getEnumerationProvider()));
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field.

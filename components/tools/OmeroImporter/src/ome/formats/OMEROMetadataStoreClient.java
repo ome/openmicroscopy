@@ -487,8 +487,8 @@ public class OMEROMetadataStoreClient
      */
     public boolean hasReference(LSID source, LSID target)
     {
-        if (!referenceCache.containsKey(source.toString())
-            || !referenceCache.containsValue(target.toString()))
+        if (!referenceCache.containsKey(source)
+            || !referenceCache.containsValue(target))
         {
             return false;
         }

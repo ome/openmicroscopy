@@ -122,15 +122,11 @@ public class IQueryEnumProvider implements EnumerationProvider
             throw new NullPointerException("Expecting not-null klass.");
         if (value == null)
         {
-            log.warn("Not performing query for enumeration " + klass +
-                     " with value of null.");
-            return null;
+            log.warn("Enumeration " + klass + " with value of null.");
         }
         if (value.length() == 0)
         {
-            log.warn("Not performing query for enumeration " + klass +
-                     " with value of zero length.");
-            return null;
+            log.warn("Enumeration " + klass + " with value of zero length.");
         }
 
         HashMap<String, T> enumerations = getEnumerations(klass);

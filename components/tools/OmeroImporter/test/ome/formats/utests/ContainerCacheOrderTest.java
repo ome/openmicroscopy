@@ -5,6 +5,7 @@ import java.util.Map;
 import ome.formats.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.model.BlitzInstanceProvider;
 import omero.metadatastore.IObjectContainer;
 import omero.api.ServiceFactoryPrx;
 import junit.framework.TestCase;
@@ -34,6 +35,8 @@ public class ContainerCacheOrderTest extends TestCase
         wrapper = new OMEROWrapper();
         store = new OMEROMetadataStoreClient(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
+        store.setInstanceProvider(
+        		new BlitzInstanceProvider(store.getEnumerationProvider()));
         wrapper.setMetadataStore(store);
 
         // Populate at least one image field.
