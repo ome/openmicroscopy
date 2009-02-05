@@ -217,14 +217,15 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public <T extends IObject> long createShare(@NotNull String description,
-            Timestamp expiration, List<T> items, List<Experimenter> exps,
-            List<String> guests, final boolean enabled) {
+    public <T extends IObject> long createShare(
+            @NotNull final String description, Timestamp expiration,
+            List<T> items, List<Experimenter> exps, List<String> guests,
+            final boolean enabled) {
 
         //
         // Input validation
         //
-        long time = expirationAsLong(expiration);
+        final long time = expirationAsLong(expiration);
 
         if (exps == null) {
             exps = Collections.emptyList();
@@ -242,8 +243,27 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         final String omename = this.admin.getEventContext()
                 .getCurrentUserName();
         final Long user = this.admin.getEventContext().getCurrentUserId();
-        Share share = sessionManager.createShare(new Principal(omename),
-                enabled, time, "SHARE", description);
+        final Share[] shares = new Share[1];
+        Thread t = new Thread() {
+            public void run() {
+                try {
+                shares[0] = sessionManager.createShare(new Principal(omename),
+                        enabled, time, "SHARE", description);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        t.start();
+        while (true) {
+            try {
+                t.join();
+                break;
+            } catch (InterruptedException e1) {
+                log.debug("Interrupted");
+            }
+        }
+        Share share = shares[0];
 
         final List<T> _items = items;
         final List<String> _guests = guests;
@@ -657,9 +677,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     private Session shareToSession(ShareData data) {
-        return iQuery.findByQuery("select sh from Session sh " +
-                "join fetch sh.owner where sh.id = :id ", new
-                Parameters().addId(data.id));
+        return iQuery.findByQuery("select sh from Session sh "
+                + "join fetch sh.owner where sh.id = :id ", new Parameters()
+                .addId(data.id));
     }
 
     @SuppressWarnings("unchecked")
@@ -711,12 +731,12 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     ShareData getShareIfAccessibble(long shareId) {
-        
+
         ShareData data = store.get(shareId);
         if (data == null) {
             return null;
         }
-        
+
         EventContext ec = admin.getEventContext();
         boolean isAdmin = ec.isCurrentUserAdmin();
         long userId = ec.getCurrentUserId();
