@@ -299,8 +299,7 @@ public interface DataManagerView
 	 */
 	public CallHandle loadTagSets(Long id, boolean dataObject, long userID, 
 			AgentEventListener observer);
-  
-	
+
 	/**
 	 * Loads the Screen/Plate hierarchy.
 	 * 

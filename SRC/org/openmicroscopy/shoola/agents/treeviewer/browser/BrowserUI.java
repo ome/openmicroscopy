@@ -68,10 +68,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * The Browser's View.
@@ -480,9 +483,24 @@ class BrowserUI
                     	buildTreeNode(display, sorter.sort(children), tm);
                     }
                 } else {
+                	Object uo = display.getUserObject();
+                	if (uo instanceof DatasetData) {
+                		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                				display, display.getChildCount());
+                	} else if (uo instanceof TagAnnotationData) {
+                		TagAnnotationData tag = (TagAnnotationData) uo;
+                		if (!(TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                				tag.getNameSpace()))) {
+                			tm.insertNodeInto(
+                					new DefaultMutableTreeNode(EMPTY_MSG), 
+                    				display, display.getChildCount());
+                		}
+                	}
+                		/*
                 	if (!(display.getUserObject() instanceof PlateData))
                     	tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                         				display, display.getChildCount());
+                        				*/
                 }  
             }
         } 

@@ -40,7 +40,6 @@ import java.util.Set;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
-import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;

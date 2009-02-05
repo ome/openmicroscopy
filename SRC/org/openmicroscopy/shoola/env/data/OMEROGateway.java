@@ -3731,6 +3731,7 @@ class OMEROGateway
 			
 			return results;
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;

@@ -58,6 +58,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ChannelData;
@@ -181,6 +182,8 @@ class PropertiesUI
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	descriptionPane = createTextPane();//new OMEWikiComponent(false);
+    	descriptionPane.setLineWrap(true);
+    	descriptionPane.setColumns(20);
     	descriptionPane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
     			if (e.getClickCount() == 2)
@@ -320,7 +323,6 @@ class PropertiesUI
     private JTextArea createTextPane()
     {
     	JTextArea pane = new JTextArea();
-    	//pane.setLineWrap(true);
     	pane.setWrapStyleWord(true);
     	pane.setOpaque(false);
     	pane.setBackground(UIUtilities.BACKGROUND_COLOR);

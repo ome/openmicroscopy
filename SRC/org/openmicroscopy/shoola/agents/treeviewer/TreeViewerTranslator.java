@@ -282,19 +282,25 @@ public class TreeViewerTranslator
         TreeImageSet tag =  new TreeImageSet(data);
         formatToolTipFor(tag);
         
-        Set tags = data.getTags();
-        if (tags != null && tags.size() > 0) {
-        	tag.setChildrenLoaded(Boolean.TRUE);
-        	
-            Iterator i = tags.iterator();
-            TagAnnotationData tmp;
-            while (i.hasNext()) {
-            	tmp = (TagAnnotationData) i.next();
-            	tag.addChildDisplay(transformTag(tmp, userID, groupID));
-            }
-            tag.setNumberItems(tags.size());
+        if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(data.getNameSpace())) {
+        	Set tags = data.getTags();
+            if (tags != null && tags.size() > 0) {
+            	tag.setChildrenLoaded(Boolean.TRUE);
+            	
+                Iterator i = tags.iterator();
+                TagAnnotationData tmp;
+                while (i.hasNext()) {
+                	tmp = (TagAnnotationData) i.next();
+                	tag.addChildDisplay(transformTag(tmp, userID, groupID));
+                }
+                tag.setNumberItems(tags.size());
+                return tag;
+            } 
+            tag.setChildrenLoaded(Boolean.TRUE); 
+            tag.setNumberItems(0);
             return tag;
         }
+        
         Set dataObjects = data.getDataObjects();
         //
         if (dataObjects == null || dataObjects.size() == 0) 
