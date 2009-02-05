@@ -75,7 +75,6 @@ import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -407,8 +406,10 @@ class OmeroDataServiceImpl
 	private List<IObject> annotationsLinkToDelete(List<Class> types, 
 								List<IObject> annotations)
 	{
-		List<Class> annoTypes = convert(types);
 		List<IObject> toDelete = new ArrayList<IObject>();
+		if (types == null || types.size() == 0) return toDelete;
+		List<Class> annoTypes = convert(types);
+		
 		if (annoTypes.size() == 0) return toDelete;
 		Iterator k = annotations.iterator();
 		ImageAnnotationLink ann;

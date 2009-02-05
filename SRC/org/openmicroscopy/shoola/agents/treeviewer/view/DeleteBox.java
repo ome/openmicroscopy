@@ -320,9 +320,10 @@ public class DeleteBox
     	JCheckBox box;
     	while (i.hasNext()) {
     		box = i.next();
-			if (box.isSelected()) types.add(annotationTypes.get(box));
+			if (box.isSelected()) 
+				types.add(annotationTypes.get(box));
 		}
-    	if (types.size() == annotationTypes.size()) return null;
+    	//if (types.size() == annotationTypes.size()) return null;
     	return types;
     }
     
