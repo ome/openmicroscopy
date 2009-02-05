@@ -405,6 +405,8 @@ public class ModelMapper
     		annotation = new TagAnnotationI();
     		((TagAnnotation) annotation).setTextValue(
     				omero.rtypes.rstring(data.getContentAsString()));
+    		annotation.setDescription(omero.rtypes.rstring(
+    				((TagAnnotationData) data).getTagDescription()));
     		String ns = data.getNameSpace();
     		if (ns != null && ns.length() > 0) {
     			annotation.setNs(omero.rtypes.rstring(ns));

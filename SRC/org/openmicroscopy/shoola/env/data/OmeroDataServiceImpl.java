@@ -741,6 +741,7 @@ class OmeroDataServiceImpl
 
 		IObject created = gateway.createObject(obj, options);
 		IObject link;
+		/*
 		if (child instanceof TagAnnotationData) {
 			//add description.
 			TagAnnotationData tag = (TagAnnotationData) child;
@@ -751,6 +752,7 @@ class OmeroDataServiceImpl
 						created.getId().getValue(), desc);
 			}
 		}
+		*/
 		if (parent != null) {
 			link = ModelMapper.linkParentToChild(created, parent.asIObject());
 			if ((child instanceof TagAnnotationData) && link != null) {

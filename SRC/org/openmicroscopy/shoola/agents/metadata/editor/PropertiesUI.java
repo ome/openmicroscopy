@@ -494,6 +494,7 @@ class PropertiesUI
 	/** Sets the description of the object if the object is a tag annotation. */
 	void setObjectDescription()
 	{
+		/*
 		if (!(model.getRefObject() instanceof TagAnnotationData))  return;
 		boolean b = model.isCurrentUserOwner(model.getRefObject());
 		if (b)
@@ -511,6 +512,7 @@ class PropertiesUI
 		}
 		if (b)
 			descriptionPane.getDocument().addDocumentListener(this);
+			*/
 	}
 	
     /** Sets the focus on the name area. */

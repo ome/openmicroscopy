@@ -334,7 +334,8 @@ class EditorModel
 		else if (refObject instanceof PlateData)
 			return ((PlateData) refObject).getDescription();
 		else if (refObject instanceof TagAnnotationData) {
-			return getTagDescription((TagAnnotationData) refObject);
+			return ((TagAnnotationData) refObject).getTagDescription();
+			//return getTagDescription((TagAnnotationData) refObject);
 		}
 		return "";
 	}
@@ -1407,6 +1408,7 @@ class EditorModel
 	String getTagDescription(TagAnnotationData tag)
 	{
 		if (tag == null) return "";
+		/*
 		List l = tag.getTagDescriptions();
 		if (l != null && l.size() > 0) {
 			long userID = MetadataViewerAgent.getUserDetails().getId();
@@ -1418,7 +1420,9 @@ class EditorModel
 					return desc.getText();
 			}
 		}
-		return "";
+		*/
+		return tag.getTagDescription();
+		//return "";
 	}
 	
 }

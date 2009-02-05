@@ -323,8 +323,8 @@ class MetadataViewerComponent
 		} else if (refObject instanceof ScreenData) {
 			model.fireSaving(toAdd, toRemove, metadata, toSave);
 		} else if (refObject instanceof PlateData) {
-//			Only update properties. 
-			//TODO:Improve code
+			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			/*
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
@@ -351,8 +351,11 @@ class MetadataViewerComponent
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
+			*/
 		} else if (refObject instanceof DatasetData) {
+			model.fireSaving(toAdd, toRemove, metadata, toSave);
 			//Only update properties.
+			/*
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				model.fireSaving(toAdd, toRemove, metadata, toSave);
 				return;
@@ -380,6 +383,7 @@ class MetadataViewerComponent
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
+			*/
 		} else if (refObject instanceof ImageData) {
 			model.fireSaving(toAdd, toRemove, metadata, toSave);
 		} else if (refObject instanceof TagAnnotationData) {

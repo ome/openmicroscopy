@@ -385,6 +385,7 @@ class OmeroMetadataServiceImpl
 					fa.setFile(of);
 					iobject = fa;
 				} else {
+					/*
 					if (ann instanceof TagAnnotationData) {
 						IObject r = gateway.createObject(
 								ModelMapper.createAnnotation(ann), map);
@@ -399,14 +400,15 @@ class OmeroMetadataServiceImpl
 						if (data != null)
 							annotations.add((AnnotationData) data);
 					} else 
-						iobject = ModelMapper.createAnnotation(ann);
+					*/
+					iobject = ModelMapper.createAnnotation(ann);
 				} 
 				if (iobject != null)
 					toCreate.add(iobject);
 
 			} else {
 				if (ann instanceof TagAnnotationData) {
-//					update description
+					//update description
 					tag = (TagAnnotationData) ann;
 					ann = (TagAnnotationData) updateAnnotationData(tag);
 				}
@@ -501,8 +503,8 @@ class OmeroMetadataServiceImpl
 		String ioType;
 		TagAnnotation ho;
 		IObject link = null;
-		
 		if (ann instanceof TagAnnotationData) {
+			/*
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			TextualAnnotationData description = tag.getTagDescription();
 			//if (description != null) {
@@ -524,6 +526,16 @@ class OmeroMetadataServiceImpl
 					gateway.updateObject(ho, (new PojoOptionsI()).map());
 				return PojoMapper.asDataObject(object);
 			}
+			*/
+			TagAnnotationData tag = (TagAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
+			ho = (TagAnnotation) gateway.findIObject(ioType, id);
+			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
+			ho.setDescription(omero.rtypes.rstring(tag.getTagDescription()));
+			IObject object = 
+				gateway.updateObject(ho, (new PojoOptionsI()).map());
+			return PojoMapper.asDataObject(object);
 		}
 		return ann;
 	}
@@ -869,6 +881,8 @@ class OmeroMetadataServiceImpl
 					TagAnnotation ann = new TagAnnotationI();
 		    		ann.setTextValue(
 		    				omero.rtypes.rstring(tag.getContentAsString()));
+		    		ann.setDescription(
+		    				omero.rtypes.rstring(tag.getTagDescription()));
 		    		link = ModelMapper.linkAnnotation(ann, (Annotation) ho);
 				} else {
 					annObject = tag.asIObject();
@@ -895,8 +909,6 @@ class OmeroMetadataServiceImpl
 					else exist = true;
 				}
 			}
-			
-				
 		} else if (annotation instanceof RatingAnnotationData) {
 			//only one annotation of type rating.
 			//Remove the previous ones.

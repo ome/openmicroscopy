@@ -150,9 +150,7 @@ class DocComponent
 		} else if (data instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) data;
 			exp = MetadataViewerAgent.getUserDetails();
-			TextualAnnotationData txt = tag.getTagDescription();
-			String description = null;
-			if (txt != null) description = txt.getText();
+			String description = tag.getTagDescription();
 			List l;
 			Iterator j;
 			if (tag.getId() > 0) {
@@ -386,9 +384,9 @@ class DocComponent
 		if (data instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) data;
 			if (!originalName.equals(tag.getTagValue())) return true;
-			TextualAnnotationData txt = tag.getTagDescription();
+			String txt = tag.getTagDescription();
 			if (txt != null) 
-				return !(originalDescription.equals(txt.getText()));	
+				return !(originalDescription.equals(txt));	
 			return false;
 		}
 		return false;

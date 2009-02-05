@@ -63,7 +63,6 @@ import Ice.ObjectPrx;
 import ome.formats.OMEROMetadataStore;
 import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
-import omero.DataAccessException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
 import omero.RString;
@@ -321,10 +320,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Throwable cause = t.getCause();
-		if (cause instanceof DataAccessException) {
-			String s = "Cannot access data. \n"; 
-			throw new DSAccessException(s+message, t);
-		} else if (cause instanceof SecurityViolation) {
+		if (cause instanceof SecurityViolation) {
 			String s = "For security reasons, cannot access data. \n"; 
 			throw new DSAccessException(s+message, t);
 		} else if (cause instanceof SessionException) {
