@@ -85,12 +85,12 @@ import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
+import omero.constants.CONTAINERSERVICE;
 import omero.constants.DELETESERVICE;
 import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.PIXELSSERVICE;
-import omero.constants.POJOSSERVICE;
 import omero.constants.PROJECTIONSERVICE;
 import omero.constants.QUERYSERVICE;
 import omero.constants.RAWFILESTORE;
@@ -258,7 +258,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public IContainerPrx getContainerService(Ice.Current current) throws ServerError {
-        return IContainerPrxHelper.uncheckedCast(getByName(POJOSSERVICE.value,
+        return IContainerPrxHelper.uncheckedCast(getByName(CONTAINERSERVICE.value,
                 current));
     }
 

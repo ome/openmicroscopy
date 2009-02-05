@@ -55,11 +55,11 @@ module omero {
     const string ADMINSERVICE     = "omero.api.IAdmin";
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
     const string CONFIGSERVICE    = "omero.api.IConfig";
+    const string CONTAINERSERVICE = "omero.api.IContainer";
     const string GATEWAYSERVICE   = "omero.api.Gateway";
     const string DELETESERVICE    = "omero.api.IDelete";
     const string LDAPSERVICE      = "omero.api.ILdap";
     const string PIXELSSERVICE    = "omero.api.IPixels";
-    const string POJOSSERVICE     = "omero.api.IPojos";
     const string PROJECTIONSERVICE= "omero.api.IProjection";
     const string QUERYSERVICE     = "omero.api.IQuery";
     const string SESSIONSERVICE   = "omero.api.ISession";
