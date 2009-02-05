@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Application-internal dependencies
 
 /** 
- * 
+ * Stores the settings related to a channel to speed-up the process.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,7 +45,6 @@ package org.openmicroscopy.shoola.env.rnd;
  */
 class ChannelBindingsProxy
 {
-
 
     /** The lower bound of the pixel intensity interval. */
     private double      inputStart;

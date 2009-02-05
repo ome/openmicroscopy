@@ -1117,21 +1117,7 @@ class ControlPane
     	setSliderMax(zSliderAnnotator, model.getMaxZ());
     	resetRndSettings();
     }
-    
-    /**
-     * Helper method to create a panel hosting the sliders.
-     * 
-     * @return See above.
-     */
-    JPanel createGridSliderPanes()
-    {
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(layoutSlider(zSliderGrid));
-        //p.add(createSliderPane(tSliderGrid));
-        return p;
-    }
-    
+
     /** 
      * Reacts to {@link ImViewer} change events.
      * 

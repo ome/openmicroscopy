@@ -36,18 +36,18 @@ import java.util.Map;
 //Application-internal dependencies
 
 /** 
-* Stores the rendering settings to speed-up the process.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
-* @since OME2.2
-*/
+ * Stores the rendering settings to speed-up the process.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
 public class RndProxyDef
 {
 
@@ -81,9 +81,13 @@ public class RndProxyDef
 	/** Flag indicating is the pixels type is signed or not. */
 	private boolean								typeSigned;
 
+	/** The compression value. */
+	private double								compression;
+	
 	/** Creates a new instance. */
 	RndProxyDef()
 	{
+		compression = 1.0;
 		channels = new HashMap<Integer, ChannelBindingsProxy>();
 	}
 
@@ -218,6 +222,25 @@ public class RndProxyDef
 	boolean isTypeSigned() { return typeSigned; }
 
 	/**
+	 * Returns the compression, a value in the interval ]0, 1].
+	 * 
+	 * @return See above.
+	 */
+	double getCompression() { return compression; }
+	
+	/**
+	 * Sets the compression, a value in the interval ]0, 1].
+	 * 
+	 * @param compression See above.
+	 */
+	void setCompression(double compression)
+	{
+		if (compression <= 0) compression = 0.1;
+		else if (compression > 1) compression = 1.0;
+		this.compression = compression;
+	}
+	
+	/**
 	 * Creates and returns a copy of the element.
 	 * 
 	 * @return See above.
@@ -225,6 +248,7 @@ public class RndProxyDef
 	RndProxyDef copy()
 	{
 		RndProxyDef copy = new RndProxyDef();
+		copy.setCompression(this.getCompression());
 		copy.setTypeSigned(this.isTypeSigned());
 		copy.setDefaultZ(this.getDefaultZ());
 		copy.setDefaultT(this.getDefaultT());

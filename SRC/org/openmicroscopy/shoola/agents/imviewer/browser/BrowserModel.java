@@ -50,6 +50,8 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ChannelData;
 import pojos.ImageData;
 
 /** 
@@ -260,6 +262,30 @@ class BrowserModel
 		        	
 		        	DataBuffer buf = 
 		        		combinedImage.getRaster().getDataBuffer();
+		        	List<ChannelData> list = parent.getSortedChannelData();
+		        	Iterator<ChannelData> i = list.iterator();
+		        	int index;
+		        	while (i.hasNext()) {
+						index = i.next().getIndex();
+						if (l.contains(index)) {
+							if (parent.isChannelRed(index)) { 
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.RED_MASK, Factory.RED_MASK, 
+										Factory.RED_MASK));
+							} else if (parent.isChannelGreen(index)) {
+								gridImages.add(createBandImage(buf, w, h,
+										Factory.GREEN_MASK, Factory.GREEN_MASK, 
+										Factory.GREEN_MASK));
+							} else if (parent.isChannelBlue(index)) {
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.BLUE_MASK, Factory.BLUE_MASK,
+										Factory.BLUE_MASK));
+							}
+						} else {
+							gridImages.add(null);
+						}
+					}
+		        	/*
 		    		for (int i = 0; i < maxC; i++) {
 						if (l.contains(i)) {
 							if (parent.isChannelRed(i)) { 
@@ -279,6 +305,7 @@ class BrowserModel
 							gridImages.add(null);
 						}
 					}
+					*/
 				} else {
 					retrieveGridImagesForGreyScale(l);
 				}
@@ -369,6 +396,30 @@ class BrowserModel
 					int w = combinedImage.getWidth();
 		        	int h = combinedImage.getHeight();
 		        	DataBuffer buf = combinedImage.getRaster().getDataBuffer();
+		        	List<ChannelData> list = parent.getSortedChannelData();
+		        	Iterator<ChannelData> i = list.iterator();
+		        	int index;
+		        	while (i.hasNext()) {
+						index = i.next().getIndex();
+						if (parent.isChannelActive(index)) {
+							if (parent.isChannelRed(index)) { 
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.RED_MASK, Factory.BLANK_MASK,
+										Factory.BLANK_MASK));
+							} else if (parent.isChannelGreen(index)) {
+								gridImages.add(createBandImage(buf, w, h,
+										Factory.BLANK_MASK, Factory.GREEN_MASK, 
+										Factory.BLANK_MASK));
+							} else if (parent.isChannelBlue(index)) {
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.BLANK_MASK, Factory.BLANK_MASK, 
+										Factory.BLUE_MASK));
+							}
+						} else {
+							gridImages.add(null);
+						}
+					}
+		        	/*
 		    		for (int i = 0; i < maxC; i++) {
 						if (parent.isChannelActive(i)) {
 							if (parent.isChannelRed(i)) { 
@@ -388,6 +439,7 @@ class BrowserModel
 							gridImages.add(null);
 						}
 					}
+					*/
 		    		
 				} else {
 					retrieveGridImages();
@@ -869,13 +921,26 @@ class BrowserModel
     	else splitImages.clear();
     	BufferedImage combined;
     	String n;
-    	combined = combinedImage;//annotateImage;
+    	combined = combinedImage;
+    	List<ChannelData> list = parent.getSortedChannelData();
+    	Iterator<ChannelData> i = list.iterator();
+    	ChannelData channel;
+    	int j = 0;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		n = PREFIX+channel.getChannelLabeling();
+    		splitImages.add(new SplitImage(gridImages.get(j), n));
+    		j++;
+		}
+    	splitImages.add(new SplitImage(combined, COMBINED));
+    	/*
     	for (int j = 0; j < gridImages.size(); j++) {
     		n = PREFIX+
 				parent.getChannelMetadata(j).getEmissionWavelength();
     		splitImages.add(new SplitImage(gridImages.get(j), n));
 		}
     	splitImages.add(new SplitImage(combined, COMBINED));
+    	*/
     	return splitImages;
     }
     

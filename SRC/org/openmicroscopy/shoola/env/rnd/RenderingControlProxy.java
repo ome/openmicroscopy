@@ -30,8 +30,11 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.imageio.ImageIO;
 
 
@@ -54,8 +57,6 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
 import pojos.PixelsData;
-
-
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
@@ -312,6 +313,27 @@ class RenderingControlProxy
             		qDef.getCdEnd().getValue());
             
             ChannelBindingsProxy cb;
+            ChannelData channel;
+            for (int i = 0; i < metadata.length; i++) {
+				channel = metadata[i];
+				cb = rndDef.getChannel(channel.getIndex());
+				if (cb == null) {
+                    cb = new ChannelBindingsProxy();
+                    rndDef.setChannel(channel.getIndex(), cb);
+                }
+                cb.setActive(servant.isActive(i));
+                cb.setInterval(servant.getChannelWindowStart(i), 
+                                servant.getChannelWindowEnd(i));
+                cb.setQuantization(
+                		servant.getChannelFamily(i).getValue().getValue(), 
+                        servant.getChannelCurveCoefficient(i), 
+                        servant.getChannelNoiseReduction(i));
+                cb.setRGBA(servant.getRGBA(i));
+                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+				
+			}
+            /*
             for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                 cb = rndDef.getChannel(i);
                 if (cb == null) {
@@ -329,6 +351,7 @@ class RenderingControlProxy
                 cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                 cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
             }
+            */
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -397,7 +420,7 @@ class RenderingControlProxy
 			return WriterImage.bytesToImageJPEG(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
-		}
+		} 
 		return null;
 	}
 	
@@ -1288,9 +1311,9 @@ class RenderingControlProxy
 	 */
 	public void setCompression(int compression)
 	{
-		//DataServicesFactory.isSessionAlive(context);
 		try {
 			float f = PixelsServicesFactory.getCompressionQuality(compression);
+			rndDef.setCompression(f);
 			servant.setCompressionLevel(f);
 			this.compression = compression;
 			eraseCache();
@@ -1444,12 +1467,30 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
+		if (def.getCompression() != rndDef.getCompression()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;
+		Map<Integer, ChannelBindingsProxy> oldChannels = 
+			new HashMap<Integer, ChannelBindingsProxy>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
 			channel = def.getChannel(i);
-			if (channel.isActive() != isActive(i)) return false;
+			if (channel.isActive())
+				oldChannels.put(i, channel);
+		}
+		
+		List<Integer> indexes = new ArrayList<Integer>();
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			if (isActive(i)) indexes.add(i);
+		}
+		
+		if (indexes.size() != oldChannels.size()) return false;
+		Iterator<Integer> j = oldChannels.keySet().iterator();
+		int i;
+		while (j.hasNext()) {
+			i = j.next();
+			if (!(indexes.contains(i))) return false;
+			channel = oldChannels.get(i);
 			if (channel.getInputStart() != getChannelWindowStart(i)) 
 				return false;
 			if (channel.getInputEnd() != getChannelWindowEnd(i)) 

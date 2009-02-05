@@ -926,6 +926,7 @@ class ImViewerComponent
 			def = model.getLastMainDef();
 			if (def != null) stop = model.isSameSettings(def);
 		}
+		System.err.println(stop);
 		if (stop) return;
 		if (index == PROJECTION_INDEX) {
 			previewProjection();
@@ -1195,15 +1196,30 @@ class ImViewerComponent
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		//if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
-		int index;
 		List active = model.getActiveChannels();
 		int maxC = model.getMaxC();
 		List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
-
+		List<ChannelData> list = getSortedChannelData();
+		Iterator<ChannelData> i = list.iterator();
+		int k;
+		Iterator w;
 		try {
 			if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
 				active = view.getActiveChannelsInGrid();
 				//Iterator i = active.iterator();
+				while (i.hasNext()) {
+					k = i.next().getIndex();
+					if (active.contains(k)) {
+						model.setChannelActive(k, true);
+						for (int j = 0; j < maxC; j++) {
+							if (j != k) model.setChannelActive(j, false);
+						}
+						images.add(model.getSplitComponentImage());
+					} else {
+						images.add(null);
+					}
+				}
+				/*
 				for (int k = 0; k < maxC; k++) {
 					if (active.contains(k)) {
 						model.setChannelActive(k, true);
@@ -1215,11 +1231,10 @@ class ImViewerComponent
 						images.add(null);
 					}
 				}
-				Iterator i = active.iterator();
-
-				while (i.hasNext()) { //reset values.
-					index = ((Integer) i.next()).intValue();
-					model.setChannelActive(index, true);
+				*/
+				w = active.iterator();
+				while (w.hasNext()) { //reset values.
+					model.setChannelActive((Integer) w.next(), true);
 				}
 				if (active.size() != 0) {
 					model.setColorModel(RGB_MODEL);
@@ -1236,11 +1251,27 @@ class ImViewerComponent
 				active = model.getActiveChannels();
 				i = active.iterator();
 				while (i.hasNext()) { //reset values.
-					index = ((Integer) i.next()).intValue();
+					//index = ((Integer) i.next()).intValue();
 					//01/02 can be a problem
-					model.setChannelActive(index, true);
+					//model.setChannelActive(index, true);
 				}
 			} else {
+				while (i.hasNext()) {
+					k = i.next().getIndex();
+					if (model.isChannelActive(k)) {
+						for (int l = 0; l < maxC; l++) {
+							model.setChannelActive(l, k == l);
+						}
+						images.add(model.getSplitComponentImage());
+						w = active.iterator();
+						while (w.hasNext()) { //reset values.
+							model.setChannelActive((Integer) w.next(), true);
+						}
+					} else {
+						images.add(null);
+					}
+				}
+				/*
 				Iterator i;
 				for (int j = 0; j < maxC; j++) {
 					if (model.isChannelActive(j)) {
@@ -1257,9 +1288,11 @@ class ImViewerComponent
 						images.add(null);
 					}
 				}
+				*/
 			}
 
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			reload(ex);
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1663,8 +1696,15 @@ class ImViewerComponent
 					discard();
 				}
 			} else {
-				un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
-						e.getCause());
+				if (e.getCause() instanceof OutOfMemoryError) {
+					un.notifyInfo("Image", "Due to an out of Memory error, " +
+							"\nit is not possible to render the image.");
+					model.setState(READY);
+					fireStateChange();
+				} else {
+					un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
+							e.getCause());
+				}
 			}
 			newPlane = false;
 		} else if (e instanceof DSOutOfServiceException) {
