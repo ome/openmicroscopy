@@ -179,6 +179,17 @@ public class EditorFactory
 		return editor;
 	}
 	
+	/**
+	 * Returns the number of Editors. 
+	 * Used for incrementing the position on screen of new Editor windows. 
+	 * 
+	 * @return		see above. 
+	 */
+	public static int getEditorCount()
+	{
+		return singleton.editors.size();
+	}
+	
 	/** 
 	 * Adds all the {@link Editor} components that this factory is
 	 * currently tracking to the passed menu.

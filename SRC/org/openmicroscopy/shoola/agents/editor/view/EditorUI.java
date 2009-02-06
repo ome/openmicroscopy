@@ -231,8 +231,11 @@ class EditorUI
 
         this.setLocation(screenSize.width/5, screenSize.height/5);
         */
-    	setSize(1000, 600);
-    	setLocation(200, 100);
+    	int windowCount = EditorFactory.getEditorCount();
+    	int offset = windowCount * 20;
+    	
+    	setSize(1100, 600);
+    	setLocation(150 + offset, 50 + offset);
     	
 		setVisible(true);
     }
