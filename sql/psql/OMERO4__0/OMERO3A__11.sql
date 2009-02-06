@@ -10,6 +10,27 @@
 --
 BEGIN;
 
+-- Check that we are only applying this against OMERO3A__11
+CREATE OR REPLACE FUNCTION omero_assert_omero3a_11() RETURNS void AS '
+DECLARE
+    rec RECORD;
+BEGIN
+
+    SELECT INTO rec *
+           FROM dbpatch
+          WHERE id = ( SELECT id FROM dbpatch ORDER BY id DESC LIMIT 1 )
+            AND currentversion = ''OMERO3A''
+            AND currentpatch = 11;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION ''Current version is not OMERO3A__11! Aborting...'';
+    END IF;
+
+END;' LANGUAGE plpgsql;
+SELECT omero_assert_omero3a_11();
+DROP FUNCTION omero_assert_omero3a_11();
+
+-- For conversion
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              values ('OMERO4',       0,              'OMERO3A',           11);
 
