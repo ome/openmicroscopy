@@ -116,8 +116,16 @@
         <div class="project"><h1>Project: {{ manager.project.fullNameWrapped }} {% if not manager.project.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
             {{ manager.project.description|default_if_none:"no description"|wikify|safe|linebreaks }}
         </div>
+    {% else %}
+        {% if manager.orphaned %}
+        <div class="project"><h1>Orphaned images</h1><p>This is virtual container with orphaned images. These images are not linked anywere. Just copy and paste them to one of the existing container.</p></div>
+        <div class="separate70"></div>
+        {% endif %}
     {% endif %}
 {% endif %}
+
+
+
 {% if manager.dataset %}
     <div class="toolbar">
         | {% if manager.dataset.isOwned %}Select <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}

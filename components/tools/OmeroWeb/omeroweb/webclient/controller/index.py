@@ -38,7 +38,12 @@ class BaseIndex(BaseController):
         self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
     
     def loadMostRecent(self):
-        self.mostRecentSharesComments = list(self.conn.getMostRecentSharesComments())
+        shc = list(self.conn.getMostRecentSharesComments())
+        shc.extend(list(self.conn.getMostRecentComments()))
+        
+        
+        self.mostRecentSharesComments = shc
+        
     
     def loadLastImports(self):
         self.lastImportedImages = list(self.conn.getLastImportedImages())

@@ -1578,39 +1578,32 @@ class BlitzGateway (threading.Thread):
             yield ImageWrapper(self, e)
     
     def getMostRecentSharesComments (self):
-        sh = self.getShareService()
-        shares = sh.getOwnShares(False)
-        shares2 = sh.getMemberShares(False)
-        shares.extend(shares2)
-        if len(shares) > 0:
-            q = self.getQueryService()
-            sql = "select l from SessionAnnotationLink l " \
-                  "join fetch l.details.owner " \
-                  "join fetch l.parent as share " \
-                  "join fetch l.child as comment " \
-                  "join fetch comment.details.owner " \
-                  "join fetch comment.details.creationEvent " \
-                  "where comment.details.owner.id !=:id " \
-                  "and share.id in (:ids) " \
-                  "order by comment.details.creationEvent.time desc"
-            p = omero.sys.Parameters()
-            p.map = {}
-            p.map["id"] = rlong(self.getEventContext().userId)
-            p.map["ids"] = rlist([rlong(long(a.id.val)) for a in shares])
-            f = omero.sys.Filter()
-            f.limit = rint(10)
-            p.theFilter = f
-            for e in q.findAllByQuery(sql, p):
-                yield SessionAnnotationLinkWrapper(self, e)
+        tm = self.getTimelineService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        f = omero.sys.Filter()
+        f.limit = rint(10)
+        p.theFilter = f
+        for e in tm.getMostRecentShareCommentLinks(p):
+            yield SessionAnnotationLinkWrapper(self, e)
+    
+    def getMostRecentComments (self):
+        tm = self.getTimelineService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        f = omero.sys.Filter()
+        f.limit = rint(10)
+        p.theFilter = f
+        for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
+            yield SessionAnnotationLinkWrapper(self, e)
     
     def getDataByPeriod (self, start, end, date_type=None):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["experimenter"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        
         im_list = list()
         ds_list = list()
         pr_list = list()
@@ -1664,45 +1657,8 @@ class BlitzGateway (threading.Thread):
             return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end):
-        from omero_model_EventLogI import EventLogI
-        from omero_model_EventI import EventI
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql1 = "select el from EventLog el left outer join fetch el.event ev " \
-              "where el.entityType in ('ome.model.containers.Dataset', 'ome.model.containers.Project') and " \
-              "(el.action = 'INSERT' or el.action = 'UPDATE') and " \
-              "ev.id in (select id from Event where experimenter.id=:id and time > :start and time < :end)"
-        sql2 = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
-              "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
-        #sql3 = "select el from EventLog el left outer join fetch el.event ev " \
-        #      "where el.entityType = 'ome.model.display.RenderingDef' and el.action = 'INSERT' and el.entityId in" \
-        #      "(select rd from RenderingDef rd where rd.pixels.image in " \
-        #      "(select id from Image i where i.details.owner.id=:id)) and " \
-        #      "ev.id in (select id from Event where time > :start and time < :end)"
-        
-        res1 = q.findAllByQuery(sql1, p)
-        
-        image_list = list()
-        for i in q.findAllByQuery(sql2, p):
-            ev = EventI()
-            ev.setTime(rtime(i.acquisitionDate.val))
-            evl = EventLogI()
-            evl.setEntityId(i.id.val)
-            evl.setEntityType(rstring('ome.model.core.Image'))
-            evl.setAction(rstring('INSERT'))
-            evl.setEvent(ev)
-            image_list.append(evl)
-        res1.extend(image_list)
-        
-        #res3 = q.findAllByQuery(sql3, p)
-        #res1.extend(res3)
-        
-        for e in res1:
+        tm = self.getTimelineService()
+        for e in tm.getEventsByPeriod(rtime(start), rtime(end), None):
             yield EventLogWrapper(self, e)
     
     ##############################################
