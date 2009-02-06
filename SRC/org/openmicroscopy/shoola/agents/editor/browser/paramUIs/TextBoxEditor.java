@@ -170,6 +170,13 @@ public class TextBoxEditor
 		buildUI();
 	}
 	
+	/**
+	 * Returns a reference to the text area used in this component. 
+	 * Allows other classes to set text, change appearance etc. 
+	 * 
+	 * @return	see above. 
+	 */
+	public JTextArea getTextBox() {	return textBox; }
 	
 	/**
 	 * @see ITreeEditComp#getEditDisplayName()

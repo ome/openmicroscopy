@@ -46,6 +46,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -68,11 +69,13 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamEditorDialog;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.TextBoxStep;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
@@ -157,6 +160,12 @@ public class FieldTextArea
 	private Icon 					blankIcon;
 	
 	/**
+	 * This is only used if the Step that this UI displays is a 'Comment' step.
+	 * This text area is displayed below the main description text editor. 
+	 */
+	private JTextArea				commentTextBox;
+	
+	/**
 	 * The HTML tag id to use for displaying the Field Name.
 	 * This needs to be all lower case, since the styleSheet text in the
 	 * HTML header automatically is converted to lower case, but the 
@@ -229,6 +238,14 @@ public class FieldTextArea
 		addParamButton = new CustomButton(addParamIcon);
 		addParamButton.setToolTipText(addParamToolTip);
 		addParamButton.addActionListener(this);
+		
+		if (field instanceof TextBoxStep) {
+			IParam textBoxParam = ((TextBoxStep)field).getTextBoxParam();
+			TextBoxEditor tbe = new TextBoxEditor(textBoxParam);
+			commentTextBox = tbe.getTextBox();
+			tbe.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+			add(tbe, BorderLayout.SOUTH);
+		}
 
 		JPanel buttonContainer = new JPanel(new BorderLayout());
 		buttonContainer.setBackground(null);
@@ -731,6 +748,14 @@ public class FieldTextArea
 		htmlEditor.setText(html);
 		
 		htmlEditor.dataSaved();
+		
+		// if this is a 'Comment Step' it will have a text box that needs update
+		if (field instanceof TextBoxStep) {
+			IParam textBoxParam = ((TextBoxStep)field).getTextBoxParam();
+			String newText = textBoxParam.getAttribute(TextParam.PARAM_VALUE);
+			if (commentTextBox != null)
+				commentTextBox.setText(newText);
+		}
 	}
 
 	/**

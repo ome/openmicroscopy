@@ -75,6 +75,26 @@ public class TextBoxStep
 		addContent(p);
 		
 	}
+	
+	/**
+	 * This returns the single Text-Box parameter of this Step. 
+	 * Should be only 1. But it returns the first one, or null if not found. 
+	 * 
+	 * @return	see above. 
+	 */
+	public IParam getTextBoxParam()
+	{
+		int contentCount = getContentCount();
+		
+		IFieldContent fc;
+		for (int i = 0; i < contentCount; i++) {
+			fc = getContentAt(i);
+			if (fc instanceof TextBoxParam) {
+				return (IParam)fc;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Overridden to return "Comment Step";
