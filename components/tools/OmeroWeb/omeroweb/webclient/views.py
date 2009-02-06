@@ -2005,7 +2005,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
         if not manager.move(parent,source, destination):
-            return False
+            rv = "Error: This action is not possible."
+            return HttpResponse(rv)
         else:
             return HttpResponse()
         try:
@@ -2448,38 +2449,46 @@ def update_basket(request, **kwargs):
                 if ptype == 'image':
                     for index, item in enumerate(request.session['imageInBasket']):
                         if item == prod:
-                            raise AttributeError("This object is already in the basket")
+                            rv = "Error: This object is already in the basket"
+                            return HttpResponse(rv)
                     request.session['imageInBasket'].append(prod)
                 elif ptype == 'dataset':
                     for index, item in enumerate(request.session['datasetInBasket']):
                         if item == prod:
-                            raise AttributeError("This object is already in the basket")
+                            rv = "Error: This object is already in the basket"
+                            return HttpResponse(rv)
                     request.session['datasetInBasket'].append(prod)
                 elif ptype == 'project':
                     for index, item in enumerate(request.session['projectInBasket']):
                         if item == prod:
-                            raise AttributeError("This object is already in the basket")
+                            rv = "Error: This object is already in the basket"
+                            return HttpResponse(rv)
                     request.session['projectInBasket'].append(prod)
                 elif request.REQUEST['productType'] == 'share':
-                    raise AttributeError()
+                    rv = "Error: This action is not available"
+                    return HttpResponse(rv)
             elif action == 'del':
                 if ptype == 'image':
                     try:
                         request.session['imageInBasket'].remove(prod)
                     except:
-                        raise AttributeError()
+                        rv = "Error: could not remove image from the basket."
+                        return HttpResponse(rv)
                 elif ptype == 'dataset':
                     try:
                         request.session['datasetInBasket'].remove(prod)
                     except:
-                        raise AttributeError()
+                        rv = "Error: could not remove dataset from the basket."
+                        return HttpResponse(rv)
                 elif ptype == 'project':
                     try:
                         request.session['projectInBasket'].remove(prod)
                     except:
-                        raise AttributeError()
+                        rv = "Error: could not remove project from the basket."
+                        return HttpResponse(rv)
                 elif request.REQUEST['productType'] == 'share':
-                    raise AttributeError()
+                    rv = "Error: This action is not available"
+                    return HttpResponse(rv)
     total = len(request.session['imageInBasket'])+len(request.session['datasetInBasket'])+len(request.session['projectInBasket'])
     request.session['nav']['basket'] = total
     return HttpResponse(total)
@@ -2490,22 +2499,22 @@ def update_basket(request, **kwargs):
 @isUserConnected
 def update_clipboard(request, **kwargs):
     action = None
-    msg = "Action not available"
+    rv = "Error: Action not available"
     if request.method == 'POST':
         try:
             action = request.REQUEST['action']
         except:
-            raise AttributeError()
+            raise AttributeError("Request error: request['action'] is missed.")
         else:
             if action == 'copy':
                 prod = long(request.REQUEST['productId'])
                 ptype = str(request.REQUEST['productType'])
                 if len(request.session['clipboard']) > 0 and request.session['clipboard'][0] != ptype and request.session['clipboard'][1] != prod:
-                    msg = "This object is already in the clipboard."
-                    raise AttributeError(msg)
+                    rv = "Error: This object is already in the clipboard."
+                    return HttpResponse(rv)
                 else:
                     request.session['clipboard'] = [ptype, prod]
-                    msg = "%s (id:%ld) was copied to clipboard." % (ptype.title(), prod)
+                    rv = "%s (id:%ld) was copied to clipboard." % (ptype.title(), prod)
             elif action == 'paste':
                 destination = [str(request.REQUEST['destinationType']), long(request.REQUEST['destinationId'])]
                 if len(request.session['clipboard']) == 2 :
@@ -2514,19 +2523,26 @@ def update_clipboard(request, **kwargs):
                         conn = kwargs["conn"]
                     except:
                         logger.error(traceback.format_exc())
-
+                    
                     manager = BaseContainer(conn)
                     if request.session['clipboard'][0] == 'dataset' and destination[0] == 'project':
-                        manager.copyDatasetToProject(request.session['clipboard'], destination)
+                        try:
+                            manager.copyDatasetToProject(request.session['clipboard'], destination)
+                        except Exception, x:
+                            return HttpResponse("Error: %s" % (x.__class__.__name__))
                     elif request.session['clipboard'][0] == 'image' and destination[0] == 'dataset':
-                        manager.copyImageToDataset(request.session['clipboard'], destination)
+                        try:
+                            manager.copyImageToDataset(request.session['clipboard'], destination)
+                        except Exception, x:
+                            return HttpResponse("Error: %s" % (x.__class__.__name__))
                     else:
-                        raise AttributeError(msg)
+                        return HttpResponse(rv)
+                    
                     request.session['clipboard'] = []
-                    msg = "Copied successful"
+                    rv = "Copied successful"
                 else:
-                    msg = "Clipboard is empty."
-                    raise AttributeError(msg)
+                    rv = "Error: Clipboard is empty. You need to copy before paste."
+                    return HttpResponse(rv)
             elif action == 'clean':
                 try:
                     del request.session['clipboard']
@@ -2534,8 +2550,9 @@ def update_clipboard(request, **kwargs):
                     logger.error(traceback.format_exc())
 
                 request.session['clipboard'] = []
-                msg = 'Cleapboard is empty.'
-    return HttpResponse(msg)
+                rv = "Cleapboard is empty"
+    
+    return HttpResponse(rv)
 
 @isUserConnected
 def search(request, **kwargs):

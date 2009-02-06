@@ -28,8 +28,15 @@ sys.path.append('icepy')
 sys.path.append('lib')
 
 import cStringIO
-import Image,ImageDraw
 import logging
+
+logger = logging.getLogger('gateway')
+
+try:
+    import Image,ImageDraw
+except:
+    logger.debug(traceback.format_exc())
+
 import threading
 import time
 import traceback
@@ -44,11 +51,13 @@ from omero.rtypes import *
 
 from omero_model_FileAnnotationI import FileAnnotationI
 from omero_model_TagAnnotationI import TagAnnotationI
+from omero_model_DatasetI import DatasetI
+from omero_model_ProjectI import ProjectI
+from omero_model_ImageI import ImageI
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-logger = logging.getLogger('gateway')
 
 TIMEOUT = 580 #sec
 SLEEPTIME = 30
@@ -151,7 +160,7 @@ class BlitzGateway (threading.Thread):
             self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
-            self._proxies['pojos'] = ProxyObjectWrapper(self, 'getPojosService')
+            self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             self._proxies['repository'] = ProxyObjectWrapper(self, 'getRepositoryInfoService')
@@ -160,7 +169,7 @@ class BlitzGateway (threading.Thread):
             self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
             self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
-            #self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
+            self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
             self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
             self._eventContext = self._proxies['admin'].getEventContext()
@@ -201,12 +210,12 @@ class BlitzGateway (threading.Thread):
             self._proxies = {}
             self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
-            self._proxies['pojos'] = ProxyObjectWrapper(self, 'getPojosService')
+            self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
             self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
-            #self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
+            self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._eventContext = self._proxies['admin'].getEventContext()
             self.removeUserGroups()
             self._sessionUuid = self._eventContext.sessionUuid
@@ -298,8 +307,8 @@ class BlitzGateway (threading.Thread):
     def getRepositoryInfoService (self):
         return self._proxies['repository']
     
-    def getPojosService (self):
-        return self._proxies['pojos']
+    def getContainerService (self):
+        return self._proxies['container']
     
     def createRenderingEngine (self):
         return self._proxies['rendering']
@@ -319,8 +328,8 @@ class BlitzGateway (threading.Thread):
     def createThumbnailStore (self):
         return self._proxies['thumbs']
     
-    #def getTimelineService (self):
-    #    return self._proxies['timeline']
+    def getTimelineService (self):
+        return self._proxies['timeline']
     
     def getTypesService(self):
         return self._proxies['types']
@@ -717,7 +726,7 @@ class BlitzGateway (threading.Thread):
 
     #TODO: remove this and replace on view_share_object.
     def loadCustomHierarchy(self, node, nid):
-        q = self.getPojosService()
+        q = self.getContainerService()
         p = omero.sys.Parameters()
         p.map = {} 
         #p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
@@ -727,7 +736,7 @@ class BlitzGateway (threading.Thread):
             yield BlitzObjectWrapper(self, e)
 
     def findContainerHierarchies(self, nid, gid=None):
-        q = self.getPojosService()
+        q = self.getContainerService()
         return q.findContainerHierarchies("Project", [long(nid)], None)
     
     # By tag
@@ -1322,12 +1331,12 @@ class BlitzGateway (threading.Thread):
     
     def getExperimenterPhoto(self, oid=None):
         photo = None
-        pojos = self.getPojosService()
+        container = self.getContainerService()
         try:
             if oid is None:
-                ann = pojos.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
+                ann = container.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
             else:
-                ann = pojos.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
+                ann = container.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
             f = ann.getFile()
             store = self.createRawFileStore()
             store.setFileId(f.id.val)
@@ -1366,8 +1375,8 @@ class BlitzGateway (threading.Thread):
     ##   Counters
     
     def getCollectionCount(self, parent, child, ids):
-        pojos = self.getPojosService()
-        return pojos.getCollectionCount(parent, child, ids, None)
+        container = self.getContainerService()
+        return container.getCollectionCount(parent, child, ids, None)
     
     ################################################
     ##   Enumeration
@@ -1557,7 +1566,7 @@ class BlitzGateway (threading.Thread):
     
     def getLastImportedImages (self):
         q = self.getQueryService()
-        sql = "select i from Image i join fetch i.details.owner join fetch i.details.group where i.details.owner.id =:id and i.details.group.id =:gid order by i.details.creationEvent.time asc"
+        sql = "select i from Image i join fetch i.details.owner join fetch i.details.group where i.details.owner.id =:id and i.details.group.id =:gid order by i.details.creationEvent.time desc"
         p = omero.sys.Parameters()
         p.map = {}
         p.map["id"] = rlong(self.getEventContext().userId)
@@ -1576,14 +1585,14 @@ class BlitzGateway (threading.Thread):
         if len(shares) > 0:
             q = self.getQueryService()
             sql = "select l from SessionAnnotationLink l " \
-                    "join fetch l.details.owner " \
-                    "join fetch l.parent as share " \
-                    "join fetch l.child as comment " \
-                    "join fetch comment.details.owner " \
-                    "join fetch comment.details.creationEvent " \
-                    "where comment.details.owner.id !=:id " \
-                    "and share.id in (:ids) " \
-                    "order by comment.details.creationEvent.time desc"
+                  "join fetch l.details.owner " \
+                  "join fetch l.parent as share " \
+                  "join fetch l.child as comment " \
+                  "join fetch comment.details.owner " \
+                  "join fetch comment.details.creationEvent " \
+                  "where comment.details.owner.id !=:id " \
+                  "and share.id in (:ids) " \
+                  "order by comment.details.creationEvent.time desc"
             p = omero.sys.Parameters()
             p.map = {}
             p.map["id"] = rlong(self.getEventContext().userId)
@@ -1593,125 +1602,66 @@ class BlitzGateway (threading.Thread):
             p.theFilter = f
             for e in q.findAllByQuery(sql, p):
                 yield SessionAnnotationLinkWrapper(self, e)
-            
-    def getImagesByPeriod (self, start, end):
-        '''tm = self.getTimelineService()
-        try:
-            print tm.countByPeriod(['dataset'], rtime(long(start)), rtime(long(end)))
-        except:
-            print traceback.format_exc()
+    
+    def getDataByPeriod (self, start, end, date_type=None):
+        tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["experimenter"] = rlong(self.getEventContext().userId)
-        p.map["startTime"] = rtime(long(start))
-        p.map["endTime"] = rtime(long(end))
+        p.map["start"] = rtime(long(start))
+        p.map["end"] = rtime(long(end))
         
-        for e in tm.getMostRecentObjects(['project', 'dataset', 'image'], p, False):
-            yield ImageWrapper(self, e)'''
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
-              "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
-        for e in q.findAllByQuery(sql, p):
-            yield ImageWrapper(self, e)
+        im_list = list()
+        ds_list = list()
+        pr_list = list()
+        if date_type == 'image':
+            try:
+                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True)['Image']:
+                    im_list.append(ImageWrapper(self, e))
+            except:
+                pass
+        elif date_type == 'dataset':
+            try:
+                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True)['Dataset']:
+                    ds_list.append(DatasetWrapper(self, e))
+            except:
+                pass
+        elif date_type == 'project':
+            try:
+                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True)['Project']:
+                    pr_list.append(ImageWrapper(self, e))
+            except:
+                pass
+        else:
+            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True)
+            try:
+                for e in res['Image']:
+                    im_list.append(ImageWrapper(self, e))
+            except:
+                pass
+            try:
+                for e in res['Dataset']:
+                    ds_list.append(DatasetWrapper(self, e))
+            except:
+                pass
+            try:
+                for e in res['Project']:
+                    pr_list.append(ProjectWrapper(self, e))
+            except:
+                pass
+        return {'project': pr_list, 'dataset':ds_list, 'image':im_list}
     
-    def countImagesByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select i from Image i join fetch i.details.owner join fetch i.details.group " \
-              "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end"
-        res = q.findAllByQuery(sql, p)
-        return len(res)
-    
-    '''def getRenderingDefByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select rd from RenderingDef rd join fetch rd.details.creationEvent join fetch rd.details.owner " \
-              "join fetch rd.details.group left outer join fetch rd.pixels p left outer join fetch p.image i " \
-              "where i.details.owner.id=:id and (rd.details.creationEvent.time > :start or rd.details.updateEvent.time > :start) " \
-              "and (rd.details.creationEvent.time < :end or rd.details.updateEvent.time < :end)"
-        for e in q.findAllByQuery(sql, p):
-            yield RenderingDefWrapper(self, e)
-    
-    def countRenderingDefByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select rd from RenderingDef rd join fetch rd.details.creationEvent join fetch rd.details.owner " \
-              "join fetch rd.details.group left outer join fetch rd.pixels p left outer join fetch p.image i " \
-              "where i.details.owner.id=:id and (rd.details.creationEvent.time > :start or rd.details.updateEvent.time > :start) " \
-              "and (rd.details.creationEvent.time < :end or rd.details.updateEvent.time < :end)"
-        res = q.findAllByQuery(sql, p)
-        return len(res)'''
-    
-    def getDatasetsByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select d from Dataset d join fetch d.details.creationEvent join fetch d.details.owner " \
-              "join fetch d.details.group left outer join fetch d.projectLinks pdl left outer join fetch pdl.parent p " \
-              "where d.details.owner.id=:id and (d.details.creationEvent.time > :start or d.details.updateEvent.time > :start) " \
-              "and (d.details.creationEvent.time < :end or d.details.updateEvent.time < :end)"
-        for e in q.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
-    
-    def countDatasetsByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select d from Dataset d join fetch d.details.creationEvent join fetch d.details.owner " \
-              "join fetch d.details.group left outer join fetch d.projectLinks pdl left outer join fetch pdl.parent p " \
-              "where d.details.owner.id=:id and (d.details.creationEvent.time > :start or d.details.updateEvent.time > :start) " \
-              "and (d.details.creationEvent.time < :end or d.details.updateEvent.time < :end)"
-        res = q.findAllByQuery(sql, p)
-        return len(res)
-    
-    def getProjectsByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select p from Project as p join fetch p.details.creationEvent join fetch p.details.owner join fetch p.details.group " \
-              "where p.details.owner.id=:id and (p.details.creationEvent.time > :start or p.details.updateEvent.time > :start) " \
-              "and (p.details.creationEvent.time < :end or p.details.updateEvent.time < :end)"
-        for e in q.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
-    def countProjectsByPeriod (self, start, end):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
-        sql = "select p from Project as p join fetch p.details.creationEvent join fetch p.details.owner join fetch p.details.group " \
-              "where p.details.owner.id=:id and (p.details.creationEvent.time > :start or p.details.updateEvent.time > :start) " \
-              "and (p.details.creationEvent.time < :end or p.details.updateEvent.time < :end)"
-        res = q.findAllByQuery(sql, p)
-        return len(res)
+    def countDataByPeriod (self, start, end, date_type=None):
+        tm = self.getTimelineService()
+        if date_type == 'image':
+            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)))['Image']
+        elif date_type == 'dataset':
+            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)))['Dataset']
+        elif date_type == 'project':
+            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)))['Project']
+        else:
+            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)))
+            return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end):
         from omero_model_EventLogI import EventLogI
@@ -1972,8 +1922,8 @@ class BlitzObjectWrapper (object):
         if self.child_counter is not None:
             return self.child_counter
         else:
-            pojos = self._conn.getPojosService()
-            m = pojos.getCollectionCount(self._obj.__class__.__name__, (self.LINK_NAME[4].lower()+self.LINK_NAME[5:]), [self._oid], None)
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, (self.LINK_NAME[4].lower()+self.LINK_NAME[5:]), [self._oid], None)
             if m[self._oid] > 0:
                 self.child_counter = m[self._oid]
                 return self.child_counter
@@ -1981,8 +1931,8 @@ class BlitzObjectWrapper (object):
                 return 0
     
     def listAnnotations (self):
-        pojos = self._conn.getPojosService()
-        self.annotations = pojos.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
+        container = self._conn.getContainerService()
+        self.annotations = container.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
         #self.annotationsLoaded = True
         for ann in self.annotations:
             yield AnnotationWrapper(self._conn, ann)
@@ -1991,8 +1941,8 @@ class BlitzObjectWrapper (object):
         if self.annotation_counter is not None:
             return self.annotation_counter
         else:
-            pojos = self._conn.getPojosService()
-            m = pojos.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
             if m[self._oid] > 0:
                 self.annotation_counter = m[self._oid]
                 return self.annotation_counter
@@ -2032,7 +1982,7 @@ class BlitzObjectWrapper (object):
                 if self._obj.details.owner.middleName is not None:
                     middleName = self._obj.details.owner.middleName
                     
-            if middleName != '':
+            if middleName != '' or middleName is not None:
                 name = "%s %s. %s" % (firstName, middleName[:1], lastName)
             else:
                 name = "%s %s" % (firstName, lastName)
@@ -2157,7 +2107,6 @@ class BlitzObjectWrapper (object):
             return self._obj.description.val
     
     def creationEventDate(self):
-        import time
         try:
             if self._obj.details.creationEvent.time is not None:
                 t = self._obj.details.creationEvent.time.val
@@ -2721,7 +2670,12 @@ class ShareWrapper (BlitzObjectWrapper):
         return datetime.fromtimestamp((self._obj.started.val)/1000).strftime("%Y-%m-%d")
         
     def getExpiretionDate(self):
-        return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000).strftime("%Y-%m-%d")
+        try:
+            return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000).strftime("%Y-%m-%d")
+        except ValueError:
+            return "Unknown"
+        except:
+            return None
     
     # Owner methods has to be updated because share.details.owner does not exist. Share.owner.
     def isOwned(self):

@@ -412,38 +412,42 @@ $.fn.simpleTree = function(opt){
 				cache:false,
 				async: false,
 				success: function(responce){
-				    TREE.checkNodeIsLast(dragNode_source[0]);
-        			TREE.checkLineIsLast(node);
-        			
-        			$(node).before(dragNode_source);
-        			$(dragNode_source).before(line);
-        			node.className = node.className.replace('-over','');
-        			var nodeSize = $('>ul >li', parent).not('.line, .line-last').filter(':visible').size();
-        			if(TREE.option.docToFolderConvert && nodeSize==0)
-        			{
-        				TREE.convertToDoc(parent);
-        			}else if(nodeSize==0)
-        			{
-        				parent[0].className=parent[0].className.replace('open','close');
-        				$('>ul',parent).hide();
-        			}
+				    if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                        alert(responce)
+                    } else {
+                        TREE.checkNodeIsLast(dragNode_source[0]);
+        			    TREE.checkLineIsLast(node);
 
-        			// added by Erik Dohmen (2BinBusiness.nl) select node
-        			if($('span:first',dragNode_source).attr('class')=='text')
-        			{
-        				$('.active',TREE).attr('class','text');
-        				$('span:first',dragNode_source).attr('class','active');
-        			}
+            			$(node).before(dragNode_source);
+            			$(dragNode_source).before(line);
+            			node.className = node.className.replace('-over','');
+            			var nodeSize = $('>ul >li', parent).not('.line, .line-last').filter(':visible').size();
+            			if(TREE.option.docToFolderConvert && nodeSize==0)
+            			{
+            				TREE.convertToDoc(parent);
+            			}else if(nodeSize==0)
+            			{
+            				parent[0].className=parent[0].className.replace('open','close');
+            				$('>ul',parent).hide();
+            			}
 
-        			if(typeof(TREE.option.afterMove) == 'function')
-        			{
-        				var pos = $(dragNode_source).prevAll(':not(.line)').size();
-        				TREE.option.afterMove($(node).parents('li:first'), $(dragNode_source), pos);
-        			}
-        			//alert(responce);
+            			// added by Erik Dohmen (2BinBusiness.nl) select node
+            			if($('span:first',dragNode_source).attr('class')=='text')
+            			{
+            				$('.active',TREE).attr('class','text');
+            				$('span:first',dragNode_source).attr('class','active');
+            			}
+
+            			if(typeof(TREE.option.afterMove) == 'function')
+            			{
+            				var pos = $(dragNode_source).prevAll(':not(.line)').size();
+            				TREE.option.afterMove($(node).parents('li:first'), $(dragNode_source), pos);
+            			}
+            			//alert(responce);
+            		}
 				},
 				error: function(responce) {
-            		alert("Could not be moved. You are trying to move to the wrong place or duplicate the same element. If your are trying to move the object with multiple links please check the hierarchy.");
+            		alert("Internal server error.");
 				}
 			});
 		};

@@ -140,7 +140,7 @@ div#view, div#header_name {
 }
 .ui-accordion-header {
     border-bottom: 1px solid #bbb;
-    padding: 5px;
+    padding: 5px 5px 1px 10px;
     display:block;
     height:20px;
     position:relative;

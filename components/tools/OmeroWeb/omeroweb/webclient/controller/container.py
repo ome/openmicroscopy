@@ -1065,7 +1065,7 @@ class BaseContainer(BaseController):
                         self.conn.saveObject(up_dsl)
             elif destination[0] == 'pr':
                 return False
-            elif destination[0] == '0':
+            elif destination[0] == '0' or destination[0] == 'orphan':
                 if parent[0] != destination[0]:
                     up_dsl = None
                     dsls = list(self.conn.getDatasetImageLinks(source[1])) #gets every links for child

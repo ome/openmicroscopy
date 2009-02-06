@@ -8,10 +8,14 @@ function toBasket (productType, productId) {
             data: "action=add&productId="+productId+"&productType="+productType,
             contentType:'html',
             success: function(responce){
-                calculateCartTotal(responce);
+                if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                    alert(responce)
+                } else {
+                    calculateCartTotal(responce);
+                }
             },
             error: function(responce) {
-                alert("This object is already in the basket")
+                alert("Internal server error. Cannot add to basket.")
             }
         });
         
@@ -33,12 +37,16 @@ function fromBasket (productType, productId) {
             contentType:'html',
             cache:false,
             success: function(responce){
-                calculateCartTotal(responce);
-                var rm = "#"+productType+"-"+productId
-                $(rm).remove()
+                if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                    alert(responce)
+                } else {
+                    calculateCartTotal(responce);
+                    var rm = "#"+productType+"-"+productId
+                    $(rm).remove()
+                }
             },
             error: function(responce) {
-                alert("Cannot remove this object")
+                alert("Internal server error. Cannot remove from basket.")
             }
         });
         
@@ -66,7 +74,7 @@ function copyToClipboard (productType, productId) {
                 alert(responce);
             },
             error: function(responce) {
-                alert(responce)
+                alert("Internal server error. Could not copy to clipboard.")
             }
         });
     }
@@ -82,10 +90,14 @@ function pasteFromClipboard (destinationType, destinationId, url) {
             data: "action=paste&destinationId="+destinationId+"&destinationType="+destinationType,
             contentType:'html',
             success: function(responce){
-                window.location = url
+                if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                    alert(responce)
+                } else {
+                    window.location = url
+                }
             },
             error: function(responce) {
-                alert("Could not be pasted. You are trying to copy to the wrong place or duplicate the same element.")
+                alert("Internal server error. Could not be pasted.")
             }
         });
     }

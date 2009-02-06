@@ -31,7 +31,7 @@
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $("#historyTable").tablesorter( {sortList: [[1,0],[3,0]]} ); 
+                $("#historyTable").tablesorter( {sortList: [[3,0]]} ); 
             } 
         );
     </script>
@@ -85,7 +85,7 @@
     {% for c in i.project %}
     <tr> 
         <td class="product"><a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a></td> 
-        <td><a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a>{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+        <td><a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a> <img alt="dataset" title="dataset" src="{% get_webclient_static_url %}/images/folder_image16.png"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
         <td><a href="#" onclick="toBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit12.png" alt="c" title="copy"/></a></td>
         <td>{{ c.creationEventDate }}</td>
         <td>{{ c.details.group.name.val }}</td> 
@@ -94,7 +94,7 @@
     {% for c in i.dataset %}
     <tr> 
         <td class="product"><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a></td> 
-        <td><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a>{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+        <td><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a> <img src="{% get_webclient_static_url %}/images/image16.png" title="image" alt="image"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
         <td><a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit12.png" alt="c" title="copy"/></a></td>
         <td>{{ c.creationEventDate }}</td>
         <td>{{ c.details.group.name.val }}</td> 
