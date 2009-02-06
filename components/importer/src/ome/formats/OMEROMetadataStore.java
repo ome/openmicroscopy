@@ -279,6 +279,14 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     				continue;
     			}
     		}
+    		else if (targetObject instanceof WellSample)
+    		{
+    		    if (referenceObject instanceof Image)
+    		    {
+    		        handleReference((WellSample) targetObject,
+    		                        (Image) referenceObject);
+    		    }
+    		}
     		
 			throw new ApiUsageException(String.format(
 					"Missing reference handler for %s(%s) --> %s(%s) reference.",
@@ -582,6 +590,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private void handleReference(ObjectiveSettings target, Objective reference)
     {
     	target.setObjective(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(WellSample target, Image reference)
+    {
+        target.setImage(reference);
     }
     
     /**
