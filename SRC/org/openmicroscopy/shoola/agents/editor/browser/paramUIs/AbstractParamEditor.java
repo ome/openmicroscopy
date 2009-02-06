@@ -24,7 +24,11 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
 
+import java.awt.Component;
+import java.awt.Container;
+
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -32,6 +36,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 
 /** 
  * This Panel is the abstract superclass of all UI components
@@ -66,7 +71,7 @@ public abstract class AbstractParamEditor
 	 * Or, if multiple attributes are edited, this is updated to the 
 	 * name of the most-recently edited attribute.
 	 */
-	private String 					lastEditedAttribute;
+	private String 					lastEditedAttribute;				
 
 	/**
 	 * Creates an instance.
@@ -82,7 +87,30 @@ public abstract class AbstractParamEditor
 		// default layout is BoxLayout. Can be changed by subclasses if needed
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBackground(null);
+		
+		String paramName = param.getAttribute(AbstractParam.PARAM_NAME);
+		if (paramName != null && paramName.length() > 0) {
+			setToolTipText(paramName);
+		}
 	}
+	
+	/**
+	 * Overrides the {@link Container#add(Component)} method to add 
+	 * the name of the parameter as a toolTipText to this panel's children. 
+	 * 
+	 * @see Container#add(Component)
+	 */
+	public Component add(Component comp) 
+	{
+		if (comp instanceof JComponent) {
+			String paramName = param.getAttribute(AbstractParam.PARAM_NAME);
+			if (paramName != null && paramName.length() > 0) {
+				((JComponent)comp).setToolTipText(paramName);
+			}
+		}
+		return super.add(comp);
+	}
+	
 	
 	/**
 	 * This method can be called from other classes, or called from
