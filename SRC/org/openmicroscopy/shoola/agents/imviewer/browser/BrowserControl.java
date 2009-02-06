@@ -90,7 +90,6 @@ class BrowserControl
 	{
 		String name = evt.getPropertyName();
 		if (ImViewer.COLOR_MODEL_CHANGED_PROPERTY.endsWith(name)) {
-			view.clearGridImages();
 			model.onColorModelChange();
 		}
 	}

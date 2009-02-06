@@ -302,6 +302,7 @@ class BrowserUI
 		vBar.setValue(vBar.getValue()+vValue);
 	}
 
+	/** Clears the grid images. */
 	void clearGridImages() { model.clearGridImages(); }
 	
 	/**

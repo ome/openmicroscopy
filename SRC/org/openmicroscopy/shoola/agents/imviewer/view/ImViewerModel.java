@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -550,7 +551,8 @@ class ImViewerModel
 		if (sortedChannels == null) {
 			ChannelData[] data = currentRndControl.getChannelData();
 			ViewerSorter sorter = new ViewerSorter();
-			sortedChannels = sorter.sort(data);
+			List l = sorter.sort(data);
+			sortedChannels = Collections.unmodifiableList(l);
 		}
 		return sortedChannels;
 	}
@@ -1491,7 +1493,13 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			metadataViewer.activate(getChannelData()); 
+			List<ChannelData> l = new ArrayList<ChannelData>();
+			List<ChannelData> sorted = getChannelData();
+			Iterator<ChannelData> i = sorted.iterator();
+			while (i.hasNext()) {
+				l.add(i.next());
+			}
+			metadataViewer.activate(l); 
 		}
 	}
 

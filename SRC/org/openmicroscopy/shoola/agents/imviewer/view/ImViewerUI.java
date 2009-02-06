@@ -227,8 +227,6 @@ class ImViewerUI
 	 * Split component used to display the image in the top section and the
 	 * history component in the bottom one.
 	 */
-	//private SplitPanel				historySplit;
-
 	private JSplitPane							historySplit;
 	
 	/**

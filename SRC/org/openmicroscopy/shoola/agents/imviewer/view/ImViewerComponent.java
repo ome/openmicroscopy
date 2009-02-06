@@ -160,8 +160,6 @@ class ImViewerComponent
 		UIUtilities.centerAndShow(dialog);
 	}
 
-	
-
 	/**
 	 * Posts a {@link MeasurePlane} event to indicate that a new plane is
 	 * rendered or a new magnification factor has been selected.
@@ -298,7 +296,6 @@ class ImViewerComponent
 		} else if (option == MessageBox.CANCEL) return false;
 		return true;
 	}
-	
 
 	/**
 	 * Notifies that the projected image has been created an asks if the 
@@ -928,7 +925,6 @@ class ImViewerComponent
 			def = model.getLastMainDef();
 			if (def != null) stop = model.isSameSettings(def);
 		}
-		System.err.println(stop);
 		if (stop) return;
 		if (index == PROJECTION_INDEX) {
 			previewProjection();

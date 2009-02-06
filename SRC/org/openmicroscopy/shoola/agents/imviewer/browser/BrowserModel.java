@@ -98,10 +98,7 @@ class BrowserModel
     
     /** The projected image. */
     private BufferedImage		displayedProjectedImage;
-    
-    /** A smaller version (default 50%) of the original image. */
-    //private BufferedImage		annotateImage;
-    
+   
     /** A smaller version (default 50%) of the original image. */
     private BufferedImage		combinedImage;
 
@@ -924,14 +921,6 @@ class BrowserModel
     		j++;
 		}
     	splitImages.add(new SplitImage(combined, COMBINED));
-    	/*
-    	for (int j = 0; j < gridImages.size(); j++) {
-    		n = PREFIX+
-				parent.getChannelMetadata(j).getEmissionWavelength();
-    		splitImages.add(new SplitImage(gridImages.get(j), n));
-		}
-    	splitImages.add(new SplitImage(combined, COMBINED));
-    	*/
     	return splitImages;
     }
     

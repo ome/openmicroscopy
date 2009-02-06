@@ -553,6 +553,6 @@ class BrowserComponent
 	{
 		view.clearGridImages();
 		viewSplitImages();
-		
 	}
+	
 }

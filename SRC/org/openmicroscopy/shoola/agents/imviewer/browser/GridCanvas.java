@@ -81,7 +81,6 @@ class GridCanvas
     	if (n <= 3) row = 2;
     	if (n >= 4) {// && n%2 != 0) {
     		//if (n%2 == 0) n = n+1;
-    		
     		combined = (SplitImage) images.get(images.size()-1);
     		images.remove(images.size()-1);
     	}
