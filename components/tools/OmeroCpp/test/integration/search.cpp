@@ -18,7 +18,7 @@
 #include <omero/model/LongAnnotationI.h>
 #include <omero/model/OriginalFileI.h>
 #include <omero/model/TagAnnotationI.h>
-#include <omero/model/TextAnnotationI.h>
+#include <omero/model/CommentAnnotationI.h>
 
 using namespace std;
 using namespace omero;
@@ -616,7 +616,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     assertAtLeastResults(1, search);
 
     // Finding by superclass
-    TextAnnotationIPtr txtAnn = new TextAnnotationI();
+    CommentAnnotationIPtr txtAnn = new CommentAnnotationI();
     txtAnn->setTextValue(rstring(uuid));
     byAnnotatedWith(search, txtAnn);
     assertResults(1, search);
@@ -1800,17 +1800,17 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
 // bugs
 // =========================================================================
 
-BOOST_AUTO_TEST_CASE( testTextAnnotationDoesntTryToLoadUpdateEvent ) {
+BOOST_AUTO_TEST_CASE( testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     SearchFixture f;
     SearchFixture root("root");
     string uuid = f.uuid();;
-    TextAnnotationIPtr ta = new TextAnnotationI();
+    CommentAnnotationIPtr ta = new CommentAnnotationI();
     ta->setTextValue(rstring(uuid));
-    ta = TextAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(ta));
+    ta = CommentAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(ta));
     root.update()->indexObject(ta);
 
     SearchPrx search = f.search();
-    search->onlyType("TextAnnotation");
+    search->onlyType("CommentAnnotation");
     search->byFullText(uuid);
     assertResults(1, search);
 }
