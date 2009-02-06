@@ -45,7 +45,6 @@
     <constructor-arg>
         <bean class="ome.services.blitz.impl.TimelineI">
             <constructor-arg ref="throttlingStrategy"/>
-            <property name="localQuery" ref="managed-ome.api.IQuery"/>
             <property name="sessionManager" ref="sessionManager"/>
         </bean>
     </constructor-arg>

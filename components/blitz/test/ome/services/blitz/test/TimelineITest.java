@@ -70,7 +70,6 @@ public class TimelineITest extends TestCase {
         user_t = new TimelineI(be);
         user_t.setServiceFactory(user_sf);
         user_t.setSessionManager(sm);
-        user_t.setLocalQuery((LocalQuery) user.managedSf.getQueryService());
 
         root = new ManagedContextFixture(outer);
         // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
@@ -79,7 +78,6 @@ public class TimelineITest extends TestCase {
         root_t = new TimelineI(be);
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);
-        root_t.setLocalQuery((LocalQuery) root.managedSf.getQueryService());
     }
 
     @Override

@@ -7,6 +7,8 @@
 
 package ome.services.blitz.impl;
 
+import static omero.rtypes.rint;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +18,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static omero.rtypes.*;
-
-import ome.api.local.LocalQuery;
+import ome.model.IObject;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.sessions.SessionManager;
+import ome.services.throttling.Adapter;
+import ome.services.util.Executor.SimpleWork;
 import ome.system.Principal;
-import omero.RInt;
+import ome.system.ServiceFactory;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;
@@ -34,15 +36,13 @@ import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareComments;
 import omero.api._ITimelineOperations;
 import omero.model.Event;
-import omero.model.IObject;
 import omero.sys.Filter;
 import omero.sys.Parameters;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -55,11 +55,7 @@ import Ice.Current;
 public class TimelineI extends AbstractAmdServant implements
         _ITimelineOperations, ServiceFactoryAware, BlitzOnly {
 
-    private final static Log log = LogFactory.getLog(TimelineI.class);
-
     protected ServiceFactoryI factory;
-
-    protected LocalQuery query;
 
     protected SessionManager sm;
 
@@ -69,10 +65,6 @@ public class TimelineI extends AbstractAmdServant implements
 
     public void setSessionManager(SessionManager sm) {
         this.sm = sm;
-    }
-
-    public void setLocalQuery(LocalQuery localQuery) {
-        this.query = localQuery;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) {
@@ -161,82 +153,75 @@ public class TimelineI extends AbstractAmdServant implements
     public void countByPeriod_async(final AMD_ITimeline_countByPeriod __cb,
             final List<String> types, final RTime start, final RTime end,
             final Current __current) throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    log.info(" Meth: TimelineI.countByPeriod");
-                    log.info(String.format(" Args: %s, %s, %s", types, start,
-                            end));
-                    final Map<String, Long> returnValue = (Map<String, Long>) do_periodQuery(
-                            true, types, userId(), start, end, Long
-                                    .valueOf(-1L), new IceMapper(
-                                    IceMapper.PRIMITIVE), null);
-                    log.info(" Rslt: " + returnValue);
-                    __cb.ice_response(returnValue);
-                } catch (Exception e) {
-                    log.info(" Excp: " + e);
-                    __cb.ice_exception(e);
-                }
-            }
 
-        });
+        final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE_MAP);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "countByPeriod") {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                return do_periodQuery(true, types, userId(), start, end, Long
+                        .valueOf(-1L), session, null);
+
+            }
+        }));
     }
 
     public void getByPeriod_async(final AMD_ITimeline_getByPeriod __cb,
             final List<String> types, final RTime start, final RTime end,
             final omero.sys.Parameters p, final boolean merge, Current __current)
             throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    log.info(" Meth: TimelineI.getByPeriod");
-                    log.info(String.format(" Args: %s, %s, %s", types, start,
-                            end, p));
-                    
-                    Parameters pWithDefaults = applyDefaults(p);
-                    Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
-                            false, types, userId(), start, end, null,
-                            new IceMapper(IceMapper.FILTERABLE_COLLECTION),
-                            pWithDefaults);
 
-                    if (merge) {
-                        returnValue = merge(returnValue, pWithDefaults);
-                    }
+        final IceMapper mapper = new IceMapper(
+                IceMapper.STRING_FILTERABLE_COLLECTION_MAP);
 
-                    log.info(" Rslt: " + returnValue);
-                    __cb.ice_response(returnValue);
-                } catch (Exception e) {
-                    log.info(" Excp: " + e);
-                    __cb.ice_exception(e);
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getByPeriod") {
+
+            @SuppressWarnings("unchecked")
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                Parameters pWithDefaults = applyDefaults(p);
+                Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
+                        false, types, userId(), start, end, null, session,
+                        pWithDefaults);
+
+                if (merge) {
+                    returnValue = merge(returnValue, pWithDefaults);
                 }
+
+                return returnValue;
             }
 
-        });
+        }));
     }
 
     public void getEventsByPeriod_async(
             final AMD_ITimeline_getEventsByPeriod __cb, final RTime start,
             final RTime end, final omero.sys.Parameters p,
             final Current __current) throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    log.info(" Meth: TimelineI.getEventsByPeriod");
-                    log.info(String.format(" Args: %s, %s", start, end, p));
-                    Map<String, List<Event>> events = (Map<String, List<Event>>) do_periodQuery(
-                            false, Arrays.asList("Event"), userId(), start,
-                            end, null, new IceMapper(
-                                    IceMapper.FILTERABLE_COLLECTION),
-                            applyDefaults(p));
-                    log.info(" Rslt: " + events.get("Event"));
-                    __cb.ice_response(events.get("Event"));
-                } catch (Exception e) {
-                    log.info(" Excp: " + e);
-                    __cb.ice_exception(e);
-                }
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getEventsByPeriod") {
+
+            @SuppressWarnings("unchecked")
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                Map<String, List<Event>> events = (Map<String, List<Event>>) do_periodQuery(
+                        false, Arrays.asList("Event"), userId(), start, end,
+                        null, session, applyDefaults(p));
+                return events.get("Event");
             }
 
-        });
+        }));
     }
 
     public void getMostRecentObjects_async(
@@ -244,50 +229,49 @@ public class TimelineI extends AbstractAmdServant implements
             final List<String> types, final omero.sys.Parameters p,
             final boolean merge, Current __current) throws ServerError {
 
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    Filter theFilter = p == null ? null : p.theFilter;
-                    RInt limit = theFilter == null ? null : theFilter.limit;
-                    RInt offset = theFilter == null ? null : theFilter.offset;
-                    log.info(" Meth: TimelineI.getMostRecentObjects");
-                    log.info(String.format(" Args: %s offset=%s, limit=%s",
-                            types, offset, limit));
-                    
-                    Parameters pWithDefaults = applyDefaults(p);
-                    Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
-                            false, types, userId(), null, null, null,
-                            new IceMapper(IceMapper.FILTERABLE_COLLECTION),
-                            pWithDefaults);
+        final IceMapper mapper = new IceMapper(
+                IceMapper.STRING_FILTERABLE_COLLECTION_MAP);
 
-                    if (merge) {
-                        returnValue = merge(returnValue, pWithDefaults);
-                    }
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getMostRecentObjects") {
 
-                    log.info(" Rslt: " + returnValue);
-                    __cb.ice_response(returnValue);
-                } catch (Exception e) {
-                    log.info(" Excp: " + e);
-                    __cb.ice_exception(e);
+            @SuppressWarnings("unchecked")
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                Parameters pWithDefaults = applyDefaults(p);
+                Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
+                        false, types, userId(), null, null, null, session,
+                        pWithDefaults);
+
+                if (merge) {
+                    returnValue = merge(returnValue, pWithDefaults);
                 }
+
+                return returnValue;
             }
 
-        });
+        }));
     }
 
     public void getMostRecentShareComments_async(
             final AMD_ITimeline_getMostRecentShareComments __cb,
             final omero.sys.Parameters p, Current __current) throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    __cb.ice_response(null);
-                } catch (Exception e) {
-                    __cb.ice_exception(e);
-                }
+
+        final IceMapper mapper = new IceMapper(
+                IceMapper.STRING_FILTERABLE_COLLECTION_MAP);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getMostRecentShareComments") {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return null;
             }
 
-        });
+        }));
     }
 
     // Helpers
@@ -298,10 +282,10 @@ public class TimelineI extends AbstractAmdServant implements
      * Arguments: - parameters : if null, then no setFirst or setMax will be
      * called on query
      */
-    private Map do_periodQuery(final boolean count, final List<String> types,
-            final long userId, final RTime start, final RTime end,
-            final Object missingValue, final IceMapper mapper,
-            final Parameters parameters) throws Ice.UserException {
+    private Map<?, ?> do_periodQuery(final boolean count,
+            final List<String> types, final long userId, final RTime start,
+            final RTime end, final Object missingValue, final Session _s,
+            final Parameters parameters) {
 
         final long activeStart;
         if (start != null) {
@@ -319,59 +303,50 @@ public class TimelineI extends AbstractAmdServant implements
 
         List<String> activeTypes = types;
         if (types == null || types.size() == 0) {
-            activeTypes = new ArrayList(ALLTYPES);
+            activeTypes = new ArrayList<String>(ALLTYPES);
         }
 
         final Map<String, Object> returnValue = new HashMap<String, Object>();
         for (final String type : activeTypes) {
-            HibernateCallback hc = new HibernateCallback() {
-                public Object doInHibernate(org.hibernate.Session _s)
-                        throws org.hibernate.HibernateException,
-                        java.sql.SQLException {
 
-                    String qString = BYPERIOD.get(type);
-                    if (qString == null) {
-                        return missingValue;
-                    } else {
-                        if (count) {
-                            qString = "select count(obj) " + qString;
-                            qString = qString.replaceAll("@FETCH@", "");
-                        } else {
-                            qString = "select obj " + qString;
-                            qString = qString.replaceAll("@FETCH@", "fetch");
-                            String orderBy = ORDERBY.get(type);
-                            if (orderBy != null) {
-                                qString = qString + orderBy;
-                            }
-                        }
-
-                        Query q = _s.createQuery(qString);
-                        q.setParameter("start", new Timestamp(activeStart));
-                        q.setParameter("end", new Timestamp(activeEnd));
-                        q.setParameter("id", userId);
-
-                        if (parameters != null && parameters.theFilter != null) {
-                            Filter f = parameters.theFilter;
-                            if (f.offset != null) {
-                                q.setFirstResult(f.offset.getValue());
-                            }
-
-                            if (f.limit != null) {
-                                q.setMaxResults(f.limit.getValue());
-                            }
-                        }
-
-                        if (count) {
-                            return q.uniqueResult();
-                        } else {
-                            return q.list();
-                        }
+            String qString = BYPERIOD.get(type);
+            if (qString == null) {
+                returnValue.put(type, missingValue);
+            } else {
+                if (count) {
+                    qString = "select count(obj) " + qString;
+                    qString = qString.replaceAll("@FETCH@", "");
+                } else {
+                    qString = "select obj " + qString;
+                    qString = qString.replaceAll("@FETCH@", "fetch");
+                    String orderBy = ORDERBY.get(type);
+                    if (orderBy != null) {
+                        qString = qString + orderBy;
                     }
-                };
-            };
-            Object value = query.execute(hc);
-            value = mapper.mapReturnValue(value);
-            returnValue.put(type, value);
+                }
+
+                Query q = _s.createQuery(qString);
+                q.setParameter("start", new Timestamp(activeStart));
+                q.setParameter("end", new Timestamp(activeEnd));
+                q.setParameter("id", userId);
+
+                if (parameters != null && parameters.theFilter != null) {
+                    Filter f = parameters.theFilter;
+                    if (f.offset != null) {
+                        q.setFirstResult(f.offset.getValue());
+                    }
+
+                    if (f.limit != null) {
+                        q.setMaxResults(f.limit.getValue());
+                    }
+                }
+
+                if (count) {
+                    returnValue.put(type, q.uniqueResult());
+                } else {
+                    returnValue.put(type, q.list());
+                }
+            }
         }
         return returnValue;
     }
@@ -385,29 +360,31 @@ public class TimelineI extends AbstractAmdServant implements
      * Accepts only a properly initialzed {@link Parameters} instance. See
      * {@link #applyDefaults(Parameters)}
      */
-    private Map<String, List<IObject>> merge(Map<String, List<IObject>> toMerge, Parameters p) {
-        
+    private Map<String, List<IObject>> merge(
+            Map<String, List<IObject>> toMerge, Parameters p) {
+
         int limit = p.theFilter.limit.getValue();
-        
+
         class Entry {
             final long updateId;
             final String key;
             final IObject obj;
+
             Entry(String key, IObject obj) {
                 this.key = key;
                 this.obj = obj;
-                this.updateId = obj.getDetails().getUpdateEvent().getId().getValue();
+                this.updateId = obj.getDetails().getUpdateEvent().getId();
             }
         }
-        
+
         List<Entry> list = new ArrayList<Entry>();
         for (String key : toMerge.keySet()) {
             for (IObject obj : toMerge.get(key)) {
                 list.add(new Entry(key, obj));
             }
         }
-        
-        Collections.sort(list, new Comparator<Entry>(){
+
+        Collections.sort(list, new Comparator<Entry>() {
             public int compare(Entry o1, Entry o2) {
                 long u1 = o1.updateId;
                 long u2 = o2.updateId;
@@ -418,7 +395,8 @@ public class TimelineI extends AbstractAmdServant implements
                 } else {
                     return 0;
                 }
-            }});
+            }
+        });
 
         toMerge.clear();
         for (int i = 0; i < Math.min(limit, list.size()); i++) {
@@ -430,7 +408,7 @@ public class TimelineI extends AbstractAmdServant implements
             }
             objs.add(entry.obj);
         }
-        
+
         return toMerge;
     }
 

@@ -186,8 +186,7 @@ public class IceMapper extends ome.util.ModelMapper implements
                     throw new RuntimeException(
                             "Object not nullable primitive: " + value);
                 }
-                Object rv = mapper.findTarget(value);
-                return rv;
+                return value;
             }
         }
     };
@@ -203,18 +202,48 @@ public class IceMapper extends ome.util.ModelMapper implements
                 Map rv = new HashMap();
                 for (Object k : map.keySet()) {
                     Object v = map.get(k);
-                    if (k != null
-                            && !IceMapper.isNullablePrimitive(k.getClass())) {
-                        throw new RuntimeException(
-                                "Key not nullable primitive: " + k);
-                    }
-                    if (v != null
-                            && !IceMapper.isNullablePrimitive(v.getClass())) {
-                        throw new RuntimeException(
-                                "Object not nullable primitive: " + v);
-                    }
-                    Object kr = mapper.findTarget(k);
-                    Object vr = mapper.findTarget(v);
+                    Object kr = PRIMITIVE.mapReturnValue(mapper, k);
+                    Object vr = PRIMITIVE.mapReturnValue(mapper, v);
+                    rv.put(kr, vr);
+                }
+                return rv;
+            }
+        }
+    };
+
+    public final static ReturnMapping FILTERABLE_PRIMITIVE_MAP = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+            if (value == null) {
+                return null;
+            } else {
+                Map map = (Map) value;
+                Map rv = new HashMap();
+                for (Object k : map.keySet()) {
+                    Object v = map.get(k);
+                    Object kr = FILTERABLE.mapReturnValue(mapper, k);
+                    Object vr = PRIMITIVE.mapReturnValue(mapper, v);
+                    rv.put(kr, vr);
+                }
+                return rv;
+            }
+        }
+    };
+
+    public final static ReturnMapping STRING_FILTERABLE_COLLECTION_MAP = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+            if (value == null) {
+                return null;
+            } else {
+                Map map = (Map) value;
+                Map rv = new HashMap();
+                for (Object k : map.keySet()) {
+                    Object v = map.get(k);
+                    Object kr = PRIMITIVE.mapReturnValue(mapper, k);
+                    Object vr = FILTERABLE_COLLECTION.mapReturnValue(mapper, v);
                     rv.put(kr, vr);
                 }
                 return rv;
@@ -395,7 +424,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         EventContext ec = new EventContext();
         Long event = ctx.getCurrentEventId();
         ec.eventId = event == null ? -1 : event;
-        
+
         ec.sessionId = ctx.getCurrentSessionId();
         ec.sessionUuid = ctx.getCurrentSessionUuid();
         ec.eventType = ctx.getCurrentEventType();
@@ -830,11 +859,12 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     protected static boolean isNullablePrimitive(Class<?> p) {
-        if (p.equals(Integer.class) || p.equals(Integer[].class)
-                || p.equals(Long.class) || p.equals(Long[].class)
-                || p.equals(Float.class) || p.equals(Float[].class)
-                || p.equals(Double.class) || p.equals(Double[].class)
-                || p.equals(Boolean.class) || p.equals(Boolean[].class)) {
+        if (p.equals(String.class) || p.equals(Integer.class)
+                || p.equals(Integer[].class) || p.equals(Long.class)
+                || p.equals(Long[].class) || p.equals(Float.class)
+                || p.equals(Float[].class) || p.equals(Double.class)
+                || p.equals(Double[].class) || p.equals(Boolean.class)
+                || p.equals(Boolean[].class)) {
             return true;
         }
         return false;
@@ -932,7 +962,7 @@ public class IceMapper extends ome.util.ModelMapper implements
                     + type);
         }
     }
-    
+
     public Ice.UserException handleException(Throwable t, OmeroContext ctx) {
 
         // Getting rid of the reflection wrapper.
@@ -961,84 +991,83 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
 
         Class c = t.getClass();
-        
+
         if (Ice.UserException.class.isAssignableFrom(c)) {
             return (Ice.UserException) t;
         }
-        
+
         // API USAGE
-       
-        
-        else if (ome.conditions.OptimisticLockException.class.isAssignableFrom(c)) {
+
+        else if (ome.conditions.OptimisticLockException.class
+                .isAssignableFrom(c)) {
             omero.OptimisticLockException ole = new omero.OptimisticLockException();
             return IceMapper.fillServerError(ole, t);
-            
-        } 
-        
+
+        }
+
         else if (ome.conditions.OverUsageException.class.isAssignableFrom(c)) {
             omero.OverUsageException oue = new omero.OverUsageException();
             return IceMapper.fillServerError(oue, t);
-            
-        } 
-        
+
+        }
+
         else if (ome.services.query.QueryException.class.isAssignableFrom(c)) {
             omero.QueryException qe = new omero.QueryException();
             return IceMapper.fillServerError(qe, t);
-            
-        } 
-       
+
+        }
+
         else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
             omero.ValidationException ve = new omero.ValidationException();
             return IceMapper.fillServerError(ve, t);
-            
-        } 
-        
+
+        }
+
         else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
             omero.ApiUsageException aue = new omero.ApiUsageException();
             return IceMapper.fillServerError(aue, t);
         }
-        
+
         // CONCURRENCY
-        
+
         else if (ome.conditions.DatabaseBusyException.class.isAssignableFrom(c)) {
             omero.DatabaseBusyException dbe = new omero.DatabaseBusyException();
             return IceMapper.fillServerError(dbe, t);
         }
-        
+
         else if (ome.conditions.ConcurrencyException.class.isAssignableFrom(c)) {
             omero.ConcurrencyException re = new omero.ConcurrencyException();
             return IceMapper.fillServerError(re, t);
         }
-        
+
         // RESOURCE
-        
+
         else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
         }
-        
+
         // SECURITY
-        
+
         else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
             omero.SecurityViolation sv = new omero.SecurityViolation();
             return IceMapper.fillServerError(sv, t);
         }
 
         // SESSIONS
-        
+
         else if (ome.conditions.RemovedSessionException.class
                 .isAssignableFrom(c)) {
             omero.RemovedSessionException rse = new omero.RemovedSessionException();
             return IceMapper.fillServerError(rse, t);
         }
-        
+
         else if (ome.conditions.SessionTimeoutException.class
                 .isAssignableFrom(c)) {
             omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
             return IceMapper.fillServerError(ste, t);
         }
-        
-        
+
         else if (ome.conditions.AuthenticationException.class
                 .isAssignableFrom(c)) {
             // not an omero.ServerError()
@@ -1046,7 +1075,6 @@ public class IceMapper extends ome.util.ModelMapper implements
                     t.getMessage());
             return ae;
         }
-        
 
         else if (ome.conditions.ExpiredCredentialException.class
                 .isAssignableFrom(c)) {
@@ -1057,12 +1085,12 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
 
         // INTERNAL etc.
-        
+
         else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
             omero.InternalException ie = new omero.InternalException();
             return IceMapper.fillServerError(ie, t);
         }
-        
+
         else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
             // Not returning but logging error message.
             log
