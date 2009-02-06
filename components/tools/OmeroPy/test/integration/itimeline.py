@@ -49,18 +49,22 @@ class TestITimeline(lib.ITest):
         
         dt = datetime.datetime.utcnow()
         t = time.mktime(dt.timetuple())
-        start = t
-        end = t-86400
+        start = t-86400
+        end = t
         
-        self.assert_(len(timeline.countByPeriod(['image'], rtime(long(start)), rtime(long(end))))>0)
+        counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)))
+        self.assert_(counter['Image'] > 0)
         
         p = omero.sys.Parameters()
         p.map = {}
         p.map["experimenter"] = rlong(admin.getEventContext().userId)
-        p.map["startTime"] = rtime(long(start))
-        p.map["endTime"] = rtime(long(end))
+        p.map["start"] = rtime(long(start))
+        p.map["end"] = rtime(long(end))
 
-        self.assert_(len(timeline.getMostRecentObjects(['image'], p, False))>0)
+        res = timeline.getMostRecentObjects(['Image'], p, False)
+        self.assert_(len(res)>0)
+        
+        self.assert_(counter['Image'] == len(res))
         
         self.root.sf.closeOnDestroy()
     
