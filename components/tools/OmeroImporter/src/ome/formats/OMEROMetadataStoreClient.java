@@ -1880,7 +1880,8 @@ public class OMEROMetadataStoreClient
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("plateIndex", plateIndex);
-        indexes.put("wellIndex", wellIndex);  
+        indexes.put("wellIndex", wellIndex); 
+        indexes.put("wellSampleIndex", wellSampleIndex);
         IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
        
         o.LSID = id;
@@ -3458,14 +3459,17 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setWellReagent(String arg0, int arg1, int arg2)
+    public void setWellReagent(String reagent, int plateIndex, int wellIndex)
     {
-
+        LSID key = new LSID(Well.class, plateIndex, wellIndex);
+        referenceCache.put(key, new LSID(reagent));
     }
 
-    public void setWellSampleImageRef(String arg0, int arg1, int arg2, int arg3)
+    public void setWellSampleImageRef(String image, int plateIndex, 
+            int wellIndex, int wellSampleIndex)
     {
-
+        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
+        referenceCache.put(key, new LSID(image));
     }
 
     public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)

@@ -22,5 +22,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="target/libs/omero-client-utils.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
+	<classpathentry kind="lib" path="target/libs/netcdf.jar"/>
+	<classpathentry kind="lib" path="target/libs/bufr.jar"/>
+	<classpathentry kind="lib" path="target/libs/grib.jar"/>
+	<classpathentry kind="lib" path="target/libs/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="target/libs/slf4j-log4j12.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

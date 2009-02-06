@@ -59,6 +59,7 @@ import ome.model.core.PlaneInfo;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
@@ -111,6 +112,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     /** A list of Plates that we have worked on ordered by first access. */
     private List<Plate> plateList = new ArrayList<Plate>();
+
+
+    /** A list of Wells that we have worked on ordered by first access. */
+    private List<Well> wellList = new ArrayList<Well>();
     
     /** A list of lightsource objects */
     private List<Instrument> instrumentList = new ArrayList<Instrument>();
@@ -196,6 +201,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     	else if (sourceObject instanceof Well)
     	{
     	    handle(lsid, (Well) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof WellSample)
+    	{
+    	    handle(lsid, (WellSample) sourceObject, indexes);
     	}
     	else
     	{
@@ -472,6 +481,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private void handle(String LSID, Plate sourceObject,
                         Map<String, Integer> indexes)
     {
+        wellList = new ArrayList<Well>();
         plateList.add(sourceObject);
     }
 
@@ -487,7 +497,25 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                         Map<String, Integer> indexes)
     {
         int plateIndex = indexes.get("plateIndex");
-        getPlate(plateIndex).addWell(sourceObject);   
+        getPlate(plateIndex).addWell(sourceObject);  
+        wellList.add(sourceObject);
+    }
+    
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, WellSample sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int plateIndex = indexes.get("plateIndex");
+        int wellIndex = indexes.get("wellIndex");
+        Well w = getWell(plateIndex, wellIndex);
+        w.addWellSample(sourceObject);
     }
     
     /**
@@ -630,14 +658,27 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /**
      * Returns a Plate model object based on its indexes within the
      * OMERO data model.
-     * @param PlateIndex Plate index.
+     * @param plateIndex Plate index.
      * @return See above.
      */ 
     private Plate getPlate(int plateIndex)
     {
         return plateList.get(plateIndex);
     }
-       
+
+    /**
+     * Returns a Well model object based on its indexes within the
+     * OMERO data model.
+     * @param plateIndex Plate index.
+     * @param wellIndex Well index
+     * @return See above.
+     */ 
+    private Well getWell(int plateIndex, int wellIndex)
+    {
+        return wellList.get(wellIndex);
+ 
+    }
+    
     /**
      * Creates a new instance.
      * 
