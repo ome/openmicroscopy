@@ -74,6 +74,15 @@ public interface ImViewer
 	extends ObservableComponent
 {
 
+	/** The title of the <code>Image</code> view. */
+	public static final String 	TITLE_VIEW_INDEX = "Image";
+	
+	/** The title of the <code>Grid</code> view. */
+	public static final String 	TITLE_GRID_INDEX = "Split";
+	
+	/** The title of the <code>Projection</code> view. */
+	public static final String 	TITLE_PROJECTION_INDEX = "Projection";
+	
     /** 
      * The maximum number of channels before displaying the channels 
      * buttons in a scrollpane.

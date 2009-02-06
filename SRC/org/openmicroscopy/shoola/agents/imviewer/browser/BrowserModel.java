@@ -81,15 +81,6 @@ class BrowserModel
 	/** Gap between the images. */
 	static final int 			GAP = 2;
 	
-	/** The title of the browser. */
-	private static final String TITLE = "View";
-
-	/** The title of the grid view. */
-	private static final String TITLE_GRIDVIEW = "Split";
-	
-	/** The title of the projection view. */
-	private static final String TITLE_PROJECTIONVIEW = "Projection";
-	
     /** Reference to the component that embeds this model. */ 
     private Browser         	component;
     
@@ -574,7 +565,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    String getTitle() { return TITLE; }
+    String getTitle() { return ImViewer.TITLE_VIEW_INDEX; }
     
     /**
      * Returns the icon of the {@link Browser}.
@@ -754,7 +745,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    String getGridViewTitle() { return TITLE_GRIDVIEW; }
+    String getGridViewTitle() { return ImViewer.TITLE_GRID_INDEX; }
     
     /**
      * Returns the icon of the <code>Annotator</code>.
@@ -772,7 +763,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    String getProjectionViewTitle() { return TITLE_PROJECTIONVIEW; }
+    String getProjectionViewTitle() { return ImViewer.TITLE_PROJECTION_INDEX; }
     
     /**
      * Returns the icon of the <code>Annotator</code>.

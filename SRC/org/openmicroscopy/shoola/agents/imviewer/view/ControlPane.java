@@ -140,9 +140,9 @@ class ControlPane
 	
     static {
     	projections = new LinkedHashMap<Integer, String>();
-    	projections.put(ImViewer.MAX_INTENSITY, "Maximum Intensity");
-    	projections.put(ImViewer.MEAN_INTENSITY, "Mean Intensity");
-    	//projections.put(ImViewer.SUM_INTENSITY, "Sum Intensity");
+    	projections.put(ImViewer.MAX_INTENSITY, "Maximum");
+    	projections.put(ImViewer.MEAN_INTENSITY, "Mean");
+    	//projections.put(ImViewer.SUM_INTENSITY, "Sum");
     }
 
     /** Reference to the Control. */
@@ -839,6 +839,7 @@ class ControlPane
     {
     	JPanel bar = new JPanel();
 		bar.setBorder(null);
+		bar.add(new JLabel("Intensity: "));
 		bar.add(projectionTypesBox);
 		bar.add(new JLabel(" Every n-th slice: "));
 		bar.add(projectionFrequency);

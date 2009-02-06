@@ -235,13 +235,13 @@ class ImgSaverUI
     	saveButton.addActionListener(this);
     	saveButton.setActionCommand(""+SAVE);
     	//saveButton.setEnabled(false);
-    	previewButton = new JButton("Preview");
+    	previewButton = new JButton("Preview...");
     	previewButton.addActionListener(this);
     	previewButton.setActionCommand(""+PREVIEW);
     	previewButton.setToolTipText(
     			UIUtilities.formatToolTipText(PREVIEW_TEXT));
     	//previewButton.setEnabled(false);
-    	newFolderButton = new JButton("New Folder");
+    	newFolderButton = new JButton("New Folder...");
     	newFolderButton.addActionListener(this);
     	newFolderButton.setActionCommand(""+NEWFOLDER);
     	newFolderButton.setToolTipText(

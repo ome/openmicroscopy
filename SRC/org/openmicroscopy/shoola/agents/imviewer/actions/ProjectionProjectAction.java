@@ -51,7 +51,7 @@ public class ProjectionProjectAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Project";
+    private static final String NAME = "Project...";
     
     /** The description of the action. */
     private static final String DESCRIPTION = 

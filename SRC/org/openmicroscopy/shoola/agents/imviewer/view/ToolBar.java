@@ -30,6 +30,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -86,9 +87,9 @@ class ToolBar
 
     static {
     	compression = new String[3];
-    	compression[UNCOMPRESSED] = "No compression";
-    	compression[MEDIUM] = "Medium compression";
-    	compression[LOW] = "High compression";
+    	compression[UNCOMPRESSED] = "None";
+    	compression[MEDIUM] = "Medium";
+    	compression[LOW] = "High";
     }
     
     /** Reference to the Control. */
@@ -247,7 +248,11 @@ class ToolBar
 		}
     	
 		bar.add(new JSeparator(JSeparator.VERTICAL));
-		bar.add(UIUtilities.buildComponentPanel(compressionBox));
+		JPanel p = new JPanel();
+		JLabel l = new JLabel("Compression:");
+		p.add(l);
+		p.add(compressionBox);
+		bar.add(UIUtilities.buildComponentPanel(p));
 		compressionBox.setSelectedIndex(view.convertCompressionLevel());
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));

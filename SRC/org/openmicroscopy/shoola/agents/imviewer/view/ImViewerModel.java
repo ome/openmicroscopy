@@ -472,6 +472,7 @@ class ImViewerModel
 	void discard()
 	{
 		state = ImViewer.DISCARDED;
+		if (image == null) return;
 		//Shut down the service
 		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
 		long pixelsID = image.getDefaultPixels().getId();
@@ -1197,13 +1198,13 @@ class ImViewerModel
 		RndProxyDef def = currentRndControl.getRndSettingsCopy();
 		switch (getTabbedIndex()) {
 			case ImViewer.PROJECTION_INDEX:
-				title = "Projection";
+				title = ImViewer.TITLE_PROJECTION_INDEX;
 				img = browser.getProjectedImage();
 				lastProjDef = def;
 				c = Color.GREEN.brighter();
 				break;
 			case ImViewer.VIEW_INDEX:
-				title = "View";
+				title = ImViewer.TITLE_VIEW_INDEX;
 				img = browser.getRenderedImage();
 				lastMainDef = def;
 		}
@@ -1551,6 +1552,8 @@ class ImViewerModel
 	void fireImageProjection(int startZ, int endZ, int stepping, int type, 
 							String typeName, ProjectionRef ref)
 	{
+		startZ = ref.getStartZ();
+		endZ = ref.getEndZ();
 		state = ImViewer.PROJECTING;
 		StringBuffer buf = new StringBuffer();
 		buf.append("Original Image: "+getImageName());

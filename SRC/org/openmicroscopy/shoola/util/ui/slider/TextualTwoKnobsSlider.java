@@ -70,10 +70,10 @@ public class TextualTwoKnobsSlider
 {
 
 	/** Indicates to layout all the components. */
-	private static final int	LAYOUT_ALL = 0;
+	public static final int	LAYOUT_ALL = 0;
 	
 	/** Indicates to layout all the fields only. */
-	private static final int	LAYOUT_FIELDS = 1;
+	public static final int	LAYOUT_FIELDS = 1;
 	
 	/** The id of the action linked to the {@link #startField}. */
 	private static final int 	START = 0;

@@ -46,6 +46,8 @@ import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -224,9 +226,14 @@ class GeneralPaneUI
 				s = "Contained in Datasets";
 				controller.loadChannelData();
 			}
-		}
+		} else if ((refObject instanceof ProjectData) || 
+				(refObject instanceof ScreenData))
+			browserTaskPane.setCollapsed(true);
 		browserTaskPane.setTitle(s);
 		layout.setRow(browserIndex, h);
+		if (h != 0 && !browserTaskPane.isCollapsed()) {
+			loadParents(true);
+		}
 	}
 	
 	/** 

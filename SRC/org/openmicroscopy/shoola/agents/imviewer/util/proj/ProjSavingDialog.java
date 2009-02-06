@@ -129,6 +129,9 @@ public class ProjSavingDialog
 	/** Component to select the time interval. */
 	private TextualTwoKnobsSlider		timeSelection;
 	
+	/** Component to select the z-interval. */
+	private TextualTwoKnobsSlider		zrangeSelection;
+	
 	/** The possible pixels Type. */
 	private JComboBox					pixelsType;
 	
@@ -154,9 +157,13 @@ public class ProjSavingDialog
 	 * @param imageName	The name of the image.
 	 * @param type		The type of projection.
 	 * @param datasets	The collection of datasets hosting the image.
+	 * @param maxZ		The maximum number of z-sections.
+	 * @param startZ	The lower bound of the z-section interval.
+	 * @param endZ		The upper bound of the z-section interval.
 	 */
 	private void initComponents(String imageName, String type, 
-								Collection datasets)
+								Collection datasets, int maxZ, int startZ, 
+								int endZ)
 	{
 		rndSettingsBox = new JCheckBox("Apply same rendering settings");
 		rndSettingsBox.setToolTipText(
@@ -165,9 +172,11 @@ public class ProjSavingDialog
 						"the projected image."));
 		rndSettingsBox.setSelected(true);
 
+		zrangeSelection = new TextualTwoKnobsSlider(1, maxZ, startZ, endZ);
+		zrangeSelection.layoutComponents(TextualTwoKnobsSlider.LAYOUT_FIELDS);
+		
 		timeSelection = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
-		timeSelection.setSliderLabelText("Timepoint:");
-		timeSelection.layoutComponents();
+		timeSelection.layoutComponents(TextualTwoKnobsSlider.LAYOUT_FIELDS);
 		timeSelection.setEnabled(maxT > 1);
 			
 		Map<String, String> map = EditorUtil.PIXELS_TYPE_DESCRIPTION;
@@ -195,14 +204,14 @@ public class ProjSavingDialog
 				"Close the window."));
 		closeButton.setActionCommand(""+CLOSE);
 		closeButton.addActionListener(this);
-		projectButton = new JButton("Project");
+		projectButton = new JButton("Save");
 		projectButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Project the image."));
 		projectButton.setActionCommand(""+PROJECT);
 		projectButton.addActionListener(this);
-		newFolderButton = new JButton("New Dataset");
+		newFolderButton = new JButton("New...");
 		newFolderButton.setToolTipText(UIUtilities.formatToolTipText(
-				"Create a new dataset."));
+				"Create a new Dataset."));
 		newFolderButton.setActionCommand(""+NEWFOLDER);
 		newFolderButton.addActionListener(this);
 		nameField = new JTextField();
@@ -247,12 +256,9 @@ public class ProjSavingDialog
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		//p.add(buildChannelsPanel());
-		//p.add(new JSeparator());
-		if (timeSelection != null) {
-			p.add(buildTimeRangePanel());
-			p.add(new JSeparator());
-		}
+		p.add(buildRangePanel(zrangeSelection, "Z Range: "));
+		p.add(buildRangePanel(timeSelection, "Timepoint: "));
+		p.add(new JSeparator());
 		if (pixelsType != null) {
 			p.add(buildPixelsTypePanel());
 			p.add(new JSeparator());
@@ -265,15 +271,18 @@ public class ProjSavingDialog
 	}
 	
 	/**
-	 * Builds and lays out the channels options.
+	 * Builds and lays out the passed component.
 	 * 
+	 * @param comp The component to lay out.
+	 * @param text The text displayed in front of the component.
 	 * @return See above.
 	 */
-	private JPanel buildTimeRangePanel()
+	private JPanel buildRangePanel(JComponent comp, String text)
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(timeSelection);
+		p.add(new JLabel(text));
+		p.add(UIUtilities.buildComponentPanel(comp));
         return p;
 	}
 	
@@ -302,7 +311,8 @@ public class ProjSavingDialog
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, TableLayout.PREFERRED, height, 5,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
+        				TableLayout.PREFERRED, height, 5,
         				TableLayout.PREFERRED, TableLayout.FILL} }; //rows
         content.setLayout(new TableLayout(tl));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -312,15 +322,17 @@ public class ProjSavingDialog
         content.add(new JLabel(), "0, 2, 1, 2");
         content.add(UIUtilities.setTextFont("Save in "), "0, 3, l, c");
         content.add(UIUtilities.setTextFont("datasets "), "0, 4, l, c");
-    	content.add(new JScrollPane(selectionPane), "1, 3, 1, 5");
+        content.add(UIUtilities.buildComponentPanel(newFolderButton), 
+        		"0, 5, l, c");
+    	content.add(new JScrollPane(selectionPane), "1, 3, 1, 6");
         if (selection != null) {
         	Iterator i = selection.keySet().iterator();
         	while (i.hasNext()) 
         		selectionPane.add((JComponent) i.next());
         }
-        content.add(new JLabel(), "0, 6, 1, 6");
-        content.add(UIUtilities.setTextFont("Parameters "), "0, 7, l, c");
-        content.add(buildParametersPanel(), "1, 7, 1, 8");
+        content.add(new JLabel(), "0, 7, 1, 7");
+        content.add(UIUtilities.setTextFont("Parameters "), "0, 8, l, c");
+        content.add(buildParametersPanel(), "1, 8, 1, 9");
 		return content;
 	}
 	
@@ -336,7 +348,7 @@ public class ProjSavingDialog
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(projectButton);
 		bar.add(Box.createHorizontalStrut(20));
-		
+		/*
 		JPanel controls = new JPanel();
     	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
     	controls.add(Box.createRigidArea(new Dimension(20, 5)));
@@ -344,14 +356,16 @@ public class ProjSavingDialog
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
         p.setOpaque(true);
         controls.add(p);
-        return controls;
+         return controls;
+        */
+		return UIUtilities.buildComponentPanelRight(bar);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, "Set the projection " +
+		TitlePanel tp = new TitlePanel(TITLE, "Set the projection's " +
 				"parameters.", 
 				icons.getIcon(IconManager.PROJECTION_48));
 		Container c = getContentPane();
@@ -377,7 +391,9 @@ public class ProjSavingDialog
 		if (selection != null) {
         	Iterator i = selection.keySet().iterator();
         	while (i.hasNext()) {
-        		selectionPane.add((JCheckBox) i.next());
+        		box = (JCheckBox) i.next();
+        		box.setSelected(false);
+        		selectionPane.add(box);
         	}
         }
 		selection.put(box, d);
@@ -433,6 +449,8 @@ public class ProjSavingDialog
 		ref.setDatasets(datasets);
 		ref.setImageName(nameField.getText());
 		ref.setTInterval(startT, endT);
+		ref.setZInterval(zrangeSelection.getStartValue()-1, 
+				zrangeSelection.getEndValue()-1);
 		ref.setApplySettings(rndSettingsBox.isSelected());
 		firePropertyChange(PROJECTION_PROPERTY, null, ref);
 		close();
@@ -457,13 +475,17 @@ public class ProjSavingDialog
 	 * @param pixelsType	The type of pixels of the original image.
 	 * @param imageName		The name of the original image.
 	 * @param datasets		The datasets containing the image.
+	 * @param maxZ			The maximum number of z-sections.
+	 * @param startZ		The lower bound of the z-section interval.
+	 * @param endZ			The upper bound of the z-section interval.
 	 */
 	public void initialize(int algorithm, int maxT, String pixelsType, 
-						String imageName, Collection datasets)
+						String imageName, Collection datasets, int maxZ, 
+						int startZ, int endZ)
 	{
 		this.maxT = maxT;
 		this.algorithm = algorithm;
-		initComponents(imageName, pixelsType, datasets);
+		initComponents(imageName, pixelsType, datasets, maxZ, startZ, endZ);
 		buildGUI();
 	}
 	

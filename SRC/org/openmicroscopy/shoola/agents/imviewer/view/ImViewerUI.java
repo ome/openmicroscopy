@@ -749,7 +749,7 @@ class ImViewerUI
 	 */
 	private JMenu createShowViewMenu()
 	{
-		JMenu menu = new JMenu("Views");
+		JMenu menu = new JMenu("View");
 		menu.setMnemonic(KeyEvent.VK_S);
 		JMenuItem item = new JMenuItem(
 					controller.getAction(ImViewerControl.TAB_VIEW));
@@ -2111,7 +2111,8 @@ class ImViewerUI
 	{
 		if (model.isPlayingChannelMovie()) return;
 		String title = null;
-		if (model.getHistory() == null) title = "Initial View";
+		if (model.getHistory() == null) 
+			title = "Initial "+ImViewer.TITLE_VIEW_INDEX;
 		HistoryItem node = model.createHistoryItem();
 		if (node == null) return;
 		if (title != null) node.setTitle(title);

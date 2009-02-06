@@ -153,7 +153,8 @@ class ImViewerComponent
 		ProjSavingDialog dialog = new ProjSavingDialog(view);
 		dialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
 				model.getPixelsType(), model.getImageName(), 
-				model.getContainers());
+				model.getContainers(), model.getMaxZ()+1, 
+				view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
 		dialog.addPropertyChangeListener(controller);
 		dialog.pack();
 		UIUtilities.centerAndShow(dialog);
@@ -472,8 +473,8 @@ class ImViewerComponent
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED state.");
 			default:
-				view.deIconify();
-			UIUtilities.centerOnScreen(view);
+				if (view != null) view.deIconify();
+			if (view != null) UIUtilities.centerOnScreen(view);
 		}
 	}
 
@@ -1611,7 +1612,9 @@ class ImViewerComponent
 	 */
 	public ImageIcon getImageIcon()
 	{
-		return new ImageIcon(model.getImageIcon());
+		BufferedImage img = model.getImageIcon();
+		if (img == null) return null;
+		return new ImageIcon(img);
 	}
 
 	/** 
