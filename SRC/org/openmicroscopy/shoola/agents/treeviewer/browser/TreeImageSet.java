@@ -59,7 +59,7 @@ public class TreeImageSet
      * we can't tell if this node is meant to contain {@link TreeImageNode}s
      * or other {@link TreeImageSet}s. 
      */
-    private Boolean     containsImages;
+    //private Boolean     containsImages;
     
     /** Flag to indicate if the children were loaded for that node. */
     private Boolean     childrenLoaded;
@@ -136,8 +136,17 @@ public class TreeImageSet
      */
     public boolean containsImages()
     {
+    	if (childrenDisplay == null || childrenDisplay.size() == 0)
+    		return false;
+    	Iterator<TreeImageDisplay> i = childrenDisplay.iterator();
+    	while (i.hasNext()) {
+			if (i.next() instanceof TreeImageNode) return true;
+		}
+    	return false;
+    	/*
         if (containsImages == null) return false;
         return containsImages.booleanValue();
+        */
     }
 
     /** 

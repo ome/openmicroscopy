@@ -72,8 +72,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -913,8 +911,12 @@ class BrowserUI
 					node = (TreeImageDisplay) root.getChildAt(i);
 					children = node.getChildrenDisplay();
 					j = children.iterator();
-					while (j.hasNext()) 
-						sortNode((TreeImageTimeSet) j.next());
+					TreeImageDisplay child;
+					while (j.hasNext()) {
+						child = (TreeImageDisplay) j.next();
+						if (child instanceof TreeImageTimeSet)
+							sortNode((TreeImageTimeSet) child);
+					}
 				}	       
 				break;
 			default:
