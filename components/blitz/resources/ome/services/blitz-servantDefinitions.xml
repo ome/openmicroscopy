@@ -46,6 +46,7 @@
         <bean class="ome.services.blitz.impl.TimelineI">
             <constructor-arg ref="throttlingStrategy"/>
             <property name="sessionManager" ref="sessionManager"/>
+            <property name="securitySystem" ref="securitySystem"/>
         </bean>
     </constructor-arg>
   </bean>

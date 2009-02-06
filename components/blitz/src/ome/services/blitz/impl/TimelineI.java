@@ -15,10 +15,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import ome.api.IShare;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.SessionAnnotationLink;
+import ome.security.AdminAction;
+import ome.security.SecuritySystem;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -27,13 +34,16 @@ import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
+import omero.ApiUsageException;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;
 import omero.api.AMD_ITimeline_getByPeriod;
 import omero.api.AMD_ITimeline_getEventsByPeriod;
+import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
-import omero.api.AMD_ITimeline_getMostRecentShareComments;
+import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.api._ITimelineOperations;
 import omero.model.Event;
 import omero.sys.Filter;
@@ -59,6 +69,8 @@ public class TimelineI extends AbstractAmdServant implements
 
     protected SessionManager sm;
 
+    protected SecuritySystem ss;
+
     public TimelineI(BlitzExecutor be) {
         super(null, be);
     }
@@ -67,12 +79,26 @@ public class TimelineI extends AbstractAmdServant implements
         this.sm = sm;
     }
 
+    public void setSecuritySystem(SecuritySystem ss) {
+        this.ss = ss;
+    }
+
     public void setServiceFactory(ServiceFactoryI sf) {
         this.factory = sf;
     }
 
     // ~ Service methods
     // =========================================================================
+
+    static final String LOOKUP_SHARE_COMMENTS = "select l from SessionAnnotationLink l "
+            + "join fetch l.details.owner "
+            + "join fetch l.parent as share "
+            + "join fetch l.child as comment "
+            + "join fetch comment.details.owner "
+            + "join fetch comment.details.creationEvent "
+            + "where comment.details.owner.id !=:id "
+            + "and share.id in (:ids) "
+            + "order by comment.details.creationEvent.time desc";
 
     // TODO fix mutability
     static final List<String> ALLTYPES = Arrays.asList("RenderingDef", "Image",
@@ -120,10 +146,8 @@ public class TimelineI extends AbstractAmdServant implements
                 + "left outer join @FETCH@ d.projectLinks pdl "
                 + "left outer join @FETCH@ pdl.parent p "
                 + "where obj.details.owner.id=:id and "
-                + "     (obj.details.creationEvent.time > :start "
-                + "   or obj.details.updateEvent.time " + " > :start) "
-                + "and  (obj.details.creationEvent.time < :end "
-                + "   or obj.details.updateEvent.time < :end)");
+                + "      obj.acquisitionDate > :start "
+                + "and   obj.acquisitionDate < :end ");
         BYPERIOD
                 .put(
                         "Event",
@@ -192,7 +216,7 @@ public class TimelineI extends AbstractAmdServant implements
                         pWithDefaults);
 
                 if (merge) {
-                    returnValue = merge(returnValue, pWithDefaults);
+                    returnValue = mergeMap(returnValue, pWithDefaults);
                 }
 
                 return returnValue;
@@ -246,7 +270,7 @@ public class TimelineI extends AbstractAmdServant implements
                         pWithDefaults);
 
                 if (merge) {
-                    returnValue = merge(returnValue, pWithDefaults);
+                    returnValue = mergeMap(returnValue, pWithDefaults);
                 }
 
                 return returnValue;
@@ -255,20 +279,132 @@ public class TimelineI extends AbstractAmdServant implements
         }));
     }
 
-    public void getMostRecentShareComments_async(
-            final AMD_ITimeline_getMostRecentShareComments __cb,
-            final omero.sys.Parameters p, Current __current) throws ServerError {
+    public void getMostRecentAnnotationLinks_async(
+            final AMD_ITimeline_getMostRecentAnnotationLinks __cb,
+            final List<String> parentTypes, final List<String> childTypes,
+            final List<String> namespaces, final Parameters p,
+            final Current __current) throws ServerError {
 
-        final IceMapper mapper = new IceMapper(
-                IceMapper.STRING_FILTERABLE_COLLECTION_MAP);
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getMostRecentAnnotationLinks") {
+
+            @SuppressWarnings("unchecked")
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                Parameters pWithDefaults = applyDefaults(p);
+                Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
+                List<String> _parentTypes;
+
+                if (parentTypes == null || parentTypes.size() == 0) {
+                    _parentTypes = Arrays.asList("Project", "Dataset", "Image");
+                } else {
+                    _parentTypes = parentTypes;
+                }
+
+                for (String _parentType : _parentTypes) {
+                    QueryBuilder qb = new QueryBuilder();
+                    qb.select("link");
+                    qb.from(_parentType + "AnnotationLink", "link");
+                    qb.join("link.parent", "parent", false, false);
+                    qb.join("link.child", "child", false, false);
+                    qb.join("link.details.creationEvent", "creation", false,
+                            true);
+                    qb.join("link.details.updateEvent", "update", false, true);
+                    qb.where();
+                    qb.and("TRUE = TRUE ");
+                    if (childTypes != null && childTypes.size() > 0) {
+
+                        // WORKAROUND
+                        if (childTypes.size() > 1) {
+                            throw new ome.conditions.ApiUsageException(
+                                    "HHH-879: "
+                                            + "You can only restrict to a "
+                                            + "single annotation type at the moment");
+                        }
+
+                        for (String _childType : childTypes) {
+                            qb.and("child.class = :kls ");
+                            qb.param("kls", _childType);
+                        }
+
+                    }
+
+                    if (namespaces != null && namespaces.size() > 0) {
+                        qb.and(" ( ");
+                        String param = qb.unique_alias("ns");
+                        qb.append("child.ns like :" + param);
+                        qb.param(param, namespaces.get(0));
+                        for (int i = 1; i < namespaces.size(); i++) {
+                            qb.append(" OR ");
+                            String param2 = qb.unique_alias("ns");
+                            qb.append("child.ns like :" + param2);
+                            qb.param(param2, namespaces.get(i));
+                        }
+                        qb.append(" ) ");
+                    }
+                    qb.order("link.details.updateEvent.id", false);
+
+                    Query q = qb.query(session);
+                    applyParameters(p, q);
+                    rv.put(_parentType, q.list());
+                }
+
+                return mergeList(rv, pWithDefaults);
+            }
+
+        }));
+    }
+
+    public void getMostRecentShareCommentLinks_async(
+            AMD_ITimeline_getMostRecentShareCommentLinks __cb, Parameters p,
+            Current __current) throws ServerError {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
                 "getMostRecentShareComments") {
 
             @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return null;
+            public Object doWork(org.hibernate.Session session,
+                    final ServiceFactory sf) {
+
+                IShare sh = sf.getShareService();
+                Set<ome.model.meta.Session> shares = sh.getOwnShares(false);
+                Set<ome.model.meta.Session> shares2 = sh.getMemberShares(false);
+                shares.addAll(shares2);
+
+                if (shares.size() == 0) {
+                    return new ArrayList<Annotation>(); // EARLY EXIT
+                }
+
+                final long userId = sf.getAdminService().getEventContext()
+                        .getCurrentUserId();
+                final Set<Long> ids = new HashSet<Long>();
+                for (ome.model.meta.Session s : shares) {
+                    ids.add(s.getId());
+                }
+
+                final ome.parameters.Parameters p = new ome.parameters.Parameters();
+                p.addId(userId);
+                p.addIds(ids);
+                p.setFilter(new ome.parameters.Filter().page(0, 10));
+
+                final List<SessionAnnotationLink> rv = new ArrayList<SessionAnnotationLink>();
+                ss.runAsAdmin(new AdminAction() {
+                    public void runAsAdmin() {
+                        List<SessionAnnotationLink> links = sf
+                                .getQueryService().findAllByQuery(
+                                        LOOKUP_SHARE_COMMENTS, p);
+                        rv.addAll(links);
+                    }
+                });
+
+                return rv;
             }
 
         }));
@@ -330,16 +466,7 @@ public class TimelineI extends AbstractAmdServant implements
                 q.setParameter("end", new Timestamp(activeEnd));
                 q.setParameter("id", userId);
 
-                if (parameters != null && parameters.theFilter != null) {
-                    Filter f = parameters.theFilter;
-                    if (f.offset != null) {
-                        q.setFirstResult(f.offset.getValue());
-                    }
-
-                    if (f.limit != null) {
-                        q.setMaxResults(f.limit.getValue());
-                    }
-                }
+                applyParameters(parameters, q);
 
                 if (count) {
                     returnValue.put(type, q.uniqueResult());
@@ -351,31 +478,38 @@ public class TimelineI extends AbstractAmdServant implements
         return returnValue;
     }
 
+    private void applyParameters(final Parameters parameters, Query q) {
+        if (parameters != null && parameters.theFilter != null) {
+            Filter f = parameters.theFilter;
+            if (f.offset != null) {
+                q.setFirstResult(f.offset.getValue());
+            }
+
+            if (f.limit != null) {
+                q.setMaxResults(f.limit.getValue());
+            }
+        }
+    }
+
     private long userId() {
         String session = this.factory.sessionId().name;
         return sm.getEventContext(new Principal(session)).getCurrentUserId();
     }
 
-    /**
-     * Accepts only a properly initialzed {@link Parameters} instance. See
-     * {@link #applyDefaults(Parameters)}
-     */
-    private Map<String, List<IObject>> merge(
-            Map<String, List<IObject>> toMerge, Parameters p) {
+    static class Entry {
+        final long updateId;
+        final String key;
+        final IObject obj;
 
-        int limit = p.theFilter.limit.getValue();
-
-        class Entry {
-            final long updateId;
-            final String key;
-            final IObject obj;
-
-            Entry(String key, IObject obj) {
-                this.key = key;
-                this.obj = obj;
-                this.updateId = obj.getDetails().getUpdateEvent().getId();
-            }
+        Entry(String key, IObject obj) {
+            this.key = key;
+            this.obj = obj;
+            this.updateId = obj.getDetails().getUpdateEvent().getId();
         }
+    }
+
+    private List<Entry> mergeEntries(Map<String, List<IObject>> toMerge,
+            Parameters p) {
 
         List<Entry> list = new ArrayList<Entry>();
         for (String key : toMerge.keySet()) {
@@ -398,7 +532,39 @@ public class TimelineI extends AbstractAmdServant implements
             }
         });
 
+        return list;
+    }
+
+    /**
+     * Accepts only a properly initialzed {@link Parameters} instance. See
+     * {@link #applyDefaults(Parameters)}
+     */
+    private List<IObject> mergeList(Map<String, List<IObject>> toMerge,
+            Parameters p) {
+
+        List<Entry> list = mergeEntries(toMerge, p);
+        List<IObject> rv = new ArrayList<IObject>();
+        int limit = p.theFilter.limit.getValue();
+
+        for (int i = 0; i < Math.min(limit, list.size()); i++) {
+            Entry entry = list.get(i);
+            rv.add(entry.obj);
+        }
+
+        return rv;
+    }
+
+    /**
+     * Accepts only a properly initialzed {@link Parameters} instance. See
+     * {@link #applyDefaults(Parameters)}
+     */
+    private Map<String, List<IObject>> mergeMap(
+            Map<String, List<IObject>> toMerge, Parameters p) {
+
+        List<Entry> list = mergeEntries(toMerge, p);
         toMerge.clear();
+
+        int limit = p.theFilter.limit.getValue();
         for (int i = 0; i < Math.min(limit, list.size()); i++) {
             Entry entry = list.get(i);
             List<IObject> objs = toMerge.get(entry.key);
@@ -428,4 +594,5 @@ public class TimelineI extends AbstractAmdServant implements
 
         return p;
     }
+
 }

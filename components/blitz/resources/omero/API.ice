@@ -514,6 +514,15 @@ module omero {
 	 * applies to each object independently (["a","b"] @ 100 == 200) or merges
 	 * the lists together chronologically (["a","b"] @ 100 merged == 100).
 	 *
+	 * Time used:
+	 * =========
+	 * Except for Image, IObject.details.updateEvent is used in all cases for
+	 * determining most recent events. Images are compared via
+	 * Image.acquisitionDate which is unlike the other properties is modifiable
+	 * by the user.
+	 *
+	 *
+	 *
 	 * A typical invocation might look like (in Python):
 	 *
 	 *     timeline = sf.getTimelineService()
@@ -530,16 +539,32 @@ module omero {
 	 */
 	["ami", "amd"] interface ITimeline extends ServiceInterface {
 
-	    /*
-	     * Return the last LIMIT comment annotations attached to a share.
-	     *
-	     * Note: Currently the storage of these objects is not optimal
-	     * and so this method may change. Most likely for something of
-	     * the form: getMostRecentAnnotations(string namespace, int limit)
-	     */
-	    AnnotationList
-		getMostRecentShareComments(omero::sys::Parameters p)
-		throws ServerError;
+        /*
+         * Return the last LIMIT annotation __Links__ whose parent (IAnnotated)
+         * matches one of the parentTypes, whose child (Annotation) matches one
+         * of the childTypes (limit of one for the moment), and who namespace
+         * matches via ILIKE.
+         *
+         * The parents and children will be unloaded. The link will have
+         * its creation/update events loaded.
+         *
+         * Merges by default based on parentType.
+         */
+        IObjectList
+        getMostRecentAnnotationLinks(StringSet parentTypes, StringSet childTypes,
+                                     StringSet namespaces, omero::sys::Parameters p)
+        throws ServerError;
+
+        /*
+         * Return the last LIMIT comment annotation links attached to a share by
+         * __others__.
+         *
+         * Note: Currently the storage of these objects is not optimal
+         * and so this method may change.
+         */
+        IObjectList
+        getMostRecentShareCommentLinks(omero::sys::Parameters p)
+        throws ServerError;
 
 	    /*
 	     * Returns the last LIMIT objects of TYPES as ordered by

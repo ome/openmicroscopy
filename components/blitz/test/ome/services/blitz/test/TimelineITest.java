@@ -16,9 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
+import static omero.rtypes.*;
 import ome.api.local.LocalQuery;
+import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.LongAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
+import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.TimelineI;
 import ome.services.blitz.util.BlitzExecutor;
@@ -30,9 +35,13 @@ import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;
 import omero.api.AMD_ITimeline_getByPeriod;
 import omero.api.AMD_ITimeline_getEventsByPeriod;
+import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
+import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
+import omero.model.CommentAnnotationI;
 import omero.model.Event;
 import omero.model.IObject;
+import omero.model.ImageI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
@@ -47,6 +56,7 @@ public class TimelineITest extends TestCase {
     ServiceFactoryI user_sf, root_sf;
     TimelineI user_t, root_t;
     SessionManager sm;
+    SecuritySystem ss;
     LocalQuery query;
 
     @Override
@@ -56,12 +66,14 @@ public class TimelineITest extends TestCase {
 
         // Shared
         OmeroContext inner = OmeroContext.getManagedServerContext();
-        OmeroContext outer = new OmeroContext(new String[]{"classpath:omero/test2.xml"}, false);
+        OmeroContext outer = new OmeroContext(
+                new String[] { "classpath:omero/test2.xml" }, false);
         outer.setParent(inner);
         outer.afterPropertiesSet();
-        
+
         BlitzExecutor be = new InThreadThrottlingStrategy();
         sm = (SessionManager) outer.getBean("sessionManager");
+        ss = (SecuritySystem) outer.getBean("securitySystem");
 
         user = new ManagedContextFixture(outer);
         String name = user.loginNewUserNewGroup();
@@ -70,6 +82,7 @@ public class TimelineITest extends TestCase {
         user_t = new TimelineI(be);
         user_t.setServiceFactory(user_sf);
         user_t.setSessionManager(sm);
+        user_t.setSecuritySystem(ss);
 
         root = new ManagedContextFixture(outer);
         // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
@@ -78,6 +91,7 @@ public class TimelineITest extends TestCase {
         root_t = new TimelineI(be);
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);
+        root_t.setSecuritySystem(ss);
     }
 
     @Override
@@ -204,6 +218,72 @@ public class TimelineITest extends TestCase {
         assertEquals(1, rv.get("Image").size());
     }
 
+    @Test
+    public void testMostRecentShareComments() throws Exception {
+
+        ParametersI justOne = new ParametersI();
+        justOne.page(0, 1);
+
+        // we'll assume that this user has no share comments for the moment
+        assertEquals(0, assertShareComments(justOne).size());
+
+        // Now create a share and add stuff to it
+        String owner = user.getCurrentUser();
+        long shareId = user.managedSf.getShareService().createShare("", null,
+                null, null, null, true);
+        user.managedSf.getShareService().addComment(shareId, "hi");
+
+        // Still should return nothing
+        assertEquals(0, assertShareComments(justOne).size());
+
+        // After a member adds, something should be returned
+        String member = user.loginNewUserNewGroup();
+        user.managedSf.getShareService().addComment(shareId, "me too");
+        user.setCurrentUser(owner);
+        assertEquals(1, assertShareComments(justOne).size());
+
+    }
+
+    @Test
+    public void testMostRecentAnnotations() throws Exception {
+
+        List<IObject> baseLineAll = assertAnnotations(null, null, null, null);
+
+        List<IObject> baseLineImage = assertAnnotations(Arrays.asList("Image"),
+                null, null, null);
+
+        List<IObject> baseLineDataset = assertAnnotations(Arrays
+                .asList("Dataset"), null, null, null);
+
+        List<IObject> baseLineComments = assertAnnotations(null, Arrays
+                .asList(CommentAnnotation.class.getName()), null, null);
+
+        // Now add two annotations
+        Image i = new Image();
+        i.setName("now");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
+        i.linkAnnotation(new CommentAnnotation());
+        i.linkAnnotation(new LongAnnotation());
+        i = user.managedSf.getUpdateService().saveAndReturnObject(i);
+
+        // There should be at least two more
+        List<IObject> twoMore = assertAnnotations(null, null, null, null);
+        assertEquals(baseLineAll.size() + 2, twoMore.size());
+
+        // And there should be two more Images, but no more datasets
+        List<IObject> twoMoreImages = assertAnnotations(Arrays.asList("Image"),
+                null, null, null);
+        List<IObject> noMoreDatasets = assertAnnotations(Arrays
+                .asList("Dataset"), null, null, null);
+        assertEquals(baseLineImage.size() + 2, twoMoreImages.size());
+        assertEquals(baseLineDataset.size(), noMoreDatasets.size());
+
+        // Filter out only Comments
+        List<IObject> oneMore = assertAnnotations(null, Arrays
+                .asList(CommentAnnotation.class.getName()), null, null);
+        assertEquals(baseLineComments.size() + 1, oneMore.size());
+    }
+
     // Helpers
     // =========================================================================
 
@@ -292,6 +372,54 @@ public class TimelineITest extends TestCase {
                         rv.putAll(__ret);
                     }
                 }, types, p, merge, null);
+        assertFalse("exception thrown: " + exc[0], status[0]);
+        assertTrue("didn't pass", status[1]);
+        return rv;
+    }
+
+    private List<IObject> assertAnnotations(List<String> parents,
+            List<String> children, List<String> namespaces, Parameters p)
+            throws ServerError {
+        final boolean[] status = new boolean[] { false, false };
+        final Exception[] exc = new Exception[1];
+        final List<IObject> rv = new ArrayList<IObject>();
+        user_t.getMostRecentAnnotationLinks_async(
+                new AMD_ITimeline_getMostRecentAnnotationLinks() {
+
+                    public void ice_exception(Exception ex) {
+                        status[0] = true;
+                        exc[0] = ex;
+                    }
+
+                    public void ice_response(List<IObject> __ret) {
+                        status[1] = true;
+                        rv.addAll(__ret);
+                    }
+                }, parents, children, namespaces, p, null);
+
+        assertFalse("exception thrown: " + exc[0], status[0]);
+        assertTrue("didn't pass", status[1]);
+        return rv;
+    }
+
+    private List<IObject> assertShareComments(Parameters p) throws ServerError {
+        final boolean[] status = new boolean[] { false, false };
+        final Exception[] exc = new Exception[1];
+        final List<IObject> rv = new ArrayList<IObject>();
+        user_t.getMostRecentShareCommentLinks_async(
+                new AMD_ITimeline_getMostRecentShareCommentLinks() {
+
+                    public void ice_exception(Exception ex) {
+                        status[0] = true;
+                        exc[0] = ex;
+                    }
+
+                    public void ice_response(List<IObject> __ret) {
+                        status[1] = true;
+                        rv.addAll(__ret);
+                    }
+                }, p, null);
+
         assertFalse("exception thrown: " + exc[0], status[0]);
         assertTrue("didn't pass", status[1]);
         return rv;
