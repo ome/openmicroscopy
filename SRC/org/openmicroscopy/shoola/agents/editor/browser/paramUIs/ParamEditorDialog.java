@@ -45,7 +45,6 @@ import javax.swing.JDialog;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.XMLParamDialog.WindowListener;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 

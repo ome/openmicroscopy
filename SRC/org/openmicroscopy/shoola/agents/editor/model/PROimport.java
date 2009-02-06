@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,17 +123,24 @@ public class PROimport {
 		 Field field = new Field();
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
 		 
-		 // Create a "Custom XML" content, to hold all other attributes,
-		 XMLFieldContent content = new XMLFieldContent(allAttributes);
-		 
-		 // and text content, if any exists. 
+		// and text content, if any exists. 
 		 String textContent = element.getContent();
 		 if ((textContent != null) && (textContent.trim().length() > 0)) {
-			 content.setTextContent(textContent);
+			 field.addContent(new TextContent(textContent));
 		 }
 		 
-		 // add the XML content to the field
-		 field.addContent(content);
+		 // for each attribute/value pair, create a text parameter. 
+		 String name, value;
+		 IParam param;
+		 Iterator<String> i = allAttributes.keySet().iterator();
+		 while (i.hasNext()) {
+			 name = i.next();
+			 value = allAttributes.get(name);
+			 param = getFieldParam(TextParam.TEXT_LINE_PARAM);
+			 param.setAttribute(AbstractParam.PARAM_NAME, name);
+			 param.setAttribute(TextParam.PARAM_VALUE, value);
+			 field.addContent(param);
+		 }
 		 
 		 return field;
 	}

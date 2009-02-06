@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamUIFactory;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamValuesTable;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.XMLParamButton;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
@@ -66,7 +65,6 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
-import org.openmicroscopy.shoola.agents.editor.model.XMLFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldTableEdit;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
@@ -344,12 +342,7 @@ public class FieldPanel
 					if (edit != null) {
 						addFieldComponent(edit);
 					}
-				} else 
-				// if this is a 'custom' XML element, add button to show dialog
-				if (content instanceof XMLFieldContent) {
-					edit = new XMLParamButton(content, this);
-					addFieldComponent(edit);
-				}
+				} 
 			}
 		}
 	}
