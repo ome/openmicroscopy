@@ -106,35 +106,34 @@ public class TimelineI extends AbstractAmdServant implements
     static final Map<String, String> ORDERBY = new HashMap<String, String>();
     static final Map<String, String> BYPERIOD = new HashMap<String, String>();
     static {
+        
+        String WHERE_OBJ_DETAILS = "where obj.details.owner.id=:id and "
+            + "    (obj.details.creationEvent.time >= :start "
+            + "  or obj.details.updateEvent.time  >= :start) "
+            + "and (obj.details.creationEvent.time <= :end"
+            + " or obj.details.updateEvent.time <= :end )";
+        
         BYPERIOD.put("Project", "from Project obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group "
-                + "where obj.details.owner.id=:id and "
-                + "    (obj.details.creationEvent.time > :start "
-                + "  or obj.details.updateEvent.time  > :start) "
-                + "and (obj.details.creationEvent.time < :end"
-                + " or obj.details.updateEvent.time < :end )");
+                + WHERE_OBJ_DETAILS);
         BYPERIOD.put("Dataset", "from Dataset obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group "
                 + "left outer join @FETCH@ obj.projectLinks pdl "
                 + "left outer join @FETCH@ pdl.parent p "
-                + "where obj.details.owner.id=:id and "
-                + "     (obj.details.creationEvent.time > :start "
-                + "   or obj.details.updateEvent.time > :start) "
-                + "and  (obj.details.creationEvent.time < :end "
-                + "   or obj.details.updateEvent.time < :end)");
+                + WHERE_OBJ_DETAILS);
         BYPERIOD.put("RenderingDef", "from RenderingDef obj join @FETCH@ "
                 + "obj.details.creationEvent join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group left outer join @FETCH@ "
                 + "obj.pixels p left outer join @FETCH@ p.image i "
                 + "where i.details.owner.id=:id and"
-                + "    (obj.details.creationEvent.time > :start "
-                + "  or obj.details.updateEvent.time > :start) "
-                + "and (obj.details.creationEvent.time < :end "
-                + "  or obj.details.updateEvent.time < :end) ");
+                + "    (obj.details.creationEvent.time >= :start "
+                + "  or obj.details.updateEvent.time >= :start) "
+                + "and (obj.details.creationEvent.time <= :end "
+                + "  or obj.details.updateEvent.time <= :end) ");
         ORDERBY.put("RenderingDef",
                 "order by i.details.creationEvent.time desc");
         BYPERIOD.put("Image", "from Image obj "
@@ -146,8 +145,8 @@ public class TimelineI extends AbstractAmdServant implements
                 + "left outer join @FETCH@ d.projectLinks pdl "
                 + "left outer join @FETCH@ pdl.parent p "
                 + "where obj.details.owner.id=:id and "
-                + "      obj.acquisitionDate > :start "
-                + "and   obj.acquisitionDate < :end ");
+                + "      obj.acquisitionDate >= :start "
+                + "and   obj.acquisitionDate <= :end ");
         BYPERIOD
                 .put(
                         "Event",
@@ -160,17 +159,17 @@ public class TimelineI extends AbstractAmdServant implements
                                 + "    and ev.id in (     "
                                 + "        select id from Event where "
                                 + "        experimenter.id=:id "
-                                + "        and time > :start and time < :end)"
+                                + "        and time >= :start and time <= :end)"
                                 + ") OR (             "
                                 + "    obj.entityType = 'ome.model.display.RenderingDef' "
                                 + "    and obj.entityId in ("
                                 + "        select rd from RenderingDef rd where "
                                 + "            rd.pixels.image  in ("
                                 + "                select id from Image i where"
-                                + "                i.details.owner.id=:id))"
+                                + "                i.details.owner.id = :id))"
                                 + "    and ev.id in ("
                                 + "        select id from Event where     "
-                                + "        time > :start and time < :end)"
+                                + "        time >= :start and time <= :end)"
                                 + ")               ");
     }
 

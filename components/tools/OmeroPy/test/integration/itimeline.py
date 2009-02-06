@@ -27,15 +27,20 @@ from omero.rtypes import *
 class TestITimeline(lib.ITest):
 
     def testGeneral(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
-        update = self.root.sf.getUpdateService()
-        timeline = self.root.sf.getTimelineService()
+        user = self.new_user().omeName.val
+        client = omero.client()
+        sf = client.createSession(user, "")
+
+        uuid = sf.getAdminService().getEventContext().sessionUuid
+        admin = sf.getAdminService()
+        update = sf.getUpdateService()
+        timeline = sf.getTimelineService()
         
         # create image
+        acquired = long(time.time()*1000)
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
+        img.setAcquisitionDate(rtime(acquired))
         
         # permission 'rw----':
         img.details.permissions.setUserRead(True)
@@ -47,13 +52,12 @@ class TestITimeline(lib.ITest):
         img = update.saveAndReturnObject(img)
         img.unload()
         
-        dt = datetime.datetime.utcnow()
-        t = time.mktime(dt.timetuple())
-        start = t-86400
-        end = t
+        # Here we assume that this test is not run within the last 1 second
+        start = acquired - 86400
+        end = acquired + 1
         
         counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)))
-        self.assert_(counter['Image'] > 0)
+        self.assertEquals(counter['Image'], 1)
         
         p = omero.sys.Parameters()
         p.map = {}
@@ -61,10 +65,8 @@ class TestITimeline(lib.ITest):
         p.map["start"] = rtime(long(start))
         p.map["end"] = rtime(long(end))
 
-        res = timeline.getMostRecentObjects(['Image'], p, False)
-        self.assert_(len(res)>0)
-        
-        self.assert_(counter['Image'] == len(res))
+        res = timeline.getMostRecentObjects(['Image'], p, False)["Image"]
+        self.assertEquals(1, len(res))
         
         self.root.sf.closeOnDestroy()
     
