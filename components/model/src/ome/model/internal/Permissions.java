@@ -682,7 +682,7 @@ public class Permissions implements Serializable {
      * value in all persistent classes. It revokes {@link Right#WRITE} to both
      * {@link Role#GROUP} and {@link Role#WORLD}
      */
-    public final static Permissions DEFAULT = USER_WRITEABLE;
+    public final static Permissions DEFAULT = USER_PRIVATE;
 
     /**
      * an immutable {@link Permissions} instance with all {@link Right#WRITE}

@@ -20,9 +20,9 @@ class TestPermissions(unittest.TestCase):
         # The default
         self.assert_( self.p.isUserRead() )
         self.assert_( self.p.isUserWrite() )
-        self.assert_( self.p.isGroupRead() )
+        self.assert_( not self.p.isGroupRead() )
         self.assert_( not  self.p.isGroupWrite() )
-        self.assert_( self.p.isWorldRead() )
+        self.assert_( not self.p.isWorldRead() )
         self.assert_( not  self.p.isWorldWrite() )
         self.assert_( not  self.p.isLocked() ) # flags reversed
 

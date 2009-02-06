@@ -37,8 +37,8 @@ public class PermissionsITest extends TestCase {
         pI = new PermissionsI();
         assertTrue(pI.isUserRead());
         assertTrue(pI.isUserWrite());
-        assertTrue(pI.isGroupRead());
-        assertTrue(pI.isWorldRead());
+        assertFalse(pI.isGroupRead());
+        assertFalse(pI.isWorldRead());
         assertFalse(pI.isGroupWrite());
         assertFalse(pI.isWorldWrite());
         assertFalse(pI.isLocked());

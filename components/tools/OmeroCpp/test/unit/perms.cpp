@@ -17,9 +17,9 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   // The default
   BOOST_CHECK( p->isUserRead() );
   BOOST_CHECK( p->isUserWrite() );
-  BOOST_CHECK( p->isGroupRead() );
+  BOOST_CHECK( ! p->isGroupRead() );
   BOOST_CHECK( ! p->isGroupWrite() );
-  BOOST_CHECK( p->isWorldRead() );
+  BOOST_CHECK( ! p->isWorldRead() );
   BOOST_CHECK( ! p->isWorldWrite() );
   BOOST_CHECK( ! p->isLocked() ); // flags reversed
 
