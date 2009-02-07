@@ -873,8 +873,27 @@ class OmeroDataServiceImpl
 				throw new IllegalArgumentException(
 						"items can only be plate.");
 			}
+		} else if (parent instanceof TagAnnotationData) {
+			TagAnnotationData tagSet = (TagAnnotationData) parent;
+			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					tagSet.getNameSpace()))
+				throw new IllegalArgumentException("Parent not supported");
+			Iterator i = children.iterator();
+			TagAnnotationData tag;
+			Object object;
+			while (i.hasNext()) {
+				object = i.next();
+				if (!(object instanceof TagAnnotationData))
+					throw new IllegalArgumentException(
+					"items can only be Tag.");
+				tag = (TagAnnotationData) object;
+				if (tag.getNameSpace() != null)
+					throw new IllegalArgumentException(
+					"items can only be Tag.");
+					
+			}
 		} else
-			throw new IllegalArgumentException("parent object not supported");
+			throw new IllegalArgumentException("Parent not supported");
 
 		List<IObject> objects = new ArrayList<IObject>();
 		IObject ioParent = parent.asIObject();

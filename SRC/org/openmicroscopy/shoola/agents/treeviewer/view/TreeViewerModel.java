@@ -67,6 +67,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 
 /** 
@@ -179,7 +180,27 @@ class TreeViewerModel
 				map.put(parents[i].getUserObject(), children);
 			}
 			return map;
-		} 
+		} else if ((obj instanceof TagAnnotationData) && 
+				(objParent instanceof TagAnnotationData)) {
+			TagAnnotationData tag = (TagAnnotationData) obj;
+			TagAnnotationData tagSet = (TagAnnotationData) objParent;
+			String nsSet = tagSet.getNameSpace();
+			String ns = tag.getNameSpace();
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(nsSet) &&
+					ns == null) {
+				Map map;
+				Set children;
+				map = new HashMap(parents.length);
+				for (int i = 0; i < parents.length; i++) {
+					children = new HashSet(nodesToCopy.length);
+					for (int j = 0; j < nodesToCopy.length; j++) 
+						children.add(nodesToCopy[j].getUserObject());
+					
+					map.put(parents[i].getUserObject(), children);
+				}
+				return map;
+			}
+		}
 		return null;
 	}
 

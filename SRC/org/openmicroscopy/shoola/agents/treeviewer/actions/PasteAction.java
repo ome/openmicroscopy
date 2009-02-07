@@ -41,6 +41,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Action to paste a previously copied element, a {@link PasteCmd} is executed.
@@ -61,7 +62,7 @@ public class PasteAction
     private static final String NAME = "Paste";
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Paste the selected object.";
+    private static final String DESCRIPTION = "Paste the selected elements.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -110,6 +111,14 @@ public class PasteAction
         	if (ImageData.class.equals(klass))
         		setEnabled(model.isObjectWritable(ho));
         	else setEnabled(false);
+        } else if (ho instanceof TagAnnotationData) {
+        	if (TagAnnotationData.class.equals(klass)) {
+        		TagAnnotationData tag = (TagAnnotationData) ho;
+        		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+        				tag.getNameSpace())) {
+        			setEnabled(model.isObjectWritable(ho));
+        		}
+        	} else setEnabled(false);
         } else setEnabled(false);
         
         /*

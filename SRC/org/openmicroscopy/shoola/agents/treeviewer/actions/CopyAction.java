@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.TagAnnotationData;
 
 /** 
 * Action to copy the selected elements, a {@link CopyCmd} is executed.
@@ -95,7 +96,12 @@ public class CopyAction
 		if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
 	         (ho instanceof PlateData))
 			setEnabled(model.isObjectWritable(ho));
-	    else setEnabled(false);
+		else if (ho instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) ho;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+				setEnabled(false);
+			else setEnabled(model.isObjectWritable(ho));
+		} else setEnabled(false);
 		/*
 		if (ho instanceof DatasetData) {
 			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
