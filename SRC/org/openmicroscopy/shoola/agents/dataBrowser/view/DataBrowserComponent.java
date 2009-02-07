@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JComponent;
@@ -270,11 +271,14 @@ class DataBrowserComponent
 			return;
 		}
 		Browser browser = model.getBrowser();
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		ImageFinder finder = new ImageFinder();
 		browser.accept(finder, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		model.fireFilteringByRate(rate, finder.getImages());
-		fireStateChange();
+		Set nodes = finder.getImages();
+		if (nodes != null && nodes.size() > 0) {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.fireFilteringByRate(rate, nodes);
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -301,10 +305,13 @@ class DataBrowserComponent
 			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
 			return;
 		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getBrowser();
-		model.fireFilteringByComments(comments, browser.getOriginal());
-		fireStateChange();
+		Set<DataObject> nodes = browser.getOriginal();
+		if (nodes != null && nodes.size() > 0) {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.fireFilteringByComments(comments, nodes);
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -348,11 +355,14 @@ class DataBrowserComponent
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
 			return;
-		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		}		
 		Browser browser = model.getBrowser();
-		model.fireFilteringByTags(tags, browser.getOriginal());
-		fireStateChange();
+		Set<DataObject> nodes = browser.getOriginal();
+		if (nodes != null && nodes.size() > 0) {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.fireFilteringByTags(tags, nodes);
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -395,11 +405,14 @@ class DataBrowserComponent
 			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
 			return;
 		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		view.filterByContext(context);
 		Browser browser = model.getBrowser();
-		model.fireFilteringByContext(context, browser.getOriginal());
-		fireStateChange();
+		Set<DataObject> nodes = browser.getOriginal();
+		if (nodes != null && nodes.size() > 0) {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			view.filterByContext(context);
+			model.fireFilteringByContext(context, nodes);
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -726,11 +739,14 @@ class DataBrowserComponent
 			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
 			return;
 		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getBrowser();
-		model.fireFilteringByAnnotated(TagAnnotationData.class, tagged, 
-				                browser.getOriginal());
-		fireStateChange();
+		Set<DataObject> nodes = browser.getOriginal();
+		if (nodes != null && nodes.size() > 0) {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.fireFilteringByAnnotated(TagAnnotationData.class, tagged, 
+	                nodes);
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -745,10 +761,13 @@ class DataBrowserComponent
 			return;
 		}
 		Browser browser = model.getBrowser();
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		model.fireFilteringByAnnotated(TextualAnnotationData.class, commented, 
-                browser.getOriginal());
-		fireStateChange();
+		Set<DataObject> nodes = browser.getOriginal();
+		if (nodes != null && nodes.size() > 0) {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.fireFilteringByAnnotated(TextualAnnotationData.class, 
+					commented, nodes);
+			fireStateChange();
+		}
 	}
 	
 	/**
