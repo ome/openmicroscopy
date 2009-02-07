@@ -2232,14 +2232,20 @@ class ImViewerComponent
 	 */
 	public void setGridMagnificationFactor(double factor)
 	{
-		//TODO: Check state
+		if (model.getTabbedIndex() != ImViewer.GRID_INDEX)  return;
 		view.setGridMagnificationFactor(factor);
 		model.getBrowser().setGridRatio(factor);
+		if (view.isLensVisible()) {
+			view.setImageZoomFactor((float) model.getBrowser().getGridRatio());
+			view.scrollLens();	
+		}
+		/*
 		if (view.isLensVisible() && 
 				model.getTabbedIndex() == ImViewer.GRID_INDEX) {
 			view.setImageZoomFactor((float) model.getBrowser().getGridRatio());
 			view.scrollLens();	
 		}
+		*/
 	}
 
 	/** 

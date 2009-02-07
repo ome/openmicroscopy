@@ -378,7 +378,7 @@ class BrowserModel
 			case 2:
 			case 3:
 				if (isImageRGB(l)) {
-					if (combinedImage == null) 
+					//if (combinedImage == null) 
 						combinedImage = Factory.magnifyImage(gridRatio, 
 								renderedImage);
 					int w = combinedImage.getWidth();
@@ -964,7 +964,7 @@ class BrowserModel
 		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
-		if (originalGridImages == null) {
+		if (originalGridImages == null || originalGridImages.size() == 0) {
 			createGridImages(); 
 			return;
 		}
