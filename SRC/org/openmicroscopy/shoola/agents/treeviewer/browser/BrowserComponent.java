@@ -120,7 +120,7 @@ class BrowserComponent
                             TreeImageDisplay parentDisplay)
     {
         setSelectedDisplay(display);
-        display.setChildrenLoaded(Boolean.FALSE);
+        display.setChildrenLoaded(Boolean.TRUE);
         view.createNodes(nodes, display, parentDisplay);
         //Object o = display.getUserObject();
         countItems(null);

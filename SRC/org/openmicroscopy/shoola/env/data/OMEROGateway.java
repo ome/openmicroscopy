@@ -3399,8 +3399,10 @@ class OMEROGateway
 			TagAnnotationData tag = 
 						(TagAnnotationData) PojoMapper.asDataObject(object);
 			//Condition
-			tag.setDataObjects(loadRelatedObjects(tagID, withLeaves));
 			List r = new ArrayList();
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+				return r;
+			tag.setDataObjects(loadRelatedObjects(tagID, withLeaves));
 			r.add(tag);
 			return r;
 		} catch (Exception e) {
