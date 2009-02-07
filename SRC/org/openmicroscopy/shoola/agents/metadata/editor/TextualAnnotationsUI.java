@@ -305,7 +305,18 @@ class TextualAnnotationsUI
 	 */
 	protected List<AnnotationData> getAnnotationToRemove()
 	{
-		return new ArrayList<AnnotationData>();
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		if (originalText != null && originalText.length() > 0) {
+			String text = commentArea.getText();
+			if (text != null) {
+				text = text.trim();
+				if (text.length() == 0) {
+					TextualAnnotationData data = model.getLastUserAnnotation();
+					l.add(data);
+				}
+			}
+		}
+		return l;
 	}
 
 	/**
@@ -319,7 +330,8 @@ class TextualAnnotationsUI
 		if (text == null) return l;
 		text = text.trim();
 		if (text.length() == 0) return l;
-		if (text.equals(originalText)) return l;
+		if (text.equals(originalText) || text.equals(DEFAULT_TEXT_COMMENT)) 
+			return l;
 		l.add(new TextualAnnotationData(text));
 		return l;
 	}
@@ -334,9 +346,9 @@ class TextualAnnotationsUI
 		String text = commentArea.getText();
 		if (text == null) return false;
 		text = text.trim();
-		if (text.length() == 0) return false;
-		if (text.equals(originalText)) return false;
-		System.err.println(text+" "+originalText);
+		if (text.length() == 0 && originalText != null) return true;
+		if (text.equals(originalText) || text.equals(DEFAULT_TEXT_COMMENT)) 
+			return false;
 		return true;
 	}
 	
