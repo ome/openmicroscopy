@@ -339,7 +339,8 @@ class EditorComponent
 		String message = 
 			"An error occured while saving the file to the server.";
 		if (data != null) {
-			message = "The File has been saved to the server.";
+			long id = data.getId();
+			message = "The File has been saved to the server. \nID = " + id;
 			model.setFileAnnotationData(data);
 		}
 		un.notifyInfo("File Saved", message);
