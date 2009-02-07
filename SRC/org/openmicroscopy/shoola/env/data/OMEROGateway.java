@@ -3887,6 +3887,7 @@ class OMEROGateway
 					startT, endT, channels, stepping, startZ, endZ, name);
 			return getImage(imageID);
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot project the image.");
 		}
 		return null;

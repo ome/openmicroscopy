@@ -446,11 +446,30 @@ class DataBrowserComponent
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#createDataObject(DataObject)
 	 */
-	public void createDataObject(DataObject data, boolean visible)
+	public void createDataObject(DataObject data)
 	{
 		if (data == null) return;
 		//TODO: check state.
 		Browser browser = model.getBrowser();
+		Collection images;
+		Collection set = browser.getSelectedDisplays();
+		if (set != null && set.size() > 0) {
+			images = new HashSet();
+			Iterator i = set.iterator();
+			ImageDisplay display;
+			Object ho;
+			while (i.hasNext()) {
+				display = (ImageDisplay) i.next();
+				ho = display.getHierarchyObject();
+				if (ho instanceof DataObject) {
+					images.add(ho);
+				}
+			}
+		} else {
+			images = browser.getVisibleImages();
+		}
+		model.fireDataSaving(data, images);
+		/*
 		Collection images;
 		if (visible) images = browser.getVisibleImages();
 		else {
@@ -470,6 +489,7 @@ class DataBrowserComponent
 			}
 		}
 		model.fireDataSaving(data, images);
+		*/
 	}
 
 	/**

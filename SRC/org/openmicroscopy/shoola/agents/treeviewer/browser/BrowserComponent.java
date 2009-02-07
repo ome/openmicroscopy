@@ -120,7 +120,17 @@ class BrowserComponent
                             TreeImageDisplay parentDisplay)
     {
         setSelectedDisplay(display);
-        display.setChildrenLoaded(Boolean.TRUE);
+        Object ho = display.getUserObject();
+        if ((ho instanceof ProjectData) || (ho instanceof ScreenData))
+        	display.setChildrenLoaded(Boolean.TRUE);
+        else if (ho instanceof TagAnnotationData) { 
+        	TagAnnotationData tag = (TagAnnotationData) ho;
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+        		display.setChildrenLoaded(Boolean.TRUE);
+        	else display.setChildrenLoaded(Boolean.FALSE);
+        } else {
+        	display.setChildrenLoaded(Boolean.FALSE);
+        }
         view.createNodes(nodes, display, parentDisplay);
         //Object o = display.getUserObject();
         countItems(null);

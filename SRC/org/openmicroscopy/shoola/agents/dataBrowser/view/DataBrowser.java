@@ -351,7 +351,7 @@ public interface DataBrowser
      * 						to the newly created <code>DataObject</code>,
      * 						<code>false</code> to add the selected nodes.
      */
-	public void createDataObject(DataObject data, boolean visibleNodes);
+	public void createDataObject(DataObject data);
 
 	/**
 	 * Sets the newly created data object.

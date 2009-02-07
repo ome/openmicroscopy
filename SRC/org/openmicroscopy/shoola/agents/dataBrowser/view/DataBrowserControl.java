@@ -48,8 +48,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
-import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
@@ -314,6 +314,7 @@ class DataBrowserControl
            }
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
         	view.slideShowView(false, false);
+        	/*
         } else if (ObjectEditor.CREATE_DATAOBJECT_PROPERTY.equals(name)) {
         	List l = (List) evt.getNewValue();
         	if (l != null && l.size() == 2) {
@@ -321,6 +322,11 @@ class DataBrowserControl
             	DataObject object = (DataObject) l.get(1);
             	model.createDataObject(object, visible);
         	}
+        	*/
+        } else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name) ||
+        		EditorDialog.CREATE_PROPERTY.equals(name)) {
+        	DataObject object = (DataObject) evt.getNewValue();
+        	model.createDataObject(object);
         } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name)) {
         	List<ImageDisplay> selected = (List) evt.getNewValue();
         	model.setTableNodesSelected(selected);

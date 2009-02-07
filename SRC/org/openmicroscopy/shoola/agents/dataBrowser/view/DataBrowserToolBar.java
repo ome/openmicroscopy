@@ -60,8 +60,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
-import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+import pojos.DatasetData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -712,9 +713,14 @@ class DataBrowserToolBar
 				break;
 			case NEW_OBJECT:
 				Registry reg = DataBrowserAgent.getRegistry();
+				/*
 				ObjectEditor dialog = new ObjectEditor(
 										reg.getTaskBar().getFrame(), 
 										ObjectEditor.DATASET);
+										*/
+				DatasetData d = new DatasetData();
+				EditorDialog dialog = new EditorDialog(
+						reg.getTaskBar().getFrame(), d, false);
 				dialog.addPropertyChangeListener(controller);
 				UIUtilities.centerAndShow(dialog);
 				break;
