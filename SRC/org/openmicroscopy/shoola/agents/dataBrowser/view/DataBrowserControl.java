@@ -313,7 +313,7 @@ class DataBrowserControl
                  } else RollOverThumbnailManager.stopOverDisplay();
            }
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
-        	view.slideShowView(false, false);
+        	view.slideShowView(false);
         	/*
         } else if (ObjectEditor.CREATE_DATAOBJECT_PROPERTY.equals(name)) {
         	List l = (List) evt.getNewValue();

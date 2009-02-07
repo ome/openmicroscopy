@@ -177,9 +177,8 @@ class DataBrowserUI
 	 * 
 	 * @param create	Pass <code>true</code> to create a new dialog,
 	 * 					<code>false</code> to delete it.
-	 * @param images	The images to display.
 	 */
-	void slideShowView(boolean create, boolean images)
+	void slideShowView(boolean create)
 	{
 		toolBar.enableSlideShow(!create);
 		if (!create) {
@@ -192,23 +191,22 @@ class DataBrowserUI
 		
 		//if (slideShowView != null) return;
 		Browser browser = model.getBrowser();
-		
 		List<ImageNode> nodes;
 		Iterator i;
-		if (images) nodes = browser.getVisibleImageNodes();
-		else {
-			Collection selection = browser.getSelectedDisplays();
+		Collection selected = browser.getSelectedDisplays();
+		if (selected != null && selected.size() > 0) {
 			nodes = new ArrayList<ImageNode>();
-			if (selection != null) {
-				i = selection.iterator();
-				Object n;
-				while (i.hasNext()) {
-					n = i.next();
-					if (n instanceof ImageNode)
-						nodes.add((ImageNode) n);
-				}
+			i = selected.iterator();
+			Object n;
+			while (i.hasNext()) {
+				n = i.next();
+				if (n instanceof ImageNode)
+					nodes.add((ImageNode) n);
 			}
+		} else {
+			nodes = browser.getVisibleImageNodes();
 		}
+		
 		if (nodes == null || nodes.size() == 0) {
 			toolBar.enableSlideShow(true);
 			return;

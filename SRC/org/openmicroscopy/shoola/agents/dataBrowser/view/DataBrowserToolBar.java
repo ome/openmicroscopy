@@ -351,17 +351,17 @@ class DataBrowserToolBar
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
 		slideShowView.setToolTipText("Show slideshow.");
 		UIUtilities.unifiedButtonLookAndFeel(slideShowView);
+		slideShowView.addActionListener(this);
+		slideShowView.setActionCommand(""+SLIDE_SHOW_IMAGES);
+		/*
 		slideShowView.addMouseListener(new MouseAdapter() {
 			
-			/**
-			 * Brings up the filtering dialog.
-			 * @see MouseAdapter#mouseReleased(MouseEvent)
-			 */
 			public void mouseReleased(MouseEvent e) {
 				createSlideViewMenu().show(slideShowView, e.getX(), e.getY());
 			}
 		
 		});
+		*/
 		//group.add(slideShowView);
 		managementButton = new JButton(icons.getIcon(IconManager.MANAGER));
 		UIUtilities.unifiedButtonLookAndFeel(managementButton);
@@ -713,11 +713,6 @@ class DataBrowserToolBar
 				break;
 			case NEW_OBJECT:
 				Registry reg = DataBrowserAgent.getRegistry();
-				/*
-				ObjectEditor dialog = new ObjectEditor(
-										reg.getTaskBar().getFrame(), 
-										ObjectEditor.DATASET);
-										*/
 				DatasetData d = new DatasetData();
 				EditorDialog dialog = new EditorDialog(
 						reg.getTaskBar().getFrame(), d, false);
@@ -728,11 +723,11 @@ class DataBrowserToolBar
 				parseItemsPerRow();
 				break;
 			case SLIDE_SHOW_IMAGES:
-				view.slideShowView(true, true);
-				break;	
 			case SLIDE_SHOW_SELECTION:
-				view.slideShowView(true, false);
+				view.slideShowView(true);
 				break;	
+			
+				//view.slideShowView(true, false);	
 			case DataBrowserUI.SORT_BY_NAME:
 			case DataBrowserUI.SORT_BY_DATE:
 				view.sortBy(index);
