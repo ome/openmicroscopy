@@ -589,10 +589,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public boolean applySettingsToImage(long from, long to) {
+    	String sql = "select p from Pixels p "
+            + "left outer join fetch p.image img "
+            + "where img.id = :id";
+    	/*
         Image img = iQuery.get(Image.class, to);
         if (img == null) return false;
         Pixels pix = img.getPrimaryPixels();
         if (pix == null) return false;
+        */
+    	Pixels pix = (Pixels) iQuery.findByQuery(sql, new Parameters().addId(to));
+    	if (pix == null) return false;
         return applySettingsToPixels(from, pix.getId());
     }
 
