@@ -173,8 +173,7 @@ public class RndSettingsSaver
 	 * 					<code>ImageData</code>, <code>DatasetData</code> or
 	 * 					<code>CategoryData</code>.
 	 * @param ids		Collection of nodes ids. If the rootType equals 
-	 * 					<code>DatasetData</code> or
-	 * 					<code>CategoryData</code>, the settings will be applied
+	 * 					<code>DatasetData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
 	 */

@@ -2870,6 +2870,7 @@ class OMEROGateway
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot paste the rendering settings.");
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);

@@ -103,9 +103,8 @@ public class ServerEditor
     /** The minimum port value. */
     static final int			MAX_PORT = 64000;
     
-    /** The message displayed when the entered server address already exists. */
-    private static final String	EMPTY_MSG = "Server address already " +
-    												"exists.";
+    /** The old port value. */
+    private static final String	OLD_PORT = ""+1099;
     
     /** Example of a new server. */
     private static final String	EXAMPLE = "e.g. test.openmicroscopy.org " +
@@ -570,7 +569,10 @@ public class ServerEditor
         	server = l[index].trim();
         	values = server.split(SERVER_PORT_SEPARATOR, 0);
         	name = values[0];
-        	if (values.length > 1) p = values[1];
+        	if (values.length > 1) {
+        		p = values[1];
+        		if (OLD_PORT.equals(p)) p = defaultPort;
+        	}
         	else p = defaultPort;
         	if (!name.equals(activeServer))
         		listOfServers.put(name, p);

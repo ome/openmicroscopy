@@ -1053,7 +1053,10 @@ class EditorModel
 	 * 
 	 * @param data The value to set.
 	 */
-	void setChannelData(List data) { emissionsWavelengths = data; }
+	void setChannelData(List data)
+	{ 
+		emissionsWavelengths = sorter.sort(data); 
+	}
 	
 	/**
 	 * Returns the channels data related to the image.
