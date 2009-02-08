@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -339,16 +338,25 @@ class PropertiesUI
      */
     private JPanel layoutEditablefield(Component button, JComponent c)
     {
-    	JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    	JPanel p = new JPanel();
+    	//p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    	double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+    			{TableLayout.PREFERRED, TableLayout.FILL}};
+    	p.setLayout(new TableLayout(size));
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	JToolBar bar = new JToolBar();
     	bar.setBorder(null);
     	bar.setFloatable(false);
     	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
     	bar.add(button);
-		p.add(bar);
-		p.add(c);
-    	return p;
+		//p.add(bar);
+		//p.add(c);
+    	p.add(bar, "0, 0, l, t");
+    	p.add(c, "1, 0, 1, 1");
+    	
+    	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	return content;
     }
     
     /**

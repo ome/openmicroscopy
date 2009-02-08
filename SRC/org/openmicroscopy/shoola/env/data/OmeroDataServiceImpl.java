@@ -43,6 +43,7 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetImageLink;
 import omero.model.Event;
 import omero.model.IObject;
@@ -51,11 +52,16 @@ import omero.model.ImageAnnotationLink;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PlateAnnotationLink;
 import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
+import omero.model.WellAnnotationLink;
+import omero.model.WellSampleAnnotationLink;
 import omero.sys.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -76,6 +82,8 @@ import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -160,6 +168,10 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (object == null) return null;
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+
+		long userID = exp.getId();
 		DataObject data = object.getObjectToDelete();
 		boolean attachment = object.deleteAttachment();
 		boolean content = object.deleteContent();
@@ -170,8 +182,7 @@ class OmeroDataServiceImpl
 		List<IObject> usedByOthers;
 		List<DeletableObject> result = new ArrayList<DeletableObject>();
 		List<DeletableObject> notDeleted;
-		if (data instanceof ImageData) {
-			//Can I delete, only check datasets: TODO: more
+		if (data instanceof ImageData) { //Image
 			list = gateway.checkImage(data.asImage());
 			if (list != null && list.size() > 0) {
 				object.setBlocker(list);
@@ -194,19 +205,15 @@ class OmeroDataServiceImpl
 			else { //check if we need to keep some object
 				List<IObject> toDelete = 
 					annotationsLinkToDelete(object.getAttachmentTypes(), 
-							annotations);
+							annotations, ImageData.class);
 				if (toDelete.size() > 0)
 					gateway.deleteObjects(toDelete);
 			} 
 			gateway.deleteImage(data.asImage());
 			return result;
-		} else if (data instanceof DatasetData) {
+		} else if (data instanceof DatasetData) { //Dataset
 			if (!content) return deleteDataset(object);
 			//retrieve all the images
-			ExperimenterData exp = 
-				(ExperimenterData) context.lookup(
-						LookupNames.CURRENT_USER_DETAILS);
-			long userID = exp.getId();
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
 			Set l = loadContainerHierarchy(DatasetData.class, ids, true, userID);
@@ -218,27 +225,25 @@ class OmeroDataServiceImpl
 			while (j.hasNext()) {
 				d = (DatasetData) j.next();
 				images = d.getImages();
-				k = images.iterator();
-				while (k.hasNext()) {
-					img = (ImageData) k.next();
-					notDeleted = delete(new DeletableObject(img, false, 
-										attachment));
-					if (notDeleted.size() > 0)
-						result.addAll(notDeleted);
+				if (images != null) {
+					k = images.iterator();
+					while (k.hasNext()) {
+						img = (ImageData) k.next();
+						notDeleted = delete(new DeletableObject(img, false, 
+											attachment));
+						if (notDeleted.size() > 0)
+							result.addAll(notDeleted);
+					}
 				}
 			}
 			notDeleted = deleteDataset(object);
 			if (notDeleted.size() > 0)
 				result.addAll(notDeleted);
 			return result;
-		} else if (data instanceof ProjectData) {
+		} else if (data instanceof ProjectData) { //project
 			if (!content)
 				return deleteProject(object);
-			//retrieve all the images
-			ExperimenterData exp = 
-				(ExperimenterData) context.lookup(
-						LookupNames.CURRENT_USER_DETAILS);
-			long userID = exp.getId();
+			//retrieve all the dataset
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
 			Set l = loadContainerHierarchy(ProjectData.class, ids, false, 
@@ -248,16 +253,36 @@ class OmeroDataServiceImpl
 			Set datasets;
 			Iterator k;
 			DatasetData d;
+			Set images;
+			ImageData img;
 			while (j.hasNext()) {
 				p = (ProjectData) j.next();
 				datasets = p.getDatasets();
 				k = datasets.iterator();
 				while (k.hasNext()) {
 					d = (DatasetData) k.next();
+					images = d.getImages();
+					if (images != null) {
+						k = images.iterator();
+						while (k.hasNext()) {
+							img = (ImageData) k.next();
+							notDeleted = delete(new DeletableObject(img, false, 
+												attachment));
+							if (notDeleted.size() > 0)
+								result.addAll(notDeleted);
+						}
+					}
+					//Now delete the dataset.
 					notDeleted = deleteDataset(
 							new DeletableObject(d, false, attachment));
 					if (notDeleted.size() > 0)
 						result.addAll(notDeleted);
+					/*
+					notDeleted = deleteDataset(
+							new DeletableObject(d, false, attachment));
+					if (notDeleted.size() > 0)
+						result.addAll(notDeleted);
+						*/
 				}
 			}
 			notDeleted = deleteProject(object);
@@ -280,27 +305,6 @@ class OmeroDataServiceImpl
 			if (l != null && l.size() > 0) links.addAll(l);
 			if (links.size() > 0)
 				gateway.deleteObjects(links);
-			/*
-			if (l != null && l.size() > 0) {
-				object.setBlocker(l);
-				result.add(object);
-				return result;
-			}
-			l = gateway.findAnnotationLinks(DatasetData.class.getName(), -1, 
-					ids);
-			if (l != null && l.size() > 0) {
-				object.setBlocker(l);
-				result.add(object);
-				return result;
-			}
-			l = gateway.findAnnotationLinks(ProjectData.class.getName(), -1, 
-					ids);
-			if (l != null && l.size() > 0) {
-				object.setBlocker(l);
-				result.add(object);
-				return result;
-			}
-			*/
 			//not link, we can delete
 			long originalFileID = ((FileAnnotationData) data).getFileID();
 			gateway.deleteObject(
@@ -400,12 +404,13 @@ class OmeroDataServiceImpl
 	 * Returns the collection of annotations to delete before deleting
 	 * the object.
 	 * 
-	 * @param types
+	 * @param types The type of annotations to delete.
 	 * @param annotations
+	 * @param parentType
 	 * @return See above.
 	 */
 	private List<IObject> annotationsLinkToDelete(List<Class> types, 
-								List<IObject> annotations)
+								List<IObject> annotations, Class parentType)
 	{
 		List<IObject> toDelete = new ArrayList<IObject>();
 		if (types == null || types.size() == 0) return toDelete;
@@ -413,14 +418,26 @@ class OmeroDataServiceImpl
 		
 		if (annoTypes.size() == 0) return toDelete;
 		Iterator k = annotations.iterator();
-		ImageAnnotationLink ann;
-		IObject child;
+		IObject ann;
+		IObject child = null;
 		while (k.hasNext()) {
-			ann = (ImageAnnotationLink) k.next();
-			child = ann.getChild();
+			ann = (IObject) k.next();
+			if (ImageData.class.equals(parentType)) 
+				child = ((ImageAnnotationLink) ann).getChild();
+			else if (DatasetData.class.equals(parentType)) 
+				child = ((DatasetAnnotationLink) ann).getChild();
+			else if (ProjectData.class.equals(parentType))
+				child = ((ProjectAnnotationLink) ann).getChild();
+			else if (ScreenData.class.equals(parentType))
+				child = ((ScreenAnnotationLink) ann).getChild();
+			else if (PlateData.class.equals(parentType))
+				child = ((PlateAnnotationLink) ann).getChild();
+			else if (WellData.class.equals(parentType))
+				child = ((WellAnnotationLink) ann).getChild();
+			else if (WellSampleData.class.equals(parentType))
+				child = ((WellSampleAnnotationLink) ann).getChild();
 			if (child != null) {
 				if (child instanceof LongAnnotation) {
-					
 					LongAnnotation longA = (LongAnnotation) child;
 					RString name = longA.getNs();
 					if (name != null) {
@@ -487,10 +504,23 @@ class OmeroDataServiceImpl
 			resuls.add(object);
 			return resuls;
 		} 
+		/*
 		if (!attachment) //want to keep the annotation.
 			gateway.deleteObjects(annotations);
 		else //remove the annotation from the object.
 			context.getMetadataService().clearAnnotation(data);
+		*/
+		if (!attachment) //want to keep the annotation.
+			gateway.deleteObjects(annotations);
+		else {
+			//remove the annotation from the object.
+			List<IObject> toDelete = 
+				annotationsLinkToDelete(object.getAttachmentTypes(), 
+						annotations, ProjectData.class);
+			if (toDelete.size() > 0)
+				gateway.deleteObjects(toDelete);
+		}
+		context.getMetadataService().clearAnnotation(data);
 		
 		//delete all the links
 		List toDelete = new ArrayList();
@@ -545,7 +575,7 @@ class OmeroDataServiceImpl
 			//remove the annotation from the object.
 			List<IObject> toDelete = 
 				annotationsLinkToDelete(object.getAttachmentTypes(), 
-						annotations);
+						annotations, DatasetData.class);
 			if (toDelete.size() > 0)
 				gateway.deleteObjects(toDelete);
 		}
