@@ -354,8 +354,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                  	throw new ResourceError("Pixels set is missing statistics" +
                  			" for channel '"+ w +"'. This suggests an image " +
                  		    "import error or failed image import.");
-            	 channelBinding.setInputStart(stats.getGlobalMin().floatValue());
-            	 channelBinding.setInputEnd(stats.getGlobalMax().floatValue());
+            	 channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
+            	 channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
             }
         }
     }
@@ -383,8 +383,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             cb = cbs.get(w);
             sf.computeLocationStats(pixels, buf, planeDef, w);
             cb.setNoiseReduction(sf.isNoiseReduction());
-            cb.setInputStart(new Float(sf.getInputStart()));
-            cb.setInputEnd(new Float(sf.getInputEnd()));
+            cb.setInputStart(new Double(sf.getInputStart()));
+            cb.setInputEnd(new Double(sf.getInputEnd()));
         }
     }
     

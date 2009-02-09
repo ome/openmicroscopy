@@ -118,13 +118,13 @@ public class UpdateTest extends AbstractUpdateTest {
         RenderingDef def = ObjectFactory.createRenderingDef();
 
         ChannelBinding binding1 = ObjectFactory.createChannelBinding();
-        binding1.setInputStart(new Float(1.0));
+        binding1.setInputStart(new Double(1.0));
 
         ChannelBinding binding2 = ObjectFactory.createChannelBinding();
-        binding2.setInputStart(new Float(2.0));
+        binding2.setInputStart(new Double(2.0));
 
         ChannelBinding binding3 = ObjectFactory.createChannelBinding();
-        binding3.setInputStart(new Float(3.0));
+        binding3.setInputStart(new Double(3.0));
 
         def.addChannelBinding(binding1);
         def.addChannelBinding(binding2);

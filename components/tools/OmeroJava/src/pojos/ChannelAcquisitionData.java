@@ -30,7 +30,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RBool;
-import omero.RFloat;
+import omero.RDouble;
 import omero.RInt;
 import omero.RString;
 import omero.model.Arc;
@@ -176,10 +176,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getDetectorSettingsOffset()
+	public double getDetectorSettingsOffset()
 	{
 		if (detectorSettings == null) return -1;
-		RFloat value = detectorSettings.getOffsetValue();
+		RDouble value = detectorSettings.getOffsetValue();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -189,10 +189,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getDetectorSettingsGain()
+	public double getDetectorSettingsGain()
 	{
 		if (detectorSettings == null) return -1;
-		RFloat value = detectorSettings.getGain();
+		RDouble value = detectorSettings.getGain();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -202,10 +202,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getDetectorSettingsVoltage()
+	public double getDetectorSettingsVoltage()
 	{
 		if (detectorSettings == null) return -1;
-		RFloat value = detectorSettings.getVoltage();
+		RDouble value = detectorSettings.getVoltage();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -215,10 +215,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getDetectorSettingsReadOutRate()
+	public double getDetectorSettingsReadOutRate()
 	{
 		if (detectorSettings == null) return -1;
-		RFloat value = detectorSettings.getReadOutRate();
+		RDouble value = detectorSettings.getReadOutRate();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -242,11 +242,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public float getDetectorVoltage()
+	public double getDetectorVoltage()
 	{
 		Detector detector = getDetector();
 		if (detector == null) return -1;
-		RFloat value = detector.getVoltage();
+		RDouble value = detector.getVoltage();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -256,11 +256,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public float getDetectorAmplificationGain()
+	public double getDetectorAmplificationGain()
 	{
 		Detector detector = getDetector();
 		if (detector == null) return -1;
-		RFloat value = detector.getAmplificationGain();
+		RDouble value = detector.getAmplificationGain();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -270,11 +270,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public float getDetectorGain()
+	public double getDetectorGain()
 	{
 		Detector detector = getDetector();
 		if (detector == null) return -1;
-		RFloat value = detector.getGain();
+		RDouble value = detector.getGain();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -284,11 +284,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public float getDetectorOffset()
+	public double getDetectorOffset()
 	{
 		Detector detector = getDetector();
 		if (detector == null) return -1;
-		RFloat value = detector.getOffsetValue();
+		RDouble value = detector.getOffsetValue();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -298,11 +298,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above
 	 */
-	public float getDetectorZoom()
+	public double getDetectorZoom()
 	{
 		Detector detector = getDetector();
 		if (detector == null) return -1;
-		RFloat value = detector.getZoom();
+		RDouble value = detector.getZoom();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -370,10 +370,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getLigthSettingsAttenuation()
+	public double getLigthSettingsAttenuation()
 	{
 		if (lightSettings == null) return -1;
-		RFloat value = lightSettings.getAttenuation();
+		RDouble value = lightSettings.getAttenuation();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -572,11 +572,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getLightSourcePower()
+	public double getLightSourcePower()
 	{
 		LightSource light = getLightSource();
 		if (light == null) return -1;
-		RFloat value = light.getPower();
+		RDouble value = light.getPower();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -741,11 +741,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getLaserRepetitionRate()
+	public double getLaserRepetitionRate()
 	{
 		if (!LASER.equals(getLightSourceKind())) return -1;
 		Laser laser = (Laser) getLightSource();
-		RFloat value = laser.getRepetitionRate();
+		RDouble value = laser.getRepetitionRate();
 		if (value  == null) return -1;
 		return value.getValue();
 	}
@@ -816,12 +816,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setLightSourcePower(float value)
+	public void setLightSourcePower(double value)
 	{
 		ligthSourceDirty = true;
 		LightSource light = getLightSource();
 		if (light == null) return;
-		light.setPower(omero.rtypes.rfloat(value));
+		light.setPower(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -829,11 +829,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setLigthSettingsAttenuation(float value)
+	public void setLigthSettingsAttenuation(double value)
 	{
 		ligthSourceSettingsDirty = true;
 		if (lightSettings == null) lightSettings = new LightSettingsI();
-		lightSettings.setAttenuation(omero.rtypes.rfloat(value));
+		lightSettings.setAttenuation(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -892,12 +892,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorAmplificationGain(float value)
+	public void setDetectorAmplificationGain(double value)
 	{
 		detectorDirty = true;
 		Detector d = getDetector();
 		if (d == null) d = new DetectorI();
-		d.setAmplificationGain(omero.rtypes.rfloat(value));
+		d.setAmplificationGain(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -905,12 +905,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorGain(float value)
+	public void setDetectorGain(double value)
 	{
 		detectorDirty = true;
 		Detector d = getDetector();
 		if (d == null) d = new DetectorI();
-		d.setGain(omero.rtypes.rfloat(value));
+		d.setGain(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -918,12 +918,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorOffset(float value)
+	public void setDetectorOffset(double value)
 	{
 		detectorDirty = true;
 		Detector d = getDetector();
 		if (d == null) d = new DetectorI();
-		d.setOffsetValue(omero.rtypes.rfloat(value));
+		d.setOffsetValue(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -931,12 +931,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorVoltage(float value)
+	public void setDetectorVoltage(double value)
 	{
 		detectorDirty = true;
 		Detector d = getDetector();
 		if (d == null) d = new DetectorI();
-		d.setVoltage(omero.rtypes.rfloat(value));
+		d.setVoltage(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -944,12 +944,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorZoom(float value)
+	public void setDetectorZoom(double value)
 	{
 		detectorDirty = true;
 		Detector d = getDetector();
 		if (d == null) d = new DetectorI();
-		d.setZoom(omero.rtypes.rfloat(value));
+		d.setZoom(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -968,12 +968,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorSettingOffset(float value)
+	public void setDetectorSettingOffset(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setOffsetValue(omero.rtypes.rfloat(value));
+		detectorSettings.setOffsetValue(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -981,12 +981,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorSettingsGain(float value)
+	public void setDetectorSettingsGain(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setGain(omero.rtypes.rfloat(value));
+		detectorSettings.setGain(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -994,12 +994,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorSettingsReadOutRate(float value)
+	public void setDetectorSettingsReadOutRate(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setReadOutRate(omero.rtypes.rfloat(value));
+		detectorSettings.setReadOutRate(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -1007,12 +1007,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setDetectorSettingsVoltage(float value)
+	public void setDetectorSettingsVoltage(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setVoltage(omero.rtypes.rfloat(value));
+		detectorSettings.setVoltage(omero.rtypes.rdouble(value));
 	}
 	
 	/**

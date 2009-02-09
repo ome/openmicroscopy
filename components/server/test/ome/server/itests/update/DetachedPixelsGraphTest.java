@@ -86,9 +86,9 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
     public void testNewEntityFieldOnDetachedPixels() throws Exception {
         // PREPARE ----------------------------------------------
         PixelsDimensions pd = new PixelsDimensions();
-        pd.setSizeX(new Float(1));
-        pd.setSizeY(new Float(2));
-        pd.setSizeZ(new Float(3));
+        pd.setSizeX(new Double(1));
+        pd.setSizeY(new Double(2));
+        pd.setSizeZ(new Double(3));
 
         p.setPixelsDimensions(pd);
         p = iUpdate.saveAndReturnObject(p);
@@ -160,15 +160,15 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         pi1.setTheT(new Integer(1));
         pi1.setTheZ(new Integer(1));
         pi1.setPixels(p);
-        pi1.setExposureTime(new Float(10));
-        pi1.setDeltaT(new Float(-11));
+        pi1.setExposureTime(new Double(10));
+        pi1.setDeltaT(new Double(-11));
 
         pi2.setTheC(new Integer(1));
         pi2.setTheT(new Integer(1));
         pi2.setTheZ(new Integer(1));
         pi2.setPixels(p);
-        pi2.setExposureTime(new Float(100));
-        pi2.setDeltaT(new Float(-193));
+        pi2.setExposureTime(new Double(100));
+        pi2.setDeltaT(new Double(-193));
 
         p.addPlaneInfo(pi1);
         p.addPlaneInfo(pi2);

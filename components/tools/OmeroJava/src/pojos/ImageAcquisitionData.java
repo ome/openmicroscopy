@@ -29,7 +29,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RBool;
-import omero.RFloat;
+import omero.RDouble;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
@@ -141,7 +141,7 @@ public class ImageAcquisitionData
 	public Object getPositionX()
 	{
 		if (label == null) return null;
-		RFloat value = label.getPositionX();
+		RDouble value = label.getPositionX();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -154,7 +154,7 @@ public class ImageAcquisitionData
 	public Object getPositionY()
 	{
 		if (label == null) return null;
-		RFloat value = label.getPositionY();
+		RDouble value = label.getPositionY();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -167,7 +167,7 @@ public class ImageAcquisitionData
 	public Object getPositionZ()
 	{
 		if (label == null) return null;
-		RFloat value = label.getPositionZ();
+		RDouble value = label.getPositionZ();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -180,7 +180,7 @@ public class ImageAcquisitionData
 	public Object getTemperature()
 	{
 		if (environment == null) return null;
-		RFloat value = environment.getTemperature();
+		RDouble value = environment.getTemperature();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -190,10 +190,10 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getAirPressure()
+	public double getAirPressure()
 	{
 		if (environment == null) return -1;
-		RFloat value = environment.getAirPressure();
+		RDouble value = environment.getAirPressure();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -203,10 +203,10 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getHumidity()
+	public double getHumidity()
 	{
 		if (environment == null) return -1;
-		RFloat value = environment.getHumidity();
+		RDouble value = environment.getHumidity();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -216,10 +216,10 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getCo2Percent()
+	public double getCo2Percent()
 	{
 		if (environment == null) return -1;
-		RFloat value = environment.getCo2percent();
+		RDouble value = environment.getCo2percent();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -229,10 +229,10 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getCorrectionCollar()
+	public double getCorrectionCollar()
 	{
 		if (objective == null) return -1;
-		RFloat value = objective.getCorrectionCollar();
+		RDouble value = objective.getCorrectionCollar();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -242,10 +242,10 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getRefractiveIndex()
+	public double getRefractiveIndex()
 	{
 		if (objective == null) return -1;
-		RFloat value = objective.getRefractiveIndex();
+		RDouble value = objective.getRefractiveIndex();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -269,11 +269,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getCalibratedMagnification()
+	public double getCalibratedMagnification()
 	{
 		Objective obj = getObjective();
 		if (obj == null) return -1;
-		RFloat value = obj.getCalibratedMagnification();
+		RDouble value = obj.getCalibratedMagnification();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -297,11 +297,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getLensNA()
+	public double getLensNA()
 	{
 		Objective obj = getObjective();
 		if (obj == null) return -1;
-		RFloat value = obj.getLensNA();
+		RDouble value = obj.getLensNA();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -341,11 +341,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public float getWorkingDistance()
+	public double getWorkingDistance()
 	{
 		Objective obj = getObjective();
 		if (obj == null) return -1;
-		RFloat value = obj.getWorkingDistance();
+		RDouble value = obj.getWorkingDistance();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -480,11 +480,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setPositionX(float value)
+	public void setPositionX(double value)
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionX(omero.rtypes.rfloat(value));
+		label.setPositionX(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -492,11 +492,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setPositionY(float value)
+	public void setPositionY(double value)
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionY(omero.rtypes.rfloat(value));
+		label.setPositionY(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -504,11 +504,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setPositionZ(float value)
+	public void setPositionZ(double value)
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionZ(omero.rtypes.rfloat(value));
+		label.setPositionZ(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -516,11 +516,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param temperature The value to set.
 	 */
-	public void setTemperature(float temperature)
+	public void setTemperature(double temperature)
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setTemperature(omero.rtypes.rfloat(temperature));
+		environment.setTemperature(omero.rtypes.rdouble(temperature));
 	}
 	
 	/**
@@ -528,11 +528,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param pressure The value to set.
 	 */
-	public void setAirPressure(float pressure)
+	public void setAirPressure(double pressure)
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setAirPressure(omero.rtypes.rfloat(pressure));
+		environment.setAirPressure(omero.rtypes.rdouble(pressure));
 	}
 	
 	/**
@@ -540,14 +540,14 @@ public class ImageAcquisitionData
 	 * 
 	 * @param humidity The value to set.
 	 */
-	public void setHumidity(float humidity)
+	public void setHumidity(double humidity)
 	{
 		if (humidity < 0 || humidity > 1)
 			throw new IllegalArgumentException("Humidity must " +
 					"be a value in [0, 1]");
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setHumidity(omero.rtypes.rfloat(humidity));
+		environment.setHumidity(omero.rtypes.rdouble(humidity));
 	}
 	
 	/**
@@ -555,13 +555,13 @@ public class ImageAcquisitionData
 	 * 
 	 * @param co2 The value to set.
 	 */
-	public void setCo2Percent(float co2)
+	public void setCo2Percent(double co2)
 	{
 		if (co2 < 0 || co2 > 1)
 			throw new IllegalArgumentException("Co2 must be a value in [0, 1]");
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setCo2percent(omero.rtypes.rfloat(co2));
+		environment.setCo2percent(omero.rtypes.rdouble(co2));
 	}
 	
 	/**
@@ -569,11 +569,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param correction The value to set.
 	 */
-	public void setCorrectionCollar(float correction)
+	public void setCorrectionCollar(double correction)
 	{
 		objectiveSettingsDirty = true;
 		if (objective == null) objective = new ObjectiveSettingsI();	
-		objective.setCorrectionCollar(omero.rtypes.rfloat(correction));
+		objective.setCorrectionCollar(omero.rtypes.rdouble(correction));
 	}
 	
 	/**
@@ -581,11 +581,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @param index The value to set.
 	 */
-	public void setRefractiveIndex(float index)
+	public void setRefractiveIndex(double index)
 	{
 		objectiveSettingsDirty = true;
 		if (objective == null) objective = new ObjectiveSettingsI();	
-		objective.setRefractiveIndex(omero.rtypes.rfloat(index));
+		objective.setRefractiveIndex(omero.rtypes.rdouble(index));
 	}
 
 	/**
@@ -604,12 +604,12 @@ public class ImageAcquisitionData
 	 * 
 	 * @param factor The value to set.
 	 */
-	public void setCalibratedMagnification(float factor)
+	public void setCalibratedMagnification(double factor)
 	{
 		objectiveDirty = true;
 		Objective ob = objective.getObjective();
 		if (ob == null) ob = new ObjectiveI();
-		ob.setCalibratedMagnification(omero.rtypes.rfloat(factor));
+		ob.setCalibratedMagnification(omero.rtypes.rdouble(factor));
 	}
 	
 	/**
@@ -630,12 +630,12 @@ public class ImageAcquisitionData
 	 * 
 	 * @param na The value to set.
 	 */
-	public void setLensNA(float na)
+	public void setLensNA(double na)
 	{
 		objectiveDirty = true;
 		Objective ob = objective.getObjective();
 		if (ob == null) ob = new ObjectiveI();
-		ob.setLensNA(omero.rtypes.rfloat(na));
+		ob.setLensNA(omero.rtypes.rdouble(na));
 	}
 	
 	/**
@@ -643,12 +643,12 @@ public class ImageAcquisitionData
 	 * 
 	 * @param distance The value to set.
 	 */
-	public void setWorkingDistance(float distance)
+	public void setWorkingDistance(double distance)
 	{
 		objectiveDirty = true;
 		Objective ob = objective.getObjective();
 		if (ob == null) ob = new ObjectiveI();
-		ob.setWorkingDistance(omero.rtypes.rfloat(distance));
+		ob.setWorkingDistance(omero.rtypes.rdouble(distance));
 	}
 	
 	/**

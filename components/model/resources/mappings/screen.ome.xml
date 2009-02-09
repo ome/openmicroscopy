@@ -57,8 +57,8 @@
 <!-- A WellSample is effectively a WellImageLink -->
 	<type id="ome.model.screen.WellSample" annotated="true">
 		<properties>
-			<optional name="posX" type="float"/>
-			<optional name="posY" type="float"/>
+			<optional name="posX" type="double"/>
+			<optional name="posY" type="double"/>
 			<optional name="timepoint" type="int"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples"/>
 			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>

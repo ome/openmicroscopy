@@ -30,7 +30,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RFloat;
+import omero.RDouble;
 import omero.RInt;
 import omero.RString;
 import omero.model.AcquisitionMode;
@@ -185,11 +185,11 @@ public class ChannelData
      * 
      * @return See above
      */
-    public float getPinholeSize()
+    public double getPinholeSize()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return -1;
-    	RFloat value = lc.getPinHoleSize();
+    	RDouble value = lc.getPinHoleSize();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -199,11 +199,11 @@ public class ChannelData
      * 
      * @return See above
      */
-    public float getNDFilter()
+    public double getNDFilter()
     {
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return -1;
-    	RFloat value = lc.getNdFilter();
+    	RDouble value = lc.getNdFilter();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -314,12 +314,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setPinholeSize(float value)
+    public void setPinholeSize(double value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setPinHoleSize(
-        		omero.rtypes.rfloat(value));
+        		omero.rtypes.rdouble(value));
     }
     
     /**
@@ -327,11 +327,11 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setNDFilter(float value)
+    public void setNDFilter(double value)
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setNdFilter(omero.rtypes.rfloat(value));
+        asChannel().getLogicalChannel().setNdFilter(omero.rtypes.rdouble(value));
     }
     
     /**

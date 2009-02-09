@@ -670,8 +670,8 @@ public class Renderer {
         QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
         qs.setWindow(start, end);
         ChannelBinding[] cb = getChannelBindings();
-        cb[w].setInputStart(new Float(start));
-        cb[w].setInputEnd(new Float(end)); // TODO double / Float
+        cb[w].setInputStart(new Double(start));
+        cb[w].setInputEnd(new Double(end));
     }
 
     /**

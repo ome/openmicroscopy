@@ -69,9 +69,9 @@ public class PixelsData extends DataObject {
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
-     * <code>float</code> string identifier.
+     * <code>double</code> string identifier.
      */
-    public static final String FLOAT_TYPE = "float";
+    public static final String FLOAT_TYPE = "double";
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
@@ -222,9 +222,9 @@ public class PixelsData extends DataObject {
      * @param pixelSizeX
      *            The dimension of a pixel along the X-axis.
      */
-    public void setPixelSizeX(float pixelSizeX) {
+    public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(rfloat(pixelSizeX));
+        asPixels().setPhysicalSizeX(rdouble(pixelSizeX));
     }
 
     /**
@@ -233,7 +233,7 @@ public class PixelsData extends DataObject {
      * 
      * @return See above.
      */
-    public float getPixelSizeX() {
+    public double getPixelSizeX() {
         return nullSafe(asPixels().getPhysicalSizeX());
     }
 
@@ -243,9 +243,9 @@ public class PixelsData extends DataObject {
      * @param pixelSizeY
      *            The dimension of a pixel along the Y-axis.
      */
-    public void setPixelSizeY(float pixelSizeY) {
+    public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(rfloat(pixelSizeY));
+        asPixels().setPhysicalSizeY(rdouble(pixelSizeY));
     }
 
     /**
@@ -254,7 +254,7 @@ public class PixelsData extends DataObject {
      * 
      * @return See above.
      */
-    public float getPixelSizeY() {
+    public double getPixelSizeY() {
         return nullSafe(asPixels().getPhysicalSizeY());
     }
 
@@ -264,9 +264,9 @@ public class PixelsData extends DataObject {
      * @param pixelSizeZ
      *            The dimension of a pixel along the Z-axis.
      */
-    public void setPixelSizeZ(float pixelSizeZ) {
+    public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(rfloat(pixelSizeZ));
+        asPixels().setPhysicalSizeZ(rdouble(pixelSizeZ));
     }
 
     /**
@@ -275,7 +275,7 @@ public class PixelsData extends DataObject {
      * 
      * @return See above.
      */
-    public float getPixelSizeZ() {
+    public double getPixelSizeZ() {
         return nullSafe(asPixels().getPhysicalSizeZ());
     }
 

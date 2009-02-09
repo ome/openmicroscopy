@@ -294,11 +294,11 @@ public class ImportLibrary implements IObservable
                 log.debug(String.format("Failsafe check: " +
                         "PixelDimensions found with null sizes, setting sizeX,Y,Z to 1.0f"));
                 if (pix.getPhysicalSizeX() == null)
-                    pix.setPhysicalSizeX(1.0f);
+                    pix.setPhysicalSizeX(1.0);
                 if (pix.getPhysicalSizeY() == null)
-                    pix.setPhysicalSizeY(1.0f);
+                    pix.setPhysicalSizeY(1.0);
                 if (pix.getPhysicalSizeZ() == null)
-                    pix.setPhysicalSizeZ(1.0f);
+                    pix.setPhysicalSizeZ(1.0);
             }
 
             series++;

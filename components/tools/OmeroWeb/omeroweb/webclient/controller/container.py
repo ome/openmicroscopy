@@ -102,20 +102,20 @@ class BaseContainer(BaseController):
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {
             # ObjectiveSettings
-            'correctionCollar':('float', 'ObjectiveSettings'), 'medium':('int', 'ObjectiveSettings', 'MediumI'), 
-            'refractiveIndex':('float', 'ObjectiveSettings'),
+            'correctionCollar':('double', 'ObjectiveSettings'), 'medium':('int', 'ObjectiveSettings', 'MediumI'), 
+            'refractiveIndex':('double', 'ObjectiveSettings'),
             
             # Objective
-            'correction':('int', 'Objective', 'CorrectionI'), 'calibratedMagnification':('float', 'Objective'), 'immersion':('int', 'Objective', 'ImmersionI'), 
-            'iris':['bool', 'Objective'], 'lensNA':('float', 'Objective'), 'manufacturer':('string', 'Objective'), 'model':('string', 'Objective'), 
-            'nominalMagnification':('int', 'Objective'), 'serialNumber':('string', 'Objective'), 'workingDistance':('float', 'Objective'),
+            'correction':('int', 'Objective', 'CorrectionI'), 'calibratedMagnification':('double', 'Objective'), 'immersion':('int', 'Objective', 'ImmersionI'), 
+            'iris':['bool', 'Objective'], 'lensNA':('double', 'Objective'), 'manufacturer':('string', 'Objective'), 'model':('string', 'Objective'), 
+            'nominalMagnification':('int', 'Objective'), 'serialNumber':('string', 'Objective'), 'workingDistance':('double', 'Objective'),
             
             # ImagingEnvironment
-            'airPressure':('int', 'ImagingEnvironment'), 'co2percent':('float', 'ImagingEnvironment'), 'humidity':('float', 'ImagingEnvironment'), 
-            'temperature':('float', 'ImagingEnvironment'),
+            'airPressure':('int', 'ImagingEnvironment'), 'co2percent':('double', 'ImagingEnvironment'), 'humidity':('double', 'ImagingEnvironment'), 
+            'temperature':('double', 'ImagingEnvironment'),
             
             # StageLabel
-            'positionx':('float', 'StageLabel'), 'positiony':('float', 'StageLabel'), 'positionz':('float', 'StageLabel')
+            'positionx':('double', 'StageLabel'), 'positiony':('double', 'StageLabel'), 'positionz':('double', 'StageLabel')
         }
         
         metadataFamily = metadata_rtype.get(matadataType)[1]
@@ -145,6 +145,8 @@ class BaseContainer(BaseController):
                             setattr(meta._obj, matadataType, rint(int(metadataValue)))
                         elif m_rtype == 'float':
                             setattr(meta._obj, matadataType, rfloat(float(metadataValue)))
+                        elif m_rtype == 'double':
+                            setattr(meta._obj, matadataType, rdouble(float(metadataValue)))
                         elif m_rtype == 'string':
                             setattr(meta._obj, matadataType, rstring(str(metadataValue)))
                         elif m_rtype == 'bool':

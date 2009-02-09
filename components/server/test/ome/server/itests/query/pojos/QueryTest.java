@@ -174,7 +174,7 @@ public class QueryTest extends AbstractManagedContextTest {
         o.setImmersion(immersion);
         o.setInstrument(instrument);
         // o.setLensNA(new Float(1.4));
-        o.setLensNA(1.4f);
+        o.setLensNA(1.4);
 
         Objective t1 = iUpdate.saveAndReturnObject(o);
 

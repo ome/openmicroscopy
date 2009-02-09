@@ -980,10 +980,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     @Test(groups = "ticket:1150")
     public void testRFloatDoesNotGetRounded() throws Exception {
         Objective o = new Objective();
-        o.setLensNA(new Float(1.4));
+        o.setLensNA(new Double(1.4));
         omero.model.Objective o2 = (omero.model.Objective) mapper.handleOutput(
                 Objective.class, o);
-        assertEquals(o.getLensNA().floatValue(), o2.getLensNA().getValue());
+        assertEquals(o.getLensNA().doubleValue(), o2.getLensNA().getValue());
     }
 
     // ~ Helpers

@@ -36,7 +36,7 @@
 				<rule id="CHANNEL_BINDING_CARD" type="cardinality" description="c"/>
 			</onemany>
 			<optional name="name" type="string"/>
-			<optional name="compression" type="float"/>
+			<optional name="compression" type="double"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
 			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
 		</properties>
@@ -56,8 +56,8 @@
 			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
 			<required name="family" type="ome.model.enums.Family"/>
 			<required name="coefficient" type="double"/>
-			<required name="inputStart" type="float"/>
-			<required name="inputEnd" type="float"/>
+			<required name="inputStart" type="double"/>
+			<required name="inputEnd" type="double"/>
 			<required name="active" type="boolean"/>
 			<required name="noiseReduction" type="boolean"/>
 			<required name="red" type="int">

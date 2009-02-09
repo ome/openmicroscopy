@@ -31,7 +31,7 @@ public class ModelTest extends TestCase {
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
         // arcI.unload();
-        arcI.setPower(rfloat(1.0f));
+        arcI.setPower(rdouble(1.0f));
     }
 
     @Test

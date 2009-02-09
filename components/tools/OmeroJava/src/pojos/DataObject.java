@@ -341,6 +341,11 @@ public abstract class DataObject {
     protected float nullSafe(omero.RFloat f) {
         return f == null ? 0.0f : f.getValue();
     }
+    
+
+    protected double nullSafe(omero.RDouble d) {
+        return d == null ? 0.0d : d.getValue();
+    }
 
     protected Timestamp timeOfEvent(Event event) {
         if (event == null || !event.isLoaded() || event.getTime() == null) {
