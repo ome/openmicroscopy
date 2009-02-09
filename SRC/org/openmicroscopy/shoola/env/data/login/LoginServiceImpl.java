@@ -179,8 +179,10 @@ public class LoginServiceImpl
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+dsose.getMessage());
-            msg.println("OMERO address: "+uc.getHostName());
-            if (uc != null) msg.println(uc);
+            if (uc != null) {
+            	msg.println("OMERO address: "+uc.getHostName());
+            	msg.println(uc);
+            }
             Logger logger = container.getRegistry().getLogger();
             logger.error(this, msg);
         }

@@ -43,6 +43,7 @@ import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
@@ -158,6 +159,11 @@ class UserNotifierManager
 			
 			JOptionPane.showMessageDialog(source, reply);
 		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+            msg.println("Failed to send message.");
+            msg.println("Reason: "+e.getMessage());
+            Logger logger = container.getRegistry().getLogger();
+            logger.error(this, msg);
 			String s = MESSAGE_START;
 			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
 				s += ERROR_MSG;

@@ -63,8 +63,9 @@ public abstract class Reply
 	{
 	    int status = response.getStatusCode();
 	    if (status != HttpStatus.SC_OK) {
+	    	Reader reader = null;
 	    	try {
-	    		Reader reader = new InputStreamReader(
+	    		reader = new InputStreamReader(
 		    			response.getResponseBodyAsStream());
 	            char[] buf = new char[32678];
 	            StringBuilder str = new StringBuilder();
@@ -72,6 +73,10 @@ public abstract class Reply
 	                str.append(buf, 0, n);
 	            return str.toString();
 			} catch (Exception e) {
+				try {
+					if (reader != null) reader.close();
+				} catch (Exception ex) {}
+				
 				throw new TransportException("Couldn't handle request: "+
 						HttpStatus.getStatusText(status)+".");
 			}

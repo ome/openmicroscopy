@@ -68,7 +68,7 @@ class BooleanEntry
     	throws ConfigException
     { 
         try {
-            value = new Boolean(node.getFirstChild().getNodeValue());
+            value = Boolean.valueOf(node.getFirstChild().getNodeValue());
         } catch (DOMException dex) { 
 			rethrow("Can't parse boolean entry, name: "+getName()+".", dex);
         }
