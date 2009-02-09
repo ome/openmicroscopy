@@ -256,17 +256,17 @@ public class FieldSplitEdit
 		}
 		
 		// set new content for parent
-		for(IFieldContent newItem : newContent1) {
+		for(IFieldContent newItem : newContent2) {
 			field.addContent(newItem);
 		}
 		
 		// set new content for daughter
-		for(IFieldContent newItem : newContent2) {
+		for(IFieldContent newItem : newContent1) {
 			newField.addContent(newItem);
 		}
 		
 		// now add the new node (containing the new field) after the original 
-		int indexToAdd = parentNode.getIndex(node) + 1;
+		int indexToAdd = parentNode.getIndex(node);
 		treeModel.insertNodeInto(newNode, parentNode, indexToAdd);
 		
 		notifySelect();
