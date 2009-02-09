@@ -96,7 +96,9 @@ public class ObjectFactory {
 
             pt.setValue("int8");
 
-            dO.setValue("XYZTC");
+            //dO.setValue("XYZTC"); Seems to be broken
+            dO.setId(0L);
+            dO.unload();
 
             c.setPixels(p);
             lc.setPhotometricInterpretation(pi);

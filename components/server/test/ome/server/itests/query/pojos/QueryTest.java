@@ -7,30 +7,39 @@
 package ome.server.itests.query.pojos;
 
 // Java imports
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.AssertionFailedError;
-
+import ome.conditions.ApiUsageException;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.annotations.DoubleAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.enums.Correction;
 import ome.model.enums.Immersion;
 import ome.model.meta.Experimenter;
+import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
 import ome.services.query.StringQuerySource;
+import ome.services.util.Executor;
+import ome.services.util.Executor.SimpleWork;
+import ome.system.ServiceFactory;
 import ome.tools.lsid.LsidUtils;
 import ome.util.RdfPrinter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 /**
@@ -182,18 +191,18 @@ public class QueryTest extends AbstractManagedContextTest {
 
         // Test value via jdbc
         String jdbcQuery = "SELECT lensna FROM objective WHERE id = ?";
-        Float lensNA = jdbcTemplate.queryForObject(jdbcQuery
-                , Float.class, t1
-                        .getId());
+        Float lensNA = jdbcTemplate.queryForObject(jdbcQuery, Float.class, t1
+                .getId());
         assertEquals(1.4, lensNA.floatValue(), 0.01);
         try {
             assertEquals(1.4, lensNA.floatValue(), Float.MIN_VALUE);
         } catch (AssertionFailedError e) {
             // This is what fails!!
         }
-        
+
         // now test is with double which is our chosen solution
-        Double lensNADoubled = jdbcTemplate.queryForObject( jdbcQuery, Double.class, t1.getId());
+        Double lensNADoubled = jdbcTemplate.queryForObject(jdbcQuery,
+                Double.class, t1.getId());
         assertEquals(1.4, lensNADoubled.doubleValue(), 0.01);
         assertEquals(1.4, lensNADoubled.doubleValue(), Float.MIN_VALUE);
         assertEquals(1.4, lensNADoubled.doubleValue(), Double.MIN_VALUE);
@@ -217,6 +226,79 @@ public class QueryTest extends AbstractManagedContextTest {
         DoubleAnnotation t1 = iUpdate.saveAndReturnObject(da);
         assertEquals(1.4, t1.getDoubleValue().doubleValue(), Double.MIN_VALUE);
 
+    }
+
+    public void testNullFromGetPrimaryPixelsWithNoPixels() throws Exception {
+        Image i = new Image(new Timestamp(0), "null from get primary pixels");
+        i = iUpdate.saveAndReturnObject(i);
+        i = iQuery.get(Image.class, i.getId());
+        assertEquals(-1, i.sizeOfPixels());
+        try {
+            i.getPrimaryPixels();
+            fail("must throw");
+        } catch (ApiUsageException aue) {
+            // good
+        }
+
+        // Try "internally" with active session
+        final long id = i.getId();
+        ((Executor) this.applicationContext.getBean("executor")).execute(
+                loginAop.p, new SimpleWork(this, "internal query test") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        Image t = (Image) session.get(Image.class, id);
+                        assertEquals(0, t.sizeOfPixels());
+                        try {
+                            t.getPrimaryPixels();
+                            fail("should throw");
+                        } catch (IndexOutOfBoundsException aiobe) {
+                            // good;
+                        }
+                        return null;
+                    }
+                });
+
+        try {
+            i.unmodifiablePixels();
+            fail("must throw");
+        } catch (ApiUsageException aue) {
+            // good
+        }
+    }
+
+    public void testNullFromGetPrimaryPixelsWithPixels() throws Exception {
+        // This needs the in-memory testing stuff
+        // Pixels p = ObjectFactory.createPixelGraph(null);
+        // p = iUpdate.saveAndReturnObject(p);
+        Pixels p = iQuery.findAll(Pixels.class, new Filter().page(0, 1)).get(0);
+        Image i = iQuery.get(Image.class, p.getImage().getId());
+        assertEquals(-1, i.sizeOfPixels());
+        try {
+            i.getPrimaryPixels();
+            fail("must throw");
+        } catch (ApiUsageException aue) {
+            // good
+        }
+
+        // Try "internally" with active session
+        final long id = i.getId();
+        ((Executor) this.applicationContext.getBean("executor")).execute(
+                loginAop.p, new SimpleWork(this, "internal query test") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        Image t = (Image) session.get(Image.class, id);
+                        assertTrue(t.unmodifiablePixels().size() > 0 );
+                        assertNotNull(t.getPrimaryPixels());
+                        return null;
+                    }
+                });
+
+        try {
+            i.unmodifiablePixels();
+            fail("must throw");
+        } catch (ApiUsageException aue) {
+            // good
+        }
     }
 
     protected void walkResult(List result) {

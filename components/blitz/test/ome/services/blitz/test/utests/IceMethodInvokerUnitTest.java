@@ -27,6 +27,7 @@ import ome.api.RawPixelsStore;
 import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.acquisition.Objective;
@@ -45,6 +46,7 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omero.RString;
 import omero.RType;
+import omero.UnloadedCollectionException;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOLEAVES;
 import omero.model.Experimenter;
@@ -984,6 +986,27 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         omero.model.Objective o2 = (omero.model.Objective) mapper.handleOutput(
                 Objective.class, o);
         assertEquals(o.getLensNA().doubleValue(), o2.getLensNA().getValue());
+    }
+    
+    @Test
+    public void testNullFromGetPrimaryPixels() throws Exception {
+        ome.model.core.Image i = new ome.model.core.Image();
+        i.putAt(ome.model.core.Image.PIXELS, null);
+        assertEquals(-1, i.sizeOfPixels());
+        Image mapped = (Image) mapper.map(i);
+        assertEquals(-1, mapped.sizeOfPixels());
+        try {
+            mapped.getPrimaryPixels();
+            fail("must throw");
+        } catch (UnloadedCollectionException uce) {
+            // good
+        }
+        try {
+            mapped.copyPixels();
+            fail("must throw");
+        } catch (UnloadedCollectionException uce) {
+            // good
+        }
     }
 
     // ~ Helpers
