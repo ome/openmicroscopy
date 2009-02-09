@@ -32,6 +32,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -103,7 +105,8 @@ public class FieldTextArea
 	extends JPanel
 	implements FocusListener,
 	PropertyChangeListener,
-	ActionListener
+	ActionListener,
+	KeyListener
 {
 	/**  The text area that displays and allows users to edit the text */
 	protected HtmlContentEditor		htmlEditor;
@@ -202,6 +205,7 @@ public class FieldTextArea
 	{
 		htmlEditor = new HtmlContentEditor();
 		htmlEditor.addFocusListener(this);
+		htmlEditor.addKeyListener(this);
 		htmlEditor.addMouseListener(new ParamMouseListener());
 		
 		int indent = treeNode.getLevel() * 15;	// indent according to hierarchy
@@ -266,8 +270,8 @@ public class FieldTextArea
     {
     	return getNewContent(null);
     }
-	
-	/**
+    
+    /**
      * Converts the current text of the editor into a list of
      * {@link IFieldContent}, including a new parameter object, which will be
      * added wherever a parameter tag has id="new"
@@ -278,15 +282,38 @@ public class FieldTextArea
      */
     private List<IFieldContent> getNewContent(IFieldContent newParam) 
     {
+    	int start = 0;
+    	int end = htmlEditor.getDocument().getLength();
+    	
+    	return getNewContent(newParam, start, end);
+    }
+	
+	/**
+     * Converts the current text of the editor into a list of
+     * {@link IFieldContent}, including a new parameter object, which will be
+     * added wherever a parameter tag has id="new"
+     * 
+     * 
+     * <code>newParam</code> can be null if not adding a new parameter. 
+     * 
+     * @param	
+     * @return		a list of {@link IFieldContent} to represent the content
+     */
+    private List<IFieldContent> getNewContent(IFieldContent newParam, 
+    		int start, int end) 
+    {
     	List<IFieldContent> contentList = new ArrayList<IFieldContent>();
     	
-    	int lastChar = 0;
     	Document d = htmlEditor.getDocument();
     	
-    	// ignore the name token, but need to know when it ends (content begins)
+    	int lastChar = start;	// keep track of the last processed character
+    	int docEnd = end;	
+ 
+    	// ignore the name token, but need to be sure that we start processing
+    	// content AFTER the name. 
     	TextToken nameTag = getNameTag();
     	if (nameTag != null) {
-    		lastChar = nameTag.getEnd();	
+    		lastChar = Math.max(lastChar, nameTag.getEnd());	
     		// need to skip new-line character
     		try {
 				String nextChar = d.getText(lastChar, 1);
@@ -304,11 +331,25 @@ public class FieldTextArea
     	
     	String description;
     	int id;
+    	int tagStart;
     	
     	try {
     		for (TextToken param : tags) {
+    			tagStart = param.getStart();
+    			// check whether start of tag is after the end of the text you want
+    			// or before the start of the text you want. 
+    			// if so, simply ignore
+    			if (tagStart >= docEnd) {
+    				continue;
+    			}
+    			if (tagStart < lastChar) {
+    				// if split is between tagStart and tagEnd, move lastChar to end
+    				if (param.getEnd() > lastChar)
+    					lastChar = param.getEnd();
+    				continue;
+    			}
     			// is there any text between start of this tag and end of last?
-    			description = d.getText(lastChar, param.getStart()-lastChar);
+    			description = d.getText(lastChar, tagStart-lastChar);
 				
 				if (description.trim().length() > 0) {
 					// if so, add a new text content object to the list
@@ -337,10 +378,13 @@ public class FieldTextArea
 				lastChar = param.getEnd();	// update the end of last element
 			}
     		// any text left over?
-    		description = d.getText(lastChar, d.getLength()-lastChar+1);
-    		if (description.trim().length() > 0) {
-    			// if so, add another text content to the list
-				contentList.add(new TextContent(description));
+    		int remainingChars = docEnd-lastChar+1;
+    		if (remainingChars > 0) {
+    			description = d.getText(lastChar, remainingChars);
+    			if (description.trim().length() > 0) {
+    				// if so, add another text content to the list
+    				contentList.add(new TextContent(description));
+    			}
 			}
     		
     	} catch (BadLocationException e) {
@@ -499,6 +543,36 @@ public class FieldTextArea
     	
     	// replace the old content of the field with new content
 		controller.editFieldContent(fld, fieldName, content, tree, node);
+    }
+    
+    /**
+     * Splits the field/step into two, creating a new field with the content
+     * after the <code>splitChar</code>, adding it after this field as a 
+     * sibling in the tree. 
+     * 
+     * @param splitChar		The character in the document of {@link #htmlEditor}
+     */
+    private void splitField(int splitChar) {
+    	
+    	// check that split is after name and before end of doc
+    	String fieldName = null;
+		// get the new name...
+		TextToken nameTag = getNameTag();
+		if (nameTag != null) {
+			fieldName = getEditedName(nameTag.getText());
+			if (splitChar < nameTag.getEnd()) return;
+		}
+		
+		int start = 0;
+    	int end = htmlEditor.getDocument().getLength();
+    	
+    	List<IFieldContent> content1 = getNewContent(null, start, splitChar-1);
+    	List<IFieldContent> content2 = getNewContent(null, splitChar, end);
+    	
+    	controller.splitField(field, fieldName, content1, content2, navTree, treeNode);
+    	
+    	// reset this flag
+		htmlEditor.dataSaved();
     }
     
     /**
@@ -852,7 +926,37 @@ public class FieldTextArea
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		insertParam(TextParam.TEXT_LINE_PARAM);
-		
+		if (e.getSource().equals(addParamButton)) {
+			insertParam(TextParam.TEXT_LINE_PARAM);
+		}
 	}
+
+	/**
+	 * Required by the {@link KeyListener} interface, but this is a null
+	 * implementation. 
+	 * @see	KeyListener#keyPressed(KeyEvent)
+	 */
+	public void keyPressed(KeyEvent e) {}
+
+	/**
+	 * Implemented as specified by the {@link KeyListener} interface.
+	 * Handles "Enter" key from the {@link #htmlEditor} and calls 
+	 * {@link #splitField(int)} to split this field into two. 
+	 * 
+	 * @see	KeyListener#keyReleased(KeyEvent)
+	 */
+	public void keyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			
+			int splitChar = htmlEditor.getCaretPosition();
+			splitField(splitChar);
+		}
+	}
+
+	/**
+	 * Required by the {@link KeyListener} interface, but this is a null
+	 * implementation. 
+	 * @see	KeyListener#keyTyped(KeyEvent)
+	 */
+	public void keyTyped(KeyEvent e) {}
 }

@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributeEdit
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ChangeParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldSplitEdit;
 
 /** 
  *	The Controller in the Browser MVC. 
@@ -363,6 +364,26 @@ public class BrowserControl
 			JTree tree, TreeNode node) {
 		
 		UndoableEdit edit = new AddParamEdit(text, field, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Split a field into 2, adding content to the 2 daughters. New daughter
+	 * is added as a sibling after the parent. 
+	 * 
+	 * @param field			The field to split.
+	 * @param name			The new name of the split field.
+	 * @param content1		The new content of the split field.
+	 * @param content2		The new content of the new daughter
+	 * @param tree			The JTree in which field is.
+	 * @param node			The node containing the split field. 
+	 */
+	public void splitField(IField field, String name,
+			List<IFieldContent> content1, List<IFieldContent> content2,
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new FieldSplitEdit(field, name, 
+				content1, content2, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	
