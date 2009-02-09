@@ -1,7 +1,7 @@
 package ome.formats.importer;
 
 import Ice.Current;
-import omero.RFloat;
+import omero.RDouble;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
@@ -48,7 +48,7 @@ public class MetaLightSource extends LightSource
         return model;
     }
 
-    public RFloat getPower(Current arg0)
+    public RDouble getPower(Current arg0)
     {
         return power;
     }
@@ -78,7 +78,7 @@ public class MetaLightSource extends LightSource
         model = arg0;
     }
 
-    public void setPower(RFloat arg0, Current arg1)
+    public void setPower(RDouble arg0, Current arg1)
     {
         power = arg0;
     }

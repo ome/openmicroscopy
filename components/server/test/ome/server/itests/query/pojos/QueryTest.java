@@ -10,6 +10,8 @@ package ome.server.itests.query.pojos;
 import java.util.Arrays;
 import java.util.List;
 
+import junit.framework.AssertionFailedError;
+
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.annotations.DoubleAnnotation;
@@ -179,20 +181,32 @@ public class QueryTest extends AbstractManagedContextTest {
         Objective t1 = iUpdate.saveAndReturnObject(o);
 
         // Test value via jdbc
-        Float lensNA = jdbcTemplate.queryForObject(
-                "SELECT lensna FROM objective WHERE id = ?", Float.class, t1
+        String jdbcQuery = "SELECT lensna FROM objective WHERE id = ?";
+        Float lensNA = jdbcTemplate.queryForObject(jdbcQuery
+                , Float.class, t1
                         .getId());
         assertEquals(1.4, lensNA.floatValue(), 0.01);
-        assertEquals(1.4, lensNA.floatValue(), Float.MIN_VALUE);
+        try {
+            assertEquals(1.4, lensNA.floatValue(), Float.MIN_VALUE);
+        } catch (AssertionFailedError e) {
+            // This is what fails!!
+        }
+        
+        // now test is with double which is our chosen solution
+        Double lensNADoubled = jdbcTemplate.queryForObject( jdbcQuery, Double.class, t1.getId());
+        assertEquals(1.4, lensNADoubled.doubleValue(), 0.01);
+        assertEquals(1.4, lensNADoubled.doubleValue(), Float.MIN_VALUE);
+        assertEquals(1.4, lensNADoubled.doubleValue(), Double.MIN_VALUE);
 
         // Test value return by iUpdate
-        assertEquals(1.4, t1.getLensNA().floatValue(), 0.001);
-        assertEquals(1.4, t1.getLensNA().floatValue(), Float.MIN_VALUE);
-        assertEquals(1.4, t1.getLensNA().floatValue());
+        // Now changing these to doubleValue() post #1150 fix.
+        assertEquals(1.4, t1.getLensNA().doubleValue(), 0.001);
+        assertEquals(1.4, t1.getLensNA().doubleValue(), Float.MIN_VALUE);
+        assertEquals(1.4, t1.getLensNA().doubleValue());
 
         // Test via query
         Objective t2 = iQuery.find(Objective.class, o.getId());
-        assertEquals(1.4, t2.getLensNA().floatValue());
+        assertEquals(1.4, t2.getLensNA().doubleValue());
     }
 
     @Test(groups = "ticket:1150")

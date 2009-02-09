@@ -309,9 +309,9 @@ public class OMEROMetadataStoreClient
      * @return RType or <code>null</code> if <code>value</code> is 
      * <code>null</code>.
      */
-    public RFloat toRType(Float value)
+    public RDouble toRType(Float value)
     {
-        return value == null? null : rfloat(value);
+        return value == null? null : rdouble(value);
     }
     
     /**
