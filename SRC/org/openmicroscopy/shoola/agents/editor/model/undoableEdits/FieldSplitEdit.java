@@ -216,6 +216,8 @@ public class FieldSplitEdit
 	 */
 	public void undo() {
 		
+		if (parentNode == null) 	return;		// can't split root
+		
 		// remove the new daughter node
 		treeModel.removeNodeFromParent(newNode);
 		
@@ -247,6 +249,8 @@ public class FieldSplitEdit
 	 * @see UndoableTreeEdit#redo()
 	 */
 	public void redo() {
+		
+		if (parentNode == null) 	return;		// can't split root
 		
 		// set the new name
 		field.setAttribute(NAME, newName);

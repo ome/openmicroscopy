@@ -554,6 +554,9 @@ public class FieldTextArea
      */
     private void splitField(int splitChar) {
     	
+    	// can't split root field
+    	if (treeNode.isRoot()) return;
+    			
     	// check that split is after name and before end of doc
     	String fieldName = null;
 		// get the new name...
