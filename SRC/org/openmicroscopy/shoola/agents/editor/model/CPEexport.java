@@ -389,10 +389,12 @@ public class CPEexport {
 		else {
 			// use a TEXT parameter to store any parameter type not 
 			// supported by CPE, eg. Ontology Term. 
-			addChildContent(parameter, "param-type", "TEXT");
+			addChildContent(parameter, CPEimport.PARAM_TYPE, "TEXT");
 			String value = param.getParamValue();
+			IXMLElement data = new XMLElement(CPEimport.DATA);
 			if (value != null) {
-				addChildContent(parameter, "value", value);
+				addChildContent(data, CPEimport.VALUE, value);
+				parameter.addChild(data);
 			}
 		}
 		

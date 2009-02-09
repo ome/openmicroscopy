@@ -352,7 +352,7 @@ public class Ontologies {
 			return null;
 		} 
 		
-		String termId = b3TermId.substring(separatorIndex);
+		String termId = b3TermId.substring(separatorIndex).trim();
 		
 		return termId;
 	}
