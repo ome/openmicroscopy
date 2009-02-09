@@ -1042,7 +1042,7 @@ class BlitzGateway (threading.Thread):
         else:
             return None
 
-    def getImage (self, oid):
+    '''def getImage (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1054,9 +1054,9 @@ class BlitzGateway (threading.Thread):
         if img is not None:
             return ImageWrapper(self, img)
         else:
-            return None
+            return None'''
     
-    def getImageForShare (self, oid):
+    def getImage (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}

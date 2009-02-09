@@ -2914,7 +2914,7 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
             raise Http404("Connection not available")
         if conn is None:
             raise Http404("Connection not available")
-        img = conn.getImageForShare(iid)
+        img = conn.getImage(iid)
     jpeg_data = img.getThumbnail((int(size),int(size)))
     if jpeg_data is None:
         raise Http404
