@@ -45,8 +45,9 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 
 /** 
  * This {@link AbstractUndoableEdit} performs the 'splitting' of a field/step,
- * so that a new step is created and added after the original step as a sibling
- * in the tree model. 
+ * so that a new step is created and added before the original step as a sibling
+ * in the tree model.
+ * (Added before, since adding after would come after child steps). 
  * The original step's name and content should be specified, as well as the 
  * content of the new step. The actual splitting of the step content is 
  * handled elsewhere, so that this class can merely place the content in the
@@ -260,12 +261,12 @@ public class FieldSplitEdit
 			field.addContent(newItem);
 		}
 		
-		// set new content for daughter
+		// set new content for daughter (to be added before parent)
 		for(IFieldContent newItem : newContent1) {
 			newField.addContent(newItem);
 		}
 		
-		// now add the new node (containing the new field) after the original 
+		// now add the new node (containing the new field) before the original 
 		int indexToAdd = parentNode.getIndex(node);
 		treeModel.insertNodeInto(newNode, parentNode, indexToAdd);
 		
