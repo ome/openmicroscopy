@@ -270,7 +270,9 @@ public class UserNotifierImpl
 												email);   
 		d.setVersion(manager.getVersionNumber());
     	d.addPropertyChangeListener(manager);
-    	d.setModal(true);
+    	// allow user to type in dialog while continue to use app. 
+    	d.setModal(false);
+    	d.setAlwaysOnTop(false);
     	UIUtilities.centerAndShow(d);
 	}
 
