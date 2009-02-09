@@ -319,4 +319,36 @@ BEGIN;
   CREATE OR REPLACE VIEW count_Session_annotationLinks_by_owner (Session_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM SessionAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
+
+--
+-- Finally, a function for showing our permissions
+-- select id, ome_perms(permissions) FROM sometable...
+--
+CREATE OR REPLACE FUNCTION ome_perms(p INT8) RETURNS VARCHAR AS '
+DECLARE
+    ln CHAR DEFAULT ''-'';
+    ur CHAR DEFAULT ''-'';
+    uw CHAR DEFAULT ''-'';
+    gr CHAR DEFAULT ''-'';
+    gw CHAR DEFAULT ''-'';
+    wr CHAR DEFAULT ''-'';
+    ww CHAR DEFAULT ''-'';
+BEGIN
+    -- shift 8
+    SELECT INTO ur CASE WHEN (cast(p as bit(64)) & cast(1024 as bit(64))) = cast(1024 as bit(64)) THEN ''r'' ELSE ''-'' END;
+    SELECT INTO uw CASE WHEN (cast(p as bit(64)) & cast( 512 as bit(64))) = cast( 512 as bit(64)) THEN ''w'' ELSE ''-'' END;
+    -- shift 4
+    SELECT INTO gr CASE WHEN (cast(p as bit(64)) & cast(  64 as bit(64))) = cast(  64 as bit(64)) THEN ''r'' ELSE ''-'' END;
+    SELECT INTO gw CASE WHEN (cast(p as bit(64)) & cast(  32 as bit(64))) = cast(  32 as bit(64)) THEN ''w'' ELSE ''-'' END;
+    -- shift 0
+    SELECT INTO wr CASE WHEN (cast(p as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64)) THEN ''r'' ELSE ''-'' END;
+    SELECT INTO ww CASE WHEN (cast(p as bit(64)) & cast(   2 as bit(64))) = cast(   2 as bit(64)) THEN ''w'' ELSE ''-'' END;
+
+    -- shift 18
+    -- for high-order bits, logic is reversed
+    SELECT INTO ln CASE WHEN (cast(p as bit(64)) & cast(262144 as bit(64))) = cast(262144 as bit(64)) THEN ''-'' ELSE ''L'' END;
+
+    RETURN ln || ur || uw || gr || gw || wr || ww;
+END;' LANGUAGE plpgsql;
+
 COMMIT;
