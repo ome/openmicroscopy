@@ -37,22 +37,17 @@
         <!-- These first tasks are "pseudo-compiles" copying in
         resources from other builds and jars to be packaged into
         the super jar -->
-        <unjar src="${target.dir}/libs/ice.jar" dest="${classes.dir}">
-            <patternset>
-                <exclude name="META-INF/**/*"/>
-            </patternset>
-        </unjar>
         <copy todir="${classes.dir}">
 	    <fileset dir="${resrc.dest}">
 	        <include name="omero.properties"/>
 	    </fileset>
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="omero/**/*.class"/>
-		<!-- This needs more refinement. Should only be in model, e.g.
-                <exclude name="omero/**/_*DelD.class"/>
-                <exclude name="omero/**/_*DelD$*.class"/>
+                <!-- Needs refinement
                 <exclude name="omero/**/_*Tie.class"/>
-		-->
+                <exclude name="omero/model/_*DelD.class"/>
+                <exclude name="omero/model/_*DelD$*.class"/>
+                -->
             </fileset>
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
@@ -78,11 +73,14 @@
     </target>
 
 
-    <target name="package" depends="lifecycle.package">
-        <jar update="true" destfile="${target.dir}/${ivy.module}.jar">
-            <fileset dir="${classes.dir}">
-                <include name="omero.properties"/>
-            </fileset>
+    <target name="package" depends="test"> <!-- depending on test like lifecycle.package does -->
+        <copy file="${target.dir}/libs/ice.jar" tofile="${target.dir}/${ivy.module}.jar"/>
+	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
+            <manifest>
+                <attribute name="Class-Path" value=""/>
+                <attribute name="Main-Class" value=""/>
+            </manifest>
+            <fileset dir="${classes.dir}" includes="**/*.class,omero.properties"/>
         </jar>
     </target>
 
