@@ -60,10 +60,7 @@ import pojos.FileAnnotationData;
 public class UserNotifierImpl 
     implements UserNotifier
 {
-	
-	/** Default title for the comment dialog. */
-    private static final String     DEFAULT_COMMENT_TITLE = "Comment";
-    
+
     /** Default title for the error dialog. */
     private static final String     DEFAULT_ERROR_TITLE = "Error";
  
@@ -115,26 +112,6 @@ public class UserNotifierImpl
         dialog.pack();  
         UIUtilities.centerAndShow(dialog);
     }
-    
-    /**
-     * Brings up a detailed notification dialog.
-     * 
-     * @param title     The dialog title.
-     * @param message   The dialog message.
-     * @param icon      The icon to show by the message.
-     * @param detail    The detailed message.
-     */
-    /*
-    private void showDetailedNotificationDialog(String title, String message, 
-                                                Icon icon, String detail)
-    {
-        DetailedNotificationDialog dialog = new DetailedNotificationDialog(
-                                                SHARED_FRAME, title, message, 
-                                                icon, detail);
-        dialog.pack();                                      
-        UIUtilities.centerAndShow(dialog);
-    }
-*/
     
     /**
      * Brings up a messenger dialog.
@@ -265,6 +242,7 @@ public class UserNotifierImpl
      */ 
 	public void submitMessage(String email)
 	{
+		/*
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, 
 												DEFAULT_COMMENT_TITLE, 
 												email);   
@@ -274,6 +252,9 @@ public class UserNotifierImpl
     	d.setModal(false);
     	d.setAlwaysOnTop(false);
     	UIUtilities.centerAndShow(d);
+    	*/
+		MessengerDialog d = manager.getCommentDialog(SHARED_FRAME, email);
+		UIUtilities.centerAndShow(d);
 	}
 
 	/** 

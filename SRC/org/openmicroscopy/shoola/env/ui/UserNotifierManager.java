@@ -101,8 +101,12 @@ class UserNotifierManager
 	private static final String INVOKER_ERROR = "insight_bugs";
 	
 	/** The tool invoking the service. */
-	private static final String INVOKER_COMMENT = "insight_comment";
+	private static final String INVOKER_COMMENT = "insight_comments";
 	
+	/** Default title for the comment dialog. */
+    private static final String	DEFAULT_COMMENT_TITLE = "Comment";
+    
+    
     /** Reference to the container. */
 	private Container						container;
 	
@@ -114,6 +118,9 @@ class UserNotifierManager
 	
 	/** Map keeping track of the ongoing data loading. */
 	private Map<String, UserNotifierLoader> loaders;
+	
+	/** The Dialog used to send comments. */
+	private MessengerDialog					commentDialog;
 	
 	/**
 	 * Sends a message.
@@ -335,6 +342,25 @@ class UserNotifierManager
 	}
 	
 	/**
+	 * Creates or recycles the messanger dialog.
+	 * 
+	 * @param frame The owner of the dialog.
+	 * @param email The e-mail address.
+	 * @return See above.
+	 */
+	MessengerDialog getCommentDialog(JFrame frame, String email)
+	{
+		if (commentDialog != null) return commentDialog;
+		commentDialog = new MessengerDialog(frame, DEFAULT_COMMENT_TITLE, 
+				email);   
+		commentDialog.setVersion(getVersionNumber());
+		commentDialog.addPropertyChangeListener(this);
+		commentDialog.setModal(false);
+		commentDialog.setAlwaysOnTop(false);
+		return commentDialog;
+	}
+	
+	/**
 	 * Reacts to property changes fired by dialogs.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -344,6 +370,8 @@ class UserNotifierManager
 		if (MessengerDialog.SEND_PROPERTY.equals(name)) {
 			MessengerDialog source = (MessengerDialog) pce.getSource();
 			handleSendMessage(source, (MessengerDetails) pce.getNewValue());
+		} else if (MessengerDialog.CLOSE_MESSENGER_PROPERTY.equals(name)) {
+			commentDialog = null;
 		} else if (OpeningFileDialog.SAVE_TO_DISK_PROPERTY.equals(name)) {
 			/*
 			Object value = pce.getNewValue();

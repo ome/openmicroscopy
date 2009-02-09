@@ -31,6 +31,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -50,6 +52,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -84,6 +89,7 @@ import layout.TableLayout;
  */
 public class MessengerDialog 
 	extends JDialog
+	implements DocumentListener
 {
 
 	/** Identifies the error dialog type. */
@@ -94,6 +100,9 @@ public class MessengerDialog
 	
 	/** Bound property indicating to send the message. */
 	public static final String		SEND_PROPERTY = "send";
+	
+	/** Bound property indicating to close the window. */
+	public static final String		CLOSE_MESSENGER_PROPERTY = "closeMessenger";
 	
 	/** The default size of the window. */
 	private static final Dimension 	DEFAULT_SIZE = new Dimension(700, 400);
@@ -206,6 +215,8 @@ public class MessengerDialog
 	{
 		setVisible(false);
 		dispose();
+		firePropertyChange(CLOSE_MESSENGER_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
 	}
 	
 	/** Copies the error message on the clipboard. */
@@ -236,6 +247,7 @@ public class MessengerDialog
 	{
 		String email = emailArea.getText().trim();
 		String comment = commentArea.getText().trim();
+		/*
 		if (!checkValidEmail(email)) {
 			IconManager icons = IconManager.getInstance();
 			MessageBox box = new MessageBox(this, "Unvalid email", 
@@ -246,17 +258,24 @@ public class MessengerDialog
 			box.centerMsgBox();
 			return;
 		}
+		*/
 		String error = null;
 		if (debugArea != null)  error = debugArea.getText().trim();
 		MessengerDetails details = new MessengerDetails(email, comment);
 		details.setExtra(version);
 		details.setError(error); 
 		firePropertyChange(SEND_PROPERTY, null, details);
+		close();
+		
 	}
 	
 	/** Initializes the various components. */
 	private void initComponents()
 	{
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) { close(); }
+		});
 		cancelButton = new JButton("Cancel");
 		formatButton(cancelButton, 'C', CANCEL_TOOLTIP);
 		cancelButton.addActionListener(new ActionListener() {
@@ -267,6 +286,7 @@ public class MessengerDialog
 		sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { send(); }
 		});
+		
 		
         emailArea = new JTextField(20);
         emailArea.setToolTipText(EMAIL_TOOLTIP);
@@ -287,6 +307,10 @@ public class MessengerDialog
         }
         getRootPane().setDefaultButton(sendButton);
         setAlwaysOnTop(true);
+        if (dialogType == COMMENT_TYPE) {
+			sendButton.setEnabled(false);
+			commentArea.getDocument().addDocumentListener(this);
+		}
 	}
 
 	/**
@@ -610,5 +634,38 @@ public class MessengerDialog
 	 * @return See above.
 	 */
 	public int getDialogType() { return dialogType; }
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		if (dialogType == COMMENT_TYPE) {
+			String text = commentArea.getText();
+			sendButton.setEnabled(text != null && text.trim().length() > 0);
+		}
+	}
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		if (dialogType == COMMENT_TYPE) {
+			String text = commentArea.getText();
+			sendButton.setEnabled(text != null && text.trim().length() > 0);
+		}
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }
