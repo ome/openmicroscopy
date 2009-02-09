@@ -154,21 +154,21 @@ public interface RenderingControl
      * 
      * @return See above.
      */
-    public float getPixelsPhysicalSizeX();
+    public double getPixelsPhysicalSizeX();
     
     /**
      * The size in microns of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    public float getPixelsPhysicalSizeY();
+    public double getPixelsPhysicalSizeY();
     
     /**
      * The size in microns of a pixel along the Z-axis.
      * 
      * @return See above.
      */
-    public float getPixelsPhysicalSizeZ();
+    public double getPixelsPhysicalSizeZ();
 
     /**
      * Specifies the model that dictates how transformed raw data has to be 

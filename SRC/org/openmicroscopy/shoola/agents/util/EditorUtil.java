@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import omero.RFloat;
+import omero.RDouble;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
@@ -882,7 +882,7 @@ public class EditorUtil
         	notSet.add(EX_WAVE);
         }
     	details.put(EX_WAVE, i);
-    	float f = data.getNDFilter();
+    	double f = data.getNDFilter();
     	if (f < 0) {
     		f = 0;
         	notSet.add(ND_FILTER);
@@ -985,7 +985,7 @@ public class EditorUtil
 			notSet.add(NOMINAL_MAGNIFICATION);
 		}
 		details.put(NOMINAL_MAGNIFICATION, i);
-		float f = data.getCalibratedMagnification();
+		double f = data.getCalibratedMagnification();
  		if (f < 0) {
  			f = 0;
  			notSet.add(CALIBRATED_MAGNIFICATION);
@@ -1057,7 +1057,7 @@ public class EditorUtil
     		return details;
     	}
     	Object o = data.getTemperature();
-    	float f = 0;
+    	double f = 0;
     	if (o == null) {
     		notSet.add(TEMPERATURE);
     	} else f = (Float) o;
@@ -1180,7 +1180,7 @@ public class EditorUtil
 		details.put(SERIAL_NUMBER, s);
     	s = data.getLightSourceKind();
     	details.put(LIGHT_TYPE, s);
-    	float f = data.getLightSourcePower();
+    	double f = data.getLightSourcePower();
     	if (f < 0) {
     		notSet.add(POWER);
     		f = 0;
@@ -1288,7 +1288,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
-    	float f = data.getDetectorSettingsGain();
+		double f = data.getDetectorSettingsGain();
     	if (f > 0)  details.put(GAIN, f);
     	else {
     		f = data.getDetectorGain();
@@ -1364,7 +1364,7 @@ public class EditorUtil
 		details.put(POSITION_Y, new Float(0));
 		details.put(POSITION_Z, new Float(0));
     	if (plane != null) {
-    		RFloat o = plane.getDeltaT();
+    		RDouble o = plane.getDeltaT();
     		if (o != null) 
     			details.put(DELTA_T, o.getValue());	
     		o = plane.getExposureTime();

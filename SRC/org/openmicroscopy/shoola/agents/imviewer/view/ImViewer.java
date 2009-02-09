@@ -432,21 +432,21 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public float getPixelsSizeX();
+	public double getPixelsSizeX();
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	public float getPixelsSizeY();
+	public double getPixelsSizeY();
 
 	/**
 	 * Returns the size in microns of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public float getPixelsSizeZ();
+	public double getPixelsSizeZ();
 
 	/**
 	 * Returns the title of the viewer.

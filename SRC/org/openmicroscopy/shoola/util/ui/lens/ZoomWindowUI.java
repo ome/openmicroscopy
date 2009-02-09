@@ -162,7 +162,7 @@ class ZoomWindowUI
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	void setXYPixelMicron(float x, float y)
+	void setXYPixelMicron(double x, double y)
 	{
 		statusPanel.setXYPixelMicron(x, y);
 		statusPanel.repaint();

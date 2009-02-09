@@ -179,13 +179,13 @@ class OmeroMetadataServiceImpl
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
 			Object o = data.getPositionX();
 			if (o != null)
-				label.setPositionX(omero.rtypes.rfloat((Float) o));
+				label.setPositionX(omero.rtypes.rdouble((Float) o));
 			o = data.getPositionY();
 			if (o != null)
-				label.setPositionY(omero.rtypes.rfloat((Float) o));
+				label.setPositionY(omero.rtypes.rdouble((Float) o));
 			o = data.getPositionZ();
 			if (o != null)
-				label.setPositionZ(omero.rtypes.rfloat((Float) o));
+				label.setPositionZ(omero.rtypes.rdouble((Float) o));
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -199,14 +199,14 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(omero.rtypes.rfloat(
+			condition.setAirPressure(omero.rtypes.rdouble(
 					data.getAirPressure()));
-			condition.setHumidity(omero.rtypes.rfloat(
+			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
 			Object o = data.getTemperature();
 			if (o != null)
-				condition.setTemperature(omero.rtypes.rfloat((Float) o));
-			condition.setCo2percent(omero.rtypes.rfloat(
+				condition.setTemperature(omero.rtypes.rdouble((Float) o));
+			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}
 		
@@ -222,9 +222,9 @@ class OmeroMetadataServiceImpl
 				toUpdate.add(settings);
 			}
 			settings.setCorrectionCollar(
-					omero.rtypes.rfloat(data.getCorrectionCollar()));
+					omero.rtypes.rdouble(data.getCorrectionCollar()));
 			settings.setRefractiveIndex(
-					omero.rtypes.rfloat(data.getRefractiveIndex()));
+					omero.rtypes.rdouble(data.getRefractiveIndex()));
 			object = data.getMediumAsEnum();
 			if (object != null)
 				settings.setMedium((Medium) object);
@@ -275,10 +275,10 @@ class OmeroMetadataServiceImpl
 					data.getSerialNumber()));
 			objective.setManufacturer(
 					omero.rtypes.rstring(data.getManufacturer()));
-			objective.setLensNA(omero.rtypes.rfloat(data.getLensNA()));
+			objective.setLensNA(omero.rtypes.rdouble(data.getLensNA()));
 			objective.setNominalMagnification(omero.rtypes.rint(
 					data.getNominalMagnification()));
-			objective.setCalibratedMagnification(omero.rtypes.rfloat(
+			objective.setCalibratedMagnification(omero.rtypes.rdouble(
 					data.getCalibratedMagnification()));
 			object = data.getImmersionAsEnum();
 			if (object != null)
@@ -287,7 +287,7 @@ class OmeroMetadataServiceImpl
 			if (object != null)
 				objective.setCorrection((Correction) object);
 			objective.setWorkingDistance(
-					omero.rtypes.rfloat(data.getWorkingDistance()));
+					omero.rtypes.rdouble(data.getWorkingDistance()));
 		}
 		if (toUpdate.size() > 0) {
 			gateway.updateObjects(toUpdate, (new PojoOptions()).map());

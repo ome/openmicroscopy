@@ -79,10 +79,10 @@ class StatusPanel
 	private JLabel			lensZoom;
 	
 	/** Number of pixels per micron in x axis. */
-	private float 	micronInXAxis = 1;
+	private double 	micronInXAxis = 1;
 
 	/** Number of pixels per micron in y axis. */
-	private float 	micronInYAxis = 1;
+	private double 	micronInYAxis = 1;
 	
 	/** Display the units: width, height and x,y in pixels. */
 	private boolean displayInPixels = true;
@@ -164,7 +164,7 @@ class StatusPanel
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	public void setXYPixelMicron(float x, float y)
+	public void setXYPixelMicron(double x, double y)
 	{
 		micronInXAxis = x;
 		micronInYAxis = y;

@@ -212,7 +212,7 @@ public class LensComponent
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	public void setXYPixelMicron(float  x, float y)
+	public void setXYPixelMicron(double  x, double y)
 	{
 		zoomWindow.setXYPixelMicron(x, y);
 	}

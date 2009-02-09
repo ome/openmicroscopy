@@ -1405,7 +1405,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeX()
 	 */
-	public float getPixelsSizeX()
+	public double getPixelsSizeX()
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -1423,7 +1423,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeY()
 	 */
-	public float getPixelsSizeY()
+	public double getPixelsSizeY()
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -1441,7 +1441,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeZ()
 	 */
-	public float getPixelsSizeZ()
+	public double getPixelsSizeZ()
 	{
 		switch (model.getState()) {
 			case NEW:

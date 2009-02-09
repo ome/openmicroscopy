@@ -634,7 +634,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    float getPixelsSizeX() { return parent.getPixelsSizeX(); }
+    double getPixelsSizeX() { return parent.getPixelsSizeX(); }
     
     /**
      * Returns <code>true</code> if the unit bar is painted on top of 
@@ -828,14 +828,14 @@ class BrowserModel
      * 
      * @return See above.
      */
-    float getPixelsSizeY() { return parent.getPixelsSizeY(); }
+	double getPixelsSizeY() { return parent.getPixelsSizeY(); }
 
     /**
      * Returns the size in microns of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    float getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
+	double getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
    
     /** 
      * Returns the number of column for the grid.

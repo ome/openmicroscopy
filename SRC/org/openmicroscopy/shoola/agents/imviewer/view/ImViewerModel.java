@@ -951,7 +951,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeX()
+	double getPixelsSizeX()
 	{ 
 		return currentRndControl.getPixelsPhysicalSizeX(); 
 	}
@@ -961,7 +961,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeY()
+	double getPixelsSizeY()
 	{ 
 		return currentRndControl.getPixelsPhysicalSizeY(); 
 	}
@@ -971,7 +971,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeZ(){ return currentRndControl.getPixelsPhysicalSizeZ(); }
+	double getPixelsSizeZ(){ return currentRndControl.getPixelsPhysicalSizeZ(); }
 
 	/**
 	 * Returns <code>true</code> if the unit bar is painted on top of 
