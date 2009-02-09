@@ -850,14 +850,14 @@ public class OMEROMetadataStoreClient
             int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setPhysicalSizeX(toRType(physicalSizeY));
+        o.setPhysicalSizeY(toRType(physicalSizeY));
     }
 
     public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex,
             int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setPhysicalSizeX(toRType(physicalSizeZ));
+        o.setPhysicalSizeZ(toRType(physicalSizeZ));
     }
 
     public void setDimensionsTimeIncrement(Float timeIncrement, int imageIndex,
