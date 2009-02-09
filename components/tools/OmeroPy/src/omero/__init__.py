@@ -78,19 +78,19 @@ class client(object):
 
         args, id, host, port, pmap = self._repair(args, id, host, port, pmap)
 
-        # Equiv to multiple constructors. #######################
-        if id == None:
-            id = Ice.InitializationData()
-
-        if id.properties == None:
-            id.properties = Ice.createProperties()
-
         # Copying args since we don't really want them edited
         if not args:
             args = []
         else:
             args = list(args)
-        id.properties.parseIceCommandLineOptions(args);
+
+        # Equiv to multiple constructors. #######################
+        if id == None:
+            id = Ice.InitializationData()
+
+        if id.properties == None:
+            id.properties = Ice.createProperties(args)
+
         id.properties.parseCommandLineOptions("omero", args);
         if host:
             id.properties.setProperty("omero.host", str(host))
