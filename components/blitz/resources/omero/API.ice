@@ -461,6 +461,7 @@ module omero {
 	    void applySettingsToSet(long from, string toType, IObjectList to) throws ServerError;
 	    BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
 	    BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
+	    BooleanIdListMap applySettingsToImages(long from, omero::sys::LongList to) throws ServerError;
 	    bool applySettingsToImage(long from, long to) throws ServerError;
 	    bool applySettingsToPixels(long from, long to) throws ServerError;
 	    void setOriginalSettingsInImage(long imageId) throws ServerError;

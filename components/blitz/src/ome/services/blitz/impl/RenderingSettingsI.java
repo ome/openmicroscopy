@@ -15,6 +15,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_IRenderingSettings_applySettingsToDataset;
 import omero.api.AMD_IRenderingSettings_applySettingsToImage;
+import omero.api.AMD_IRenderingSettings_applySettingsToImages;
 import omero.api.AMD_IRenderingSettings_applySettingsToPixels;
 import omero.api.AMD_IRenderingSettings_applySettingsToProject;
 import omero.api.AMD_IRenderingSettings_applySettingsToSet;
@@ -80,6 +81,13 @@ public class RenderingSettingsI extends AbstractAmdServant implements
 
     }
 
+    public void applySettingsToImages_async(
+            AMD_IRenderingSettings_applySettingsToImages __cb, long from,
+            List<Long> to, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, from, to);
+
+    }
+    
     public void applySettingsToSet_async(
             AMD_IRenderingSettings_applySettingsToSet __cb, long from,
             String toType, List<IObject> to, Current __current)
