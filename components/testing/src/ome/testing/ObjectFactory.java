@@ -121,6 +121,9 @@ public class ObjectFactory {
         p.setSizeZ(new Integer(1));
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
+        p.setPhysicalSizeX(1.0f);
+        p.setPhysicalSizeY(1.0f);
+        p.setPhysicalSizeZ(1.0f);
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setPixelsType(pt);
         p.setDimensionOrder(dO);
