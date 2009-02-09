@@ -124,7 +124,7 @@ public class IQueryEnumProvider implements EnumerationProvider
         {
             log.warn("Enumeration " + klass + " with value of null.");
         }
-        if (value.length() == 0)
+		else if (value.length() == 0)
         {
             log.warn("Enumeration " + klass + " with value of zero length.");
         }
