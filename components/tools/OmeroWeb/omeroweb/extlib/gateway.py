@@ -470,7 +470,6 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
               "where p.id=:oid and ds.details.owner.id=:eid order by ds.name"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
@@ -533,8 +532,7 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-              "where p.id=:oid and (ds.details.owner.id=:eid or im.details.owner.id=:eid) order by ds.name"
+              "where p.id=:oid and ds.details.owner.id=:eid order by ds.name"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
@@ -1481,7 +1479,7 @@ class BlitzGateway (threading.Thread):
         admin_serv.updateSelf(experimenter)
         admin_serv.setDefaultGroup(experimenter, defultGroup)
         if password is not None:
-            admin_serv.changePassword(password)
+            admin_serv.changePassword(rstring(str(password)))
     
     def saveObject (self, obj):
         u = self.getUpdateService()

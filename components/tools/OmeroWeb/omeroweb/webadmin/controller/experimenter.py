@@ -150,7 +150,7 @@ class BaseExperimenter(BaseController):
         up_exp.institution = rstring(str(institution))
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
-        self.conn.updateMyAccount(up_exp, defaultGroup, rstring(str(password)))
+        self.conn.updateMyAccount(up_exp, defaultGroup, password)
     
     def isActive(self):
         for ob in self.experimenter.copyGroupExperimenterMap():
