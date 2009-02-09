@@ -21,8 +21,7 @@ import ome.model.core.Image;
 
 /**
  * Provides methods for dealing with the core "Pojos" of OME. Included are:
- * Projects, Datasets, Images, CategoryGroups, Categories, Classifications,
- * ImageAnnotations, and DatasetAnnotations.
+ * Projects, Datasets, Images.
  * 
  * <h3>Read API</h3>
  * <p>
@@ -118,7 +117,7 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param rootNodeType
      *            The type of the root node. Can be {@link Project},
-     *            {@link Dataset}, {@link CategoryGroup}, or {@link Category}.
+     *            {@link Dataset}.
      *            Cannot be null.
      * @param rootNodeIds
      *            The ids of the root nodes. Can be null if an Experimenter is
@@ -190,7 +189,7 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param rootNodeType
      *            top-most type which will be searched for Can be
-     *            {@link Project} or {@link CategoryGroup}. Not null.
+     *            {@link Project}. Not null.
      * @param imagesIds
      *            Contains the ids of the Images that sit at the bottom of the
      *            trees. Not null.
@@ -299,7 +298,7 @@ public interface IContainer extends ServiceInterface {
      * example, if you wanted to retrieve the number of Images contained in a
      * Dataset you would pass TODO.
      * 
-     * @param class
+     * @param type
      *            The fully-qualified classname of the object to be tested
      * @param property
      *            Name of the property on that class, omitting getters and
@@ -310,14 +309,12 @@ public interface IContainer extends ServiceInterface {
      *            Map. Unused.
      * @return A map from id integer to count integer
      */
-    public Map getCollectionCount(@NotNull
-    String type, @NotNull
-    String property, @NotNull
-    @Validate(Long.class)
-    Set<Long> ids, Map options);
+    public Map getCollectionCount(@NotNull String type, 
+    		@NotNull String property, 
+    		@NotNull @Validate(Long.class) Set<Long> ids, Map options);
 
     /**
-     * retrieves a collection with all members initialized ("loaded"). This is
+     * Retrieves a collection with all members initialized ("loaded"). This is
      * useful when a collection has been nulled in a previous query.
      * 
      * @param dataObject
@@ -329,9 +326,8 @@ public interface IContainer extends ServiceInterface {
      *            Map. Unused.
      * @return An initialized collection.
      */
-    public Collection retrieveCollection(@NotNull
-    IObject dataObject, @NotNull
-    String collectionName, Map options);
+    public Collection retrieveCollection(@NotNull IObject dataObject, 
+    		@NotNull String collectionName, Map options);
 
     // ~ WRITE API
     // =========================================================================
@@ -339,7 +335,7 @@ public interface IContainer extends ServiceInterface {
     /**
      * Creates the specified data object.
      * <p>
-     * A “placeholder” parent object is created if the data object is to be
+     * A placeholder parent object is created if the data object is to be
      * put in a collection.
      * </p>
      * <p>
@@ -350,11 +346,11 @@ public interface IContainer extends ServiceInterface {
      *      Project p = new Project(id,false);
      *      dataset.addProject(p);
      * </code>
-     * then for each parent relationship a DataObject {@see ILink link} is
+     * then for each parent relationship a DataObject {@link ILink#link} is
      * created.
      * 
-     * @param Pojo-based
-     *            IObject. Supported: Project, Dataset, CategoryGroup, Category,
+     * @param object
+     *            IObject. Supported: Project, Dataset,
      *            Annotation, Group, Experimenter. Not null.
      * @options Map as above.
      * @return the created object
@@ -373,25 +369,23 @@ public interface IContainer extends ServiceInterface {
      * 
      * @see createDataObject
      */
-    public IObject[] createDataObjects(@NotNull
-    IObject[] dataObjects, Map options);
+    public IObject[] createDataObjects(@NotNull IObject[] dataObjects, 
+    		Map options);
 
     /**
      * Removes links between OmeroDataObjects e.g Project-Dataset, Dataset-Image
      * Note that the objects themselves aren't deleted, only the Link objects.
-     * TODO We will need to add a delete method.
      * 
      * @param dataObjectLinks
      *            Not null.
      * @param options
      *            Map as above.
      */
-    public void unlink(@NotNull
-    ILink[] dataOjectLinks, Map options);
+    public void unlink(@NotNull ILink[] dataOjectLinks, Map options);
 
     /**
-     * typed convenience method for creating links. Functionality also availeble
-     * from {@see createDataObject}
+     * Convenience method for creating links. Functionality also availeble
+     * from {@link #createDataObject(IObject, Map)}
      * 
      * @param dataObjectLinks
      *            Array of links to be created.
@@ -399,8 +393,7 @@ public interface IContainer extends ServiceInterface {
      *            Map as above.
      * @return the created links
      */
-    public ILink[] link(@NotNull
-    ILink[] dataObjectLinks, Map options);
+    public ILink[] link(@NotNull ILink[] dataObjectLinks, Map options);
 
     /**
      * Updates a data object.
@@ -416,7 +409,7 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param dataObject
      *            Pojos-based IObject. Supported: supported: Project, Dataset,
-     *            CategoryGroup, Category, Annotation, Group, Experimenter.
+     *            Annotation, Group, Experimenter.
      * @param options
      *            Map as above.
      * @return created data object
@@ -434,8 +427,8 @@ public interface IContainer extends ServiceInterface {
      * @return created data objects.
      * @see #updateDataObject(IObject, Map)
      */
-    public IObject[] updateDataObjects(@NotNull
-    IObject[] dataObjects, Map options);
+    public IObject[] updateDataObjects(@NotNull IObject[] dataObjects, 
+    		Map options);
 
     /**
      * Deletes a data object. Currently this method takes a very conservative
@@ -446,8 +439,7 @@ public interface IContainer extends ServiceInterface {
      * @param dataObject
      * @param options
      */
-    public void deleteDataObject(@NotNull
-    IObject dataObject, Map options);
+    public void deleteDataObject(@NotNull IObject dataObject, Map options);
 
     /**
      * convenience method to save network calls. Loops over the array of
@@ -457,7 +449,6 @@ public interface IContainer extends ServiceInterface {
      * @param options
      *            Map as above.
      */
-    public void deleteDataObjects(@NotNull
-    IObject[] dataObjects, Map options);
+    public void deleteDataObjects(@NotNull IObject[] dataObjects, Map options);
 
 }
