@@ -31,7 +31,7 @@ module omero {
 
     /*
      * Default Ice.MessageSizeMax (8192kb). Not strictly necessary, but helps to
-     * curb memory issues.
+     * curb memory issues. Must be set before communicator initialization.
      */
     const int MESSAGESIZEMAX = 8192;
 
