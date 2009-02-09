@@ -208,6 +208,21 @@ public interface IRenderingSettings extends ServiceInterface {
 	boolean applySettingsToImage(@NotNull long from, @NotNull long to);
 	
 	/**
+	 * Applies rendering settings to a given <code>Image</code>. 
+	 * Returns <code>true</code> if the settings were 
+	 * successfully applied to, <code>false</code> otherwise.
+	 * 
+	 * @param from The Id of the pixels set to copy the rendering settings from.
+	 * @param to The Id of the image container to apply settings to.
+	 * @return See above.
+	 * @throws ValidationException if the rendering settings <code>from</code> 
+	 * is unlocatable or the image <code>to</code> is unlocatable.
+	 */
+	Map<Boolean, List<Long>> applySettingsToImages(@NotNull long from,
+			@NotNull  @Validate(Long.class) List<Long> to);
+	
+	
+	/**
 	 * Applies rendering settings to a given <code>Pixels</code>. 
 	 * 
 	 * @param from The Id of the pixels set to copy the rendering settings from.
