@@ -624,8 +624,13 @@ class OmeroDataServiceImpl
 		if (rootNodeIDs == null) po.exp(omero.rtypes.rlong(userID));
 		if (withLeaves) po.leaves();
 		else po.noLeaves();
+		if (rootNodeIDs == null || rootNodeIDs.size() == 0) {
+			if (ProjectData.class.equals(rootNodeType))
+				po.orphan();
+		}
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
 				po.map()); 
+		/*
 		if (rootNodeIDs == null && parents != null) {
 			Class klass = null;
 			if (rootNodeType.equals(ProjectData.class))
@@ -664,6 +669,7 @@ class OmeroDataServiceImpl
 				if (orphans.size() > 0) parents.addAll(orphans);
 			}
 		}
+		*/
 		return parents;                            
 	}
 
