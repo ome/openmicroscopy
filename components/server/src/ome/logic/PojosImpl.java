@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IContainer;
 import ome.api.ServiceInterface;
@@ -35,7 +34,6 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
-import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
@@ -65,6 +63,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
+	/**
+	 * Returns the Interface implemented by this class.
+	 * 
+	 * @return See above.
+	 */
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IContainer.class;
     }
@@ -72,13 +75,21 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     // ~ READ
     // =========================================================================
 
+    /** Query to load the number of annotations per image. */
     final static String loadCountsImages = "select img from Image img "
             + "left outer join fetch img.annotationLinksCountPerOwner iac "
             + "where img in (:list)";
+    
+    /** Query to load the number of annotations per dataset. */
     final static String loadCountsDatasets = "select d from Dataset d "
             + "left outer join fetch d.annotationLinksCountPerOwner "
-            + "left outer join fetch d.imageLinksCountPerOwner where d in (:list)";
+            + "left outer join fetch d.imageLinksCountPerOwner where d " 
+            + "in (:list)";
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#loadContainerHierarchy(Class, Set, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
@@ -106,21 +117,53 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                         .addOptions(po.map()));
         List<IObject> l = iQuery.execute(q);
 
+        Dataset d;
         // WORKAROUND ticket:882
         if (Project.class.equals(rootNodeType)) {
+
             Set<Dataset> datasets = new HashSet<Dataset>();
+            Project p;
             for (IObject o : l) {
-                Project p = (Project) o;
+                p = (Project) o;
                 datasets.addAll(p.linkedDatasetList());
             }
+            if (po.isOrphan()) {
+            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
+            		Iterator<Dataset> i = datasets.iterator();
+            		Set<Long> linked = new HashSet<Long>();
+            		while (i.hasNext()) {
+						linked.add(i.next().getId());
+					}
+            		q = getQueryFactory().lookup(
+                            PojosLoadHierarchyQueryDefinition.class.getName(),
+                            new Parameters().addClass(Dataset.class).addIds(rootNodeIds)
+                            .addOptions(po.map()));
+            		List<IObject> list = iQuery.execute(q);
+            		Iterator<IObject> j = list.iterator();
+            		Long id;
+            		
+            		while (j.hasNext()) {
+            			d = (Dataset) j.next();
+						id = d.getId();
+						if (!linked.contains(id)) {
+							l.add(d);
+							datasets.add(d);
+						}
+					}
+            	}
+            }
+        	
+        	
             if (datasets.size() > 0) {
                 iQuery.findAllByQuery(loadCountsDatasets, new Parameters()
                         .addSet("list", datasets));
             }
+            
+            
         } else if (Dataset.class.isAssignableFrom(rootNodeType)) {
             Set<Image> images = new HashSet<Image>();
             for (IObject o : l) {
-                Dataset d = (Dataset) o;
+                d = (Dataset) o;
                 images.addAll(d.linkedImageList());
             }
             if (images.size() > 0) {
@@ -132,7 +175,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             if (!po.isLeaves()) {
                 EvictBlock<Dataset> evict = new EvictBlock<Dataset>();
                 for (IObject o : l) {
-                    Dataset d = (Dataset) o;
+                    d = (Dataset) o;
                     evict.call(d);
                     d.putAt(Dataset.IMAGELINKS, null);
                 }
@@ -142,6 +185,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#findContainerHierarchies(Class, Set, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set findContainerHierarchies(final Class rootNodeType,
@@ -187,6 +234,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#findAnnotations(Class, Set, Set, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <T extends IObject, A extends IObject> Map<Long, Set<A>> findAnnotations(
@@ -264,6 +315,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                                 + "where pdl.parent.id in (:ids) order by dil.child.id");
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#getImages(Class, Set, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -311,6 +366,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#getImagesByOptions(Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set getImagesByOptions(Map options) {
@@ -331,6 +390,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#getUserImages(Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set getUserImages(Map options) {
@@ -351,39 +414,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
-    @RolesAllowed("user")
-    @Transactional(readOnly = true)
-    public Map getUserDetails(Set names, Map options) {
-
-        List results;
-        Map<String, Experimenter> map = new HashMap<String, Experimenter>();
-
-        /* query only if we have some ids */
-        if (names.size() > 0) {
-            Parameters params = new Parameters().addSet("name_list", names);
-            results = iQuery.findAllByQuery("select e from Experimenter e "
-                    + "left outer join fetch e.groupExperimenterMap gs "
-                    + "left outer join fetch gs.parent g "
-                    + "where e.omeName in ( :name_list )", params);
-
-            for (Object object : results) {
-                Experimenter e = (Experimenter) object;
-                map.put(e.getOmeName(), e);
-            }
-        }
-
-        /* ensures all ids appear in map */
-        for (Object object : names) {
-            String name = (String) object;
-            if (!map.containsKey(name)) {
-                map.put(name, null);
-            }
-        }
-
-        return map;
-
-    }
-
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#getCollectionCount(String, String, Set, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map getCollectionCount(String type, String property, Set ids,
@@ -411,6 +445,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return results;
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#retrieveCollection(IObject, String, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2) {
@@ -424,27 +462,40 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     // ~ WRITE
     // =========================================================================
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#createDataObject(IObject, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject createDataObject(IObject arg0, Map arg1) {
-        IObject retVal = iUpdate.saveAndReturnObject(arg0);
-        return retVal;
+        return iUpdate.saveAndReturnObject(arg0);
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#createDataObject(IObject[], Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject[] createDataObjects(IObject[] arg0, Map arg1) {
-        IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
-        return retVal;
-
+        return iUpdate.saveAndReturnArray(arg0);
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#unlink(ILink[], Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void unlink(ILink[] arg0, Map arg1) {
         deleteDataObjects(arg0, arg1);
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#link(ILink[], Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public ILink[] link(ILink[] arg0, Map arg1) {
@@ -456,34 +507,46 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#updateDataObject(IObject, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject updateDataObject(IObject arg0, Map arg1) {
-        IObject retVal = iUpdate.saveAndReturnObject(arg0);
-        return retVal;
-
+        return iUpdate.saveAndReturnObject(arg0);
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#updateDataObject(IObject[], Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject[] updateDataObjects(IObject[] arg0, Map arg1) {
-        IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
-        return retVal;
+        return iUpdate.saveAndReturnArray(arg0);
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#deleteDataObject(IObject, Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void deleteDataObject(IObject row, Map arg1) {
         iUpdate.deleteObject(row);
     }
 
+    /**
+     * Implemented as speficied by the {@link IContainer} I/F
+     * @see IContainer#deleteDataObjects(IObject[], Map)
+     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void deleteDataObjects(IObject[] rows, Map options) {
         for (IObject object : rows) {
             deleteDataObject(object, options);
         }
-
     }
 
     // ~ Helpers
