@@ -70,5 +70,31 @@ class TestITimeline(lib.ITest):
         
         self.root.sf.closeOnDestroy()
     
+    def test1173(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        update = self.root.sf.getUpdateService()
+        timeline = self.root.sf.getTimelineService()
+        
+        # create image
+        ds = DatasetI()
+        ds.setName(rstring('test1154-ds-%s' % (uuid)))
+        ds = update.saveAndReturnObject(ds)
+        ds.unload()
+        
+        # Here we assume that this test is not run within the last 1 second
+        start = long(time.time()*1000 - 86400) 
+        end = long(time.time()*1000 + 86400) 
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.new_user().id.val)
+        f = omero.sys.Filter()
+        f.limit = rint(10)
+        p.theFilter = f
+        print timeline.getEventsByPeriod(rtime(long(start)), rtime(long(end)), p)
+        self.assert_(timeline.getEventsByPeriod(rtime(long(start)), rtime(long(end)), p) > 0)
+        
+        self.root.sf.closeOnDestroy()
+    
 if __name__ == '__main__':
     unittest.main()
