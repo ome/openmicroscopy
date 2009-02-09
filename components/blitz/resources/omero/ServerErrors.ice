@@ -26,9 +26,9 @@
  *   |
  *   |_ ResourceError (non-recoverable)
  *   |
- *   |_ ConcurrencyException (recoverable) 
+ *   |_ ConcurrencyException (recoverable)
  *   |  |_ OptimisticLockException (changed data)
- *   |  |_ TooManyUsersException
+ *   |  \_ TooManyUsersException
  *   |     \_ DatabaseBusyException
  *   |
  *   |_ ApiUsageException (misuse of services)
@@ -40,21 +40,40 @@
  *   |
  *   \_SessionException
  *      |_RemovedSessionException (accessing a non-extant session)
- *      |_SessionTimeoutException (session timed out; not yet removed)
- * 
- * However, the Ice runtime also has its own hierarchy (which we subclass in
- * some cases);
+ *      \_SessionTimeoutException (session timed out; not yet removed)
  *
- *  Ice Exceptions
- *  ==============
- *  Glacier2::CannotCreateSessionException (only exception throwable by createSession)
- *   |_ omero.AuthenticationException 
- *   |_ omero.ExpiredCredentialException
- *   |_ omero.WrappedCreateSessionException
- *   \_ omero.licenses.NoAvailableLicensesException (see tools/licenses)
+ *
+ * However, the Ice runtime also has its own hierarchy (which we subclass in
+ * some cases). The shown subclasses below are not exhaustive, but show those
+ * which an application's exception handler may want to deal with.
+ *
+ *
+ *  Ice::Exception
+ *   |
+ *   |_ Ice::UserException (super class of all application exceptions)
+ *   |  |
+ *   |  \_ Glacier2::CannotCreateSessionException (only exception throwable by createSession)
+ *   |      |_ omero::AuthenticationException (bad login)
+ *   |      |_ omero::ExpiredCredentialException (old password)
+ *   |      |_ omero::WrappedCreateSessionException (any other server error during createSession)
+ *   |      \_ omero::licenses::NoAvailableLicensesException (see tools/licenses)
+ *   |
+ *   \_ Ice::LocalException (should generally be considered fatal. See exceptions below)
+ *       |
+ *       |_ Ice::ProtocolException (something went wrong on the wire. Wrong version?)
+ *       |
+ *       |_ Ice::RequestFailedException
+ *       |   |_ ObjectNotExistException (Service timeout or similar?)
+ *       |   \_ OperationNotExistException (Improper use of uncheckedCast?)
+ *       |
+ *       |_ Ice::UknownException (server threw an unexpected exception. Bug!)
+ *       |
+ *       \_ Ice::TimeoutException
+ *           \_ Ice::ConnectTimeoutException (Couldn't establish a connection. Retry?)
+ *
  *
  */
- 
+
 module omero
 {
   /*
