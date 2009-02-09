@@ -98,6 +98,7 @@ module omero {
     const string POJOOFFSET       = "offset";         // omero::RInt
     const string POJOSTARTTIME    = "startTime";      // omero::RTime
     const string POJOENDTIME      = "endTime";        // omero::RTime
+    const string POJOORPHAN      = "orphan";        // omero::RBool (whether or not orphan containers returned)
 
     module jobs {
 
