@@ -51,7 +51,7 @@ public class OMEWikiConstants
 	static final String	REF_NAME = "name";
 	
 	/** Regex expression for number. */
-	static  final String NUMBERREGEX = "[a-zA-Z0-9]";
+	static  final String NUMBERREGEX = "[0-9]+";
 	
 	/** Regex expression for text. */
 	static final String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;\\\\]*";
@@ -65,20 +65,20 @@ public class OMEWikiConstants
 	/** Regex for a wiki link. */
 	public static final String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
 	
-	/** Regex expression defining Thumbnail [Thumbnail: id 30]. */
-	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
+	/** Regex expression defining Thumbnail [Thumbnail: 30]. */
+	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
-	/** Regex expression defining Dataset [Dataset: id 30]. */
-	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
+	/** Regex expression defining Dataset [Dataset: 30]. */
+	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
-	/** Regex expression defining Project [Project: id 30]. */
-	static final String PROJECTREGEX = "\\[(Project|project):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
+	/** Regex expression defining Project [Project: 30]. */
+	static final String PROJECTREGEX = "\\[(Project|project):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 	
-	/** Regex expression defining Image [Image: id 30]. */
-	static final String IMAGEREGEX = "\\[(Image|image):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
+	/** Regex expression defining Image [Image: 30]. */
+	static final String IMAGEREGEX = "\\[(Image|image):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 	
 	/** Regex expression defining Protocol [Protocol: id 30]. */
-	static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*(id|ID|name|Name)[ ]+"+TEXTREGEX+"[ ]*\\]";
+	static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Wiki Heading. */
 	static final String HEADINGREGEX = "(^[=]{3}[ ]+"+SENTENCEREGEX+"[ ]+[=]{3}[ ]*$|^[=]{2}[ ]+"+SENTENCEREGEX+"[ ]+[=]{2}[ ]*$|^[=]{1}[ ]+"+SENTENCEREGEX+"[ ]+[=]{1}[ ]*$)";
@@ -109,18 +109,18 @@ public class OMEWikiConstants
 	
 	/** The tooltip for an image's control. */
 	static final String IMAGE_TOOLTIP = "Link to an Image " +
-			"e.g. [Image: id 1].  \nEnter the id of the image.";
+			"e.g. [Image: 1].  \nEnter the id of the image.";
 	
 	/** The tooltip for an protocol's control. */
 	static final String PROTOCOL_TOOLTIP = "Link to a Protocol " +
-			"e.g. [Protocol: id 1]. \nEnter the id of the protocol.";
+			"e.g. [Protocol: 1]. \nEnter the id of the protocol.";
 	
 	/** The default text for a link. */
 	static final String DEFAULT_HYPERLINK = "http://";
 	
 	/** The default text for a protocol's link. */
-	static final String DEFAULT_PROTOCOL = "[Protocol: id 1]";
+	static final String DEFAULT_PROTOCOL = "[Protocol: 1]";
 	
 	/** The default text for an image's link. */
-	static final String DEFAULT_IMAGE = "[Image: id 1]";
+	static final String DEFAULT_IMAGE = "[Image: 1]";
 }

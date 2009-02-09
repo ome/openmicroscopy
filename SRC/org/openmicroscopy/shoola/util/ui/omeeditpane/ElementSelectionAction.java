@@ -103,17 +103,21 @@ class ElementSelectionAction
 			tok[index] = st.nextToken(); 
 			index++; 
 		}
-		String value = tok[2];
-		String key = tok[1];
-		if (key != null) {
-			key = key.trim().toLowerCase();
-			if (OMEWikiConstants.REF_ID.equals(key)) {
-				if (value != null && value.length() > 0)
-					id = Long.parseLong(value);
-			} else if (OMEWikiConstants.REF_ID.equals(key)) {
-				name = value;
-			}
+		String value = tok[1];
+		String key = tok[0];
+		if(value != null)
+		{
+			if(value.length() >0)
+				id = Long.parseLong(value);
+			name = OMEWikiConstants.REF_ID;
 		}
+		else
+		{
+			name = OMEWikiConstants.REF_ID;
+			id = -1;
+		}
+			
+		
 		
 	}
 	

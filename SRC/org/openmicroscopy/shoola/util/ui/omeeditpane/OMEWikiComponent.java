@@ -85,19 +85,19 @@ public class OMEWikiComponent
 	/** Regex for a wiki link. */
 	public static final String WIKILINKREGEX = OMEWikiConstants.WIKILINKREGEX;
 	
-	/** Regex expression defining Thumbnail [Thumbnail: id 30]. */
+	/** Regex expression defining Thumbnail [Thumbnail: 30]. */
 	public static final String THUMBNAILREGEX = OMEWikiConstants.THUMBNAILREGEX;
 	
-	/** Regex expression defining Dataset [Dataset: id 30]. */
+	/** Regex expression defining Dataset [Dataset: 30]. */
 	public static final String DATASETREGEX = OMEWikiConstants.DATASETREGEX;
 	
-	/** Regex expression defining Project [Project: id 30]. */
+	/** Regex expression defining Project [Project: 30]. */
 	public static final String PROJECTREGEX = OMEWikiConstants.PROJECTREGEX;
 	
-	/** Regex expression defining Protocol [Protocol: id 30]. */
+	/** Regex expression defining Protocol [Protocol: 30]. */
 	public static final String PROTOCOLREGEX = OMEWikiConstants.PROTOCOLREGEX;
 	
-	/** Regex expression defining Image [Image: id 30]. */
+	/** Regex expression defining Image [Image: 30]. */
 	public static final String IMAGEREGEX = OMEWikiConstants.IMAGEREGEX;
 	
 	/** Regex expression defining Wiki Heading. */
@@ -141,7 +141,7 @@ public class OMEWikiComponent
 		DEFAULT_FORMATTERS = new LinkedHashMap<String, FormatSelectionAction>();
 		DEFAULT_FORMATTERS.put(URLREGEX, 
 				new FormatSelectionAction(
-				new ColourFormatter(Formatter.DEFAULT_URL, false), 
+				new ColourFormatter(Formatter.DEFAULT_URL, true), 
 				new URLLaunchAction()));
 		DEFAULT_FORMATTERS.put(IMAGEREGEX, 
 				new FormatSelectionAction(

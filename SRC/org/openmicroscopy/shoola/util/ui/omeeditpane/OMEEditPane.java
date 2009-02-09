@@ -92,6 +92,7 @@ class OMEEditPane
 		editorKit = new OMEEditorKit(formatters);
 		setEditorKitForContentType(DOC_TYPE, editorKit);
 	    setContentType(DOC_TYPE);
+	    
 	    addMouseListener(new MouseAdapter() {
 		
 			/**

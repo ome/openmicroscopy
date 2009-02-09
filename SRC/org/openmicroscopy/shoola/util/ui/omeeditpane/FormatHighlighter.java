@@ -52,7 +52,7 @@ class FormatHighlighter
 	implements Highlighter.HighlightPainter
  {
 	
-	/** The tickness of the line. */
+	/** The thickness of the line. */
 	private int		thickness;
 	
 	/** Creates a new instance. */
