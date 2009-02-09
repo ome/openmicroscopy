@@ -606,6 +606,33 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     /**
      * Implemented as specified by the {@link IRenderingSettings} I/F
      * 
+     * @see IRenderingSettings#applySettingsToImages(long, List)
+     */
+    @RolesAllowed("user")
+    public Map<Boolean, List<Long>> applySettingsToImages(long from, 
+    		List<Long> to) {
+    	List<Long> trueList = new ArrayList<Long>();
+        List<Long> falseList = new ArrayList<Long>();
+    	Map<Boolean, List<Long>> result = new HashMap<Boolean, List<Long>>();
+        result.put(Boolean.TRUE, trueList);
+        result.put(Boolean.FALSE, falseList);
+        
+        if (to == null) return result;
+        Iterator<Long> i = to.iterator();
+        Long id;
+        boolean b;
+        while (i.hasNext()) {
+			id = i.next();
+			b = applySettingsToImage(from, id);
+			if (b) trueList.add(id);
+			else falseList.add(id);
+		}
+        return result;
+    }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F
+     * 
      * @see IRenderingSettings#applySettingsToPixels(long, long)
      */
     @RolesAllowed("user")
