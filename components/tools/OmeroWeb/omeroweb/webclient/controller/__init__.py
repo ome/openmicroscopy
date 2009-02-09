@@ -75,4 +75,47 @@ class BaseController(object):
                     return getattr(rv,'val')
                 else:
                     return rv
+    
+    #####################################################################
+    # Permissions
+    
+    def objectPermissions(self, obj, permissions):
+        if permissions['owner'] == 'rw':
+            obj.details.permissions.setUserRead(True)
+            obj.details.permissions.setUserWrite(True)
+        elif permissions['owner'] == 'w':
+            obj.details.permissions.setUserRead(False)
+            obj.details.permissions.setUserWrite(True)
+        elif permissions['owner'] == 'r':
+            obj.details.permissions.setUserRead(True)
+            obj.details.permissions.setUserWrite(False)
+        else:
+            obj.details.permissions.setUserRead(False)
+            obj.details.permissions.setUserWrite(False)
         
+        if permissions['group'] == 'rw':
+            obj.details.permissions.setGroupRead(True)
+            obj.details.permissions.setGroupWrite(True)
+        elif permissions['group'] == 'w':
+            obj.details.permissions.setGroupRead(False)
+            obj.details.permissions.setGroupWrite(True)
+        elif permissions['group'] == 'r':
+            obj.details.permissions.setGroupRead(True)
+            obj.details.permissions.setGroupWrite(False)
+        else:
+            obj.details.permissions.setGroupRead(False)
+            obj.details.permissions.setGroupWrite(False)
+        
+        if permissions['world'] == 'rw':
+            obj.details.permissions.setWorldRead(True)
+            obj.details.permissions.setWorldWrite(True)
+        elif permissions['world'] == 'w':
+            obj.details.permissions.setWorldRead(False)
+            obj.details.permissions.setWorldWrite(True)
+        elif permissions['world'] == 'r':
+            obj.details.permissions.setWorldRead(True)
+            obj.details.permissions.setWorldWrite(False)
+        else:
+            obj.details.permissions.setWorldRead(False)
+            obj.details.permissions.setWorldWrite(False)
+    

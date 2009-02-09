@@ -371,12 +371,12 @@ class BaseContainer(BaseController):
         self.c_size = len(im_list_with_counters)
 
     # COLLABORATION - User
-    def listRootsInUser(self, exp_id):
+    def listRootsAsUser(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
         self.containers = dict()
-        pr_list = list(self.conn.listProjectsInUser(exp_id))
-        ds_list = list(self.conn.listDatasetsOutoffProjectInUser(exp_id))
-        #im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
+        pr_list = list(self.conn.listProjectsAsUser(exp_id))
+        ds_list = list(self.conn.listDatasetsOutoffProjectAsUser(exp_id))
+        #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         
         pr_ids = [pr.id for pr in pr_list]
         pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
@@ -401,9 +401,9 @@ class BaseContainer(BaseController):
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
-    def listDatasetsInProjectInUser(self, project_id, exp_id):
+    def listDatasetsInProjectAsUser(self, project_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        ds_list = list(self.conn.listDatasetsInProjectInUser(project_id, exp_id))
+        ds_list = list(self.conn.listDatasetsInProjectAsUser(project_id, exp_id))
         
         ds_ids = [ds.id for ds in ds_list]
         ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
@@ -418,9 +418,9 @@ class BaseContainer(BaseController):
         self.containers = {'datasets': ds_list_with_counters}
         self.c_size = len(ds_list_with_counters)
 
-    def listImagesInDatasetInUser(self, dataset_id, exp_id):
+    def listImagesInDatasetAsUser(self, dataset_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        im_list = list(self.conn.listImagesInDatasetInUser(dataset_id, exp_id))
+        im_list = list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id))
         im_ids = [im.id for im in im_list]
         im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
         
@@ -435,7 +435,7 @@ class BaseContainer(BaseController):
     def loadUserContainerHierarchy(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
         pr_list = list(self.conn.loadUserContainerHierarchy(exp_id))
-        ds_list = list(self.conn.listDatasetsOutoffProjectInUser(exp_id))
+        ds_list = list(self.conn.listDatasetsOutoffProjectAsUser(exp_id))
         
         pr_ids = [pr.id for pr in pr_list]
         pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
@@ -457,12 +457,12 @@ class BaseContainer(BaseController):
             ds.annotation_counter = ds_annotation_counter.get(ds.id)
             ds_list_with_counters.append(ds)
         
-        #im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
+        #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
         
     def loadUserImages(self, dataset_id, exp_id):
-        im_list = list(self.conn.listImagesInDatasetInUser(dataset_id, exp_id))
+        im_list = list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id))
         im_ids = [im.id for im in im_list]
         im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
         
@@ -474,7 +474,7 @@ class BaseContainer(BaseController):
         self.subcontainers = im_list_with_counters
     
     def loadUserOrphanedImages(self, exp_id):
-        im_list = list(self.conn.listImagesOutoffDatasetInUser(exp_id))
+        im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         im_ids = [im.id for im in im_list]
         im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
         
@@ -1138,48 +1138,4 @@ class BaseContainer(BaseController):
             new_pdl.setParent(pr._obj)
             self.conn.saveObject(new_pdl)
             return True
-
-
-    #####################################################################
-    # Permissions
-    
-    def objectPermissions(self, obj, permissions):
-        if permissions['owner'] == 'rw':
-            obj.details.permissions.setUserRead(True)
-            obj.details.permissions.setUserWrite(True)
-        elif permissions['owner'] == 'w':
-            obj.details.permissions.setUserRead(False)
-            obj.details.permissions.setUserWrite(True)
-        elif permissions['owner'] == 'r':
-            obj.details.permissions.setUserRead(True)
-            obj.details.permissions.setUserWrite(False)
-        else:
-            obj.details.permissions.setUserRead(False)
-            obj.details.permissions.setUserWrite(False)
-        
-        if permissions['group'] == 'rw':
-            obj.details.permissions.setGroupRead(True)
-            obj.details.permissions.setGroupWrite(True)
-        elif permissions['group'] == 'w':
-            obj.details.permissions.setGroupRead(False)
-            obj.details.permissions.setGroupWrite(True)
-        elif permissions['group'] == 'r':
-            obj.details.permissions.setGroupRead(True)
-            obj.details.permissions.setGroupWrite(False)
-        else:
-            obj.details.permissions.setGroupRead(False)
-            obj.details.permissions.setGroupWrite(False)
-        
-        if permissions['world'] == 'rw':
-            obj.details.permissions.setWorldRead(True)
-            obj.details.permissions.setWorldWrite(True)
-        elif permissions['world'] == 'w':
-            obj.details.permissions.setWorldRead(False)
-            obj.details.permissions.setWorldWrite(True)
-        elif permissions['world'] == 'r':
-            obj.details.permissions.setWorldRead(True)
-            obj.details.permissions.setWorldWrite(False)
-        else:
-            obj.details.permissions.setWorldRead(False)
-            obj.details.permissions.setWorldWrite(False)
 

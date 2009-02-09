@@ -487,8 +487,8 @@ class BlitzGateway (threading.Thread):
             yield ImageWrapper(self, e)
     
     
-    # User
-    def listProjectsInUser (self, eid):
+    # As a User
+    def listProjectsAsUser (self, eid):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -501,19 +501,18 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
 
-    def listDatasetsOutoffProjectInUser (self, eid):
+    def listDatasetsOutoffProjectAsUser (self, eid):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(long(eid))
         sql = "select ds from Dataset as ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
-                "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-                "where (ds.details.owner.id=:eid or im.details.owner.id=:eid) and " \
+                "where ds.details.owner.id=:eid and " \
                 "not exists ( select pld from ProjectDatasetLink as pld where pld.child=ds.id ) order by ds.name"
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
 
-    def listImagesOutoffDatasetInUser (self, eid):
+    def listImagesOutoffDatasetAsUser (self, eid):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -524,7 +523,7 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
 
-    def listDatasetsInProjectInUser (self, oid, eid):
+    def listDatasetsInProjectAsUser (self, oid, eid):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -536,7 +535,7 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
-    def listImagesInDatasetInUser (self, oid, eid):
+    def listImagesInDatasetAsUser (self, oid, eid):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -556,10 +555,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["gid"] = rlong(long(gid))
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where pr.details.permissions!='-262247' and ((pr.details.group.id=:gid or ds.details.group.id=:gid) " \
-              "or (exists ( select im from Image as im where im.details.group.id=:gid and " \
-              "exists ( select dil from DatasetImageLink as dil where dil.child.id=im.id and dil.parent.id=ds.id)))) order by pr.name"
+              "where pr.details.permissions > '-262247' and pr.details.group.id=:gid order by pr.name"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
 
@@ -569,8 +565,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["gid"] = rlong(long(gid))
         sql = "select ds from Dataset as ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
-                "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-                "where ds.details.permissions!='-262247' and ((ds.details.group.id=:gid or im.details.group.id=:gid) and " \
+                "where ds.details.permissions > '-262247' and ds.details.group.id=:gid and " \
                 "not exists ( select pld from ProjectDatasetLink as pld where pld.child=ds.id)) order by ds.name"
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
@@ -581,7 +576,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["gid"] = rlong(long(gid))
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
-                "where im.details.permissions!='-262247' and im.details.group.id=:gid and " \
+                "where im.details.permissions > '-262247' and im.details.group.id=:gid and " \
                 "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id ) order by im.name"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
@@ -594,8 +589,7 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-              "where p.id=:oid and (ds.details.group.id=:gid or im.details.group.id=:gid) order by ds.name"
+              "where p.id=:oid and ds.details.group.id=:gid order by ds.name"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
@@ -611,17 +605,7 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
     
-    # LISTS
-    def listImagesInDataset(self, oid):
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group left outer join fetch im.datasetLinks dil " \
-              "left outer join fetch dil.parent ds where ds.id=:oid order by im.name"
-        for e in q.findAllByQuery(sql, p):
-            yield ImageWrapper(self, e)
-            
+    # LISTS selections
     def listSelectedImages(self, ids):
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -669,13 +653,7 @@ class BlitzGateway (threading.Thread):
         else: p.map["eid"] = rlong(long(eid))
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
               "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where pr.details.owner.id=:eid or " \
-              "(exists ( select ds from Dataset as ds where ds.details.owner.id=:eid and " \
-              "exists ( select pdl from ProjectDatasetLink as pdl where pdl.child.id=ds.id and pdl.parent.id=pr.id))) or " \
-              "(exists ( select im from Image as im where im.details.owner.id=:eid and " \
-              "exists ( select dil from DatasetImageLink as dil where dil.child.id=im.id and  " \
-              "exists ( select ds from Dataset as ds where ds.id=dil.parent.id and " \
-              "exists ( select pdl from ProjectDatasetLink as pdl where pdl.child.id=ds.id and pdl.parent.id=pr.id))))) order by pr.name"
+              "where pr.details.owner.id=:eid or ds.details.owner.id=:eid order by pr.name"
         for e in q.findAllByQuery(sql,p):
             yield ProjectWrapper(self, e)
 
@@ -687,38 +665,8 @@ class BlitzGateway (threading.Thread):
         else: p.map["gid"] = rlong(long(gid))
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
               "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where pr.details.group.id=:gid and pr.details.permissions!='-262247' or " \
-              "(exists ( select ds from Dataset as ds where ds.details.group.id=:gid and ds.details.permissions!='-262247' and " \
-              "exists ( select pdl from ProjectDatasetLink as pdl where pdl.child.id=ds.id and pdl.parent.id=pr.id))) or " \
-              "(exists ( select im from Image as im where im.details.group.id=:gid and im.details.permissions!='-262247' and " \
-              "exists ( select dil from DatasetImageLink as dil where dil.child.id=im.id and  " \
-              "exists ( select ds from Dataset as ds where ds.id=dil.parent.id and ds.details.permissions!='-262247' and " \
-              "exists ( select pdl from ProjectDatasetLink as pdl where pdl.child.id=ds.id and pdl.parent.id=pr.id))))) order by pr.name"
-        for e in q.findAllByQuery(sql,p):
-            yield ProjectWrapper(self, e)
-
-    def loadOthersContainerHierarchy(self, gid=None):
-        q = self.getQueryService()
-        gr_list = list()
-        gr_list.extend(self.getEventContext().memberOfGroups)
-        gr_list.extend(self.getEventContext().leaderOfGroups)
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(gr_list)])
-        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where not exists ( select e from Experimenter as e where e.id=pr.details.owner.id and " \
-              "exists ( select gem from GroupExperimenterMap as gem where gem.child.id = e.id and gem.parent.id in (:ids))) or " \
-              "(exists ( select ds from Dataset as ds where " \
-              "not exists ( select e from Experimenter as e where e.id=ds.details.owner.id and " \
-              "exists ( select gem from GroupExperimenterMap as gem where gem.child.id = e.id and gem.parent.id in (:ids))) and " \
-              "exists ( select pdl from ProjectDatasetLink as pdl where pdl.child.id=ds.id and pdl.parent.id=pr.id))) or " \
-              "(exists ( select im from Image as im where " \
-              "not exists ( select e from Experimenter as e where e.id=im.details.owner.id and " \
-              "exists ( select gem from GroupExperimenterMap as gem where gem.child.id = e.id and gem.parent.id in (:ids))) and " \
-              "exists ( select dil from DatasetImageLink as dil where dil.child.id=im.id and  " \
-              "exists ( select ds from Dataset as ds where ds.id=dil.parent.id and " \
-              "exists ( select pdl from ProjectDatasetLink as pdl where pdl.child.id=ds.id and pdl.parent.id=pr.id))))) order by pr.name"
+              "where pr.details.group.id=:gid and pr.details.permissions > '-262247' and " \
+              "ds.details.group.id=:gid order by pr.name"
         for e in q.findAllByQuery(sql,p):
             yield ProjectWrapper(self, e)
 
@@ -1076,7 +1024,10 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group where pr.id=:oid "
         pr = query_serv.findByQuery(sql,p)
-        return ProjectWrapper(self, pr)
+        if pr is not None:
+            return ProjectWrapper(self, pr)
+        else:
+            return None
 
     def getDataset (self, oid):
         query_serv = self.getQueryService()
@@ -1086,7 +1037,10 @@ class BlitzGateway (threading.Thread):
         sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group left outer join fetch ds.projectLinks pdl " \
               "left outer join fetch pdl.parent p where ds.id=:oid "
         ds = query_serv.findByQuery(sql,p)
-        return DatasetWrapper(self, ds)
+        if ds is not None:
+            return DatasetWrapper(self, ds)
+        else:
+            return None
 
     def getImage (self, oid):
         query_serv = self.getQueryService()
@@ -1095,11 +1049,34 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select im from Image im " \
               "join fetch im.details.owner join fetch im.details.group " \
-              "left outer join fetch im.datasetLinks dil " \
-              "left outer join fetch dil.parent d " \
               "where im.id=:oid "
         img = query_serv.findByQuery(sql,p)
-        return ImageWrapper(self, img)
+        if img is not None:
+            return ImageWrapper(self, img)
+        else:
+            return None
+    
+    def getImageForShare (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        sql = "select i from Image as i " \
+              "left outer join fetch i.pixels as p " \
+              "left outer join fetch p.channels as c " \
+              "left outer join fetch c.logicalChannel as lc " \
+              "left outer join fetch c.statsInfo as sinfo " \
+              "left outer join fetch p.planeInfo as pinfo " \
+              "left outer join fetch p.thumbnails as thumb " \
+              "left outer join fetch p.pixelsFileMaps as map " \
+              "left outer join fetch map.parent as ofile " \
+              "left outer join fetch p.settings as setting " \
+              "where i.id=:oid"
+        img = query_serv.findByQuery(sql,p)
+        if img is not None:
+            return ImageWrapper(self, img)
+        else:
+            return None
     
     def getImageWithMetadata (self, oid):
         query_serv = self.getQueryService()
@@ -1506,27 +1483,57 @@ class BlitzGateway (threading.Thread):
         ms = list()
         p = omero.sys.Parameters()
         p.map = {} 
+        
         #images
         if len(imageInBasket) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in imageInBasket])
-            sql = "select i from Image i where i.id in (:ids) order by i.name"
+            sql = "select i from Image as i " \
+                  "left outer join fetch i.pixels as p " \
+                  "left outer join fetch p.channels as c " \
+                  "left outer join fetch c.logicalChannel as lc " \
+                  "left outer join fetch c.statsInfo as sinfo " \
+                  "left outer join fetch p.planeInfo as pinfo " \
+                  "left outer join fetch p.thumbnails as thumb " \
+                  "left outer join fetch p.pixelsFileMaps as map " \
+                  "left outer join fetch map.parent as ofile " \
+                  "left outer join fetch p.settings as setting " \
+                  "where i.id in (:ids)"
             items.extend(q.findAllByQuery(sql, p))
         #datasets
         if len(datasetInBasket) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in datasetInBasket])
-            sql = "select d from Dataset d where d.id in (:ids) order by d.name"
+            sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
+                  "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
+                  "left outer join fetch i.pixels as p " \
+                  "left outer join fetch p.channels as c " \
+                  "left outer join fetch c.logicalChannel as lc " \
+                  "left outer join fetch c.statsInfo as sinfo " \
+                  "left outer join fetch p.planeInfo as pinfo " \
+                  "left outer join fetch p.thumbnails as thumb " \
+                  "left outer join fetch p.pixelsFileMaps as map " \
+                  "left outer join fetch map.parent as ofile " \
+                  "left outer join fetch p.settings as setting " \
+                  "where ds.id in (:ids) order by ds.name"
             items.extend(q.findAllByQuery(sql, p))
-        #projects
-        if len(projectInBasket) > 0:
-            p.map["ids"] = rlist([rlong(long(a)) for a in projectInBasket])
-            sql = "select p from Project p where p.id in (:ids) order by p.name"
-            items.extend(q.findAllByQuery(sql, p))
+        
+        # TODO: Sharing project will be available when server will support loading leaves. 
+        # At this moment retriving project with leaves can be very slow.
+        # 
+        # projects
+        #if len(projectInBasket) > 0:
+        #    p.map["ids"] = rlist([rlong(long(a)) for a in projectInBasket])
+        #    sql = "select p from Project p " \
+        #          "where p.id in (:ids) order by p.name"
+        #    items.extend(q.findAllByQuery(sql, p))
+        
         #members
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
-            sql = "select e from Experimenter e where e.id in (:ids) order by e.omeName"
+            sql = "select e from Experimenter e " \
+                  "left outer join fetch e.annotationLinks eal left outer join fetch eal.child fa " \
+                  "join fetch fa.file f join fetch f.format fm " \
+                  "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
-        
         sid = sh.createShare(message, expiretion, items, ms, [], enable)
         
         #send email
@@ -2567,12 +2574,6 @@ class DatasetWrapper (BlitzObjectWrapper):
             self._pub = "Muliple"
             self._pubId = "Multiple"
             return "Multiple"
-
-class RenderingDefWrapper (BlitzObjectWrapper):
-
-    def getImage(self):
-        e = self._obj.pixels.image
-        return ImageWrapper(self, e)
 
 class DatasetImageLinkWrapper (BlitzObjectWrapper):
     pass

@@ -48,15 +48,21 @@ class BaseUploadFile(BaseController):
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
         oFile.setFormat(format);
+        self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
+        print oFile.details.permissions
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
         
         fa = FileAnnotationI()
         fa.setFile(of._obj)
+        self.objectPermissions(fa, {'owner':'rw', 'group':'r', 'world':'r'})
+        print fa.details.permissions
         l_ea = ExperimenterAnnotationLinkI()
         l_ea.setParent(self.conn.getUser())
         l_ea.setChild(fa)
+        self.objectPermissions(l_ea, {'owner':'rw', 'group':'r', 'world':'r'})
+        print l_ea.details.permissions
         self.conn.saveObject(l_ea)
 
         

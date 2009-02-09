@@ -65,7 +65,7 @@
     <ul class="simpleTree">
     <li class="root" id='0'><span>{{ nav.blitz }}</span>
         <ul>
-            {% if manager.image.copyDatasetLinks %}
+            {% if manager.hierarchy.0.copyDatasetLinks %}
             {% for c in manager.hierarchy %}
             <li class="line"> </li>
             {% if c.copyDatasetLinks %}

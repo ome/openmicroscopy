@@ -29,7 +29,7 @@
 {% endif %}
 
 {% if share.dsSize %}
-<div class="clear"></div>
+<div class="clear"></div>{{share.datasetInShare}}
 {% for d in share.datasetInShare %}
 <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" />
     {% if d.copyImageLinks %}

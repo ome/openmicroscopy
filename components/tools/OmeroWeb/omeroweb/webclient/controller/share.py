@@ -112,61 +112,32 @@ class BaseShare(BaseController):
         self.comments = list(self.conn.getComments(share_id))
         self.cmSize = len(self.comments)
 
-    def getShare(self, share_id):
-        self.membersInShare = ms = [m.id for m in self.conn.getAllMembers(share_id)]
-        #self.guestsInShare = ";".join(self.conn.getAllGuests(share_id))
-        self.allInShare = list(self.conn.getAllUsers(share_id))
+    def getMembers(self, share_id):
+        self.membersInShare = [m.id for m in self.conn.getAllMembers(share_id)]
+    
+    def getAllUsers(self, share_id):
+         self.allInShare = list(self.conn.getAllUsers(share_id))
 
     def loadShareContent(self, share_id):
         content = self.conn_share.getContents(share_id)
         
-        imInShare = list()
-        dsInShare = list()
-        prInShare = list()
+        self.imageInShare = list()
+        self.datasetInShare = list()
+        self.projectInShare = list()
 
         for ex in content:
             if isinstance(ex._obj, omero.model.ImageI):
-                imInShare.append(ex.id)
+                self.imageInShare.append(ex)
             elif isinstance(ex._obj, omero.model.DatasetI):
-                dsInShare.append(ex.id)
+                self.datasetInShare.append(ex)
             elif isinstance(ex._obj, omero.model.ProjectI):
-                prInShare.append(ex.id)
+                self.projectInShare.append(ex)
 
-        if len(imInShare) > 0: 
-            self.imageInShare = list(self.conn_share.getSpecifiedImages(imInShare))
-            self.imgSize = len(self.imageInShare)
-        if len(dsInShare) > 0: 
-            self.datasetInShare = list(self.conn_share.getSpecifiedDatasetsWithLeaves(dsInShare))
-            self.dsSize = len(self.datasetInShare)
-        if len(prInShare) > 0: 
-            self.projectInShare = list(self.conn_share.getSpecifiedProjectsWithLeaves(prInShare))
-            self.prSize = len(self.projectInShare)
+        self.imgSize = len(self.imageInShare)
+        self.dsSize = len(self.datasetInShare)
+        self.prSize = len(self.projectInShare)
         
         self.sizeOfShare = self.imgSize+self.dsSize+self.prSize
-        
-    def getShareActive(self, share_id):
-        content = self.conn.getContents(share_id)
-        self.membersInShare = list(self.conn.getAllMembers(share_id))
-        #self.guestsInShare = ";".join(self.conn.getAllGuests(share_id))
-        self.allInShare = self.conn.getAllUsers(share_id)
-        imInShare = list()
-        dsInShare = list()
-        prInShare = list()
-
-        for ex in content:
-            if isinstance(ex._obj, omero.model.ImageI):
-                imInShare.append(ex.id)
-            elif isinstance(ex._obj, omero.model.DatasetI):
-                dsInShare.append(ex.id)
-            elif isinstance(ex._obj, omero.model.ProjectI):
-                prInShare.append(ex.id)
-        
-        if len(imInShare) > 0:
-            self.imageInShare = list(self.conn_share.getSpecifiedImages(imInShare))
-        if len(dsInShare) > 0:
-            self.datasetInShare = list(self.conn_share.loadCustomHierarchy("Dataset", dsInShare))
-        if len(prInShare) > 0:
-            self.projectInShare = list(self.conn_share.loadCustomHierarchy("Project", prInShare))
 
 # ### Test code below this line ###
 

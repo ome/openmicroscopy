@@ -64,7 +64,8 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.controller.experimenter import BaseExperimenter
+from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
+from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
 from models import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, \
@@ -1117,6 +1118,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
                 tag = request.REQUEST['tag']
+                desc = request.REQUEST['description']
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
@@ -1302,7 +1304,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     elif o2_type and o2_id:
         if o2_type == 'dataset':
             if filter_user_id is not None:
-                manager.listImagesInDatasetInUser(o2_id, filter_user_id)
+                manager.listImagesInDatasetAsUser(o2_id, filter_user_id)
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
@@ -1312,14 +1314,14 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                 manager.loadUserImages(o1_id, filter_user_id)
         elif o1_type == 'project':
             if filter_user_id is not None:
-                manager.listDatasetsInProjectInUser(o1_id, filter_user_id)
+                manager.listDatasetsInProjectAsUser(o1_id, filter_user_id)
         elif o1_type == 'dataset':
             #if view == 'tree':
                 #if filter_user_id is not None:
                     #manager.loadUserImages(o1_id, filter_user_id)
             #else:
             if filter_user_id is not None:
-                manager.listImagesInDatasetInUser(o1_id, filter_user_id)
+                manager.listImagesInDatasetAsUser(o1_id, filter_user_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
@@ -1333,7 +1335,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                 manager.loadUserContainerHierarchy(filter_user_id)
         else:
             if filter_user_id is not None:
-                manager.listRootsInUser(filter_user_id)
+                manager.listRootsAsUser(filter_user_id)
 
     
     if template is None and view =='icon':
@@ -1518,6 +1520,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
                 tag = request.REQUEST['tag']
+                desc = request.REQUEST['description']
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
@@ -2272,7 +2275,7 @@ def manage_share(request, action, oid=None, **kwargs):
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == 'edit':
         template = "omeroweb/share_form.html"
-        share.getShare(oid)
+        share.getMembers(oid)
         share.getComments(oid)
         
         form = ShareForm(initial={'message': share.share.message, 'expiretion': share.share.getExpiretionDate, \
@@ -2299,7 +2302,7 @@ def manage_share(request, action, oid=None, **kwargs):
         return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == 'view':
         template = "omeroweb/share_details.html"
-        share.getShare(oid)
+        share.getAllUsers(oid)
         share.getComments(oid)
         form = ShareCommentForm()
         context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
@@ -2697,7 +2700,7 @@ def myaccount(request, action, **kwargs):
             form_file = UploadFileForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
-                controller.attache_photo(request.FILES['photo'])
+                controller.attache_photo(request.FILES['annotation_file'])
                 return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     else:
         if controller.ldapAuth == "" or controller.ldapAuth is None:
@@ -2903,19 +2906,15 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    img = None
-    try:
-        img = conn.getImage(iid)
-    except:
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
         except AttributeError:
             raise Http404("Connection not available")
         if conn is None:
             raise Http404("Connection not available")
-        img = conn.getImage(iid)
-    if img is None:
-        raise Http404
+        img = conn.getImageForShare(iid)
     jpeg_data = img.getThumbnail((int(size),int(size)))
     if jpeg_data is None:
         raise Http404
