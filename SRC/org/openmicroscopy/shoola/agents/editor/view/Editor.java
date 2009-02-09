@@ -31,11 +31,10 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.FileAnnotationData;
 
 /** 
- * 
+ * Defines the interface provided by the editor component.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -153,15 +152,18 @@ public interface Editor
 	 * in the model). 
 	 * If the current file is local, saves there, overwriting the old file. 
 	 * If file is on server...
+	 * 
+	 * @return See above.
 	 */
 	public boolean saveCurrentFile();
 	
 	/**
 	 * Saves to the specified file, and remembers file location in model.
 	 * 
-	 * @param file		The location to save to (local file). 
+	 * @param file The location to save to (local file). 
 	 * 
-	 * @return			True if the saving was successful
+	 * @return  <code>true</code> if the saving was successful, 
+	 * 			<code>false</code> otherwise.
 	 */
 	public boolean saveFileLocally(File file);
 	
@@ -169,7 +171,7 @@ public interface Editor
 	 * Saves the currently edited file to the server as a new file with
 	 * the given name.
 	 * 
-	 * @param fileName		The name to give the new file on the server. 
+	 * @param fileName	The name to give the new file on the server. 
 	 */
 	public void saveFileServer(String fileName);
 	
@@ -184,7 +186,8 @@ public interface Editor
      * Sets the Edited state of the Browser. 
      * Delegates to this method on the Browser
      * 
-     * @param editable		Set to true if the file has been edited. 
+     * @param editable	Pass to <code>true</code> if the file has been edited,
+     * 					<code>false</code> otherwise.
      */
     public void setEdited(boolean editable);
 }

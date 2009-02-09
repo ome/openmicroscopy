@@ -33,6 +33,7 @@ import javax.swing.tree.TreeModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
 import org.openmicroscopy.shoola.agents.editor.FileSaver;
@@ -40,6 +41,10 @@ import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 import pojos.FileAnnotationData;
 
@@ -249,7 +254,29 @@ class EditorModel
 	 */
 	boolean setFileToEdit(File file)
 	{
-		TreeModel treeModel = TreeModelFactory.getTree(file);
+		if (file == null) {
+			fileToEdit = null;
+			state = Editor.NEW;
+			fileName = EditorFactory.BLANK_MODEL;
+			// browser.setTreeModel(null);
+			return false;
+		}
+		TreeModel treeModel = null;
+		try {
+			treeModel = TreeModelFactory.getTree(file);
+		} catch (ParsingException e) {
+			Registry reg = EditorAgent.getRegistry();
+			LogMessage message = new LogMessage();
+			message.print(e);
+			reg.getLogger().error(this, message);
+			
+			// ...and notify the user. 
+			UserNotifier un = reg.getUserNotifier();
+		    un.notifyInfo("File Failed to Open", 
+					"The file could not be read, or was not recognised as " +
+					"an OMERO.editor file.");
+		}
+		
 		if (treeModel == null) {
 			fileToEdit = null;
 			state = Editor.NEW;

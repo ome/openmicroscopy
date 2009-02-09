@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JMenu;
@@ -64,29 +62,29 @@ import org.openmicroscopy.shoola.agents.editor.actions.SaveFileServerAction;
  * @since 3.0-Beta3
  */
 class EditorControl
-	implements ChangeListener, PropertyChangeListener
+	implements ChangeListener
 {
 
 	/** Identifies the <code>Close Editor</code> Action. */
-	static final Integer	CLOSE_EDITOR = new Integer(1);
+	static final Integer	CLOSE_EDITOR = Integer.valueOf(1);
 	
 	/** Identifies the <code>Open Local File</code> Action. */
-	static final Integer	OPEN_LOCAL_FILE = new Integer(2);
+	static final Integer	OPEN_LOCAL_FILE = Integer.valueOf(2);
 	
 	/** Identifies the <code>Save File As</code> Action. */
-	static final Integer	SAVE_FILE_LOCALLY = new Integer(3);
+	static final Integer	SAVE_FILE_LOCALLY = Integer.valueOf(3);
 	
 	/** Identifies the <code>New Blank File</code> Action. */
-	static final Integer	NEW_BLANK_FILE = new Integer(4);
+	static final Integer	NEW_BLANK_FILE = Integer.valueOf(4);
 	
 	/** Identifies the <code>Save UPE File</code> Action. */
-	static final Integer	SAVE_FILE = new Integer(5);
+	static final Integer	SAVE_FILE = Integer.valueOf(5);
 	
 	/** Identifies the <code>Open file from web</code> Action. */
-	static final Integer	OPEN_WWW_FILE = new Integer(6);
+	static final Integer	OPEN_WWW_FILE = Integer.valueOf(6);
 	
 	/** Identifies the <code>SaveFileServer</code> Action. */
-	static final Integer	SAVE_FILE_SERVER = new Integer(7);
+	static final Integer	SAVE_FILE_SERVER = Integer.valueOf(7);
 	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
@@ -245,15 +243,6 @@ class EditorControl
 			case Editor.DISCARDED:
 				view.close();
 		}
-	}
-
-	/**
-	 * Listens for changes to the Browser etc. 
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		//String name = evt.getPropertyName();
-		
-		
 	}
 
 }

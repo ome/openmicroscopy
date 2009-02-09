@@ -26,13 +26,11 @@ package org.openmicroscopy.shoola.agents.editor.model;
 
 import java.io.File;
 import java.io.FileInputStream;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
-
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
@@ -40,12 +38,9 @@ import net.n3.nanoxml.StdXMLReader;
 import net.n3.nanoxml.XMLParserFactory;
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 /** 
  * A Factory for creating a TreeModel from an XML editor file. 
@@ -63,16 +58,17 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  */
 public class TreeModelFactory
 {
-
 	
 	/**
-	 * Stub for creating a tree from XML file of several types. 
+	 * Creates a tree model fromt the passed file.
 	 * 
-	 * 
-	 * @param xHtmlFile
-	 * @return
+	 * @param file The file to handle.
+	 * @return See above.
+	 * @throws ParsingException If an error occured while parsing the file.
 	 */
-	public static TreeModel getTree(File xHtmlFile) {
+	public static TreeModel getTree(File file) 
+		throws ParsingException
+	{
 		// TODO return an Object (TreeModel if file was read OK, or String if not)
 		IXMLElement root = null;
 		
@@ -82,7 +78,7 @@ public class TreeModelFactory
 		try {
 			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
 
-			FileInputStream input = new FileInputStream(xHtmlFile);
+			FileInputStream input = new FileInputStream(file);
 			IXMLReader reader = new StdXMLReader(input);
 
 			parser.setReader(reader);
@@ -90,9 +86,7 @@ public class TreeModelFactory
 			root = (IXMLElement) parser.parse();
 			
 			input.close();
-		} catch (Exception ex) {
-			
-			ex.printStackTrace();
+		} catch (Throwable ex) {
 			errMsg = "Error reading XML file at " + absPath + "/n" 
 			+ ex.toString();
 		} 
@@ -103,28 +97,22 @@ public class TreeModelFactory
 		
 			rootName = root.getFullName();
 		
-			if ("protocol-archive".equals(rootName))
+			if ("protocol-archive".equals(rootName)) {
+				file.delete();
 				return CPEimport.createTreeModel(root);
-			
-			if ("ProtocolTitle".equals(rootName))
+			}
+				
+			if ("ProtocolTitle".equals(rootName)) {
+				file.delete();
 				return PROimport.createTreeModel(root);
-			
+			}
 			errMsg = "File format not recognised: " +
 			" XML root element named '" + rootName + 
 			"' is not an OMERO.Editor File"; 
 		}
-		
-		// if you reach here, something is wrong. Register error message...
-		Registry reg = EditorAgent.getRegistry();
-		reg.getLogger().error(new TreeModelFactory(), errMsg);
-		
-		// ...and notify the user. 
-		UserNotifier un = reg.getUserNotifier();
-	    un.notifyInfo("File Failed to Open", 
-				"The file could not be read, or was not recognised as " +
-				"an OMERO.editor file.");
-	      
-		return null;
+		file.delete();
+		// if you reach here, something is wrong. Throw exception.
+		throw new ParsingException(errMsg);
 	}
 	
 	
@@ -132,14 +120,12 @@ public class TreeModelFactory
 	 * Creates a new 'blank file' TreeModel, for users to start editing. 
 	 * Contains only a root field, with no attributes set, no parameters etc. 
 	 * 
-	 * @return			A new TreeModel 
+	 * @return A new TreeModel 
 	 */
-	public static TreeModel getTree() {
-		
+	public static TreeModel getTree()
+	{
 		IField rootField = new Field();
-		 
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
-		
 		return new DefaultTreeModel(rootNode);
 	}
 
