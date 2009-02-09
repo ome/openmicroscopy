@@ -2840,12 +2840,17 @@ class OMEROGateway
 			long id;
 			boolean b = false;
 			if (ImageData.class.equals(rootNodeType)) {
+				Map m = service.applySettingsToImages(pixelsID, nodes);
+				success = (List<Long>) m.get(Boolean.TRUE);
+				failure = (List<Long>) m.get(Boolean.FALSE);
+				/*
 				while (i.hasNext()) {
 					id = (Long) i.next();
 					b = service.applySettingsToImage(pixelsID, id);
 					if (b) success.add(id);
 					else failure.add(id);
 				}
+				*/
 			} else if (DatasetData.class.equals(rootNodeType)) {
 				Map m;
 				List l;
