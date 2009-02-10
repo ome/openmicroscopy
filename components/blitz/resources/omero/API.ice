@@ -279,6 +279,14 @@ module omero {
 	};
 
 	/*
+	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IMetadata.html
+	 */
+	["ami", "amd"] interface IMetadata extends ServiceInterface
+	{
+	    idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
+	};
+	
+	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html
 	 */
 	["ami", "amd"] interface IProjection extends ServiceInterface
@@ -869,8 +877,8 @@ module omero {
 	    IAdmin*          getAdminService() throws ServerError;
 	    IConfig*         getConfigService() throws ServerError;
 	    IContainer*      getContainerService() throws ServerError;
-            IDelete*         getDeleteService() throws ServerError;
-            ILdap*           getLdapService() throws ServerError;
+        IDelete*         getDeleteService() throws ServerError;
+        ILdap*           getLdapService() throws ServerError;
 	    IPixels*         getPixelsService() throws ServerError;
 	    IProjection*     getProjectionService() throws ServerError;
 	    IQuery*          getQueryService() throws ServerError;
@@ -882,6 +890,7 @@ module omero {
 	    ITimeline*       getTimelineService() throws ServerError;
 	    ITypes*          getTypesService() throws ServerError;
 	    IUpdate*         getUpdateService() throws ServerError;
+	    IMetadata*       getMetadataService() throws ServerError;
 
 	    // Central OMERO.blitz stateful services.
 	    Gateway*         createGateway() throws ServerError;

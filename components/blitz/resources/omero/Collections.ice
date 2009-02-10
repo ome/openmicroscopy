@@ -98,6 +98,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.Image>:java.util.List<omero.model.Image>"]
             sequence<omero::model::Image> ImageList;
 
+ 		["java:type:java.util.ArrayList<omero.model.LogicalChannel>:java.util.List<omero.model.LogicalChannel>"]
+            sequence<omero::model::LogicalChannel> LogicalChannelList;
+            
         ["java:type:java.util.ArrayList<omero.model.Pixels>:java.util.List<omero.model.Pixels>"]
             sequence<omero::model::Pixels> PixelsList;
 

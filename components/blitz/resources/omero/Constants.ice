@@ -76,6 +76,7 @@ module omero {
     const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
     const string RENDERINGSETTINGS= "omero.api.IRenderingSettings";
+    const string METADATASERVICE  = "omero.api.IMetadata";
 
     // User context for logging in
     const string USERNAME = "omero.user";

@@ -45,6 +45,8 @@ import omero.api.IPixelsPrx;
 import omero.api.IPixelsPrxHelper;
 import omero.api.IContainerPrx;
 import omero.api.IContainerPrxHelper;
+import omero.api.IMetadataPrx;
+import omero.api.IMetadataPrxHelper;
 import omero.api.IProjectionPrx;
 import omero.api.IProjectionPrxHelper;
 import omero.api.IQueryPrx;
@@ -90,6 +92,7 @@ import omero.constants.DELETESERVICE;
 import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
+import omero.constants.METADATASERVICE;
 import omero.constants.PIXELSSERVICE;
 import omero.constants.PROJECTIONSERVICE;
 import omero.constants.QUERYSERVICE;
@@ -316,6 +319,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 REPOSITORYINFO.value, current));
     }
 
+    public IMetadataPrx getMetadataService(Ice.Current current)
+    throws ServerError {
+    	return IMetadataPrxHelper.uncheckedCast(getByName(
+    			METADATASERVICE.value, current));
+    }
+    
     // ~ Stateful
     // =========================================================================
 

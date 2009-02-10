@@ -184,6 +184,16 @@
     </constructor-arg>
   </bean>
 
+ <bean id="omero.api.IMetadata" class="omero.api._IMetadataTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.MetadataI">
+            <constructor-arg ref="managed-ome.api.IMetadata"/>
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
+
   <!-- Stateful ome.api service-based -->
 
   <bean id="omero.api.Gateway" class="omero.api._GatewayTie" singleton="false">
