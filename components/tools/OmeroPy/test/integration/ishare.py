@@ -316,5 +316,125 @@ class TestISShare(lib.ITest):
         client_share1.sf.closeOnDestroy()
         client_share2.sf.closeOnDestroy()
     
+    def test1172(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.root.sf.getShareService()
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+        
+        ### create user
+        #group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        defaultGroup = admin.getGroup(gid)
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
+        
+        ## get user
+        user1 = admin.getExperimenter(eid)
+        
+        #create dataset with image
+        #dataset with image
+        ds = omero.model.DatasetI()
+        ds.setName(rstring("dataset-%s" % (uuid)))
+        # set permissions RW----
+        ds.details.permissions.setUserRead(True)
+        ds.details.permissions.setUserWrite(True)
+        ds.details.permissions.setGroupRead(False)
+        ds.details.permissions.setGroupWrite(False)
+        ds.details.permissions.setWorldRead(False)
+        ds.details.permissions.setWorldWrite(False)
+        ds = update.saveAndReturnObject(ds)
+        ds.unload()
+        
+        # create image
+        img = ImageI()
+        img.setName(rstring('test-img in dataset-%s' % (uuid)))
+        img.setAcquisitionDate(rtime(0))
+        # permission 'rw----':
+        img.details.permissions.setUserRead(True)
+        img.details.permissions.setUserWrite(True)
+        img.details.permissions.setGroupRead(False)
+        img.details.permissions.setGroupWrite(False)
+        img.details.permissions.setWorldRead(False)
+        img.details.permissions.setWorldWrite(False)
+        img = update.saveAndReturnObject(img)
+        img.unload()
+        
+        dil = DatasetImageLinkI()
+        dil.setParent(ds)
+        dil.setChild(img)
+        dil = update.saveAndReturnObject(dil)
+        dil.unload()
+        
+        # create share by root
+        items = list()
+        ms = list()
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = ds.id
+        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
+              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
+              "where ds.id=:oid"
+        items.extend(query.findAllByQuery(sql, p))
+        
+        #members
+        p.map["eid"] = rlong(eid)
+        sql = "select e from Experimenter e where e.id =:eid order by e.omeName"
+        ms = query.findAllByQuery(sql, p)
+        sid = share.createShare(("test-share-%s" % uuid), rtime(long(time.time()*1000 + 86400)) , items, ms, [], True)
+        
+        # USER RETRIEVAL
+        ## login as user1 
+        client_share1 = omero.client()
+        client_share1.createSession(user1.omeName.val,"ome")
+        share1 = client_share1.sf.getShareService()
+        query1 = client_share1.sf.getQueryService()
+        
+        sh = share1.getShare(sid)
+        content = share1.getContents(sid)
+        self.assert_(content[0].imageLinksLoaded == True) # Should return ?
+        self.assert_(len(content[0].copyImageLinks()) == 1) # Should return ?
+        
+        # get shared dataset and image when share is activated
+        share1.activate(sid)
+        
+        #retrieve dataset
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([ds.id])
+        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
+              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
+              "where ds.id in (:ids) order by ds.name"
+        res1 = query1.findAllByQuery(sql, p)
+        self.assert_(len(res1) == 1)
+        for e in res1:
+            self.assert_(e.id.val == img.id.val)
+        
+        # retrieve only image
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(img.id)
+        sql = "select im from Image im " \
+              "where im.id=:oid order by im.name"
+        res2 = query1.findByQuery(sql, p)
+        self.assert_(res2.id.val == img.id.val)
+        
+        client_share1.sf.closeOnDestroy()
+        self.root.sf.closeOnDestroy()
+        
 if __name__ == '__main__':
     unittest.main()
