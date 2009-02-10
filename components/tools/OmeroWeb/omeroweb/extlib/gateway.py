@@ -1285,6 +1285,21 @@ class BlitzGateway (threading.Thread):
         store.setFileId(long(f_id))
         return store.read(0,100000)
     
+    def hasExperimenterPhoto(self, oid=None):
+        photo = None
+        container = self.getContainerService()
+        try:
+            if oid is None:
+                ann = container.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
+            else:
+                ann = container.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
+            if ann is not None:
+                return AnnotationWrapper(self, ann)
+            else:
+                return None
+        except:
+            return None
+    
     def getExperimenterPhoto(self, oid=None):
         photo = None
         container = self.getContainerService()
@@ -1511,8 +1526,8 @@ class BlitzGateway (threading.Thread):
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
             sql = "select e from Experimenter e " \
-                  "left outer join fetch e.annotationLinks eal left outer join fetch eal.child fa " \
-                  "join fetch fa.file f join fetch f.format fm " \
+                  #"left outer join fetch e.annotationLinks eal left outer join fetch eal.child fa " \
+                  #"join fetch fa.file f join fetch f.format fm " \
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
         sid = sh.createShare(message, expiration, items, ms, [], enable)

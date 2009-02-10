@@ -36,33 +36,52 @@ class BaseUploadFile(BaseController):
         BaseController.__init__(self, conn)
 
     def attache_photo(self, newFile):
-        
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = self.conn.getFileFormt(f[1].upper())
+        has = self.conn.hasExperimenterPhoto()
+        if has is not None:
+            if newFile.content_type.startswith("image"):
+                f = newFile.content_type.split("/") 
+                format = self.conn.getFileFormt(f[1].upper())
+            else:
+                format = self.conn.getFileFormt(newFile.content_type)
+            oFile = OriginalFileI()
+            oFile.setName(rstring(str(newFile.name)));
+            oFile.setPath(rstring(str(newFile.name)));
+            oFile.setSize(rlong(long(newFile.size)));
+            oFile.setSha1(rstring("pending"));
+            oFile.setFormat(format);
+            self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
+
+            of = self.conn.saveAndReturnObject(oFile);
+            self.conn.saveFile(newFile, of.id)
+            
+            has._obj.setFile(of._obj)
+            self.conn.saveObject(has._obj)
+            
         else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
-        self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
-        print oFile.details.permissions
+            if newFile.content_type.startswith("image"):
+                f = newFile.content_type.split("/") 
+                format = self.conn.getFileFormt(f[1].upper())
+            else:
+                format = self.conn.getFileFormt(newFile.content_type)
+            oFile = OriginalFileI()
+            oFile.setName(rstring(str(newFile.name)));
+            oFile.setPath(rstring(str(newFile.name)));
+            oFile.setSize(rlong(long(newFile.size)));
+            oFile.setSha1(rstring("pending"));
+            oFile.setFormat(format);
+            self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
+
+            of = self.conn.saveAndReturnObject(oFile);
+            self.conn.saveFile(newFile, of.id)
+
+            fa = FileAnnotationI()
+            fa.setFile(of._obj)
+            self.objectPermissions(fa, {'owner':'rw', 'group':'r', 'world':'r'})
+            l_ea = ExperimenterAnnotationLinkI()
+            l_ea.setParent(self.conn.getUser())
+            l_ea.setChild(fa)
+            self.objectPermissions(l_ea, {'owner':'rw', 'group':'r', 'world':'r'})
+            self.conn.saveObject(l_ea)
         
-        of = self.conn.saveAndReturnObject(oFile);
-        self.conn.saveFile(newFile, of.id)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of._obj)
-        self.objectPermissions(fa, {'owner':'rw', 'group':'r', 'world':'r'})
-        print fa.details.permissions
-        l_ea = ExperimenterAnnotationLinkI()
-        l_ea.setParent(self.conn.getUser())
-        l_ea.setChild(fa)
-        self.objectPermissions(l_ea, {'owner':'rw', 'group':'r', 'world':'r'})
-        print l_ea.details.permissions
-        self.conn.saveObject(l_ea)
 
         
