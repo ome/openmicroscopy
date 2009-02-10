@@ -74,6 +74,7 @@ import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
+import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
@@ -258,6 +259,12 @@ class OMEROGateway
 	
 	/** The container service. */
 	private IContainerPrx							pojosService;
+	
+	/** The update service. */
+	private IUpdatePrx								updateService;
+	
+	/** The update service. */
+	private IMetadataPrx							metadataService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -567,7 +574,7 @@ class OMEROGateway
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns the {@link IUpdatePrx} service.
 	 *  
@@ -580,13 +587,40 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			return entry.getUpdateService();
+			if (updateService == null) {
+				updateService = entry.getUpdateService();
+				services.add(updateService);
+			}
+			return updateService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Update service.");
 		}
 		return null;
 	}
 
+	/**
+	 * Returns the {@link IMetadataPrx} service.
+	 *  
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IMetadataPrx getMetadataService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			if (metadataService == null) {
+				metadataService = entry.getMetadataService();
+				services.add(metadataService);
+			}
+			return metadataService; 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Update service.");
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the {@link IAdminPrx} service.
 	 * 
@@ -4165,6 +4199,24 @@ class OMEROGateway
 	{
 		//stage Label
 		isSessionAlive();
+		try {
+			IMetadataPrx service = getMetadataService();
+			List<Long> ids = new ArrayList<Long>(1);
+			ids.add(channelID);
+			List l = service.loadChannelAcquisitionData(ids);
+			if (l != null && l.size() == 1) {
+				LogicalChannel lc = (LogicalChannel) l.get(0);
+				ChannelAcquisitionData data = new ChannelAcquisitionData(lc);
+				//data.setLightSource(lc.getLightSourceSettings().getLightSource());
+				return data;
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot load channel acquisition data.");
+		}
+		return null;
+		/*
 		IQueryPrx service = getQueryService();
 		StringBuilder sb;
 		ParametersI param;
@@ -4213,10 +4265,11 @@ class OMEROGateway
 			} 
             return data;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
+		*/
+		
 	}
 	
 	/**

@@ -1288,12 +1288,13 @@ class OmeroDataServiceImpl
 	{
 		//Add controls
 		Set all = new HashSet();
+		Set<Long> plateIDs = new HashSet<Long>();
 		Collection r = gateway.loadScreenPlate(rootNodeType, userID);
 		all.addAll(r);
 		if (ScreenData.class.equals(rootNodeType)) {
 			Iterator i = r.iterator();
 			ScreenData screen;
-			Set<Long> plateIDs = new HashSet<Long>();
+			
 			Set<PlateData> plates;
 			Iterator j;
 			PlateData plate;

@@ -257,7 +257,7 @@ class PropertiesUI
     	
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
-    	label = UIUtilities.setTextFont("Pixels Size "+EditorUtil.MICRONS, 
+    	label = UIUtilities.setTextFont("Pixels Size (XYZ) "+EditorUtil.MICRONS, 
     			Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.PIXEL_SIZE_X);
