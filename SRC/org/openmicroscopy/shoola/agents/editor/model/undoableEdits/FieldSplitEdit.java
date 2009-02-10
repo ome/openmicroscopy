@@ -252,8 +252,10 @@ public class FieldSplitEdit
 		
 		if (parentNode == null) 	return;		// can't split root
 		
-		// set the new name
-		field.setAttribute(NAME, newName);
+		// set the new name of the daughter - to go before parent
+		newField.setAttribute(NAME, newName);
+		// the name should be removed from the old parent.
+		field.setAttribute(NAME, null);
 		
 		// remove old content from parent field
 		for(int i=field.getContentCount()-1; i>=0; i--) {
@@ -275,6 +277,16 @@ public class FieldSplitEdit
 		treeModel.insertNodeInto(newNode, parentNode, indexToAdd);
 		
 		notifySelect();
+		
+	}
+	
+	/**
+	 * Overrides {@link AbstractUndoableEdit#getPresentationName()} to 
+	 * return "Split Step"
+	 */
+	public String getPresentationName()
+	{
+		return "Split Step";
 	}
 	
 	public boolean canUndo() {
