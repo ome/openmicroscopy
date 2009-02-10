@@ -23,17 +23,10 @@ java_omero(){
 #
 java_omero clean
 
-#
-# Run the default build which most notably omits the C++ bindings.
-# This is primarily due to build time of C++, but it also means that
-# all the resulting build artifacts are platform-independent. Another
-# later build can be used to produce platform-specific bits.
-#
-java_omero
 
-#
-# Various builds for usability
-#
+# Build & Test
+java_omero build-all
+java_omero test
 
 #
 # Documentation and build reports
