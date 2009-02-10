@@ -330,7 +330,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {
         try
         {
-            store = new OMEROMetadataStoreClient(username, password, server, port);
+            store = new OMEROMetadataStoreClient();
+            store.initialize(username, password, server, port);
             store.getProjects();
             
             if (executor == null)

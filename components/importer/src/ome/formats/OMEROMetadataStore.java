@@ -285,6 +285,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     		    {
     		        handleReference((WellSample) targetObject,
     		                        (Image) referenceObject);
+    		        continue;
     		    }
     		}
     		

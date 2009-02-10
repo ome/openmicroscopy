@@ -49,7 +49,8 @@ public class CommandLineImporter
                                String host, int port)
         throws Exception
     {
-        store = new OMEROMetadataStoreClient(username, password, host, port);
+        store = new OMEROMetadataStoreClient();
+        store.initialize(username, password, host, port);
         reader = new OMEROWrapper();
         library = new ImportLibrary(store, reader);
     }
@@ -60,7 +61,8 @@ public class CommandLineImporter
     public CommandLineImporter(String sessionKey, String host, int port)
         throws Exception
     {
-        store = new OMEROMetadataStoreClient(host, port, sessionKey);
+        store = new OMEROMetadataStoreClient();
+        store.initialize(host, port, sessionKey);
         reader = new OMEROWrapper();
         library = new ImportLibrary(store, reader);
     }

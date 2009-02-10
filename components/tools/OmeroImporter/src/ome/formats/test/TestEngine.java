@@ -16,7 +16,7 @@ import omero.model.Pixels;
 public class TestEngine
 {   
     // Directory to use for test files
-    private static final String TEST_FOLDER = "/users/TheBrain/test_images/";
+    private static final String TEST_FOLDER = "/Users/TheBrain/test_images_shortrun/";
     
     // Display verbose output on command line
     private static final Boolean VERBOSE = false;
@@ -39,7 +39,9 @@ public class TestEngine
         wrapper = new OMEROWrapper();
         
         // Login
-        store = new OMEROMetadataStoreClient("root", "ome", "warlock.openmicroscopy.org.uk", 4063);
+        
+        store = new OMEROMetadataStoreClient();
+        store.initialize("root", "ome", "mage.openmicroscopy.org.uk", 4063);
         importLibrary = new ImportLibrary(store, wrapper);
         
         // Create a time stamp and use it for the project name
@@ -103,6 +105,16 @@ public class TestEngine
                         File file = new File(datasetDirectory + File.separator + fileList[j]);
                         
                         // Import and return pixels list
+                        System.err.println("------Importing file: " + file + "------");
+                        
+                        // Skip missing files
+                        if (!file.exists())
+                        {
+                            System.err.println("Image file " + file.getName() + 
+                                    " missing but referenced in test_setup.ini");
+                            continue;
+                        }
+                        
                         List<Pixels> pixList = importLibrary.importImage(file, 0, 0, 1, fileList[j], false);
                         
                         // Find how many individual series images there are in the file
@@ -239,6 +251,9 @@ public class TestEngine
         System.err.println("Root Test Folder: " + rootDirectory);
         
         new TestEngine();
+        
+        System.err.println("Done");
+        System.exit(0);
     }
         
 

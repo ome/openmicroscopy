@@ -159,7 +159,7 @@ public class OMEROMetadataStoreClient
 
     private Long currentPixId;
 
-    private void initialize()
+    private void initializeServices()
     	throws ServerError
     {
     	// Blitz services
@@ -187,22 +187,22 @@ public class OMEROMetadataStoreClient
     }
     
     /**
-     * Creates a new instance.
-     * 
+     * Initializes the MetadataStore with an already logged in, ready to go
+     * service factory.
      * @param serviceFactory The factory. Mustn't be <code>null</code>.
      */
-    public OMEROMetadataStoreClient(ServiceFactoryPrx serviceFactory)
+    public void initialize(ServiceFactoryPrx serviceFactory)
     	throws ServerError
     {
     	if (serviceFactory == null)
     		throw new IllegalArgumentException("No factory.");
     	this.serviceFactory = serviceFactory;
-    	initialize();
+    	initializeServices();
     }
     
     /**
-     * Default constructor taking string parameters to feed to the OMERO Blitz
-     * client object.
+     * Initializes the MetadataStore taking string parameters to feed to the 
+     * OMERO Blitz client object.
      * @param username User's omename.
      * @param password User's password.
      * @param server Server hostname.
@@ -214,27 +214,27 @@ public class OMEROMetadataStoreClient
      * @throws ServerError If there is a critical error communicating with the
      * server.
      */
-    public OMEROMetadataStoreClient(String username, String password,
-                                    String server, int port)
+    public void initialize(String username, String password,
+                           String server, int port)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         client c = new client(server, port);
         serviceFactory = c.createSession(username, password);
-        initialize();
+        initializeServices();
     }
     
     /**
-     * Constructor which joins an existing session.
+     * Initializes the MetadataStore by joining an existing session.
      * @param server Server hostname.
      * @param port Server port.
      * @param sessionKey Bind session key.
      */
-    public OMEROMetadataStoreClient(String server, int port, String sessionKey)
+    public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         client c = new client(server, port);
         serviceFactory = c.joinSession(sessionKey);
-        initialize();
+        initializeServices();
     }
 
     /**

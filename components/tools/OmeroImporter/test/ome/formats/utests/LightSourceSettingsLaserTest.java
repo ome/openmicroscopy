@@ -33,7 +33,8 @@ public class LightSourceSettingsLaserTest extends TestCase
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
         wrapper = new OMEROWrapper();
-        store = new OMEROMetadataStoreClient(sf);
+        store = new OMEROMetadataStoreClient();
+        store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));

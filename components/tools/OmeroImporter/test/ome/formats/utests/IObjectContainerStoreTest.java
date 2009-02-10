@@ -26,7 +26,8 @@ public class IObjectContainerStoreTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
-        store = new OMEROMetadataStoreClient(sf);
+        store = new OMEROMetadataStoreClient();
+        store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
