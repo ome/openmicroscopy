@@ -1288,31 +1288,42 @@ super class where the property was defined.
 [$jav]           if (toCopy == null) {
 [$jav]              throw new omero.ClientError("Argument cannot be null");
 [$jav]           }
-[$jav]           $javaType copy = toCopy.copy${PropertyName}(); // May also throw
-[$jav]           ${fieldName}.clear();
-[$jav]           ${fieldName}.addAll(copy);
+[$jav]           Collection<${property.shortType}> copy = toCopy.copy${PropertyName}(); // May also throw
 [$jav]           for( ${property.shortType} elt : (Collection<${property.shortType}>)${fieldName}) {
-[$jav]               elt.set$Inverse( null );
+[$jav]               elt.set$Inverse( this );
 [$jav]           }
+[$jav]           ${fieldName} = copy;
 [$jav]           toCopy.unload${PropertyName}();
 [$jav]       }
-[$pyc]       def clear${PropertyName}(self, $PYC_CURRENT):
+[$pyc]       def reload${PropertyName}(self, toCopy, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           if self._${propLoaded}:
+[$pyc]               throw new omero.ClientError("Cannot reload active collection: ${fieldName}")
+[$pyc]           if not toCopy:
+[$pyc]               throw new omero.ClientError("Argument cannot be null")
+[$pyc]           copy = toCopy.copy${PropertyName}() // May also throw
 [$pyc]           for elt in self._${fieldName}:
-[$pyc]               elt.set$Inverse( None )
-[$pyc]           self._${fieldName} = list()
+[$pyc]               elt.set$Inverse( self )
+[$pyc]           self._${fieldName} = copy
+[$pyc]           toCopy.unload${PropertyName}()
 [$pyc]
 [$hdr]       virtual void clear${PropertyName}($HDR_CURRENT);
 [$cpp]       void ${PojoI}::clear${PropertyName}($CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$cpp]           if (${propLoaded}) {
+[$cpp]               throw omero::ClientError(__FILE__,__LINE__,"Cannot reload active collection: ${fieldName}");
+[$cpp]           }
+[$cpp]           if (!toCopy) {
+[$cpp]               throw omero::ClientError(__FILE__,__LINE__,"Argument cannot be null");
+[$cpp]           }
+[$cpp]           ${cppType} copy = toCopy->copy${PropertyName}(); // May also throw
 [$cpp]           $cppType::iterator beg = ${fieldName}.begin();
 [$cpp]           $cppType::iterator end = ${fieldName}.end();
 [$cpp]           for(; beg != end; beg++) {
-[$cpp]               (*beg)->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]               (*beg)->set$Inverse( this );
 [$cpp]           }
-[$cpp]           ${fieldName}.clear();
+[$cpp]           ${fieldName} = copy;
+[$cpp]           toCopy->unload${PropertyName}();
 [$cpp]       }
 
 (B) List Modifications
