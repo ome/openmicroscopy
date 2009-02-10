@@ -144,10 +144,7 @@ namespace omero {
 	Ice::InitializationData id(data);
 
 	if ( ! id.properties ) {
-	    // Dummy properties to be passed in.
-	    int _argc = 0;
-	    char* _argv[] = {0};
-	    id.properties = Ice::createProperties(_argc, _argv);
+	    id.properties = Ice::createProperties(argc, argv);
 	}
 
 	Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);

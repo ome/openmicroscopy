@@ -174,7 +174,7 @@ public class client {
      */
     public client(String[] args, Ice.InitializationData id) {
         if (id.properties == null) {
-            id.properties = Ice.Util.createProperties(new String[] {});
+            id.properties = Ice.Util.createProperties(args);
         }
         args = id.properties.parseIceCommandLineOptions(args);
         args = id.properties.parseCommandLineOptions("omero", args);
