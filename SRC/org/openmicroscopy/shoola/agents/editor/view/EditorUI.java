@@ -27,10 +27,16 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+
+import javax.swing.Box;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 
@@ -66,6 +72,8 @@ class EditorUI
 	
 	/** Reference to the tool bar. */
 	private EditorToolBar			toolBar;
+	
+	private Box						toolBarContainer;
 	
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
@@ -130,8 +138,15 @@ class EditorUI
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
-		c.add(toolBar, BorderLayout.NORTH);
 		
+		JPanel toolBarBoxAlign = new JPanel(new BorderLayout());
+		toolBarBoxAlign.setBackground(null);
+		toolBarContainer = Box.createHorizontalBox();
+		toolBarContainer.setBorder(new EmptyBorder(4,4,4,4));
+		toolBarBoxAlign.add(toolBarContainer, BorderLayout.WEST);
+		c.add(toolBarBoxAlign, BorderLayout.NORTH);
+		
+		toolBarContainer.add(toolBar);
 		c.add(statusBar, BorderLayout.SOUTH);
 	}
 	
@@ -204,6 +219,9 @@ class EditorUI
     void displayFile()
     {
     	add(model.getBrowser().getUI(), BorderLayout.CENTER);
+    	
+    	toolBarContainer.add(new JSeparator(SwingConstants.VERTICAL));
+    	toolBarContainer.add(model.getBrowser().getToolBar());
     	
     	setTitle(model.getFileName());
     	

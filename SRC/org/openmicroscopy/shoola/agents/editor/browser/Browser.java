@@ -94,11 +94,20 @@ public interface Browser
     public TreeModel getTreeModel();
     
     /** 
-     * Returns the UI component. 
+     * Returns the UI component, not including the tool-bar. 
+     * Allows UI and tool-bar to be independently placed in the Editor UI. 
+     * @see #getToolBar();
      * 
      * @return See above.
      */
     public JComponent getUI();
+    
+    /**
+     * Returns the tool-bar for the browser. 
+     * 
+     * @return	See above. 
+     */
+    public JComponent getToolBar();
    
     /**
      * Sets the Edited state of the Browser.

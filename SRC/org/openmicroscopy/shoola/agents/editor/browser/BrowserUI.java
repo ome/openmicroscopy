@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -48,7 +49,8 @@ import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
  * The UI for the Browser (the View of the Browser MVC).
  * Displays a Navigation tree, {@link #navTree} on the left, 
  * a tabbed pane containing alternative views of the tree-model in the center,
- * and a {@link FieldEditorDisplay} on the right, for editing fields.  
+ * and a {@link FieldEditorDisplay} on the right, for editing fields.
+ * Does not include tool-bar, which can be retrieved with getToolBar();  
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -182,11 +184,6 @@ class BrowserUI
         leftSplitPane.setRightComponent(rightSplitPane);
         
         add(leftSplitPane, BorderLayout.CENTER);
-        
-        JPanel toolBarContainer = new JPanel(new BorderLayout());
-        toolBarContainer.add(new ToolBar(controller, navTree), 
-        												BorderLayout.WEST);
-        add(toolBarContainer, BorderLayout.NORTH);
     }
     
     /**
@@ -229,6 +226,16 @@ class BrowserUI
      */
     BrowserUI()
     {
+    }
+    
+    /**
+     * Returns a tool-bar for the Browser. 
+     * 
+     * @return		see above. 
+     */
+    JComponent getToolBar()
+    {
+    	return new ToolBar(controller, navTree);
     }
     
     /**

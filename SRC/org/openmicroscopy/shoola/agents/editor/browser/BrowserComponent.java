@@ -114,6 +114,12 @@ public class BrowserComponent
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getToolBar()
+     */
+	public JComponent getToolBar() { return view.getToolBar(); }
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setEdited(boolean)
      */
 	public void setEdited(boolean edited) 
