@@ -367,6 +367,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
     public Set getImagesByOptions(Map options) {
 
         PojoOptions po = new PojoOptions(options);
@@ -391,6 +392,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
     public Set getUserImages(Map options) {
 
         PojoOptions po = new PojoOptions(options);
