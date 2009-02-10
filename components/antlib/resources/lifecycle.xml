@@ -20,7 +20,7 @@
   http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
 
   Each target stair-steps down to prepare:
-  dist->integration->install->package->test->compile->generate->prepare
+  dist->integration->install->package->compile->generate->prepare
 
 -->
 
@@ -43,6 +43,12 @@
 	</target>
 
 	<target name="quick" description="Turn off tests">
+		<echo>
+
+
+                Deprecated: tests are disabled by default
+
+                </echo>
 		<property name="config.skip" value="true"/>
 		<property name="test.skip" value="true"/>
 		<property name="generate.skip" value="true"/>
@@ -74,10 +80,6 @@
 	</target>
 
 	<target name="prepare" depends="deps-retrieve">
-<!--
-		<available file="${deps.lib.dir}" property="deps.lib.dir.needed"/>
-		<antcall target="deps-retrieve" inheritrefs="true"/>
--->
                 <defineVariables/>
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
@@ -139,19 +141,6 @@
 		  <src path="${src.dir}"/>
 		  <src path="${src.dest}"/>
 		</myjavac>
-		<antcall target="compile-test" inheritRefs="true" inheritAll="true"/>
-	</target>
-
-	<target name="compile-test" unless="skip.compile">
-		<!-- Now compiling test classes with source 1) for extra checks and 2) for producing the *-testing jars -->
-		<copyTestResources/>
-		<javac
-			fork="yes"
-			debug="on"
-			destdir="${testclasses.dir}"
-			classpathref="omero.test.classpath" >
-			<src path="${test.dir}"/>
-		</javac>
 	</target>
 
 	<target name="testng-init" unless="test.skip">
@@ -178,11 +167,19 @@
 	</macrodef>
 
 
-	<target name="test" depends="compile,testng-init" unless="test.skip">
+	<target name="test-compile" depends="generate,testng-init" unless="test.skip">
 		<!-- may be overriden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="emma.enabled"   value="true"/>
 	        <property name="unit.suite" value="unit.testng.xml"/>
+		<copyTestResources/>
+		<javac
+			fork="yes"
+			debug="on"
+			destdir="${testclasses.dir}"
+			classpathref="omero.test.classpath" >
+			<src path="${test.dir}"/>
+		</javac>
 		<path id="emma.classpath">
 			<pathelement location="${classes.dir}"/>
 		</path>
@@ -193,6 +190,9 @@
 				merge="true"
 			/>
 		</emma>
+	</target>
+
+	<target name="test" depends="test-compile" unless="test.skip">
 		<suite>
 			<xmlfileset dir="${test.dir}">
 				<include name="${unit.suite}"/>
@@ -241,7 +241,7 @@
 		</junit> 
 	</target>
 
-	<target name="package" depends="test">
+	<target name="package" depends="compile">
 		<pathconvert property="mf.classpath"
 			refid="omero.classpath"
 			pathsep=" " dirsep="/">
@@ -307,7 +307,7 @@
 
 	<target name="install" depends="package,deps-publish-local"/>
 
-	<target name="integration" depends="install" unless="test.skip">
+	<target name="integration" depends="test-compile" unless="test.skip">
 		<!-- may be overriden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="integration.suite" value="integration.testng.xml"/>
@@ -316,6 +316,13 @@
 				<include name="${integration.suite}"/>
 			</xmlfileset>
 		</suite>
+		<emma enabled="${emma.enabled}" >
+			<report sourcepath="${src.dir}" >
+				<fileset dir="${target.dir}" includes="*.emma"/>
+				<html outfile="${target.dir}/coverage.html" />
+				<xml outfile="${target.dir}/coverage.xml" />
+			</report>
+		</emma>
 	</target>
 
 	<!-- Previously dependend on integration, but that may need special controls.

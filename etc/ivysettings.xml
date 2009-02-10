@@ -18,10 +18,13 @@
   <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache"/>
   <resolvers>
 
-    <!-- Main resolver. Uses the OMERO_HOME/lib/repository directory after first
-    searching in OMERO_HOME/lib/overrides as described in overrides/README.txt -->
+    <!-- Main resolver -->
 
     <chain name="omero-resolver" returnFirst="true">
+      <filesystem name="dist">
+        <artifact pattern="${ivy.settings.dir}/../dist/lib/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../dist/lib/[module]-[revision].ivy"/>
+      </filesystem>
       <filesystem name="nested_repo">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
@@ -36,10 +39,7 @@
       </filesystem>
    </chain>
 
-    <!-- Example maven2 configuration. Unused. -->
-    <ibiblio name="ibiblio-maven2" m2compatible="true" />
-
-    <chain name="loci-resolver">
+   <chain name="loci-resolver">
       <filesystem name="private">
         <artifact pattern="${user.home}/target/libs/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
       </filesystem>
@@ -66,5 +66,7 @@
     <module organisation="omero" name="bio-formats" resolver="${loci.resolver}" />
     <module organisation="omero" name="omejava" resolver="${loci.resolver}" />
   </modules>
+
+  <triggers/>
 
 </ivysettings>

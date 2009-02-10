@@ -32,7 +32,7 @@
         <property file="${basedir}/target/prefs.properties"/>
 
         <!-- Reproducing dependencies.xml locally -->
-        <target name="deps-configure"> <ivy:resolve file="${basedir}/omero.ivy" type="jar" conf="server"/> </target>
+        <target name="deps-configure"> <ivy:resolve file="${basedir}/omero.ivy" type="jar" conf="server" log="quiet"/> </target>
         <target name="deps-buildlist"> <ivy:buildlist> <fileset dir="${basedir}" includes="build.xml"/> </ivy:buildlist> </target>
         <target name="deps-retrieve"> <!-- noop --> </target>
         <target name="deps-publish-local"> <!-- noop --> </target>

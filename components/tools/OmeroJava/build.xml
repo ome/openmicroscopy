@@ -77,7 +77,7 @@
     </target>
 
 
-    <target name="package" depends="test"> <!-- depending on test like lifecycle.package does -->
+    <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
         <copy file="${target.dir}/libs/ice.jar" tofile="${target.dir}/${ivy.module}.jar"/>
 	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
             <manifest>

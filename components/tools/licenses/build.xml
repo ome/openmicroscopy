@@ -62,7 +62,6 @@
 		<delete file="${src.dest}/ome/services/licenses/LicenseBean.java"/>
 		<delete file="${src.dest}/ome/services/licenses/LicenseSessionListener.java"/>
 		<delete file="${src.dest}/ome/services/licenses/LicenseWiring.java"/>
-                <antcall target="compile-test" inheritRefs="true" inheritAll="true"/>
 	</target>
 
     <target name="tools-init">

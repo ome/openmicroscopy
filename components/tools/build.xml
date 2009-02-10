@@ -45,6 +45,14 @@
 
 	</target>
 
+	<target name="integration">
+                <echo>
+
+                Not yet implemented.
+
+                </echo>
+	</target>
+
 	<target name="clean"
 		depends="deps-buildlist"
 		description="Calls 'tools-clean' on all components.">

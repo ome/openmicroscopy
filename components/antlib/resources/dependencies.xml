@@ -73,7 +73,7 @@
       <path refid="omero.classpath" />
     </path>
 
-    <ivy:settings id="ivy.instance"  file="${etc.dir}/ivysettings.xml" override="true"/>
+    <ivy:settings id="ivy.instance"  file="${etc.dir}/ivysettings.xml"/>
   </target>
 
   <target name="deps-buildlist"
@@ -87,8 +87,7 @@
 
   <target name="deps-retrieve"
 	  depends="deps-configure"
-	  description="Copy dependencies into the component-local deps.lib.dir."
-	  unless="deps.lib.dir.needed">
+	  description="Copy dependencies into the component-local deps.lib.dir.">
     <mkdir dir="${deps.lib.dir}"/>
     <ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
   </target>
