@@ -51,6 +51,9 @@ public class PojoOptions
     
     /** Field identifying the <code>orphan</code> parameter. */
     public static final String ORPHAN = "orphan";
+    
+    /** Field identifying the <code>acquisition data</code> parameter. */
+    public static final String ACQUISITION_DATA = "acquisitionData";
 
     /** The map hosting the parameters. */
     private final Map<String, Object> options = new HashMap<String, Object>();
@@ -82,7 +85,7 @@ public class PojoOptions
      */
     protected void copy(Map map) {
         String[] s = new String[] { LEAF, EXPERIMENTER, GROUP, START_TIME,
-                END_TIME, OFFSET, LIMIT, ORPHAN };
+                END_TIME, OFFSET, LIMIT, ORPHAN, ACQUISITION_DATA };
         for (int i = 0; i < s.length; i++) {
             if (map.containsKey(s[i])) {
                 this.options.put(s[i], map.get(s[i]));
@@ -156,7 +159,42 @@ public class PojoOptions
     }
     
     /*
-     * ============================== Filtered by Experimenter
+     * =========================
+     * This is only relevant when images are retrieved.
+     */
+    /**
+     * Sets the <code>acquisition data</code> parameter to <code>true</code>.
+     * 
+     * @return Returns the current object.
+     */
+    public PojoOptions acquisitionData() {
+    	 options.put(ACQUISITION_DATA, Boolean.TRUE);
+         return this;
+    }
+    
+    /**
+     * Sets the <code>acquisition data</code> parameter to <code>false</code>.
+     * 
+     * @return Returns the current object.
+     */
+    public PojoOptions noAcquisitionData() {
+        options.remove(ACQUISITION_DATA);
+        return this;
+    }
+
+    /**
+     * Returns <code>true</code> if the map contains the 
+     * <code>acquisition data</code> parameter, <code>false</code> otherwise.
+     * 
+     * @return See above
+     */
+    public boolean isAcquisitionData() {
+        return options.containsKey(ACQUISITION_DATA);
+    }
+    
+    /*
+     * ============================== 
+     * Filtered by Experimenter
      * ==============================
      */
 
@@ -201,7 +239,8 @@ public class PojoOptions
     }
 
     /*
-     * ============================== Filtered by Start/End Time
+     * ============================== 
+     * Filtered by Start/End Time
      * ==============================
      */
 
