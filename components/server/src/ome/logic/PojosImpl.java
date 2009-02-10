@@ -152,14 +152,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 					}
             	}
             }
-        	
-        	
             if (datasets.size() > 0) {
                 iQuery.findAllByQuery(loadCountsDatasets, new Parameters()
                         .addSet("list", datasets));
             }
-            
-            
         } else if (Dataset.class.isAssignableFrom(rootNodeType)) {
             Set<Image> images = new HashSet<Image>();
             for (IObject o : l) {
@@ -363,7 +359,6 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);
-
     }
 
     /**

@@ -67,10 +67,18 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         }
 
         if (po.isLeaves()) {
-
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
-            //sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+            if (po.isAcquisitionData()) {
+	            sb.append("left outer join fetch img.stageLabel as position ");
+	            sb.append("left outer join fetch img.imagingEnvironment" +
+	            		" as condition ");
+	            sb.append("left outer join fetch img.objectiveSettings as os ");
+	            sb.append("left outer join fetch os.medium as me ");
+	            sb.append("left outer join fetch os.objective as objective ");
+	            sb.append("left outer join fetch objective.immersion as im ");
+	            sb.append("left outer join fetch objective.correction as co ");
+            }
         }
 
         // optional ids

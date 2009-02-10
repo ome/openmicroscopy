@@ -31,8 +31,9 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
 
+    	PojoOptions po = new PojoOptions((Map) value(OPTIONS));
         // TODO copied from PojosGetImagesQueryDefinition. Should be merged.
-        QueryBuilder qb = new QueryBuilder(256);
+        QueryBuilder qb = new QueryBuilder();
         qb.select("img");
         qb.from("Image", "img");
         qb.join("img.details.creationEvent", "ce", true, true);
@@ -42,11 +43,20 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
         qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
         // qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);
 
+        if (po.isAcquisitionData()) {
+	        qb.join("img.stageLabel", "position", true, true);
+	        qb.join("img.imagingEnvironment", "condition", true, true);
+	        qb.join("img.objectiveSettings", "os", true, true);
+	        qb.join("os.medium", "me", true, true);
+	        qb.join("os.objective", "objective", true, true);
+	        qb.join("objective.immersion", "im", true, true);
+	        qb.join("objective.correction", "co", true, true);
+        }
+        
         qb.where();
 
         // if PojoOptions sets START_TIME and/or END_TIME
         if (check(OPTIONS)) {
-            PojoOptions po = new PojoOptions((Map) value(OPTIONS));
             if (po.getStartTime() != null) {
                 qb.and("img.details.creationEvent.time > :starttime");
                 qb.param("starttime", po.getStartTime());

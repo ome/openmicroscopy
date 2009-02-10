@@ -39,7 +39,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         Collection ids = (Collection) value(IDS);
         PojoOptions po = new PojoOptions((Map) value(OPTIONS));
 
-        QueryBuilder qb = new QueryBuilder(256);
+        QueryBuilder qb = new QueryBuilder();
         qb.select("img");
         qb.from("Image", "img");
         qb.join("img.details.creationEvent", "ce", true, true);
@@ -49,6 +49,16 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
         qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);
 
+        if (po.isAcquisitionData()) {
+	        qb.join("img.stageLabel", "position", true, true);
+	        qb.join("img.imagingEnvironment", "condition", true, true);
+	        qb.join("img.objectiveSettings", "os", true, true);
+	        qb.join("os.medium", "me", true, true);
+	        qb.join("os.objective", "objective", true, true);
+	        qb.join("objective.immersion", "im", true, true);
+	        qb.join("objective.correction", "co", true, true);
+        }
+        
         // see https://trac.openmicroscopy.org.uk/omero/ticket/296
         if (Image.class.isAssignableFrom(klass)) {
             qb.where();
