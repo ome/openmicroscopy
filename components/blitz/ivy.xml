@@ -11,6 +11,7 @@
   </configurations>
   <publications>
     <artifact name="blitz" type="jar"/>
+    <artifact name="blitz-testing" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->

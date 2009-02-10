@@ -96,4 +96,10 @@
       <property name="targetSource" ref="swappableSessionManagerSource"/>
   </bean>
 
+  <bean id="ring" class="ome.services.blitz.fire.Ring">
+    <constructor-arg ref="uuid"/>
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="sessionCache"/>
+  </bean>
+
 </beans>

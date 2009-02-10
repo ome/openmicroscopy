@@ -139,6 +139,19 @@
 		  <src path="${src.dir}"/>
 		  <src path="${src.dest}"/>
 		</myjavac>
+		<antcall target="compile-test" inheritRefs="true" inheritAll="true"/>
+	</target>
+
+	<target name="compile-test" unless="skip.compile">
+		<!-- Now compiling test classes with source 1) for extra checks and 2) for producing the *-testing jars -->
+		<copyTestResources/>
+		<javac
+			fork="yes"
+			debug="on"
+			destdir="${testclasses.dir}"
+			classpathref="omero.test.classpath" >
+			<src path="${test.dir}"/>
+		</javac>
 	</target>
 
 	<target name="testng-init" unless="test.skip">
@@ -152,7 +165,7 @@
 			haltonfailure="${test.with.fail}"
 			haltonskipped="${test.with.fail}"
 			>
- 			<classpath>
+			<classpath>
 				<pathelement location="${emmaclasses.dir}"/>
 				<path refid="omero.test.classpath"/>
 				<pathelement location="${testclasses.dir}"/>
@@ -170,14 +183,6 @@
 		<property name="test.with.fail" value="false"/>
 		<property name="emma.enabled"   value="true"/>
 	        <property name="unit.suite" value="unit.testng.xml"/>
-		<copyTestResources/>
-		<javac 
-			fork="yes"
-			debug="on"
-			destdir="${testclasses.dir}"
-			classpathref="omero.test.classpath" >
-			<src path="${test.dir}"/>
-		</javac>
 		<path id="emma.classpath">
 			<pathelement location="${classes.dir}"/>
 		</path>
@@ -254,6 +259,9 @@
 				<exclude name="**/*.cpp"/>
 				<exclude name="**/*.h"/>
 			</fileset>
+		</jar>
+		<jar destfile="${target.dir}/${ivy.module}-testing.jar">
+			<fileset dir="${testclasses.dir}"/>
 		</jar>
 	</target>
 
