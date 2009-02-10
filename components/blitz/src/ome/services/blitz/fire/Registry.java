@@ -34,17 +34,26 @@ public class Registry {
         this.ic = ic;
     }
 
+    /**
+     * Returns an active {@link IceGrid.QueryPrx} or null if none is available.
+     */
     public IceGrid.QueryPrx getGridQuery() {
-        Ice.ObjectPrx objectPrx = ic.stringToProxy("IceGrid/Query");
-        IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(objectPrx);
-        return query;
+        try {
+            Ice.ObjectPrx objectPrx = ic.stringToProxy("IceGrid/Query");
+            IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
+                    .checkedCast(objectPrx);
+            return query;
+        } catch (Exception e) {
+            log.warn("Could not find IceGrid/Query: " + e);
+            return null;
+        }
     }
 
     /**
-     * Create a new {@link IceGrid.AdminSessionPrx} with the {@link IceGrid.RegistryPrx}.
-     * Consumers are required to properly {@link IceGrid.AdminSessionPrx#destroy()} the 
-     * returned session.
-     *
+     * Create a new {@link IceGrid.AdminSessionPrx} with the
+     * {@link IceGrid.RegistryPrx}. Consumers are required to properly
+     * {@link IceGrid.AdminSessionPrx#destroy()} the returned session.
+     * 
      * @return
      * @throws PermissionDeniedException
      */
@@ -83,23 +92,37 @@ public class Registry {
             removeObject(id);
             return true;
         } catch (IceGrid.ObjectNotRegisteredException onre) {
-            log.debug(Ice.Util.identityToString(id)+" not registered");
+            log.debug(Ice.Util.identityToString(id) + " not registered");
         } catch (Exception e) {
             log.error("Failed to remove registry object "
                     + Ice.Util.identityToString(id), e);
         }
         return false;
     }
-    
+
+    /**
+     * Returns all found cluster nodes or null if something goes wrong during
+     * lookup (null {@link IceGrid.QueryPrx} for example)
+     */
     public ClusterNodePrx[] lookupClusterNodes() {
-        Ice.ObjectPrx[] candidates = getGridQuery().findAllObjectsByType(
-                "::omero::internal::ClusterNode");
-        ClusterNodePrx[] nodes = new ClusterNodePrx[candidates.length];
-        for (int i = 0; i < nodes.length; i++) {
-            nodes[i] = ClusterNodePrxHelper.uncheckedCast(candidates[i]);
+        IceGrid.QueryPrx query = getGridQuery();
+        if (query == null) {
+            return null; // EARLY EXIT
         }
-        log.info("Found " + nodes.length + " cluster node(s) : "
-                + Arrays.toString(nodes));
-        return nodes;
+        try {
+            Ice.ObjectPrx[] candidates = null;
+            candidates = query
+                    .findAllObjectsByType("::omero::internal::ClusterNode");
+            ClusterNodePrx[] nodes = new ClusterNodePrx[candidates.length];
+            for (int i = 0; i < nodes.length; i++) {
+                nodes[i] = ClusterNodePrxHelper.uncheckedCast(candidates[i]);
+            }
+            log.info("Found " + nodes.length + " cluster node(s) : "
+                    + Arrays.toString(nodes));
+            return nodes;
+        } catch (Exception e) {
+            log.warn("Could not query cluster nodes " + e);
+            return null;
+        }
     }
 }

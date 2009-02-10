@@ -31,6 +31,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.parameters.Filter;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
@@ -39,6 +40,7 @@ import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
+import ome.parameters.Parameters;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -547,7 +549,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     public EventContext getEventContext(Principal principal) {
-        final SessionContext ctx = cache.getSessionContext(principal.getName(), true);
+        final SessionContext ctx = cache.getSessionContext(principal.getName(),
+                true);
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid:"
                     + principal.getName());
@@ -618,10 +621,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             }
             group = g.getName();
         }
-        
+
         // Also checking event type
         executeCheckEventType(type);
-        
+
         Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
         if (umask == null) {
@@ -754,11 +757,15 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     @SuppressWarnings("unchecked")
     private Session executeUpdate(final Session session, final long userId) {
-        return (Session) executor.execute(asroot, new Executor.SimpleWork(this, "executeUpdate") {
+        return (Session) executor.execute(asroot, new Executor.SimpleWork(this,
+                "executeUpdate") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
-                Node node = sf.getQueryService().findByString(Node.class,
-                        "uuid", internal_uuid);
+                Node node = sf.getQueryService().findByQuery(
+                        "select n from Node n where uuid = :uuid",
+                        new Parameters().addString("uuid",
+                                internal_uuid).setFilter(
+                                new Filter().page(0, 1)));
                 if (node == null) {
                     node = new Node(0L, false); // Using default node.
                 }
@@ -771,29 +778,34 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
-        boolean ok = (Boolean) executor.execute(asroot, new Executor.SimpleWork(this, "executeCheckPassword") {
-            @Transactional(readOnly = false)
-            public Object doWork(org.hibernate.Session session,
-                    ServiceFactory sf) {
-                return ((LocalAdmin) sf.getAdminService()).checkPassword(
-                        _principal.getName(), credentials);
-            }
-        });
+        boolean ok = (Boolean) executor.execute(asroot,
+                new Executor.SimpleWork(this, "executeCheckPassword") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        return ((LocalAdmin) sf.getAdminService())
+                                .checkPassword(_principal.getName(),
+                                        credentials);
+                    }
+                });
         return ok;
     }
 
     private EventType executeCheckEventType(final String type) {
-        return (EventType) executor.execute(asroot, new Executor.SimpleWork(this, "executeUserProxy") {
+        return (EventType) executor.execute(asroot, new Executor.SimpleWork(
+                this, "executeUserProxy") {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
-                return sf.getTypesService().getEnumeration(EventType.class, type);
+                return sf.getTypesService().getEnumeration(EventType.class,
+                        type);
             }
         });
     }
-    
+
     private Experimenter executeUserProxy(final long uid) {
-        return (Experimenter) executor.execute(asroot, new Executor.SimpleWork(this, "executeUserProxy") {
+        return (Experimenter) executor.execute(asroot, new Executor.SimpleWork(
+                this, "executeUserProxy") {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -844,7 +856,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * a removed user session, then a {@link RemovedSessionException} is thrown.
      */
     private long executeLookupUser(final Principal p) {
-        return (Long) executor.execute(asroot, new Executor.SimpleWork(this, "executeLookupUser") {
+        return (Long) executor.execute(asroot, new Executor.SimpleWork(this,
+                "executeLookupUser") {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -868,7 +881,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     @SuppressWarnings("unchecked")
     private List<Object> executeSessionContextLookup(final Principal principal) {
-        return (List<Object>) executor.execute(asroot, new Executor.SimpleWork(this, "executeSessionContextLookup") {
+        return (List<Object>) executor.execute(asroot, new Executor.SimpleWork(
+                this, "executeSessionContextLookup") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -909,7 +923,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     private Session executeCloseSession(final String uuid) {
         return (Session) executor
-                .executeStateless(new Executor.SimpleStatelessWork(this, "executeCloseSession") {
+                .executeStateless(new Executor.SimpleStatelessWork(this,
+                        "executeCloseSession") {
                     @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
                         try {
@@ -934,7 +949,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private Session executeInternalSession() {
         return (Session) executor
-                .executeStateless(new Executor.SimpleStatelessWork(this, "executeInternalSession") {
+                .executeStateless(new Executor.SimpleStatelessWork(this,
+                        "executeInternalSession") {
                     @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
 

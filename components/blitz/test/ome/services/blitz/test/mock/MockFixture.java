@@ -69,6 +69,7 @@ public class MockFixture {
         return new OmeroContext(new String[] { "classpath:omero/test.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
                 "classpath:ome/services/throttling/throttling.xml",
+                "classpath:ome/services/jta-atomikos.xml",
                 "classpath:ome/services/messaging.xml",
                 "classpath:ome/services/datalayer.xml",
                 "classpath:ome/config.xml" });

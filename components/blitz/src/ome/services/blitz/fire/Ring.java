@@ -126,6 +126,10 @@ public class Ring extends _ClusterNodeDisp {
     protected void checkClusterAndAddSelf() {
 
         ClusterNodePrx[] nodes = registry.lookupClusterNodes();
+        if (nodes == null) {
+            log.error("Could not lookup nodes. Skipping initialization...");
+            return; // EARLY EXIT
+        }
 
         // Contact each of the cluster. This instance has not been added, so
         // this will not cause a callback.
@@ -177,15 +181,17 @@ public class Ring extends _ClusterNodeDisp {
             try {
                 // TODO this would be better served with a storm message!
                 nodes = registry.lookupClusterNodes();
-                for (ClusterNodePrx clusterNodePrx : nodes) {
-                    try {
-                        clusterNodePrx = ClusterNodePrxHelper
-                                .uncheckedCast(clusterNodePrx.ice_oneway());
-                        clusterNodePrx.down(this.uuid);
-                    } catch (Exception e) {
-                        String msg = "Error signaling down to "
-                                + clusterNodePrx;
-                        log.warn(msg, e);
+                if (nodes != null) {
+                    for (ClusterNodePrx clusterNodePrx : nodes) {
+                        try {
+                            clusterNodePrx = ClusterNodePrxHelper
+                                    .uncheckedCast(clusterNodePrx.ice_oneway());
+                            clusterNodePrx.down(this.uuid);
+                        } catch (Exception e) {
+                            String msg = "Error signaling down to "
+                                    + clusterNodePrx;
+                            log.warn(msg, e);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -232,7 +238,8 @@ public class Ring extends _ClusterNodeDisp {
      * when the first {@link Ring} joins the cluster.
      */
     public String getRedirect() {
-        return (String) executor.execute(principal, new Executor.SimpleWork(this, "getRedirect") {
+        return (String) executor.execute(principal, new Executor.SimpleWork(
+                this, "getRedirect") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getConfigService().getConfigValue(REDIRECT);
@@ -370,21 +377,22 @@ public class Ring extends _ClusterNodeDisp {
 
     @SuppressWarnings("unchecked")
     private Set<String> getManagerList(final boolean onlyActive) {
-        return (Set<String>) executor.execute(principal, new Executor.SimpleWork(this, "getManagerList") {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                List<Node> nodes = sf.getQueryService().findAll(Node.class,
-                        null);
-                Set<String> nodeIds = new HashSet<String>();
-                for (Node node : nodes) {
-                    if (onlyActive && node.getDown() != null) {
-                        continue; // Remove none active managers
+        return (Set<String>) executor.execute(principal,
+                new Executor.SimpleWork(this, "getManagerList") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        List<Node> nodes = sf.getQueryService().findAll(
+                                Node.class, null);
+                        Set<String> nodeIds = new HashSet<String>();
+                        for (Node node : nodes) {
+                            if (onlyActive && node.getDown() != null) {
+                                continue; // Remove none active managers
+                            }
+                            nodeIds.add(node.getUuid());
+                        }
+                        return nodeIds;
                     }
-                    nodeIds.add(node.getUuid());
-                }
-                return nodeIds;
-            }
-        });
+                });
     }
 
     @SuppressWarnings("unchecked")
@@ -395,7 +403,8 @@ public class Ring extends _ClusterNodeDisp {
 
         // First look up the sessions in on transaction
         final List<ome.model.meta.Session> sessions = (List<ome.model.meta.Session>) executor
-                .execute(principal, new Executor.SimpleWork(this, "findAllSessions") {
+                .execute(principal, new Executor.SimpleWork(this,
+                        "findAllSessions") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         List<ome.model.meta.Session> sessions = sf
@@ -422,7 +431,8 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private void setManagerDown(final String managerUuid) {
-        executor.execute(principal, new Executor.SimpleWork(this, "setManagerDown") {
+        executor.execute(principal, new Executor.SimpleWork(this,
+                "setManagerDown") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 Node node = sf.getQueryService().findByString(Node.class,
@@ -438,7 +448,8 @@ public class Ring extends _ClusterNodeDisp {
         node.setConn(proxyString);
         node.setUuid(managerUuid);
         node.setUp(new Timestamp(System.currentTimeMillis()));
-        return (Node) executor.execute(principal, new Executor.SimpleWork(this, "addManager") {
+        return (Node) executor.execute(principal, new Executor.SimpleWork(this,
+                "addManager") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getUpdateService().saveAndReturnObject(node);
@@ -448,7 +459,8 @@ public class Ring extends _ClusterNodeDisp {
 
     private boolean setRedirect(final String managerUuid,
             final boolean setIfPresent) {
-        return (Boolean) executor.execute(principal, new Executor.SimpleWork(this, "setRedirect") {
+        return (Boolean) executor.execute(principal, new Executor.SimpleWork(
+                this, "setRedirect") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 IConfig config = sf.getConfigService();
@@ -467,7 +479,8 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private void removeRedirectIfEquals(final String redirect) {
-        executor.execute(principal, new Executor.SimpleWork(this, "removeRedirectIfEquals") {
+        executor.execute(principal, new Executor.SimpleWork(this,
+                "removeRedirectIfEquals") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 LocalConfig config = (LocalConfig) sf.getConfigService();
@@ -488,7 +501,8 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     private String nodeProxyQuery(final String uuid, final String query) {
-        return (String) executor.execute(principal, new Executor.SimpleWork(this, "nodeProxyQuery") {
+        return (String) executor.execute(principal, new Executor.SimpleWork(
+                this, "nodeProxyQuery") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 Parameters p = new Parameters().addString("uuid", uuid);
