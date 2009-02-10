@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
-import static omero.rtypes.*;
 import ome.api.local.LocalQuery;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.LongAnnotation;
@@ -34,14 +32,12 @@ import omero.RTime;
 import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;
 import omero.api.AMD_ITimeline_getByPeriod;
-import omero.api.AMD_ITimeline_getEventsByPeriod;
+import omero.api.AMD_ITimeline_getEventLogsByPeriod;
 import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
-import omero.model.CommentAnnotationI;
 import omero.model.Event;
 import omero.model.IObject;
-import omero.model.ImageI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
@@ -338,14 +334,14 @@ public class TimelineITest extends TestCase {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
         final List<Event> rv = new ArrayList<Event>();
-        user_t.getEventsByPeriod_async(new AMD_ITimeline_getEventsByPeriod() {
+        user_t.getEventLogsByPeriod_async(new AMD_ITimeline_getEventLogsByPeriod() {
 
             public void ice_exception(Exception ex) {
                 status[0] = true;
                 exc[0] = ex;
             }
 
-            public void ice_response(List<Event> __ret) {
+            public void ice_response(List<EventLog> __ret) {
                 status[1] = true;
                 rv.addAll(__ret);
                 for (Object o : __ret) {

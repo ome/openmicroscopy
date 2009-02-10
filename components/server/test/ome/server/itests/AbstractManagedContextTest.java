@@ -6,25 +6,19 @@
  */
 package ome.server.itests;
 
-import java.io.File;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
 
 import ome.api.IConfig;
-import ome.api.IPixels;
 import ome.api.IContainer;
+import ome.api.IPixels;
 import ome.api.ISession;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
-import ome.formats.OMEROMetadataStore;
-//import ome.formats.importer.ImportLibrary;
-//import ome.formats.importer.OMEROWrapper;
-import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
@@ -45,7 +39,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
