@@ -48,6 +48,22 @@ public class SessionStatsTest extends MockObjectTestCase {
     }
     
     @Test
+    public void testStatsReadObjectsResets( ) {
+        boolean called[] = readCalled();
+        ObjectsReadCounter read = read(2);
+        SessionStats stats = new SimpleSessionStats(read, null);
+        stats.loadedObjects(1);
+        assertFalse(called[0]);
+        stats.loadedObjects(1);
+        assertTrue(called[0]);
+        called[0]=false;
+        stats.loadedObjects(1);
+        assertFalse(called[0]);
+        stats.loadedObjects(1);
+        assertTrue(called[0]);
+    }
+    
+    @Test
     public void testSimpleStatsReadObjects( ) {
         boolean called[] = readCalled();
         ObjectsReadCounter read = read(1);

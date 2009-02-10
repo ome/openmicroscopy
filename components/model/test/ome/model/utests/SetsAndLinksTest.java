@@ -179,6 +179,13 @@ public class SetsAndLinksTest extends TestCase {
             // good.
         }
     }
+    
+    @Test(expectedExceptions = NullPointerException.class)
+    public void testNullArentAddableToOrderedCollections() {
+        Image i = new Image();
+        i.addPixels(null);
+        assertEquals(1, i.sizeOfPixels());
+    }
 
     // ~ Private helpers
     // ===========================================================================

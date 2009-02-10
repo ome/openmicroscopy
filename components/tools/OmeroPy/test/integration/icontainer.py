@@ -18,7 +18,9 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero.rtypes import rstring
+from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
+from omero_model_CommentAnnotationI import CommentAnnotationI
+from omero.rtypes import rstring, rtime
 
 class TestIContainer(lib.ITest):
 
@@ -26,6 +28,7 @@ class TestIContainer(lib.ITest):
         ipojo = self.client.sf.getContainerService()
         i = ImageI()
         i.setName(rstring("name"))
+        i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i,None)
 
     
@@ -87,8 +90,9 @@ class TestIContainer(lib.ITest):
         update1.saveObject(l_ann1)
         
         #user retrives the annotations for image
-        self.assert_(ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None).get(img.id.val, []) == 1)
-        self.assert_(len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])) == 1)
+        coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
+        self.assertEquals(1, coll_count.get(img.id.val, []))
+        self.assertEquals(1, len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])))
         
         ann = CommentAnnotationI()
         ann.textValue = rstring("root comment - %s" % uuid)
@@ -102,9 +106,10 @@ class TestIContainer(lib.ITest):
         #print ipojo.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
         #print len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, []))
         #print len(ipojo.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, []))
-        self.assert_(ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None).get(img.id.val, []) == 2)
+        coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
+        self.assertEquals(2, coll_count.get(img.id.val, []))
         anns = ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])
-        self.assert_(len(anns) == 2)
+        self.assertEquals(2, len(anns))
         
         self.assert_(anns[0].details.permissions == 'rw----')
         self.assert_(anns[1].details.permissions == 'rw----')
@@ -115,6 +120,7 @@ class TestIContainer(lib.ITest):
         ipojo = self.client.sf.getContainerService()
         i = ImageI()
         i.setName(rstring("name"))
+        i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i,None)
         o = i.getDetails().owner
         self.assertEquals( -1, o.sizeOfGroupExperimenterMap() )
