@@ -7,9 +7,9 @@
 
 package ome.services.procs;
 
-import ome.formats.OMEROMetadataStore;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
+//import ome.formats.OMEROMetadataStore;
+//import ome.formats.importer.ImportLibrary;
+//import ome.formats.importer.OMEROWrapper;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
@@ -30,16 +30,16 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
     private final static Log log = LogFactory.getLog(ImportProcessor.class);
 
     private OmeroContext context;
-    private OMEROMetadataStore store;
-    private OMEROWrapper reader;
-    private ImportLibrary library;
+    //private OMEROMetadataStore store;
+    //private OMEROWrapper reader;
+    //private ImportLibrary library;
 
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         try {
             this.context = (OmeroContext) applicationContext;
-            this.store = new OMEROMetadataStore(new ServiceFactory(context));
-            this.reader = null; // new OMEROWrapper(); WORKAROUND for NPE
+            //this.store = new OMEROMetadataStore(new ServiceFactory(context));
+            //this.reader = null; // new OMEROWrapper(); WORKAROUND for NPE
         } catch (Exception e) {
             throw new FatalBeanException("Error creating ImportProcessor", e);
         }

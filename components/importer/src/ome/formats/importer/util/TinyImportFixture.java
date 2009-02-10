@@ -27,10 +27,10 @@ package ome.formats.importer.util;
 import java.io.File;
 import java.util.UUID;
 
-import ome.formats.OMEROMetadataStore;
-import ome.formats.importer.ImportFixture;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
+//import ome.formats.OMEROMetadataStore;
+//import ome.formats.importer.ImportFixture;
+//import ome.formats.importer.ImportLibrary;
+//import ome.formats.importer.OMEROWrapper;
 import ome.model.containers.Dataset;
 import ome.model.core.Pixels;
 import ome.system.ServiceFactory;
@@ -51,7 +51,7 @@ import org.springframework.util.ResourceUtils;
  */
 // @RevisionDate("$Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $")
 // @RevisionNumber("$Revision: 1167 $")
-public class TinyImportFixture extends ImportFixture
+public class TinyImportFixture //extends ImportFixture
 {
 
 	/** Hard-coded filename of the image to be imported */
@@ -65,7 +65,7 @@ public class TinyImportFixture extends ImportFixture
     
     public TinyImportFixture(ServiceFactory services) throws Exception
     {
-        super(new OMEROMetadataStore(services), new OMEROWrapper());
+        //super(new OMEROMetadataStore(services), new OMEROWrapper());
         this.sf = services;
     }
 
@@ -82,9 +82,12 @@ public class TinyImportFixture extends ImportFixture
 		
 		File 	tinyTest = ResourceUtils.getFile("classpath:"+FILENAME);
 		
-		super.put( tinyTest, d );
-    	super.setUp();
+		//super.put( tinyTest, d );
+    	//super.setUp();
     }
+
+	public void doImport() {}
+	public void tearDown() {}
     
     /** provides access to the created {@link Dataset} instance.
      */

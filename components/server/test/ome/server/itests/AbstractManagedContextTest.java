@@ -22,8 +22,8 @@ import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.formats.OMEROMetadataStore;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
+//import ome.formats.importer.ImportLibrary;
+//import ome.formats.importer.OMEROWrapper;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -232,6 +232,8 @@ public class AbstractManagedContextTest extends
     }
     
     protected Pixels makePixels() {
+	throw new RuntimeException("Not yet implemented.");
+/*
         try {
             final File file = ResourceUtils
                     .getFile("classpath:tinyTest.d3d.dv");
@@ -262,6 +264,7 @@ public class AbstractManagedContextTest extends
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+*/
     }
 
 }
