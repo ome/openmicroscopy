@@ -125,8 +125,11 @@ public interface IContainer extends ServiceInterface {
      *            is thrown to prevent all images in the entire database from
      *            being downloaded.
      * @param options
-     *            Map as above. <code>annotator</code> and <code>leaves</code>
-     *            used. If <code>rootNodeIds==null</code>,
+     *            Map as above. <code>annotator</code>, <code>leaves</code>,
+     *            <code>orphan</code>, <code>acquisition data</code> used. 
+     *            <code>acquisition data</code> is only relevant for images
+     *            and taken into account if the images are loaded.
+     *            If <code>rootNodeIds==null</code>,
      *            <code>experimenter|group</code> must be set and filtering
      *            will be applied at the <i>Class</i>-level; e.g. to retrieve a
      *            user's Projects, or user's Datasets. If
@@ -254,12 +257,14 @@ public interface IContainer extends ServiceInterface {
      *            OPTIONS: - startTime and/or endTime should be
      *            Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
      *            <p>
-     *            "limit" and "offset" are applied at the Image-level. That is,
-     *            calling with Dataset.class, limit == 10 and offset == 0 will
+     *            <code>limit</code> and <code>offset</code> are applied at 
+     *            the Image-level. That is, calling with Dataset.class, 
+     *            limit == 10 and offset == 0 will
      *            first perform one query to get an effective set of
      *            rootNodeIds, then getImages will be called with an effective
      *            rootNodeType of Image.class and the new ids.
-     *            </p>
+     *            </p>.
+     *            <code>acquisition data</code> is only relevant for images.
      * @return A set of images.
      * @see ome.util.builders.PojoOptions#paginate(int, int)
      * @see ome.util.builders.PojoOptions#startTime(java.sql.Timestamp)
@@ -277,7 +282,8 @@ public interface IContainer extends ServiceInterface {
      *            Map as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level and
      *            <b>must be present</b>. OPTIONS: - startTime and/or endTime
-     *            should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
+     *            should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms").
+     *             <code>acquisition data</code> is only relevant for images.
      * @return A set of images.
      */
     public Set<Image> getImagesByOptions(Map options);
