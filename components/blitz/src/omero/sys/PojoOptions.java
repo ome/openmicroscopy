@@ -15,6 +15,7 @@ import omero.RInt;
 import omero.RLong;
 import omero.RTime;
 import omero.RType;
+import omero.constants.POJOACQUISITIONDATA;
 import omero.constants.POJOENDTIME;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOGROUP;
@@ -61,6 +62,9 @@ public class PojoOptions extends Parameters {
     /** Field identifying the <code>orphan</code> parameter. */
     public static final String ORPHAN = POJOORPHAN.value;
     
+    /** Field identifying the <code>acquisitionData</code> parameter. */
+    public static final String ACQUISITION_DATA = POJOACQUISITIONDATA.value;
+    
     /** Creates a default instance. */
     public PojoOptions() {
         this.map = new HashMap<String, RType>();
@@ -89,7 +93,7 @@ public class PojoOptions extends Parameters {
      */
     protected void copy(Map<String, RType> map) {
         String[] s = new String[] { LEAF, EXPERIMENTER, GROUP, START_TIME,
-                END_TIME, OFFSET, LIMIT, ORPHAN };
+                END_TIME, OFFSET, LIMIT, ORPHAN, ACQUISITION_DATA };
         for (int i = 0; i < s.length; i++) {
             if (map.containsKey(s[i])) {
                 this.map.put(s[i], map.get(s[i]));
@@ -138,7 +142,7 @@ public class PojoOptions extends Parameters {
      * @return Returns the current object.
      */
     public PojoOptions orphan() {
-    	 map.put(ORPHAN, rbool(Boolean.TRUE));
+    	 this.map.put(ORPHAN, rbool(Boolean.TRUE));
          return this;
     }
     
@@ -163,7 +167,42 @@ public class PojoOptions extends Parameters {
     }
     
     /*
-     * ============================== Filtered by Experimenter
+     * =========================
+     * This is only relevant when images are retrieved.
+     */
+    /**
+     * Sets the <code>acquisition data</code> parameter to <code>true</code>.
+     * 
+     * @return Returns the current object.
+     */
+    public PojoOptions acquisitionData() {
+    	this.map.put(ACQUISITION_DATA, rbool(Boolean.TRUE));
+    	return this;
+    }
+
+    /**
+     * Sets the <code>acquisition data</code> parameter to <code>false</code>.
+     * 
+     * @return Returns the current object.
+     */
+    public PojoOptions noAcquisitionData() {
+    	this.map.remove(ACQUISITION_DATA);
+    	return this;
+    }
+
+    /**
+     * Returns <code>true</code> if the map contains the 
+     * <code>acquisition data</code> parameter, <code>false</code> otherwise.
+     * 
+     * @return See above
+     */
+    public boolean isAcquisitionData() {
+    	return this.map.containsKey(ACQUISITION_DATA);
+    }
+    
+    /*
+     * ============================== 
+     * Filtered by Experimenter
      * ==============================
      */
 
