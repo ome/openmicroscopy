@@ -1292,7 +1292,7 @@ super class where the property was defined.
 [$jav]           for( ${property.shortType} elt : (Collection<${property.shortType}>)${fieldName}) {
 [$jav]               elt.set$Inverse( this );
 [$jav]           }
-[$jav]           ${fieldName} = copy;
+[$jav]           ${fieldName} = new ArrayList<${ActualPojo}>(copy);
 [$jav]           toCopy.unload${PropertyName}();
 [$jav]       }
 [$pyc]       def reload${PropertyName}(self, toCopy, $PYC_CURRENT):
