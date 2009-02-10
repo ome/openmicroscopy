@@ -513,14 +513,14 @@ public class OMEROMetadataStoreClient
     	}
     	
     	// Create a new LSID.
-        LSID LSID = new LSID(klass, indexesArray);
+        LSID lsid = new LSID(klass, indexesArray);
         
         // Because of the LightSource abstract type, here we need to handle
         // the upcast to the "real" concrete type and the correct LSID
         // mapping.
-        if (klass.equals(Arc.class) || klass.equals(Laser.class)
-            || klass.equals(Filament.class)
-            && !containerCache.containsKey(LSID))
+        if ((klass.equals(Arc.class) || klass.equals(Laser.class)
+            || klass.equals(Filament.class))
+            && !containerCache.containsKey(lsid))
         {
             LSID lsLSID = new LSID(LightSource.class,
                                    indexes.get("instrumentIndex"),
@@ -534,8 +534,8 @@ public class OMEROMetadataStoreClient
                     (LightSource) getSourceObjectInstance(klass);
                 mls.copyData(realInstance);
                 container.sourceObject = realInstance;
-                container.LSID = LSID.toString();
-                containerCache.put(LSID, container);
+                container.LSID = lsid.toString();
+                containerCache.put(lsid, container);
                 return container;
             }
         }
@@ -544,7 +544,7 @@ public class OMEROMetadataStoreClient
         // abstract type's class to give us LSID resolution and must handle 
         // that as well.
         if (klass.equals(LightSource.class)
-        	&& !containerCache.containsKey(LSID))
+        	&& !containerCache.containsKey(lsid))
         {
         	Class[] concreteClasses = 
         		new Class[] { Arc.class, Laser.class, Filament.class };
@@ -560,16 +560,16 @@ public class OMEROMetadataStoreClient
         	}
         }
         
-        if (!containerCache.containsKey(LSID))
+        if (!containerCache.containsKey(lsid))
         {
             IObjectContainer c = new IObjectContainer();
             c.indexes = indexes;
-            c.LSID = LSID.toString();
+            c.LSID = lsid.toString();
             c.sourceObject = getSourceObjectInstance(klass);
-            containerCache.put(LSID, c);
+            containerCache.put(lsid, c);
         }
         
-        return containerCache.get(LSID);
+        return containerCache.get(lsid);
     }
     
     /**
