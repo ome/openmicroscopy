@@ -42,9 +42,7 @@
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="executor"/>
     <constructor-arg>
-      <list>
-        <bean class="ome.services.procs.ImportProcessor"/>
-      </list>
+      <list/>
     </constructor-arg>
   </bean>
 
