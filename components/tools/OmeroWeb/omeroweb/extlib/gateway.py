@@ -635,40 +635,42 @@ class BlitzGateway (threading.Thread):
     
     # HIERARCHY
     def loadMyContainerHierarchy(self):
-        q = self.getQueryService()
+        q = self.getContainerService()
         p = omero.sys.Parameters()
-        p.map = {}
-        p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where pr.details.owner.id=:eid order by pr.name"
-        for e in q.findAllByQuery(sql,p):
-            yield ProjectWrapper(self, e)
+        p.map = {} 
+        p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
+        p.map[omero.constants.POJOORPHAN] = rbool(True)
+        for e in q.loadContainerHierarchy('Project', None,  p.map):
+            if isinstance(e, ProjectI):
+                yield ProjectWrapper(self, e)
+            if isinstance(e, DatasetI):
+                yield DatasetWrapper(self, e)
 
     def loadUserContainerHierarchy(self, eid=None):
-        q = self.getQueryService()
+        q = self.getContainerService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid == None: p.map["eid"] = rlong(self.getEventContext().userId)
-        else: p.map["eid"] = rlong(long(eid))
-        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where pr.details.owner.id=:eid or ds.details.owner.id=:eid order by pr.name"
-        for e in q.findAllByQuery(sql,p):
-            yield ProjectWrapper(self, e)
+        if eid == None: p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
+        else: p.map[omero.constants.POJOEXPERIMENTER] = rlong(long(eid))
+        p.map[omero.constants.POJOORPHAN] = rbool(True)
+        for e in q.loadContainerHierarchy('Project', None,  p.map):
+            if isinstance(e, ProjectI):
+                yield ProjectWrapper(self, e)
+            if isinstance(e, DatasetI):
+                yield DatasetWrapper(self, e)
 
     def loadGroupContainerHierarchy(self, gid=None):
-        q = self.getQueryService()
+        q = self.getContainerService()
         p = omero.sys.Parameters()
-        p.map = {}
-        if gid == None: p.map["gid"] = rlong(self.getEventContext().groupId)
-        else: p.map["gid"] = rlong(long(gid))
-        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-              "where pr.details.group.id=:gid and pr.details.permissions > '-262247' and " \
-              "ds.details.group.id=:gid order by pr.name"
-        for e in q.findAllByQuery(sql,p):
-            yield ProjectWrapper(self, e)
+        p.map = {} 
+        if gid == None: p.map[omero.constants.POJOGROUP] = rlong(self.getEventContext().groupId)
+        else: p.map[omero.constants.POJOGROUP] = rlong(long(gid))
+        p.map[omero.constants.POJOORPHAN] = rbool(True)
+        for e in q.loadContainerHierarchy('Project', None,  p.map):
+            if isinstance(e, ProjectI):
+                yield ProjectWrapper(self, e)
+            if isinstance(e, DatasetI):
+                yield DatasetWrapper(self, e)
 
     #TODO: remove this and replace on view_share_object.
     def loadCustomHierarchy(self, node, nid):
@@ -1056,28 +1058,6 @@ class BlitzGateway (threading.Thread):
             return ImageWrapper(self, img)
         else:
             return None
-    
-    '''def getImage (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select i from Image as i " \
-              "left outer join fetch i.pixels as p " \
-              "left outer join fetch p.channels as c " \
-              "left outer join fetch c.logicalChannel as lc " \
-              "left outer join fetch c.statsInfo as sinfo " \
-              "left outer join fetch p.planeInfo as pinfo " \
-              "left outer join fetch p.thumbnails as thumb " \
-              "left outer join fetch p.pixelsFileMaps as map " \
-              "left outer join fetch map.parent as ofile " \
-              "left outer join fetch p.settings as setting " \
-              "where i.id=:oid"
-        img = query_serv.findByQuery(sql,p)
-        if img is not None:
-            return ImageWrapper(self, img)
-        else:
-            return None'''
     
     def getImageWithMetadata (self, oid):
         query_serv = self.getQueryService()
@@ -1841,6 +1821,7 @@ class BlitzObjectWrapper (object):
     LINK_NAME = None
     CHILD_WRAPPER_CLASS = None
     PARENT_WRAPPER_CLASS = None
+    CHILD = None
     
     child_counter = None
     annotation_counter = None
@@ -1857,28 +1838,35 @@ class BlitzObjectWrapper (object):
         self.__prepare__ (**kwargs)
     
     def __prepare__ (self, **kwargs):
-        pass
+        try:
+            self.child_counter = kwargs['child_counter']
+        except:
+            pass
+        try:
+            self.annotation_counter = kwargs['annotation_counter']
+        except:
+            pass
     
     def listChildren (self):
-        from omero_model_DatasetI import DatasetI
-        from omero_model_ProjectI import ProjectI
         """ return a generator yielding child objects """
-        if self.CHILD_WRAPPER_CLASS is None:
-            if isinstance(self._obj, ProjectI):
-                self.CHILD_WRAPPER_CLASS = DatasetWrapper
-                self.LINK_NAME = 'copyDatasetLinks'
-            elif isinstance(self._obj, DatasetI):
-                self.CHILD_WRAPPER_CLASS = ImageWrapper
-                self.LINK_NAME = 'copyImageLinks'
-            else:
+        if self.CHILD_WRAPPER_CLASS is not None:
+            try:
+                childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
+
+                child_ids = [child.id.val for child in childnodes]
+                child_counter = None
+                if len(child_ids) > 0:
+                    child_counter = self._conn.getCollectionCount(self.CHILD, (self.CHILD_WRAPPER_CLASS.LINK_NAME[4].lower()+self.CHILD_WRAPPER_CLASS.LINK_NAME[5:]), child_ids)
+                    child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
+                for child in childnodes:
+                    kwargs = dict()
+                    if child_counter:
+                        kwargs['child_counter'] = child_counter.get(child.id.val)
+                    if child_annotation_counter:
+                        kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
+                    yield self.CHILD_WRAPPER_CLASS(self._conn, child, **kwargs)
+            except:
                 raise NotImplementedError
-        
-        try:
-            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
-            for child in childnodes:
-                yield self.CHILD_WRAPPER_CLASS(self._conn, child)
-        except:
-            raise NotImplementedError
     
     def countChild (self):
         if self.child_counter is not None:
@@ -2560,10 +2548,22 @@ class ImageWrapper (BlitzObjectWrapper):
         return self._obj.copyPixels()[0].getSizeC().val
 
 class DatasetWrapper (BlitzObjectWrapper):
+    OMERO_CLASS = 'Dataset'
     LINK_NAME = "copyImageLinks"
     LINK_CLASS = "DatasetImageLink"
     CHILD_WRAPPER_CLASS = ImageWrapper
-
+    #PARENT_WRAPPER_CLASS = ProjectWrapper
+    CHILD = 'Image'    
+    
+    def __init__ (self, conn=None, obj=None, **kwargs):
+        super(DatasetWrapper, self).__init__(conn, obj, **kwargs)
+        self.OMERO_CLASS = 'Dataset'
+        self.LINK_NAME = "copyImageLinks"
+        self.LINK_CLASS = "DatasetImageLink"
+        self.CHILD_WRAPPER_CLASS = ImageWrapper
+        #PARENT_WRAPPER_CLASS = ProjectWrapper
+        self.CHILD = 'Image'
+    
     def getProject(self):
         try:
             q = "select p from Dataset ds join ds.projectLinks pl join pl.parent p where ds.id = %i"% self._obj.id.val
@@ -2583,10 +2583,12 @@ class ProjectDatasetLinkWrapper (BlitzObjectWrapper):
     pass
 
 class ProjectWrapper (BlitzObjectWrapper):
+    OMERO_CLASS = 'Project'
     LINK_NAME = "copyDatasetLinks"
     LINK_CLASS = "ProjectDatasetLink"
     CHILD_WRAPPER_CLASS = DatasetWrapper
-
+    CHILD = 'Dataset'
+    
 class ShareWrapper (BlitzObjectWrapper):
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None

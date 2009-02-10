@@ -259,8 +259,8 @@ class BaseContainer(BaseController):
             self.hierarchy = self.conn.findContainerHierarchies(self.project.id)
     
     def listMyRoots(self):
-        pr_list = list(self.conn.listProjectsMine())
-        ds_list = list(self.conn.listDatasetsOutoffProjectMine())
+        pr_list = self.sortByAttr(list(self.conn.listProjectsMine()), 'name')
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectMine()), 'name')
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -290,7 +290,7 @@ class BaseContainer(BaseController):
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
     def listMyDatasetsInProject(self, project_id):
-        ds_list = list(self.conn.listDatasetsInProjectMine(project_id))
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectMine(project_id)), 'name')
         ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
@@ -307,7 +307,7 @@ class BaseContainer(BaseController):
         self.c_size = len(ds_list_with_counters)
 
     def listMyImagesInDataset(self, dataset_id):
-        im_list = list(self.conn.listImagesInDatasetMine(dataset_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetMine(dataset_id)), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -322,19 +322,28 @@ class BaseContainer(BaseController):
         self.c_size = len(im_list_with_counters)
 
     def loadMyContainerHierarchy(self):
-        pr_list = list(self.conn.loadMyContainerHierarchy())
-        ds_list = list(self.conn.listDatasetsOutoffProjectMine())
+        obj_list = list(self.conn.loadMyContainerHierarchy())
+        
+        pr_list = list()
+        ds_list = list()
+        for o in obj_list:
+            if isinstance(o._obj, ProjectI):
+                pr_list.append(o)
+            if isinstance(o._obj, DatasetI):
+                ds_list.append(o)
+        
+        self.sortByAttr(pr_list, 'name')
+        self.sortByAttr(ds_list, 'name')
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
         
         pr_ids = [pr.id for pr in pr_list]
         if len(pr_ids) > 0:
-            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
             pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-        
+            
             for pr in pr_list:
-                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.child_counter = len(pr.copyDatasetLinks())
                 pr.annotation_counter = pr_annotation_counter.get(pr.id)
                 pr_list_with_counters.append(pr)
                 
@@ -353,7 +362,7 @@ class BaseContainer(BaseController):
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
     def loadMyImages(self, dataset_id):
-        im_list = list(self.conn.listImagesInDatasetMine(long(dataset_id)))
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetMine(long(dataset_id))), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -367,7 +376,7 @@ class BaseContainer(BaseController):
         self.subcontainers = im_list_with_counters
 
     def loadMyOrphanedImages(self):
-        im_list = list(self.conn.listImagesOutoffDatasetMine())
+        im_list = self.sortByAttr(list(self.conn.listImagesOutoffDatasetMine()), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -386,8 +395,8 @@ class BaseContainer(BaseController):
     def listRootsAsUser(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
         self.containers = dict()
-        pr_list = list(self.conn.listProjectsAsUser(exp_id))
-        ds_list = list(self.conn.listDatasetsOutoffProjectAsUser(exp_id))
+        pr_list = self.sortByAttr(list(self.conn.listProjectsAsUser(exp_id)), 'name')
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectAsUser(exp_id)), 'name')
         #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         
         pr_list_with_counters = list()
@@ -418,7 +427,7 @@ class BaseContainer(BaseController):
 
     def listDatasetsInProjectAsUser(self, project_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        ds_list = list(self.conn.listDatasetsInProjectAsUser(project_id, exp_id))
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectAsUser(project_id, exp_id)), 'name')
         ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
@@ -436,7 +445,7 @@ class BaseContainer(BaseController):
 
     def listImagesInDatasetAsUser(self, dataset_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        im_list = list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id)), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -453,8 +462,18 @@ class BaseContainer(BaseController):
 
     def loadUserContainerHierarchy(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        pr_list = list(self.conn.loadUserContainerHierarchy(exp_id))
-        ds_list = list(self.conn.listDatasetsOutoffProjectAsUser(exp_id))
+        obj_list = list(self.conn.loadUserContainerHierarchy(exp_id))
+        
+        pr_list = list()
+        ds_list = list()
+        for o in obj_list:
+            if isinstance(o._obj, ProjectI):
+                pr_list.append(o)
+            if isinstance(o._obj, DatasetI):
+                ds_list.append(o)
+        
+        self.sortByAttr(pr_list, 'name')
+        self.sortByAttr(ds_list, 'name')
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -469,8 +488,8 @@ class BaseContainer(BaseController):
                 pr.annotation_counter = pr_annotation_counter.get(pr.id)
                 pr_list_with_counters.append(pr)
         
+        ds_ids = [ds.id for ds in ds_list]
         if len(ds_ids) > 0:
-            ds_ids = [ds.id for ds in ds_list]
             ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
             ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
             
@@ -484,7 +503,7 @@ class BaseContainer(BaseController):
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
         
     def loadUserImages(self, dataset_id, exp_id):
-        im_list = list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id)), 'name')
         
         im_list_with_counters = list()
         
@@ -499,7 +518,7 @@ class BaseContainer(BaseController):
         self.subcontainers = im_list_with_counters
     
     def loadUserOrphanedImages(self, exp_id):
-        im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesOutoffDatasetAsUser(exp_id)), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -517,8 +536,8 @@ class BaseContainer(BaseController):
     def listRootsInGroup(self, group_id):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()
-        pr_list = list(self.conn.listProjectsInGroup(group_id))
-        ds_list = list(self.conn.listDatasetsOutoffProjectInGroup(group_id))
+        pr_list = self.sortByAttr(list(self.conn.listProjectsInGroup(group_id)), 'name')
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectInGroup(group_id)), 'name')
         #im_mygroups = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
         
         pr_list_with_counters = list()
@@ -569,7 +588,7 @@ class BaseContainer(BaseController):
     def listDatasetsInProjectInGroup(self, project_id, group_id):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()                
-        ds_list = list(self.conn.listDatasetsInProjectInGroup(project_id, group_id))
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectInGroup(project_id, group_id)), 'name')
         
         ds_list_with_counters = list()
         
@@ -601,7 +620,7 @@ class BaseContainer(BaseController):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()
         
-        im_list = list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id)), 'name')
         im_list_with_counters = list()
         im_ids = [im.id for im in im_list]
         if len(im_ids) > 0:
@@ -627,8 +646,15 @@ class BaseContainer(BaseController):
 
     def loadGroupContainerHierarchy(self, group_id):
         self.myGroup = self.conn.getGroup(group_id)
-        pr_list = list(self.conn.loadGroupContainerHierarchy(group_id))
-        ds_list = list(self.conn.listDatasetsOutoffProjectInGroup(group_id))
+        obj_list = self.sortByAttr(list(self.conn.loadGroupContainerHierarchy(group_id)), 'name')
+        
+        pr_list = list()
+        ds_list = list()
+        for o in obj_list:
+            if isinstance(o._obj, ProjectI):
+                pr_list.append(o)
+            if isinstance(o._obj, DatasetI):
+                ds_list.append(o)
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -658,7 +684,7 @@ class BaseContainer(BaseController):
         self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
     def loadGroupImages(self, dataset_id, group_id):
-        im_list = list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id)), 'name')
         
         im_list_with_counters = list()
         im_ids = [im.id for im in im_list]
@@ -672,7 +698,7 @@ class BaseContainer(BaseController):
         self.subcontainers = im_list_with_counters
     
     def loadGroupOrphanedImages(self, group_id):
-        im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
+        im_list = self.sortByAttr(list(self.conn.listImagesOutoffDatasetInGroup(group_id)), 'name')
         im_list_with_counters = list()
         im_ids = [im.id for im in im_list]
         if len(im_ids) > 0:
@@ -1034,10 +1060,10 @@ class BaseContainer(BaseController):
     def move(self, parent, source, destination):
         #print parent, source, destination
         if source[0] == "pr":
-            return False
+            return 'Cannot move project.'
         elif source[0] == "ds":
             if destination[0] == 'ds':
-                return False
+                return 'Cannot move dataset to dataset'
             elif destination[0] == 'pr':
                 up_pdl = None
                 pdls = self.conn.getProjectDatasetLinks(source[1])
@@ -1072,7 +1098,7 @@ class BaseContainer(BaseController):
                         up_pdl = pdls[0]
                         self.conn.deleteObject(up_pdl._obj)
                 else:
-                    return False
+                    return 'This dataset is linked in multiple places. Please unlink the dataset first.'
         elif source[0] == "img":
             if destination[0] == 'ds':
                 up_dsl = None
@@ -1104,7 +1130,7 @@ class BaseContainer(BaseController):
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl)
             elif destination[0] == 'pr':
-                return False
+                return 'Cannot move image to project.'
             elif destination[0] == '0' or destination[0] == 'orphan':
                 if parent[0] != destination[0]:
                     up_dsl = None
@@ -1115,10 +1141,10 @@ class BaseContainer(BaseController):
                             up_dsl = dsls[0]
                             self.conn.deleteObject(up_dsl._obj)
                     else:
-                        return False
+                        return 'This image is linked in multiple places. Please unlink the image first.'
         else:
-            return False
-        return True
+            return 'No data was choosen.'
+        return 
     
     def remove(self, parent, source):
         if source[0] == 'ds':

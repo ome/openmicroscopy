@@ -2007,22 +2007,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         parent = request.REQUEST['parent'].split('-')
         source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
-        if not manager.move(parent,source, destination):
-            rv = "Error: This action is not possible."
-            return HttpResponse(rv)
-        else:
-            return HttpResponse()
         try:
             if parent[1] == destination[1]:
-                return False
-        except:
-            return False
-        try:
-            if parent[0] == "0" and destination[0] == "0":
-                return False
-        except:
-            return False
-        return HttpResponse()
+                return HttpResponse("Error: Cannot move to the same place.")
+        except :
+            pass
+        rv = manager.move(parent,source, destination)
+        if rv:
+            rv = "Error: %s" % rv
+        return HttpResponse(rv)
     elif action == 'remove':
         parent = request.REQUEST['parent'].split('-')
         source = request.REQUEST['source'].split('-')
