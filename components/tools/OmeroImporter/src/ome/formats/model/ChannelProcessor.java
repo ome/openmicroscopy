@@ -23,10 +23,19 @@
 
 package ome.formats.model;
 
+import static omero.rtypes.rint;
+import static omero.rtypes.rstring;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import loci.formats.IFormatReader;
+
 import ome.formats.LSID;
+import omero.metadatastore.IObjectContainer;
 import omero.model.Channel;
 import omero.model.IObject;
 import omero.model.Image;
@@ -43,6 +52,12 @@ import omero.model.Pixels;
  */
 public class ChannelProcessor implements ModelProcessor
 {
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(ChannelProcessor.class);
+	
+	/** Container store we're currently working with. */
+	private IObjectContainerStore store;
+	
     /**
      * Processes the OMERO client side metadata store.
      * @param store OMERO metadata store to process.
@@ -51,6 +66,8 @@ public class ChannelProcessor implements ModelProcessor
     public void process(IObjectContainerStore store)
     	throws ModelException
     {
+    	this.store = store;
+    	
     	List<Image> images = store.getSourceObjects(Image.class);
     	for (int i = 0; i < images.size(); i++)
     	{
@@ -66,8 +83,11 @@ public class ChannelProcessor implements ModelProcessor
     					new LinkedHashMap<String, Integer>();
     				indexes.put("imageIndex", i);
     				indexes.put("logicalChannelIndex", c);
-    				store.getIObjectContainer(Channel.class, indexes);
+    				IObjectContainer container =
+    					store.getIObjectContainer(Channel.class, indexes);
+    				sourceObject = container.sourceObject;
     			}
+   				populateColor((Channel) sourceObject, i, c);
     			sourceObject =
     				store.getSourceObject(new LSID(LogicalChannel.class, i, c));
     			if (sourceObject == null)
@@ -78,7 +98,110 @@ public class ChannelProcessor implements ModelProcessor
     				indexes.put("logicalChannelIndex", c);
     				store.getIObjectContainer(LogicalChannel.class, indexes);
     			}
+    			populateName((LogicalChannel) sourceObject, i, c);
     		}
     	}
     }
+    
+    /**
+     * Populates the default color for the channel if one does not already
+     * exist and the image is RGB(A) or indexed color.
+     * @param channel Channel object.
+     * @param imageIndex Image/series index.
+     * @param channelIndex Channel index.
+     */
+    private void populateColor(Channel channel, int imageIndex,
+    		                   int channelIndex)
+    {
+    	IFormatReader reader = store.getReader();
+    	if (reader.isRGB() || reader.isIndexed())
+		{
+			int channelCount = 
+				store.countCachedContainers(Channel.class, channelIndex); 
+			if (channelCount == 3 || channelCount == 4)
+			{
+				log.debug("Setting color channel to RGB.");
+				// red
+				if (channelIndex == 0)
+				{
+					channel.setRed(rint(255));
+					channel.setGreen(rint(0));
+					channel.setBlue(rint(0));
+					channel.setAlpha(rint(255));
+				}
+				
+				// green
+				if (channelIndex == 1)
+				{
+					channel.setRed(rint(0));
+					channel.setGreen(rint(255));
+					channel.setBlue(rint(0));
+					channel.setAlpha(rint(255));
+				}
+				
+				// blue
+				if (channelIndex == 2)
+				{
+					channel.setRed(rint(0));
+					channel.setGreen(rint(0));
+					channel.setBlue(rint(255));
+					channel.setAlpha(rint(255));
+				}
+				
+				// alpha
+				if (channelIndex == 3)
+				{
+					channel.setRed(rint(0));
+					channel.setGreen(rint(0));
+					channel.setBlue(rint(0));
+					channel.setAlpha(rint(0));  // Transparent
+				}
+			}
+		}
+    }
+
+	/**
+	 * Populates the default channel name for the logical channel if one does 
+	 * not already exist and the image is RGB(A) or indexed-color.
+	 * @param channel Channel object.
+	 * @param imageIndex Image/series index.
+	 * @param channelIndex Channel index.
+	 */
+	private void populateName(LogicalChannel lc, int imageIndex,
+			                  int logicalChannelIndex)
+	{
+		IFormatReader reader = store.getReader();
+		if (reader.isRGB() || reader.isIndexed())
+		{
+			int channelCount = 
+				store.countCachedContainers(Channel.class, imageIndex); 
+			if (channelCount == 3 || channelCount == 4)
+			{
+				log.debug("Setting channels name to Red, Green, Blue or Alpha.");
+				// red
+				if (lc.getName() == null && logicalChannelIndex == 0)
+				{
+					lc.setName(rstring("Red"));
+				}
+	
+				// green
+				if (lc.getName() == null && logicalChannelIndex == 1)
+				{
+					lc.setName(rstring("Green"));
+				}
+	
+				// blue
+				if (lc.getName() == null && logicalChannelIndex == 2)
+				{
+					lc.setName(rstring("Blue"));
+				}
+				
+				// alpha
+				if (lc.getName() == null && logicalChannelIndex == 3)
+				{
+					lc.setName(rstring("Alpha"));
+				}
+			}
+		}
+	}
 }

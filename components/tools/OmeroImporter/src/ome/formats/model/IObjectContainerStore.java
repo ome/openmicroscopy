@@ -27,6 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import loci.formats.IFormatReader;
+
 import ome.formats.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.IObject;
@@ -41,6 +43,20 @@ import omero.model.IObject;
  */
 public interface IObjectContainerStore
 {
+	/**
+	 * Returns the current Bio-Formats reader that has been used to populate
+	 * the container store.
+	 * @return See above.
+	 */
+	IFormatReader getReader();
+	
+	/**
+	 * Sets the Bio-Formats reader that will be used to populate the container
+	 * store.
+	 * @param reader Bio-Formats reader.
+	 */
+	void setReader(IFormatReader reader);
+	
     /**
      * Returns the current container cache.
      * @return See above.

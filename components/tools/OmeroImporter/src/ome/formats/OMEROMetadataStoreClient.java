@@ -111,6 +111,7 @@ import omero.model.StageLabel;
 import omero.model.Well;
 import omero.model.WellSample;
 
+import loci.formats.IFormatReader;
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 
@@ -139,6 +140,9 @@ public class OMEROMetadataStoreClient
     /** Our model processors. Will be called on saveToDB(). */
     private List<ModelProcessor> modelProcessors = 
     	new ArrayList<ModelProcessor>();
+    
+    /** Bio-Formats reader that's populating us. */
+    private IFormatReader reader;
     
     private List<Pixels> pixelsList;
     
@@ -367,6 +371,22 @@ public class OMEROMetadataStoreClient
     private IObject getEnumeration(Class<? extends IObject> klass, String value)
     {
         return enumProvider.getEnumeration(klass, value, false);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getReader()
+     */
+    public IFormatReader getReader()
+    {
+    	return reader;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setReader(loci.formats.IFormatReader)
+     */
+    public void setReader(IFormatReader reader)
+    {
+    	this.reader = reader;
     }
     
     /**

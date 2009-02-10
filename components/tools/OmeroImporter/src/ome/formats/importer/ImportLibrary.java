@@ -201,6 +201,7 @@ public class ImportLibrary implements IObservable
         reader.setMetadataStore(proxy);
         reader.setMinMaxStore(store);
         reader.setId(fileName);
+        store.setReader(reader.getImageReader());
         //reset series count
         log.debug("Image Count: " + reader.getImageCount());
     }
@@ -259,74 +260,6 @@ public class ImportLibrary implements IObservable
     		String name = imageName;
     		String seriesName = reader.getImageName(series);
 
-    		if (reader.getImageReader().isRGB()
-    			|| reader.getImageReader().isIndexed())
-    		{
-    			int channelCount = 
-    				store.countCachedContainers(Channel.class, series); 
-    			if (channelCount == 3 || channelCount == 4)
-    			{
-    				log.debug("Setting color channels to RGB format.");
-    				// red
-    				Channel c = (Channel)
-    					store.getSourceObject(new LSID(Channel.class, series, 0));
-    				LogicalChannel lc = (LogicalChannel)
-						store.getSourceObject(new LSID(LogicalChannel.class, series, 0));
-    				c.setRed(rint(255));
-    				c.setGreen(rint(0));
-    				c.setBlue(rint(0));
-    				c.setAlpha(rint(255));
-    				if (lc.getName() == null)
-    				{
-    					lc.setName(rstring("Red"));
-    				}
-
-    				// green
-    				c = (Channel)
-						store.getSourceObject(new LSID(Channel.class, series, 1));
-    				lc = (LogicalChannel)
-						store.getSourceObject(new LSID(LogicalChannel.class, series, 1));
-    				c.setRed(rint(0));
-    				c.setGreen(rint(255));
-    				c.setBlue(rint(0));
-    				c.setAlpha(rint(255));
-    				if (lc.getName() == null)
-    				{
-    					lc.setName(rstring("Green"));
-    				}
-
-    				// blue
-    				c = (Channel)
-						store.getSourceObject(new LSID(Channel.class, series, 2));
-    				lc = (LogicalChannel)
-						store.getSourceObject(new LSID(LogicalChannel.class, series, 2));;
-    				c.setRed(rint(0));
-    				c.setGreen(rint(0));
-    				c.setBlue(rint(255));
-    				c.setAlpha(rint(255));
-    				if (lc.getName() == null)
-    				{
-    					lc.setName(rstring("Blue"));
-    				}
-    				
-    				// alpha channel, if it exists
-    				if (channelCount == 4)
-    				{
-        				c = (Channel)
-							store.getSourceObject(new LSID(Channel.class, series, 3));
-        				lc = (LogicalChannel)
-        					store.getSourceObject(new LSID(LogicalChannel.class, series, 3));;
-        				c.setRed(rint(0));
-        				c.setGreen(rint(0));
-        				c.setBlue(rint(0));
-        				c.setAlpha(rint(0));  // Transparent
-        				if (lc.getName() == null)
-        				{
-        					lc.setName(rstring("Alpha"));
-        				}
-    				}
-    			}
-    		}
     		if (seriesName != null && seriesName.length() != 0)
     			name += " [" + seriesName + "]";
     		store.setImageName(name, series);
