@@ -176,6 +176,14 @@ public class QueryTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:1150")
     public void testFloatsDontGetRounded() throws Exception {
+        assertFloatsNotRounded(1.4);
+        assertFloatsNotRounded(1.35);
+        assertFloatsNotRounded(1.225);
+        assertFloatsNotRounded(1.1125);
+        assertFloatsNotRounded(1.03333);
+    }
+
+    private void assertFloatsNotRounded(double dbl) {
         Correction correction = iQuery.findAll(Correction.class, null).get(0);
         Immersion immersion = iQuery.findAll(Immersion.class, null).get(0);
 
@@ -184,8 +192,8 @@ public class QueryTest extends AbstractManagedContextTest {
         o.setCorrection(correction);
         o.setImmersion(immersion);
         o.setInstrument(instrument);
-        // o.setLensNA(new Float(1.4));
-        o.setLensNA(1.4);
+        // o.setLensNA(new Float(dbl));
+        o.setLensNA(dbl);
 
         Objective t1 = iUpdate.saveAndReturnObject(o);
 
@@ -193,9 +201,9 @@ public class QueryTest extends AbstractManagedContextTest {
         String jdbcQuery = "SELECT lensna FROM objective WHERE id = ?";
         Float lensNA = jdbcTemplate.queryForObject(jdbcQuery, Float.class, t1
                 .getId());
-        assertEquals(1.4, lensNA.floatValue(), 0.01);
+        assertEquals(dbl, lensNA.floatValue(), 0.01);
         try {
-            assertEquals(1.4, lensNA.floatValue(), Float.MIN_VALUE);
+            assertEquals(dbl, lensNA.floatValue(), Float.MIN_VALUE);
         } catch (AssertionFailedError e) {
             // This is what fails!!
         }
@@ -203,19 +211,19 @@ public class QueryTest extends AbstractManagedContextTest {
         // now test is with double which is our chosen solution
         Double lensNADoubled = jdbcTemplate.queryForObject(jdbcQuery,
                 Double.class, t1.getId());
-        assertEquals(1.4, lensNADoubled.doubleValue(), 0.01);
-        assertEquals(1.4, lensNADoubled.doubleValue(), Float.MIN_VALUE);
-        assertEquals(1.4, lensNADoubled.doubleValue(), Double.MIN_VALUE);
+        assertEquals(dbl, lensNADoubled.doubleValue(), 0.01);
+        assertEquals(dbl, lensNADoubled.doubleValue(), Float.MIN_VALUE);
+        assertEquals(dbl, lensNADoubled.doubleValue(), Double.MIN_VALUE);
 
         // Test value return by iUpdate
         // Now changing these to doubleValue() post #1150 fix.
-        assertEquals(1.4, t1.getLensNA().doubleValue(), 0.001);
-        assertEquals(1.4, t1.getLensNA().doubleValue(), Float.MIN_VALUE);
-        assertEquals(1.4, t1.getLensNA().doubleValue());
+        assertEquals(dbl, t1.getLensNA().doubleValue(), 0.001);
+        assertEquals(dbl, t1.getLensNA().doubleValue(), Float.MIN_VALUE);
+        assertEquals(dbl, t1.getLensNA().doubleValue());
 
         // Test via query
         Objective t2 = iQuery.find(Objective.class, o.getId());
-        assertEquals(1.4, t2.getLensNA().doubleValue());
+        assertEquals(dbl, t2.getLensNA().doubleValue());
     }
 
     @Test(groups = "ticket:1150")
