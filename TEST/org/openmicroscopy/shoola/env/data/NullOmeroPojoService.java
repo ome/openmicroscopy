@@ -245,20 +245,10 @@ public class NullOmeroPojoService
 
 	/**
      * No-op implementation
-     * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
+     * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long, boolean)
      */
-	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroDataService#getImagesPeriodIObject(Timestamp, Timestamp, long)
-     */
-	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
-			long userID) 
+	public Collection getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID, 
+			boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

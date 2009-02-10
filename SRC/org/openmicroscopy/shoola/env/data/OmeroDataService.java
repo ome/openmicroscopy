@@ -409,32 +409,19 @@ public interface OmeroDataService
 	/**
 	 * Retrieves the images after a given date.
 	 * 
-	 * @param lowerTime	The timestamp identifying the start of the period.
-	 * @param time		The timestamp identifying the end of the period.
-	 * @param userID	The Id of the user.
+	 * @param lowerTime		The timestamp identifying the start of the period.
+	 * @param time			The timestamp identifying the end of the period.
+	 * @param userID		The Id of the user.
+	 * @param asDataObject 	Pass <code>true</code> to convert the object into
+	 * 						the corresponding <code>DataObject</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Retrieves the number of images imported during a given period of time.
-	 * 
-	 * @param lowerTime	The timestamp identifying the start of the period.
-	 * @param time		The timestamp identifying the end of the period.
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
-			long userID)
+	public Collection getImagesPeriod(Timestamp lowerTime, Timestamp time, 
+			long userID, boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -544,19 +531,6 @@ public interface OmeroDataService
 	 */
 	public Collection<DeletableObject> delete(
 			Collection<DeletableObject> objects)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Returns the image object corresponding to the passed id.
-	 * 
-	 * @param imageID	The id of the image.
-	 * @param userID	The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public ImageData getImage(long imageID, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

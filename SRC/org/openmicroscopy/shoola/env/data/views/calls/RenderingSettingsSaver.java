@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -142,8 +143,8 @@ public class RenderingSettingsSaver
 				long userID = ((ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS)).getId();
 				OmeroDataService os = context.getDataService();
-				List l = os.getImagesPeriodIObject(ref.getStartTime(), 
-												ref.getEndTime(), userID); 
+				Collection l = os.getImagesPeriod(ref.getStartTime(), 
+												ref.getEndTime(), userID, false); 
 				if (l != null) {
 					Iterator i = l.iterator();
 					IObject element;

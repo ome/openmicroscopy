@@ -135,6 +135,7 @@ import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.PojoOptions;
+import omero.util.PojoOptionsI;
 import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -1515,8 +1516,6 @@ class OMEROGateway
 	{
 		try {
 			isSessionAlive();
-			//IPojosPrx service = getPojosService();
-			//return service.createDataObject(object, options);
 			return saveAndReturnObject(object, options);
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1541,9 +1540,6 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			//IPojosPrx service = getPojosService();
-			//List<IObject> results = service.createDataObjects(objects, options);
-			//return results;
 			return saveAndReturnObject(objects, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
@@ -1641,17 +1637,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IUpdatePrx service = getUpdateService();
-			List<IObject> r = service.saveAndReturnArray(objects);
-			return r;
-			/*
-			if (r == null) return r;
-			Iterator<IObject> i = r.iterator();
-			List<IObject> results = new ArrayList<IObject>(r.size());
-			while (i.hasNext()) {
-				results.add(findIObject(i.next()));
-			}
-			return results;
-			*/
+			return service.saveAndReturnArray(objects);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
@@ -1675,9 +1661,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
-			
-			//return service.updateDataObject(object, options);
-			//tmp
 			IObject r = service.updateDataObject(object, options);
 			return findIObject(r);
 		} catch (Throwable t) {
@@ -1686,7 +1669,6 @@ class OMEROGateway
 		return null;
 	}
 
-	
 	/**
 	 * Updates the specified <code>IObject</code>s and returned the 
 	 * updated <code>IObject</code>s.
@@ -2712,20 +2694,25 @@ class OMEROGateway
 	 * Retrieves the images specified by a set of parameters
 	 * e.g. imported during a given period of time by a given user.
 	 * 
-	 * @param map The options. 
+	 * @param map 			The options. 
+	 * @param asDataObject 	Pass <code>true</code> to convert the 
+	 * 						<code>IObject</code>s into the corresponding 
+	 * 						<code>DataObject</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set getImages(Map map)
+	Collection getImages(Map map, boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
-			return PojoMapper.asDataObjects(service.getImagesByOptions(map));
+			List result = service.getImagesByOptions(map);
+			if (asDataObject) return PojoMapper.asDataObjects(result);
+			return result;
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the images imported " +
 							"the specified period.");
@@ -3891,7 +3878,8 @@ class OMEROGateway
 			}
 			long imageID = service.projectPixels(pixelsID, type, algorithm, 
 					startT, endT, channels, stepping, startZ, endZ, name);
-			return getImage(imageID);
+			
+			return getImage(imageID, new PojoOptionsI().map());
 		} catch (Exception e) {
 			e.printStackTrace();
 			handleException(e, "Cannot project the image.");
@@ -3903,16 +3891,29 @@ class OMEROGateway
 	 * Returns the image and loaded pixels.
 	 * 
 	 * @param imageID The id of the image to load.
+	 * @param options The options.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	ImageData getImage(long imageID)
+	ImageData getImage(long imageID, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			List<Long> ids = new ArrayList<Long>(1);
+			ids.add(imageID);
+			Set result = getContainerImages(ImageData.class, ids, options);
+			if (result != null && result.size() == 1) {
+				Iterator i = result.iterator();
+				while (i.hasNext()) {
+					return (ImageData) PojoMapper.asDataObject(
+							(IObject) i.next());
+				}
+			}
+			return null;
+			/*
 			StringBuilder sb = new StringBuilder();
 			sb.append("select img from Image as img ");
 			sb.append("left outer join fetch img.pixels as pix ");
@@ -3922,6 +3923,7 @@ class OMEROGateway
 			param.addLong("id", imageID);
 	        return (ImageData) PojoMapper.asDataObject(
 	        		getQueryService().findByQuery(sb.toString(), param));
+	        		*/
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}
@@ -4132,30 +4134,21 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IQueryPrx service = getQueryService();
-		StringBuilder sb;
-		ParametersI param;
-		sb = new StringBuilder();
-		param = new ParametersI();
-		sb.append("select img from Image as img ");
-		sb.append("left outer join fetch img.stageLabel as position ");
-        sb.append("left outer join fetch img.imagingEnvironment as condition ");
-        sb.append("left outer join fetch img.objectiveSettings as os ");
-        sb.append("left outer join fetch os.medium as me ");
-        sb.append("left outer join fetch os.objective as objective ");
-        sb.append("left outer join fetch objective.immersion as im ");
-        sb.append("left outer join fetch objective.correction as co ");
-        sb.append("where img.id = :id");
-        param.addLong("id", imageID);
+		PojoOptions po = new PojoOptions();
+		po.acquisitionData();
+		List<Long> ids = new ArrayList<Long>(1);
+		ids.add(imageID);
+		IContainerPrx service = getPojosService();
         try {
-        	 IObject r = service.findByQuery(sb.toString(), param);
-             return new ImageAcquisitionData((Image) r);
+        	List images = service.getImages(Image.class.getName(), ids, 
+        			po.map());
+        	if (images != null && images.size() == 1)
+        		return new ImageAcquisitionData((Image) images.get(0));
 		} catch (Exception e) {
 			handleException(e, "Cannot load image acquisition data.");
 		}
        return null;
 	}
-	
 	
 	/**
 	 * Loads the acquisition metadata related to the specified channel.

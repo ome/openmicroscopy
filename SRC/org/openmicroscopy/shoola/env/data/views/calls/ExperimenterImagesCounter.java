@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -80,13 +81,13 @@ public class ExperimenterImagesCounter
 	{
 		try {
 			int number = -1;
-			List l;
+			Collection l;
 			result = new HashMap<Integer, Object>(1);
 			Timestamp start, end;
 			start = ref.getStartTime();
 			end = ref.getEndTime();
 			if (start == null || end == null) {
-				l = os.getImagesPeriodIObject(start, end, userID);
+				l = os.getImagesPeriod(start, end, userID, false);
 				if (l != null) number = l.size();
 				result.put(index, number);
 			} else {

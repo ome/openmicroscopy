@@ -431,10 +431,10 @@ class OmeroImageServiceImpl
 		if (image == null) return null;
 		Image img = image.asImage();
 		img.setDescription(omero.rtypes.rstring(ref.getDescription()));
+		PojoOptionsI po = new PojoOptionsI();
 		image = (ImageData) 
-			PojoMapper.asDataObject(
-					gateway.updateObject(img, new PojoOptionsI().map()));
-		image = gateway.getImage(image.getId());
+			PojoMapper.asDataObject(gateway.updateObject(img, po.map()));
+		image = gateway.getImage(image.getId(), new PojoOptionsI().map());
 		List<DatasetData> datasets =  ref.getDatasets();
 		if (datasets != null && datasets.size() > 0) {
 			Map map = (new PojoOptionsI()).map();

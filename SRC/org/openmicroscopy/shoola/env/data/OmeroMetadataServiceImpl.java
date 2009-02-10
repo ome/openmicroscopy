@@ -1312,8 +1312,8 @@ class OmeroMetadataServiceImpl
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
 		OmeroDataService service = context.getDataService();
-		Set images = service.getImagesPeriod(data.getStartTime(), 
-				                             data.getEndTime(), userID);
+		Collection images = service.getImagesPeriod(data.getStartTime(), 
+				                             data.getEndTime(), userID, true);
 		List r = new ArrayList();
 		if (images == null) return r;
 		Iterator i = images.iterator();

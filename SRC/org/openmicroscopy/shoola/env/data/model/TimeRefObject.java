@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
 //Third-party libraries
@@ -58,7 +59,7 @@ public class TimeRefObject
 	private Timestamp 	startTime;
 	
 	/** The result of the call. */
-	private Set			results;
+	private Collection	results;
 	
 	/**
 	 * Creates a new instance.
@@ -104,13 +105,13 @@ public class TimeRefObject
 	 * 
 	 * @param results The value to set.
 	 */
-	public void setResults(Set results) { this.results = results; }
+	public void setResults(Collection results) { this.results = results; }
 	
 	/**
 	 * Returns the results of the call.
 	 * 
 	 * @return See above.
 	 */
-	public Set getResults() { return results; }
+	public Collection getResults() { return results; }
 	
 }

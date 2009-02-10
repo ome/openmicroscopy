@@ -181,7 +181,7 @@ public class DMRefreshLoader
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
         				ref.setResults(os.getImagesPeriod(ref.getStartTime(), 
-        								ref.getEndTime(), userID));
+        								ref.getEndTime(), userID, true));
 					}
                 }
                 results = nodes;

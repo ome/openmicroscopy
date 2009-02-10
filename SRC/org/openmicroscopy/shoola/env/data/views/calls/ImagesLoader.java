@@ -27,7 +27,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -91,7 +94,16 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getImage(imageID, userID);
+                List<Long> ids = new ArrayList<Long>(1);
+                ids.add(imageID);
+                Set set = os.getImages(ImageData.class, ids, userID);
+                if (set != null && set.size() == 1) {
+                	Iterator i = set.iterator();
+                	while (i.hasNext()) {
+						results = i.next();
+						break;
+					}
+                }
             }
         };
     }
@@ -134,7 +146,7 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-				results =  os.getImagesPeriod(startTime, endTime, userID);
+				results =  os.getImagesPeriod(startTime, endTime, userID, true);
             }
         };
     }
