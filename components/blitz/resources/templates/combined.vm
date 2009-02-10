@@ -1307,8 +1307,8 @@ super class where the property was defined.
 [$pyc]           self._${fieldName} = copy
 [$pyc]           toCopy.unload${PropertyName}()
 [$pyc]
-[$hdr]       virtual void clear${PropertyName}($HDR_CURRENT);
-[$cpp]       void ${PojoI}::clear${PropertyName}($CPP_CURRENT) {
+[$hdr]       virtual void reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::reload${PropertyName}(const ${ActualPojo}& toCopy, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (${propLoaded}) {
 [$cpp]               throw omero::ClientError(__FILE__,__LINE__,"Cannot reload active collection: ${fieldName}");
