@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.editor.util.FileDownload;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /**
@@ -137,6 +138,12 @@ public class UrlChooser
 			if (lastSlash < 0) return false;	// can't be valid url
 			String newFileName = url.substring(lastSlash);
 			if (new File(newFileName).exists()) {	// just in case! 
+				// rename eg. file.cpe.xml to file1.cpe.xml
+				String fileExt = "."+EditorFileFilter.CPE_XML;
+				if (newFileName.contains(fileExt)) {
+					newFileName = newFileName.replace(fileExt,
+									fileNameIncrementer++ + fileExt);
+				} else
 				newFileName = newFileName + fileNameIncrementer++;
 			}
 			File downloadedFile = FileDownload.downloadFile(url, newFileName);
