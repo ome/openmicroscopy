@@ -193,11 +193,6 @@
     then it can start processing  -->
     <property name="autoStartup" value="true"/>
     <property name="schedulerName" value="OMERO.scheduler"/>
-    <property name="jobDetails">
-      <list>
-        <ref bean="process-jobs-run" />
-      </list>
-    </property>
     <property name="triggers">
       <list>
         <ref bean="fullTextIndexerTrigger"/>

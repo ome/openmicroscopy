@@ -37,6 +37,7 @@
     <property name="target" ref="internal-ome.api.JobHandle"/>
   </bean>
   
+  <!--
   <bean id="processManager" class="ome.services.procs.ProcessManager">
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="securitySystem"/>
@@ -56,5 +57,6 @@
     <property name="jobDetail" ref="process-jobs-run" />
     <property name="cronExpression" value="0,30 * * * * ?" />
   </bean>
+  -->
 
 </beans>
