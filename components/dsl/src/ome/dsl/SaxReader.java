@@ -373,12 +373,21 @@ class DSLHandler extends DefaultHandler {
          * {@link SemanticType implementation which it points to
          */
         for (SemanticType semanticType : types.values()) {
-            for (Property property : semanticType.getClassProperties()) {
-                String type = property.getType();
-                SemanticType actualType = types.get(type);
-                if (actualType != null) {
-                    property.setActualType(actualType);
+            for (Property property : semanticType.getPropertyClosure()) {
+                SemanticType currentType = semanticType;
+                SemanticType actualType = semanticType;
+                
+                while (currentType != null) {
+                    List<Property> classProperties = currentType.getClassProperties();
+                    if (classProperties.contains(property)) {
+                        actualType = currentType;
+                        break;
+                    }
+                    String superclass = currentType.getSuperclass();
+                    currentType = superclass == null ? null : types.get(currentType.getSuperclass());
                 }
+                
+                property.setActualType(actualType);
             }
         }
 

@@ -9,6 +9,7 @@
 #ifndef OMERO_COLLECTIONS_ICE
 #define OMERO_COLLECTIONS_ICE
 
+#include <omero/ModelF.ice>
 #include <omero/RTypes.ice>
 #include <Ice/BuiltinSequences.ice>
 
@@ -72,6 +73,9 @@ module omero {
 
         ["java:type:java.util.ArrayList<omero.model.Event>:java.util.List<omero.model.Event>"]
             sequence<omero::model::Event> EventList;
+
+        ["java:type:java.util.ArrayList<omero.model.EventLog>:java.util.List<omero.model.EventLog>"]
+            sequence<omero::model::EventLog> EventLogList;
 
         ["java:type:java.util.ArrayList<omero.model.Annotation>:java.util.List<omero.model.Annotation>"]
             sequence<omero::model::Annotation> AnnotationList;

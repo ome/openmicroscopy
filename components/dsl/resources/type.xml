@@ -121,7 +121,17 @@
     </type>
     
     <type id="ome.model.annotations.Example" annotated="true"/>
-    <type id="ome.model.annotations.Annotation" annotated="true"/>
+    <abstract id="ome.model.annotations.Annotation" annotated="true">
+        <properties>
+            <required name="ns" type="text"/>
+        </properties>
+    </abstract>
+   <type id="ome.model.annotations.BooAnnotation" annotated="true"
+         superclass="ome.model.annotations.Annotation">
+        <properties>
+            <required name="boo" type="int"/>
+        </properties>
+    </type>
     
     <enum id="ome.model.enums.FrequencyMultiplication">
         <entry name="x1"/>
@@ -129,6 +139,52 @@
         <entry name="x3"/>
         <entry name="x4"/>
     </enum>
+
+        <type id="ome.model.core.OriginalFile" named="true" annotated="true">
+                <properties>
+                        <required name="path" type="string"/>
+                        <required name="size" type="long"/>
+                        <optional name="atime" type="timestamp"/>
+                        <optional name="mtime" type="timestamp"/>
+                        <optional name="ctime" type="timestamp"/>
+                        <required name="sha1" type="string"/>
+                </properties>
+        </type>
+        <link id="ome.model.jobs.JobOriginalFileLink">
+                <!-- Note: JobOriginalFileLink is not in model-->
+                <properties>
+                        <from_parent type="ome.model.jobs.Job"/>
+                        <to_child type="ome.model.core.OriginalFile"/>
+                </properties>
+        </link>
+        <type id="ome.model.jobs.Job" abstract="true">
+                <!-- Note: Job is not in model-->
+                <properties>
+                        <required name="username" type="string"/>
+                        <required name="groupname" type="string"/>
+                        <required name="type" type="string"/>
+                        <required name="message" type="string"/>
+                        <required name="status" type="ome.model.jobs.JobStatus"/>
+                        <required name="submitted" type="timestamp"/>
+                        <required name="scheduledFor" type="timestamp"/>
+                        <optional name="started" type="timestamp"/>
+                        <optional name="finished" type="timestamp"/>
+                        <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink" target="ome.model.core.OriginalFile"/>
+                </properties>
+        </type>
+        <type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
+                <!-- Note: ImportJob is not in model-->
+                <properties>
+                        <required name="imageName" type="string"/>
+                        <required name="imageDescription" type="string"/>
+                </properties>
+        </type>
+        <type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
+                <!-- Note: ScriptJob is not in model-->
+                <properties>
+                        <optional name="description" type="string"/>
+                </properties>
+        </type>
 
 	<!-- examples -->
 	<!--

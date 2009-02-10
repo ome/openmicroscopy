@@ -540,32 +540,32 @@ module omero {
 	 */
 	["ami", "amd"] interface ITimeline extends ServiceInterface {
 
-        /*
-         * Return the last LIMIT annotation __Links__ whose parent (IAnnotated)
-         * matches one of the parentTypes, whose child (Annotation) matches one
-         * of the childTypes (limit of one for the moment), and who namespace
-         * matches via ILIKE.
-         *
-         * The parents and children will be unloaded. The link will have
-         * its creation/update events loaded.
-         *
-         * Merges by default based on parentType.
-         */
-        IObjectList
-        getMostRecentAnnotationLinks(StringSet parentTypes, StringSet childTypes,
-                                     StringSet namespaces, omero::sys::Parameters p)
-        throws ServerError;
+            /*
+	     * Return the last LIMIT annotation __Links__ whose parent (IAnnotated)
+	     * matches one of the parentTypes, whose child (Annotation) matches one
+	     * of the childTypes (limit of one for the moment), and who namespace
+	     * matches via ILIKE.
+	     *
+	     * The parents and children will be unloaded. The link will have
+	     * its creation/update events loaded.
+	     *
+	     * Merges by default based on parentType.
+	     */
+	    IObjectList
+		getMostRecentAnnotationLinks(StringSet parentTypes, StringSet childTypes,
+					     StringSet namespaces, omero::sys::Parameters p)
+		throws ServerError;
 
-        /*
-         * Return the last LIMIT comment annotation links attached to a share by
-         * __others__.
-         *
-         * Note: Currently the storage of these objects is not optimal
-         * and so this method may change.
-         */
-        IObjectList
-        getMostRecentShareCommentLinks(omero::sys::Parameters p)
-        throws ServerError;
+	    /*
+	     * Return the last LIMIT comment annotation links attached to a share by
+	     * __others__.
+	     *
+	     * Note: Currently the storage of these objects is not optimal
+	     * and so this method may change.
+	     */
+	    IObjectList
+		getMostRecentShareCommentLinks(omero::sys::Parameters p)
+		throws ServerError;
 
 	    /*
 	     * Returns the last LIMIT objects of TYPES as ordered by
@@ -593,11 +593,11 @@ module omero {
 		throws ServerError;
 
 	    /*
-	     * Returns the Event table objects which are queried to produce the counts above.
+	     * Returns the EventLog table objects which are queried to produce the counts above.
 	     * Note the concept of "period inclusion" mentioned above.
 	     */
-	    EventList
-		getEventsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p)
+	    EventLogList
+		getEventLogsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p)
 		throws ServerError;
 
 	};

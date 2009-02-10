@@ -101,7 +101,7 @@ public class DataServiceImpl
 		DatasetImageLink link = new DatasetImageLinkI();
 		link.setParent( dataset );
 		link.setChild( image );
-		dataset.addDatasetImageLink2(link, true);
+		dataset.addDatasetImageLinkToBoth(link, true);
 		iUpdate.saveObject(link);
 	}
 

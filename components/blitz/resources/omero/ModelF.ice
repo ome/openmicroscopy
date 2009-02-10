@@ -22,6 +22,7 @@ module omero {
         class Dataset;
         class Details;
         class Event;
+        class EventLog;
         class Experimenter;
         class ExperimenterGroup;
         class ExternalInfo;

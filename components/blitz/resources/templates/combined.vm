@@ -102,7 +102,7 @@ DECLARATION BLOCK:
 
 [$jav] package omero.model;
 [$jav] import java.util.*;
-[$jav] import static omero.rtypes.*; 
+[$jav] import static omero.rtypes.*;
 [$jav] import ome.conditions.*;
 [$jav] public class ${PojoI} extends ${Pojo}
 [$jav]    implements ome.model.ModelBased {
@@ -118,14 +118,14 @@ Note how the whitespace for the python definitions is important.
 
 [$pyc] class ${PojoI}(_omero_model.$Pojo):
 [$pyc]
-[$hdr] namespace omero { 
+[$hdr] namespace omero {
 [$hdr]   namespace model {
-[$hdr]     class ${PojoI} : virtual public ${Pojo} { 
+[$hdr]     class ${PojoI} : virtual public ${Pojo} {
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>
 [$cpp] using omero::rtypes::rlong;
-[$cpp] namespace omero { 
+[$cpp] namespace omero {
 [$cpp]   namespace model {
 
 STATIC FIELDS:
@@ -221,14 +221,18 @@ TOGGLE AND CREATE COLLECTIONS:
 Here we don't have to keep up with the type (set/list)
 since all collections are lists in ice.
 
+#if( $type.id.equals($property.actualType.id) )
+#set($Ice = "ice" )
+#else
+#set($Ice = "NOT" )
+#end
+
 #if(      $fulltype.contains("byte[]"))
-[$ice]     sequence<byte> ${seqName};
-
+[$Ice]     sequence<byte> ${seqName};
 #elseif(  $property.one2Many )
-
-[$ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
+[$Ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
 #if( $property.isLink )
-[$ice]     ["java:type:java.util.ArrayList"] sequence<omero::model::${property.shortTarget}> ${Pojo}Linked${property.shortTarget}Seq;
+[$Ice]     ["java:type:java.util.ArrayList"] sequence<omero::model::${property.shortTarget}> ${Pojo}Linked${property.shortTarget}Seq;
 #end
 
 [$jav]           if (load) {
@@ -323,7 +327,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 [$cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) : ${Pojo}() {
 [$cpp]        id = idPtr;
 [$cpp]        loaded = isLoaded;
-[$cpp]        if (loaded) details = new omero::model::DetailsI(); 
+[$cpp]        if (loaded) details = new omero::model::DetailsI();
 [$cpp]        toggleCollectionsLoaded(isLoaded);
 [$cpp]    }
 
@@ -331,7 +335,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 [$cpp]    ${PojoI}::${PojoI}(Ice::Long _id, bool isLoaded) : ${Pojo}() {
 [$cpp]        id = rlong(_id);
 [$cpp]        loaded = isLoaded;
-[$cpp]        if (loaded) details = new omero::model::DetailsI(); 
+[$cpp]        if (loaded) details = new omero::model::DetailsI();
 [$cpp]        toggleCollectionsLoaded(isLoaded);
 [$cpp]    }
 
@@ -342,7 +346,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 
 [$jav]    public ${PojoI}(omero.RLong id, boolean loaded) {
 [$jav]        this.id = id;
-[$jav]        this.loaded = loaded; 
+[$jav]        this.loaded = loaded;
 [$jav]        if (loaded) details = new omero.model.DetailsI();
 [$jav]        toggleCollectionsLoaded(loaded);
 [$jav]    }
@@ -634,7 +638,7 @@ The "version" property is not a part of the model but is calculated from mutabil
 [$pyc]       def setVersion(self, version, $PYC_CURRENT):
 [$pyc]           self._version = version
 [$pyc]
-#end### ! immutable 
+#end### ! immutable
 
 
 ###########################################################################
@@ -665,18 +669,11 @@ Skip. These are defined in omero.IObject.ice
 [$hdr]       //  ${Pojo}.${property.name}
 [$hdr]       //
 
-#set( $definedIn = "nothere" )
-#foreach( $p2 in $type.classProperties )
-##
-#if( $p2.name.equals($property.name) )
-#set( $definedIn = "here" )
-#end
-#end
+#set( $ActualPojo = $property.actualType.shortname )
+#set($Ice = "NOT" ) ## Ice only activated when property defined here
+#if( $type.id.equals($property.actualType.id) )
 #set($Ice = "ice" )
-#if( $definedIn.startsWith("not") )
-#set($Ice = "NOT" )
 #end
-
 
 Properties used throughout the accessor generation
 
@@ -842,8 +839,18 @@ ASSOCIATION TYPES BLOCK:
 
 #set( $hasSet  = false )
 #set( $hasLink = false )
+#set( $Col = "NOT")
+#set( $JAV_CURRENT_COLL = "")
+#set( $CPP_CURRENT_COLL = "")
+#set( $HDR_CURRENT_COLL = "")
+#set( $PYC_CURRENT_COLL = "")
 #if( $property.one2Many )
 #set( $hasSet  = $property.one2Many)
+#set( $Col = $Ice )
+#set( $JAV_CURRENT_COLL = $JAV_CURRENT)
+#set( $CPP_CURRENT_COLL = $CPP_CURRENT)
+#set( $HDR_CURRENT_COLL = $HDR_CURRENT)
+#set( $PYC_CURRENT_COLL = $PYC_CURRENT)
 #end
 #if( $property.class.name.equals("ome.dsl.ChildLink") || $property.class.name.equals("ome.dsl.ParentLink"))
 #set( $hasLink = true )
@@ -859,16 +866,25 @@ ASSOCIATION TYPES BLOCK:
 Unload
 ------
 
-[$jav]       public void unload${PropertyName}() {
+[$Col]       /*
+[$Col]        * Unloads the ${property.name} collection. Any access to this
+[$Col]        * collection will throw an omero.UnloadedCollectionException.
+[$Col]        *
+[$Col]        * See sizeOf${PropertyName}() on how to test for unloaded collections.
+[$Col]        * See reload${PropertyName}() on how to reset the value.
+[$Col]        *
+[$Col]        */
+[$Col]       void unload${PropertyName}();
+[$jav]       public void unload${PropertyName}($JAV_CURRENT_COLL) {
 [$jav]           ${unloadIfIsSet}
 [$jav]           ${fieldName} = null;
 [$jav]       }
-[$hdr]       virtual void unload${PropertyName}();
-[$cpp]       void ${Pojo}I::unload${PropertyName}() {
+[$hdr]       virtual void unload${PropertyName}($HDR_CURRENT_COLL);
+[$cpp]       void ${Pojo}I::unload${PropertyName}($CPP_CURRENT_COLL) {
 [$cpp]           ${unloadIfIsSet}
 [$cpp]           ${fieldName} = ($cppType) 0;
 [$cpp]       }
-[$pyc]       def unload${PropertyName}(self):
+[$pyc]       def unload${PropertyName}(self, $PYC_CURRENT_COLL):
 [$pyc]           self._${property.name}Loaded = False
 [$pyc]           self._${fieldName} = None;
 [$pyc]
@@ -978,10 +994,10 @@ One-to-many extras:
 ##  These methods represent our handling of Hibernate's "inverse" sets
 ##  which do not act as expected with regards to getters & setters.
 ##
-##  To prevent users from making mistakes like not properly setting both 
+##  To prevent users from making mistakes like not properly setting both
 ##  sides of a relationship, these fields are hidden, and only accessible via
-##  the following methods. Methods fall into several categories: 
-##    (A) general   
+##  the following methods. Methods fall into several categories:
+##    (A) general
 ##    (B) list-only
 ##    (C) link-based
 ##
@@ -1122,9 +1138,14 @@ add single
 [$cpp]           target->set$Inverse(this);
 [$cpp]       }
 
-add set
+addAll set
 
-[$jav]       public void add${property.shortType}Set(Collection<${property.shortType}> targets) throws omero.UnloadedEntityException {
+[$Ice]       /*
+[$Ice]        * Adds all the members of the ${iceType} sequence to
+[$Ice]        * the ${fieldName} field.
+[$Ice]        */
+[$Ice]       void addAll${property.shortType}Set(${iceType} targets);
+[$jav]       public void addAll${property.shortType}Set($javaType<${property.shortType}> targets, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.addAll( targets );
@@ -1132,20 +1153,20 @@ add set
 [$jav]               target.set$Inverse( this );
 [$jav]           }
 [$jav]       }
-[$pyc]       def add${property.shortType}Set(self, targets):
+[$pyc]       def addAll${property.shortType}Set(self, targets, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if  not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self._${fieldName}.extend( targets )
 [$pyc]           for target in targets:
 [$pyc]               target.set$Inverse( self )
 [$pyc]
-[$hdr]       virtual void add${property.shortType}Set($cppType targets);
-[$cpp]       void ${PojoI}::add${property.shortType}Set($cppType targets) {
+[$hdr]       virtual void addAll${property.shortType}Set($cppType targets, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::addAll${property.shortType}Set($cppType targets, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator loc = ${fieldName}.end();
-[$cpp]           $cppType::iterator beg = targets.begin(); 
-[$cpp]           $cppType::iterator end = targets.end(); 
+[$cpp]           $cppType::iterator beg = targets.begin();
+[$cpp]           $cppType::iterator end = targets.end();
 [$cpp]           ${fieldName}.insert(loc,beg,end);
 [$cpp]           for ($cppType::iterator it = targets.begin(); it != targets.end(); ++it) {
 [$cpp]               ${property.shortType}Ptr target = *it;
@@ -1242,6 +1263,57 @@ clear
 [$cpp]           ${fieldName}.clear();
 [$cpp]       }
 
+reload : allows reloading a given collection for another instance.
+Here we have to use prop.actualType.shortName rather than Prop
+because the passed in object must match the type of the (abstract)
+super class where the property was defined.
+
+[$Ice]
+[$Ice]       /*
+[$Ice]        * Allows reloading the protected ${property.name} collection
+[$Ice]        * from another instance of ${ActualPojo}. The argument's collection
+[$Ice]        * will be unloaded and all member entities will have their
+[$Ice]        * inverse property altered.
+[$Ice]        *
+[$Ice]        * The argument's id must match and it's update id must be present and
+[$Ice]        * greater than or equal to that of the current object.
+[$Ice]        */
+[$Ice]       void reload${PropertyName}(${ActualPojo} toCopy);
+
+[$jav]       public void reload${PropertyName}(${ActualPojo} toCopy, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           if (${propLoaded}) {
+[$jav]              throw new omero.ClientError("Cannot reload active collection: ${fieldName}");
+[$jav]           }
+[$jav]           if (toCopy == null) {
+[$jav]              throw new omero.ClientError("Argument cannot be null");
+[$jav]           }
+[$jav]           $javaType copy = toCopy.copy${PropertyName}(); // May also throw
+[$jav]           ${fieldName}.clear();
+[$jav]           ${fieldName}.addAll(copy);
+[$jav]           for( ${property.shortType} elt : (Collection<${property.shortType}>)${fieldName}) {
+[$jav]               elt.set$Inverse( null );
+[$jav]           }
+[$jav]           toCopy.unload${PropertyName}();
+[$jav]       }
+[$pyc]       def clear${PropertyName}(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           for elt in self._${fieldName}:
+[$pyc]               elt.set$Inverse( None )
+[$pyc]           self._${fieldName} = list()
+[$pyc]
+[$hdr]       virtual void clear${PropertyName}($HDR_CURRENT);
+[$cpp]       void ${PojoI}::clear${PropertyName}($CPP_CURRENT) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$cpp]           $cppType::iterator beg = ${fieldName}.begin();
+[$cpp]           $cppType::iterator end = ${fieldName}.end();
+[$cpp]           for(; beg != end; beg++) {
+[$cpp]               (*beg)->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]           }
+[$cpp]           ${fieldName}.clear();
+[$cpp]       }
 
 (B) List Modifications
 ===============================================================
@@ -1322,7 +1394,7 @@ clear
 [$pyc]
 [$pyc]       def set${property.shortType}(self, index, element, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self. _${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self._${fieldName}.set(index, element)
 [$pyc]
 [$pyc]       def getPrimary${property.shortType}(self, $PYC_CURRENT):
@@ -1382,7 +1454,7 @@ COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#set( $ADD2METHOD = "add${property.shortType}2")
+#set( $ADD2METHOD = "add${property.shortType}ToBoth")
 
 [$Ice]       ${property.shortType} link${property.shortTarget}(${property.shortTarget} addition);
 [$jav]       public ${property.shortType} link${property.shortTarget}(${property.shortTarget} addition, $JAV_CURRENT) throws omero.UnloadedEntityException {
@@ -1413,6 +1485,12 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TODO: do we need to do link.parent = ...;
 
+[$Ice]
+[$Ice]       /*
+[$Ice]        * Add the link to the current instance and if bothSides is true AND
+[$Ice]        * the other side of the link is loaded, add the current instance to
+[$Ice]        * it as well.
+[$Ice]        */
 [$Ice]       void $ADD2METHOD(omero::model::${property.shortType} link, bool bothSides);
 [$jav]       public void $ADD2METHOD(${property.shortType} link, boolean bothSides, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
@@ -1429,7 +1507,7 @@ TODO: Should we check for nulls in other?
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self._${fieldName}.append( link )
-#if($bidir) 
+#if($bidir)
 [$pyc]           if bothSides and link.${other}.isLoaded():
 [$pyc]               link.${other}.$ADD2METHOD( link, False )
 #end
@@ -1444,7 +1522,7 @@ TODO: Should we check for nulls in other?
 [$cpp]               ${property.shortTarget}Ptr::dynamicCast(link->${other})->$ADD2METHOD( link, false );
 [$cpp]           }
 #end
-[$cpp]       }  
+[$cpp]       }
 
 FIND
 ================================
@@ -1479,16 +1557,16 @@ FIND
 [$cpp]               ++beg;
 [$cpp]           }
 [$cpp]           return result;
-[$cpp]       }  
+[$cpp]       }
 
 REMOVE
 =======================================
-#set( $REMOVE2METHOD = "remove${property.shortType}2")
+#set( $REMOVE2METHOD = "remove${property.shortType}FromBoth")
 
 #set( $removeLinkPredicate = "testRemove${property.shortTarget}From${PojoI}" )
 [$cpp]
 [$cpp]       struct $removeLinkPredicate {
-[$cpp] 
+[$cpp]
 [$cpp]         const ${property.shortType}Ptr t;
 [$cpp]         const bool bothSides;
 [$cpp]         ${removeLinkPredicate}(const ${property.shortType}Ptr n, const bool b) : t(n), bothSides(b) {}
@@ -1503,7 +1581,7 @@ REMOVE
 [$cpp]            }
 [$cpp]            return false;
 [$cpp]         }
-[$cpp]       }; 
+[$cpp]       };
 [$cpp]
 
 [$Ice]       void unlink${property.shortTarget}(${property.shortTarget} removal);
@@ -1517,6 +1595,12 @@ REMOVE
 [$jav]           }
 [$jav]       }
 
+[$Ice]
+[$Ice]       /*
+[$Ice]        * Remove the link from the current instance and if bothSides is true AND
+[$Ice]        * the other side of the link is loaded, remove the current instance from
+[$Ice]        * it as well.
+[$Ice]        */
 [$Ice]       void $REMOVE2METHOD(omero::model::${property.shortType} link, bool bothSides);
 [$jav]       public void $REMOVE2METHOD(${property.shortType} link, boolean bothSides, $JAV_CURRENT  ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
 [$jav]           errorIfUnloaded();
@@ -1566,7 +1650,7 @@ REMOVE
 [$cpp]               ${fieldName}.end(),
 [$cpp]               ${removeLinkPredicate}(link, bothSides));
 [$cpp]           ${fieldName}.erase(it,${fieldName}.end());
-[$cpp]       } 
+[$cpp]       }
 
 Linked Lists
 ==============================
@@ -1701,7 +1785,7 @@ FILLOBJECT BLOCK:
 #if( ! $type.immutable )
 [$jav]             target.setVersion(  this.version == null ? null : this.version.getValue() );
 #end
-[$jav]             
+[$jav]
 [$jav]             // Following also copy counts, etc. if necessary
 #foreach($property in $type.propertyClosure)
 [$jav]             this.fill${property.nameCapped}( target, mapper );

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import ome.dsl.DSLTask;
+import ome.dsl.Property;
 import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
 import ome.dsl.VelocityHelper;
@@ -77,7 +78,79 @@ public class ObjectsVmTest extends TestCase {
         sr.parse();
         List<SemanticType> list = sr.process();
         Map<String, SemanticType> map = toMap(list);
+        int counts = 0;
+        
         SemanticType ann = map.get("ome.model.annotations.Annotation");
+        for (Property property: ann.getPropertyClosure()) {
+            if (isDetailsField(property)) {
+                continue;
+            }
+            assertNotNull(property.toString(), property.getActualType());
+            if (property.getName().equals("ns")) {
+                assertEquals(ann, property.getActualType());
+                counts++;
+            }
+        }
+        
+        SemanticType boo= map.get("ome.model.annotations.BooAnnotation");
+        for (Property property: boo.getPropertyClosure()) {
+            if (isDetailsField(property)) {
+                continue;
+            }
+            assertNotNull(property.getActualType());
+            if (property.getName().equals("ns")) {
+                assertEquals(ann, property.getActualType());
+                counts++;
+            }
+            if (property.getName().equals("boo")) {
+                assertEquals(boo, property.getActualType());
+                counts++;
+            }
+        }
+        
+        assertEquals(3, counts);
+    }
+    
+    @Test
+    public void testJobs() {
+        sr.parse();
+        List<SemanticType> list = sr.process();
+        Map<String, SemanticType> map = toMap(list);
+        int counts = 0;
+        
+        SemanticType job = map.get("ome.model.jobs.Job");
+        for (Property property: job.getPropertyClosure()) {
+            if (isDetailsField(property)) {
+                continue;
+            }
+            assertNotNull(property.toString(), property.getActualType());
+            if (property.getName().equals("originalFileLinks")) {
+                assertEquals(job, property.getActualType());
+                counts++;
+            }
+        }
+        
+        SemanticType script= map.get("ome.model.jobs.ScriptJob");
+        for (Property property: script.getPropertyClosure()) {
+            if (isDetailsField(property)) {
+                continue;
+            }
+            assertNotNull(property.getActualType());
+            if (property.getName().equals("originalFileLinks")) {
+                assertEquals(job, property.getActualType());
+                counts++;
+            }
+            if (property.getName().equals("description")) {
+                assertEquals(script, property.getActualType());
+                counts++;
+            }
+        }
+        
+        assertEquals(3, counts);
+    }
+
+    private boolean isDetailsField(Property property) {
+        return property.getClass().getName().endsWith("DetailsField");
     }
 
     // ~ Helpers
