@@ -2256,7 +2256,7 @@ def manage_share(request, action, oid=None, **kwargs):
         if form.is_valid():
             new_share = BaseShare(request.session['nav']['menu'], conn, None)
             message = request.REQUEST['message']
-            expiretion = request.REQUEST['expiretion']
+            expiration = request.REQUEST['expiration']
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
             enable = False
@@ -2265,7 +2265,7 @@ def manage_share(request, action, oid=None, **kwargs):
             except:
                 pass
             host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
-            new_share.createShare(host, request.session['server'], request.session['imageInBasket'], request.session['datasetInBasket'], request.session['projectInBasket'], message, expiretion, members, enable)
+            new_share.createShare(host, request.session['server'], request.session['imageInBasket'], request.session['datasetInBasket'], request.session['projectInBasket'], message, expiration, members, enable)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             
@@ -2278,7 +2278,7 @@ def manage_share(request, action, oid=None, **kwargs):
         share.getMembers(oid)
         share.getComments(oid)
         
-        form = ShareForm(initial={'message': share.share.message, 'expiretion': share.share.getExpiretionDate, \
+        form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate, \
                                     'shareMembers': share.membersInShare, 'enable': share.share.active, \
                                     'experimenters': experimenters}) #'guests': share.guestsInShare,
         context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
@@ -2287,11 +2287,11 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message']
-            expiretion = request.REQUEST['expiretion']
+            expiration = request.REQUEST['expiration']
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
             enable = request.REQUEST['enable']
-            share.updateShare(message, expiretion, members, enable)
+            share.updateShare(message, expiration, members, enable)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             template = "omeroweb/share_form.html"

@@ -1034,7 +1034,8 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group left outer join fetch ds.projectLinks pdl " \
+        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
+              "left outer join fetch ds.projectLinks pdl " \
               "left outer join fetch pdl.parent p where ds.id=:oid "
         ds = query_serv.findByQuery(sql,p)
         if ds is not None:
@@ -1042,7 +1043,7 @@ class BlitzGateway (threading.Thread):
         else:
             return None
 
-    '''def getImage (self, oid):
+    def getImage (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1054,9 +1055,9 @@ class BlitzGateway (threading.Thread):
         if img is not None:
             return ImageWrapper(self, img)
         else:
-            return None'''
+            return None
     
-    def getImage (self, oid):
+    '''def getImage (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1076,7 +1077,7 @@ class BlitzGateway (threading.Thread):
         if img is not None:
             return ImageWrapper(self, img)
         else:
-            return None
+            return None'''
     
     def getImageWithMetadata (self, oid):
         query_serv = self.getQueryService()
@@ -1476,7 +1477,7 @@ class BlitzGateway (threading.Thread):
         u = self.getUpdateService()
         u.deleteObject(obj)
 
-    def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiretion, members, enable):
+    def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiration, members, enable):
         sh = self.getShareService()
         q = self.getQueryService()
         items = list()
@@ -1534,7 +1535,7 @@ class BlitzGateway (threading.Thread):
                   "join fetch fa.file f join fetch f.format fm " \
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
-        sid = sh.createShare(message, expiretion, items, ms, [], enable)
+        sid = sh.createShare(message, expiration, items, ms, [], enable)
         
         #send email
         try:
@@ -1556,10 +1557,10 @@ class BlitzGateway (threading.Thread):
             if sender is not None:
                 sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, message, recipients)
     
-    def updateShare (self, share_id, message, expiretion, members, enable):
+    def updateShare (self, share_id, message, expiration, members, enable):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
-        sh.setExpiration(long(share_id), expiretion)
+        sh.setExpiration(long(share_id), expiration)
     
     def setFile(self, buf):
         f = self.createRawFileStore()
@@ -2624,7 +2625,7 @@ class ShareWrapper (BlitzObjectWrapper):
     def getStartDate(self):
         return datetime.fromtimestamp((self._obj.started.val)/1000).strftime("%Y-%m-%d")
         
-    def getExpiretionDate(self):
+    def getExpirationDate(self):
         try:
             return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000).strftime("%Y-%m-%d")
         except ValueError:

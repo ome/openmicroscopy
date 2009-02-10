@@ -7,10 +7,16 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/basket.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/datepicker.css" type="text/css" />
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.datepicker.js"></script>
@@ -31,11 +37,24 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
     <script>
       $(document).ready(function(){
-          $('#id_expiretion').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+          $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
           
       });
     </script>
-
+    <script type="text/javascript">
+        $(function() {
+            $("#markup_c, #enable, #expire").tooltip({ 
+                track: true, 
+                delay: 0, 
+                showURL: false, 
+                opacity: 1, 
+                fixPNG: true, 
+                showBody: " - ", 
+                top: -15, 
+                left: 5 
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block center %}

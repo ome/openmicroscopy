@@ -290,10 +290,13 @@
 {% if manager.project or manager.dataset %}
 
 <div id="annotation">
-<h1>Annotations:</h1>
-{% if manager.dataset.countAnnotations %}<a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.dataset.countAnnotations }}]</a>
+{% if manager.dataset %}
+    {% if manager.dataset.countAnnotations %}<h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.dataset.countAnnotations }}]</a>
+    {% endif %}
 {% else %}
-    {% if manager.project.countAnnotations %}<a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.project.countAnnotations }}]</a>{% endif %}
+    {% if manager.project %}
+        {% if manager.project.countAnnotations %}<h1>Annotations:</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.project.countAnnotations }}]</a>{% endif %}
+    {% endif %}
 {% endif %}
 </div>
 

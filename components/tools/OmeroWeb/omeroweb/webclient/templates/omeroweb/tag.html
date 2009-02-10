@@ -13,7 +13,7 @@
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.min.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.ajaxQueue.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.autocomplete.js"></script>
     
@@ -76,95 +76,7 @@
                 });
                 
                 function prepareAutocomplite(myjson){
-                    $("#id_tag").autocomplete(myjson, {
-                        //width: 320,
-                        max: 10,
-                        scroll: true,
-                        scrollHeight: 200,
-                        highlightItem: true,
-                        //multiple: true,
-                        //multipleSeparator: ";",
-                        formatItem: function(row, i, max, term) {
-                            if(row.desc!=null) {
-                                return row.tag + "<br/><small>" + row.desc + "</small>";
-                            } else {
-                                return row.tag
-                            }
-                        },
-                        formatMatch: function(row, i, max) {
-                            return row.tag + " " + row.id;
-                        },
-                        formatResult: function(row) {
-                            return row.tag;
-                        }
-                    });
-                    $("#id_tag2").autocomplete(myjson, {
-                        //width: 320,
-                        max: 10,
-                        scroll: true,
-                        scrollHeight: 200,
-                        highlightItem: true,
-                        //multiple: true,
-                        //multipleSeparator: ";",
-                        formatItem: function(row, i, max, term) {
-                            if(row.desc!=null) {
-                                return row.tag + "<br/><small>" + row.desc + "</small>";
-                            } else {
-                                return row.tag
-                            }
-                        },
-                        formatMatch: function(row, i, max) {
-                            return row.tag + " " + row.id;
-                        },
-                        formatResult: function(row) {
-                            return row.tag;
-                        }
-                    });
-                    $("#id_tag3").autocomplete(myjson, {
-                        //width: 320,
-                        max: 10,
-                        scroll: true,
-                        scrollHeight: 200,
-                        highlightItem: true,
-                        //multiple: true,
-                        //multipleSeparator: ";",
-                        formatItem: function(row, i, max, term) {
-                            if(row.desc!=null) {
-                                return row.tag + "<br/><small>" + row.desc + "</small>";
-                            } else {
-                                return row.tag
-                            }
-                        },
-                        formatMatch: function(row, i, max) {
-                            return row.tag + " " + row.id;
-                        },
-                        formatResult: function(row) {
-                            return row.tag;
-                        }
-                    });
-                    $("#id_tag4").autocomplete(myjson, {
-                        //width: 320,
-                        max: 10,
-                        scroll: true,
-                        scrollHeight: 200,
-                        highlightItem: true,
-                        //multiple: true,
-                        //multipleSeparator: ";",
-                        formatItem: function(row, i, max, term) {
-                            if(row.desc!=null) {
-                                return row.tag + "<br/><small>" + row.desc + "</small>";
-                            } else {
-                                return row.tag
-                            }
-                        },
-                        formatMatch: function(row, i, max) {
-                            return row.tag + " " + row.id;
-                        },
-                        formatResult: function(row) {
-                            return row.tag;
-                        }
-                    });
-                    $("#id_tag5").autocomplete(myjson, {
+                    $("#id_tag, #id_tag2, #id_tag3, #id_tag4, #id_tag5").autocomplete(myjson, {
                         //width: 320,
                         max: 10,
                         scroll: true,

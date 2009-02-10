@@ -23,7 +23,13 @@ import re
 ##################################################################
 # Static values
 
-help_wiki = "<small><p>If you'd like to include an OMERO image or container in the above field, simply get the id of the item from the URL and type:<br/><b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></p><p>In addition, for URL please type <b>http://www.openmicroscopy.org.uk/</b></p></small>"
+help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include an OMERO image or container in the above field, simply get the id of the item from the URL and type: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b><br/>In addition, for URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>">How to format a text?</span>'
+
+help_wiki_c = '<span id="markup_c" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>">How to format a text?</span>'
+
+help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the control on the access to the share.</small>">What is it?</span>'
+
+help_expire = '<span id="expire" title="Expire date - <small>This date define when share will stop being available.</small>">What is expire date?</span>'
 
 ##################################################################
 # Model
@@ -75,15 +81,15 @@ class ShareForm(forms.Form):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
         except:
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
-        self.fields.keyOrder = ['message', 'expiretion', 'enable', 'members']#, 'guests']
+        self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}), help_text=help_wiki) 
-    expiretion = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}))
-    enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False)
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}), help_text=help_wiki_c) 
+    expiration = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}), label="Expire date", help_text=help_expire)
+    enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False, help_text=help_enable)
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
 
-    def clean_expiretion(self):
-        d = self.cleaned_data['expiretion'].rsplit("-")
+    def clean_expiration(self):
+        d = self.cleaned_data['expiration'].rsplit("-")
         # only for python 2.5
         # date = datetime.datetime.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")
         date = datetime.datetime(*(time.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")[0:6]))
@@ -92,7 +98,7 @@ class ShareForm(forms.Form):
 
 class ShareCommentForm(forms.Form):
 
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), help_text=help_wiki)
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), help_text=help_wiki_c)
     
 class ContainerForm(forms.Form):
     

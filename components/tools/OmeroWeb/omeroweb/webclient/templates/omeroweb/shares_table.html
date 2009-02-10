@@ -92,7 +92,7 @@
         {% endif %}</td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> </td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td>
-        <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
+        <td>{{ c.getStartDate }} - {{ c.getExpirationDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>
         <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>
@@ -130,7 +130,7 @@
         {% endif %}</a></td> 
         <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> </td> 
         <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td>
-        <td>{{ c.getStartDate }} - {{ c.getExpiretionDate }}</td>
+        <td>{{ c.getStartDate }} - {{ c.getExpirationDate }}</td>
         <td>{{ c.itemCount }}</td>
         <td>{{ c.getMembersCount }}</td>
         <td>{% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td>

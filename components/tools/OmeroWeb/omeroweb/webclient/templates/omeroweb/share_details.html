@@ -8,10 +8,16 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/share.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
@@ -31,6 +37,20 @@
 
         });
     </script>
+    <script type="text/javascript">
+        $(function() {
+            $("#markup_c").tooltip({ 
+                track: true, 
+                delay: 0, 
+                showURL: false, 
+                opacity: 1, 
+                fixPNG: true, 
+                showBody: " - ", 
+                top: -15, 
+                left: 5 
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block center %}
@@ -44,7 +64,7 @@
     <div class="clear"> </div>
     
     <h2>Details: 
-        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate }}, Expires: {{ share.share.getExpiretionDate }}
+        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate }}, Expires: {{ share.share.getExpirationDate }}
     </h2>
     
     {% if share.share.isOwned %}

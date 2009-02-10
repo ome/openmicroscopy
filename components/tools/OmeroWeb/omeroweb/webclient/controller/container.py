@@ -262,25 +262,28 @@ class BaseContainer(BaseController):
         pr_list = list(self.conn.listProjectsMine())
         ds_list = list(self.conn.listDatasetsOutoffProjectMine())
         
+        pr_list_with_counters = list()
+        ds_list_with_counters = list()
+        
         pr_ids = [pr.id for pr in pr_list]
-        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+        if len(pr_ids) > 0:
+            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+            
+            for pr in pr_list:
+                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                pr_list_with_counters.append(pr)
         
         ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
-        pr_list_with_counters = list()
-        for pr in pr_list:
-            pr.child_counter = pr_child_counter.get(pr.id)
-            pr.annotation_counter = pr_annotation_counter.get(pr.id)
-            pr_list_with_counters.append(pr)
-        
-        ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+            
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
         
         #im_list = list(self.conn.listImagesOutoffDatasetMine())
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
@@ -288,29 +291,32 @@ class BaseContainer(BaseController):
 
     def listMyDatasetsInProject(self, project_id):
         ds_list = list(self.conn.listDatasetsInProjectMine(project_id))
+        ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
         
-        ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
-            
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
+        
         self.containers = {'datasets': ds_list_with_counters}
         self.c_size = len(ds_list_with_counters)
 
     def listMyImagesInDataset(self, dataset_id):
         im_list = list(self.conn.listImagesInDatasetMine(dataset_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
@@ -319,52 +325,58 @@ class BaseContainer(BaseController):
         pr_list = list(self.conn.loadMyContainerHierarchy())
         ds_list = list(self.conn.listDatasetsOutoffProjectMine())
         
-        pr_ids = [pr.id for pr in pr_list]
-        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-        
-        ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
         pr_list_with_counters = list()
-        for pr in pr_list:
-            pr.child_counter = pr_child_counter.get(pr.id)
-            pr.annotation_counter = pr_annotation_counter.get(pr.id)
-            pr_list_with_counters.append(pr)
-        
         ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        
+        pr_ids = [pr.id for pr in pr_list]
+        if len(pr_ids) > 0:
+            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+        
+            for pr in pr_list:
+                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                pr_list_with_counters.append(pr)
+                
+        ds_ids = [ds.id for ds in ds_list]
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
             
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
+        
         #im_list = list(self.conn.listImagesOutoffDatasetMine())
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
     def loadMyImages(self, dataset_id):
         im_list = list(self.conn.listImagesInDatasetMine(long(dataset_id)))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
             
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
+        
         self.subcontainers = im_list_with_counters
 
     def loadMyOrphanedImages(self):
         im_list = list(self.conn.listImagesOutoffDatasetMine())
+        im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
-        im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
         self.subcontainers = im_list_with_counters
@@ -378,25 +390,28 @@ class BaseContainer(BaseController):
         ds_list = list(self.conn.listDatasetsOutoffProjectAsUser(exp_id))
         #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         
+        pr_list_with_counters = list()
+        ds_list_with_counters = list()
+        
         pr_ids = [pr.id for pr in pr_list]
-        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+        if len(pr_ids) > 0:
+            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+            
+            for pr in pr_list:
+                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                pr_list_with_counters.append(pr)
         
         ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
-        pr_list_with_counters = list()
-        for pr in pr_list:
-            pr.child_counter = pr_child_counter.get(pr.id)
-            pr.annotation_counter = pr_annotation_counter.get(pr.id)
-            pr_list_with_counters.append(pr)
-        
-        ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+            
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
         
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
@@ -404,30 +419,34 @@ class BaseContainer(BaseController):
     def listDatasetsInProjectAsUser(self, project_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
         ds_list = list(self.conn.listDatasetsInProjectAsUser(project_id, exp_id))
+        ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
-        ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
             
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
+        
         self.containers = {'datasets': ds_list_with_counters}
         self.c_size = len(ds_list_with_counters)
 
     def listImagesInDatasetAsUser(self, dataset_id, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
         im_list = list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        
+        im_ids = [im.id for im in im_list]
+        
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
             
         self.containers = {'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
@@ -437,25 +456,28 @@ class BaseContainer(BaseController):
         pr_list = list(self.conn.loadUserContainerHierarchy(exp_id))
         ds_list = list(self.conn.listDatasetsOutoffProjectAsUser(exp_id))
         
-        pr_ids = [pr.id for pr in pr_list]
-        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-        
-        ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
         pr_list_with_counters = list()
-        for pr in pr_list:
-            pr.child_counter = pr_child_counter.get(pr.id)
-            pr.annotation_counter = pr_annotation_counter.get(pr.id)
-            pr_list_with_counters.append(pr)
-        
         ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        
+        pr_ids = [pr.id for pr in pr_list]
+        if len(pr_ids) > 0:
+            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+            
+            for pr in pr_list:
+                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                pr_list_with_counters.append(pr)
+        
+        if len(ds_ids) > 0:
+            ds_ids = [ds.id for ds in ds_list]
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+            
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
         
         #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
@@ -463,25 +485,30 @@ class BaseContainer(BaseController):
         
     def loadUserImages(self, dataset_id, exp_id):
         im_list = list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
         
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
             
         self.subcontainers = im_list_with_counters
     
     def loadUserOrphanedImages(self, exp_id):
         im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
@@ -494,26 +521,29 @@ class BaseContainer(BaseController):
         ds_list = list(self.conn.listDatasetsOutoffProjectInGroup(group_id))
         #im_mygroups = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
         
+        pr_list_with_counters = list()
+        ds_list_with_counters = list()
+        
         pr_ids = [pr.id for pr in pr_list]
-        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+        if len(pr_ids) > 0:
+            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+        
+            for pr in pr_list:
+                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                pr_list_with_counters.append(pr)
         
         ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
-        pr_list_with_counters = list()
-        for pr in pr_list:
-            pr.child_counter = pr_child_counter.get(pr.id)
-            pr.annotation_counter = pr_annotation_counter.get(pr.id)
-            pr_list_with_counters.append(pr)
-        
-        ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
             
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
+        
         user_set = set()
         for pr in pr_list_with_counters:
             user_set.add(pr.details.owner.id.val)
@@ -541,15 +571,17 @@ class BaseContainer(BaseController):
         self.containersMyGroups = dict()                
         ds_list = list(self.conn.listDatasetsInProjectInGroup(project_id, group_id))
         
-        ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
         ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        
+        ds_ids = [ds.id for ds in ds_list]
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+            
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
         
         user_set = set()
         for ds in ds_list_with_counters:
@@ -570,14 +602,15 @@ class BaseContainer(BaseController):
         self.containersMyGroups = dict()
         
         im_list = list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
             
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
+        
         user_set = set()
         for im in im_list_with_counters:
             user_set.add(im.details.owner.id.val)
@@ -597,25 +630,28 @@ class BaseContainer(BaseController):
         pr_list = list(self.conn.loadGroupContainerHierarchy(group_id))
         ds_list = list(self.conn.listDatasetsOutoffProjectInGroup(group_id))
         
-        pr_ids = [pr.id for pr in pr_list]
-        pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-        pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-        
-        ds_ids = [ds.id for ds in ds_list]
-        ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-        ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-        
         pr_list_with_counters = list()
-        for pr in pr_list:
-            pr.child_counter = pr_child_counter.get(pr.id)
-            pr.annotation_counter = pr_annotation_counter.get(pr.id)
-            pr_list_with_counters.append(pr)
-        
         ds_list_with_counters = list()
-        for ds in ds_list:
-            ds.child_counter = ds_child_counter.get(ds.id)
-            ds.annotation_counter = ds_annotation_counter.get(ds.id)
-            ds_list_with_counters.append(ds)
+        
+        pr_ids = [pr.id for pr in pr_list]
+        if len(pr_ids) > 0:
+            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+            
+            for pr in pr_list:
+                pr.child_counter = pr_child_counter.get(pr.id)
+                pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                pr_list_with_counters.append(pr)
+            
+        ds_ids = [ds.id for ds in ds_list]
+        if len(ds_ids) > 0:
+            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+            
+            for ds in ds_list:
+                ds.child_counter = ds_child_counter.get(ds.id)
+                ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                ds_list_with_counters.append(ds)
         
         #im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
         self.containersMyGroups={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
@@ -623,25 +659,27 @@ class BaseContainer(BaseController):
 
     def loadGroupImages(self, dataset_id, group_id):
         im_list = list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
         
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
         
         self.subcontainers = im_list_with_counters
     
     def loadGroupOrphanedImages(self, group_id):
         im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
-        im_ids = [im.id for im in im_list]
-        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-        
         im_list_with_counters = list()
-        for im in im_list:
-            im.annotation_counter = im_annotation_counter.get(im.id)
-            im_list_with_counters.append(im)
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)

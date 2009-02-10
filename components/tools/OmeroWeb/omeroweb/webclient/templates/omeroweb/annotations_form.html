@@ -3,15 +3,16 @@
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
-            <li><a href="#existingcomments"><span>Add comment</span></a></li>
-            <li><a href="#existingtags"><span>Tag</span></a></li>
-            <!--<li><a href="#existingurls"><span>URL</span></a></li>-->
-            <li><a href="#existingfiles"><span>Attache file</span></a></li>
+            <li><a href="#comments_tab"><span>Add comment</span></a></li>
+            <li><a href="#tags_tab"><span>Tag</span></a></li>
+            <!--<li><a href="#urls_tab"><span>URL</span></a></li>-->
+            <li><a href="#files_tab"><span>Attache file</span></a></li>
         </ul>
         <div class="clear"></div>
         
-        <div id="existingcomments">
-            <p>Create a new comment or choose one or more of the listed below.</p>
+        <div id="comments_tab">
+            <p>Create a new comment or choose one or more of the listed below.<br/>
+            <small>If you would like to include an OMERO image or container in the above field, simply get the id of the item from the URL and type: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></small></p>
             
             {% if form_comment %}
             <div class="comment">
@@ -48,7 +49,7 @@
             </div>
         </div>
         
-        <div id="existingtags">
+        <div id="tags_tab">
             <p>Select one or more of the listed tags or create a new one.</p>
             
             <div class="extags">
@@ -83,7 +84,7 @@
             
         </div>
         
-        <!--<div id="existingurls">
+        <!--<div id="urls_tab">
             <p>To add existing url please select one or more of the listed urls.</p>
             <form action="" method="post"><input type="hidden" name="action" value="useurl" />
             <table>
@@ -113,7 +114,7 @@
             {% endif %}
             
         </div>-->
-        <div id="existingfiles">
+        <div id="files_tab">
             <p>Attache one or more of the listed files or upload a new one.</p>
             
             <div class="exfile">
