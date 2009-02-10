@@ -167,6 +167,7 @@ public class TimelineITest extends TestCase {
         d = user.managedSf.getUpdateService().saveAndReturnObject(d);
 
         List<Event> rv = assertGetEvents(rtime_min(), rtime_max());
+        assertTrue(rv.size() > 0);
 
     }
 
@@ -347,6 +348,12 @@ public class TimelineITest extends TestCase {
             public void ice_response(List<Event> __ret) {
                 status[1] = true;
                 rv.addAll(__ret);
+                for (Object o : __ret) {
+                    if (!(o instanceof Event)) {
+                        status[1] = false;
+                        exc[0] = new ClassCastException(o.getClass().getName());
+                    }
+                }
             }
         }, start, end, null, null);
         assertFalse("exception thrown: " + exc[0], status[0]);

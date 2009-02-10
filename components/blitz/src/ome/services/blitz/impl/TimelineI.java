@@ -40,12 +40,13 @@ import omero.RTime;
 import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;
 import omero.api.AMD_ITimeline_getByPeriod;
-import omero.api.AMD_ITimeline_getEventsByPeriod;
+import omero.api.AMD_ITimeline_getEventLogsByPeriod;
 import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.api._ITimelineOperations;
 import omero.model.Event;
+import omero.model.EventLog;
 import omero.sys.Filter;
 import omero.sys.Parameters;
 import omero.util.IceMapper;
@@ -149,7 +150,7 @@ public class TimelineI extends AbstractAmdServant implements
                 + "and   obj.acquisitionDate <= :end ");
         BYPERIOD
                 .put(
-                        "Event",
+                        "EventLog",
                         "from EventLog obj "
                                 + "left outer join @FETCH@ obj.event ev where ( "
                                 + "    obj.entityType in ("
@@ -224,8 +225,8 @@ public class TimelineI extends AbstractAmdServant implements
         }));
     }
 
-    public void getEventsByPeriod_async(
-            final AMD_ITimeline_getEventsByPeriod __cb, final RTime start,
+    public void getEventLogsByPeriod_async(
+            final AMD_ITimeline_getEventLogsByPeriod __cb, final RTime start,
             final RTime end, final omero.sys.Parameters p,
             final Current __current) throws ServerError {
 
@@ -233,15 +234,15 @@ public class TimelineI extends AbstractAmdServant implements
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getEventsByPeriod") {
+                "getEventLogsByPeriod") {
 
             @SuppressWarnings("unchecked")
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                Map<String, List<Event>> events = (Map<String, List<Event>>) do_periodQuery(
-                        false, Arrays.asList("Event"), userId(), start, end,
+                Map<String, List<EventLog>> events = (Map<String, List<EventLog>>) do_periodQuery(
+                        false, Arrays.asList("EventLog"), userId(), start, end,
                         null, session, applyDefaults(p));
-                return events.get("Event");
+                return events.get("EventLog");
             }
 
         }));
