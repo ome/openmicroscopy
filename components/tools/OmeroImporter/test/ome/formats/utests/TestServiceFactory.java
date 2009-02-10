@@ -24,6 +24,7 @@ import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
 import omero.api.ILdapPrx;
+import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
@@ -348,6 +349,22 @@ public class TestServiceFactory implements ServiceFactoryPrx
         throw new RuntimeException("Not implemented yet.");
     }
 
+    public IMetadataPrx getMetadataService() throws ServerError
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public IMetadataPrx getMetadataService(Map<String, String> arg0)
+            throws ServerError
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    
     public IQueryPrx getQueryService() throws ServerError
     {
         return null;
