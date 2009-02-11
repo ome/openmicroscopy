@@ -46,10 +46,8 @@ import javax.swing.plaf.basic.BasicButtonUI;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.painter.CompoundPainter;
-import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
-import org.jdesktop.swingx.painter.GlossPainter.GlossPosition;
 import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
@@ -85,7 +83,7 @@ class ColouredButtonUI
     private Color           colour;
 
     /** Reference to parent button. */
-    private ColouredButton  button;
+    final private ColouredButton  button;
     
     /** The button's size, used by paint to draw onto component. */
     private Rectangle       buttonRect;
@@ -141,7 +139,7 @@ class ColouredButtonUI
      *   
      * @param g Graphics2D drawing context. 
      */
-    private void drawGreyMask(Graphics2D g)
+    private void drawGreyMask(final Graphics2D g)
     {
     	// Draw the gradient mask.
     	invokePainter(g, greyMaskPainter);
@@ -155,7 +153,7 @@ class ColouredButtonUI
      *   
      * @param g Graphics2D drawing context. 
      */
-    private void drawSelectedGreyMask(Graphics2D g)
+    private void drawSelectedGreyMask(final Graphics2D g)
     {
     	// Draw the gradient mask.
     	invokePainter(g, selectedGreyMaskPainter);
@@ -168,7 +166,7 @@ class ColouredButtonUI
      */
     private void setGradientColours()
     {
-        HSV col = new HSV(colour);
+        final HSV col = new HSV(colour);
          // top gradient value from HSV model. 
         float topGradientValue = col.getValue();
         // bottom gradient value from HSV model. 
@@ -214,18 +212,18 @@ class ColouredButtonUI
      * 
      * @param g Graphics2D drawing context.
      */
-    private void drawText(Graphics2D g)
+    private void drawText(final Graphics2D g)
     {
-        HSV col = new HSV(colour);
+        final HSV col = new HSV(colour);
         Font fnt = button.getFont();
         fnt = fnt.deriveFont(fontIndex, 10);
         g.setFont(fnt);
-        FontMetrics fm = g.getFontMetrics();
+        final FontMetrics fm = g.getFontMetrics();
         
         // Using the font metrics, centre the text in the button face.
-        int x = (int) ((buttonRect.width/2.0f)-
+        final int x = (int) ((buttonRect.width/2.0f)-
         		fm.stringWidth(button.getText())/2);
-        int y = (int) ((buttonRect.height/2.0f) + 
+        final int y = (int) ((buttonRect.height/2.0f) + 
                 (fm.getHeight()-fm.getDescent())/2);
         
         // If the button face is dark or does not contrast well with the 
@@ -245,7 +243,7 @@ class ColouredButtonUI
      * 
      * @param g Graphics2D render context.
      */
-    private void drawButtonFace(Graphics2D g)
+    private void drawButtonFace(final Graphics2D g)
     {
     	invokePainter(g, buttonFacePainter);
     }
@@ -256,7 +254,7 @@ class ColouredButtonUI
      *  
      * @param g Graphics2D render context.
      */
-    private void drawSelectedButtonFace(Graphics2D g)
+    private void drawSelectedButtonFace(final Graphics2D g)
     {
     	invokePainter(g, selectedButtonFacePainter);
     }
@@ -320,8 +318,8 @@ class ColouredButtonUI
        
         // Draw the bevel, it is drawn as four line from: topleft to 
         // topright, and topleft to bottom left. 
-        int height =(int) buttonRect.getHeight();
-        int width = (int) buttonRect.getWidth();
+        final int height =(int) buttonRect.getHeight();
+        final int width = (int) buttonRect.getWidth();
         g.drawLine(0, 0, 0, height);
         g.drawLine(0, 0, width, 0);
         g.drawLine(1, 1, 1, height-1);
@@ -453,15 +451,15 @@ class ColouredButtonUI
             // If the button is not selected draw unselected button face.  
             // Check to see if it's greyed out, if not draw border else
             // draw mask and draw the grey mask unselected border.
-            if (!greyedOut) 
+            if (greyedOut) 
             { 
-            	drawButtonFace(g);
-            	drawBorder(g);    
+                drawGreyMask(g);
+                drawGreyBorder(g);
             }
             else 
             {
-                drawGreyMask(g);
-                drawGreyBorder(g);
+            	drawButtonFace(g);
+            	drawBorder(g);    
             }
         }
          // Draw text in centre of button.
@@ -569,7 +567,7 @@ class ColouredButtonUI
      */
     ColouredButtonUI(ColouredButton b, Color c)
     {
-        if (b == null) throw new IllegalArgumentException("No button.");
+    	if (b == null) throw new IllegalArgumentException("No button.");
         if (c == null) throw new IllegalArgumentException("No color.");
         button = b;
         greyedOut = false;
