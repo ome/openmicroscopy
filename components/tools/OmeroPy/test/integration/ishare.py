@@ -8,7 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
+import unittest, time
 import test.integration.library as lib
 import omero
 import omero_Constants_ice
@@ -21,7 +21,7 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import rtime, rlong, rstring, rlist
 
-class TestISShare(lib.ITest):
+class TestIShare(lib.ITest):
 
     def testThatPermissionsAreDefaultPrivate(self):
         i = omero.model.ImageI()
@@ -322,6 +322,7 @@ class TestISShare(lib.ITest):
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
+        cntar = self.root.sf.getContainerService()
         
         ### create user
         #group1
@@ -390,6 +391,7 @@ class TestISShare(lib.ITest):
               "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
               "where ds.id=:oid"
         items.extend(query.findAllByQuery(sql, p))
+        self.assertEquals(1, len(items))
         
         #members
         p.map["eid"] = rlong(eid)
@@ -398,20 +400,21 @@ class TestISShare(lib.ITest):
         sid = share.createShare(("test-share-%s" % uuid), rtime(long(time.time()*1000 + 86400)) , items, ms, [], True)
         
         # USER RETRIEVAL
-        ## login as user1 
+        ## login as user1
         client_share1 = omero.client()
         client_share1.createSession(user1.omeName.val,"ome")
         share1 = client_share1.sf.getShareService()
         query1 = client_share1.sf.getQueryService()
+        cntar1 = client_share1.sf.getContainerService()
         
         sh = share1.getShare(sid)
         content = share1.getContents(sid)
-        self.assert_(content[0].imageLinksLoaded == True) # Should return ?
-        self.assert_(len(content[0].copyImageLinks()) == 1) # Should return ?
-        
+        # Content now contains just the dataset with nothing loaded
+        self.assertEquals(1, len(content))
+
         # get shared dataset and image when share is activated
         share1.activate(sid)
-        
+
         #retrieve dataset
         p = omero.sys.Parameters()
         p.map = {}
@@ -419,11 +422,32 @@ class TestISShare(lib.ITest):
         sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
               "where ds.id in (:ids) order by ds.name"
+        try:
+            res1 = query1.findAllByQuery(sql, p)
+            self.fail("This should throw an exception")
+        except omero.SecurityViolation:
+            pass
+
+        #
+        # Now we add all the other elements to the share to prevent
+        # the security violation
+        #
+        # Not working imgs = cntar.getImages("Dataset",[ds.id.val], None)
+        img = query.findByQuery("select i from Image i join fetch i.datasetLinks dil join dil.parent d where d.id = %s " % ds.id.val, None)
+        self.assert_(img)
+        share.addObject(sid, img)
+        share.addObjects(sid, img.copyDatasetLinks())
+        self.assertEquals(3, len(share.getContents(sid)))
+
+        #
+        # And try again to load them
+        #
+        share1.activate(sid)
         res1 = query1.findAllByQuery(sql, p)
         self.assert_(len(res1) == 1)
         for e in res1:
-            self.assert_(e.id.val == img.id.val)
-        
+            self.assert_(e.id.val == ds.id.val)
+
         # retrieve only image
         p = omero.sys.Parameters()
         p.map = {}
