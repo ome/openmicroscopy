@@ -36,6 +36,10 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
@@ -57,7 +61,7 @@ import java.awt.image.WritableRaster;
  */
 class LensModel 
 {
-
+	
 	/** Dark lens colour, when the background of the image is light. */
     static final Color 		LENS_DARK_COLOUR = new Color(96, 96, 96, 255);
 
@@ -77,6 +81,9 @@ class LensModel
 	 */
 	final static int		DEFAULT_SIZE = 562500;
 		
+	/** The minimum size of heapspace for the lens to still work. */
+	final static long 		MINHEAPSIZE = UIUtilities.MEGABYTE*8;
+	
 	/** x co-ordinate of the lens. */
 	private int		      x;
 
@@ -187,7 +194,7 @@ class LensModel
     {
      	int thumbHeight = (int) (image.getHeight()*yScale);
     	int thumbWidth  = (int) (image.getWidth()*xScale);
-    	
+        
     	// Create the required compatible (thumbnail) buffered image to  
     	// avoid potential errors from Java's ImagingLib.
     	ColorModel cm = image.getColorModel();
@@ -201,6 +208,7 @@ class LensModel
    
         graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
         graphics2D.dispose();
+        
         //System.gc();
         return thumbImage;
     }
@@ -279,6 +287,11 @@ class LensModel
      */
 	BufferedImage getZoomedImage()
 	{
+		if(UIUtilities.getFreeMemory()<MINHEAPSIZE)
+		{
+			Runtime.getRuntime().gc();
+			return null;
+		}
 		try {
 			if (planeImage == null) return null;
 			ColorModel cm = planeImage.getColorModel();
@@ -313,7 +326,6 @@ class LensModel
     	// Create the required compatible (thumbnail) buffered image to  
     	// avoid potential errors from Java's ImagingLib.
     	int type = image.getData().getDataBuffer().getDataType();
-    	
     	WritableRaster wr = getZoomedRaster(type, cm, thumbWidth, thumbHeight);
     	BufferedImage thumbImage = new BufferedImage(img.getColorModel(), 
 				wr, false, null);

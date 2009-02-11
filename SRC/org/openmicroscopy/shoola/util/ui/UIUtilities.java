@@ -33,11 +33,15 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.image.VolatileImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -230,8 +234,11 @@ public class UIUtilities
     
     /** The value of the increment factor. */
     public static final int					INCREMENT = 15;
+
+    /** The number of bytes in megabyte, used when working with memory methods.*/
+	public static final long		MEGABYTE = 1048567;
     
-    /** Key value for the default folder. */
+	/** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
     
     /** The default mac L&F. */
@@ -247,6 +254,7 @@ public class UIUtilities
 	
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
+
 	
 	/**
 	 * Centers the specified component on the screen.
@@ -1390,5 +1398,58 @@ public class UIUtilities
 		} catch (Exception e) {}
 		return null;
 	}
+
+	/**
+	 * Get the largest available memory available for graphics.
+	 * @return see above.
+	 */
+	public static int getGraphicsMemory()
+	{
+		int bytesMax = 0;
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		try 
+		{
+			GraphicsDevice[] gs = ge.getScreenDevices();
+	    
+			for (int i=0; i<gs.length; i++) 
+			{
+			    VolatileImage im = gs[i].getDefaultConfiguration().createCompatibleVolatileImage(1, 1);
+			    bytesMax = Math.max(bytesMax,gs[i].getAvailableAcceleratedMemory());
+			}
+			return bytesMax;
+		}
+		catch(HeadlessException e)
+		{
+			return 0;
+		}
+	}
 	
+	/**
+	 * Get the free memory available in the system.
+	 * @return see above.
+	 */
+	public static long getFreeMemory()
+	{
+		Runtime r = Runtime.getRuntime();
+    	return r.freeMemory();
+	}
+	
+	/**
+	 * Get the total memory available to the JVM.
+	 * @return see above.
+	 */
+	public static long getTotalMemory()
+	{
+		Runtime r = Runtime.getRuntime();
+		return r.totalMemory();
+	}
+	
+	/**
+	 * Return the amount of memory used in JVM.
+	 * @return see above.
+	 */
+	public static long getUsedMemory()
+	{
+		return getTotalMemory()-getFreeMemory();
+	}
 }

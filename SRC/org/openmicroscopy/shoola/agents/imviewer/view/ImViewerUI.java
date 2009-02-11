@@ -1340,11 +1340,20 @@ class ImViewerUI
 	 * 
 	 * @param image The image to zoom.
 	 * @return See above.
+	 * @throws Exception 
 	 */
-	BufferedImage createZoomedLensImage(BufferedImage image)
+	BufferedImage createZoomedLensImage(BufferedImage image) 
 	{
 		if (lens == null) return null;
-		return lens.createZoomedImage(image);
+		try
+		{
+			return lens.createZoomedImage(image);
+		}
+		catch(Exception e)
+		{
+			System.err.println(e);
+			return null;
+		}
 	}
 
 	/**
