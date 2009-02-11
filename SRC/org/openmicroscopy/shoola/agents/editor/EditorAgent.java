@@ -101,9 +101,10 @@ public class EditorAgent
 	 * Static method to open a local file. 
 	 * Creates or recycles an Editor to display the file. 
 	 * 
-	 * @param file		The local file to open. 
+	 * @param file The local file to open. 
 	 */
-	public static void openLocalFile(File file) {
+	public static void openLocalFile(File file)
+	{
 		
 		if (file == null)		return;
 		if (!file.exists())		return;
@@ -231,11 +232,9 @@ public class EditorAgent
     {
        if (e instanceof EditFileEvent)
     	   handleFileEdition((EditFileEvent) e);
-       
-       if (e instanceof ShowEditorEvent)
+       else if (e instanceof ShowEditorEvent)
     	   handleShowEditor();
-       
-       if (e instanceof CopyEvent)
+       else if (e instanceof CopyEvent)
     	   handleCopyData((CopyEvent)e);
     }
 

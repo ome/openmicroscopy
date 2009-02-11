@@ -119,8 +119,9 @@ public class FileLoader
         msg.print(exc);
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyInfo("Loading File.", "" +
-        		"The file with the specified id has not previously " +
-        		"been saved.\n Please check the id.");
+        		"The specified file has not previously\n" +
+        		"been saved or the passed ID is not valid.");
+        viewer.discard();
     }
     
 	/**

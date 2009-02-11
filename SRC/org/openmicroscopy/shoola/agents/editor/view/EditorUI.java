@@ -219,12 +219,10 @@ class EditorUI
     void displayFile()
     {
     	add(model.getBrowser().getUI(), BorderLayout.CENTER);
-    	
     	toolBarContainer.add(new JSeparator(SwingConstants.VERTICAL));
     	toolBarContainer.add(model.getBrowser().getToolBar());
     	
     	setTitle(model.getFileName());
-    	
     	validate();
     	repaint();
     }
@@ -254,7 +252,6 @@ class EditorUI
     	
     	setSize(1100, 600);
     	setLocation(150 + offset, 50 + offset);
-    	
-		setVisible(true);
     }
+    
 }

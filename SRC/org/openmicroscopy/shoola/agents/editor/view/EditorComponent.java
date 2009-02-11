@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.FileAnnotationData;
 
@@ -115,16 +116,16 @@ class EditorComponent
 					model.fireFileLoading();
 					fireStateChange();
 					//view.setOnScreen();	// called by EditorUI initialize()
-				}
-				else {
-					view.deIconify();
+				} else {
+					//if (view != null) view.deIconify();
+					if (view != null) UIUtilities.centerAndShow(view);
 				}
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED state.");
 			default:
-				view.deIconify();
+			if (view != null) UIUtilities.centerAndShow(view);
 		}
 	}
 	
