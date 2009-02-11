@@ -195,7 +195,7 @@
 				<rule id="COLOR_REQ" type="conditionalNull" description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
 				<rule id="COLOR_RANGE" type="range" description="rule0_255 all values between 0-255"/>
 			</optional>
-			<optional name="logicalChannel" type="ome.model.core.LogicalChannel"/>
+			<manyone name="logicalChannel" type="ome.model.core.LogicalChannel"/>
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
 	</type>
@@ -228,6 +228,7 @@
 			<optional name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
 			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
 			<optional name="pockelCellSetting" type="int"/>
+			<onmany name="channels" type="ome.model.core.Channel" inverse="logicalChannel"/>
 		</properties>
 	</type>
 	<type id="ome.model.stats.StatsInfo">
