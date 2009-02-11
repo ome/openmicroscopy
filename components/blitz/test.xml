@@ -1,6 +1,6 @@
 <ivy-module version="1.0">
   <info
-      organisation="omero-test"
+      organisation="omero"
       module="blitz-test"
       status="integration"/>
   <configurations>
@@ -11,6 +11,7 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency name="blitz" rev="${omero.version}" changing="true"/>
+    <dependency name="server-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>
 

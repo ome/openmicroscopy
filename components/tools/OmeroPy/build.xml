@@ -28,6 +28,10 @@
     <import file="../python.xml"/>
     <import file="../common.xml"/>
 
+    <target name="test" depends="python-test" unless="env.NOPYTHON"/>
+
+    <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
+
     <target name="tools-init" unless="env.NOPYTHON">
         <get-source todir="${copy.dir}">
             <fileset dir="../../blitz/generated" includes="**/*.py">

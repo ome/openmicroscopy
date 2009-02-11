@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="OmeroCpp" default="install" basedir=".">
 
+    <echo>Entering ${basedir}...</echo>
+
     <dirname property="up-two"        file="${basedir}"/>
     <dirname property="up-one"        file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
@@ -18,7 +20,7 @@
         </get-source>
     </target>
 
-    <target name="build">
+    <target name="build" unless="env.NOMAKE">
         <scons_py>
             <arg value="-j"/>
             <arg value="${env.J}"/>
@@ -26,12 +28,26 @@
         </scons_py>
     </target>
 
-    <target name="test">
+    <target name="test" unless="env.NOMAKE">
         <scons_py>
             <arg value="-j"/>
             <arg value="${env.J}"/>
             <arg value="test"/>
         </scons_py>
+        <exec dir="${basedir}" executable="test/unit.exe" failonerror="${test.with.fail}">
+            <env key="ICE_HOME" value="${ice.home}"/>
+        </exec>
+    </target>
+
+    <target name="integration" unless="env.NOMAKE">
+        <scons_py>
+            <arg value="-j"/>
+            <arg value="${env.J}"/>
+            <arg value="test"/>
+        </scons_py>
+        <exec dir="${basedir}" executable="test/integration.exe" failonerror="${test.with.fail}">
+            <env key="ICE_HOME" value="${ice.home}"/>
+        </exec>
     </target>
 
     <target name="tools-build" depends="tools-init,build" description="Use scons to build the libraries" unless="env.NOMAKE"/>

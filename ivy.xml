@@ -15,8 +15,8 @@
     <dependency name="rendering" rev="${omero.version}" changing="true"/>
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="*->server"/>
     <dependency name="server" rev="${omero.version}" changing="true" conf="*->server"/>
-    <dependency org="omero-tools" name="omero_client" rev="${omero.version}" changing="true" conf="*->client"/>
-    <dependency org="omero-tools" name="OmeroImporter" rev="${omero.version}" changing="true" conf="*->client"/>
+    <dependency name="omero_client" rev="${omero.version}" changing="true" conf="*->client"/>
+    <dependency name="OmeroImporter" rev="${omero.version}" changing="true" conf="*->client"/>
     <!-- Ant dependencies for the antlib/resources/omero.ivy build -->
     <dependency org="apache" name="ant-launcher" rev="1.6.5"/>
     <dependency org="apache" name="ant-nodeps" rev="1.6.5"/>

@@ -306,7 +306,7 @@ public class PojosServiceTest extends TestCase {
     public void testHeresHowWeUnlinkFromJustOneSide() throws Exception {
         saveImage();
         DatasetImageLink link = img.copyDatasetLinks().get(0);
-        img.removeDatasetImageLink2(link, false);
+        img.removeDatasetImageLinkFromBoth(link, false);
 
         iContainer.updateDataObject(img, null);
 
@@ -820,8 +820,8 @@ public class PojosServiceTest extends TestCase {
         l2.setParent(p);
         l2.setChild(d2);
 
-        p.addProjectDatasetLink2(l1, true);
-        p.addProjectDatasetLink2(l2, true);
+        p.addProjectDatasetLinkToBoth(l1, true);
+        p.addProjectDatasetLinkToBoth(l2, true);
 
         p = (Project) iContainer.updateDataObject(p, null);
 

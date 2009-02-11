@@ -8,7 +8,7 @@
     <import file="${import.dir}/hibernate.xml"/>
 
     <target name="test" depends="compile,testng-init" description="Unzips test dependencies and then calls lifecycle.test">
-        <unjar src="${target.dir}/libs/testing.jar" dest="${classes.dir}">
+        <unjar src="${target.dir}/libs/common-test.jar" dest="${classes.dir}">
             <patternset>
                 <include name="tiny*dv"/>
             </patternset>

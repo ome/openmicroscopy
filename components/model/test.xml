@@ -10,6 +10,7 @@
     <artifact name="model-test" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="test->*">
-    <dependency name="model" rev="${omero.version}" changing="true"/>
+    <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true"/>
+    <dependency name="dsl-test" rev="${omero.version}" changing="true"/>
  </dependencies>
 </ivy-module>

@@ -20,9 +20,6 @@
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/test"/>
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
-	<classpathentry kind="src" path="components/testing/target/generated/src"/>
-	<classpathentry kind="src" path="components/testing/resources"/>
-	<classpathentry kind="src" path="components/testing/src"/>
 	<classpathentry kind="src" path="components/rendering/target/generated/src"/>
 	<classpathentry kind="src" path="components/rendering/src"/>
 	<classpathentry kind="src" path="components/rendering/resources"/>

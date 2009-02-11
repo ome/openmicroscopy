@@ -1,16 +1,16 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="common-test"
+      module="licenses-test"
       status="integration"/>
   <configurations>
     <conf name="test"/>
   </configurations>
   <publications>
-    <artifact name="common-test" type="jar"/>
+    <artifact name="licenses-test" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="test->*">
-    <dependency name="common" rev="${omero.version}" changing="true"/>
-    <dependency name="dsl-test" rev="${omero.version}" changing="true"/>
+    <dependency name="licenses" rev="${omero.version}" changing="true"/>
+    <dependency name="common-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>

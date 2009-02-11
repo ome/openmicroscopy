@@ -4,10 +4,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
-# 
+#
 # Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-# 
+#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +29,7 @@
           <format property="now" pattern="yyyyMMddHHmmss"/>
         </tstamp>
 
-        <!-- Where to find things. It is assume that to have imported this 
+        <!-- Where to find things. It is assume that to have imported this
         file any build script will have had to define the import.dir variable-->
         <import file="${import.dir}/directories.xml"/>
 
@@ -51,7 +51,6 @@
 
         <!-- Imports -->
         <import file="${import.dir}/patterns.xml"/>
-        <import file="${import.dir}/macros.xml"/>
 
         <!-- Message bundles, so all properties are defined -->
         <property file="${import.dir}/messages.properties" />
@@ -72,7 +71,7 @@
                 <attribute name="buildpathref" default="deps.build.path"/>
                 <attribute name="target"/>
                 <sequential>
-                <subant verbose="true" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
+                <subant verbose="on" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
                         <property name="multi.test.with.fail" value="${test.with.fail}"/>
                         <property name="multi.test.skip" value="${test.skip}"/>
                         <property name="multi.generate.skip" value="${generate.skip}"/>
@@ -86,6 +85,47 @@
                         </propertyset>
                 </subant>
                 </sequential>
+        </macrodef>
+
+        <macrodef name="installIvy">
+            <sequential>
+
+            <!-- For these definitions to work properly, directories.xml must be imported-->
+            <property name="deps.lib.dir" value="${target.dir}/libs"/>
+            <property name="ivy.local.default.root" value="${omero.home}/lib/repository"/>
+            <!-- These are default values. If you'd like to override, due so before import-->
+            <property name="ivy.buildlist.ivyfilepath" value="ivy.xml"/>
+            <property name="ivy.dep.file"              value="ivy.xml"/>
+
+            <path id="ivy.classpath">
+                <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
+                <fileset dir="${omero.home}/lib/repository" includes="jakarta-oro*.jar"/>
+            </path>
+            <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
+            </sequential>
+        </macrodef>
+
+        <!--
+           These classpaths are used by all components, and amount to only the deps.lib.dir
+           directory within each component. That directory is configured using deps-retrieve,
+           which "retrieves" the directories from the local directory. After that initial
+           configuration, the build should be ivy-agnostic as far as possible.
+        -->
+        <macrodef name="defineClasspath">
+           <sequential>
+            <path id="omero.compile.classpath">
+              <fileset dir="${deps.lib.dir}" />
+            </path>
+            <path id="omero.classpath">
+              <path location="${classes.dir}" />
+              <path location="${resrc.dir}" />
+              <path location="${resrc.dest}" />
+              <path refid="omero.compile.classpath" />
+            </path>
+            <path id="omero.test.classpath">
+              <path refid="omero.classpath" />
+            </path>
+            </sequential>
         </macrodef>
 
         <macrodef name="defineVariables">
@@ -108,10 +148,140 @@
             </sequential>
         </macrodef>
 
+        <macrodef name="scons_py" description="Scons build tool installed under omero.home/target">
+            <attribute name="dir" default="${basedir}"/>
+            <attribute name="failonerror" default="true"/>
+            <element name="args" implicit="yes"/>
+            <sequential>
+                <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
+                    <env key="ICE_HOME" value="${ice.home}"/>
+                    <arg value="${omero.home}/target/scons/scons.py"/>
+                    <args/>
+                </exec>
+            </sequential>
+        </macrodef>
 
-    <!-- = = = = = = = = = = = = = = = = =
-          help
-         = = = = = = = = = = = = = = = = = -->
+        <macrodef name="is-done" description="Checks if a build step is needed">
+            <attribute name="name"/>
+            <attribute name="srcdir"/>
+            <attribute name="includes"/>
+            <sequential>
+                <uptodate property="@{name}.up.to.date">
+                    <mergemapper to="${done.dir}/@{name}.done"/>
+                    <srcfiles dir="@{srcdir}" includes="@{includes}"/>
+                </uptodate>
+                <condition property="@{name}.not.required">
+                    <and>
+                        <available file="${done.dir}/@{name}.done"/>
+                        <isset property="@{name}.up.to.date"/>
+                    </and>
+                </condition>
+            </sequential>
+        </macrodef>
+
+        <macrodef name="done">
+            <attribute name="name"/>
+            <sequential>
+                <touch file="${done.dir}/@{name}.done"/>
+            </sequential>
+        </macrodef>
+
+        <macrodef name="makeManifest">
+            <attribute name="property"/>
+            <sequential>
+                <pathconvert property="mf.classpath" refid="omero.classpath" pathsep=" " dirsep="/">
+                    <flattenmapper/>
+                </pathconvert>
+            </sequential>
+        </macrodef>
+
+        <!--
+          Gather all compiled services together into a single
+          services.jar.  Also, make all application jars available to the
+          services.jar via the MANIFEST file *AND* add one additional
+          (possibly non-extant) extensions.jar which can be created by 3rd
+          parties and added to the EAR file (top-level) for runtime class
+          lookups.
+
+          services.jar is placed in the specified directory. Optionally, a
+          manifest string can be specified. It defaults to the empty
+          string, but a manifest can be generated via makeManifest if
+          omero.classpath has been defined.
+        -->
+        <macrodef name="useServices">
+            <attribute name="dir"/>
+            <attribute name="manifest" default=""/>
+            <sequential>
+                <jar destfile="@{dir}/services.jar">
+                    <include name="*"/>
+                    <manifest>
+                        <attribute name="Class-Path" value="@{manifest} extensions.jar"/>
+                    </manifest>
+                </jar>
+                <jar destfile="@{dir}/extensions.jar">
+                    <exclude name="*"/>
+                    <manifest>
+                        <attribute name="Class-Path" value=""/>
+                    </manifest>
+                </jar>
+            </sequential>
+        </macrodef>
+
+        <!--
+          The hard-wiring macro is used to allowcertain method interceptors to
+          be hard-wired around method exception *before* any of the "soft"
+          spring-wired interceptors (see resources/ome/services/services.xml)
+
+          The values hard-wired in are the class names of subclasses of
+          ome.logic.HardWireInterceptor with a no-arg constructor. This allows
+          classes unknown to the server at compile time (like those under tools/)
+          to become a part of a distribution.
+        -->
+        <macrodef name="hard-wire">
+            <attribute name="fromdir" default="${src.dir}"/>
+            <attribute name="todir" default="${src.dest}"/>
+            <attribute name="file"/>
+            <attribute name="token" default="@REPLACE@"/>
+            <attribute name="value" default="${omero.hard-wired.interceptors}"/>
+            <sequential>
+                <delete file="@{todir}/@{file}"/>
+                <copy todir="@{todir}">
+                    <fileset dir="@{fromdir}">
+                        <include name="@{file}"/>
+                    </fileset>
+                </copy>
+                <replace file="@{todir}/@{file}">
+                    <replacefilter token="@{token}" value="@{value}"/>
+                </replace>
+            </sequential>
+        </macrodef>
+
+        <!--
+          Because this is such a common metaphor, we're writing a simple
+          hard-wiring compile macro which can be used if only one file needs to
+          be hard-wired. Otherwise, use the hard-wire macro.
+
+          Must compile the files in two steps to prevent duplicate class errors
+        -->
+        <macrodef name="hardWireCompile">
+            <attribute name="fromdir" default="${src.dir}"/>
+            <attribute name="todir" default="${src.dest}"/>
+            <attribute name="pattern"/>
+            <attribute name="token" default="@REPLACE@"/>
+            <attribute name="value" default="${omero.hard-wired.interceptors}"/>
+            <sequential>
+                <hard-wire file="@{pattern}.java" token="@{token}" value="@{value}" fromdir="@{fromdir}" todir="@{todir}"/>
+                <myjavac>
+                    <src path="@{fromdir}"/>
+                </myjavac>
+                <delete file="${classes.dir}/@{pattern}.class"/>
+                <myjavac>
+                    <src path="@{todir}"/>
+                </myjavac>
+                <delete file="${src.dest}/@{pattern}.java"/>
+            </sequential>
+        </macrodef>
+
         <target name="help">
                 <echo>
                         This build file is intended for import only.

@@ -26,7 +26,7 @@ java_omero clean
 
 # Build & Test
 java_omero build-all
-java_omero test
+java_omero integration
 
 #
 # Documentation and build reports

@@ -1,6 +1,6 @@
 <ivy-module version="1.0">
   <info
-      organisation="omero-test"
+      organisation="omero"
       module="OmeroImporter-test"
       status="integration"/>
   <configurations>
@@ -10,8 +10,7 @@
     <artifact name="OmeroImporter-test" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="test->*">
-    <dependency org="omero-test" name="blitz-test" rev="${omero.version}" changing="true"/>
-    <dependency org="omero-tools" name="OmeroImporter" rev="${omero.version}" changing="true"/>
-    <dependency org="omero-tools" name="omero_client" rev="${omero.version}" changing="true"/>
+    <dependency name="OmeroImporter" rev="${omero.version}" changing="true"/>
+    <dependency name="blitz-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>

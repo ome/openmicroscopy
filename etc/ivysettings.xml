@@ -51,6 +51,14 @@
       </filesystem>
     </chain>
 
+    <chain name="test-resolver" returnFirst="true">
+      <filesystem name="test">
+        <artifact pattern="${ivy.settings.dir}/../lib/repository/omero-test/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/omero-test/[module]-[revision].ivy"/>
+      </filesystem>
+      <resolver ref="omero-resolver"/>
+    </chain>
+
     <!-- Hudson resolver. Used by hudson to build a central repository -->
     <filesystem name="hudson-repository">
         <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
@@ -59,12 +67,13 @@
 
   </resolvers>
 
-  <!-- The loci modules can be fetched from another path by changing the "loci.resolver" 
+  <!-- The loci modules can be fetched from another path by changing the "loci.resolver"
   configuration in local.properties to point to "loci-resolver" as configured above. -->
 
   <modules>
     <module organisation="omero" name="bio-formats" resolver="${loci.resolver}" />
     <module organisation="omero" name="omejava" resolver="${loci.resolver}" />
+    <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
   </modules>
 
   <triggers/>

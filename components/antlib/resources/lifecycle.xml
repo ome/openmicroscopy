@@ -13,7 +13,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Written by:  Josh Moore <josh.moore@gmx.de>
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
   DOCUMENTATION:
   ==============================================================================
   Provides lifecycle targets similar to those found in maven. See
@@ -24,22 +24,12 @@
 
 -->
 
+	<echo>Entering ${basedir}...</echo>
+
 	<target name="help">
 		<echo>
 			This build file is intended for import only.
 		</echo>
-	</target>
-
-	<target name="load-groovy">
-		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" />
-		<fail unless="groovy-exists" message="Groovy ${msg.macro.missing_fail}"/>
-
-		<!-- http://groovy.codehaus.org/Ant+Task+Troubleshooting -->
-		<taskdef name="rootLoaderRef" classname="org.codehaus.groovy.ant.RootLoaderRef" classpathref="omero.classpath"/>
-		<rootLoaderRef ref="groovy.classpath">
-			<classpath refid="omero.classpath"/>
-		</rootLoaderRef>
-		<taskdef classname="org.codehaus.groovy.ant.Groovy" loaderref="groovy.classpath" name="groovy"/>
 	</target>
 
 	<target name="quick" description="Turn off tests">
@@ -99,7 +89,6 @@
 				classpathref="omero.classpath">
 			</sql>
 		</presetdef>
-		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
 	</target>
 
 	<target name="generate" depends="prepare">
@@ -144,9 +133,13 @@
 	</target>
 
 	<target name="testng-init" unless="test.skip">
-		<ivy:resolve file="${basedir}/test.xml" type="jar" log="quiet"/>
-		<ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
+		<installIvy/>
+		<defineClasspath/>
+		<ivy:settings id="ivy.test"  file="${etc.dir}/ivysettings.xml"/>
+		<ivy:resolve settingsRef="ivy.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
+		<ivy:retrieve settingsRef="ivy.test" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
+		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
 	</target>
 
 	<macrodef name="suite">
@@ -169,7 +162,7 @@
 	</macrodef>
 
 
-	<target name="test-compile" depends="generate,testng-init" unless="test.skip">
+	<target name="test-compile" depends="testng-init" unless="test.skip">
 		<!-- may be overriden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="emma.enabled"   value="true"/>
@@ -182,6 +175,12 @@
 			classpathref="omero.test.classpath" >
 			<src path="${test.dir}"/>
 		</javac>
+		<jar destfile="${target.dir}/${ivy.module}.jar">
+			<fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.properties,**/*.dv"/>
+		</jar>
+		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+		<ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver"
+		   pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
 		<path id="emma.classpath">
 			<pathelement location="${classes.dir}"/>
 		</path>
@@ -208,40 +207,25 @@
 			</report>
 		</emma>
 	</target>
-		
-	<target name="junittest" depends="compile" unless="test.skip">
-		<copyTestResources/>
-		<javac 
-			fork="yes"
-			destdir="${testclasses.dir}"
-			classpathref="omero.classpath" >
-			<src path="${test.dir}"/>
-		</javac>
-		<junit 
-			printsummary="withOutAndErr" 
-			haltonfailure="${test.with.fail}"
-			fork="on"
-			forkmode="perTest"
-			>
- 			<classpath>
-				<path refid="omero.classpath"/>
-				<pathelement location="${testclasses.dir}"/>
-			</classpath>
 
-			<formatter type="plain"/>
-
-			<batchtest todir="${testreports.dir}">
-				<fileset dir="${testclasses.dir}">
-					<include name="**/*Test.class"/>
-					<include name="**/*Tests.class"/>
-					<exclude name="**/AllTests.class"/>
-					<exclude name="**/Abstract*.class"/>
-					<!--exclude name="**/itests/**/*"/-->
-					<exclude name="**/dbtests/**/*"/>
-				</fileset>
-			</batchtest>
-		</junit> 
+	<target name="integration" depends="test-compile" unless="test.skip">
+		<!-- may be overriden by fail-on-error -->
+		<property name="test.with.fail" value="false"/>
+		<property name="integration.suite" value="integration.testng.xml"/>
+		<suite>
+			<xmlfileset dir="${test.dir}">
+				<include name="${integration.suite}"/>
+			</xmlfileset>
+		</suite>
+		<emma enabled="${emma.enabled}" >
+			<report sourcepath="${src.dir}" >
+				<fileset dir="${target.dir}" includes="*.emma"/>
+				<html outfile="${target.dir}/coverage.html" />
+				<xml outfile="${target.dir}/coverage.xml" />
+			</report>
+		</emma>
 	</target>
+
 
 	<target name="package" depends="compile">
 		<pathconvert property="mf.classpath"
@@ -261,9 +245,6 @@
 				<exclude name="**/*.cpp"/>
 				<exclude name="**/*.h"/>
 			</fileset>
-		</jar>
-		<jar destfile="${target.dir}/${ivy.module}-testing.jar">
-			<fileset dir="${testclasses.dir}"/>
 		</jar>
 	</target>
 
@@ -308,24 +289,6 @@
 	</target>
 
 	<target name="install" depends="package,deps-publish-local"/>
-
-	<target name="integration" depends="test-compile" unless="test.skip">
-		<!-- may be overriden by fail-on-error -->
-		<property name="test.with.fail" value="false"/>
-		<property name="integration.suite" value="integration.testng.xml"/>
-		<suite>
-			<xmlfileset dir="${test.dir}">
-				<include name="${integration.suite}"/>
-			</xmlfileset>
-		</suite>
-		<emma enabled="${emma.enabled}" >
-			<report sourcepath="${src.dir}" >
-				<fileset dir="${target.dir}" includes="*.emma"/>
-				<html outfile="${target.dir}/coverage.html" />
-				<xml outfile="${target.dir}/coverage.xml" />
-			</report>
-		</emma>
-	</target>
 
 	<!-- Previously dependend on integration, but that may need special controls.
 	For the time being, depenending solely on "install" -->

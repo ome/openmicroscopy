@@ -39,40 +39,8 @@
     <!-- Prevent future invocations and PermGen errors -->
     <property name="ivy.done" value="done"/>
 
-    <!-- For these definitions to work properly, directories.xml must be imported-->
-    <property name="deps.lib.dir" value="${target.dir}/libs"/>
-    <property name="ivy.local.default.root" value="${omero.home}/lib/repository"/>
-    <!-- These are default values. If you'd like to override, due so before import-->
-    <property name="ivy.buildlist.ivyfilepath" value="ivy.xml"/>
-    <property name="ivy.dep.file"              value="ivy.xml"/>
-
-    <!-- Prepare the ivy runtime. This requires the ivy library under lib/repository/tools. -->
-    <path id="tools.classpath">
-      <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
-    </path>
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="tools.classpath"/>
-
-    <!--
-       These classpaths are used by all components, and amount to only the deps.lib.dir
-       directory within each component. That directory is configured using deps-retrieve,
-       which "retrieves" the directories from the local directory. After that initial 
-       configuration, the build should be ivy-agnostic as far as possible.
-    -->
-    <path id="omero.compile.classpath">
-      <fileset dir="${deps.lib.dir}" />
-    </path>
-
-    <path id="omero.classpath">
-      <path location="${classes.dir}" />
-      <path location="${resrc.dir}" />
-      <path location="${resrc.dest}" />
-      <path refid="omero.compile.classpath" />
-    </path>
-
-    <path id="omero.test.classpath">
-      <path refid="omero.classpath" />
-    </path>
-
+    <installIvy/>
+    <defineClasspath/>
     <ivy:settings id="ivy.instance"  file="${etc.dir}/ivysettings.xml"/>
   </target>
 

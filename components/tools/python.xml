@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="python" default="install" basedir=".">
 
+    <echo>Entering ${basedir}...</echo>
+
     <property name="env.DESTDIR"    value="${up-two}/target/"/>
     <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/ice.config"/>
 
     <defineVariables/>
 
     <macrodef name="setup_py">
+        <attribute name="failonerror" default="true"/>
         <element name="args" implicit="true"/>
         <sequential>
-            <exec executable="${basedir}/setup.py" failonerror="true">
+            <exec executable="${basedir}/setup.py" failonerror="@{failonerror}">
                 <args/>
             </exec>
         </sequential>
@@ -29,13 +32,13 @@
     </target>
 
     <target name="python-test" unless="env.NOPYTHON">
-        <setup_py>
+        <setup_py failonerror="false">
             <arg value="test"/>
         </setup_py>
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
-        <setup_py>
+        <setup_py failonerror="false">
             <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
             <arg value="test"/>
             <arg value="-s"/>

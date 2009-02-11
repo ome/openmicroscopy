@@ -31,13 +31,8 @@ build-* targets.
         <!-- Prevent future invocations and PermGen errors-->
         <property name="ivy.done" value="done"/>
 
-        <!-- Top-level ivy setup. Also defined in antlib/resources/dependencies.xml -->
-        <path id="ivy.classpath">
-            <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
-        </path>
-        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
         <property name="deps.buildlist.dir" value="${omero.home}/components"/>
-
+        <installIvy/>
         <ivy:settings id="ivy.toplevel"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
@@ -179,13 +174,23 @@ build-* targets.
         <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
     </target>
 
-    <target name="test" description="Run all tests" depends="init">
-        <ivy:settings id="ivy.test"  file="${etc.dir}/ivysettings.xml"/>
-        <ivy:buildlist reference="test.buildpath" settingsRef="ivy.test" ivyfilepath="test.xml">
-            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+    <macrodef name="launchSuite">
+        <attribute name="suite"/>
+        <sequential>
+        <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
+        <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
+            <fileset dir="${deps.buildlist.dir}" includes="**/build.xml" excludes="**/tools/build.xml"/>
         </ivy:buildlist>
-        <!-- Single file paths defined in antlib/resources/directories.xml -->
-        <iterate buildpathref="test.buildpath" target="integration"/>
+        <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
+        </sequential>
+    </macrodef>
+
+    <target name="test" description="Run all unit tests" depends="init">
+        <launchSuite suite="test"/>
+    </target>
+
+    <target name="integration" description="Run all integration tests" depends="init">
+        <launchSuite suite="integration"/>
     </target>
 
     <!--
@@ -280,10 +285,6 @@ build-* targets.
                 <xml outfile="${target.dir}/coverage.xml" />
             </report>
         </emma>
-    </target>
-
-    <target name="setup">
-        <ant antfile="${omero.home}/components/antlib/resources/setup.xml" target="setup"/>
     </target>
 
     <target name="javadoc" description="Generate Javadocs for all components under dist/docs/api">
