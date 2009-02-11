@@ -763,16 +763,6 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
-	 * Sets the light source.
-	 * 
-	 * @param lightSource The value to set.
-	 */
-	public void setLightSource(LightSource lightSource)
-	{
-		this.ligthSource = lightSource;
-	}
-	
-	/**
 	 * Sets the serial number of the light source.
 	 * 
 	 * @param number The value to set.
