@@ -83,6 +83,8 @@ public class FileLoader
 			throw new IllegalArgumentException("ID not valid.");
 		this.fileID = fileID;
 		this.fileSize = fileSize;
+		System.out.println("FileLoader() fileSize: " + fileSize);
+		
 		if (fileName != null) file = new File(fileName);
 	}
 	
@@ -138,5 +140,4 @@ public class FileLoader
 			registry.getLogger().info(this, message);
 		}
 	}
-    
 }

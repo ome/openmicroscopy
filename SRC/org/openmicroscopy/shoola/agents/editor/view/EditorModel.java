@@ -270,11 +270,10 @@ class EditorModel
 			message.print(e);
 			reg.getLogger().error(this, message);
 			
-			// ...and notify the user. 
+			// ...and notify the user. Use the exception message. 
 			UserNotifier un = reg.getUserNotifier();
-		    un.notifyInfo("File Failed to Open", 
-					"The file could not be read, or was not recognised as " +
-					"an OMERO.editor file.");
+			String errMsg = e.getMessage();
+		    un.notifyInfo("File Failed to Open", errMsg);
 		}
 		
 		if (treeModel == null) {
@@ -397,5 +396,6 @@ class EditorModel
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
+		System.out.println("EditorModel setFileAnnotation() ID = " + fileID + ", size = " + data.getFileSize());
 	}
 }

@@ -93,6 +93,8 @@ public class FileSaver
 			data = new FileAnnotationData(file);
 		this.file = file;
 		this.fileAnnotationData = data;
+		
+		System.out.println("FileSaver() size: " + data.getFileSize());
 	}
 	
 	/**

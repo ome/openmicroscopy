@@ -73,7 +73,7 @@ public class TreeModelFactory
 		IXMLElement root = null;
 		
 		String errMsg = null;
-		String absPath = null;
+		String absPath = file.getAbsolutePath();
 		
 		try {
 			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
@@ -87,8 +87,9 @@ public class TreeModelFactory
 			
 			input.close();
 		} catch (Throwable ex) {
-			errMsg = "Error reading XML file at " + absPath + "/n" 
-			+ ex.toString();
+			errMsg = "Error reading XML file at " + absPath 
+					+ "  File " + (file.exists() ? 
+							"may be corrupted or incomplete." : "not found.");
 		} 
 		
 		String rootName = null;
@@ -98,12 +99,10 @@ public class TreeModelFactory
 			rootName = root.getFullName();
 		
 			if ("protocol-archive".equals(rootName)) {
-				file.delete();
 				return CPEimport.createTreeModel(root);
 			}
 				
 			if ("ProtocolTitle".equals(rootName)) {
-				file.delete();
 				return PROimport.createTreeModel(root);
 			}
 			errMsg = "File format not recognised: " +
