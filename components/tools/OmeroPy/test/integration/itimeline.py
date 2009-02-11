@@ -91,8 +91,8 @@ class TestITimeline(lib.ITest):
         f = omero.sys.Filter()
         f.limit = rint(10)
         p.theFilter = f
-        print timeline.getEventsByPeriod(rtime(long(start)), rtime(long(end)), p)
-        self.assert_(timeline.getEventsByPeriod(rtime(long(start)), rtime(long(end)), p) > 0)
+        print timeline.getEventLogsByPeriod(rtime(long(start)), rtime(long(end)), p)
+        self.assert_(timeline.getEventLogsByPeriod(rtime(long(start)), rtime(long(end)), p) > 0)
         
         self.root.sf.closeOnDestroy()
     
