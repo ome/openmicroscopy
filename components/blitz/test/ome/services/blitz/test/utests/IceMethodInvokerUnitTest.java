@@ -6,6 +6,8 @@
  */
 package ome.services.blitz.test.utests;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
@@ -986,6 +988,34 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         omero.model.Objective o2 = (omero.model.Objective) mapper.handleOutput(
                 Objective.class, o);
         assertEquals(o.getLensNA().doubleValue(), o2.getLensNA().getValue());
+    }
+    
+    @Test(groups = "ticket:1150")
+    public void testFloatDoesNotGetRounded() throws Exception {
+        
+        float f = 1.4f;
+        
+        // These fail
+        
+        double dbl1 = rdouble(f).getValue();
+        assertFalse("1.4".equals(Double.toString(dbl1)));
+        
+        double dbl2 = f;
+        assertFalse("1.4".equals(Double.toString(dbl2)));
+        
+        double dbl3 = rdouble(dbl2).getValue();
+        assertFalse("1.4".equals(Double.toString(dbl3)));
+        
+        double dbl4 = BigDecimal.valueOf(f).doubleValue();
+        assertFalse("1.4".equals(Double.toString(dbl4)));
+        
+        // These work
+        
+        double dbl5 = new BigDecimal("" + f).doubleValue();
+        assertTrue("1.4".equals(Double.toString(dbl5)));
+        
+        double dbl6 = Double.parseDouble(String.valueOf(f));
+        assertTrue("1.4".equals(Double.toString(dbl6)));
     }
     
     @Test
