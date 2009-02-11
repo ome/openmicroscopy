@@ -17,6 +17,7 @@ import java.util.Set;
 import ome.api.IConfig;
 import ome.api.local.LocalConfig;
 import ome.model.meta.Node;
+import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.sessions.SessionManager;
@@ -435,8 +436,10 @@ public class Ring extends _ClusterNodeDisp {
                 "setManagerDown") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                Node node = sf.getQueryService().findByString(Node.class,
-                        "uuid", managerUuid);
+                Node node = sf.getQueryService().findByQuery(
+                        "select n from Node n where uuid = :uuid",
+                        new Parameters().addString("uuid", managerUuid)
+                                .setFilter(new Filter().page(0, 1)));
                 node.setDown(new Timestamp(System.currentTimeMillis()));
                 return sf.getUpdateService().saveAndReturnObject(node);
             }
