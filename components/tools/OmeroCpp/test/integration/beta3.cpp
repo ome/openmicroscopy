@@ -54,9 +54,9 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     pix->setSha1 (rstring("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356") ); // for "pixels"
     pix->setPixelsType( pt );
     pix->setDimensionOrder( d0 );
-    pix->setPhysicalSizeX( rfloat(1.0) );
-    pix->setPhysicalSizeY( rfloat(1.0) );
-    pix->setPhysicalSizeZ( rfloat(1.0) );
+    pix->setPhysicalSizeX( rdouble(1.0) );
+    pix->setPhysicalSizeY( rdouble(1.0) );
+    pix->setPhysicalSizeZ( rdouble(1.0) );
 
     pix->addChannel( c );
 
