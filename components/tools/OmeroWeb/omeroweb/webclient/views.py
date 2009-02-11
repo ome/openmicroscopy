@@ -511,6 +511,7 @@ def index_most_recent(request, **kwargs):
     
     controller = BaseIndex(conn)
     controller.loadMostRecent()
+    controller.loadTagCloud()
     
     context = {'controller':controller, 'eContext': controller.eContext }
     t = template_loader.get_template(template)

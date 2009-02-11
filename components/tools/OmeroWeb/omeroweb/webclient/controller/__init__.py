@@ -56,7 +56,6 @@ class BaseController(object):
             intermed.reverse()
         return [ tup[-1] for tup in intermed ]
     
-    
     def getAttribute(self, o,a):
         attr = a.split(".")
         if len(attr) > 1:

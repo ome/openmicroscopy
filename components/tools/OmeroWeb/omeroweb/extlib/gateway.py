@@ -1531,13 +1531,11 @@ class BlitzGateway (threading.Thread):
         sid = sh.createShare(message, expiration, items, ms, [], enable)
         
         #send email
+        sender = None
         try:
             if settings.EMAIL_NOTIFICATION:
                 import omeroweb.extlib.sendemail.handlesender as sender
-            else:
-                sender = None
         except:
-            sender = None
             logger.error(traceback.format_exc())
         else:
             recipients = list()
@@ -1596,7 +1594,18 @@ class BlitzGateway (threading.Thread):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
-            yield SessionAnnotationLinkWrapper(self, e)
+            yield AnnotationLinkWrapper(self, e)
+    
+    def getMostRecentTags (self):
+        tm = self.getTimelineService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        #p.map["id"] = rlong(self.getEventContext().userId)
+        f = omero.sys.Filter()
+        f.limit = rint(20)
+        p.theFilter = f
+        for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
+            yield AnnotationLinkWrapper(self, e)
     
     def getDataByPeriod (self, start, end, date_type=None):
         tm = self.getTimelineService()
@@ -1657,7 +1666,7 @@ class BlitzGateway (threading.Thread):
 
     def getEventsByPeriod (self, start, end):
         tm = self.getTimelineService()
-        for e in tm.getEventsByPeriod(rtime(start), rtime(end), None):
+        for e in tm.getEventLogsByPeriod(rtime(start), rtime(end), None):
             yield EventLogWrapper(self, e)
     
     ##############################################
@@ -2164,7 +2173,11 @@ class ScriptWrapper (BlitzObjectWrapper):
     pass
 
 class AnnotationLinkWrapper (BlitzObjectWrapper):
-    pass
+    LINK_CLASS = None
+    CHILD_WRAPPER_CLASS = None
+
+    def getAnnotation(self):
+        return AnnotationWrapper(self, self.child)
 
 class AnnotationWrapper (BlitzObjectWrapper):
     

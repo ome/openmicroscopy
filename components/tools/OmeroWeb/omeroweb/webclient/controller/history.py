@@ -30,7 +30,6 @@ from django.conf import settings
 from webclient.controller import BaseController
 
 
-
 class BaseCalendar(BaseController):
 
     day = None
@@ -118,15 +117,26 @@ class BaseCalendar(BaseController):
             prCounter = 0
             d = int(self.cal_weeks[week][day])
             if d > 0:
+                t_items = {'image':[], 'dataset':[], 'project':[]}
                 for item in items.get(d):
                     if item.get('type') == 'ome.model.core.Image':
-                        imgCounter += 1
-                    #elif item.get('type') == 'ome.model.display.RenderingDef':
-                    #    rdCounter += 1
+                        try:
+                            t_items['image'].index(item.get('id'))
+                        except:
+                            imgCounter += 1
+                            t_items['image'].append(item.get('id'))
                     elif item.get('type') == 'ome.model.containers.Dataset':
-                        dsCounter += 1
+                        try:
+                            t_items['dataset'].index(item.get('id'))
+                        except:
+                            dsCounter += 1
+                            t_items['dataset'].append(item.get('id'))
                     elif item.get('type') == 'ome.model.containers.Project':
-                        prCounter += 1
+                        try:
+                            t_items['project'].index(item.get('id'))
+                        except:
+                            prCounter += 1
+                            t_items['project'].append(item.get('id'))
                 self.cal_days.append({'day':self.cal_weeks[week][day], 'counter': {'imgCounter':imgCounter, 'rdCounter':rdCounter, 'dsCounter':dsCounter, 'prCounter':prCounter }})
             else:
                 self.cal_days.append({'day':self.cal_weeks[week][day], 'counter': {}})
@@ -213,33 +223,37 @@ class BaseCalendar(BaseController):
             obj_logs = self.conn.getDataByPeriod(start, end)
             if len(obj_logs['image']) > 0 or len(obj_logs['dataset']) > 0 or len(obj_logs['project']) > 0:
                 
-                pr_ids = [pr.id for pr in obj_logs['project']]
-                pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-                pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-
-                ds_ids = [ds.id for ds in obj_logs['dataset']]
-                ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-                ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-
-                im_ids = [im.id for im in obj_logs['image']]
-                im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-
                 pr_list_with_counters = list()
-                for pr in obj_logs['project']:
-                    pr.child_counter = pr_child_counter.get(pr.id)
-                    pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                    pr_list_with_counters.append(pr)
-
                 ds_list_with_counters = list()
-                for ds in obj_logs['dataset']:
-                    ds.child_counter = ds_child_counter.get(ds.id)
-                    ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                    ds_list_with_counters.append(ds)
-
                 im_list_with_counters = list()
-                for im in obj_logs['image']:
-                    im.annotation_counter = im_annotation_counter.get(im.id)
-                    im_list_with_counters.append(im)
+                
+                pr_ids = [pr.id for pr in obj_logs['project']]
+                if len(pr_ids) > 0:
+                    pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
+                    pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
+                    
+                    for pr in obj_logs['project']:
+                        pr.child_counter = pr_child_counter.get(pr.id)
+                        pr.annotation_counter = pr_annotation_counter.get(pr.id)
+                        pr_list_with_counters.append(pr)
+                    
+                ds_ids = [ds.id for ds in obj_logs['dataset']]
+                if len(ds_ids) > 0:
+                    ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
+                    ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+
+                    for ds in obj_logs['dataset']:
+                        ds.child_counter = ds_child_counter.get(ds.id)
+                        ds.annotation_counter = ds_annotation_counter.get(ds.id)
+                        ds_list_with_counters.append(ds)
+                
+                im_ids = [im.id for im in obj_logs['image']]
+                if len(im_ids) > 0:
+                    im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+
+                    for im in obj_logs['image']:
+                        im.annotation_counter = im_annotation_counter.get(im.id)
+                        im_list_with_counters.append(im)
                 
                 self.day_items.append({'project':pr_list_with_counters, 'dataset':ds_list_with_counters, 'image':im_list_with_counters})
                 self.day_items_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
