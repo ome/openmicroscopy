@@ -91,8 +91,37 @@ class TestITimeline(lib.ITest):
         f = omero.sys.Filter()
         f.limit = rint(10)
         p.theFilter = f
-        print timeline.getEventLogsByPeriod(rtime(long(start)), rtime(long(end)), p)
         self.assert_(timeline.getEventLogsByPeriod(rtime(long(start)), rtime(long(end)), p) > 0)
+        
+        self.root.sf.closeOnDestroy()
+    
+    def test1175(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        update = self.root.sf.getUpdateService()
+        timeline = self.root.sf.getTimelineService()
+        
+        # create dataset
+        ds = DatasetI()
+        ds.setName(rstring('test1154-ds-%s' % (uuid)))
+        ds = update.saveAndReturnObject(ds)
+        ds.unload()
+        
+        # create tag
+        ann = TagAnnotationI()
+        ann.textValue = rstring('tag-%s' % (uuid))
+        ann.setDescription(rstring('tag-%s' % (uuid)))
+        t_ann = DatasetAnnotationLinkI()
+        t_ann.setParent(ds)
+        t_ann.setChild(ann)
+        update.saveObject(t_ann)
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.new_user().id.val)
+        f = omero.sys.Filter()
+        f.limit = rint(10)
+        p.theFilter = f
+        self.assert_(len(timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)) > 0)
         
         self.root.sf.closeOnDestroy()
     
