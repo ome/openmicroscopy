@@ -25,6 +25,7 @@ import omero.api.AMD_IShare_addUser;
 import omero.api.AMD_IShare_addUsers;
 import omero.api.AMD_IShare_closeShare;
 import omero.api.AMD_IShare_createShare;
+import omero.api.AMD_IShare_deactivate;
 import omero.api.AMD_IShare_deleteComment;
 import omero.api.AMD_IShare_getActiveConnections;
 import omero.api.AMD_IShare_getAllGuests;
@@ -79,6 +80,12 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
     public void activate_async(AMD_IShare_activate __cb, long shareId,
             Current __current) {
         callInvokerOnRawArgs(__cb, __current, shareId);
+
+    }
+
+    public void deactivate_async(AMD_IShare_deactivate __cb,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
@@ -309,5 +316,6 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
             List<String> emailAddresses, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, shareId, emailAddresses);
     }
+
 
 }

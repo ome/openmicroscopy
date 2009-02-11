@@ -43,6 +43,11 @@ public interface IShare extends ServiceInterface {
      * @param shareId
      */
     void activate(long shareId);
+    
+    /**
+     * Turns off the access control lists with the current share.
+     */
+    void deactivate();
 
     // ~ Admin
     // =========================================================================

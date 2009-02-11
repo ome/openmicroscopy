@@ -127,6 +127,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         sc.setShareId(shareId);
     }
 
+    @RolesAllowed("user")
+    public void deactivate() {
+        String sessId = admin.getEventContext().getCurrentSessionUuid();
+        SessionContext sc = (SessionContext) sessionManager
+                .getEventContext(new Principal(sessId));
+        sc.setShareId(null);
+    }
+
     // ~ Admin
     // =========================================================================
 
@@ -247,8 +255,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         Thread t = new Thread() {
             public void run() {
                 try {
-                shares[0] = sessionManager.createShare(new Principal(omename),
-                        enabled, time, "SHARE", description);
+                    shares[0] = sessionManager.createShare(new Principal(
+                            omename), enabled, time, "SHARE", description);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -355,9 +363,18 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public <T extends IObject> void addObject(long shareId, @NotNull T object) {
+        
+        if (object == null) {
+            throw new ValidationException("Argument cannot be null.");
+        }
+        
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         List<Long> ids = data.objectMap.get(object.getClass().getName());
+        if (ids == null) {
+            ids = new ArrayList<Long>();
+            data.objectMap.put(object.getClass().getName(), ids);
+        }
         ids.add(object.getId());
         Obj obj = new Obj();
         obj.type = object.getClass().getName();
@@ -374,7 +391,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         throwOnNullData(shareId, data);
         for (T object : objects) {
             List<Long> ids = data.objectMap.get(object.getClass().getName());
-            ids.remove(object.getId());
+            if (ids != null) {
+                ids.remove(object.getId());
+            }
         }
         List<Obj> toRemove = new ArrayList<Obj>();
         for (T object : objects) {
@@ -395,7 +414,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public <T extends IObject> void removeObject(long shareId, @NotNull T object) {
         ShareData data = store.get(shareId);
         List<Long> ids = data.objectMap.get(object.getClass().getName());
-        ids.remove(object.getId());
+        if (ids != null) {
+            ids.remove(object.getId());
+        }
         List<Obj> toRemove = new ArrayList<Obj>();
         for (Obj obj : data.objectList) {
             if (obj.type.equals(object.getClass().getName())) {

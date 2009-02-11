@@ -368,6 +368,7 @@ module omero {
 	["ami", "amd"] interface IShare extends ServiceInterface
 	{
 	    void activate(long shareId) throws ServerError;
+	    void deactivate() throws ServerError;
 	    omero::model::Share getShare(long shareId) throws ServerError;
 	    SessionList getAllShares(bool active) throws ServerError;
 	    SessionList getOwnShares(bool active) throws ServerError;
@@ -603,6 +604,9 @@ module omero {
 	    /*
 	     * Returns the EventLog table objects which are queried to produce the counts above.
 	     * Note the concept of "period inclusion" mentioned above.
+	     *
+	     * WORKAROUND WARNING: this method returns non-managed EventLogs (i.e.
+	     * eventLog.getId() == null) for "Image acquisitions".
 	     */
 	    EventLogList
 		getEventLogsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p)
