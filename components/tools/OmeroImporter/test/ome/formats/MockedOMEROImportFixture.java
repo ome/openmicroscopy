@@ -71,6 +71,8 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
         }, outer);
         omero.client client = fixture.newClient();
         ServiceFactoryPrx factory = client.createSession(username, password);
-        return new OMEROMetadataStoreClient(factory);
+        OMEROMetadataStoreClient store = new OMEROMetadataStoreClient();
+        store.initialize(factory);
+        return store;
     }
 }

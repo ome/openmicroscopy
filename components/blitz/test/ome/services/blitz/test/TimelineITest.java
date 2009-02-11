@@ -37,6 +37,7 @@ import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.model.Event;
+import omero.model.EventLog;
 import omero.model.IObject;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;

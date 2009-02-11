@@ -281,6 +281,11 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         i.collectPixels(new CBlock<Pixels>() {
 
             public Pixels call(IObject object) {
+                
+                if (object == null) {
+                    return null; // EARLY EXIT. Happening due to image_index=1
+                }
+                
                 Pixels p = (Pixels) object;
 
                 p.eachLinkedOriginalFile(delete);

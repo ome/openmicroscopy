@@ -5,16 +5,18 @@
 
 package ome.services.delete;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import ome.api.IDelete;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
-import ome.formats.importer.util.TinyImportFixture;
-import ome.model.annotations.ImageAnnotationLink;
+import ome.formats.MockedOMEROImportFixture;
 import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.ImageAnnotationLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
@@ -24,6 +26,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
 @Test(groups = { "integration" })
@@ -190,7 +193,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Pixels p1 = i1.iteratePixels().next();
 
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
-        
+
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
         tb.resetDefaults();
@@ -200,15 +203,22 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         loginUser(e1.getOmeName());
         factory.getDeleteService().deleteImage(i1.getId(), false);
     }
-    
+
     public void testDeleteSettingsAfterViewedByAnotherUser() throws Exception {
 
         Experimenter e1 = loginNewUser();
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
-        
+
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
         
+        // In 4.0, default permissions were made private which prevents this
+        // test from being carried out as a regular user. Now testing as
+        // admin.
+        loginRoot();
+        iAdmin.addGroups(e2, new ExperimenterGroup(0L, false));
+        loginUser(e2.getOmeName());
+
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
         tb.resetDefaults();
@@ -218,15 +228,15 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         loginUser(e1.getOmeName());
         factory.getDeleteService().deleteSettings(i1.getId());
     }
-    
+
     public void testDeleteSettingsAfterViewedByRoot() throws Exception {
 
         Experimenter e1 = loginNewUser();
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
-        
+
         loginRoot();
-        
+
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
         tb.resetDefaults();
@@ -241,25 +251,32 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
     // =========================================================================
 
     private Image makeImage(boolean withDataset) throws Exception {
-        TinyImportFixture tiny = new TinyImportFixture(this.factory);
-        tiny.setUp();
-        tiny.doImport();
-        Dataset d = tiny.getDataset();
-        Image i = this.factory
-                .getQueryService()
-                .findByQuery(
-                        "select i from Image i join fetch i.datasetLinks dil "
-                                + "join fetch dil.parent d "
-                                + "join fetch d.imageLinks "
-                                + "join fetch i.pixels p " + "where d.id = :id",
-                        new Parameters().addId(d.getId()));
-        if (!withDataset) {
-            for (DatasetImageLink link : i.unmodifiableDatasetLinks()) {
-                iUpdate.deleteObject(link);
-            }
-            iUpdate.deleteObject(d);
-            i.clearDatasetLinks();
+        MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
+                this.factory, "");
+        File test = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+        List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
+        assertEquals(1, pixs.size());
+        omero.model.Pixels p = pixs.get(0);
+        assertNotNull(p);
+        Image i = new Image(p.getImage().getId().getValue(), false);
+
+        if (withDataset) {
+            Dataset d = new Dataset();
+            d.setName("test image");
+            d.linkImage(i);
+            iUpdate.saveObject(d);
         }
+
+        i = this.factory.getQueryService().findByQuery(
+                "select i from Image i "
+                        + "left outer join fetch i.datasetLinks dil "
+                        + "left outer join fetch dil.parent d "
+                        + "left outer join fetch d.imageLinks "
+                        + "left outer join fetch i.pixels p "
+                        + "where p.id = :id",
+                new Parameters().addId(pixs.get(0).getId().getValue()));
+
+        assertNotNull(i);
         return i;
     }
 
