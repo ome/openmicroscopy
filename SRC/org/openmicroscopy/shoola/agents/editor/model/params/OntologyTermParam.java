@@ -81,6 +81,18 @@ extends AbstractParam
 	public static final String TERM_NAME = "termName";
 	
 	/**
+	 * This (colon) is used to separate the ontology ID and the term ID when
+	 * exporting the term as a text string. eg GO:0000266
+	 */
+	public static final String ONTOLOGY_SEPARATOR = ":";
+	
+	/**
+	 * This (space) is used to separate the term ID and the term name when
+	 * exporting the term as a text string. eg GO:0000266
+	 */
+	public static final String TERM_SEPARATOR = " ";
+	
+	/**
 	 * Creates an instance. 
 	 * 
 	 * @param fieldType		The String defining the field type
@@ -106,6 +118,7 @@ extends AbstractParam
 	
 	/**
 	 * Implemented as specified by the {@link IParam} interface.
+	 * This is used to output the value of this parameter as a text parameter.
 	 * 
 	 *  @see IParam#getParamValue()
 	 */
@@ -119,19 +132,43 @@ extends AbstractParam
 			return null;
 		}
 		
-		return (id == null ? "" : id + ":") +
-			(term == null ? "" : term + " ") +
+		return (id == null ? "" : id + ONTOLOGY_SEPARATOR) +
+			(term == null ? "" : term + TERM_SEPARATOR) +
 			(name == null ? "" : name);
 	}
 	
 	/**
-	 * Implemented as specified by the {@link IParam} interface. 
+	 * Sets the ontology ID, term ID and term Name by parsing a string of 
+	 * the format "GO:0000266 mitochondrial fission"
 	 * 
-	 * @see IParam#getParamAttributes()
+	 * @param ontologyTerm
+	 * @return	true if the given string fits the expected format.
 	 */
-	public String[] getParamAttributes() 
+	public boolean setOntologyTerm(String ontologyTerm)
 	{
-		return new String[] {ONTOLOGY_ID, TERM_ID, TERM_NAME};
+		int colonIndex = ontologyTerm.indexOf(ONTOLOGY_SEPARATOR);
+		if (colonIndex < 2) return false; 
+		
+		// get the ontology ID, from before the colon
+		String ontologyId = ontologyTerm.substring(0, colonIndex);
+		
+		//truncate the term, to leave the termID and termName. 
+		ontologyTerm = ontologyTerm.substring(colonIndex+1);
+		
+		int spaceIndex = ontologyTerm.indexOf(TERM_SEPARATOR);
+		if (colonIndex < 1) return false;
+		
+		// get the term ID from before the space. 
+		String termId = ontologyTerm.substring(0, spaceIndex);
+		
+		String termName = ontologyTerm.substring(spaceIndex+1, 
+														ontologyTerm.length());
+		
+		setAttribute (ONTOLOGY_ID, ontologyId);
+		setAttribute(TERM_ID, termId);
+		setAttribute(TERM_NAME, termName);
+		
+		return true;
 	}
 
 	/**

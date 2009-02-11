@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -384,6 +385,22 @@ public class CPEexport {
 				addChildContent(enumList, CPEimport.ENUM, "true");
 				addChildContent(enumList, CPEimport.ENUM, "false");
 				parameter.addChild(enumList);
+			}
+		
+		else 
+			if (param instanceof OntologyTermParam) {
+				// store ontology term as a text field
+				addChildContent(parameter, CPEimport.PARAM_TYPE, "TEXT");
+				String value = param.getParamValue();
+				if (value != null) {
+					IXMLElement data = new XMLElement(CPEimport.DATA);
+					addChildContent(data, CPEimport.VALUE, value);
+					parameter.addChild(data);
+				}
+				// if text should be an ontology, add flag to parameter
+				// description. Look for this on import. 
+				paramDesc = CPEimport.ONTOLOGY_FLAG + 
+										(paramDesc == null ? "" : paramDesc);
 			}
 		
 		else {

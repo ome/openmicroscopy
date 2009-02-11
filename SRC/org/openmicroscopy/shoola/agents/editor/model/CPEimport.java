@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
@@ -205,6 +206,14 @@ public class CPEimport {
 	 * (and remove when reading).
 	 */
 	public static final String 			TEXT_BOX_FLAG = "Text Box: ";
+	
+	/**  
+	 * In order to distinguish an ontology term that has been stored as 
+	 * a TEXT parameter, add this string into the start of 
+	 * the parameter description when saving to cpe.xml 
+	 * (and remove when reading).
+	 */
+	public static final String 			ONTOLOGY_FLAG = "Ontology Term: ";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -218,6 +227,7 @@ public class CPEimport {
 	 */
 	private static String getChildContent(IXMLElement parent, String childName) 
 	{
+		if (parent == null) return null;
 		IXMLElement child = parent.getFirstChildNamed(childName);
 		if (child == null) return null;
 		return child.getContent();
@@ -328,14 +338,29 @@ public class CPEimport {
 		else
 		if (TextParam.TEXT_LINE_PARAM.equals(paramType)) {
 			paramType = TextParam.TEXT_LINE_PARAM;
-			// if the description has been modified to contain a text-box-flag..
-			if ((desc != null) && (desc.startsWith(TEXT_BOX_FLAG))) {
-				paramType = TextBoxParam.TEXT_BOX_PARAM;		// make a text-box
-				desc = desc.substring(TEXT_BOX_FLAG.length()); // remove flag
-				if (desc.length() == 0)	desc = null;
+			// if the description has been modified to contain a flag..
+			if (desc != null) {
+				if (desc.startsWith(TEXT_BOX_FLAG)) {
+					paramType = TextBoxParam.TEXT_BOX_PARAM;	// make a text-box
+					desc = desc.substring(TEXT_BOX_FLAG.length()); // remove flag
+					if (desc.length() == 0)	desc = null;
+				} else
+				if (desc.startsWith(ONTOLOGY_FLAG)) {
+					paramType = OntologyTermParam.ONTOLOGY_TERM_PARAM;	
+					desc = desc.substring(ONTOLOGY_FLAG.length()); // remove flag
+					if (desc.length() == 0)	desc = null;
+				}
 			} 
 			param = FieldParamsFactory.getFieldParam(paramType);
-			setNameValueDefault(cpeParam, param);
+			if (param instanceof OntologyTermParam){
+				setName(cpeParam, param);
+				IXMLElement data = cpeParam.getFirstChildNamed(DATA);
+				String ontologyTerm = getChildContent(data, VALUE);
+				if (ontologyTerm != null) {
+					((OntologyTermParam)param).setOntologyTerm(ontologyTerm);
+				}
+			} else 
+				setNameValueDefault(cpeParam, param);
 		}
 		else
 		if (DateTimeParam.DATE_TIME_PARAM.equals(paramType)) {
