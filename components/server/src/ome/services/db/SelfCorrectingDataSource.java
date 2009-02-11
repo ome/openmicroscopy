@@ -40,12 +40,12 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
     private final int maxRetries;
 
     private final long maxBackOff;
-    
+
     private final List<Long> errorTimes = new ArrayList<Long>();
 
     public SelfCorrectingDataSource(DataSource delegate, Semaphore semaphore,
             long timeoutInMilliseconds) {
-        this(delegate, semaphore, timeoutInMilliseconds, 3, 10*1000L);
+        this(delegate, semaphore, timeoutInMilliseconds, 3, 10 * 1000L);
     }
 
     public SelfCorrectingDataSource(DataSource delegate, Semaphore semaphore,
@@ -69,8 +69,8 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
     // Helpers
     // =========================================================================
 
-    protected Connection callWithRetries(String username, String password, boolean useArgs)
-            throws SQLException {
+    protected Connection callWithRetries(String username, String password,
+            boolean useArgs) throws SQLException {
         int retries = 0;
         while (true) {
             try {
@@ -88,6 +88,8 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
                         // Ok. Outer while loop while catch us.
                     }
                 }
+                log.warn("Failed to acquire connection after retries="
+                        + maxRetries, sql);
                 throw new DatabaseBusyException("Cannot acquire connection",
                         backOff);
             }
@@ -131,7 +133,7 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
             return calculateBackOff(sSize);
         }
     }
-    
+
     protected long calculateBackOff(int numberOfErrors) {
         long backOff = 1000L * Math.round(Math.sqrt(numberOfErrors));
         if (backOff > maxBackOff) {
